@@ -19,7 +19,11 @@ if not cameras:
     sys.exit(1)
 
 scene = bpy.context.scene
-scene.render.engine = "BLENDER_EEVEE_NEXT"
+eevee_engine = "BLENDER_EEVEE_NEXT"
+available_engines = [item.identifier for item in scene.render.bl_rna.properties["engine"].enum_items]
+if eevee_engine not in available_engines:
+    eevee_engine = "BLENDER_EEVEE"
+scene.render.engine = eevee_engine
 scene.render.resolution_x = 1600
 scene.render.resolution_y = 900
 scene.render.resolution_percentage = 100

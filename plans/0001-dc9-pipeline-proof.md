@@ -22,8 +22,8 @@ Follow `AGENTS.md`, `docs/VISUAL_REALISM.md`, `docs/ASSET_CONTRACT.md`, and `doc
 
 - [x] 2026-06-21 — Repository starter, greybox loop, tests, docs, scripts, Skills, and CI scaffold created.
 - [ ] Approve model-correct reference board and confirm likely DC-9 variant.
-- [ ] Create and validate the Blender proof asset.
-- [ ] Integrate the GLB and capture approval evidence.
+- [x] 2026-06-21 — Create and validate the Blender proof asset.
+- [ ] Integrate the GLB in the browser and capture approval evidence.
 - [ ] Receive owner approval or record the visual delta.
 
 ## Discoveries
@@ -31,6 +31,7 @@ Follow `AGENTS.md`, `docs/VISUAL_REALISM.md`, `docs/ASSET_CONTRACT.md`, and `doc
 - The exact DC-9 variant is not yet confirmed.
 - The exact Airbus model is not needed for this milestone but remains a future blocker.
 - The browser application already separates game rules from 3D presentation, which allows the greybox to be replaced without rewriting puzzle state.
+- The local install initially had an empty `node_modules/.bin`, causing `npx gltf-transform` to resolve against the registry and fail. `npm rebuild --ignore-scripts --no-audit --no-fund` restored npm bin shims without tracked file changes; official asset commands then passed.
 
 ## Decision log
 
@@ -97,7 +98,19 @@ Repeat review → focused repair → export/run → validation → remaining-del
 
 ## Evidence
 
-Record Blender version, asset report, validation output, GLB size, expected node list, screenshots, Vercel preview, commands, and owner feedback here during implementation.
+2026-06-21 evidence:
+
+- Blender version: 5.1.2, executable `/home/user1/.local/bin/blender`.
+- Source file: `art-source/blender/dc9_master.blend`.
+- Deployable GLB: `public/models/dc9-cockpit.glb`.
+- Approval render: `asset-reports/previews/dc9-captain-approval.png`.
+- Asset report: `asset-reports/dc9-pipeline-proof.md`.
+- Scene/export/GLB validation: `BLENDER_BIN=/home/user1/.local/bin/blender BLENDER_EXPECTED_VERSION=5.1 npm run asset:dc9` passed.
+- Production GLB validation: `npm run assets:check` passed.
+- GLB size: 152,296 bytes.
+- GLB node count: 44.
+- Required node check: passed for `DC9_ROOT`, `CAM_DC9_CAPTAIN_APPROVAL`, three `DC9_SW_LEGACY_POWER_*` switches, `DC9_GAUGE_LEGACY_CODE_NEEDLE_01`, `DC9_ANNUNCIATOR_LEGACY_POWER_01`, and `DC9_PROP_MEM_ROUTE_CARD_01`.
+- Browser integration blocker: current React scene still loads the greybox and needs a `src/` GLB adapter, which is outside this Blender workstation branch scope.
 
 ## Outcome and handoff
 
