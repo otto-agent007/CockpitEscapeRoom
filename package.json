@@ -1,0 +1,48 @@
+{
+  "name": "cockpit-escape-room",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "check": "npm run lint && npm run typecheck && npm run test && npm run build",
+    "assets:check": "node tools/assets/check-models.mjs",
+    "asset:dc9": "node tools/assets/build-asset.mjs dc9",
+    "asset:airbus": "node tools/assets/build-asset.mjs airbus",
+    "asset:tesla": "node tools/assets/build-asset.mjs tesla"
+  },
+  "dependencies": {
+    "@react-three/fiber": "9.6.1",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "three": "0.184.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@gltf-transform/cli": "4.4.0",
+    "@playwright/test": "1.61.0",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "@types/three": "0.184.1",
+    "@vitejs/plugin-react": "6.0.2",
+    "eslint": "10.5.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-react-refresh": "0.5.3",
+    "globals": "17.6.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.61.1",
+    "vite": "8.0.16",
+    "vitest": "4.1.9"
+  }
+}

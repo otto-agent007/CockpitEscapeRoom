@@ -1,0 +1,13 @@
+# Copy selected settings into .codex/config.toml only after trusting this project.
+# Keep personal defaults in ~/.codex/config.toml.
+# Do not add a Blender MCP until the command-line asset pipeline is proven.
+
+# Example future project-scoped MCP entry:
+# [mcp_servers.blender_pipeline]
+# command = "node"
+# args = ["tools/mcp-blender/dist/server.js"]
+# enabled = false
+# required = false
+# startup_timeout_sec = 20
+# tool_timeout_sec = 180
+# enabled_tools = ["scene_inventory", "validate_scene", "render_preview", "export_glb"]

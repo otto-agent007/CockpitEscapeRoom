@@ -1,0 +1,31 @@
+name: Bug report
+about: Report a reproducible gameplay, asset, accessibility, or deployment defect
+labels: [bug]
+body:
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      description: Include mode, puzzle, input path, viewport, and whether the save was fresh.
+    validations:
+      required: true
+  - type: input
+    id: preview
+    attributes:
+      label: Preview or commit
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Console output, screenshot, or test evidence

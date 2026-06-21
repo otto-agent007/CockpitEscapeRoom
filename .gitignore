@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.cache/
+.DS_Store
+*.blend1
+*.blend2
+*.autosave
+.env
+.env.*
+!.env.example

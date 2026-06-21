@@ -1,0 +1,32 @@
+name: Game feature
+about: Propose a puzzle, scene, reward, or player-flow change
+labels: [feature]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What can the player do after this change?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Relevant files, modes, references, and current behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints
+      description: Realism, accessibility, privacy, licensing, performance, and scope boundaries.
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      description: Observable behavior and commands that prove completion.
+    validations:
+      required: true

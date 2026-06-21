@@ -1,0 +1,8 @@
+art-source/
+.cache/
+coverage/
+playwright-report/
+test-results/
+**/*.blend
+**/*.blend1
+**/*.blend2
