@@ -199,7 +199,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
 export function gameProgress(state: GameState): number {
   const completed = new Set(state.completedPuzzles.filter((id): id is PuzzleId => PUZZLE_IDS.includes(id)))
-  if (PUZZLE_IDS.length === 0) return 0
-  const ratio = completed.size / PUZZLE_IDS.length
+  const totalPuzzles: number = PUZZLE_IDS.length
+  if (totalPuzzles === 0) return 0
+  const ratio = completed.size / totalPuzzles
   return Math.round(Math.max(0, Math.min(1, ratio)) * 100)
 }

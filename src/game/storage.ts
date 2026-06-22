@@ -1,8 +1,6 @@
 import {
   createInitialState,
   GAME_SCHEMA_VERSION,
-  PUZZLE_IDS,
-  SWITCH_ORDER,
   type GameState,
   type GameMode,
   type GamePhase,
@@ -11,11 +9,6 @@ import {
 } from './state'
 
 export const STORAGE_KEY = 'cockpit-escape-room:game-state:v1'
-
-const ALLOWED_PHASES: readonly GamePhase[] = ['briefing', 'power', 'route', 'complete', 'mars']
-const ALLOWED_MODES: readonly GameMode[] = ['crew', 'captain']
-const VALID_PUZZLES = new Set<PuzzleId>(PUZZLE_IDS)
-const VALID_SWITCHES = new Set<SwitchId>(SWITCH_ORDER)
 
 function hasNoDuplicates<T>(values: readonly T[]): boolean {
   return new Set(values).size === values.length
@@ -26,17 +19,17 @@ function isString(value: unknown): value is string {
 }
 
 function isSafeMode(value: unknown): value is GameMode {
-  return isString(value) && ALLOWED_MODES.includes(value as GameMode)
+  return value === 'crew' || value === 'captain'
 }
 
 function isSafePhase(value: unknown): value is GamePhase {
-  return isString(value) && ALLOWED_PHASES.includes(value as GamePhase)
+  return value === 'briefing' || value === 'power' || value === 'route' || value === 'complete' || value === 'mars'
 }
 
 function isSafeSwitchSequence(value: unknown): value is SwitchId[] {
   return (
     Array.isArray(value) &&
-    value.every((entry): entry is SwitchId => isString(entry) && VALID_SWITCHES.has(entry)) &&
+    value.every((entry): entry is SwitchId => entry === 'battery' || entry === 'navigation' || entry === 'cabin') &&
     hasNoDuplicates(value)
   )
 }
@@ -44,7 +37,7 @@ function isSafeSwitchSequence(value: unknown): value is SwitchId[] {
 function isSafePuzzleIds(value: unknown): value is PuzzleId[] {
   return (
     Array.isArray(value) &&
-    value.every((entry): entry is PuzzleId => isString(entry) && VALID_PUZZLES.has(entry)) &&
+    value.every((entry): entry is PuzzleId => entry === 'power' || entry === 'route') &&
     hasNoDuplicates(value)
   )
 }
@@ -54,7 +47,7 @@ function isSafeRouteSelections(value: unknown): value is string[] {
 }
 
 function isSafeNonNegativeInteger(value: unknown): value is number {
-  return Number.isSafeInteger(value) && value >= 0
+  return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0
 }
 
 function isGameState(value: unknown): value is GameState {
