@@ -24,6 +24,7 @@ Date: 2026-06-22
 - Goal-loop local batch 6: 2026-06-22 overhead-density pass added hidden/partly visible overhead switch panels, amber legend windows, overhead screws, small eyebrow lamps, and overhead labels to support the eventual top-of-frame cockpit density without changing runtime interaction nodes.
 - Goal-loop local batch 7: 2026-06-22 footwell and floor realism pass added lower kick panels, black rubber floor mats, rudder pedal silhouettes, pedal ribs, floor scuffs, and lower-panel grime. This remains local; no PR update was opened for this individual iteration.
 - Goal-loop local batch 8: 2026-06-22 instrument-face realism pass added blue/brown attitude-indicator cues, aircraft reference bars, pitch marks, primary-gauge face marks, and green/white engine-gauge arcs. This remains local; no PR update was opened for this individual iteration.
+- Goal-loop local batch 9: 2026-06-22 yoke-detail realism pass added center badges, thumb buttons, extra checklist linework, metal clips, and worn grip-edge highlights to the captain and first-officer yokes. This remains local; no PR update was opened for this individual iteration.
 
 ## Asset Contents
 
@@ -56,6 +57,7 @@ Date: 2026-06-22
   - added overhead switch-panel density, amber legend windows, screws, and small eyebrow lamps so the ceiling/glareshield area has more reference-driven structure
   - added lower kick-panel, rubber floor-mat, rudder-pedal, and scuffed-floor cues so the lower cockpit no longer reads as an empty clean shell
   - added attitude-indicator sky/ground color, pitch marks, aircraft bars, denser primary-gauge marks, and engine-gauge green arcs so the main panel reads less generic from the captain seat
+  - added yoke badges, red/white thumb-button cues, extra checklist markings, metal clips, and worn grip-edge highlights so the yokes look less like plain blockout bars
 
 ## Runtime Contract
 
@@ -80,10 +82,10 @@ Custom properties exported to glTF extras:
 
 ## GLB Inspection
 
-- GLB size: 3,235,124 bytes / 3.09 MiB
-- Node count: 857
-- Mesh count: 846
-- Material count: 29
+- GLB size: 3,344,364 bytes / 3.19 MiB
+- Node count: 889
+- Mesh count: 878
+- Material count: 30
 - Animation count: 1
 - Camera count: 1
 - Textures: none
@@ -111,7 +113,7 @@ Results:
 - `gltf-transform validate` reported no errors and no warnings. It reports info-level unused UV attributes and empty hierarchy nodes; these are expected for this named blockout because UVs are reserved for later texture work and empty hierarchy nodes preserve the asset contract.
 - `npm run assets:check` passed.
 - `npm run check` passed as non-mutating validation; browser integration remains Windows-owned.
-- Manual visual inspection of `preview-renders/dc9-captain-approval.png` confirmed a stronger captain-seat read against the primary DC-9-51 cockpit reference: squared yokes with checklist placards, readable gauge labels, a visible forward-overhead control band, denser instrument panel, colored attitude-indicator cues, busier primary/engine instrument faces, black mechanical pedestal/throttle/radio-stack detail, glareshield controls, windshield/wiper/paper-stack reference cues, recessed instrument trays, side paperwork, subtle seat foreground cues, small eyebrow lamps, clearer cockpit enclosure, visible lower kick panels/rudder-pedal cues, floor scuffing, and less flat main-panel presentation.
+- Manual visual inspection of `preview-renders/dc9-captain-approval.png` confirmed a stronger captain-seat read against the primary DC-9-51 cockpit reference: squared yokes with checklist placards, yoke button/detail cues, readable gauge labels, a visible forward-overhead control band, denser instrument panel, colored attitude-indicator cues, busier primary/engine instrument faces, black mechanical pedestal/throttle/radio-stack detail, glareshield controls, windshield/wiper/paper-stack reference cues, recessed instrument trays, side paperwork, subtle seat foreground cues, small eyebrow lamps, clearer cockpit enclosure, visible lower kick panels/rudder-pedal cues, floor scuffing, and less flat main-panel presentation.
 
 ## Known Deviations
 
@@ -126,4 +128,5 @@ Results:
 - Much of the new overhead switch density is intentionally only partly visible from the current approval camera. A future overhead approval camera should refine and validate this area directly.
 - The lower kick panels and rudder pedals are proof-stage silhouettes for captain-view realism; production art should refine pedal linkage geometry, footwell clearances, and lower-panel shapes against direct DC-9 references.
 - The new attitude-indicator and gauge-face details are geometry placeholders for visual read. Production art should replace them with correctly scaled instrument faces, typography, glass, and baked markings after the reference set is expanded.
+- The yoke buttons, badges, checklist strips, and wear highlights are proof-stage readability cues; production art should refine the exact yoke casting shape, placard layout, button placement, and grip material against closer DC-9-51 yoke references.
 - The browser integration is Windows-owned under `src/**`; this Ubuntu branch only provides the deployable GLB and documented runtime contract.

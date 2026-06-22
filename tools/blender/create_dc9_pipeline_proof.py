@@ -254,6 +254,44 @@ def add_yoke_checklist_lines(parent, prefix: str, x: float, mat_text):
         cube(f"{prefix}_YOKE_CHECKLIST_LINE_{idx:02d}", parent, (x, -0.887, z), (0.13, 0.006, 0.008), mat_text)
 
 
+def add_yoke_reference_detail(parent, prefix: str, x: float, mat_dark, mat_wear, mat_text, mat_white, mat_red, mat_metal):
+    center = soft_cube(
+        f"{prefix}_YOKE_CENTER_BADGE_01",
+        parent,
+        (x, -0.892, 0.555),
+        (0.13, 0.014, 0.052),
+        mat_dark,
+        bevel_amount=0.006,
+    )
+    center["detail_role"] = "primary_reference_yoke_center_badge"
+    add_label(f"{prefix}_YOKE_BADGE_TEXT_01", parent, "DC-9", (x, -0.904, 0.556), 0.02, mat_text, (math.radians(90), 0, math.radians(180)))
+    for idx, (dx, z, mat) in enumerate([(-0.17, 0.585, mat_white), (0.17, 0.585, mat_red), (-0.2, 0.445, mat_metal), (0.2, 0.445, mat_metal)]):
+        button = cylinder(
+            f"{prefix}_YOKE_THUMB_BUTTON_{idx:02d}",
+            parent,
+            (x + dx, -0.885, z),
+            0.022,
+            0.016,
+            mat,
+            18,
+            (math.pi / 2, 0, 0),
+        )
+        button["detail_role"] = "primary_reference_yoke_button_cluster"
+    for idx, (dx, z, angle) in enumerate([(-0.285, 0.59, -6), (0.285, 0.59, 6), (-0.295, 0.47, -6), (0.295, 0.47, 6)]):
+        soft_cube(
+            f"{prefix}_YOKE_GRIP_WEAR_EDGE_{idx:02d}",
+            parent,
+            (x + dx, -0.846, z),
+            (0.012, 0.012, 0.09),
+            mat_wear,
+            (0, 0, math.radians(angle)),
+            0.002,
+        )
+    for idx, z in enumerate([0.565, 0.542, 0.519, 0.496, 0.473]):
+        cube(f"{prefix}_YOKE_CHECKLIST_FINE_LINE_{idx:02d}", parent, (x, -0.897, z), (0.145, 0.004, 0.005), mat_text)
+    soft_cube(f"{prefix}_YOKE_CHECKLIST_CLIP_01", parent, (x - 0.112, -0.895, 0.595), (0.032, 0.006, 0.025), mat_metal, bevel_amount=0.002)
+
+
 def add_screws(parent, mat, positions):
     for idx, loc in enumerate(positions):
         obj = cylinder(f"DC9_PANEL_SCREW_{idx:02d}", parent, loc, 0.018, 0.01, mat, 18)
@@ -649,6 +687,7 @@ def create_scene() -> None:
     warm_light_mat = material("DC9_WARM_DOME_LIGHT", (1.0, 0.82, 0.56, 1), 0.25, emission=((1.0, 0.7, 0.32, 1), 0.9))
     blue_mat = material("DC9_PANEL_BLUE_PUSHBUTTON", (0.06, 0.16, 0.42, 1), 0.48, emission=((0.03, 0.08, 0.22, 1), 0.35))
     red_mat = material("DC9_HIDDEN_DESTINATION_RED", (0.65, 0.04, 0.025, 1), 0.38, emission=((0.9, 0.05, 0.02, 1), 0.9))
+    yoke_red_mat = material("DC9_YOKE_RED_BUTTON", (0.58, 0.035, 0.024, 1), 0.52, 0.04)
 
     root = empty("DC9_ROOT")
     root["asset_id"] = "dc9"
@@ -708,6 +747,8 @@ def create_scene() -> None:
     add_yoke(static, "DC9_FIRST_OFFICER", 0.92, dark_mat, grip_mat)
     add_yoke_checklist_lines(static, "DC9_CAPTAIN", -0.86, tick_mat)
     add_yoke_checklist_lines(static, "DC9_FIRST_OFFICER", 0.92, tick_mat)
+    add_yoke_reference_detail(static, "DC9_CAPTAIN", -0.86, placard_mat, wear_mat, tick_mat, white_mat, yoke_red_mat, metal_mat)
+    add_yoke_reference_detail(static, "DC9_FIRST_OFFICER", 0.92, placard_mat, wear_mat, tick_mat, white_mat, yoke_red_mat, metal_mat)
     soft_cube("DC9_PANEL_PLACARD_CAPTAIN_01", static, (-0.95, -0.82, 0.93), (0.36, 0.025, 0.06), placard_mat, bevel_amount=0.006)
     soft_cube("DC9_PANEL_PLACARD_CENTER_01", static, (0.2, -0.82, 0.94), (0.42, 0.025, 0.055), placard_mat, bevel_amount=0.006)
     add_label("DC9_PANEL_LABEL_CAPTAIN", static, "CAPT", (-0.95, -0.842, 0.93), 0.032, tick_mat)
