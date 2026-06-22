@@ -17,7 +17,8 @@ Read, in order:
 3. `docs/GAME_DESIGN.md`
 4. `docs/VISUAL_REALISM.md`
 5. `docs/CODEX_WORKFLOW.md`
-6. The closest applicable `AGENTS.md`, Skill, and active ExecPlan
+6. `docs/WORKSTREAM_OWNERSHIP.md`
+7. The closest applicable `AGENTS.md`, Skill, and active ExecPlan
 
 Inspect the existing tree and Git status before editing. Preserve unrelated work.
 
@@ -48,6 +49,14 @@ npm run asset:tesla
 For complex features, asset-pipeline changes, large refactors, or any milestone expected to span multiple files, use an ExecPlan that follows `PLANS.md`. Treat the plan as a living record. Update progress, discoveries, decisions, validation evidence, and the remaining delta as work proceeds.
 
 Use Plan mode before implementation when the solution or acceptance criteria are not already explicit.
+
+## Parallel ownership rule
+
+- Inspect `docs/WORKSTREAM_OWNERSHIP.md` before editing.
+- Modify only paths owned by the current workspace.
+- Treat unlisted paths as frozen unless an explicit one-off exception is recorded in the active PR.
+- Preserve unrelated work from the other branch and never overwrite non-owned files.
+- Report any required cross-boundary changes through PR comments or review discussion instead of editing the other workspace’s files.
 
 ## Prompt contract
 

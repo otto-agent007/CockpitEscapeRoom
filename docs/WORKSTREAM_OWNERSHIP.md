@@ -1,39 +1,58 @@
-# Workstream Ownership
+# Workstream ownership
 
-This file prevents the Linux/Codex workspace and the Windows workspace from editing the same project surfaces at the same time. Update it before starting a new milestone or when ownership changes.
+This file defines strict path-based ownership for parallel Windows and Ubuntu workspaces.
 
-## Current Workstreams
+## Current parallel ownership model
 
-| Workstream | Primary owner | Branch pattern | Owned files and surfaces | Handoff signal |
-|---|---|---|---|---|
-| Reference library and source records | Shared, but one editor at a time | `blender/dc9-reference-*` | `art-source/references/**`, `tools/references/**`, `docs/VISUAL_REALISM.md` reference-policy updates | Draft PR with generated contact sheet and `npm run references:check` evidence |
-| Blender source asset pipeline | Linux/Codex workspace unless reassigned | `blender/dc9-pipeline-*` | `art-source/blender/*.blend`, `tools/blender/**`, `tools/assets/**`, `asset-reports/**`, `public/models/*.glb` | Draft PR with Blender version, asset report, preview render, and `npm run asset:*` evidence |
-| Browser game integration | Linux/Codex workspace unless reassigned | `feature/game-*` or `blender/*-browser-*` | `src/**`, `e2e/**`, `playwright.config.ts`, app-facing model loaders | Draft PR with `npm run check`, browser screenshots, and relevant e2e evidence |
-| Windows deployment and visual review | Windows workspace | `vercel/*`, `review/*`, or PR comments | Vercel project settings, preview deployment review, Windows-only screenshots, owner visual notes | PR comment with preview URL, screenshots, and approval or requested changes |
-| Product copy and personalization | Owner or explicitly assigned agent | `content/*` | `docs/PERSONALIZATION_CHECKLIST.md`, `src/game/config.ts`, final family-facing copy | PR or issue comment identifying approved wording and remaining placeholders |
+### What changed
 
-## Rules
+The previous runtime-owner model is replaced with strict path-based write ownership so Windows and Ubuntu can run concurrently on separate branches.
 
-- Start each task from the latest `origin/main` unless the task explicitly continues an open branch.
-- Do not edit another active owner’s files without first recording the handoff in this file or in the active PR.
-- Keep Blender source changes and browser integration changes in separate PRs unless the acceptance criteria require an end-to-end asset load.
-- Generated deployable GLBs under `public/models/` are produced only by asset scripts. Do not hand-edit them.
-- If both machines need the same file, choose one editor and have the other leave review comments instead of making parallel edits.
-- Update `TEST_REPORT.md` and the active ExecPlan with actual commands run on the machine that ran them.
-- A merge to `main` is the clean handoff point. After a merge, both machines should fetch and fast-forward before continuing.
+### Scope
 
-## Conflict Procedure
+- Windows and Ubuntu may work at the same time on separate branches.
+- Each workspace has **exclusive write ownership** of its listed paths.
+- Neither workspace may edit files owned by the other workspace.
+- The non-owning workspace must request cross-boundary changes through the active PR, issue, or review comments.
+- Paths not listed in either ownership group are **frozen during the parallel run** unless the active PR records a one-off owner and explicit scope exception.
+- This file edit is a one-off Windows-owned coordination change.
+- Both branches should start from current `origin/main`.
+- Each workspace should commit only files inside its ownership boundary.
+- Before merging, inspect the changed-file list and remove any accidental cross-boundary edits.
+- After either branch merges, the other workspace must fetch and incorporate the new `main` before final integration or merge.
+- A merge to `main` is a handoff point, but it does not prevent both workspaces from continuing independent work in parallel.
 
-1. Stop editing the conflicting file.
-2. Run `git status -sb` and identify the branch, changed files, and owner.
-3. Decide which machine owns the next edit.
-4. Commit or stash the losing side only if its work is still useful; never overwrite unreviewed work.
-5. Record the decision in the active PR or this file before continuing.
+## Exclusive write ownership
 
-## Current Assignment
+| Workspace | Owned paths | Notes |
+|---|---|---|
+| Windows | `src/**`, `tests/**`, `e2e/**`, `.github/**`, `package.json`, `AGENTS.md`, `TEST_REPORT.md` | Browser/application implementation, tests, CI configuration, package scripts, agent guidance, consolidated reporting. |
+| Ubuntu | `art-source/**`, `tools/blender/**`, `public/models/**`, `asset-reports/**`, `preview-renders/**` | Asset source, Blender tooling/runtime-export contracts, generated deployable models, render reports. |
 
-As of 2026-06-22:
+## Current assignment
 
-- Linux/Codex workspace owns the next DC-9 pipeline-proof branch only after this coordination file lands.
-- Windows workspace owns Vercel deployment verification and visual review feedback for merged or draft PRs.
-- Neither machine should start final DC-9 cockpit production geometry until the pipeline proof and approval gate are complete.
+- Windows owns browser/application implementation, automated tests, end-to-end tests, CI configuration, package scripts, repository agent guidance, and the consolidated `TEST_REPORT.md`.
+- Ubuntu owns Blender source assets, Blender tooling, generated models, asset reports, and preview renders.
+- Both workspaces are authorized to proceed concurrently within these boundaries.
+- Final DC-9 production geometry remains gated by existing pipeline-proof and visual-approval requirements.
+
+## Asset/runtime contract
+
+- Ubuntu owns production and validation of generated assets under `public/models/**`.
+- Windows owns application code that consumes those assets under `src/**`.
+- Windows must never hand-edit generated GLB files.
+- Ubuntu must not modify loaders, application behavior, browser tests, CI, or package scripts.
+- Any changes to asset filenames, object names, hierarchy, pivots, animations, materials relied upon by the app, or `game_id` custom properties must be documented in the Ubuntu PR.
+- Windows should integrate only documented asset contracts.
+- Cross-boundary changes must be split into separate commits or PRs by the owning workspace.
+
+## Validation and reporting
+
+- Ubuntu records Blender versions, asset commands, validation results, asset reports, and preview renders in owned paths and PR description.
+- Windows owns `TEST_REPORT.md` as the consolidated report.
+- Windows may copy or summarize Ubuntu’s reported evidence into `TEST_REPORT.md`, but must not claim a command was run on Windows when it was run on Ubuntu.
+- Each PR must identify the workspace, branch, owned paths changed, commands actually run, and any requested cross-boundary follow-up.
+
+## Runtime path rule
+
+- If a requested change affects both boundaries, split it into ownership-correct commits/PRs and request follow-up for the owning side.
