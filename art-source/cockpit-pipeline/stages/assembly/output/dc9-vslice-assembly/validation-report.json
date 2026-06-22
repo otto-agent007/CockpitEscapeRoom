@@ -1,0 +1,34 @@
+{
+  "status": "pass",
+  "componentCount": 4,
+  "requiredComponents": [
+    "dc9-src-large-gauge-001",
+    "dc9-src-switch-cluster-001",
+    "dc9-src-throttle-assembly-001",
+    "dc9-src-yoke-assembly-001"
+  ],
+  "seenComponents": [
+    "dc9-src-large-gauge-001",
+    "dc9-src-switch-cluster-001",
+    "dc9-src-throttle-assembly-001",
+    "dc9-src-yoke-assembly-001"
+  ],
+  "duplicateRuntimeNodeNames": [],
+  "metadataFailures": [],
+  "objectCount": 57,
+  "meshCount": 42,
+  "materialCount": 9,
+  "reimportValidation": {
+    "status": "pass",
+    "objectCount": 57,
+    "meshCount": 42,
+    "materialCount": 9
+  },
+  "sourceInputsImmutable": true,
+  "approvedComponentIds": [
+    "dc9-src-yoke-assembly-001",
+    "dc9-src-throttle-assembly-001",
+    "dc9-src-large-gauge-001",
+    "dc9-src-switch-cluster-001"
+  ]
+}

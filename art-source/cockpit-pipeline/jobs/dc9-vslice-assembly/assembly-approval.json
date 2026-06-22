@@ -1,0 +1,93 @@
+{
+  "approvalId": "dc9-vslice-assembly-approval-001",
+  "jobId": "dc9-vslice-assembly",
+  "sourceJobId": "dc9-32-flightgear-source-vslice",
+  "stage": "assembly-approved",
+  "approved": true,
+  "approvedBy": "owner prompt 2026-06-22",
+  "approvedAt": "2026-06-22T23:55:50Z",
+  "assemblyManifest": "art-source/cockpit-pipeline/jobs/dc9-vslice-assembly/manifests/assembly-complete.json",
+  "sourceVariant": "DC-9-32",
+  "targetVariant": "unresolved",
+  "variantScope": "unknown",
+  "notes": "Owner approved the Agent 2 neutral vertical-slice assembly as good enough to proceed to Agent 3 shading. Approval does not finalize the production DC-9 variant and does not promote this GLB to public/models.",
+  "approvedComponentIds": [
+    "dc9-src-yoke-assembly-001",
+    "dc9-src-throttle-assembly-001",
+    "dc9-src-large-gauge-001",
+    "dc9-src-switch-cluster-001"
+  ],
+  "approvedArtifacts": [
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-vslice-assembly/dc9-vslice-assembly.blend",
+      "sha256": "3b057e35d609ec1c9c8665abde13495debf94215a98ffdbc624a2460d7178aed",
+      "bytes": 218160
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-vslice-assembly/dc9-vslice-assembly.glb",
+      "sha256": "12697eadb8cb261e2945cebda86e6639da48f33b1e7c2095d429c59b5e58e7db",
+      "bytes": 287216
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-vslice-assembly/resolved-layout.json",
+      "sha256": "9b0d56b833f7f1483f762396d633edc8f22007f749a800aa6c5ad683897a2dd0",
+      "bytes": 7989
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-vslice-assembly/node-pivot-report.json",
+      "sha256": "927080771a600c2ee822f2be1306ea57c6b50a5afd1d5ee65573afc9fab495e0",
+      "bytes": 14239
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-vslice-assembly/validation-report.json",
+      "sha256": "ee65fc45ddccd8ef2be04945868e68a2d89b58151a0cb35d8450f76342108159",
+      "bytes": 815
+    },
+    {
+      "path": "asset-reports/cockpit-pipeline/dc9-vslice-assembly/assembly-report.md",
+      "sha256": "b72e5497239e5eddd658ac26bdad8748bbc17043496d33e553b6cf0b1eab0673",
+      "bytes": 2769
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-vslice-assembly/captain-seat-view.png",
+      "sha256": "9da8882cb42345a8004855e5d6b94ed0d7929fca63c736df4d152618e89acbf2",
+      "bytes": 636366
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-vslice-assembly/wide-cockpit-view.png",
+      "sha256": "c233ea06b10e63493863bdd78226337c7a874ed3b1c4b92bc62005bc53753aa1",
+      "bytes": 608000
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-vslice-assembly/yoke-close-up.png",
+      "sha256": "9794bae609e5653d10a1be4d9f4f727229645143e7f501d53087537ebcf5f962",
+      "bytes": 716970
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-vslice-assembly/pedestal-throttle-close-up.png",
+      "sha256": "5edb7e9dc7154ab71d51cb5506d60ba65984b7a866cc5aa2cabca2b58401c739",
+      "bytes": 822606
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-vslice-assembly/gauge-switch-close-up.png",
+      "sha256": "dfd055327dc0a0bc186277b5f1da8f55124cac15b2142db25bcd44975b44e67a",
+      "bytes": 739328
+    }
+  ],
+  "validationSummary": {
+    "status": "pass",
+    "componentCount": 4,
+    "objectCount": 57,
+    "meshCount": 42,
+    "materialCount": 9,
+    "reimportValidation": {
+      "status": "pass",
+      "objectCount": 57,
+      "meshCount": 42,
+      "materialCount": 9
+    },
+    "sourceInputsImmutable": true,
+    "duplicateRuntimeNodeNames": [],
+    "metadataFailures": []
+  }
+}

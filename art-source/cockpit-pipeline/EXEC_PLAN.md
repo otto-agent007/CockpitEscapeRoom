@@ -173,3 +173,44 @@ Execute Agent 1 sourcing against the FlightGear DC-9-32 repository and produce s
 ### Outcome
 
 The job reached `sourcing_complete`, not `source-approved`. Human review is required before Agent 2 assembly.
+
+## Assembly Job: DC-9 Vertical Slice
+
+### Purpose
+
+Execute Agent 2 assembly using the approved Agent 1 source candidates. The output is a neutral-material four-component cockpit proof with deterministic layout JSON, stable runtime node names, parent pivot repair empties, and a reimportable GLB. This is not final shading and not a production cockpit model.
+
+### Progress
+
+- [x] 2026-06-22 - Created branch `asset/dc9-vslice-assembly`.
+- [x] 2026-06-22 - Ran preflight and validated the source-stage manifest.
+- [x] 2026-06-22 - Recorded `source-approval.json` from the owner prompt and verified four approved component hashes against the source manifest.
+- [x] 2026-06-22 - Added `assembly_complete` as a non-approved stage that still blocks Agent 3 until human assembly approval.
+- [x] 2026-06-22 - Created layout JSON at `art-source/cockpit-pipeline/stages/assembly/input/dc9-vslice-assembly/layout.json`.
+- [x] 2026-06-22 - Built neutral `.blend` and `.glb` artifacts from layout JSON in Blender background mode.
+- [x] 2026-06-22 - Validated unique runtime node names, required metadata, source immutability, GLB reimport, and manifest hashes.
+- [x] 2026-06-22 - Rendered captain-seat, wide, yoke, throttle, and gauge/switch preview evidence.
+
+### Discoveries
+
+- The approved source candidates reimport and assemble cleanly, but the source geometry is sparse and not production-scaled.
+- Every component needed a layout parent pivot empty so runtime interaction pivots are stable and documented.
+- The switch cluster remains lower-confidence from Agent 1; the layout keeps it included but marks the overall variant scope unresolved/unknown where appropriate.
+
+### Evidence
+
+- `python3 -m tools.blender.cockpit_pipeline.preflight` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/dc9-32-flightgear-source-vslice/manifests/sourcing-complete.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli run-assembly-job` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/dc9-vslice-assembly/manifests/assembly-complete.json` - pass.
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass, 5 tests.
+- Visual previews inspected:
+  - `preview-renders/cockpit-pipeline/dc9-vslice-assembly/captain-seat-view.png`
+  - `preview-renders/cockpit-pipeline/dc9-vslice-assembly/wide-cockpit-view.png`
+  - `preview-renders/cockpit-pipeline/dc9-vslice-assembly/yoke-close-up.png`
+  - `preview-renders/cockpit-pipeline/dc9-vslice-assembly/pedestal-throttle-close-up.png`
+  - `preview-renders/cockpit-pipeline/dc9-vslice-assembly/gauge-switch-close-up.png`
+
+### Outcome
+
+The job reached `assembly_complete`, not `assembly-approved`. Human review is required before Agent 3 shading.

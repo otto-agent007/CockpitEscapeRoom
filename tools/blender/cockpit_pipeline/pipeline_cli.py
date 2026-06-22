@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from .hashing import verify_manifest_hashes
+from .assembly_job import run_assembly_job
 from .schema_validation import SchemaError, validate_json_file
 from .source_job import run_source_job
 from .state_machine import StateTransitionError, require_transition
@@ -38,6 +39,10 @@ def main(argv: list[str] | None = None) -> int:
     source_parser.add_argument("--job-id", default="dc9-32-flightgear-source-vslice")
     source_parser.add_argument("--cache", type=Path, default=None)
 
+    assembly_parser = subparsers.add_parser("run-assembly-job", help="Run the DC-9 neutral assembly vertical slice job.")
+    assembly_parser.add_argument("--source-job-id", default="dc9-32-flightgear-source-vslice")
+    assembly_parser.add_argument("--assembly-job-id", default="dc9-vslice-assembly")
+
     args = parser.parse_args(argv)
     try:
         if args.command == "validate-job":
@@ -54,6 +59,8 @@ def main(argv: list[str] | None = None) -> int:
             run_blender_smoke(args.cache)
         elif args.command == "run-source-job":
             run_source_job(repo_url=args.repo_url, job_id=args.job_id, cache_override=args.cache)
+        elif args.command == "run-assembly-job":
+            run_assembly_job(source_job_id=args.source_job_id, assembly_job_id=args.assembly_job_id)
         return 0
     except (SchemaError, StateTransitionError, FileNotFoundError, ValueError, RuntimeError) as exc:
         print(f"{args.command} failed: {exc}", file=sys.stderr)

@@ -22,7 +22,7 @@
     "jobId": { "type": "string", "minLength": 1 },
     "stage": {
       "type": "string",
-      "enum": ["sourcing_complete", "source-approved", "assembly-approved", "shading-approved", "rejected"]
+      "enum": ["sourcing_complete", "source-approved", "assembly_complete", "assembly-approved", "shading-approved", "rejected"]
     },
     "createdAt": { "type": "string", "minLength": 1 },
     "sourceVariant": { "type": "string", "minLength": 1 },
