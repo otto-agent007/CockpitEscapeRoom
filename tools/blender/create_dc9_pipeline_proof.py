@@ -287,6 +287,18 @@ def add_forward_overhead_face(parent, mat_panel, mat_switch, mat_amber, mat_labe
     add_label("DC9_FORWARD_OVERHEAD_LABEL_01", parent, "OVHD", (0, -0.952, 1.43), 0.03, mat_label, (math.radians(82), 0, math.radians(180)))
 
 
+def add_glareshield_control_strip(parent, mat_panel, mat_knob, mat_amber, mat_blue, mat_label):
+    strip = soft_cube("DC9_GLARESHIELD_AUTOPILOT_STRIP_01", parent, (0, -0.93, 1.025), (1.95, 0.055, 0.16), mat_panel, bevel_amount=0.012)
+    strip["detail_role"] = "primary_reference_glareshield_control_strip"
+    for idx, x in enumerate([-0.82, -0.58, -0.34, -0.1, 0.14, 0.38, 0.62, 0.86]):
+        cylinder(f"DC9_GLARESHIELD_KNOB_{idx:02d}", parent, (x, -0.972, 1.045), 0.035, 0.032, mat_knob, 24, (math.pi / 2, 0, 0))
+    for idx, x in enumerate([-0.72, -0.48, 0.48, 0.72]):
+        soft_cube(f"DC9_GLARESHIELD_AMBER_READOUT_{idx:02d}", parent, (x, -0.982, 0.965), (0.12, 0.012, 0.035), mat_amber, bevel_amount=0.004)
+    for idx, x in enumerate([-0.18, 0.06, 0.3]):
+        soft_cube(f"DC9_GLARESHIELD_BLUE_BUTTON_{idx:02d}", parent, (x, -0.982, 0.965), (0.07, 0.012, 0.04), mat_blue, bevel_amount=0.004)
+    add_label("DC9_GLARESHIELD_LABEL_AUTOPILOT_01", parent, "AUTOPILOT", (0, -0.987, 1.105), 0.028, mat_label, (math.radians(90), 0, math.radians(180)))
+
+
 def add_circuit_breaker_rows(parent, mat_knob, mat_panel, mat_mark):
     soft_cube("DC9_CAPTAIN_SIDE_BREAKER_PANEL_01", parent, (-1.72, -0.62, 0.38), (0.34, 0.05, 0.52), mat_panel, (0, 0, math.radians(-4)), 0.012)
     for row, z in enumerate([0.55, 0.47, 0.39, 0.31, 0.23]):
@@ -337,6 +349,26 @@ def add_lower_panel_controls(parent, mat_knob, mat_mark, mat_placard):
         soft_cube(f"DC9_LOWER_PANEL_PLACARD_{idx:02d}", parent, (x, -0.84, 0.105), (0.18, 0.018, 0.045), mat_placard, bevel_amount=0.004)
 
 
+def add_center_pedestal_reference_stack(parent, mat_panel, mat_metal, mat_knob, mat_label, mat_wear, mat_amber, mat_green):
+    base = soft_cube("DC9_PEDESTAL_BLACK_QUADRANT_BASE_01", parent, (0.0, -0.33, 0.44), (0.58, 0.76, 0.07), mat_panel, bevel_amount=0.018)
+    base["detail_role"] = "primary_reference_black_throttle_quadrant"
+    for idx, x in enumerate([-0.22, -0.12, -0.02, 0.08, 0.18]):
+        soft_cube(f"DC9_PEDESTAL_THROTTLE_RAIL_{idx:02d}", parent, (x, -0.36, 0.505), (0.028, 0.5, 0.028), mat_wear, bevel_amount=0.003)
+    for idx, x in enumerate([-0.16, 0.0, 0.16]):
+        cylinder(f"DC9_PEDESTAL_BLACK_THROTTLE_SHAFT_{idx:02d}", parent, (x, -0.43, 0.58), 0.025, 0.34, mat_metal, 18, (math.radians(82), 0, 0))
+        cylinder(f"DC9_PEDESTAL_BLACK_THROTTLE_HANDLE_{idx:02d}", parent, (x, -0.56, 0.73), 0.055, 0.12, mat_knob, 28, (math.pi / 2, 0, 0))
+    for idx, x in enumerate([-0.25, -0.17, -0.09, -0.01, 0.07, 0.15, 0.23]):
+        soft_cube(f"DC9_PEDESTAL_SWITCH_TOGGLE_BASE_{idx:02d}", parent, (x, -0.08, 0.48), (0.045, 0.05, 0.025), mat_panel, bevel_amount=0.004)
+        cylinder(f"DC9_PEDESTAL_SWITCH_TOGGLE_{idx:02d}", parent, (x, -0.08, 0.54), 0.012, 0.12, mat_metal, 12, (math.radians(12), 0, 0))
+    soft_cube("DC9_PEDESTAL_RADIO_STACK_BLACK_PANEL_01", parent, (0.0, 0.27, 0.44), (0.62, 0.42, 0.065), mat_panel, bevel_amount=0.012)
+    for row, y in enumerate([0.16, 0.27, 0.38]):
+        soft_cube(f"DC9_PEDESTAL_RADIO_DIGIT_WINDOW_{row:02d}", parent, (-0.12, y, 0.505), (0.18, 0.035, 0.028), mat_green if row == 1 else mat_amber, bevel_amount=0.003)
+        for col, x in enumerate([0.08, 0.18, 0.28]):
+            cylinder(f"DC9_PEDESTAL_RADIO_SMALL_KNOB_{row:02d}_{col:02d}", parent, (x, y, 0.51), 0.022, 0.026, mat_knob, 16)
+    for idx, (text, x) in enumerate([("PITCH", -0.24), ("TRIM", -0.06), ("AUTO", 0.12), ("HDG", 0.28)]):
+        add_label(f"DC9_PEDESTAL_LABEL_{idx:02d}", parent, text, (x, -0.68, 0.525), 0.022, mat_label, (math.radians(90), 0, math.radians(180)))
+
+
 def create_scene() -> None:
     clear_scene()
 
@@ -372,6 +404,7 @@ def create_scene() -> None:
     grime_mat = material("DC9_SOFT_GRIME_SHADOW", (0.018, 0.026, 0.025, 1), 0.92)
     amber_mat = material("DC9_ANNUNCIATOR_AMBER_EMISSIVE", (1.0, 0.46, 0.08, 1), 0.35, emission=((1.0, 0.39, 0.05, 1), 1.8))
     green_mat = material("DC9_ANNUNCIATOR_GREEN_EMISSIVE", (0.18, 0.68, 0.3, 1), 0.42, emission=((0.09, 0.75, 0.22, 1), 1.1))
+    blue_mat = material("DC9_PANEL_BLUE_PUSHBUTTON", (0.06, 0.16, 0.42, 1), 0.48, emission=((0.03, 0.08, 0.22, 1), 0.35))
     red_mat = material("DC9_HIDDEN_DESTINATION_RED", (0.65, 0.04, 0.025, 1), 0.38, emission=((0.9, 0.05, 0.02, 1), 0.9))
 
     root = empty("DC9_ROOT")
@@ -405,12 +438,14 @@ def create_scene() -> None:
     soft_cube("DC9_CAPTAIN_PANEL_SHADOW_BROW_01", static, (-0.86, -1.115, 0.95), (1.05, 0.18, 0.16), panel_dark, bevel_amount=0.018)
     soft_cube("DC9_CENTER_ENGINE_PANEL_BLOCKOUT_01", static, (0.12, -1.105, 0.58), (0.72, 0.08, 0.7), panel_dark, bevel_amount=0.018)
     soft_cube("DC9_GLARESHIELD_BLOCKOUT_01", static, (0, -1.21, 1.04), (3.25, 0.48, 0.18), dark_mat, bevel_amount=0.03)
+    add_glareshield_control_strip(static, placard_mat, dark_mat, amber_mat, blue_mat, tick_mat)
     soft_cube("DC9_CENTER_PEDESTAL_BLOCKOUT_01", static, (0, -0.18, 0.03), (0.78, 1.26, 0.38), panel_mat, bevel_amount=0.025)
     soft_cube("DC9_CENTER_PEDESTAL_SIDE_SHADOW_01", static, (-0.44, -0.18, 0.02), (0.05, 1.18, 0.33), panel_dark, bevel_amount=0.012)
     soft_cube("DC9_CENTER_PEDESTAL_SIDE_SHADOW_02", static, (0.44, -0.18, 0.02), (0.05, 1.18, 0.33), panel_dark, bevel_amount=0.012)
     soft_cube("DC9_OVERHEAD_PANEL_BLOCKOUT_01", static, (0, -0.2, 1.47), (1.5, 1.08, 0.08), panel_mat, bevel_amount=0.018)
     add_forward_overhead_face(static, placard_mat, metal_mat, amber_mat, tick_mat)
     soft_cube("DC9_PEDESTAL_THROTTLE_SLOT_01", static, (0, -0.39, 0.26), (0.5, 0.7, 0.035), dark_mat, bevel_amount=0.01)
+    add_center_pedestal_reference_stack(static, placard_mat, metal_mat, grip_mat, tick_mat, wear_mat, amber_mat, green_mat)
     add_panel_seams(static, placard_mat)
     add_panel_wear(static, wear_mat, grime_mat)
     for x in [-0.16, 0.0, 0.16]:
