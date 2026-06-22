@@ -542,6 +542,50 @@ def add_sidewall_depth(parent, mat_shell, mat_dark, mat_wear):
         soft_cube(f"DC9_RIGHT_SIDEWALL_WEAR_STRIP_{idx:02d}", parent, (1.875, y, 0.98), (0.012, 0.34, 0.018), mat_wear, bevel_amount=0.002)
 
 
+def add_sidewall_surface_detail(parent, mat_panel, mat_dark, mat_wear, mat_label, mat_screw, mat_paper):
+    for side, x, angle in [("LEFT", -1.955, -2), ("RIGHT", 1.955, 2)]:
+        sign = -1 if side == "LEFT" else 1
+        for idx, (y, z, sy, sz) in enumerate([(-0.82, 0.88, 0.42, 0.32), (-0.22, 0.72, 0.5, 0.28), (0.38, 0.56, 0.42, 0.26)]):
+            liner = soft_cube(
+                f"DC9_{side}_SIDEWALL_BLUE_LINER_PANEL_{idx:02d}",
+                parent,
+                (x, y, z),
+                (0.018, sy, sz),
+                mat_panel,
+                (0, 0, math.radians(angle)),
+                0.006,
+            )
+            liner["detail_role"] = "primary_reference_sidewall_panel_breakup"
+        for idx, (y, z) in enumerate([(-0.9, 0.54), (-0.48, 0.48), (0.12, 0.42)]):
+            vent = soft_cube(
+                f"DC9_{side}_SIDEWALL_BLACK_VENT_{idx:02d}",
+                parent,
+                (x - sign * 0.012, y, z),
+                (0.024, 0.22, 0.045),
+                mat_dark,
+                (0, 0, math.radians(angle)),
+                0.004,
+            )
+            vent["detail_role"] = "primary_reference_sidewall_vent_shadow"
+            for slat in [-0.06, 0.0, 0.06]:
+                cube(f"DC9_{side}_SIDEWALL_VENT_SLAT_{idx:02d}_{int((slat + 0.1) * 100):02d}", parent, (x - sign * 0.026, y + slat, z + 0.01), (0.01, 0.055, 0.006), mat_label, (0, 0, math.radians(angle)))
+        handle = soft_cube(
+            f"DC9_{side}_SIDE_WINDOW_LATCH_HANDLE_01",
+            parent,
+            (x - sign * 0.022, -0.58, 1.12),
+            (0.028, 0.3, 0.028),
+            mat_dark,
+            (0, 0, math.radians(5 * sign)),
+            0.006,
+        )
+        handle["detail_role"] = "primary_reference_side_window_latch_silhouette"
+        for idx, y in enumerate([-1.02, -0.64, -0.26, 0.12, 0.5]):
+            cylinder(f"DC9_{side}_SIDEWALL_PANEL_SCREW_{idx:02d}", parent, (x - sign * 0.02, y, 0.98), 0.008, 0.006, mat_screw, 12, (0, math.pi / 2, 0))
+            soft_cube(f"DC9_{side}_SIDEWALL_EDGE_SCUFF_{idx:02d}", parent, (x - sign * 0.024, y, 0.2 + (idx % 2) * 0.08), (0.008, 0.12, 0.012), mat_wear, (0, 0, math.radians(angle)), 0.002)
+    soft_cube("DC9_LEFT_SIDEWALL_CHECKLIST_CARD_01", parent, (-1.965, 0.18, 0.29), (0.014, 0.28, 0.16), mat_paper, (0, 0, math.radians(-4)), 0.003)
+    add_label("DC9_LEFT_SIDEWALL_CHECKLIST_CARD_TEXT_01", parent, "CABIN", (-1.976, 0.18, 0.33), 0.018, mat_label, (math.radians(90), 0, math.radians(-92)))
+
+
 def add_seat_and_paperwork_cues(parent, mat_fabric, mat_dark, mat_paper, mat_label, mat_shadow):
     for side, x in [("CAPTAIN", -1.22), ("FIRST_OFFICER", 1.28)]:
         cushion = soft_cube(
@@ -854,6 +898,7 @@ def create_scene() -> None:
     add_window_depth(static, dark_mat, window_glass_mat)
     add_windshield_reference_hardware(static, dark_mat, post_mat, grip_mat, tick_mat)
     add_sidewall_depth(static, shell_mat, dark_mat, wear_mat)
+    add_sidewall_surface_detail(static, panel_mat, dark_mat, wear_mat, tick_mat, screw_mat, card_mat)
     add_seat_and_paperwork_cues(static, seat_fabric_mat, dark_mat, card_mat, tick_mat, grime_mat)
     add_footwell_and_floor_detail(static, panel_mat, dark_mat, metal_mat, wear_mat, tick_mat, rubber_mat, grime_mat)
 
