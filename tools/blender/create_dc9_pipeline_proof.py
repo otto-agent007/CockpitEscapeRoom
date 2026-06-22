@@ -195,6 +195,51 @@ def add_instrument_face_detail(parent, mat_sky, mat_ground, mat_tick, mat_needle
         cube(f"DC9_ENGINE_GAUGE_WHITE_INDEX_{idx:02d}", parent, (x - 0.045, -0.819, z + 0.035), (0.012, 0.007, 0.054), mat_tick, (0, math.radians(-28), 0))
 
 
+def add_gauge_depth_and_glass_detail(parent, gauge_specs, mat_shadow, mat_tick, mat_glint, mat_screw):
+    for idx, (x, y, z, radius) in enumerate(gauge_specs):
+        lip = torus(
+            f"DC9_GAUGE_INNER_SHADOW_LIP_{idx:02d}",
+            parent,
+            (x, y + 0.069, z),
+            mat_shadow,
+            major=radius * 0.78,
+            minor=0.006,
+            rot=(math.pi / 2, 0, 0),
+        )
+        lip["detail_role"] = "primary_reference_recessed_gauge_depth"
+        glint = cube(
+            f"DC9_GAUGE_GLASS_GLINT_{idx:02d}",
+            parent,
+            (x - radius * 0.25, y + 0.075, z + radius * 0.28),
+            (radius * 0.36, 0.005, 0.009),
+            mat_glint,
+            (0, math.radians(-28), 0),
+        )
+        glint["detail_role"] = "subtle_gauge_glass_response"
+        for screw_idx, (sx, sz) in enumerate([(-0.72, 0.72), (0.72, -0.72)]):
+            screw = cylinder(
+                f"DC9_GAUGE_BEZEL_SCREW_{idx:02d}_{screw_idx:02d}",
+                parent,
+                (x + sx * radius, y + 0.073, z + sz * radius),
+                0.008,
+                0.006,
+                mat_screw,
+                12,
+            )
+            screw["detail_role"] = "primary_reference_gauge_bezel_fastener"
+        if idx in {0, 1, 2, 6, 7, 10, 11, 12}:
+            for mark_idx, angle_deg in enumerate([-120, -70, -20, 30, 80, 130]):
+                angle = math.radians(angle_deg)
+                cube(
+                    f"DC9_GAUGE_FINE_RADIAL_MARK_{idx:02d}_{mark_idx:02d}",
+                    parent,
+                    (x + math.sin(angle) * radius * 0.5, y + 0.078, z + math.cos(angle) * radius * 0.5),
+                    (0.009, 0.005, radius * 0.22),
+                    mat_tick,
+                    (0, angle, 0),
+                )
+
+
 def make_switch(name: str, parent, loc, game_id: str, mat_base, mat_handle, mat_tip):
     base = cube(f"{name}_BASE", parent, loc, (0.18, 0.07, 0.1), mat_base)
     base["game_role"] = "switch_base"
@@ -829,11 +874,14 @@ def create_scene() -> None:
         (0.75, -0.895, 0.7), (1.03, -0.895, 0.7), (1.31, -0.895, 0.7),
         (0.75, -0.895, 0.43), (1.03, -0.895, 0.43), (1.31, -0.895, 0.43),
     ]
+    gauge_depth_specs = []
     for idx, pos in enumerate(gauge_positions):
         radius = 0.118 if idx not in {0, 1, 2, 10, 11, 12} else 0.13
         needle_angle = [-28, 12, -8, 34, -18, 22, -42, 16, 8, -24, 30, -12, 18, -32, 26, -6][idx]
         add_gauge(static, f"DC9_ANALOG_GAUGE_{idx:02d}", pos, radius, dark_mat, face_mat, glass_mat, tick_mat, white_mat, needle_angle=needle_angle)
+        gauge_depth_specs.append((*pos, radius))
     add_gauge(static, "DC9_GAUGE_LEGACY_CODE_01", (-1.26, -0.83, 0.7), 0.1, dark_mat, face_mat, glass_mat, tick_mat, white_mat, "dc9.legacy_power.gauge")
+    add_gauge_depth_and_glass_detail(static, gauge_depth_specs, grime_mat, tick_mat, white_mat, screw_mat)
     add_instrument_face_detail(static, attitude_sky_mat, attitude_ground_mat, tick_mat, white_mat, instrument_green_mat)
     add_instrument_labels(static, tick_mat)
 
