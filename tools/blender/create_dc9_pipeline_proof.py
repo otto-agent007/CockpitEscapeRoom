@@ -168,6 +168,33 @@ def add_gauge(parent, name: str, loc, radius: float, mat_bezel, mat_face, mat_gl
     return needle
 
 
+def add_attitude_indicator_detail(parent, name: str, loc, mat_sky, mat_ground, mat_tick, mat_needle):
+    cylinder(f"{name}_SKY_HALF_REFERENCE_01", parent, (loc[0], loc[1] + 0.061, loc[2] + 0.025), 0.073, 0.006, mat_sky, 40)
+    cube(f"{name}_GROUND_HALF_REFERENCE_01", parent, (loc[0], loc[1] + 0.068, loc[2] - 0.035), (0.128, 0.007, 0.072), mat_ground)
+    cube(f"{name}_HORIZON_BAR_REFERENCE_01", parent, (loc[0], loc[1] + 0.074, loc[2]), (0.15, 0.008, 0.012), mat_tick)
+    cube(f"{name}_AIRCRAFT_WING_LEFT_01", parent, (loc[0] - 0.045, loc[1] + 0.081, loc[2] - 0.002), (0.065, 0.008, 0.01), mat_needle)
+    cube(f"{name}_AIRCRAFT_WING_RIGHT_01", parent, (loc[0] + 0.045, loc[1] + 0.081, loc[2] - 0.002), (0.065, 0.008, 0.01), mat_needle)
+    cube(f"{name}_AIRCRAFT_NOSE_01", parent, (loc[0], loc[1] + 0.082, loc[2] - 0.015), (0.014, 0.008, 0.04), mat_needle)
+    for idx, angle in enumerate([-30, -15, 15, 30]):
+        x = loc[0] + math.sin(math.radians(angle)) * 0.062
+        z = loc[2] + math.cos(math.radians(angle)) * 0.062
+        cube(f"{name}_PITCH_MARK_{idx:02d}", parent, (x, loc[1] + 0.083, z), (0.034, 0.007, 0.006), mat_tick, (0, math.radians(angle), 0))
+
+
+def add_instrument_face_detail(parent, mat_sky, mat_ground, mat_tick, mat_needle, mat_green):
+    add_attitude_indicator_detail(parent, "DC9_CAPTAIN_ATTITUDE_INDICATOR", (-1.26, -0.895, 0.7), mat_sky, mat_ground, mat_tick, mat_needle)
+    add_attitude_indicator_detail(parent, "DC9_FIRST_OFFICER_ATTITUDE_INDICATOR", (0.75, -0.895, 0.7), mat_sky, mat_ground, mat_tick, mat_needle)
+    for idx, (x, z, label) in enumerate([(-0.98, 0.7, "ALT"), (-0.7, 0.7, "HDG"), (1.03, 0.7, "ALT"), (1.31, 0.7, "HDG")]):
+        for mark, angle in enumerate([-90, -45, 0, 45, 90]):
+            px = x + math.sin(math.radians(angle)) * 0.082
+            pz = z + math.cos(math.radians(angle)) * 0.082
+            cube(f"DC9_PRIMARY_GAUGE_BRIGHT_MARK_{idx:02d}_{mark:02d}", parent, (px, -0.824, pz), (0.034, 0.007, 0.007), mat_tick, (0, math.radians(angle), 0))
+        add_label(f"DC9_PRIMARY_GAUGE_CENTER_TEXT_{idx:02d}", parent, label, (x, -0.818, z - 0.035), 0.021, mat_tick, (math.radians(90), 0, math.radians(180)))
+    for idx, (x, z) in enumerate([(0.0, 0.76), (0.28, 0.76), (0.0, 0.49), (0.28, 0.49)]):
+        cube(f"DC9_ENGINE_GAUGE_GREEN_ARC_{idx:02d}", parent, (x + 0.043, -0.821, z + 0.04), (0.014, 0.007, 0.065), mat_green, (0, math.radians(32), 0))
+        cube(f"DC9_ENGINE_GAUGE_WHITE_INDEX_{idx:02d}", parent, (x - 0.045, -0.819, z + 0.035), (0.012, 0.007, 0.054), mat_tick, (0, math.radians(-28), 0))
+
+
 def make_switch(name: str, parent, loc, game_id: str, mat_base, mat_handle, mat_tip):
     base = cube(f"{name}_BASE", parent, loc, (0.18, 0.07, 0.1), mat_base)
     base["game_role"] = "switch_base"
@@ -606,6 +633,9 @@ def create_scene() -> None:
     white_mat = material("DC9_NEEDLE_WARM_WHITE", (0.92, 0.87, 0.72, 1), 0.42)
     grip_mat = material("DC9_YOKE_WORN_BLACK", (0.035, 0.032, 0.028, 1), 0.86, 0.04)
     rubber_mat = material("DC9_RUBBER_FLOOR_MAT", (0.018, 0.017, 0.015, 1), 0.96, 0.02)
+    attitude_sky_mat = material("DC9_ATTITUDE_SKY_BLUE", (0.13, 0.54, 0.58, 1), 0.72, 0.02)
+    attitude_ground_mat = material("DC9_ATTITUDE_GROUND_BROWN", (0.31, 0.2, 0.11, 1), 0.78, 0.02)
+    instrument_green_mat = material("DC9_INSTRUMENT_GREEN_ARC", (0.2, 0.58, 0.22, 1), 0.68, 0.02)
     metal_mat = material("DC9_SWITCH_BRUSHED_METAL", (0.48, 0.47, 0.42, 1), 0.44, 0.45)
     card_mat = material("DC9_ROUTE_CARD_OFF_WHITE", (0.86, 0.8, 0.63, 1), 0.88)
     paper_mat = material("DC9_GLARESHIELD_YELLOW_PAPER", (0.94, 0.82, 0.42, 1), 0.9)
@@ -697,6 +727,7 @@ def create_scene() -> None:
         needle_angle = [-28, 12, -8, 34, -18, 22, -42, 16, 8, -24, 30, -12, 18, -32, 26, -6][idx]
         add_gauge(static, f"DC9_ANALOG_GAUGE_{idx:02d}", pos, radius, dark_mat, face_mat, glass_mat, tick_mat, white_mat, needle_angle=needle_angle)
     add_gauge(static, "DC9_GAUGE_LEGACY_CODE_01", (-1.26, -0.83, 0.7), 0.1, dark_mat, face_mat, glass_mat, tick_mat, white_mat, "dc9.legacy_power.gauge")
+    add_instrument_face_detail(static, attitude_sky_mat, attitude_ground_mat, tick_mat, white_mat, instrument_green_mat)
     add_instrument_labels(static, tick_mat)
 
     add_screws(
