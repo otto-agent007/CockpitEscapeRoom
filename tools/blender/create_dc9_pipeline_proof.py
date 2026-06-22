@@ -387,6 +387,27 @@ def add_sidewall_depth(parent, mat_shell, mat_dark, mat_wear):
         soft_cube(f"DC9_RIGHT_SIDEWALL_WEAR_STRIP_{idx:02d}", parent, (1.875, y, 0.98), (0.012, 0.34, 0.018), mat_wear, bevel_amount=0.002)
 
 
+def add_seat_and_paperwork_cues(parent, mat_fabric, mat_dark, mat_paper, mat_label, mat_shadow):
+    for side, x in [("CAPTAIN", -1.22), ("FIRST_OFFICER", 1.28)]:
+        cushion = soft_cube(
+            f"DC9_{side}_SEAT_CUSHION_VISIBLE_01",
+            parent,
+            (x, 0.92, -0.03),
+            (0.72, 0.48, 0.16),
+            mat_fabric,
+            (0, 0, math.radians(-2 if side == "CAPTAIN" else 2)),
+            0.035,
+        )
+        cushion["detail_role"] = "captain_view_foreground_seat_cue"
+        for idx, offset in enumerate([-0.21, -0.07, 0.07, 0.21]):
+            cube(f"DC9_{side}_SEAT_FABRIC_RIB_{idx:02d}", parent, (x + offset, 0.69, 0.06), (0.018, 0.12, 0.018), mat_shadow, (0, 0, math.radians(2)))
+    for side, x, angle in [("LEFT", -1.87, -7), ("RIGHT", 1.87, 7)]:
+        soft_cube(f"DC9_{side}_SIDE_PAPER_POCKET_01", parent, (x, 0.47, 0.08), (0.035, 0.38, 0.24), mat_dark, (0, 0, math.radians(angle)), 0.01)
+        for idx, z in enumerate([0.13, 0.18, 0.23]):
+            soft_cube(f"DC9_{side}_SIDE_PAPER_SHEET_{idx:02d}", parent, (x * 0.998, 0.5 + idx * 0.015, z), (0.018, 0.3, 0.07), mat_paper, (0, 0, math.radians(angle)), 0.003)
+    add_label("DC9_LEFT_SIDE_POCKET_LABEL_01", parent, "QRH", (-1.905, 0.46, 0.23), 0.022, mat_label, (math.radians(90), 0, math.radians(-92)))
+
+
 def add_panel_wear(parent, mat_wear, mat_shadow):
     wear_marks = [
         ("DC9_PANEL_EDGE_WEAR_CAPT_TOP_01", (-0.98, -0.806, 0.865), (0.86, 0.012, 0.012)),
@@ -428,6 +449,18 @@ def add_center_pedestal_reference_stack(parent, mat_panel, mat_metal, mat_knob, 
         add_label(f"DC9_PEDESTAL_LABEL_{idx:02d}", parent, text, (x, -0.68, 0.525), 0.022, mat_label, (math.radians(90), 0, math.radians(180)))
 
 
+def add_pedestal_micro_detail(parent, mat_dark, mat_metal, mat_label, mat_amber, mat_green):
+    for row, y in enumerate([-0.62, -0.55, -0.48]):
+        for col, x in enumerate([-0.28, -0.2, 0.2, 0.28]):
+            cylinder(f"DC9_PEDESTAL_MICRO_KNOB_{row:02d}_{col:02d}", parent, (x, y, 0.62 + row * 0.015), 0.018, 0.018, mat_dark, 14)
+    for idx, (x, y, color) in enumerate([(-0.3, -0.21, mat_amber), (0.3, -0.21, mat_green), (-0.3, 0.02, mat_green), (0.3, 0.02, mat_amber)]):
+        soft_cube(f"DC9_PEDESTAL_STATUS_LIGHT_{idx:02d}", parent, (x, y, 0.53), (0.045, 0.026, 0.024), color, bevel_amount=0.003)
+    for idx, x in enumerate([-0.34, -0.26, 0.26, 0.34]):
+        cylinder(f"DC9_PEDESTAL_GUARD_RAIL_POST_{idx:02d}", parent, (x, -0.42, 0.68), 0.01, 0.16, mat_metal, 10, (0, 0, 0))
+    soft_cube("DC9_PEDESTAL_FRONT_LABEL_STRIP_01", parent, (0.0, -0.72, 0.59), (0.48, 0.018, 0.035), mat_dark, bevel_amount=0.003)
+    add_label("DC9_PEDESTAL_FRONT_LABEL_01", parent, "AUTO THROT", (0.0, -0.735, 0.595), 0.018, mat_label, (math.radians(90), 0, math.radians(180)))
+
+
 def create_scene() -> None:
     clear_scene()
 
@@ -447,6 +480,7 @@ def create_scene() -> None:
     panel_mat = material("DC9_PANEL_BLUE_GREY", (0.135, 0.285, 0.305, 1), 0.86, 0.02)
     panel_dark = material("DC9_PANEL_DARK_BLUE_GREY", (0.045, 0.075, 0.085, 1), 0.82, 0.04)
     shell_mat = material("DC9_SHELL_WARM_GREY", (0.28, 0.29, 0.27, 1), 0.78)
+    seat_fabric_mat = material("DC9_SEAT_GREY_WOVEN_FABRIC", (0.33, 0.34, 0.32, 1), 0.94)
     post_mat = material("DC9_WINDSHIELD_POST_OFF_WHITE", (0.76, 0.78, 0.72, 1), 0.74, 0.02)
     dark_mat = material("DC9_DARK_BEZEL", (0.025, 0.028, 0.027, 1), 0.58, 0.2)
     glass_mat = material("DC9_GAUGE_GLASS", (0.11, 0.15, 0.16, 0.38), 0.12)
@@ -495,6 +529,7 @@ def create_scene() -> None:
     add_window_depth(static, dark_mat, window_glass_mat)
     add_windshield_reference_hardware(static, dark_mat, post_mat, grip_mat, tick_mat)
     add_sidewall_depth(static, shell_mat, dark_mat, wear_mat)
+    add_seat_and_paperwork_cues(static, seat_fabric_mat, dark_mat, card_mat, tick_mat, grime_mat)
 
     soft_cube("DC9_MAIN_PANEL_BLOCKOUT_01", static, (0, -1.0, 0.42), (3.1, 0.16, 1.03), panel_mat, bevel_amount=0.025)
     soft_cube("DC9_CAPTAIN_PANEL_SHADOW_BROW_01", static, (-0.86, -1.115, 0.95), (1.05, 0.18, 0.16), panel_dark, bevel_amount=0.018)
@@ -510,6 +545,7 @@ def create_scene() -> None:
     add_forward_overhead_face(static, placard_mat, metal_mat, amber_mat, tick_mat)
     soft_cube("DC9_PEDESTAL_THROTTLE_SLOT_01", static, (0, -0.39, 0.26), (0.5, 0.7, 0.035), dark_mat, bevel_amount=0.01)
     add_center_pedestal_reference_stack(static, placard_mat, metal_mat, grip_mat, tick_mat, wear_mat, amber_mat, green_mat)
+    add_pedestal_micro_detail(static, dark_mat, metal_mat, tick_mat, amber_mat, green_mat)
     add_panel_seams(static, placard_mat)
     add_panel_wear(static, wear_mat, grime_mat)
     for x in [-0.16, 0.0, 0.16]:
