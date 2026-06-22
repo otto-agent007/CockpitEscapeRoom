@@ -55,7 +55,7 @@ for obj in bpy.data.objects:
 
     game_id = obj.get("game_id")
     interaction = obj.get("interaction")
-    if game_id or interaction or "INTERACTIVE" in obj.name:
+    if game_id or interaction or (obj.type != "EMPTY" and "INTERACTIVE" in obj.name):
         interactive_objects.append(obj.name)
         if not game_id:
             add_error(f"{obj.name}: interactive object is missing custom property game_id")
