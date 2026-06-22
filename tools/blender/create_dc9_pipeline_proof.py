@@ -38,10 +38,15 @@ def material(name: str, base: tuple[float, float, float, float], roughness: floa
             bsdf.inputs["Roughness"].default_value = roughness
         if "Metallic" in bsdf.inputs:
             bsdf.inputs["Metallic"].default_value = metallic
+        if "Alpha" in bsdf.inputs:
+            bsdf.inputs["Alpha"].default_value = base[3]
         if emission and "Emission Color" in bsdf.inputs:
             bsdf.inputs["Emission Color"].default_value = emission[0]
             bsdf.inputs["Emission Strength"].default_value = emission[1]
     mat.diffuse_color = base
+    if base[3] < 1:
+        mat.blend_method = "BLEND"
+        mat.use_screen_refraction = True
     return mat
 
 
@@ -209,10 +214,17 @@ def add_route_card(parent, mat_card, mat_ink):
 def add_yoke(parent, prefix: str, x: float, mat_dark, mat_grip):
     soft_cube(f"{prefix}_YOKE_COLUMN_BLOCKOUT_01", parent, (x, -0.46, 0.12), (0.1, 0.18, 0.42), mat_dark, (math.radians(-6), 0, 0), 0.02)
     cylinder(f"{prefix}_YOKE_STEM_BLOCKOUT_01", parent, (x, -0.64, 0.37), 0.04, 0.34, mat_dark, 24, (math.radians(78), 0, 0))
-    torus(f"{prefix}_YOKE_WHEEL_OVAL_01", parent, (x, -0.8, 0.53), mat_grip, 0.2, 0.018, (math.pi / 2, 0, 0), (1.35, 0.72, 1.0))
-    soft_cube(f"{prefix}_YOKE_CENTER_PAD_01", parent, (x, -0.82, 0.52), (0.24, 0.07, 0.16), mat_grip, (0, 0, 0), 0.025)
-    cylinder(f"{prefix}_YOKE_LEFT_HORN_01", parent, (x - 0.22, -0.8, 0.52), 0.035, 0.15, mat_grip, 24, (0, 0, math.pi / 2))
-    cylinder(f"{prefix}_YOKE_RIGHT_HORN_01", parent, (x + 0.22, -0.8, 0.52), 0.035, 0.15, mat_grip, 24, (0, 0, math.pi / 2))
+    soft_cube(f"{prefix}_YOKE_TOP_BAR_01", parent, (x, -0.8, 0.64), (0.52, 0.07, 0.055), mat_grip, bevel_amount=0.025)
+    soft_cube(f"{prefix}_YOKE_LEFT_GRIP_01", parent, (x - 0.27, -0.8, 0.51), (0.08, 0.08, 0.28), mat_grip, (0, 0, math.radians(-5)), 0.025)
+    soft_cube(f"{prefix}_YOKE_RIGHT_GRIP_01", parent, (x + 0.27, -0.8, 0.51), (0.08, 0.08, 0.28), mat_grip, (0, 0, math.radians(5)), 0.025)
+    soft_cube(f"{prefix}_YOKE_LOWER_BAR_01", parent, (x, -0.8, 0.39), (0.42, 0.06, 0.045), mat_grip, bevel_amount=0.018)
+    soft_cube(f"{prefix}_YOKE_CENTER_PAD_01", parent, (x, -0.835, 0.51), (0.26, 0.075, 0.2), mat_grip, (0, 0, 0), 0.025)
+    soft_cube(f"{prefix}_YOKE_CHECKLIST_PLACARD_01", parent, (x, -0.878, 0.51), (0.2, 0.014, 0.16), mat_dark, bevel_amount=0.006)
+
+
+def add_yoke_checklist_lines(parent, prefix: str, x: float, mat_text):
+    for idx, z in enumerate([0.555, 0.525, 0.495, 0.465]):
+        cube(f"{prefix}_YOKE_CHECKLIST_LINE_{idx:02d}", parent, (x, -0.887, z), (0.13, 0.006, 0.008), mat_text)
 
 
 def add_screws(parent, mat, positions):
@@ -231,6 +243,90 @@ def add_panel_seams(parent, mat):
     ]
     for name, loc, scale in seams:
         cube(name, parent, loc, scale, mat)
+
+
+def add_instrument_labels(parent, mat):
+    labels = [
+        ("DC9_GAUGE_LABEL_IAS", "IAS", (-1.26, -0.842, 0.545)),
+        ("DC9_GAUGE_LABEL_ALT", "ALT", (-0.98, -0.842, 0.545)),
+        ("DC9_GAUGE_LABEL_HDG", "HDG", (-0.7, -0.842, 0.545)),
+        ("DC9_GAUGE_LABEL_VSI", "V/S", (-1.26, -0.842, 0.275)),
+        ("DC9_GAUGE_LABEL_ADF", "ADF", (-0.98, -0.842, 0.275)),
+        ("DC9_GAUGE_LABEL_RMI", "RMI", (-0.7, -0.842, 0.275)),
+        ("DC9_GAUGE_LABEL_EPR", "EPR", (0.0, -0.842, 0.61)),
+        ("DC9_GAUGE_LABEL_N1", "N1", (0.28, -0.842, 0.61)),
+        ("DC9_GAUGE_LABEL_EGT", "EGT", (0.0, -0.842, 0.34)),
+        ("DC9_GAUGE_LABEL_FF", "F/F", (0.28, -0.842, 0.34)),
+        ("DC9_GAUGE_LABEL_DC", "DC", (0.75, -0.842, 0.545)),
+        ("DC9_GAUGE_LABEL_AC", "AC", (1.03, -0.842, 0.545)),
+        ("DC9_GAUGE_LABEL_HYD", "HYD", (1.31, -0.842, 0.545)),
+    ]
+    for name, text, loc in labels:
+        add_label(name, parent, text, loc, 0.026, mat, (math.radians(90), 0, math.radians(180)))
+
+
+def add_annunciator_bank(parent, mat_housing, mat_amber, mat_green, mat_text):
+    housing = soft_cube("DC9_ANNUNCIATOR_BANK_HOUSING_01", parent, (0.98, -0.835, 0.93), (0.52, 0.032, 0.18), mat_housing, bevel_amount=0.005)
+    housing["detail_role"] = "noninteractive_annunciator_bank"
+    for row, z in enumerate([0.965, 0.91]):
+        for col, x in enumerate([0.78, 0.91, 1.04, 1.17]):
+            mat = mat_green if (row + col) % 3 == 0 else mat_amber
+            lamp = soft_cube(f"DC9_ANNUNCIATOR_BANK_LAMP_{row:02d}_{col:02d}", parent, (x, -0.86, z), (0.095, 0.018, 0.034), mat, bevel_amount=0.004)
+            lamp["detail_role"] = "noninteractive_annunciator_lamp"
+    add_label("DC9_ANNUNCIATOR_BANK_LABEL_01", parent, "SYS", (0.98, -0.872, 0.985), 0.024, mat_text)
+
+
+def add_forward_overhead_face(parent, mat_panel, mat_switch, mat_amber, mat_label):
+    face = soft_cube("DC9_FORWARD_OVERHEAD_FACE_01", parent, (0, -1.02, 1.34), (1.9, 0.08, 0.18), mat_panel, (math.radians(-8), 0, 0), 0.012)
+    face["detail_role"] = "visible_forward_overhead_reference_band"
+    for row, z in enumerate([1.375, 1.32]):
+        for col, x in enumerate([-0.72, -0.48, -0.24, 0.0, 0.24, 0.48, 0.72]):
+            cylinder(f"DC9_FORWARD_OVERHEAD_KNOB_{row:02d}_{col:02d}", parent, (x, -0.965, z), 0.025, 0.035, mat_switch, 18, (math.pi / 2, 0, 0))
+    for idx, x in enumerate([-0.54, -0.18, 0.18, 0.54]):
+        soft_cube(f"DC9_FORWARD_OVERHEAD_AMBER_WINDOW_{idx:02d}", parent, (x, -0.958, 1.275), (0.14, 0.012, 0.03), mat_amber, bevel_amount=0.004)
+    add_label("DC9_FORWARD_OVERHEAD_LABEL_01", parent, "OVHD", (0, -0.952, 1.43), 0.03, mat_label, (math.radians(82), 0, math.radians(180)))
+
+
+def add_circuit_breaker_rows(parent, mat_knob, mat_panel, mat_mark):
+    soft_cube("DC9_CAPTAIN_SIDE_BREAKER_PANEL_01", parent, (-1.72, -0.62, 0.38), (0.34, 0.05, 0.52), mat_panel, (0, 0, math.radians(-4)), 0.012)
+    for row, z in enumerate([0.55, 0.47, 0.39, 0.31, 0.23]):
+        for col, x in enumerate([-1.82, -1.72, -1.62]):
+            cylinder(f"DC9_CAPTAIN_SIDE_BREAKER_{row:02d}_{col:02d}", parent, (x, -0.66, z), 0.018, 0.024, mat_knob, 16)
+    add_label("DC9_CAPTAIN_SIDE_BREAKER_LABEL_01", parent, "CB", (-1.72, -0.685, 0.62), 0.028, mat_mark, (math.radians(92), 0, math.radians(-4)))
+
+
+def add_window_depth(parent, mat_frame, mat_glass):
+    panes = [
+        ("DC9_WINDSHIELD_LEFT_GLASS_01", (-0.68, -1.535, 0.85), (0.92, 0.018, 0.54), (0, 0, math.radians(-4))),
+        ("DC9_WINDSHIELD_RIGHT_GLASS_01", (0.68, -1.535, 0.85), (0.92, 0.018, 0.54), (0, 0, math.radians(4))),
+    ]
+    for name, loc, scale, rot in panes:
+        obj = cube(name, parent, loc, scale, mat_glass, rot)
+        obj["detail_role"] = "approval_window_glass"
+    soft_cube("DC9_WINDSHIELD_UPPER_SHADOW_LIP_01", parent, (0, -1.485, 1.38), (2.0, 0.08, 0.07), mat_frame, bevel_amount=0.012)
+    soft_cube("DC9_WINDSHIELD_LOWER_SHADOW_LIP_01", parent, (0, -1.485, 0.49), (2.25, 0.08, 0.055), mat_frame, bevel_amount=0.01)
+
+
+def add_sidewall_depth(parent, mat_shell, mat_dark, mat_wear):
+    soft_cube("DC9_LEFT_SIDEWALL_RIB_FORWARD_01", parent, (-1.93, -0.95, 0.7), (0.055, 0.08, 1.0), mat_dark, bevel_amount=0.01)
+    soft_cube("DC9_LEFT_SIDEWALL_RIB_AFT_01", parent, (-1.93, 0.38, 0.58), (0.055, 0.08, 0.82), mat_dark, bevel_amount=0.01)
+    soft_cube("DC9_LEFT_SIDE_WINDOW_SILL_01", parent, (-1.92, -0.22, 0.82), (0.08, 1.16, 0.06), mat_shell, bevel_amount=0.01)
+    soft_cube("DC9_LEFT_ARMREST_SHADOW_01", parent, (-1.75, -0.02, 0.1), (0.38, 1.0, 0.11), mat_dark, bevel_amount=0.018)
+    for idx, y in enumerate([-0.72, -0.18, 0.36]):
+        soft_cube(f"DC9_LEFT_SIDEWALL_WEAR_STRIP_{idx:02d}", parent, (-1.875, y, 0.98), (0.012, 0.34, 0.018), mat_wear, bevel_amount=0.002)
+
+
+def add_panel_wear(parent, mat_wear, mat_shadow):
+    wear_marks = [
+        ("DC9_PANEL_EDGE_WEAR_CAPT_TOP_01", (-0.98, -0.806, 0.865), (0.86, 0.012, 0.012)),
+        ("DC9_PANEL_EDGE_WEAR_CENTER_01", (0.17, -0.806, 0.87), (0.44, 0.012, 0.01)),
+        ("DC9_PANEL_EDGE_WEAR_PEDESTAL_01", (0.0, -0.76, 0.455), (0.55, 0.012, 0.012)),
+        ("DC9_PANEL_EDGE_WEAR_FO_TOP_01", (1.03, -0.806, 0.865), (0.86, 0.012, 0.012)),
+    ]
+    for name, loc, scale in wear_marks:
+        cube(name, parent, loc, scale, mat_wear)
+    for idx, loc in enumerate([(-1.36, -0.807, 0.82), (-0.56, -0.807, 0.64), (0.46, -0.807, 0.74), (1.42, -0.807, 0.3)]):
+        cube(f"DC9_PANEL_GRIME_SHADOW_{idx:02d}", parent, loc, (0.11, 0.01, 0.024), mat_shadow, (0, math.radians((idx - 1) * 12), 0))
 
 
 def add_lower_panel_controls(parent, mat_knob, mat_mark, mat_placard):
@@ -257,11 +353,12 @@ def create_scene() -> None:
     bpy.context.scene.frame_start = 1
     bpy.context.scene.frame_end = 96
 
-    panel_mat = material("DC9_PANEL_BLUE_GREY", (0.105, 0.215, 0.225, 1), 0.86, 0.02)
+    panel_mat = material("DC9_PANEL_BLUE_GREY", (0.135, 0.285, 0.305, 1), 0.86, 0.02)
     panel_dark = material("DC9_PANEL_DARK_BLUE_GREY", (0.045, 0.075, 0.085, 1), 0.82, 0.04)
     shell_mat = material("DC9_SHELL_WARM_GREY", (0.28, 0.29, 0.27, 1), 0.78)
     dark_mat = material("DC9_DARK_BEZEL", (0.025, 0.028, 0.027, 1), 0.58, 0.2)
     glass_mat = material("DC9_GAUGE_GLASS", (0.11, 0.15, 0.16, 0.38), 0.12)
+    window_glass_mat = material("DC9_TINTED_WINDOW_GLASS", (0.16, 0.27, 0.3, 0.24), 0.18)
     face_mat = material("DC9_GAUGE_FACE_BLACK", (0.01, 0.012, 0.011, 1), 0.7)
     tick_mat = material("DC9_WARM_INSTRUMENT_MARKS", (0.86, 0.82, 0.68, 1), 0.65)
     white_mat = material("DC9_NEEDLE_WARM_WHITE", (0.92, 0.87, 0.72, 1), 0.42)
@@ -271,7 +368,10 @@ def create_scene() -> None:
     ink_mat = material("DC9_ROUTE_CARD_INK", (0.05, 0.07, 0.08, 1), 0.8)
     screw_mat = material("DC9_DULL_SCREW_HEADS", (0.42, 0.43, 0.39, 1), 0.58, 0.6)
     placard_mat = material("DC9_BLACK_PLACARD", (0.015, 0.018, 0.017, 1), 0.7, 0.05)
+    wear_mat = material("DC9_WORN_EDGE_HIGHLIGHT", (0.62, 0.64, 0.56, 1), 0.72, 0.08)
+    grime_mat = material("DC9_SOFT_GRIME_SHADOW", (0.018, 0.026, 0.025, 1), 0.92)
     amber_mat = material("DC9_ANNUNCIATOR_AMBER_EMISSIVE", (1.0, 0.46, 0.08, 1), 0.35, emission=((1.0, 0.39, 0.05, 1), 1.8))
+    green_mat = material("DC9_ANNUNCIATOR_GREEN_EMISSIVE", (0.18, 0.68, 0.3, 1), 0.42, emission=((0.09, 0.75, 0.22, 1), 1.1))
     red_mat = material("DC9_HIDDEN_DESTINATION_RED", (0.65, 0.04, 0.025, 1), 0.38, emission=((0.9, 0.05, 0.02, 1), 0.9))
 
     root = empty("DC9_ROOT")
@@ -298,6 +398,8 @@ def create_scene() -> None:
     soft_cube("DC9_WINDSHIELD_RIGHT_FRAME_01", static, (0.78, -1.5, 1.08), (0.86, 0.08, 0.08), dark_mat, (0, 0, math.radians(7)), 0.012)
     soft_cube("DC9_WINDOW_LEFT_LOWER_FRAME_01", static, (-1.15, -1.48, 0.62), (0.62, 0.08, 0.06), dark_mat, (0, 0, math.radians(8)), 0.01)
     soft_cube("DC9_WINDOW_RIGHT_LOWER_FRAME_01", static, (1.15, -1.48, 0.62), (0.62, 0.08, 0.06), dark_mat, (0, 0, math.radians(-8)), 0.01)
+    add_window_depth(static, dark_mat, window_glass_mat)
+    add_sidewall_depth(static, shell_mat, dark_mat, wear_mat)
 
     soft_cube("DC9_MAIN_PANEL_BLOCKOUT_01", static, (0, -1.0, 0.42), (3.1, 0.16, 1.03), panel_mat, bevel_amount=0.025)
     soft_cube("DC9_CAPTAIN_PANEL_SHADOW_BROW_01", static, (-0.86, -1.115, 0.95), (1.05, 0.18, 0.16), panel_dark, bevel_amount=0.018)
@@ -307,8 +409,10 @@ def create_scene() -> None:
     soft_cube("DC9_CENTER_PEDESTAL_SIDE_SHADOW_01", static, (-0.44, -0.18, 0.02), (0.05, 1.18, 0.33), panel_dark, bevel_amount=0.012)
     soft_cube("DC9_CENTER_PEDESTAL_SIDE_SHADOW_02", static, (0.44, -0.18, 0.02), (0.05, 1.18, 0.33), panel_dark, bevel_amount=0.012)
     soft_cube("DC9_OVERHEAD_PANEL_BLOCKOUT_01", static, (0, -0.2, 1.47), (1.5, 1.08, 0.08), panel_mat, bevel_amount=0.018)
+    add_forward_overhead_face(static, placard_mat, metal_mat, amber_mat, tick_mat)
     soft_cube("DC9_PEDESTAL_THROTTLE_SLOT_01", static, (0, -0.39, 0.26), (0.5, 0.7, 0.035), dark_mat, bevel_amount=0.01)
     add_panel_seams(static, placard_mat)
+    add_panel_wear(static, wear_mat, grime_mat)
     for x in [-0.16, 0.0, 0.16]:
         soft_cube(f"DC9_THROTTLE_LEVER_BLOCKOUT_{int((x + 1) * 100):03d}", static, (x, -0.51, 0.48), (0.045, 0.08, 0.38), metal_mat, (math.radians(-18), 0, 0), 0.012)
         cylinder(f"DC9_THROTTLE_KNOB_BLOCKOUT_{int((x + 1) * 100):03d}", static, (x, -0.59, 0.68), 0.05, 0.075, grip_mat, 24, (math.pi / 2, 0, 0))
@@ -317,10 +421,14 @@ def create_scene() -> None:
 
     add_yoke(static, "DC9_CAPTAIN", -0.86, dark_mat, grip_mat)
     add_yoke(static, "DC9_FIRST_OFFICER", 0.92, dark_mat, grip_mat)
+    add_yoke_checklist_lines(static, "DC9_CAPTAIN", -0.86, tick_mat)
+    add_yoke_checklist_lines(static, "DC9_FIRST_OFFICER", 0.92, tick_mat)
     soft_cube("DC9_PANEL_PLACARD_CAPTAIN_01", static, (-0.95, -0.82, 0.93), (0.36, 0.025, 0.06), placard_mat, bevel_amount=0.006)
     soft_cube("DC9_PANEL_PLACARD_CENTER_01", static, (0.2, -0.82, 0.94), (0.42, 0.025, 0.055), placard_mat, bevel_amount=0.006)
     add_label("DC9_PANEL_LABEL_CAPTAIN", static, "CAPT", (-0.95, -0.842, 0.93), 0.032, tick_mat)
     add_label("DC9_PANEL_LABEL_CENTER", static, "ENG", (0.2, -0.842, 0.94), 0.032, tick_mat)
+    add_annunciator_bank(static, placard_mat, amber_mat, green_mat, tick_mat)
+    add_circuit_breaker_rows(static, dark_mat, panel_dark, tick_mat)
 
     gauge_positions = [
         (-1.26, -0.895, 0.7), (-0.98, -0.895, 0.7), (-0.7, -0.895, 0.7),
@@ -334,6 +442,7 @@ def create_scene() -> None:
         needle_angle = [-28, 12, -8, 34, -18, 22, -42, 16, 8, -24, 30, -12, 18, -32, 26, -6][idx]
         add_gauge(static, f"DC9_ANALOG_GAUGE_{idx:02d}", pos, radius, dark_mat, face_mat, glass_mat, tick_mat, white_mat, needle_angle=needle_angle)
     add_gauge(static, "DC9_GAUGE_LEGACY_CODE_01", (-1.26, -0.83, 0.7), 0.1, dark_mat, face_mat, glass_mat, tick_mat, white_mat, "dc9.legacy_power.gauge")
+    add_instrument_labels(static, tick_mat)
 
     add_screws(
         static,
