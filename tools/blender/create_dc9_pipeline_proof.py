@@ -404,6 +404,28 @@ def add_glareshield_control_strip(parent, mat_panel, mat_knob, mat_amber, mat_bl
     add_label("DC9_GLARESHIELD_LABEL_AUTOPILOT_01", parent, "AUTOPILOT", (0, -0.987, 1.105), 0.028, mat_label, (math.radians(90), 0, math.radians(180)))
 
 
+def add_glareshield_annunciator_detail(parent, mat_dark, mat_amber, mat_green, mat_red, mat_blue, mat_label, mat_screw):
+    for idx, (x, width) in enumerate([(-0.76, 0.68), (0.0, 0.42), (0.76, 0.68)]):
+        brow = soft_cube(f"DC9_GLARESHIELD_ANNUNCIATOR_MODULE_{idx:02d}", parent, (x, -0.814, 0.91), (width, 0.024, 0.068), mat_dark, bevel_amount=0.006)
+        brow["detail_role"] = "primary_reference_glareshield_annunciator_density"
+    for idx, x in enumerate([-1.06, -0.86, -0.66, -0.46, 0.46, 0.66, 0.86, 1.06]):
+        lamp = soft_cube(
+            f"DC9_GLARESHIELD_STATUS_LAMP_{idx:02d}",
+            parent,
+            (x, -0.835, 0.908),
+            (0.108, 0.012, 0.034),
+            mat_amber if idx % 3 else mat_red,
+            bevel_amount=0.003,
+        )
+        lamp["detail_role"] = "noninteractive_glareshield_status_lamp"
+    for idx, x in enumerate([-0.22, -0.08, 0.06, 0.2]):
+        soft_cube(f"DC9_GLARESHIELD_MODE_BUTTON_{idx:02d}", parent, (x, -0.836, 0.908), (0.065, 0.012, 0.035), mat_blue if idx in {1, 2} else mat_green, bevel_amount=0.004)
+    for idx, (x, text) in enumerate([(-0.96, "WARN"), (-0.56, "AP"), (0.0, "ALT"), (0.56, "NAV"), (0.96, "TRIM")]):
+        add_label(f"DC9_GLARESHIELD_STATUS_LABEL_{idx:02d}", parent, text, (x, -0.845, 0.952), 0.016, mat_label, (math.radians(90), 0, math.radians(180)))
+    for idx, x in enumerate([-1.06, -0.42, 0.42, 1.06]):
+        cylinder(f"DC9_GLARESHIELD_ANNUNCIATOR_SCREW_{idx:02d}", parent, (x, -0.837, 0.947), 0.01, 0.007, mat_screw, 14)
+
+
 def add_circuit_breaker_rows(parent, mat_knob, mat_panel, mat_mark):
     soft_cube("DC9_CAPTAIN_SIDE_BREAKER_PANEL_01", parent, (-1.72, -0.62, 0.38), (0.34, 0.05, 0.52), mat_panel, (0, 0, math.radians(-4)), 0.012)
     for row, z in enumerate([0.55, 0.47, 0.39, 0.31, 0.23]):
@@ -766,6 +788,7 @@ def create_scene() -> None:
     soft_cube("DC9_CENTER_ENGINE_PANEL_BLOCKOUT_01", static, (0.12, -1.105, 0.58), (0.72, 0.08, 0.7), panel_dark, bevel_amount=0.018)
     soft_cube("DC9_GLARESHIELD_BLOCKOUT_01", static, (0, -1.21, 1.04), (3.25, 0.48, 0.18), dark_mat, bevel_amount=0.03)
     add_glareshield_control_strip(static, placard_mat, dark_mat, amber_mat, blue_mat, tick_mat)
+    add_glareshield_annunciator_detail(static, placard_mat, amber_mat, green_mat, red_mat, blue_mat, tick_mat, screw_mat)
     add_glareshield_paper_stack(static, paper_mat, grime_mat)
     add_main_panel_inset_trays(static, panel_dark, placard_mat, amber_mat, red_mat, tick_mat)
     soft_cube("DC9_CENTER_PEDESTAL_BLOCKOUT_01", static, (0, -0.18, 0.03), (0.78, 1.26, 0.38), panel_mat, bevel_amount=0.025)
