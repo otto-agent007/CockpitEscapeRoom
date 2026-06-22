@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="912" height="862" viewBox="0 0 912 862">
+<rect width="100%" height="100%" fill="#f6f4ef"/>
+<text x="24" y="38" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#20242a">DC-9-51 Reference Contact Sheet</text>
+<text x="24" y="62" font-family="Arial, sans-serif" font-size="13" fill="#545b64">Generated from reference-manifest.yaml. Variant mismatches are intentionally labeled.</text>
+<rect x="24" y="90" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
+<image href="../primary/dc9_51_n775nc_cockpit_primary.jpg" x="40" y="106" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="40" y="350" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_51_n775nc_cockpit_primary</text>
+<text x="40" y="372" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9-51 | Northwest Airlines | flight deck forward, captain/center perspective</text>
+<text x="40" y="394" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">primary | confidence high</text>
+<text x="40" y="416" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">captain-eye main panel silhouette; analog instrument density</text>
+<rect x="468" y="90" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
+<image href="../secondary/dc9_50_n775nc_exterior_context.jpg" x="484" y="106" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="484" y="350" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_50_n775nc_exterior_context</text>
+<text x="484" y="372" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9-50 family | Northwest Airlines | exterior three-quarter side context</text>
+<text x="484" y="394" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence medium</text>
+<text x="484" y="416" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">registration/operator context; era context</text>
+<rect x="24" y="474" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
+<image href="../secondary/dc9_40_northwest_cockpit_secondary.jpg" x="40" y="490" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="40" y="734" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_40_northwest_cockpit_secondary</text>
+<text x="40" y="756" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9-40 | Northwest Airlines | cockpit forward, wide view</text>
+<text x="40" y="778" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence medium</text>
+<text x="40" y="800" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">shared DC-9 analog layout comparison; material and wear comparison</text>
+<rect x="468" y="474" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
+<image href="../secondary/md81_midwest_cockpit_secondary.jpg" x="484" y="490" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="484" y="734" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">md81_midwest_cockpit_secondary</text>
+<text x="484" y="756" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">MD-81 | Midwest Airlines | flight deck forward, wide view</text>
+<text x="484" y="778" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
+<text x="484" y="800" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">analog gauge depth comparison; material and lighting comparison</text>
+</svg>
