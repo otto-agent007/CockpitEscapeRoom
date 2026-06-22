@@ -16,6 +16,7 @@ Date: 2026-06-22
 - Executable used: `/home/user1/.local/bin/blender`
 - Scene validation: passed with 0 errors and 0 warnings
 - Render note: `tools/blender/render_preview.py` now falls back from `BLENDER_EEVEE_NEXT` to `BLENDER_EEVEE` for Blender builds that expose the older engine identifier.
+- Goal-loop visual pass: 2026-06-22 captain-seat improvement pass regenerated the source blend, deployable GLB, and approval render from `tools/blender/create_dc9_pipeline_proof.py`.
 
 ## Asset Contents
 
@@ -33,6 +34,12 @@ Date: 2026-06-22
   - overhead panel hint
   - analog gauge density with tick geometry
   - screws, labels, annunciator, and route card
+- Visual improvements in the current pass:
+  - softened cockpit shell, glare shield, panel, pedestal, and yoke blockout edges with bevel/weighted-normal treatment
+  - replaced boxy yoke handles with oval wheel geometry, cylindrical stems, center pads, and horn grips
+  - added panel seams, black placards, lower-panel knobs, pedestal radio faces, throttle gate notches, and throttle knobs
+  - varied analog gauge needle angles and added small color-band placeholder marks
+  - increased overhead switch density and darkened the panel/shell material balance for stronger captain-seat contrast
 
 ## Runtime Contract
 
@@ -57,10 +64,10 @@ Custom properties exported to glTF extras:
 
 ## GLB Inspection
 
-- GLB size: 1,419,776 bytes / 1.35 MiB
-- Node count: 311
-- Mesh count: 300
-- Material count: 15
+- GLB size: 2,129,156 bytes / 2.03 MiB
+- Node count: 451
+- Mesh count: 440
+- Material count: 16
 - Animation count: 1
 - Camera count: 1
 - Textures: none
@@ -88,10 +95,12 @@ Results:
 - `gltf-transform validate` reported no errors and no warnings. It reports info-level unused UV attributes and empty hierarchy nodes; these are expected for this named blockout because UVs are reserved for later texture work and empty hierarchy nodes preserve the asset contract.
 - `npm run assets:check` passed.
 - `npm run check` passed as non-mutating validation; browser integration remains Windows-owned.
+- Manual visual inspection of `preview-renders/dc9-captain-approval.png` confirmed a stronger captain-seat read: denser instrument panel, improved yoke silhouette, clearer pedestal depth, and less flat main-panel presentation.
 
 ## Known Deviations
 
 - This is still a blockout. It is intentionally not final DC-9 production art.
 - Shapes are procedural original geometry and do not use reference photos as textures.
 - The overhead and pedestal are represented as spatial/proportion placeholders; detailed geometry requires more primary DC-9-51 references.
+- The current captain view is more recognizable and more dramatic than the first pipeline proof, but it still needs reference-driven production modeling, real panel sub-shapes, proper baked labels/wear, and browser review before the greybox label can be removed.
 - The browser integration is Windows-owned under `src/**`; this Ubuntu branch only provides the deployable GLB and documented runtime contract.

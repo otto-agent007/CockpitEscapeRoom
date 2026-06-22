@@ -68,6 +68,19 @@ def cube(name: str, parent, loc, scale, mat, rot=(0, 0, 0)):
     return obj
 
 
+def bevel(obj, amount: float = 0.015, segments: int = 2):
+    modifier = obj.modifiers.new(f"{obj.name}_SOFT_BEVEL", "BEVEL")
+    modifier.width = amount
+    modifier.segments = segments
+    modifier.affect = "EDGES"
+    obj.modifiers.new(f"{obj.name}_WEIGHTED_NORMAL", "WEIGHTED_NORMAL")
+    return obj
+
+
+def soft_cube(name: str, parent, loc, scale, mat, rot=(0, 0, 0), bevel_amount: float = 0.018):
+    return bevel(cube(name, parent, loc, scale, mat, rot), bevel_amount)
+
+
 def cylinder(name: str, parent, loc, radius: float, depth: float, mat, vertices: int = 48, rot=(math.pi / 2, 0, 0)):
     bpy.ops.mesh.primitive_cylinder_add(vertices=vertices, radius=radius, depth=depth, location=loc, rotation=rot)
     obj = bpy.context.object
@@ -77,6 +90,21 @@ def cylinder(name: str, parent, loc, radius: float, depth: float, mat, vertices:
     obj.parent = parent
     obj.data.materials.append(mat)
     obj.data.uv_layers.new(name="UVMap")
+    obj.modifiers.new(f"{obj.name}_WEIGHTED_NORMAL", "WEIGHTED_NORMAL")
+    return obj
+
+
+def torus(name: str, parent, loc, mat, major=0.22, minor=0.018, rot=(math.pi / 2, 0, 0), scale=(1, 1, 1)):
+    bpy.ops.mesh.primitive_torus_add(major_radius=major, minor_radius=minor, major_segments=72, minor_segments=12, location=loc, rotation=rot)
+    obj = bpy.context.object
+    obj.name = name
+    obj.data.name = f"{name}_MESH"
+    obj.scale = scale
+    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+    obj.parent = parent
+    obj.data.materials.append(mat)
+    obj.data.uv_layers.new(name="UVMap")
+    obj.modifiers.new(f"{obj.name}_WEIGHTED_NORMAL", "WEIGHTED_NORMAL")
     return obj
 
 
@@ -95,7 +123,7 @@ def add_label(name: str, parent, text: str, loc, size: float, mat, rot=(math.rad
     return obj
 
 
-def add_gauge(parent, name: str, loc, radius: float, mat_bezel, mat_face, mat_glass, mat_tick, mat_needle, game_id: str | None = None):
+def add_gauge(parent, name: str, loc, radius: float, mat_bezel, mat_face, mat_glass, mat_tick, mat_needle, game_id: str | None = None, needle_angle: float = 0.0):
     cylinder(f"{name}_BEZEL", parent, loc, radius, 0.045, mat_bezel, 64)
     cylinder(f"{name}_FACE", parent, (loc[0], loc[1] + 0.028, loc[2]), radius * 0.82, 0.014, mat_face, 64)
     for idx in range(10):
@@ -104,9 +132,22 @@ def add_gauge(parent, name: str, loc, radius: float, mat_bezel, mat_face, mat_gl
         z = loc[2] + math.cos(angle) * radius * 0.62
         tick = cube(f"{name}_TICK_{idx:02d}", parent, (x, loc[1] + 0.046, z), (0.012, 0.01, 0.055), mat_tick, (0, angle, 0))
         tick["reference_role"] = "gauge_tick"
+    for idx, angle_deg in enumerate([-45, 0, 45]):
+        angle = math.radians(angle_deg)
+        x = loc[0] + math.sin(angle) * radius * 0.28
+        z = loc[2] + math.cos(angle) * radius * 0.28
+        marker = cube(f"{name}_COLOR_ARC_{idx:02d}", parent, (x, loc[1] + 0.049, z), (0.014, 0.012, 0.035), mat_tick, (0, angle, 0))
+        marker["reference_role"] = "gauge_color_band_placeholder"
     glass = cylinder(f"{name}_GLASS", parent, (loc[0], loc[1] + 0.055, loc[2]), radius * 0.78, 0.008, mat_glass, 64)
     glass["material_note"] = "Transparent-looking approval material; review glTF alpha before production."
-    needle = cube(f"{name}_NEEDLE", parent, (loc[0], loc[1] + 0.068, loc[2] + radius * 0.19), (0.018, 0.014, radius * 0.82), mat_needle)
+    needle = cube(
+        f"{name}_NEEDLE",
+        parent,
+        (loc[0], loc[1] + 0.068, loc[2] + radius * 0.19),
+        (0.018, 0.014, radius * 0.82),
+        mat_needle,
+        (0, math.radians(needle_angle), 0),
+    )
     if game_id:
         needle.name = "DC9_GAUGE_LEGACY_CODE_NEEDLE_01"
         needle.data.name = "DC9_GAUGE_LEGACY_CODE_NEEDLE_01_MESH"
@@ -166,17 +207,38 @@ def add_route_card(parent, mat_card, mat_ink):
 
 
 def add_yoke(parent, prefix: str, x: float, mat_dark, mat_grip):
-    cube(f"{prefix}_YOKE_COLUMN_BLOCKOUT_01", parent, (x, -0.46, 0.12), (0.1, 0.18, 0.42), mat_dark, (math.radians(-6), 0, 0))
-    cube(f"{prefix}_YOKE_STEM_BLOCKOUT_01", parent, (x, -0.66, 0.38), (0.08, 0.24, 0.08), mat_dark, (math.radians(8), 0, 0))
-    cube(f"{prefix}_YOKE_GRIP_LEFT_01", parent, (x - 0.19, -0.73, 0.46), (0.1, 0.08, 0.24), mat_grip, (0, 0, math.radians(-12)))
-    cube(f"{prefix}_YOKE_GRIP_RIGHT_01", parent, (x + 0.19, -0.73, 0.46), (0.1, 0.08, 0.24), mat_grip, (0, 0, math.radians(12)))
-    cube(f"{prefix}_YOKE_CENTER_PAD_01", parent, (x, -0.75, 0.46), (0.34, 0.08, 0.18), mat_grip)
+    soft_cube(f"{prefix}_YOKE_COLUMN_BLOCKOUT_01", parent, (x, -0.46, 0.12), (0.1, 0.18, 0.42), mat_dark, (math.radians(-6), 0, 0), 0.02)
+    cylinder(f"{prefix}_YOKE_STEM_BLOCKOUT_01", parent, (x, -0.64, 0.37), 0.04, 0.34, mat_dark, 24, (math.radians(78), 0, 0))
+    torus(f"{prefix}_YOKE_WHEEL_OVAL_01", parent, (x, -0.8, 0.53), mat_grip, 0.2, 0.018, (math.pi / 2, 0, 0), (1.35, 0.72, 1.0))
+    soft_cube(f"{prefix}_YOKE_CENTER_PAD_01", parent, (x, -0.82, 0.52), (0.24, 0.07, 0.16), mat_grip, (0, 0, 0), 0.025)
+    cylinder(f"{prefix}_YOKE_LEFT_HORN_01", parent, (x - 0.22, -0.8, 0.52), 0.035, 0.15, mat_grip, 24, (0, 0, math.pi / 2))
+    cylinder(f"{prefix}_YOKE_RIGHT_HORN_01", parent, (x + 0.22, -0.8, 0.52), 0.035, 0.15, mat_grip, 24, (0, 0, math.pi / 2))
 
 
 def add_screws(parent, mat, positions):
     for idx, loc in enumerate(positions):
         obj = cylinder(f"DC9_PANEL_SCREW_{idx:02d}", parent, loc, 0.018, 0.01, mat, 18)
         obj["detail_role"] = "approval_scale_fastener"
+
+
+def add_panel_seams(parent, mat):
+    seams = [
+        ("DC9_SEAM_CAPTAIN_VERTICAL_01", (-0.44, -0.812, 0.54), (0.012, 0.018, 0.78)),
+        ("DC9_SEAM_CENTER_VERTICAL_01", (0.56, -0.812, 0.54), (0.012, 0.018, 0.78)),
+        ("DC9_SEAM_CAPTAIN_HORIZONTAL_01", (-0.98, -0.811, 0.31), (1.02, 0.018, 0.012)),
+        ("DC9_SEAM_FIRST_OFFICER_HORIZONTAL_01", (1.02, -0.811, 0.31), (1.02, 0.018, 0.012)),
+        ("DC9_SEAM_CENTER_TOP_01", (0.14, -0.811, 0.92), (0.76, 0.018, 0.012)),
+    ]
+    for name, loc, scale in seams:
+        cube(name, parent, loc, scale, mat)
+
+
+def add_lower_panel_controls(parent, mat_knob, mat_mark, mat_placard):
+    for idx, x in enumerate([-1.38, -1.22, -1.06, -0.9, -0.74, 0.72, 0.88, 1.04, 1.2, 1.36]):
+        cylinder(f"DC9_LOWER_PANEL_KNOB_{idx:02d}", parent, (x, -0.835, 0.2), 0.035, 0.032, mat_knob, 24)
+        cube(f"DC9_LOWER_PANEL_MARK_{idx:02d}", parent, (x, -0.862, 0.25), (0.006, 0.012, 0.045), mat_mark, (0, math.radians((idx % 5 - 2) * 18), 0))
+    for idx, x in enumerate([-1.14, -0.92, 0.92, 1.14]):
+        soft_cube(f"DC9_LOWER_PANEL_PLACARD_{idx:02d}", parent, (x, -0.84, 0.105), (0.18, 0.018, 0.045), mat_placard, bevel_amount=0.004)
 
 
 def create_scene() -> None:
@@ -195,9 +257,9 @@ def create_scene() -> None:
     bpy.context.scene.frame_start = 1
     bpy.context.scene.frame_end = 96
 
-    panel_mat = material("DC9_PANEL_BLUE_GREY", (0.13, 0.25, 0.26, 1), 0.84, 0.02)
-    panel_dark = material("DC9_PANEL_DARK_BLUE_GREY", (0.055, 0.09, 0.095, 1), 0.8, 0.04)
-    shell_mat = material("DC9_SHELL_WARM_GREY", (0.35, 0.36, 0.33, 1), 0.74)
+    panel_mat = material("DC9_PANEL_BLUE_GREY", (0.105, 0.215, 0.225, 1), 0.86, 0.02)
+    panel_dark = material("DC9_PANEL_DARK_BLUE_GREY", (0.045, 0.075, 0.085, 1), 0.82, 0.04)
+    shell_mat = material("DC9_SHELL_WARM_GREY", (0.28, 0.29, 0.27, 1), 0.78)
     dark_mat = material("DC9_DARK_BEZEL", (0.025, 0.028, 0.027, 1), 0.58, 0.2)
     glass_mat = material("DC9_GAUGE_GLASS", (0.11, 0.15, 0.16, 0.38), 0.12)
     face_mat = material("DC9_GAUGE_FACE_BLACK", (0.01, 0.012, 0.011, 1), 0.7)
@@ -208,6 +270,7 @@ def create_scene() -> None:
     card_mat = material("DC9_ROUTE_CARD_OFF_WHITE", (0.86, 0.8, 0.63, 1), 0.88)
     ink_mat = material("DC9_ROUTE_CARD_INK", (0.05, 0.07, 0.08, 1), 0.8)
     screw_mat = material("DC9_DULL_SCREW_HEADS", (0.42, 0.43, 0.39, 1), 0.58, 0.6)
+    placard_mat = material("DC9_BLACK_PLACARD", (0.015, 0.018, 0.017, 1), 0.7, 0.05)
     amber_mat = material("DC9_ANNUNCIATOR_AMBER_EMISSIVE", (1.0, 0.46, 0.08, 1), 0.35, emission=((1.0, 0.39, 0.05, 1), 1.8))
     red_mat = material("DC9_HIDDEN_DESTINATION_RED", (0.65, 0.04, 0.025, 1), 0.38, emission=((0.9, 0.05, 0.02, 1), 0.9))
 
@@ -226,28 +289,38 @@ def create_scene() -> None:
     props = empty("DC9_PUZZLE_PROPS", root)
 
     # Shell proportions and windshield framing are intentionally visible from the captain camera.
-    cube("DC9_COCKPIT_SHELL_FLOOR_01", static, (0, 0.08, -0.32), (3.95, 3.35, 0.08), shell_mat)
-    cube("DC9_COCKPIT_SHELL_LEFT_WALL_01", static, (-2.02, 0.1, 0.68), (0.08, 3.15, 1.88), shell_mat)
-    cube("DC9_COCKPIT_SHELL_RIGHT_WALL_01", static, (2.02, 0.1, 0.68), (0.08, 3.15, 1.88), shell_mat)
-    cube("DC9_COCKPIT_SHELL_CEILING_01", static, (0, 0.0, 1.64), (3.78, 3.0, 0.08), shell_mat)
-    cube("DC9_WINDSHIELD_CENTER_POST_01", static, (0, -1.48, 0.98), (0.08, 0.09, 1.16), dark_mat)
-    cube("DC9_WINDSHIELD_LEFT_FRAME_01", static, (-0.78, -1.5, 1.08), (0.86, 0.08, 0.08), dark_mat, (0, 0, math.radians(-7)))
-    cube("DC9_WINDSHIELD_RIGHT_FRAME_01", static, (0.78, -1.5, 1.08), (0.86, 0.08, 0.08), dark_mat, (0, 0, math.radians(7)))
-    cube("DC9_WINDOW_LEFT_LOWER_FRAME_01", static, (-1.15, -1.48, 0.62), (0.62, 0.08, 0.06), dark_mat, (0, 0, math.radians(8)))
-    cube("DC9_WINDOW_RIGHT_LOWER_FRAME_01", static, (1.15, -1.48, 0.62), (0.62, 0.08, 0.06), dark_mat, (0, 0, math.radians(-8)))
+    soft_cube("DC9_COCKPIT_SHELL_FLOOR_01", static, (0, 0.08, -0.32), (3.95, 3.35, 0.08), shell_mat, bevel_amount=0.025)
+    soft_cube("DC9_COCKPIT_SHELL_LEFT_WALL_01", static, (-2.02, 0.1, 0.68), (0.08, 3.15, 1.88), shell_mat, bevel_amount=0.018)
+    soft_cube("DC9_COCKPIT_SHELL_RIGHT_WALL_01", static, (2.02, 0.1, 0.68), (0.08, 3.15, 1.88), shell_mat, bevel_amount=0.018)
+    soft_cube("DC9_COCKPIT_SHELL_CEILING_01", static, (0, 0.0, 1.64), (3.78, 3.0, 0.08), shell_mat, bevel_amount=0.018)
+    soft_cube("DC9_WINDSHIELD_CENTER_POST_01", static, (0, -1.48, 0.98), (0.08, 0.09, 1.16), dark_mat, bevel_amount=0.012)
+    soft_cube("DC9_WINDSHIELD_LEFT_FRAME_01", static, (-0.78, -1.5, 1.08), (0.86, 0.08, 0.08), dark_mat, (0, 0, math.radians(-7)), 0.012)
+    soft_cube("DC9_WINDSHIELD_RIGHT_FRAME_01", static, (0.78, -1.5, 1.08), (0.86, 0.08, 0.08), dark_mat, (0, 0, math.radians(7)), 0.012)
+    soft_cube("DC9_WINDOW_LEFT_LOWER_FRAME_01", static, (-1.15, -1.48, 0.62), (0.62, 0.08, 0.06), dark_mat, (0, 0, math.radians(8)), 0.01)
+    soft_cube("DC9_WINDOW_RIGHT_LOWER_FRAME_01", static, (1.15, -1.48, 0.62), (0.62, 0.08, 0.06), dark_mat, (0, 0, math.radians(-8)), 0.01)
 
-    cube("DC9_MAIN_PANEL_BLOCKOUT_01", static, (0, -1.0, 0.42), (3.1, 0.16, 1.03), panel_mat)
-    cube("DC9_CAPTAIN_PANEL_SHADOW_BROW_01", static, (-0.86, -1.115, 0.95), (1.05, 0.18, 0.16), panel_dark)
-    cube("DC9_CENTER_ENGINE_PANEL_BLOCKOUT_01", static, (0.12, -1.105, 0.58), (0.72, 0.08, 0.7), panel_dark)
-    cube("DC9_GLARESHIELD_BLOCKOUT_01", static, (0, -1.21, 1.04), (3.25, 0.48, 0.18), dark_mat)
-    cube("DC9_CENTER_PEDESTAL_BLOCKOUT_01", static, (0, -0.18, 0.03), (0.78, 1.26, 0.38), panel_mat)
-    cube("DC9_OVERHEAD_PANEL_BLOCKOUT_01", static, (0, -0.2, 1.47), (1.5, 1.08, 0.08), panel_mat)
-    cube("DC9_PEDESTAL_THROTTLE_SLOT_01", static, (0, -0.39, 0.26), (0.5, 0.7, 0.035), dark_mat)
+    soft_cube("DC9_MAIN_PANEL_BLOCKOUT_01", static, (0, -1.0, 0.42), (3.1, 0.16, 1.03), panel_mat, bevel_amount=0.025)
+    soft_cube("DC9_CAPTAIN_PANEL_SHADOW_BROW_01", static, (-0.86, -1.115, 0.95), (1.05, 0.18, 0.16), panel_dark, bevel_amount=0.018)
+    soft_cube("DC9_CENTER_ENGINE_PANEL_BLOCKOUT_01", static, (0.12, -1.105, 0.58), (0.72, 0.08, 0.7), panel_dark, bevel_amount=0.018)
+    soft_cube("DC9_GLARESHIELD_BLOCKOUT_01", static, (0, -1.21, 1.04), (3.25, 0.48, 0.18), dark_mat, bevel_amount=0.03)
+    soft_cube("DC9_CENTER_PEDESTAL_BLOCKOUT_01", static, (0, -0.18, 0.03), (0.78, 1.26, 0.38), panel_mat, bevel_amount=0.025)
+    soft_cube("DC9_CENTER_PEDESTAL_SIDE_SHADOW_01", static, (-0.44, -0.18, 0.02), (0.05, 1.18, 0.33), panel_dark, bevel_amount=0.012)
+    soft_cube("DC9_CENTER_PEDESTAL_SIDE_SHADOW_02", static, (0.44, -0.18, 0.02), (0.05, 1.18, 0.33), panel_dark, bevel_amount=0.012)
+    soft_cube("DC9_OVERHEAD_PANEL_BLOCKOUT_01", static, (0, -0.2, 1.47), (1.5, 1.08, 0.08), panel_mat, bevel_amount=0.018)
+    soft_cube("DC9_PEDESTAL_THROTTLE_SLOT_01", static, (0, -0.39, 0.26), (0.5, 0.7, 0.035), dark_mat, bevel_amount=0.01)
+    add_panel_seams(static, placard_mat)
     for x in [-0.16, 0.0, 0.16]:
-        cube(f"DC9_THROTTLE_LEVER_BLOCKOUT_{int((x + 1) * 100):03d}", static, (x, -0.51, 0.48), (0.045, 0.08, 0.38), metal_mat, (math.radians(-18), 0, 0))
+        soft_cube(f"DC9_THROTTLE_LEVER_BLOCKOUT_{int((x + 1) * 100):03d}", static, (x, -0.51, 0.48), (0.045, 0.08, 0.38), metal_mat, (math.radians(-18), 0, 0), 0.012)
+        cylinder(f"DC9_THROTTLE_KNOB_BLOCKOUT_{int((x + 1) * 100):03d}", static, (x, -0.59, 0.68), 0.05, 0.075, grip_mat, 24, (math.pi / 2, 0, 0))
+    for idx, x in enumerate([-0.31, -0.21, -0.11, 0.11, 0.21, 0.31]):
+        soft_cube(f"DC9_THROTTLE_GATE_NOTCH_{idx:02d}", static, (x, -0.34, 0.505), (0.025, 0.18, 0.026), placard_mat, bevel_amount=0.003)
 
     add_yoke(static, "DC9_CAPTAIN", -0.86, dark_mat, grip_mat)
     add_yoke(static, "DC9_FIRST_OFFICER", 0.92, dark_mat, grip_mat)
+    soft_cube("DC9_PANEL_PLACARD_CAPTAIN_01", static, (-0.95, -0.82, 0.93), (0.36, 0.025, 0.06), placard_mat, bevel_amount=0.006)
+    soft_cube("DC9_PANEL_PLACARD_CENTER_01", static, (0.2, -0.82, 0.94), (0.42, 0.025, 0.055), placard_mat, bevel_amount=0.006)
+    add_label("DC9_PANEL_LABEL_CAPTAIN", static, "CAPT", (-0.95, -0.842, 0.93), 0.032, tick_mat)
+    add_label("DC9_PANEL_LABEL_CENTER", static, "ENG", (0.2, -0.842, 0.94), 0.032, tick_mat)
 
     gauge_positions = [
         (-1.26, -0.895, 0.7), (-0.98, -0.895, 0.7), (-0.7, -0.895, 0.7),
@@ -258,7 +331,8 @@ def create_scene() -> None:
     ]
     for idx, pos in enumerate(gauge_positions):
         radius = 0.118 if idx not in {0, 1, 2, 10, 11, 12} else 0.13
-        add_gauge(static, f"DC9_ANALOG_GAUGE_{idx:02d}", pos, radius, dark_mat, face_mat, glass_mat, tick_mat, white_mat)
+        needle_angle = [-28, 12, -8, 34, -18, 22, -42, 16, 8, -24, 30, -12, 18, -32, 26, -6][idx]
+        add_gauge(static, f"DC9_ANALOG_GAUGE_{idx:02d}", pos, radius, dark_mat, face_mat, glass_mat, tick_mat, white_mat, needle_angle=needle_angle)
     add_gauge(static, "DC9_GAUGE_LEGACY_CODE_01", (-1.26, -0.83, 0.7), 0.1, dark_mat, face_mat, glass_mat, tick_mat, white_mat, "dc9.legacy_power.gauge")
 
     add_screws(
@@ -272,6 +346,14 @@ def create_scene() -> None:
     for index, loc in enumerate(switch_locs, start=1):
         make_switch(f"DC9_SW_LEGACY_POWER_{index:02d}", interactive, loc, f"dc9.legacy_power.switch{index:02d}", dark_mat, metal_mat, tick_mat)
         add_label(f"DC9_SW_LABEL_{index:02d}", interactive, f"PWR {index}", (loc[0], -0.91, loc[2] - 0.085), 0.035, tick_mat)
+    for idx, x in enumerate([-0.32, -0.12, 0.08, 0.28]):
+        cylinder(f"DC9_PEDESTAL_RADIO_KNOB_{idx:02d}", static, (x, -0.03, 0.27), 0.038, 0.035, dark_mat, 24)
+        soft_cube(f"DC9_PEDESTAL_RADIO_SLOT_{idx:02d}", static, (x, 0.06, 0.22), (0.12, 0.025, 0.035), placard_mat, bevel_amount=0.004)
+    for row, y in enumerate([0.22, 0.34]):
+        for col, x in enumerate([-0.27, -0.09, 0.09, 0.27]):
+            soft_cube(f"DC9_PEDESTAL_RADIO_FACE_{row:02d}_{col:02d}", static, (x, y, 0.245), (0.11, 0.026, 0.04), placard_mat, bevel_amount=0.004)
+            add_label(f"DC9_PEDESTAL_RADIO_LABEL_{row:02d}_{col:02d}", static, f"{row + 1}{col + 1}", (x, y - 0.023, 0.247), 0.022, tick_mat, (math.radians(92), 0, 0))
+    add_lower_panel_controls(static, dark_mat, tick_mat, placard_mat)
 
     annunciator = cube("DC9_ANNUNCIATOR_LEGACY_POWER_01", emissive, (0.64, -0.86, 0.92), (0.42, 0.04, 0.11), amber_mat)
     annunciator["game_id"] = "dc9.legacy_power.annunciator"
@@ -292,12 +374,13 @@ def create_scene() -> None:
     collider["interaction"] = "hit_target"
     collider["puzzle_id"] = "legacy_power"
 
-    for idx, x in enumerate([-0.5, -0.25, 0.0, 0.25, 0.5]):
-        cube(f"DC9_OVERHEAD_SWITCH_ROW_{idx:02d}", static, (x, -0.18, 1.56), (0.055, 0.12, 0.16), metal_mat, (math.radians(7), 0, 0))
+    for row, y in enumerate([-0.42, -0.22, -0.02, 0.18]):
+        for col, x in enumerate([-0.55, -0.35, -0.15, 0.05, 0.25, 0.45]):
+            soft_cube(f"DC9_OVERHEAD_SWITCH_ROW_{row:02d}_{col:02d}", static, (x, y, 1.56), (0.045, 0.1, 0.12), metal_mat, (math.radians(7), 0, 0), 0.008)
 
     camera = bpy.data.cameras.new("CAM_DC9_CAPTAIN_APPROVAL")
     camera.lens = 20
-    camera.angle = math.radians(78)
+    camera.angle = math.radians(74)
     camera.clip_start = 0.01
     camera_obj = bpy.data.objects.new("CAM_DC9_CAPTAIN_APPROVAL", camera)
     bpy.context.scene.collection.objects.link(camera_obj)
