@@ -751,6 +751,35 @@ def add_pedestal_micro_detail(parent, mat_dark, mat_metal, mat_label, mat_amber,
     add_label("DC9_PEDESTAL_FRONT_LABEL_01", parent, "AUTO THROT", (0.0, -0.735, 0.595), 0.018, mat_label, (math.radians(90), 0, math.radians(180)))
 
 
+def add_pedestal_foreground_density(parent, mat_dark, mat_panel, mat_metal, mat_label, mat_wear, mat_amber, mat_green, mat_blue, mat_screw):
+    panels = [
+        ("DC9_PEDESTAL_FOREGROUND_BLACK_PANEL_LEFT_01", -0.25, -0.73, 0.545, 0.18, 0.22),
+        ("DC9_PEDESTAL_FOREGROUND_BLACK_PANEL_CENTER_01", 0.0, -0.73, 0.545, 0.16, 0.22),
+        ("DC9_PEDESTAL_FOREGROUND_BLACK_PANEL_RIGHT_01", 0.25, -0.73, 0.545, 0.18, 0.22),
+        ("DC9_PEDESTAL_AFT_RADIO_BLACK_PANEL_01", 0.0, -0.02, 0.555, 0.46, 0.2),
+    ]
+    for name, x, y, z, sx, sy in panels:
+        panel = soft_cube(name, parent, (x, y, z), (sx, sy, 0.038), mat_dark, bevel_amount=0.008)
+        panel["detail_role"] = "primary_reference_black_pedestal_panel_density"
+    for row, y in enumerate([-0.82, -0.73, -0.64]):
+        for col, x in enumerate([-0.29, -0.18, -0.07, 0.07, 0.18, 0.29]):
+            knob = cylinder(f"DC9_PEDESTAL_FOREGROUND_SELECTOR_{row:02d}_{col:02d}", parent, (x, y, 0.635), 0.019, 0.024, mat_dark, 14, (0, 0, 0))
+            knob["detail_role"] = "primary_reference_pedestal_selector_density"
+            cube(f"DC9_PEDESTAL_FOREGROUND_SELECTOR_MARK_{row:02d}_{col:02d}", parent, (x, y - 0.022, 0.662), (0.006, 0.012, 0.034), mat_label, (0, 0, math.radians((col - 2) * 14)))
+    for idx, (x, y, mat) in enumerate([(-0.31, -0.54, mat_amber), (-0.19, -0.54, mat_green), (0.19, -0.54, mat_blue), (0.31, -0.54, mat_amber)]):
+        light = soft_cube(f"DC9_PEDESTAL_FOREGROUND_STATUS_WINDOW_{idx:02d}", parent, (x, y, 0.645), (0.075, 0.026, 0.026), mat, bevel_amount=0.003)
+        light["detail_role"] = "primary_reference_pedestal_colored_status_window"
+    for idx, (text, x, y) in enumerate([("TRIM", -0.24, -0.9), ("FUEL", 0.0, -0.9), ("RADIO", 0.24, -0.9), ("RUD TRIM", -0.17, -0.47), ("CABIN", 0.17, -0.47)]):
+        soft_cube(f"DC9_PEDESTAL_FOREGROUND_LABEL_PLATE_{idx:02d}", parent, (x, y, 0.675), (0.16, 0.03, 0.018), mat_panel, bevel_amount=0.003)
+        add_label(f"DC9_PEDESTAL_FOREGROUND_LABEL_TEXT_{idx:02d}", parent, text, (x, y - 0.012, 0.69), 0.017, mat_label, (math.radians(90), 0, math.radians(180)))
+    for idx, (x, y) in enumerate([(-0.36, -0.88), (0.36, -0.88), (-0.36, -0.48), (0.36, -0.48), (-0.32, -0.05), (0.32, -0.05)]):
+        cylinder(f"DC9_PEDESTAL_FOREGROUND_PANEL_SCREW_{idx:02d}", parent, (x, y, 0.675), 0.009, 0.007, mat_screw, 12, (0, 0, 0))
+    for idx, x in enumerate([-0.3, -0.15, 0.0, 0.15, 0.3]):
+        soft_cube(f"DC9_PEDESTAL_FOREGROUND_WEAR_EDGE_{idx:02d}", parent, (x, -0.925, 0.64), (0.08, 0.008, 0.012), mat_wear, (0, 0, math.radians((idx - 2) * 4)), 0.002)
+    for idx, x in enumerate([-0.24, 0.0, 0.24]):
+        cylinder(f"DC9_PEDESTAL_AFT_TUNING_KNOB_{idx:02d}", parent, (x, 0.04, 0.665), 0.028, 0.028, mat_metal, 16, (0, 0, 0))
+
+
 def create_scene() -> None:
     clear_scene()
 
@@ -845,6 +874,7 @@ def create_scene() -> None:
     soft_cube("DC9_PEDESTAL_THROTTLE_SLOT_01", static, (0, -0.39, 0.26), (0.5, 0.7, 0.035), dark_mat, bevel_amount=0.01)
     add_center_pedestal_reference_stack(static, placard_mat, metal_mat, grip_mat, tick_mat, wear_mat, amber_mat, green_mat)
     add_pedestal_micro_detail(static, dark_mat, metal_mat, tick_mat, amber_mat, green_mat)
+    add_pedestal_foreground_density(static, placard_mat, dark_mat, metal_mat, tick_mat, wear_mat, amber_mat, green_mat, blue_mat, screw_mat)
     add_panel_seams(static, placard_mat)
     add_panel_wear(static, wear_mat, grime_mat)
     add_panel_surface_aging(static, screw_mat, wear_mat, grime_mat, placard_mat, tick_mat)

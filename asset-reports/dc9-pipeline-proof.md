@@ -28,6 +28,7 @@ Date: 2026-06-22
 - Goal-loop local batch 10: 2026-06-22 panel-surface aging pass added a denser fastener grid, chipped-paint slivers, lower-panel grime feathers, and small service placards across the main panel. This remains local; no PR update was opened for this individual iteration.
 - Goal-loop local batch 11: 2026-06-22 glare-shield annunciator/readout pass added segmented noninteractive upper-panel status modules, amber/red lamps, mode buttons, labels, and screw heads. This remains local; no PR update was opened for this individual iteration.
 - Goal-loop local batch 12: 2026-06-22 gauge-depth and glass-response pass added noninteractive inner gauge shadow lips, subtle glass glints, bezel screws, and fine radial marks around the captain, center, and first-officer instrument clusters. This remains local; no PR update was opened for this individual iteration.
+- Goal-loop local batch 13: 2026-06-22 foreground pedestal density pass added broken-up black pedestal panels, selector rows, status windows, label plates, screws, tuning knobs, and worn leading-edge cues. This remains local; no PR update was opened for this individual iteration.
 
 ## Asset Contents
 
@@ -64,6 +65,7 @@ Date: 2026-06-22
   - added a restrained fastener grid, panel chips, grime feathers, and service placards so the blue-grey panel surfaces read as aged aircraft hardware instead of clean flat blocks
   - added segmented glare-shield annunciator/status modules with small lamps, mode buttons, labels, and screws so the upper main-panel area reads denser without becoming one flat overlay strip
   - added inner gauge shadow lips, small glass glints, bezel screw heads, and fine radial marks so the analog instruments read as recessed hardware with glass response instead of flat circles
+  - added broken-up black pedestal plates, selector rows, colored status windows, tuning knobs, label plates, screws, and edge wear so the foreground center pedestal reads more like dense DC-9 mechanical hardware
 
 ## Runtime Contract
 
@@ -88,9 +90,9 @@ Custom properties exported to glTF extras:
 
 ## GLB Inspection
 
-- GLB size: 6,107,876 bytes / 5.82 MiB
-- Node count: 1,074
-- Mesh count: 1,063
+- GLB size: 6,340,272 bytes / 6.05 MiB
+- Node count: 1,142
+- Mesh count: 1,131
 - Material count: 30
 - Animation count: 1
 - Camera count: 1
@@ -119,7 +121,7 @@ Results:
 - `gltf-transform validate` reported no errors and no warnings. It reports info-level unused UV attributes and empty hierarchy nodes; these are expected for this named blockout because UVs are reserved for later texture work and empty hierarchy nodes preserve the asset contract.
 - `npm run assets:check` passed.
 - `npm run check` passed as non-mutating validation; browser integration remains Windows-owned.
-- Manual visual inspection of `preview-renders/dc9-captain-approval.png` confirmed a stronger captain-seat read against the primary DC-9-51 cockpit reference: squared yokes with checklist placards, yoke button/detail cues, readable gauge labels, a visible forward-overhead control band, denser instrument panel, colored attitude-indicator cues, deeper analog gauge wells, small glass glints, busier primary/engine instrument faces, black mechanical pedestal/throttle/radio-stack detail, glareshield controls, segmented glare-shield annunciator/status modules, windshield/wiper/paper-stack reference cues, recessed instrument trays, side paperwork, subtle seat foreground cues, small eyebrow lamps, clearer cockpit enclosure, visible lower kick panels/rudder-pedal cues, floor scuffing, panel fastener/paint-chip/grime variation, and less flat main-panel presentation.
+- Manual visual inspection of `preview-renders/dc9-captain-approval.png` confirmed a stronger captain-seat read against the primary DC-9-51 cockpit reference: squared yokes with checklist placards, yoke button/detail cues, readable gauge labels, a visible forward-overhead control band, denser instrument panel, colored attitude-indicator cues, deeper analog gauge wells, small glass glints, busier primary/engine instrument faces, black mechanical pedestal/throttle/radio-stack detail, denser foreground pedestal selector panels, glareshield controls, segmented glare-shield annunciator/status modules, windshield/wiper/paper-stack reference cues, recessed instrument trays, side paperwork, subtle seat foreground cues, small eyebrow lamps, clearer cockpit enclosure, visible lower kick panels/rudder-pedal cues, floor scuffing, panel fastener/paint-chip/grime variation, and less flat main-panel presentation.
 
 ## Known Deviations
 
@@ -137,5 +139,6 @@ Results:
 - The yoke buttons, badges, checklist strips, and wear highlights are proof-stage readability cues; production art should refine the exact yoke casting shape, placard layout, button placement, and grip material against closer DC-9-51 yoke references.
 - The panel-surface aging is intentionally procedural geometry for proof-stage readability. Production art should replace much of it with baked paint wear, accurate screw placement, and real placard typography once the detailed panel model is built.
 - The segmented glare-shield annunciator/status modules are noninteractive proof-stage density cues. Production art should refine exact placement, labeling, lamp colors, and integration with the DC-9 glare-shield and main-panel brow references.
-- The new gauge-depth details use geometry for local approval readability and increase GLB size to 5.82 MiB. Production art should convert much of this fine ring/glint/mark detail to baked instrument textures once the detailed panel model is ready.
+- The gauge-depth details use geometry for local approval readability and contribute materially to the current 6.05 MiB GLB size. Production art should convert much of this fine ring/glint/mark detail to baked instrument textures once the detailed panel model is ready.
+- The foreground pedestal density pass remains proof-stage and intentionally uses generic fictional labels. Production art should refine the pedestal proportions, panel breaks, lever clearances, and label typography against direct DC-9 pedestal references.
 - The browser integration is Windows-owned under `src/**`; this Ubuntu branch only provides the deployable GLB and documented runtime contract.
