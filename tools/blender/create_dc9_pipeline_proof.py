@@ -304,6 +304,29 @@ def add_forward_overhead_face(parent, mat_panel, mat_switch, mat_amber, mat_labe
     add_label("DC9_FORWARD_OVERHEAD_LABEL_01", parent, "OVHD", (0, -0.952, 1.43), 0.03, mat_label, (math.radians(82), 0, math.radians(180)))
 
 
+def add_overhead_reference_density(parent, mat_panel, mat_dark, mat_metal, mat_amber, mat_label, mat_screw, mat_light):
+    panels = [
+        ("DC9_OVERHEAD_DENSE_PANEL_LEFT_01", -0.54),
+        ("DC9_OVERHEAD_DENSE_PANEL_RIGHT_01", 0.54),
+    ]
+    for name, x in panels:
+        panel = soft_cube(name, parent, (x, -0.43, 1.585), (0.86, 0.72, 0.035), mat_dark, (math.radians(4), 0, 0), 0.008)
+        panel["detail_role"] = "primary_reference_overhead_switch_density"
+    for row, y in enumerate([-0.68, -0.52, -0.36, -0.2, -0.04]):
+        for col, x in enumerate([-0.84, -0.66, -0.48, -0.3, 0.3, 0.48, 0.66, 0.84]):
+            cylinder(f"DC9_OVERHEAD_DENSE_KNOB_{row:02d}_{col:02d}", parent, (x, y, 1.62), 0.018, 0.035, mat_metal, 14, (0, 0, 0))
+            if row in {1, 3}:
+                soft_cube(f"DC9_OVERHEAD_DENSE_LABEL_STRIP_{row:02d}_{col:02d}", parent, (x, y + 0.055, 1.617), (0.075, 0.012, 0.012), mat_label, bevel_amount=0.002)
+    for idx, x in enumerate([-0.72, -0.42, -0.12, 0.12, 0.42, 0.72]):
+        soft_cube(f"DC9_OVERHEAD_AMBER_LEGEND_WINDOW_{idx:02d}", parent, (x, -0.82, 1.595), (0.11, 0.036, 0.02), mat_amber, bevel_amount=0.003)
+    for idx, (x, y) in enumerate([(-0.96, -0.78), (-0.12, -0.78), (0.12, -0.78), (0.96, -0.78), (-0.96, 0.0), (-0.12, 0.0), (0.12, 0.0), (0.96, 0.0)]):
+        cylinder(f"DC9_OVERHEAD_PANEL_SCREW_{idx:02d}", parent, (x, y, 1.622), 0.014, 0.01, mat_screw, 14, (0, 0, 0))
+    for idx, x in enumerate([-1.22, 1.22]):
+        soft_cube(f"DC9_EYEBROW_DOME_LIGHT_{idx:02d}", parent, (x, -1.15, 1.18), (0.12, 0.018, 0.04), mat_light, bevel_amount=0.01)
+    add_label("DC9_OVERHEAD_PANEL_LABEL_LEFT_01", parent, "FUEL  ELEC", (-0.56, -0.115, 1.625), 0.022, mat_label, (math.radians(0), 0, 0))
+    add_label("DC9_OVERHEAD_PANEL_LABEL_RIGHT_01", parent, "AIR  HYD", (0.56, -0.115, 1.625), 0.022, mat_label, (math.radians(0), 0, 0))
+
+
 def add_glareshield_control_strip(parent, mat_panel, mat_knob, mat_amber, mat_blue, mat_label):
     strip = soft_cube("DC9_GLARESHIELD_AUTOPILOT_STRIP_01", parent, (0, -0.93, 1.025), (1.95, 0.055, 0.16), mat_panel, bevel_amount=0.012)
     strip["detail_role"] = "primary_reference_glareshield_control_strip"
@@ -499,6 +522,7 @@ def create_scene() -> None:
     grime_mat = material("DC9_SOFT_GRIME_SHADOW", (0.018, 0.026, 0.025, 1), 0.92)
     amber_mat = material("DC9_ANNUNCIATOR_AMBER_EMISSIVE", (1.0, 0.46, 0.08, 1), 0.35, emission=((1.0, 0.39, 0.05, 1), 1.8))
     green_mat = material("DC9_ANNUNCIATOR_GREEN_EMISSIVE", (0.18, 0.68, 0.3, 1), 0.42, emission=((0.09, 0.75, 0.22, 1), 1.1))
+    warm_light_mat = material("DC9_WARM_DOME_LIGHT", (1.0, 0.82, 0.56, 1), 0.25, emission=((1.0, 0.7, 0.32, 1), 0.9))
     blue_mat = material("DC9_PANEL_BLUE_PUSHBUTTON", (0.06, 0.16, 0.42, 1), 0.48, emission=((0.03, 0.08, 0.22, 1), 0.35))
     red_mat = material("DC9_HIDDEN_DESTINATION_RED", (0.65, 0.04, 0.025, 1), 0.38, emission=((0.9, 0.05, 0.02, 1), 0.9))
 
@@ -543,6 +567,7 @@ def create_scene() -> None:
     soft_cube("DC9_CENTER_PEDESTAL_SIDE_SHADOW_02", static, (0.44, -0.18, 0.02), (0.05, 1.18, 0.33), panel_dark, bevel_amount=0.012)
     soft_cube("DC9_OVERHEAD_PANEL_BLOCKOUT_01", static, (0, -0.2, 1.47), (1.5, 1.08, 0.08), panel_mat, bevel_amount=0.018)
     add_forward_overhead_face(static, placard_mat, metal_mat, amber_mat, tick_mat)
+    add_overhead_reference_density(static, placard_mat, dark_mat, metal_mat, amber_mat, tick_mat, screw_mat, warm_light_mat)
     soft_cube("DC9_PEDESTAL_THROTTLE_SLOT_01", static, (0, -0.39, 0.26), (0.5, 0.7, 0.035), dark_mat, bevel_amount=0.01)
     add_center_pedestal_reference_stack(static, placard_mat, metal_mat, grip_mat, tick_mat, wear_mat, amber_mat, green_mat)
     add_pedestal_micro_detail(static, dark_mat, metal_mat, tick_mat, amber_mat, green_mat)
