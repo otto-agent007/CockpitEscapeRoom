@@ -602,6 +602,48 @@ def add_panel_wear(parent, mat_wear, mat_shadow):
         cube(f"DC9_PANEL_GRIME_SHADOW_{idx:02d}", parent, loc, (0.11, 0.01, 0.024), mat_shadow, (0, math.radians((idx - 1) * 12), 0))
 
 
+def add_panel_surface_aging(parent, mat_screw, mat_wear, mat_shadow, mat_placard, mat_label):
+    screw_rows = [
+        ("CAPTAIN", [-1.48, -1.22, -0.96, -0.7, -0.44], [0.86, 0.18]),
+        ("CENTER", [-0.22, 0.02, 0.26, 0.5], [0.87, 0.25]),
+        ("FIRST_OFFICER", [0.62, 0.88, 1.14, 1.4], [0.86, 0.18]),
+    ]
+    screw_index = 0
+    for section, xs, zs in screw_rows:
+        for z in zs:
+            for x in xs:
+                screw = cylinder(f"DC9_PANEL_SURFACE_SCREW_{section}_{screw_index:02d}", parent, (x, -0.803, z), 0.011, 0.008, mat_screw, 14)
+                screw["detail_role"] = "primary_reference_panel_fastener_grid"
+                screw_index += 1
+    chip_specs = [
+        (-1.52, 0.72, 0.11, -8), (-1.34, 0.31, 0.08, 11), (-0.52, 0.78, 0.07, -16),
+        (-0.28, 0.39, 0.09, 7), (0.42, 0.72, 0.08, 13), (0.66, 0.31, 0.07, -12),
+        (1.18, 0.77, 0.1, 6), (1.5, 0.36, 0.08, -9),
+    ]
+    for idx, (x, z, length, angle) in enumerate(chip_specs):
+        chip = soft_cube(
+            f"DC9_PANEL_PAINT_CHIP_{idx:02d}",
+            parent,
+            (x, -0.796, z),
+            (length, 0.006, 0.012),
+            mat_wear,
+            (0, math.radians(angle), 0),
+            0.002,
+        )
+        chip["detail_role"] = "restrained_paint_edge_wear"
+    grime_specs = [
+        (-1.24, 0.155, 0.52), (-0.72, 0.155, 0.34), (0.04, 0.19, 0.44), (0.9, 0.155, 0.42), (1.36, 0.155, 0.3),
+    ]
+    for idx, (x, z, width) in enumerate(grime_specs):
+        soft_cube(f"DC9_LOWER_PANEL_GRIME_FEATHER_{idx:02d}", parent, (x, -0.797, z), (width, 0.006, 0.018), mat_shadow, bevel_amount=0.002)
+    placards = [
+        ("HYD PRESS", -1.42, 0.12), ("WARN", -0.52, 0.12), ("FUEL FLOW", 0.06, 0.18), ("ANTI ICE", 0.66, 0.12), ("CABIN", 1.42, 0.12),
+    ]
+    for idx, (text, x, z) in enumerate(placards):
+        soft_cube(f"DC9_SMALL_BLACK_SERVICE_PLACARD_{idx:02d}", parent, (x, -0.802, z), (0.18, 0.01, 0.036), mat_placard, bevel_amount=0.003)
+        add_label(f"DC9_SMALL_SERVICE_PLACARD_TEXT_{idx:02d}", parent, text, (x, -0.812, z), 0.014, mat_label, (math.radians(90), 0, math.radians(180)))
+
+
 def add_lower_panel_controls(parent, mat_knob, mat_mark, mat_placard):
     for idx, x in enumerate([-1.38, -1.22, -1.06, -0.9, -0.74, 0.72, 0.88, 1.04, 1.2, 1.36]):
         cylinder(f"DC9_LOWER_PANEL_KNOB_{idx:02d}", parent, (x, -0.835, 0.2), 0.035, 0.032, mat_knob, 24)
@@ -737,6 +779,7 @@ def create_scene() -> None:
     add_pedestal_micro_detail(static, dark_mat, metal_mat, tick_mat, amber_mat, green_mat)
     add_panel_seams(static, placard_mat)
     add_panel_wear(static, wear_mat, grime_mat)
+    add_panel_surface_aging(static, screw_mat, wear_mat, grime_mat, placard_mat, tick_mat)
     for x in [-0.16, 0.0, 0.16]:
         soft_cube(f"DC9_THROTTLE_LEVER_BLOCKOUT_{int((x + 1) * 100):03d}", static, (x, -0.51, 0.48), (0.045, 0.08, 0.38), metal_mat, (math.radians(-18), 0, 0), 0.012)
         cylinder(f"DC9_THROTTLE_KNOB_BLOCKOUT_{int((x + 1) * 100):03d}", static, (x, -0.59, 0.68), 0.05, 0.075, grip_mat, 24, (math.pi / 2, 0, 0))
