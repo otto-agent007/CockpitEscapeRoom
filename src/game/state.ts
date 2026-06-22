@@ -2,10 +2,11 @@ import { dc9Atmosphere } from './config'
 
 export const GAME_SCHEMA_VERSION = 1 as const
 export const SWITCH_ORDER = ['battery', 'navigation', 'cabin'] as const
+export const PUZZLE_IDS = ['power', 'route'] as const
 export type SwitchId = (typeof SWITCH_ORDER)[number]
 export type GameMode = 'crew' | 'captain'
 export type GamePhase = 'briefing' | 'power' | 'route' | 'complete' | 'mars'
-export type PuzzleId = 'power' | 'route'
+export type PuzzleId = (typeof PUZZLE_IDS)[number]
 
 export interface GameState {
   schemaVersion: typeof GAME_SCHEMA_VERSION
@@ -197,5 +198,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 }
 
 export function gameProgress(state: GameState): number {
-  return Math.round((state.completedPuzzles.length / 2) * 100)
+  const completed = new Set(state.completedPuzzles.filter((id): id is PuzzleId => PUZZLE_IDS.includes(id)))
+  const totalPuzzles: number = PUZZLE_IDS.length
+  if (totalPuzzles === 0) return 0
+  const ratio = completed.size / totalPuzzles
+  return Math.round(Math.max(0, Math.min(1, ratio)) * 100)
 }

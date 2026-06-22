@@ -1,9 +1,19 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { OrbitControls as ThreeOrbitControls } from 'three/addons/controls/OrbitControls.js'
 import * as THREE from 'three'
 import { SWITCH_ORDER, type SwitchId } from '../game/state'
 
+interface PrototypeSceneProps {
+  activeSwitches: SwitchId[]
+  phase: 'power' | 'route' | 'complete' | 'mars'
+  captainRewardUnlocked: boolean
+  reducedMotion: boolean
+  onSwitch: (switchId: SwitchId) => void
+  onMars: () => void
+}
+
+type HoverHandler = (hovering: boolean) => void
 
 function LimitedOrbitControls() {
   const { camera, gl } = useThree()
@@ -33,13 +43,20 @@ function LimitedOrbitControls() {
   return null
 }
 
-interface PrototypeSceneProps {
-  activeSwitches: SwitchId[]
-  phase: 'power' | 'route' | 'complete' | 'mars'
-  captainRewardUnlocked: boolean
-  reducedMotion: boolean
-  onSwitch: (switchId: SwitchId) => void
-  onMars: () => void
+function useInteractiveCursor() {
+  const hoverCountRef = useRef(0)
+
+  useEffect(() => {
+    return () => {
+      hoverCountRef.current = 0
+      document.body.style.cursor = 'default'
+    }
+  }, [])
+
+  return useCallback((hovering: boolean) => {
+    hoverCountRef.current = hovering ? hoverCountRef.current + 1 : Math.max(0, hoverCountRef.current - 1)
+    document.body.style.cursor = hoverCountRef.current > 0 ? 'pointer' : 'default'
+  }, [])
 }
 
 interface LeverProps {
@@ -47,9 +64,10 @@ interface LeverProps {
   position: [number, number, number]
   active: boolean
   onActivate: (id: SwitchId) => void
+  onHoverInteractive: HoverHandler
 }
 
-function Lever({ id, position, active, onActivate }: LeverProps) {
+function Lever({ id, position, active, onActivate, onHoverInteractive }: LeverProps) {
   return (
     <group position={position}>
       <mesh castShadow receiveShadow>
@@ -64,10 +82,13 @@ function Lever({ id, position, active, onActivate }: LeverProps) {
           onActivate(id)
         }}
         onPointerOver={() => {
-          document.body.style.cursor = 'pointer'
+          onHoverInteractive(true)
         }}
         onPointerOut={() => {
-          document.body.style.cursor = 'default'
+          onHoverInteractive(false)
+        }}
+        onPointerLeave={() => {
+          onHoverInteractive(false)
         }}
         castShadow
       >
@@ -143,7 +164,8 @@ function CockpitGreybox({
   reducedMotion,
   onSwitch,
   onMars,
-}: PrototypeSceneProps) {
+  onInteractiveHover,
+}: PrototypeSceneProps & { onInteractiveHover: HoverHandler }) {
   const phaseComplete = phase === 'route' || phase === 'complete' || phase === 'mars'
   const switchPositions = useMemo<[number, number, number][]>(
     () => [
@@ -174,6 +196,7 @@ function CockpitGreybox({
             position={switchPositions[index] ?? [0, 0, 0]}
             active={activeSwitches.includes(id)}
             onActivate={onSwitch}
+            onHoverInteractive={onInteractiveHover}
           />
         ))}
         <mesh position={[1.3, 0.93, 0.21]}>
@@ -187,10 +210,13 @@ function CockpitGreybox({
             if (phase === 'complete' || phase === 'mars') onMars()
           }}
           onPointerOver={() => {
-            if (phase === 'complete' || phase === 'mars') document.body.style.cursor = 'pointer'
+            if (phase === 'complete' || phase === 'mars') onInteractiveHover(true)
           }}
           onPointerOut={() => {
-            document.body.style.cursor = 'default'
+            onInteractiveHover(false)
+          }}
+          onPointerLeave={() => {
+            onInteractiveHover(false)
           }}
         >
           <sphereGeometry args={[0.07, 20, 20]} />
@@ -214,6 +240,8 @@ function CockpitGreybox({
 }
 
 export function PrototypeScene(props: PrototypeSceneProps) {
+  const onInteractiveHover = useInteractiveCursor()
+
   return (
     <div className="scene" aria-label="Interactive 3D cockpit greybox">
       <Canvas
@@ -222,7 +250,7 @@ export function PrototypeScene(props: PrototypeSceneProps) {
         shadows
         fallback={<div className="canvas-fallback">WebGL is unavailable. Use the mirrored HTML controls.</div>}
       >
-        <CockpitGreybox {...props} />
+        <CockpitGreybox {...props} onInteractiveHover={onInteractiveHover} />
       </Canvas>
       <div className="prototype-badge">GREYBOX — NOT FINAL DC-9 ART</div>
     </div>
