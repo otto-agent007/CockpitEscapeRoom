@@ -36,7 +36,8 @@ npm run assets:check
 - Dad is portrayed as an expert pilot; the story is a commemorative legacy lockout, not a mistake or emergency he caused.
 - The DC-9 and Airbus must be visually convincing, but puzzle procedures remain fictional and non-operational.
 - The Airbus model and exact DC-9 variant are still confirmation items.
-- No production aircraft, airline, or vehicle asset may be used without an original-work or license record.
+- Private, personalized noncommercial builds may include owner-supplied or privately licensed aircraft, airline, and vehicle assets with explicit scope and consent.
+- For any public or distributable release flow, only production aircraft, airline, or vehicle assets with an original-work or license record may be used.
 - Do not implement a Blender MCP until the command-line asset pipeline is proven reliable.
 
 See [`BLUEPRINT.md`](BLUEPRINT.md) for the full product and delivery blueprint.
