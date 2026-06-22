@@ -113,7 +113,8 @@ Stop only when validation passes, a bounded maximum attempt count is reached, th
 - Never edit generated GLBs by hand.
 - Stable object names, pivots, hierarchy, animations, and `game_id` custom properties are public runtime contracts.
 - Do not run destructive GLB optimization until hierarchy and interaction regression tests prove it safe.
-- Do not use unlicensed aircraft photos, airline artwork, logos, vehicle models, fonts, audio, or textures.
+- Private, personalized noncommercial builds may import owner-supplied airline artwork, logos, textures, and production assets when clearly intended for that private scope.
+- For any import used outside the private, noncommercial flow, keep only original-work or licensed rights for production use, and record each source in `LICENSES/ASSET_MANIFEST.md`.
 
 ## Approval gates
 

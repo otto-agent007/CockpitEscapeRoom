@@ -16,7 +16,7 @@ Excluded: full cockpit detail, real procedures, all five final puzzles, Airbus, 
 
 ## Context and constraints
 
-Follow `AGENTS.md`, `docs/VISUAL_REALISM.md`, `docs/ASSET_CONTRACT.md`, and `docs/BLENDER_PIPELINE.md`. The cockpit must look model-specific in major geometry, but interactions remain fictional. Do not use unlicensed photos as textures or copy airline logos/liveries.
+Follow `AGENTS.md`, `docs/VISUAL_REALISM.md`, `docs/ASSET_CONTRACT.md`, and `docs/BLENDER_PIPELINE.md`. The cockpit must look model-specific in major geometry, but interactions remain fictional. Private, personalized noncommercial sourcing may use owner-approved photos or logos, and all production import decisions must still be tracked in `LICENSES/ASSET_MANIFEST.md` when used outside that private scope.
 
 ## Progress
 
