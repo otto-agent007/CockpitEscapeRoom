@@ -19,6 +19,7 @@ Date: 2026-06-22
 - Goal-loop visual pass 1: 2026-06-22 captain-seat improvement pass regenerated the source blend, deployable GLB, and approval render from `tools/blender/create_dc9_pipeline_proof.py`.
 - Goal-loop visual pass 2: 2026-06-22 primary-reference alignment pass used `art-source/references/dc9-51/primary/dc9_51_n775nc_cockpit_primary.jpg` as the shape/color target for the yokes, overhead band, panel labels, blue-grey material balance, and visible cockpit density.
 - Goal-loop visual pass 3: 2026-06-22 pedestal and glareshield reference pass added a black throttle quadrant/radio stack and denser glareshield/autopilot strip to better match the primary DC-9-51 cockpit reference silhouette.
+- Goal-loop local batch 4: 2026-06-22 cockpit enclosure and panel-depth pass added windshield posts, wiper arms, glareshield stall-handle cues, a yellow paper stack, right-side wall depth, and recessed instrument trays. This batch is kept local until enough visual iterations justify a PR update.
 
 ## Asset Contents
 
@@ -45,6 +46,8 @@ Date: 2026-06-22
   - added a camera-facing forward-overhead strip with knobs and amber windows, non-mirrored instrument labels, tinted windshield panes, sidewall ribs, circuit-breaker detail, and restrained wear/grime accents
   - added a black pedestal throttle quadrant with rails, lever handles, toggle rows, radio digit windows, and small knobs to give the lower-center view a more mechanical DC-9 read
   - added a denser glareshield/autopilot strip with knobs, amber readouts, blue pushbuttons, and a visible label band
+  - added primary-reference enclosure cues: off-white windshield posts, wiper arms, side brow/stall-handle shapes, right-side sidewall ribs, and the yellow glareshield paper stack visible in the seed photo
+  - added recessed dark instrument trays and small warning/header placards to reduce the flat blue-panel look
 
 ## Runtime Contract
 
@@ -69,10 +72,10 @@ Custom properties exported to glTF extras:
 
 ## GLB Inspection
 
-- GLB size: 2,411,332 bytes / 2.30 MiB
-- Node count: 602
-- Mesh count: 591
-- Material count: 21
+- GLB size: 2,579,768 bytes / 2.46 MiB
+- Node count: 642
+- Mesh count: 631
+- Material count: 23
 - Animation count: 1
 - Camera count: 1
 - Textures: none
@@ -100,7 +103,7 @@ Results:
 - `gltf-transform validate` reported no errors and no warnings. It reports info-level unused UV attributes and empty hierarchy nodes; these are expected for this named blockout because UVs are reserved for later texture work and empty hierarchy nodes preserve the asset contract.
 - `npm run assets:check` passed.
 - `npm run check` passed as non-mutating validation; browser integration remains Windows-owned.
-- Manual visual inspection of `preview-renders/dc9-captain-approval.png` confirmed a stronger captain-seat read against the primary DC-9-51 cockpit reference: squared yokes with checklist placards, readable gauge labels, a visible forward-overhead control band, denser instrument panel, black mechanical pedestal/throttle/radio-stack detail, glareshield controls, clearer pedestal depth, and less flat main-panel presentation.
+- Manual visual inspection of `preview-renders/dc9-captain-approval.png` confirmed a stronger captain-seat read against the primary DC-9-51 cockpit reference: squared yokes with checklist placards, readable gauge labels, a visible forward-overhead control band, denser instrument panel, black mechanical pedestal/throttle/radio-stack detail, glareshield controls, windshield/wiper/paper-stack reference cues, recessed instrument trays, clearer cockpit enclosure, and less flat main-panel presentation.
 
 ## Known Deviations
 
@@ -110,4 +113,5 @@ Results:
 - The current captain view is more recognizable and more dramatic than the first pipeline proof, but it still needs reference-driven production modeling, real panel sub-shapes, proper baked labels/wear, and browser review before the greybox label can be removed.
 - The forward-overhead band is intentionally simplified and pulled into the approval camera view for reference alignment; production art should replace it with correctly positioned overhead geometry once the full cockpit shell advances beyond proof stage.
 - The pass-3 pedestal remains simplified and slightly oversized for proof-stage readability. Production art should refine the pedestal proportions, throttle lever spacing, radio stack depth, and material breakup against additional primary references.
+- The windshield posts, wipers, stall-handle cues, and paper stack are proof-stage silhouettes placed to improve the captain approval view; production art should refine their exact shape, anchoring, and windshield-frame integration.
 - The browser integration is Windows-owned under `src/**`; this Ubuntu branch only provides the deployable GLB and documented runtime contract.

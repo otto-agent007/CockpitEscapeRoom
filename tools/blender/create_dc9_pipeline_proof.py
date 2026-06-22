@@ -276,6 +276,23 @@ def add_annunciator_bank(parent, mat_housing, mat_amber, mat_green, mat_text):
     add_label("DC9_ANNUNCIATOR_BANK_LABEL_01", parent, "SYS", (0.98, -0.872, 0.985), 0.024, mat_text)
 
 
+def add_main_panel_inset_trays(parent, mat_dark, mat_placard, mat_amber, mat_red, mat_label):
+    trays = [
+        ("DC9_CAPTAIN_INSTRUMENT_RECESSED_TRAY_01", (-0.98, -0.915, 0.57), (0.92, 0.035, 0.64)),
+        ("DC9_FIRST_OFFICER_INSTRUMENT_RECESSED_TRAY_01", (1.03, -0.915, 0.57), (0.92, 0.035, 0.64)),
+        ("DC9_CENTER_ENGINE_RECESSED_TRAY_01", (0.14, -0.925, 0.61), (0.62, 0.035, 0.6)),
+    ]
+    for name, loc, scale in trays:
+        tray = soft_cube(name, parent, loc, scale, mat_dark, bevel_amount=0.01)
+        tray["detail_role"] = "primary_reference_recessed_instrument_tray"
+    for idx, (x, z) in enumerate([(-1.44, 0.91), (-0.54, 0.91), (0.66, 0.91), (1.43, 0.91)]):
+        soft_cube(f"DC9_PANEL_WARNING_FLAG_{idx:02d}", parent, (x, -0.872, z), (0.12, 0.02, 0.055), mat_red if idx in {0, 3} else mat_amber, bevel_amount=0.004)
+    for idx, (text, x) in enumerate([("A/C 9866", -1.08), ("A/C 9866", 1.08), ("FLIGHT INST", -0.98), ("NAV INST", 1.02)]):
+        add_label(f"DC9_PANEL_SMALL_HEADER_{idx:02d}", parent, text, (x, -0.866, 0.875 if idx < 2 else 0.18), 0.024, mat_label, (math.radians(90), 0, math.radians(180)))
+    for idx, x in enumerate([-1.52, -0.44, 0.58, 1.52]):
+        soft_cube(f"DC9_PANEL_BLACK_MODULE_EDGE_{idx:02d}", parent, (x, -0.87, 0.52), (0.035, 0.025, 0.55), mat_placard, bevel_amount=0.003)
+
+
 def add_forward_overhead_face(parent, mat_panel, mat_switch, mat_amber, mat_label):
     face = soft_cube("DC9_FORWARD_OVERHEAD_FACE_01", parent, (0, -1.02, 1.34), (1.9, 0.08, 0.18), mat_panel, (math.radians(-8), 0, 0), 0.012)
     face["detail_role"] = "visible_forward_overhead_reference_band"
@@ -319,13 +336,55 @@ def add_window_depth(parent, mat_frame, mat_glass):
     soft_cube("DC9_WINDSHIELD_LOWER_SHADOW_LIP_01", parent, (0, -1.485, 0.49), (2.25, 0.08, 0.055), mat_frame, bevel_amount=0.01)
 
 
+def add_windshield_reference_hardware(parent, mat_frame, mat_light, mat_dark, mat_label):
+    for side, x, angle in [("LEFT", -0.52, -16), ("RIGHT", 0.52, 16)]:
+        soft_cube(f"DC9_WINDSHIELD_{side}_WHITE_POST_01", parent, (x, -1.575, 0.96), (0.08, 0.065, 0.82), mat_light, (0, 0, math.radians(angle * 0.16)), 0.012)
+        cylinder(f"DC9_WINDSHIELD_{side}_WIPER_PIVOT_01", parent, (x * 1.42, -1.595, 0.62), 0.032, 0.022, mat_dark, 24, (math.pi / 2, 0, 0))
+        blade = soft_cube(
+            f"DC9_WINDSHIELD_{side}_WIPER_ARM_01",
+            parent,
+            (x * 1.18, -1.61, 0.67),
+            (0.58, 0.024, 0.024),
+            mat_dark,
+            (0, 0, math.radians(-6 if side == "LEFT" else 6)),
+            0.006,
+        )
+        blade["detail_role"] = "primary_reference_windshield_wiper"
+    add_label("DC9_GLARESHIELD_STALL_LABEL_LEFT_01", parent, "STALL", (-1.36, -1.185, 1.035), 0.042, mat_label, (math.radians(88), 0, math.radians(170)))
+    add_label("DC9_GLARESHIELD_STALL_LABEL_RIGHT_01", parent, "STALL", (1.36, -1.185, 1.035), 0.042, mat_label, (math.radians(88), 0, math.radians(190)))
+    for side, x, angle in [("LEFT", -1.34, -14), ("RIGHT", 1.34, 14)]:
+        soft_cube(f"DC9_GLARESHIELD_{side}_STALL_HANDLE_BASE_01", parent, (x, -1.17, 0.98), (0.34, 0.055, 0.07), mat_dark, (0, 0, math.radians(angle)), 0.012)
+        cylinder(f"DC9_GLARESHIELD_{side}_STALL_HANDLE_KNOB_01", parent, (x + (-0.2 if side == "LEFT" else 0.2), -1.19, 0.965), 0.04, 0.07, mat_dark, 24, (math.pi / 2, 0, 0))
+
+
+def add_glareshield_paper_stack(parent, mat_paper, mat_shadow):
+    base_y = -1.39
+    for idx in range(5):
+        paper = soft_cube(
+            f"DC9_GLARESHIELD_YELLOW_PAPER_STACK_{idx:02d}",
+            parent,
+            (0.78 + idx * 0.008, base_y - idx * 0.006, 1.145 + idx * 0.008),
+            (0.42, 0.28, 0.012),
+            mat_paper,
+            (math.radians(5), 0, math.radians(3 + idx * 0.8)),
+            0.003,
+        )
+        paper["detail_role"] = "primary_reference_glareshield_paper_stack"
+    soft_cube("DC9_GLARESHIELD_PAPER_STACK_SHADOW_01", parent, (0.79, -1.385, 1.125), (0.45, 0.3, 0.01), mat_shadow, (math.radians(5), 0, math.radians(3)), 0.003)
+
+
 def add_sidewall_depth(parent, mat_shell, mat_dark, mat_wear):
     soft_cube("DC9_LEFT_SIDEWALL_RIB_FORWARD_01", parent, (-1.93, -0.95, 0.7), (0.055, 0.08, 1.0), mat_dark, bevel_amount=0.01)
     soft_cube("DC9_LEFT_SIDEWALL_RIB_AFT_01", parent, (-1.93, 0.38, 0.58), (0.055, 0.08, 0.82), mat_dark, bevel_amount=0.01)
     soft_cube("DC9_LEFT_SIDE_WINDOW_SILL_01", parent, (-1.92, -0.22, 0.82), (0.08, 1.16, 0.06), mat_shell, bevel_amount=0.01)
     soft_cube("DC9_LEFT_ARMREST_SHADOW_01", parent, (-1.75, -0.02, 0.1), (0.38, 1.0, 0.11), mat_dark, bevel_amount=0.018)
+    soft_cube("DC9_RIGHT_SIDEWALL_RIB_FORWARD_01", parent, (1.93, -0.95, 0.7), (0.055, 0.08, 1.0), mat_dark, bevel_amount=0.01)
+    soft_cube("DC9_RIGHT_SIDEWALL_RIB_AFT_01", parent, (1.93, 0.38, 0.58), (0.055, 0.08, 0.82), mat_dark, bevel_amount=0.01)
+    soft_cube("DC9_RIGHT_SIDE_WINDOW_SILL_01", parent, (1.92, -0.22, 0.82), (0.08, 1.16, 0.06), mat_shell, bevel_amount=0.01)
+    soft_cube("DC9_RIGHT_ARMREST_SHADOW_01", parent, (1.75, -0.02, 0.1), (0.38, 1.0, 0.11), mat_dark, bevel_amount=0.018)
     for idx, y in enumerate([-0.72, -0.18, 0.36]):
         soft_cube(f"DC9_LEFT_SIDEWALL_WEAR_STRIP_{idx:02d}", parent, (-1.875, y, 0.98), (0.012, 0.34, 0.018), mat_wear, bevel_amount=0.002)
+        soft_cube(f"DC9_RIGHT_SIDEWALL_WEAR_STRIP_{idx:02d}", parent, (1.875, y, 0.98), (0.012, 0.34, 0.018), mat_wear, bevel_amount=0.002)
 
 
 def add_panel_wear(parent, mat_wear, mat_shadow):
@@ -388,6 +447,7 @@ def create_scene() -> None:
     panel_mat = material("DC9_PANEL_BLUE_GREY", (0.135, 0.285, 0.305, 1), 0.86, 0.02)
     panel_dark = material("DC9_PANEL_DARK_BLUE_GREY", (0.045, 0.075, 0.085, 1), 0.82, 0.04)
     shell_mat = material("DC9_SHELL_WARM_GREY", (0.28, 0.29, 0.27, 1), 0.78)
+    post_mat = material("DC9_WINDSHIELD_POST_OFF_WHITE", (0.76, 0.78, 0.72, 1), 0.74, 0.02)
     dark_mat = material("DC9_DARK_BEZEL", (0.025, 0.028, 0.027, 1), 0.58, 0.2)
     glass_mat = material("DC9_GAUGE_GLASS", (0.11, 0.15, 0.16, 0.38), 0.12)
     window_glass_mat = material("DC9_TINTED_WINDOW_GLASS", (0.16, 0.27, 0.3, 0.24), 0.18)
@@ -397,6 +457,7 @@ def create_scene() -> None:
     grip_mat = material("DC9_YOKE_WORN_BLACK", (0.035, 0.032, 0.028, 1), 0.86, 0.04)
     metal_mat = material("DC9_SWITCH_BRUSHED_METAL", (0.48, 0.47, 0.42, 1), 0.44, 0.45)
     card_mat = material("DC9_ROUTE_CARD_OFF_WHITE", (0.86, 0.8, 0.63, 1), 0.88)
+    paper_mat = material("DC9_GLARESHIELD_YELLOW_PAPER", (0.94, 0.82, 0.42, 1), 0.9)
     ink_mat = material("DC9_ROUTE_CARD_INK", (0.05, 0.07, 0.08, 1), 0.8)
     screw_mat = material("DC9_DULL_SCREW_HEADS", (0.42, 0.43, 0.39, 1), 0.58, 0.6)
     placard_mat = material("DC9_BLACK_PLACARD", (0.015, 0.018, 0.017, 1), 0.7, 0.05)
@@ -432,6 +493,7 @@ def create_scene() -> None:
     soft_cube("DC9_WINDOW_LEFT_LOWER_FRAME_01", static, (-1.15, -1.48, 0.62), (0.62, 0.08, 0.06), dark_mat, (0, 0, math.radians(8)), 0.01)
     soft_cube("DC9_WINDOW_RIGHT_LOWER_FRAME_01", static, (1.15, -1.48, 0.62), (0.62, 0.08, 0.06), dark_mat, (0, 0, math.radians(-8)), 0.01)
     add_window_depth(static, dark_mat, window_glass_mat)
+    add_windshield_reference_hardware(static, dark_mat, post_mat, grip_mat, tick_mat)
     add_sidewall_depth(static, shell_mat, dark_mat, wear_mat)
 
     soft_cube("DC9_MAIN_PANEL_BLOCKOUT_01", static, (0, -1.0, 0.42), (3.1, 0.16, 1.03), panel_mat, bevel_amount=0.025)
@@ -439,6 +501,8 @@ def create_scene() -> None:
     soft_cube("DC9_CENTER_ENGINE_PANEL_BLOCKOUT_01", static, (0.12, -1.105, 0.58), (0.72, 0.08, 0.7), panel_dark, bevel_amount=0.018)
     soft_cube("DC9_GLARESHIELD_BLOCKOUT_01", static, (0, -1.21, 1.04), (3.25, 0.48, 0.18), dark_mat, bevel_amount=0.03)
     add_glareshield_control_strip(static, placard_mat, dark_mat, amber_mat, blue_mat, tick_mat)
+    add_glareshield_paper_stack(static, paper_mat, grime_mat)
+    add_main_panel_inset_trays(static, panel_dark, placard_mat, amber_mat, red_mat, tick_mat)
     soft_cube("DC9_CENTER_PEDESTAL_BLOCKOUT_01", static, (0, -0.18, 0.03), (0.78, 1.26, 0.38), panel_mat, bevel_amount=0.025)
     soft_cube("DC9_CENTER_PEDESTAL_SIDE_SHADOW_01", static, (-0.44, -0.18, 0.02), (0.05, 1.18, 0.33), panel_dark, bevel_amount=0.012)
     soft_cube("DC9_CENTER_PEDESTAL_SIDE_SHADOW_02", static, (0.44, -0.18, 0.02), (0.05, 1.18, 0.33), panel_dark, bevel_amount=0.012)
