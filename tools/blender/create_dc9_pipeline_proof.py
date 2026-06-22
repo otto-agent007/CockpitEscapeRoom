@@ -431,6 +431,99 @@ def add_seat_and_paperwork_cues(parent, mat_fabric, mat_dark, mat_paper, mat_lab
     add_label("DC9_LEFT_SIDE_POCKET_LABEL_01", parent, "QRH", (-1.905, 0.46, 0.23), 0.022, mat_label, (math.radians(90), 0, math.radians(-92)))
 
 
+def add_footwell_and_floor_detail(parent, mat_panel, mat_dark, mat_metal, mat_wear, mat_label, mat_rubber, mat_grime):
+    for side, x, angle in [("CAPTAIN", -1.02, -3), ("FIRST_OFFICER", 1.02, 3)]:
+        mat = soft_cube(
+            f"DC9_{side}_BLACK_RUBBER_FLOOR_MAT_01",
+            parent,
+            (x, -0.04, -0.255),
+            (0.72, 1.02, 0.026),
+            mat_rubber,
+            (0, 0, math.radians(angle)),
+            0.012,
+        )
+        mat["detail_role"] = "primary_reference_black_rubber_floor_mat"
+        for idx, offset in enumerate([-0.24, -0.12, 0.0, 0.12, 0.24]):
+            cube(
+                f"DC9_{side}_FLOOR_MAT_RIB_{idx:02d}",
+                parent,
+                (x + offset, -0.04, -0.232),
+                (0.028, 0.88, 0.012),
+                mat_grime,
+                (0, 0, math.radians(angle)),
+            )
+        kick = soft_cube(
+            f"DC9_{side}_LOWER_BLUE_KICK_PANEL_01",
+            parent,
+            (x, -0.92, -0.045),
+            (0.78, 0.055, 0.31),
+            mat_panel,
+            (math.radians(-4), 0, 0),
+            0.012,
+        )
+        kick["detail_role"] = "primary_reference_lower_kick_panel"
+        soft_cube(
+            f"DC9_{side}_KICK_PANEL_SCUFF_BAND_01",
+            parent,
+            (x, -0.888, -0.15),
+            (0.62, 0.014, 0.045),
+            mat_grime,
+            (math.radians(-4), 0, 0),
+            0.003,
+        )
+        for idx, pedal_x in enumerate([x - 0.16, x + 0.16]):
+            slot = soft_cube(
+                f"DC9_{side}_RUDDER_PEDAL_SLOT_{idx:02d}",
+                parent,
+                (pedal_x, -0.875, -0.015),
+                (0.12, 0.018, 0.18),
+                mat_dark,
+                (math.radians(-4), 0, 0),
+                0.004,
+            )
+            slot["detail_role"] = "rudder_pedal_slot_silhouette"
+            cylinder(
+                f"DC9_{side}_RUDDER_PEDAL_ARM_{idx:02d}",
+                parent,
+                (pedal_x, -0.73, -0.085),
+                0.018,
+                0.34,
+                mat_metal,
+                14,
+                (math.radians(58), 0, 0),
+            )
+            pad = soft_cube(
+                f"DC9_{side}_RUDDER_PEDAL_PAD_{idx:02d}",
+                parent,
+                (pedal_x, -0.62, 0.025),
+                (0.16, 0.038, 0.09),
+                mat_rubber,
+                (math.radians(-18), 0, 0),
+                0.008,
+            )
+            pad["detail_role"] = "rudder_pedal_black_pad_silhouette"
+            for rib in [-0.04, 0.0, 0.04]:
+                cube(
+                    f"DC9_{side}_RUDDER_PEDAL_RIB_{idx:02d}_{int((rib + 0.1) * 100):02d}",
+                    parent,
+                    (pedal_x + rib, -0.645, 0.045),
+                    (0.012, 0.012, 0.074),
+                    mat_wear,
+                    (math.radians(-18), 0, 0),
+                )
+        add_label(
+            f"DC9_{side}_FOOTWELL_STENCIL_01",
+            parent,
+            "PED",
+            (x, -0.905, 0.13),
+            0.018,
+            mat_label,
+            (math.radians(88), 0, math.radians(180)),
+        )
+    for idx, (x, y, sx, sy) in enumerate([(-1.46, 0.2, 0.22, 0.04), (-0.78, -0.34, 0.28, 0.035), (0.76, -0.42, 0.24, 0.035), (1.45, 0.16, 0.2, 0.04)]):
+        soft_cube(f"DC9_FLOOR_RANDOM_SCUFF_{idx:02d}", parent, (x, y, -0.225), (sx, sy, 0.008), mat_wear, (0, 0, math.radians((idx - 1) * 11)), 0.002)
+
+
 def add_panel_wear(parent, mat_wear, mat_shadow):
     wear_marks = [
         ("DC9_PANEL_EDGE_WEAR_CAPT_TOP_01", (-0.98, -0.806, 0.865), (0.86, 0.012, 0.012)),
@@ -512,6 +605,7 @@ def create_scene() -> None:
     tick_mat = material("DC9_WARM_INSTRUMENT_MARKS", (0.86, 0.82, 0.68, 1), 0.65)
     white_mat = material("DC9_NEEDLE_WARM_WHITE", (0.92, 0.87, 0.72, 1), 0.42)
     grip_mat = material("DC9_YOKE_WORN_BLACK", (0.035, 0.032, 0.028, 1), 0.86, 0.04)
+    rubber_mat = material("DC9_RUBBER_FLOOR_MAT", (0.018, 0.017, 0.015, 1), 0.96, 0.02)
     metal_mat = material("DC9_SWITCH_BRUSHED_METAL", (0.48, 0.47, 0.42, 1), 0.44, 0.45)
     card_mat = material("DC9_ROUTE_CARD_OFF_WHITE", (0.86, 0.8, 0.63, 1), 0.88)
     paper_mat = material("DC9_GLARESHIELD_YELLOW_PAPER", (0.94, 0.82, 0.42, 1), 0.9)
@@ -554,6 +648,7 @@ def create_scene() -> None:
     add_windshield_reference_hardware(static, dark_mat, post_mat, grip_mat, tick_mat)
     add_sidewall_depth(static, shell_mat, dark_mat, wear_mat)
     add_seat_and_paperwork_cues(static, seat_fabric_mat, dark_mat, card_mat, tick_mat, grime_mat)
+    add_footwell_and_floor_detail(static, panel_mat, dark_mat, metal_mat, wear_mat, tick_mat, rubber_mat, grime_mat)
 
     soft_cube("DC9_MAIN_PANEL_BLOCKOUT_01", static, (0, -1.0, 0.42), (3.1, 0.16, 1.03), panel_mat, bevel_amount=0.025)
     soft_cube("DC9_CAPTAIN_PANEL_SHADOW_BROW_01", static, (-0.86, -1.115, 0.95), (1.05, 0.18, 0.16), panel_dark, bevel_amount=0.018)

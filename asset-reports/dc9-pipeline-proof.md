@@ -22,6 +22,7 @@ Date: 2026-06-22
 - Goal-loop local batch 4: 2026-06-22 cockpit enclosure and panel-depth pass added windshield posts, wiper arms, glareshield stall-handle cues, a yellow paper stack, right-side wall depth, and recessed instrument trays. This batch is kept local until enough visual iterations justify a PR update.
 - Goal-loop local batch 5: 2026-06-22 foreground and pedestal-clutter pass added visible seat-cushion cues, side paperwork pockets, extra pedestal status lights, small knobs, guard posts, and label strips. This remains local; no PR update was opened for this individual iteration.
 - Goal-loop local batch 6: 2026-06-22 overhead-density pass added hidden/partly visible overhead switch panels, amber legend windows, overhead screws, small eyebrow lamps, and overhead labels to support the eventual top-of-frame cockpit density without changing runtime interaction nodes.
+- Goal-loop local batch 7: 2026-06-22 footwell and floor realism pass added lower kick panels, black rubber floor mats, rudder pedal silhouettes, pedal ribs, floor scuffs, and lower-panel grime. This remains local; no PR update was opened for this individual iteration.
 
 ## Asset Contents
 
@@ -52,6 +53,7 @@ Date: 2026-06-22
   - added recessed dark instrument trays and small warning/header placards to reduce the flat blue-panel look
   - added subtle foreground seat fabric, side paperwork pockets, and extra pedestal micro-detail so the captain view feels more occupied and less like a bare demonstration panel
   - added overhead switch-panel density, amber legend windows, screws, and small eyebrow lamps so the ceiling/glareshield area has more reference-driven structure
+  - added lower kick-panel, rubber floor-mat, rudder-pedal, and scuffed-floor cues so the lower cockpit no longer reads as an empty clean shell
 
 ## Runtime Contract
 
@@ -76,10 +78,10 @@ Custom properties exported to glTF extras:
 
 ## GLB Inspection
 
-- GLB size: 2,995,372 bytes / 2.86 MiB
-- Node count: 759
-- Mesh count: 748
-- Material count: 25
+- GLB size: 3,104,152 bytes / 2.96 MiB
+- Node count: 805
+- Mesh count: 794
+- Material count: 26
 - Animation count: 1
 - Camera count: 1
 - Textures: none
@@ -107,7 +109,7 @@ Results:
 - `gltf-transform validate` reported no errors and no warnings. It reports info-level unused UV attributes and empty hierarchy nodes; these are expected for this named blockout because UVs are reserved for later texture work and empty hierarchy nodes preserve the asset contract.
 - `npm run assets:check` passed.
 - `npm run check` passed as non-mutating validation; browser integration remains Windows-owned.
-- Manual visual inspection of `preview-renders/dc9-captain-approval.png` confirmed a stronger captain-seat read against the primary DC-9-51 cockpit reference: squared yokes with checklist placards, readable gauge labels, a visible forward-overhead control band, denser instrument panel, black mechanical pedestal/throttle/radio-stack detail, glareshield controls, windshield/wiper/paper-stack reference cues, recessed instrument trays, side paperwork, subtle seat foreground cues, small eyebrow lamps, clearer cockpit enclosure, and less flat main-panel presentation.
+- Manual visual inspection of `preview-renders/dc9-captain-approval.png` confirmed a stronger captain-seat read against the primary DC-9-51 cockpit reference: squared yokes with checklist placards, readable gauge labels, a visible forward-overhead control band, denser instrument panel, black mechanical pedestal/throttle/radio-stack detail, glareshield controls, windshield/wiper/paper-stack reference cues, recessed instrument trays, side paperwork, subtle seat foreground cues, small eyebrow lamps, clearer cockpit enclosure, visible lower kick panels/rudder-pedal cues, floor scuffing, and less flat main-panel presentation.
 
 ## Known Deviations
 
@@ -120,4 +122,5 @@ Results:
 - The windshield posts, wipers, stall-handle cues, and paper stack are proof-stage silhouettes placed to improve the captain approval view; production art should refine their exact shape, anchoring, and windshield-frame integration.
 - The seat cushions, side pockets, and pedestal micro-detail are local proof-stage density cues; they should be replaced or proportion-refined during production modeling.
 - Much of the new overhead switch density is intentionally only partly visible from the current approval camera. A future overhead approval camera should refine and validate this area directly.
+- The lower kick panels and rudder pedals are proof-stage silhouettes for captain-view realism; production art should refine pedal linkage geometry, footwell clearances, and lower-panel shapes against direct DC-9 references.
 - The browser integration is Windows-owned under `src/**`; this Ubuntu branch only provides the deployable GLB and documented runtime contract.
