@@ -27,7 +27,7 @@ The Blender scene must never touch `art-source/blender/dc9_master.blend`. Refere
 - [x] 2026-06-22 — Added reference validation, download, contact-sheet, brief, and aggregate check scripts.
 - [x] 2026-06-22 — Added Blender reference scene setup and validation/check mode.
 - [x] 2026-06-22 — Ran reference and Blender validation commands; evidence recorded below.
-- [ ] Run full app `npm run check` after npm registry dependency install succeeds.
+- [x] 2026-06-22 — Normalized `package-lock.json` resolved URLs from the internal package gateway to public npm and reran full app validation.
 
 ## Discoveries
 
@@ -41,6 +41,7 @@ The Blender scene must never touch `art-source/blender/dc9_master.blend`. Refere
 - 2026-06-22 — Treat the Wikimedia N775NC cockpit photo as the only primary geometry/layout source in the seed pack.
 - 2026-06-22 — Download only entries with an explicit `direct_image_url`; non-downloadable or presentation sources remain manifest/report references with placeholders.
 - 2026-06-22 — Generate contact sheets as SVG so the pipeline stays stdlib-only and does not require Pillow.
+- 2026-06-22 — Normalize lockfile `resolved` tarball URLs to `https://registry.npmjs.org/` because the previous internal gateway URLs made `npm ci` non-portable and timed out on this machine.
 
 ## Milestones
 
@@ -112,8 +113,9 @@ Repeat review -> focused repair -> execution/validation -> remaining-delta revie
 - `npm run references:check` passed; it validated the manifest, generated artifacts, built/validated the Blender reference scene, and rendered `.cache/references/dc9_reference_overview.png` without downloading.
 - `BLENDER_BIN=/home/user1/.local/bin/blender blender --background --python tools/blender/setup_dc9_reference_scene.py` passed.
 - `npm run assets:check` passed in the bootstrap state with no production GLB files.
-- `npm run check` did not complete: the first attempt failed immediately because `node_modules/.bin/eslint` was missing; `npm install` then became idle and was stopped; `npm ci` retried internal package-gateway tarball downloads for more than seven minutes and was stopped after repeated `ETIMEDOUT` entries. Full app validation remains blocked by dependency installation, not by a known source-code failure.
+- `npm ci` passed after normalizing 447 lockfile package URLs from the internal package gateway to `https://registry.npmjs.org/`.
+- `npm run check` passed: lint, typecheck, 9 Vitest tests, and production build completed.
 
 ## Outcome and handoff
 
-The reference-pack tooling and Blender board are implemented. Remaining limitations: only one seed image is true DC-9-51 cockpit geometry; overhead, pedestal, sidewall, first-officer-side, and close detail views still need owner-approved primary references before production DC-9 modeling. Full app validation should be rerun after dependency installation succeeds.
+The reference-pack tooling and Blender board are implemented. Remaining limitations: only one seed image is true DC-9-51 cockpit geometry; overhead, pedestal, sidewall, first-officer-side, and close detail views still need owner-approved primary references before production DC-9 modeling.
