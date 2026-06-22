@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=24.0.0"
   },
   "scripts": {
     "dev": "vite",
@@ -18,6 +18,11 @@
     "test:e2e:ui": "playwright test --ui",
     "check": "npm run lint && npm run typecheck && npm run test && npm run build",
     "assets:check": "node tools/assets/check-models.mjs",
+    "references:validate": "python3 tools/references/validate_manifest.py",
+    "references:download": "python3 tools/references/download_references.py",
+    "references:contact-sheet": "python3 tools/references/build_contact_sheet.py",
+    "references:brief": "python3 tools/references/generate_modeling_brief.py",
+    "references:check": "python3 tools/references/check_references.py",
     "asset:dc9": "node tools/assets/build-asset.mjs dc9",
     "asset:airbus": "node tools/assets/build-asset.mjs airbus",
     "asset:tesla": "node tools/assets/build-asset.mjs tesla"

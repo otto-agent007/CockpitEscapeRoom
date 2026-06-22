@@ -1,0 +1,153 @@
+dc9_51_n775nc_cockpit_primary:
+  title: McDonnell Douglas DC-9-51 cockpit, N775NC
+  source_page: https://commons.wikimedia.org/wiki/File:McDonnell_Douglas_DC-9-51_cockpit_(2586378690).jpg
+  source_type: wikimedia_commons_photo
+  creator: Cory W. Watts
+  license: CC BY-SA 2.0
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9-51
+    operator: Northwest Airlines
+    registration: N775NC
+  era: Photographed 2008; aircraft manufactured 1979
+  viewpoint: flight deck forward, captain/center perspective
+  classification: primary
+  confidence: high
+  target_compatibility: Primary target match for Northwest DC-9-51 cockpit layout,
+    material family, yokes, main-panel density, glare shield, and windshield relationship.
+    Does not resolve overhead, pedestal, or sidewall close-up details.
+  intended_uses:
+  - captain-eye main panel silhouette
+  - analog instrument density
+  - yoke, glare shield, and windshield relationship
+  - blue-gray panel material family
+  limitations: Single wide cockpit photo; some labels and lower pedestal details are
+    not readable. Use as visual reference only, not as a distributable texture without
+    downstream license review.
+  local_file: dc9-51/primary/dc9_51_n775nc_cockpit_primary.jpg
+  direct_image_url: https://commons.wikimedia.org/wiki/Special:Redirect/file/McDonnell_Douglas_DC-9-51_cockpit_(2586378690).jpg
+  download_status: downloaded
+  notes: Highest-ranked seed source for the reference pack.
+  sha256: 23c9a5693fc293ff2c8c9f0a9375a62d096c93fa685c2f4f0a9037737c94c233
+  downloaded_at: '2026-06-22T01:01:52+00:00'
+dc9_50_n775nc_exterior_context:
+  title: Northwest Airlines McDonnell Douglas DC-9-50 N775NC exterior context
+  source_page: https://commons.wikimedia.org/wiki/File:Northwest_Airlines_McDonnell_Douglas_DC-9-50_N775NC_(2586379220).jpg
+  source_type: wikimedia_commons_photo
+  creator: Cory W. Watts
+  license: CC BY-SA 2.0
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9-50 family
+    operator: Northwest Airlines
+    registration: N775NC
+  era: Photographed 2008
+  viewpoint: exterior three-quarter side context
+  classification: secondary
+  confidence: medium
+  target_compatibility: Same registration/family context for the seed aircraft, but
+    not cockpit geometry authority. Use only for aircraft identity, exterior color-era
+    context, and provenance.
+  intended_uses:
+  - registration/operator context
+  - era context
+  - reference report provenance
+  limitations: Exterior photograph; no cockpit modeling decisions should be derived
+    from this image.
+  local_file: dc9-51/secondary/dc9_50_n775nc_exterior_context.jpg
+  direct_image_url: https://commons.wikimedia.org/wiki/Special:Redirect/file/Northwest_Airlines_McDonnell_Douglas_DC-9-50_N775NC_(2586379220).jpg
+  download_status: downloaded
+  notes: Supports the N775NC seed story, not cockpit geometry.
+  sha256: a898f7b28c3ec5e34e7829cfe45cd0c7761f04b96d7a09cb6851f81aec7529db
+  downloaded_at: '2026-06-22T01:01:52+00:00'
+dc9_40_northwest_cockpit_secondary:
+  title: Northwest Airlines DC-9-40 cockpit
+  source_page: https://commons.wikimedia.org/wiki/File:DC-9_Cockpit.jpg
+  source_type: wikimedia_commons_photo
+  creator: Dmitry Denisenkov / Canwolf
+  license: CC BY 2.5, CC BY-SA 3.0, or GFDL 1.2+ selectable
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9-40
+    operator: Northwest Airlines
+    registration: '9760'
+  era: Photographed 2007
+  viewpoint: cockpit forward, wide view
+  classification: secondary
+  confidence: medium
+  target_compatibility: Nearby Northwest DC-9 variant. Use only for shared analog
+    cockpit density, broad panel color/material, yoke family, and lighting comparison.
+    Do not use for DC-9-51-specific geometry.
+  intended_uses:
+  - shared DC-9 analog layout comparison
+  - material and wear comparison
+  - yoke and glareshield family cues
+  limitations: 'Variant mismatch: DC-9-40, not DC-9-51. Must remain secondary and
+    labeled in any board or brief.'
+  local_file: dc9-51/secondary/dc9_40_northwest_cockpit_secondary.jpg
+  direct_image_url: https://commons.wikimedia.org/wiki/Special:Redirect/file/DC-9_Cockpit.jpg
+  download_status: downloaded
+  notes: Secondary Northwest cockpit source for shared characteristics only.
+  sha256: 39410d0332778479e75fde22d36c607987d29b671d92a819cbf88cbba2068ef4
+  downloaded_at: '2026-06-22T01:01:58+00:00'
+md81_midwest_cockpit_secondary:
+  title: McDonnell Douglas MD-81 cockpit, Midwest Airlines N813ME
+  source_page: https://commons.wikimedia.org/wiki/File:The_Flight_Deck_of_the_Maddog_(2930792642).jpg
+  source_type: wikimedia_commons_photo
+  creator: Cory W. Watts
+  license: CC BY-SA 2.0
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: MD-80
+    variant: MD-81
+    operator: Midwest Airlines
+    registration: N813ME
+  era: Photographed 2008
+  viewpoint: flight deck forward, wide view
+  classification: secondary
+  confidence: low
+  target_compatibility: Derivative-family reference only. Use for broad analog material,
+    instrument depth, and lighting comparison after primary DC-9 references, never
+    for DC-9-51 geometry.
+  intended_uses:
+  - analog gauge depth comparison
+  - material and lighting comparison
+  - identify derivative-family differences to avoid copying
+  limitations: Not a DC-9-51 and not Northwest. Keep visibly separated from primary
+    references.
+  local_file: dc9-51/secondary/md81_midwest_cockpit_secondary.jpg
+  direct_image_url: https://commons.wikimedia.org/wiki/Special:Redirect/file/The_Flight_Deck_of_the_Maddog_(2930792642).jpg
+  download_status: downloaded
+  notes: Included to document lower-confidence family material cues and variant differences.
+  sha256: 87ba8045077f287d85ef58b0abb8abbe30d3e331000da89c2c54b9e10d8721e6
+  downloaded_at: '2026-06-22T01:02:59+00:00'
+simulation_daily_dc9_release_presentation:
+  title: Simulation Daily DC-9 simulator release coverage
+  source_page: https://simulationdaily.com/news/dc9-released-microsoft-flight-simulator-2024/
+  source_type: article
+  creator: Simulation Daily
+  license: All rights reserved article; link/reference only
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9-10 and DC-9-30 simulator package
+    operator: Not target-specific
+    registration: Not applicable
+  era: Article published 2026
+  viewpoint: presentation screenshots and feature list
+  classification: presentation
+  confidence: low
+  target_compatibility: Presentation benchmark only. The article covers simulator
+    DC-9-10/-30 material and must not drive Northwest DC-9-51 geometry.
+  intended_uses:
+  - presentation benchmark
+  - later enhancement ideas
+  - out-of-scope simulator feature separation
+  limitations: Do not download or copy article images. Do not treat simulator screenshots
+    as authoritative geometry.
+  local_file: dc9-51/presentation/simulation_daily_dc9_release_presentation.url
+  download_status: not_applicable
+  notes: Summarized separately in dc9-51/notes/presentation-benchmark.md.
