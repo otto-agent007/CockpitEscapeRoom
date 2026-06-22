@@ -1,0 +1,20 @@
+{
+  "status": "pass",
+  "meshCount": 16,
+  "materialCount": 4,
+  "dimensions": {
+    "x": 0.01226,
+    "y": 0.08785,
+    "z": 0.08785
+  },
+  "expectedDimensions": {
+    "x": 0.01226,
+    "y": 0.08785,
+    "z": 0.08785
+  },
+  "dimensionDelta": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+  }
+}

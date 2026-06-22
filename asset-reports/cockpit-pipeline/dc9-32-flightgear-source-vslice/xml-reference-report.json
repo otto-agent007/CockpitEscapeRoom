@@ -1,0 +1,2071 @@
+{
+  "xmlFileCount": 30,
+  "xmlFiles": [
+    {
+      "path": "DC-9-32-set.xml",
+      "paths": [
+        "Aircraft/DC-9-32/Models/DC-9-32.xml",
+        "Aircraft/DC-9-32/Systems/instrumentation.xml",
+        "Aircraft/DC-9-32/Systems/DC-9-autopilot.xml",
+        "Aircraft/DC-9-32/DC-9-sound.xml"
+      ],
+      "animations": []
+    },
+    {
+      "path": "DC-9-sound.xml",
+      "paths": [
+        "Sounds/running.wav",
+        "Sounds/running.wav",
+        "Sounds/rumble.wav",
+        "Sounds/gear.wav",
+        "Sounds/gear-lck.wav",
+        "Sounds/gear-lck.wav",
+        "Sounds/gear.wav",
+        "Sounds/gear-lck.wav",
+        "Sounds/gear-lck.wav",
+        "Sounds/gear.wav",
+        "Sounds/gear-lck.wav",
+        "Sounds/gear-lck.wav",
+        "Sounds/touch.wav",
+        "Sounds/touch.wav",
+        "Sounds/touch.wav",
+        "Sounds/flaps.wav",
+        "Sounds/flap.wav",
+        "Sounds/flap.wav",
+        "Sounds/flap.wav",
+        "Sounds/flap.wav",
+        "Sounds/wind.wav",
+        "Sounds/stall.wav"
+      ],
+      "animations": []
+    },
+    {
+      "path": "Models/DC-9-32.xml",
+      "paths": [
+        "DC-9-32.ac",
+        "Aircraft/DC-9-32/Models/Flightdeck/Flightdeck.xml",
+        "Models/Airport/Pushback/Goldhofert.xml"
+      ],
+      "animations": [
+        {
+          "type": "rotate",
+          "objectNames": [
+            "AileronL"
+          ],
+          "property": "surface-positions/left-aileron-pos-norm",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "AileronR"
+          ],
+          "property": "surface-positions/left-aileron-pos-norm",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Hstabs",
+            "ElevatorL",
+            "ElevatorR"
+          ],
+          "property": "controls/flight/elevator-trim",
+          "hasCenter": true
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "ElevatorL"
+          ],
+          "property": "controls/flight/elevator",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "ElevatorR"
+          ],
+          "property": "controls/flight/elevator",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Rudder"
+          ],
+          "property": "surface-positions/rudder-pos-norm",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "FlapL",
+            "FairingL1",
+            "FairingL2",
+            "FairingL3",
+            "FairingL4"
+          ],
+          "property": "surface-positions/flap-pos-norm",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "FlapR",
+            "FairingR1",
+            "FairingR2",
+            "FairingR3",
+            "FairingR4"
+          ],
+          "property": "surface-positions/flap-pos-norm",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "SpoilerL1",
+            "SpoilerL2"
+          ],
+          "property": "surface-positions/spoilers-pos-norm",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "SpoilerR1",
+            "SpoilerR2"
+          ],
+          "property": "surface-positions/spoilers-pos-norm",
+          "hasCenter": false
+        },
+        {
+          "type": "select",
+          "objectNames": [
+            "LGNDrag",
+            "LGNStrutUp",
+            "LGNStrutLow",
+            "LGNTorqueBarUp",
+            "LGNTorqueBarLow",
+            "LGNTires"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "select",
+          "objectNames": [
+            "LGLBraceUp",
+            "LGLBraceLow",
+            "LGLStrutUp",
+            "LGLStrutLow",
+            "LGLTorqueBarUp",
+            "LGLTorqueBarLow",
+            "LGLTires"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "select",
+          "objectNames": [
+            "LGRBraceUp",
+            "LGRBraceLow",
+            "LGRStrutUp",
+            "LGRStrutLow",
+            "LGRTorqueBarUp",
+            "LGRTorqueBarLow",
+            "LGRTires"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "translate",
+          "objectNames": [
+            "EngineLReverserUp",
+            "EngineLReverserDown"
+          ],
+          "property": "surface-positions/left-reverser-pos-norm",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "EngineLReverserUp"
+          ],
+          "property": "surface-positions/left-reverser-pos-norm",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "EngineLReverserDown"
+          ],
+          "property": "surface-positions/left-reverser-pos-norm",
+          "hasCenter": false
+        },
+        {
+          "type": "translate",
+          "objectNames": [
+            "EngineRReverserUp",
+            "EngineRReverserDown"
+          ],
+          "property": "surface-positions/right-reverser-pos-norm",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "EngineRReverserUp"
+          ],
+          "property": "surface-positions/right-reverser-pos-norm",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "EngineRReverserDown"
+          ],
+          "property": "surface-positions/right-reverser-pos-norm",
+          "hasCenter": false
+        },
+        {
+          "type": "material",
+          "objectNames": [
+            "Fuselage",
+            "EngineL",
+            "EngineR"
+          ],
+          "property": "",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Flightdeck.xml",
+      "paths": [
+        "flightdeck.ac",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/AI/ai.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/AI/ai.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/HSI/hsi.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/HSI/hsi.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/Clock/clock.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/Clock/clock.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/ASI/asi.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/ASI/asi.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/rmi/rmi.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/rmi/rmi.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/ALT/alt.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/ALT/alt.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/VSI/vsi.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/VSI/vsi.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/dimmer/efis_dimmer.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/rpm/rpmN1L.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/rpm/rpmN1R.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/egt/egtL.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/egt/egtR.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/rpm2/rpmN2L.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/rpm2/rpmN2R.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/Flaps/flaps.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/Fuel/fuel.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/epr/eprL.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/epr/eprR.xml",
+        "Aircraft/Instruments-3d/RDR-160/RDR-160.xml",
+        "Aircraft/Instruments-3d/cdu/boeing.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/radio/adf1.xml",
+        "Aircraft/DC-9-32/Models/Flightdeck/Instruments/radio/adf2.xml"
+      ],
+      "animations": [
+        {
+          "type": "rotate",
+          "objectNames": [
+            "LGLever"
+          ],
+          "property": "controls/gear/gear-down",
+          "hasCenter": true
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "LGLever"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "FlapLever"
+          ],
+          "property": "controls/flight/flaps",
+          "hasCenter": true
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "FlapLever"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "FlapLever"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "ThrottleL",
+            "ThrottleRevL"
+          ],
+          "property": "controls/engines/engine[0]/throttle",
+          "hasCenter": true
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "ThrottleR",
+            "ThrottleRevR"
+          ],
+          "property": "controls/engines/engine[1]/throttle",
+          "hasCenter": true
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "ThrottleL",
+            "ThrottleRevL"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "ThrottleL",
+            "ThrottleRevL"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "ThrottleR",
+            "ThrottleRevR"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "ThrottleR",
+            "ThrottleRevR"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "ThrottleRevL"
+          ],
+          "property": "surface-positions/reverser-norm[0]",
+          "hasCenter": true
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "ThrottleRevR"
+          ],
+          "property": "surface-positions/reverser-norm[1]",
+          "hasCenter": true
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "PedalL",
+            "PedalRodL"
+          ],
+          "property": "controls/flight/rudder",
+          "hasCenter": true
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "PedalR",
+            "PedalRodR"
+          ],
+          "property": "controls/flight/rudder",
+          "hasCenter": true
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "YokeColL",
+            "YokeL",
+            "YokeTrimL"
+          ],
+          "property": "controls/flight/elevator",
+          "hasCenter": true
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "YokeL",
+            "YokeTrimL"
+          ],
+          "property": "controls/flight/aileron",
+          "hasCenter": true
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "YokeColR",
+            "YokeR",
+            "YokeTrimR"
+          ],
+          "property": "controls/flight/elevator",
+          "hasCenter": true
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "YokeR",
+            "YokeTrimR"
+          ],
+          "property": "controls/flight/aileron",
+          "hasCenter": true
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "FuelCutoffL"
+          ],
+          "property": "controls/engines/engine[0]/cutoff",
+          "hasCenter": true
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "FuelCutoffL"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "FuelCutoffR"
+          ],
+          "property": "controls/engines/engine[1]/cutoff",
+          "hasCenter": true
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "FuelCutoffR"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "XfeedLever"
+          ],
+          "property": "controls/fuel/xfeed",
+          "hasCenter": true
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "XfeedLever"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "SpdBrakeLever"
+          ],
+          "property": "controls/flight/spoilers-master",
+          "hasCenter": true
+        },
+        {
+          "type": "translate",
+          "objectNames": [
+            "SpdBrakeLever"
+          ],
+          "property": "controls/flight/spoilers-auto-ani",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/AI/ai.xml",
+      "paths": [
+        "ai.ac"
+      ],
+      "animations": [
+        {
+          "type": "select",
+          "objectNames": [
+            "gs.flag"
+          ],
+          "property": "orientation/roll-deg",
+          "hasCenter": false
+        },
+        {
+          "type": "select",
+          "objectNames": [
+            "loc.flag"
+          ],
+          "property": "orientation/roll-deg",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "AIball",
+            "AI.ring"
+          ],
+          "property": "orientation/roll-deg",
+          "hasCenter": true
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "AIball"
+          ],
+          "property": "orientation/pitch-deg",
+          "hasCenter": true
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "AI.slipball"
+          ],
+          "property": "instrumentation/slip-skid-ball/indicated-slip-skid",
+          "hasCenter": true
+        },
+        {
+          "type": "translate",
+          "objectNames": [
+            "LOC.needle"
+          ],
+          "property": "instrumentation/nav/heading-needle-deflection",
+          "hasCenter": false
+        },
+        {
+          "type": "translate",
+          "objectNames": [
+            "AI.gsneedle"
+          ],
+          "property": "instrumentation/nav/gs-needle-deflection",
+          "hasCenter": false
+        },
+        {
+          "type": "translate",
+          "objectNames": [
+            "turn.needle"
+          ],
+          "property": "instrumentation/turn-indicator/indicated-turn-rate",
+          "hasCenter": false
+        },
+        {
+          "type": "translate",
+          "objectNames": [
+            "aoa.needle"
+          ],
+          "property": "orientation/alpha-deg",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/ALT/alt.xml",
+      "paths": [
+        "altimeter.ac"
+      ],
+      "animations": [
+        {
+          "type": "material",
+          "objectNames": [
+            "AltFace",
+            "ALTneedle",
+            "altnum10000",
+            "altnum1000",
+            "altnum100",
+            "mb01",
+            "mb02",
+            "mb03",
+            "mb04",
+            "inhg01",
+            "inhg02",
+            "inhg03",
+            "inhg04"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "inhg01"
+          ],
+          "property": "/instrumentation/altimeter/setting-inhg",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "inhg02"
+          ],
+          "property": "/instrumentation/altimeter/setting-inhg",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "inhg03"
+          ],
+          "property": "/instrumentation/altimeter/setting-inhg",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "inhg04"
+          ],
+          "property": "/instrumentation/altimeter/setting-inhg",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "mb01"
+          ],
+          "property": "instrumentation/altimeter/setting-inhg",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "mb02"
+          ],
+          "property": "instrumentation/altimeter/setting-inhg",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "mb03"
+          ],
+          "property": "instrumentation/altimeter/setting-inhg",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "mb04"
+          ],
+          "property": "instrumentation/altimeter/setting-inhg",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "altnum100"
+          ],
+          "property": "/instrumentation/altimeter/indicated-altitude-ft",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "altnum1000"
+          ],
+          "property": "/instrumentation/altimeter/indicated-altitude-ft",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "altnum10000"
+          ],
+          "property": "/instrumentation/altimeter/indicated-altitude-ft",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "ALTneedle"
+          ],
+          "property": "/instrumentation/altimeter/indicated-altitude-ft",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "BaroKnob"
+          ],
+          "property": "/instrumentation/altimeter/setting-inhg",
+          "hasCenter": true
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "BaroKnob"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "BaroKnob"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "BaroKnob"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "BaroKnob"
+          ],
+          "property": "",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/ASI/asi.xml",
+      "paths": [
+        "asi.ac"
+      ],
+      "animations": [
+        {
+          "type": "material",
+          "objectNames": [
+            "Face",
+            "Needle1",
+            "Mach1",
+            "Mach2"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Needle1"
+          ],
+          "property": "/instrumentation/airspeed-indicator/indicated-speed-kt",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "Mach1"
+          ],
+          "property": "/velocities/mach",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "Mach2"
+          ],
+          "property": "/velocities/mach",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/CDU/gnx.xml",
+      "paths": [
+        "gnx.ac",
+        "Aircraft/dc8-73/Models/Instruments/CDU/GNX-panel.xml"
+      ],
+      "animations": []
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Clock/clock.xml",
+      "paths": [
+        "clock.ac"
+      ],
+      "animations": [
+        {
+          "type": "material",
+          "objectNames": [
+            "Clock.Face",
+            "Clock.Hour",
+            "Clock.Minute",
+            "Clock.Second"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Clock.Hour"
+          ],
+          "property": "/instrumentation/clock/indicated-sec",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Clock.Minute"
+          ],
+          "property": "/instrumentation/clock/indicated-sec",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Clock.Second"
+          ],
+          "property": "/instrumentation/clock/indicated-sec",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Clock.Knob"
+          ],
+          "property": "/instrumentation/clock/offset-sec",
+          "hasCenter": true
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Flaps/flaps.xml",
+      "paths": [
+        "flaps.ac"
+      ],
+      "animations": [
+        {
+          "type": "material",
+          "objectNames": [
+            "Face",
+            "Needle"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Needle"
+          ],
+          "property": "/surface-positions/flap-pos-norm",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Fuel/fuel.xml",
+      "paths": [
+        "fuel.ac"
+      ],
+      "animations": [
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "Fuel1"
+          ],
+          "property": "consumables/fuel/total-fuel-lbs",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "Fuel10"
+          ],
+          "property": "consumables/fuel/total-fuel-lbs",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "Fuel100"
+          ],
+          "property": "consumables/fuel/total-fuel-lbs",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "Fuel1000"
+          ],
+          "property": "consumables/fuel/total-fuel-lbs",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "Fuel10000"
+          ],
+          "property": "consumables/fuel/total-fuel-lbs",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "Fuel100000"
+          ],
+          "property": "consumables/fuel/total-fuel-lbs",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "Weight1"
+          ],
+          "property": "yasim/gross-weight-lbs",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "Weight10"
+          ],
+          "property": "yasim/gross-weight-lbs",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "Weight100"
+          ],
+          "property": "yasim/gross-weight-lbs",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "Weight1000"
+          ],
+          "property": "yasim/gross-weight-lbs",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "Weight10000"
+          ],
+          "property": "yasim/gross-weight-lbs",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "Weight100000"
+          ],
+          "property": "yasim/gross-weight-lbs",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/HSI/hsi.xml",
+      "paths": [
+        "hsi.ac"
+      ],
+      "animations": [
+        {
+          "type": "select",
+          "objectNames": [
+            "HSI.dstoff"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "select",
+          "objectNames": [
+            "gs.needle"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "select",
+          "objectNames": [
+            "HSI.dst100",
+            "HSI.dst10",
+            "HSI.dst1",
+            "HSI.dst0"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "select",
+          "objectNames": [
+            "navflag"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "select",
+          "objectNames": [
+            "toflag"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "select",
+          "objectNames": [
+            "fromflag"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "HSI.card",
+            "HSI.crsneedle",
+            "HSI.crsdeflection",
+            "toflag",
+            "fromflag"
+          ],
+          "property": "orientation/heading-magnetic-deg",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "HSI.navbrg"
+          ],
+          "property": "orientation/heading-deg",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "HSI.crsneedle",
+            "HSI.crsdeflection",
+            "toflag",
+            "fromflag"
+          ],
+          "property": "instrumentation/nav/radials/selected-deg",
+          "hasCenter": false
+        },
+        {
+          "type": "translate",
+          "objectNames": [
+            "HSI.crsdeflection"
+          ],
+          "property": "instrumentation/nav/heading-needle-deflection",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "HSI.hdgbug"
+          ],
+          "property": "autopilot/internal/heading-bug-error-deg",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "HSI.navbrg"
+          ],
+          "property": "instrumentation/nav/heading-deg",
+          "hasCenter": false
+        },
+        {
+          "type": "translate",
+          "objectNames": [
+            "gs.needle"
+          ],
+          "property": "instrumentation/nav/gs-needle-deflection",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "HSI.crs100"
+          ],
+          "property": "instrumentation/nav/radials/selected-deg",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "HSI.crs10"
+          ],
+          "property": "instrumentation/nav/radials/selected-deg",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "HSI.crs1"
+          ],
+          "property": "instrumentation/nav/radials/selected-deg",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "HSI.dst100"
+          ],
+          "property": "instrumentation/nav/nav-distance",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "HSI.dst10"
+          ],
+          "property": "instrumentation/nav/nav-distance",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "HSI.dst1"
+          ],
+          "property": "instrumentation/nav/nav-distance",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "HSI.dst0"
+          ],
+          "property": "instrumentation/nav/nav-distance",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "HSI.crsknob"
+          ],
+          "property": "instrumentation/nav/radials/selected-deg",
+          "hasCenter": true
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "HSI.hdgknob"
+          ],
+          "property": "autopilot/settings/heading-bug-deg",
+          "hasCenter": true
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "HSI.crsknob"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "HSI.crsknob"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "HSI.crsknob"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "HSI.crsknob"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "HSI.hdgknob"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "HSI.hdgknob"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "HSI.hdgknob"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "HSI.hdgknob"
+          ],
+          "property": "",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/KLN90B/display.xml",
+      "paths": [
+        "Aircraft/dc8-73/Models/Instruments/KLN90B/gps.png",
+        "Aircraft/dc8-73/Models/Instruments/KLN90B/gps.png"
+      ],
+      "animations": []
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/KLN90B/kln90b.xml",
+      "paths": [
+        "kln90b.ac",
+        "Aircraft/dc8-73/Models/Instruments/KLN90B/gps.xml"
+      ],
+      "animations": [
+        {
+          "type": "pick",
+          "objectNames": [
+            "KLN90B.lhknob"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KLN90B.lhknob"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KLN90B.lhknob"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KLN90B.lhknob"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KLN90B.lhknob1"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KLN90B.lhknob1"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KLN90B.lhknob1"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KLN90B.lhknob1"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KLN90B.rhknob"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KLN90B.rhknob"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KLN90B.rhknob"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KLN90B.rhknob"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KLN90B.rhknob1"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KLN90B.rhknob1"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KLN90B.rhknob1"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KLN90B.rhknob1"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KLN90B.pwr"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "DIRECT.btn"
+          ],
+          "property": "",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/RMI/rmi.xml",
+      "paths": [
+        "rmi.ac"
+      ],
+      "animations": [
+        {
+          "type": "material",
+          "objectNames": [
+            "Face",
+            "CompassPoints",
+            "Needle1",
+            "Needle2",
+            "Legend",
+            "Knob1",
+            "Knob2"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Face"
+          ],
+          "property": "/orientation/heading-magnetic-deg",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Needle1"
+          ],
+          "property": "/instrumentation/rmi-needle[0]/value",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Needle2"
+          ],
+          "property": "/instrumentation/rmi-needle[1]/value",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Knob1"
+          ],
+          "property": "/instrumentation/rmi-needle[0]/mode",
+          "hasCenter": true
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "Knob1"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Knob2"
+          ],
+          "property": "/instrumentation/rmi-needle[1]/mode",
+          "hasCenter": true
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "Knob2"
+          ],
+          "property": "",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Stby-AI/ai.xml",
+      "paths": [
+        "ai.ac"
+      ],
+      "animations": [
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Ball",
+            "Roll"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Ball"
+          ],
+          "property": "",
+          "hasCenter": true
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/VSI/vsi.xml",
+      "paths": [
+        "vsi.ac"
+      ],
+      "animations": [
+        {
+          "type": "material",
+          "objectNames": [
+            "VSIface",
+            "VSI.needle"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "VSI.needle"
+          ],
+          "property": "autopilot/internal/vert-speed-fpm",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/dimmer/efis_dimmer.xml",
+      "paths": [
+        "efis_dimmer.ac"
+      ],
+      "animations": [
+        {
+          "type": "material",
+          "objectNames": [
+            "Bezel",
+            "KnobPFD",
+            "KnobND"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "KnobPFD"
+          ],
+          "property": "/controls/lighting/pfd-norm",
+          "hasCenter": true
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KnobPFD"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KnobPFD"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "KnobND"
+          ],
+          "property": "/controls/lighting/nd-norm",
+          "hasCenter": true
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KnobND"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "KnobND"
+          ],
+          "property": "",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/egt/egtL.xml",
+      "paths": [
+        "egt.ac"
+      ],
+      "animations": [
+        {
+          "type": "material",
+          "objectNames": [
+            "Face",
+            "Needle"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Needle"
+          ],
+          "property": "/engines/engine[0]/egt-degf",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/egt/egtR.xml",
+      "paths": [
+        "egt.ac"
+      ],
+      "animations": [
+        {
+          "type": "material",
+          "objectNames": [
+            "Face",
+            "Needle"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Needle"
+          ],
+          "property": "/engines/engine[1]/egt-degf",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/epr/eprL.xml",
+      "paths": [
+        "epr.ac"
+      ],
+      "animations": [
+        {
+          "type": "material",
+          "objectNames": [
+            "Face",
+            "Needle"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Needle"
+          ],
+          "property": "/engines/engine[0]/epr",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/epr/eprR.xml",
+      "paths": [
+        "epr.ac"
+      ],
+      "animations": [
+        {
+          "type": "material",
+          "objectNames": [
+            "Face",
+            "Needle"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Needle"
+          ],
+          "property": "/engines/engine[1]/epr",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/misc/clock.xml",
+      "paths": [
+        "clock.ac"
+      ],
+      "animations": [
+        {
+          "type": "rotate",
+          "objectNames": [
+            "SecondHand"
+          ],
+          "property": "/sim/time/utc/day-seconds",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "MinuteHand"
+          ],
+          "property": "/sim/time/utc/day-seconds",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "HourHand"
+          ],
+          "property": "/sim/time/utc/day-seconds",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/misc/ventilation.xml",
+      "paths": [
+        "ventilation.ac"
+      ],
+      "animations": []
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/radio/adf1.xml",
+      "paths": [
+        "adf.ac"
+      ],
+      "animations": [
+        {
+          "type": "material",
+          "objectNames": [
+            "actdig1",
+            "actdig2",
+            "actdig3",
+            "actdig01",
+            "sbydig1",
+            "sbydig2",
+            "sbydig3",
+            "sbydig01"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "material",
+          "objectNames": [
+            "frame",
+            "modeknob",
+            "tuningknob",
+            "flipbutton"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "actdig1"
+          ],
+          "property": "instrumentation/adf/frequencies/selected-khz",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "actdig2"
+          ],
+          "property": "instrumentation/adf/frequencies/selected-khz",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "actdig3"
+          ],
+          "property": "instrumentation/adf/frequencies/selected-khz",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "sbydig1"
+          ],
+          "property": "instrumentation/adf/frequencies/standby-khz",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "sbydig2"
+          ],
+          "property": "instrumentation/adf/frequencies/standby-khz",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "sbydig3"
+          ],
+          "property": "instrumentation/adf/frequencies/standby-khz",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "sbydig1"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "sbydig2"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "sbydig3"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "flipbutton"
+          ],
+          "property": "",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/radio/adf2.xml",
+      "paths": [
+        "adf.ac"
+      ],
+      "animations": [
+        {
+          "type": "material",
+          "objectNames": [
+            "actdig1",
+            "actdig2",
+            "actdig3",
+            "actdig01",
+            "actdig02",
+            "sbydig1",
+            "sbydig2",
+            "sbydig3",
+            "sbydig01",
+            "sbydig02"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "material",
+          "objectNames": [
+            "frame",
+            "modeknob",
+            "tuningknob",
+            "flipbutton"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "actdig1"
+          ],
+          "property": "instrumentation/adf[1]/frequencies/selected-khz",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "actdig2"
+          ],
+          "property": "instrumentation/adf[1]/frequencies/selected-khz",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "actdig3"
+          ],
+          "property": "instrumentation/adf[1]/frequencies/selected-khz",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "sbydig1"
+          ],
+          "property": "instrumentation/adf[1]/frequencies/standby-khz",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "sbydig2"
+          ],
+          "property": "instrumentation/adf[1]/frequencies/standby-khz",
+          "hasCenter": false
+        },
+        {
+          "type": "textranslate",
+          "objectNames": [
+            "sbydig3"
+          ],
+          "property": "instrumentation/adf[1]/frequencies/standby-khz",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "sbydig1"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "sbydig2"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "sbydig3"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "pick",
+          "objectNames": [
+            "flipbutton"
+          ],
+          "property": "",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/rpm/rpmN1L.xml",
+      "paths": [
+        "n1.ac"
+      ],
+      "animations": [
+        {
+          "type": "material",
+          "objectNames": [
+            "Face",
+            "Needle"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Needle"
+          ],
+          "property": "/engines/engine[0]/n1",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/rpm/rpmN1R.xml",
+      "paths": [
+        "n1.ac"
+      ],
+      "animations": [
+        {
+          "type": "material",
+          "objectNames": [
+            "Face",
+            "Needle"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Needle"
+          ],
+          "property": "/engines/engine[1]/n1",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/rpm2/rpmN2L.xml",
+      "paths": [
+        "n2.ac"
+      ],
+      "animations": [
+        {
+          "type": "material",
+          "objectNames": [
+            "Face",
+            "Needle"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Needle"
+          ],
+          "property": "/engines/engine[0]/n2",
+          "hasCenter": false
+        }
+      ]
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/rpm2/rpmN2R.xml",
+      "paths": [
+        "n2.ac"
+      ],
+      "animations": [
+        {
+          "type": "material",
+          "objectNames": [
+            "Face",
+            "Needle"
+          ],
+          "property": "",
+          "hasCenter": false
+        },
+        {
+          "type": "rotate",
+          "objectNames": [
+            "Needle"
+          ],
+          "property": "/engines/engine[1]/n2",
+          "hasCenter": false
+        }
+      ]
+    }
+  ]
+}

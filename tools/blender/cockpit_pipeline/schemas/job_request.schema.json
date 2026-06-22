@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cockpit-pipeline/job-request.schema.json",
+  "title": "Cockpit pipeline job request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "jobId",
+    "title",
+    "stage",
+    "aircraft",
+    "sourceVariant",
+    "targetVariant",
+    "variantScope",
+    "requestedComponents",
+    "stageDirectories",
+    "cachePolicy"
+  ],
+  "properties": {
+    "jobId": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "stage": {
+      "type": "string",
+      "enum": ["requested", "sourcing_complete", "source-approved", "assembly-approved", "shading-approved", "rejected"]
+    },
+    "aircraft": { "type": "string", "enum": ["dc9"] },
+    "sourceVariant": { "type": "string", "minLength": 1 },
+    "targetVariant": { "type": "string", "minLength": 1 },
+    "variantScope": { "type": "string", "enum": ["common", "dc9-32", "dc9-51", "unknown", "unresolved", "source-proof-only", "target-confirmed"] },
+    "sourceRepository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "resolvedRevision"],
+      "properties": {
+        "url": { "type": "string", "minLength": 1 },
+        "resolvedRevision": { "type": "string", "minLength": 1 }
+      }
+    },
+    "requestedComponents": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["componentId", "label", "quantity", "acceptanceNotes"],
+        "properties": {
+          "componentId": { "type": "string", "minLength": 1 },
+          "label": { "type": "string", "minLength": 1 },
+          "quantity": { "type": "integer", "minimum": 1 },
+          "acceptanceNotes": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "stageDirectories": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceInput", "sourceOutput", "assemblyInput", "assemblyOutput", "shadingInput", "shadingOutput"],
+      "properties": {
+        "sourceInput": { "type": "string", "minLength": 1 },
+        "sourceOutput": { "type": "string", "minLength": 1 },
+        "assemblyInput": { "type": "string", "minLength": 1 },
+        "assemblyOutput": { "type": "string", "minLength": 1 },
+        "shadingInput": { "type": "string", "minLength": 1 },
+        "shadingOutput": { "type": "string", "minLength": 1 }
+      }
+    },
+    "cachePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["environmentVariable", "defaultRelativePath", "gitPolicy"],
+      "properties": {
+        "environmentVariable": { "type": "string", "minLength": 1 },
+        "defaultRelativePath": { "type": "string", "minLength": 1 },
+        "gitPolicy": { "type": "string", "enum": ["outside-git"] }
+      }
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "candidateId": "dc9-src-throttle-assembly-001",
+  "category": "throttle_assembly",
+  "sourceVariant": "DC-9-32",
+  "targetVariant": "unresolved",
+  "variantScope": "common",
+  "sourceFile": "Models/Flightdeck/flightdeck.ac",
+  "sourceXml": "Models/Flightdeck/Flightdeck.xml",
+  "sourceObjectNames": [
+    "FlapLever",
+    "FuelCutoffL",
+    "FuelCutoffR",
+    "PedestalBase",
+    "PedestalBase_0",
+    "PedestalBase_1",
+    "PedestalDrum",
+    "PedestalDrumFace",
+    "SpdBrakeLever",
+    "ThrottleL",
+    "ThrottleR",
+    "ThrottleRevL",
+    "ThrottleRevR",
+    "XfeedLever"
+  ],
+  "pivotStatus": "XML animation centers exist for throttle, reverser, fuel cutoff, crossfeed, speedbrake, and flap levers.",
+  "confidenceScore": 0.88,
+  "discoveryReasons": [
+    "Flightdeck.xml includes throttle and reverser rotate/pick animations.",
+    "Pedestal drum/base objects provide mounting context for the levers.",
+    "Fuel cutoff, crossfeed, speedbrake, and flap levers are nearby pedestal controls in the same source file."
+  ],
+  "limitations": [
+    "Includes neighboring pedestal levers to preserve visual completeness; Agent 2 must decide final assembly boundaries.",
+    "Variant applicability to DC-9-51 remains unapproved."
+  ],
+  "dimensions": {
+    "x": 0.94128,
+    "y": 0.85858,
+    "z": 0.4
+  },
+  "triangleCount": 2052,
+  "materialNames": [
+    "txt_cockpit_abs.png",
+    "txt_cockpit_palette.png",
+    "txt_cockpit_peddrum.png",
+    "txt_cockpit_spdbrake.png",
+    "txt_cockpit_throttles.png"
+  ],
+  "childObjectCount": 13,
+  "exportedGlb": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-throttle-assembly-001/dc9-src-throttle-assembly-001.glb",
+  "previewPng": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/cockpit-pipeline/dc9-32-flightgear-source-vslice/dc9-src-throttle-assembly-001.png",
+  "metadataJson": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-throttle-assembly-001/dc9-src-throttle-assembly-001.metadata.json",
+  "validationJson": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-throttle-assembly-001/dc9-src-throttle-assembly-001.validation.json",
+  "reimportValidation": {
+    "status": "pass",
+    "meshCount": 13,
+    "materialCount": 5,
+    "dimensions": {
+      "x": 0.94128,
+      "y": 0.85858,
+      "z": 0.4
+    },
+    "expectedDimensions": {
+      "x": 0.94128,
+      "y": 0.85858,
+      "z": 0.4
+    },
+    "dimensionDelta": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    }
+  }
+}

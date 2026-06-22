@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cockpit-pipeline/stage-manifest.schema.json",
+  "title": "Cockpit pipeline stage manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifestId",
+    "jobId",
+    "stage",
+    "createdAt",
+    "sourceVariant",
+    "targetVariant",
+    "variantScope",
+    "artifactBasePath",
+    "inputs",
+    "outputs",
+    "approval"
+  ],
+  "properties": {
+    "manifestId": { "type": "string", "minLength": 1 },
+    "jobId": { "type": "string", "minLength": 1 },
+    "stage": {
+      "type": "string",
+      "enum": ["sourcing_complete", "source-approved", "assembly-approved", "shading-approved", "rejected"]
+    },
+    "createdAt": { "type": "string", "minLength": 1 },
+    "sourceVariant": { "type": "string", "minLength": 1 },
+    "targetVariant": { "type": "string", "minLength": 1 },
+    "variantScope": { "type": "string", "enum": ["common", "dc9-32", "dc9-51", "unknown", "unresolved", "source-proof-only", "target-confirmed"] },
+    "artifactBasePath": { "type": "string", "minLength": 1 },
+    "inputs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/fileRecord" }
+    },
+    "outputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/fileRecord" }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approved", "approvedBy", "notes"],
+      "properties": {
+        "approved": { "type": "boolean" },
+        "approvedBy": { "type": "string", "minLength": 1 },
+        "notes": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "$defs": {
+    "fileRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "bytes"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "bytes": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

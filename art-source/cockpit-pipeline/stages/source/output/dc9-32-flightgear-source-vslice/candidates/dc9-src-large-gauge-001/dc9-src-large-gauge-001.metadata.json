@@ -1,0 +1,75 @@
+{
+  "candidateId": "dc9-src-large-gauge-001",
+  "category": "large_cockpit_gauge",
+  "sourceVariant": "DC-9-32",
+  "targetVariant": "unresolved",
+  "variantScope": "common",
+  "sourceFile": "Models/Flightdeck/Instruments/ALT/altimeter.ac",
+  "sourceXml": "Models/Flightdeck/Instruments/ALT/alt.xml",
+  "sourceObjectNames": [
+    "ALTneedle",
+    "AltFace",
+    "BaroKnob",
+    "Bezel_35",
+    "Screws_35",
+    "altnum100",
+    "altnum1000",
+    "altnum10000",
+    "inhg01",
+    "inhg02",
+    "inhg03",
+    "inhg04",
+    "mb01",
+    "mb02",
+    "mb03",
+    "mb04"
+  ],
+  "pivotStatus": "XML rotate animation exists for ALTneedle and BaroKnob; source mesh origins require Agent 2 review.",
+  "confidenceScore": 0.86,
+  "discoveryReasons": [
+    "Altimeter is a complete analog gauge source with face, bezel, needle, digits, knob, screws, and XML animations.",
+    "Flightdeck.xml places two ALT model instances on the cockpit panel.",
+    "Component includes all child objects from altimeter.ac to avoid isolated mesh extraction."
+  ],
+  "limitations": [
+    "Large gauge choice is an altimeter candidate, not a final production instrument selection.",
+    "RGB texture alternatives are inventoried but not converted in this sourcing pass."
+  ],
+  "dimensions": {
+    "x": 0.01226,
+    "y": 0.08785,
+    "z": 0.08785
+  },
+  "triangleCount": 200,
+  "materialNames": [
+    "ac3d_untextured",
+    "alt-mb.png",
+    "digits.png",
+    "textures_gauge_support.rgb"
+  ],
+  "childObjectCount": 16,
+  "exportedGlb": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-large-gauge-001/dc9-src-large-gauge-001.glb",
+  "previewPng": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/cockpit-pipeline/dc9-32-flightgear-source-vslice/dc9-src-large-gauge-001.png",
+  "metadataJson": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-large-gauge-001/dc9-src-large-gauge-001.metadata.json",
+  "validationJson": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-large-gauge-001/dc9-src-large-gauge-001.validation.json",
+  "reimportValidation": {
+    "status": "pass",
+    "meshCount": 16,
+    "materialCount": 4,
+    "dimensions": {
+      "x": 0.01226,
+      "y": 0.08785,
+      "z": 0.08785
+    },
+    "expectedDimensions": {
+      "x": 0.01226,
+      "y": 0.08785,
+      "z": 0.08785
+    },
+    "dimensionDelta": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    }
+  }
+}

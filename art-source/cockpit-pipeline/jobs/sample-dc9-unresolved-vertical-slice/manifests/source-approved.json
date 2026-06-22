@@ -1,0 +1,23 @@
+{
+  "manifestId": "sample-dc9-unresolved-source-approved",
+  "jobId": "sample-dc9-unresolved-vertical-slice",
+  "stage": "source-approved",
+  "createdAt": "2026-06-22T00:00:00Z",
+  "sourceVariant": "DC-9-32 source material permitted for proof",
+  "targetVariant": "unresolved owner-confirmed DC-9 variant",
+  "variantScope": "unresolved",
+  "artifactBasePath": "../evidence",
+  "inputs": [],
+  "outputs": [
+    {
+      "path": "source-technical-note.txt",
+      "sha256": "5b56e8998507749878f9dad5a98452446ce93560c005e8701d235efbec26a0b8",
+      "bytes": 467
+    }
+  ],
+  "approval": {
+    "approved": true,
+    "approvedBy": "pipeline-foundation-sample",
+    "notes": "Sample manifest only; validates state and hashing contracts without sourcing or constructing a cockpit."
+  }
+}

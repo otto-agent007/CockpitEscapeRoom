@@ -1,0 +1,148 @@
+{
+  "manifestId": "dc9-32-flightgear-source-vslice-sourcing-complete",
+  "jobId": "dc9-32-flightgear-source-vslice",
+  "stage": "sourcing_complete",
+  "createdAt": "2026-06-22T20:58:51Z",
+  "sourceVariant": "DC-9-32",
+  "targetVariant": "unresolved",
+  "variantScope": "unknown",
+  "artifactBasePath": "/mnt/2TBHDD/CockpitEscapeRoom",
+  "inputs": [],
+  "outputs": [
+    {
+      "path": "art-source/cockpit-pipeline/jobs/dc9-32-flightgear-source-vslice/job.json",
+      "sha256": "f5cd6e5e2a5ce76b9925619eaffe2d85c5d42efb6befa3978f7fc2f611330f27",
+      "bytes": 1988
+    },
+    {
+      "path": "asset-reports/cockpit-pipeline/dc9-32-flightgear-source-vslice/source-inventory.json",
+      "sha256": "b82152f4cb0d637cbe21c32cb2d7826bdf5ad7af3616a3aa0cf060d405c596d9",
+      "bytes": 18288
+    },
+    {
+      "path": "asset-reports/cockpit-pipeline/dc9-32-flightgear-source-vslice/xml-reference-report.json",
+      "sha256": "2919cfbdc7d9a77e6d7044665460e88284a6ad2532854b2d2ff8bbb90e32f5f8",
+      "bytes": 49385
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/blender-extraction-report.json",
+      "sha256": "887fa2eba1db9ebf5dae1652c7cf28ce3433ae3b3f6c00ec0992eabcccf846dd",
+      "bytes": 12761
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/component-catalog.json",
+      "sha256": "b1dfcabbe2d4a107f96fadc1b86707760dccb68b385dc28ed5ef9a23c0cdbae7",
+      "bytes": 11409
+    },
+    {
+      "path": "asset-reports/cockpit-pipeline/dc9-32-flightgear-source-vslice/validation-report.json",
+      "sha256": "a4d52a426a67efc07a56f9ebec702b3d02d89b1b83f28a54018da55b588fee6b",
+      "bytes": 3647
+    },
+    {
+      "path": "asset-reports/cockpit-pipeline/dc9-32-flightgear-source-vslice/extraction-report.json",
+      "sha256": "887fa2eba1db9ebf5dae1652c7cf28ce3433ae3b3f6c00ec0992eabcccf846dd",
+      "bytes": 12761
+    },
+    {
+      "path": "asset-reports/cockpit-pipeline/dc9-32-flightgear-source-vslice/source-job-report.md",
+      "sha256": "676a5f5f9fd40a88efcd73d59533dc0961772cc44c72114cad73813125ce7b72",
+      "bytes": 4002
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-32-flightgear-source-vslice/component-contact-sheet.svg",
+      "sha256": "4aa8c8af510d0e5b55b29ade84dc932d2b3d267e19b96ec196f4c4ce2f71883d",
+      "bytes": 1860
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-32-flightgear-source-vslice/import-proof-overview.png",
+      "sha256": "d766664e066d9cd59114ae362900519233436cac327e76538626b1c4bc7adcc2",
+      "bytes": 442591
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-yoke-assembly-001/dc9-src-yoke-assembly-001.metadata.json",
+      "sha256": "016da52d0368708e05d00d241654ac28d223787c6595c91b3d065eeabdfb8024",
+      "bytes": 2264
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-throttle-assembly-001/dc9-src-throttle-assembly-001.metadata.json",
+      "sha256": "5535a510775828f3c98d60c02dbd5b052586a5a0f909b4c4c91e4a57244b8fd4",
+      "bytes": 2679
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-large-gauge-001/dc9-src-large-gauge-001.metadata.json",
+      "sha256": "10fa19407d5d995d8f936fd673e04b768a1ea60e052a7d78b714e55d6f64e418",
+      "bytes": 2594
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-switch-cluster-001/dc9-src-switch-cluster-001.metadata.json",
+      "sha256": "4eadd7950a23773c008d875be64acbd2b9b838bbe06e58fc854ad91e2ead1f17",
+      "bytes": 2305
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-yoke-assembly-001/dc9-src-yoke-assembly-001.validation.json",
+      "sha256": "5d3aebb0b7692c1d7a22382758b114f992afc33b800ef39914bd88b2769a019b",
+      "bytes": 291
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-throttle-assembly-001/dc9-src-throttle-assembly-001.validation.json",
+      "sha256": "553222ae6df7a2fbad6818fe8da1af5bf26a446570db0fa11bc30a02a4571e22",
+      "bytes": 284
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-large-gauge-001/dc9-src-large-gauge-001.validation.json",
+      "sha256": "f997edfeb30ea903c1f8f5d8e4f35c5a6747edb544f6cd5de07181737beaa22b",
+      "bytes": 292
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-switch-cluster-001/dc9-src-switch-cluster-001.validation.json",
+      "sha256": "6153c8b66f8f07407d31dcc2b54351bf313f7c468a2b444cd97be7f19070387c",
+      "bytes": 291
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-yoke-assembly-001/dc9-src-yoke-assembly-001.glb",
+      "sha256": "239bbf3965cb1a4381688371f4852f9223067bf5d98f50661acb53bddc3635ba",
+      "bytes": 92632
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-throttle-assembly-001/dc9-src-throttle-assembly-001.glb",
+      "sha256": "5164a13f819752326afd22a55003f6fcc033b7330feb0a7c72f333988c3f7b27",
+      "bytes": 111892
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-large-gauge-001/dc9-src-large-gauge-001.glb",
+      "sha256": "29084fed84550f6214a487235ba504b6390b2799ea36eff99e74451702e6d494",
+      "bytes": 21236
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-switch-cluster-001/dc9-src-switch-cluster-001.glb",
+      "sha256": "e594a06f7bcde72257bda038f9163a343eeef3670c6e715db1776ebf2d9c4d3b",
+      "bytes": 15752
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-32-flightgear-source-vslice/dc9-src-yoke-assembly-001.png",
+      "sha256": "a25d0649a2204dcaeb502853b8884682a3b4a5b7ba3544b835d98a90a5f7ae17",
+      "bytes": 370139
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-32-flightgear-source-vslice/dc9-src-throttle-assembly-001.png",
+      "sha256": "49709b49d85bc9bf9fa51f0cebafaf1dcb851c6c21d114ee9dbb4fdb31dafa1c",
+      "bytes": 405934
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-32-flightgear-source-vslice/dc9-src-large-gauge-001.png",
+      "sha256": "f19d9d8544c60305150fbb6d482fba179647cddc86ea59b9e188c6e83f66b570",
+      "bytes": 375287
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-32-flightgear-source-vslice/dc9-src-switch-cluster-001.png",
+      "sha256": "fe060d91daebe5be17b3e5e20d659384cc8e542dffbe524fff985865d3b48649",
+      "bytes": 343140
+    }
+  ],
+  "approval": {
+    "approved": false,
+    "approvedBy": "human-review-pending",
+    "notes": "Sourcing complete only. Human review is required before source approval and before Agent 2 assembly."
+  }
+}
