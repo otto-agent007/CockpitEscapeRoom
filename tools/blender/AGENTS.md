@@ -6,6 +6,14 @@ This directory is owned by the Ubuntu asset-production workspace. It may define 
 
 Do not edit Windows-owned files from this workspace: `src/**`, `tests/**`, `e2e/**`, `.github/**`, `package.json`, root `AGENTS.md`, `TEST_REPORT.md`, or `docs/**`.
 
+## Required pipeline playbook
+
+Before changing three-agent cockpit pipeline files, read:
+
+- `art-source/cockpit-pipeline/THREE_AGENT_PLAYBOOK.md`
+
+That playbook is the source of truth for sequential mode, staggered batch mode, source/assembly/shading gates, branch rules, worktree rules, DC-9 variant tracking, and runtime contract preservation.
+
 ## Stage Boundaries
 
 The three-agent cockpit pipeline has strict handoffs:
@@ -16,6 +24,8 @@ The three-agent cockpit pipeline has strict handoffs:
 
 Assembly must not start before source approval. Shading must not start before assembly approval.
 
+Do not operate the three agents as a swarm editing the same cockpit simultaneously. Run new or unstable contracts sequentially. After contracts are proven, stagger by batch so Agent 1 sources a later batch, Agent 2 assembles an approved earlier batch, and Agent 3 shades an approved earlier batch.
+
 ## Safety Rules
 
 - Keep downloads and disposable conversions outside Git under the configured cache path.
@@ -25,3 +35,4 @@ Assembly must not start before source approval. Shading must not start before as
 - Run Blender with background mode, factory startup, and auto-execution disabled.
 - Do not create or replace production models under `public/models/**` for foundation tasks.
 - Preserve `sourceVariant`, `targetVariant`, and `variantScope` in all DC-9 job and manifest records until the owner resolves the final variant.
+- Preserve stable object names, pivots, hierarchy, animations, and `game_id` custom properties as runtime contracts.
