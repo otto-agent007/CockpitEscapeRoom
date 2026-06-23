@@ -421,3 +421,102 @@ The Source Review Gate now also requires a source candidate ranking with selecte
 ### Remaining limitation
 
 This checkpoint changes only playbook and ExecPlan documentation. It does not rerun Agent 1 sourcing, does not create new source candidates, and does not change Blender scene files, GLBs, runtime code, or Windows-owned paths.
+
+## Agent 1 Source Quality Ranking: 2026-06-23
+
+### Purpose
+
+Run Agent 1 through the Source Discovery Quality Loop for the existing DC-9 FlightGear source vertical slice. Produce a ranked source handoff record without regenerating source GLBs or treating simulator-source assets as production truth.
+
+### Branch
+
+- `asset/dc9-source-quality-ranking`
+
+### Fresh source state
+
+- Source job: `dc9-32-flightgear-source-vslice`
+- Source repository: `https://github.com/FGMEMBERS-NONGPL/DC-9-32.git`
+- Resolved revision: `d79e1476ce452a96126cc569a9c8a5d9fe705c8f`
+- Source variant: `DC-9-32`
+- Target variant: `unresolved`
+- Variant scope: `unknown`
+
+### Files inspected
+
+- `art-source/cockpit-pipeline/jobs/dc9-32-flightgear-source-vslice/job.json`
+- `art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/component-catalog.json`
+- `asset-reports/cockpit-pipeline/dc9-32-flightgear-source-vslice/source-inventory.json`
+- `asset-reports/cockpit-pipeline/dc9-32-flightgear-source-vslice/xml-reference-report.json`
+- `asset-reports/cockpit-pipeline/dc9-32-flightgear-source-vslice/extraction-report.json`
+- `.cache/cockpit-pipeline/sources/DC-9-32/Models/Flightdeck/Flightdeck.xml`
+- `.cache/cockpit-pipeline/sources/DC-9-32/Models/Flightdeck/flightdeck.ac`
+- `.cache/cockpit-pipeline/sources/DC-9-32/Models/Flightdeck/Instruments/**`
+
+### Bounded action decision
+
+Used a ranking/report-only Agent 1 pass. The current source GLBs, metadata, previews, and manifest already exist and validate; no fresh evidence required rerunning `run-source-job`. The missing handoff evidence was source ranking: selected candidates, rejected alternatives, confidence, source limitations, and assembly warnings.
+
+### Candidate ranking summary
+
+- `dc9-src-yoke-assembly-001` - high confidence. Selected for captain-side yoke proof. FO/copilot yoke objects were rejected for this handoff but retained as a future alternate.
+- `dc9-src-throttle-assembly-001` - high confidence. Selected for throttle/pedestal proof. Individual nearby levers were rejected as incomplete standalone throttle alternatives.
+- `dc9-src-large-gauge-001` - medium confidence. Selected as a complete altimeter source package. Other instrument model/XML pairs remain viable future gauge candidates.
+- `dc9-src-switch-cluster-001` - low confidence. Kept only as the best available inspected switch-cluster proof candidate; no stronger switch-cluster alternative was found. This is the first source category to revisit in a future Agent 1 batch.
+
+### Files changed
+
+- `asset-reports/cockpit-pipeline/dc9-32-flightgear-source-vslice/source-candidate-ranking.md`
+- `art-source/cockpit-pipeline/EXEC_PLAN.md`
+
+### Validation evidence
+
+- Initial `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/dc9-32-flightgear-source-vslice/manifests/sourcing-complete.json` failed after editing `source-job-report.md`, because that report is hash-declared in the existing source manifest. Repaired by reverting the `source-job-report.md` edit and keeping the ranking as a separate checkpoint report.
+- `python3 -m tools.blender.cockpit_pipeline.preflight` - pass; reported Blender 5.1.2 and dirty state as report-only.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-job art-source/cockpit-pipeline/jobs/dc9-32-flightgear-source-vslice/job.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/dc9-32-flightgear-source-vslice/manifests/sourcing-complete.json` - pass after repair, hashes verified.
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass, 5 tests.
+- `git diff --check` - pass.
+
+### Stop outcome
+
+`approval-required`. The source candidates remain suitable for a pipeline-proof source handoff with ranking evidence now attached. They are not production-correct DC-9 components and should not be treated as final art.
+
+Next trigger: before Agent 1 publishes any new or replacement DC-9 source component batch.
+
+### Remaining delta
+
+- Human source review is still required before any future Agent 2 assembly consumes a new source batch.
+- The final production DC-9 variant remains unresolved.
+- The switch cluster source remains low confidence and should be revisited first.
+
+## Reference Source Job Schema Repair: 2026-06-23
+
+### Purpose
+
+Repair the newly merged DC-9 reference source discovery job so it validates against the checked-in job schema while preserving the richer source-discovery nuance in an asset report.
+
+### Fresh state
+
+After syncing PR #18, `art-source/cockpit-pipeline/jobs/dc9-reference-source-discovery/job.json` failed schema validation because `variantScope` used `target_visual_reference_with_mixed_source_candidates`, which is not an allowed enum value.
+
+### Files changed
+
+- `art-source/cockpit-pipeline/jobs/dc9-reference-source-discovery/job.json`
+- `asset-reports/references/dc9-51-reference-source-package.md`
+- `art-source/cockpit-pipeline/EXEC_PLAN.md`
+
+### Repair
+
+- Changed the job file to `variantScope: target-confirmed`, matching the schema and the DC-9-51 primary visual target.
+- Added report text explaining that the broader discovery intent remains target visual reference with mixed source candidates, and that Agent 1 must record each candidate's source variant and limitations before handoff.
+
+### Validation evidence
+
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-job art-source/cockpit-pipeline/jobs/dc9-reference-source-discovery/job.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-job art-source/cockpit-pipeline/jobs/dc9-32-flightgear-source-vslice/job.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/dc9-32-flightgear-source-vslice/manifests/sourcing-complete.json` - pass, hashes verified.
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass, 5 tests.
+
+### Remaining delta
+
+- This repair does not run the new DC-9 reference source discovery job. It only restores schema validity for the checked-in request.

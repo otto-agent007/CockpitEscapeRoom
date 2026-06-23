@@ -5,7 +5,7 @@
   "aircraft": "dc9",
   "sourceVariant": "multiple",
   "targetVariant": "DC-9-51",
-  "variantScope": "target_visual_reference_with_mixed_source_candidates",
+  "variantScope": "target-confirmed",
   "sourceRepository": {
     "url": "art-source/cockpit-pipeline/source-discovery-seeds/dc9-reference-source-discovery.seed.json",
     "resolvedRevision": "local-seed-spec"
