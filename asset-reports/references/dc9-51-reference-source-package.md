@@ -14,12 +14,14 @@ Create the first CockpitEscapeRoom reference-to-source package for the DC-9 cock
 - Registration: N775NC
 - Classification: primary visual target
 
-## Files added
+## Files added or updated
 
 - `art-source/references/dc9-51/annotations/dc9_51_n775nc_cockpit_primary_callouts.svg`
 - `art-source/references/dc9-51/notes/dc9-51-primary-zone-brief.md`
 - `art-source/references/dc9-51/notes/source-discovery-seed.md`
+- `art-source/cockpit-pipeline/source-discovery-seeds/dc9-reference-source-discovery.seed.json`
 - `art-source/cockpit-pipeline/jobs/dc9-reference-source-discovery/job.json`
+- `art-source/references/dc9-51/notes/modeling-brief.md`
 - `asset-reports/references/dc9-51-reference-source-package.md`
 
 ## Modeling zones prepared
@@ -49,6 +51,8 @@ Each candidate must record source location, source variant, target variant, vari
 
 Job file: `art-source/cockpit-pipeline/jobs/dc9-reference-source-discovery/job.json`
 
+Seed spec: `art-source/cockpit-pipeline/source-discovery-seeds/dc9-reference-source-discovery.seed.json`
+
 Requested components:
 
 - cockpit shell and main panel blockout;
@@ -57,7 +61,9 @@ Requested components:
 - main panel gauge density set;
 - overhead panel density placeholder.
 
-The job stops at `sourcing_complete` and requires human approval before assembly.
+The checked-in job file intentionally stays close to the existing pipeline job schema. The richer multi-source ranking requirements live in the seed spec and source discovery notes so the schema is not silently weakened.
+
+The job must stop at `sourcing_complete` and requires human approval before assembly.
 
 ## Validation evidence
 
@@ -71,8 +77,6 @@ python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-job art-source/c
 python3 -m unittest discover tools/blender/cockpit_pipeline/tests
 git diff --check
 ```
-
-If `validate-job` rejects the extra reference/source fields, either extend the job schema deliberately or convert this job to a seed spec consumed by a future Agent 1 prompt. Do not weaken validation silently.
 
 ## Remaining limitations
 
