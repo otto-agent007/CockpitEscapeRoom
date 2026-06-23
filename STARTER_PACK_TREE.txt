@@ -2,6 +2,8 @@
 .agents/skills/blender-web-assets/references/scene-contract.md
 .agents/skills/cockpit-feature/SKILL.md
 .agents/skills/cockpit-feature/references/regression-checklist.md
+.agents/skills/loop-discovery/SKILL.md
+.agents/skills/loop-doctor/SKILL.md
 .blender-version.example
 .codex/config.toml.example
 .gitattributes
