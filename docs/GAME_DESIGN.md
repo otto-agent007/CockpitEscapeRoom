@@ -2,252 +2,442 @@
 
 ## Current creative direction
 
-**CockpitEscapeRoom** is a personalized, family-friendly 3D browser escape-room game built as a tribute to Dad, a skilled former airline pilot. The main game takes place in a convincing Northwest-era McDonnell Douglas DC-9 cockpit, currently targeting a **DC-9-51** unless a different variant is approved later.
+**CockpitEscapeRoom** is a personalized, family-friendly 3D browser escape-room game built as a tribute to Dad, a skilled former airline pilot. The game should feel like a polished Father’s Day surprise: part cockpit mystery, part family tribute, part reward reveal.
 
-The story must never imply that Dad made a mistake, forgot a checklist, caused an emergency, or needs to be rescued. He is portrayed as the capable captain whose lessons, habits, and stories help the family solve a commemorative qualification challenge.
+Dad must always be portrayed as a highly capable pilot. The story must never imply that he made a mistake, forgot a checklist, caused an emergency, or needs rescue. The game honors what the family learned from him.
 
-The game should feel like a warm, polished Father’s Day experience: part cockpit mystery, part family tribute, part surprise reveal.
+The main progression now centers on a **modern First-Officer onboarding** that quietly leads into a more personal **Pop T Captain Mode** reveal.
 
 ## Core fantasy
 
-Dad, nicknamed **Pop T**, is invited back to complete a fictional Northwest legacy challenge: the **Legacy Qualification**. The aircraft is safely parked in a hangar for a commemorative departure sequence. The family is the “crew,” and the goal is to restore the aircraft systems, unlock the hangar path, and reveal a staged sequence of personal rewards.
+The player begins in a modern Airbus cockpit, thinking they are simply completing a fun aviation-themed game. By succeeding, they earn access to a personal locker scene, where the game reveals that this is really about **Pop T** and his legacy. Only then does the player graduate into the older, denser, more meaningful DC-9 captain’s world.
 
 The player loop remains:
 
-**observe → inspect → interact → receive feedback → retry or take a hint → restore a system → reveal a personal reward → advance**
+**observe → inspect → interact → receive feedback → retry or take a hint → unlock the next layer → reveal a personal reward → advance**
 
-Wrong answers should never erase completed progress or force a full restart. The player should always be able to recover through feedback, hints, observation, and safe retries.
+Wrong answers must never erase completed progress or force a restart.
 
 ## Progression
 
-1. **DC-9 Crew Mode** — approachable, guided family escape-room experience.
-2. **Captain Mode** — harder, subtler, captain-level reasoning puzzles inspired by real airline habits.
-3. **Red Tesla Model Y reward** — kept secret until the end of Captain Mode.
-4. **Realistic Airbus Type Transition bonus level** — separate cockpit, not a DC-9 reskin.
-5. **Hidden Mars mission Easter egg** — short, optional, playful space-themed payoff.
+1. **Airbus A320 First-Officer Mode** — approachable drag-and-drop cockpit familiarization.
+2. **Locker Room / Captain’s Locker Scene** — a personal reveal space with memory objects and milestone clues.
+3. **Pop T Captain Mode — DC-9** — a tougher analog checklist-style legacy challenge.
+4. **Ground Transport Upgrade Authorized** — the protected red Tesla Model Y surprise.
+5. **Father’s Day Final Message** — the emotional closing beat.
+6. **Optional Mars Easter Egg** — short, hidden, playful.
 
-## Tone and story guardrails
+## Story and tone guardrails
 
-- Dad is always the expert; the game honors what the family learned from him.
-- The challenge is ceremonial, not an emergency.
-- The stakes are discovery, qualification, family pride, and celebration.
-- Avoid framing puzzles as failures, forgotten steps, or dangerous malfunctions.
-- Keep aviation authenticity as atmosphere and interaction flavor, not as a required exam.
-- Use family details sparingly and warmly. Do not invent missing biographical details; use placeholders where needed.
-- Preserve the Model Y as a surprise until Captain Mode completion.
+- Dad is always the expert.
+- The game is ceremonial, playful, and respectful.
+- The challenge is never an emergency.
+- The player should feel like they are earning access, not fixing Dad’s mistake.
+- Aviation authenticity should add atmosphere, not turn the game into an exam.
+- The Model Y must remain a surprise until after Pop T Captain Mode completion.
+- The DC-9 should feel more earned and personal than the Airbus.
 
-## DC-9 Crew Mode
+## Airbus A320 First-Officer Mode
 
-Crew Mode is for the whole family. It should be visually impressive but mechanically approachable.
+### Purpose
 
-### Crew Mode goals
+First-Officer Mode teaches the family the language of the cockpit in a fun, game-like way. It should feel like the current objective, not like a tutorial for a later DC-9 reveal.
 
-- Teach the interaction model.
-- Establish the DC-9 cockpit as a believable place.
-- Let non-pilots participate meaningfully.
-- Reveal personal memories and clues through cockpit objects.
-- Build confidence before Captain Mode.
+Do not foreshadow Pop T Captain Mode, the DC-9, or the Model Y during this section.
 
-### Crew Mode puzzle style
+### Tone
 
-Crew Mode puzzles should use clear environmental clues, highlighted interactables, generous hinting, and safe retries.
+- Modern
+- Friendly
+- Clickable
+- Confidence-building
+- Game-like rather than technical
 
-Examples:
+### Core interaction style
 
-- Match a route strip to a destination code.
-- Use panel labels to find the correct switch family.
-- Restore cabin signs, radio lights, or instrument lighting.
-- Decode a simple Northwest-themed note from route cards.
-- Locate a “Pop T Crew Badge” or commemorative logbook entry.
+First-Officer Mode should use a **drag-and-drop matching puzzle**.
 
-### Crew Mode feedback
+The player receives a tray of label cards such as:
 
-Feedback should feel encouraging and cockpit-themed:
+- SIDESTICK
+- THRUST
+- GEAR
+- RADIO
+- ALTITUDE
+- CLOCK
 
-- “Good crew coordination.”
-- “Legacy circuit restored.”
-- “Captain’s lesson applied.”
-- “That one’s close — check the route strip again.”
+The player drags each card onto the matching cockpit object.
 
-Crew Mode completion should unlock **Captain Mode**, not the Model Y.
+Correct match behavior:
 
-## Captain Mode
+- Object glows or highlights.
+- Card locks into place.
+- Short feedback appears.
 
-Captain Mode is the advanced layer. It should feel like a respectful nod to things only an experienced captain would notice, while still being solvable through observation and reasoning.
+Wrong match behavior:
 
-The puzzles should be harder because they require subtle pattern recognition, cockpit context, and calm sequencing — not obscure trivia dumps or simulator procedures.
+- Card snaps back.
+- A short hint appears.
+- No punishment beyond retrying.
 
-### Captain Mode design principles
+### Suggested object matches
 
-- Hide fewer obvious highlights; reward close inspection.
-- Use authentic cockpit atmosphere and route operations as clues.
-- Require multi-step reasoning but never punish experimentation harshly.
-- Include hints that reveal progressively more context.
-- Maintain family-friendly pacing.
-- Never make Dad the source of the problem.
+#### 1. Sidestick
 
-### Captain Mode puzzle candidates
+Feedback:
 
-#### 1. Route-bank reasoning puzzle
+“Nice. That’s the sidestick.”
 
-Use a Northwest Memphis hub board with route strips and airport codes such as:
+#### 2. Thrust levers
 
-- MEM
-- LIT
-- JAN
-- BHM
-- BTR
-- SHV
-- MOB
-- STL
-- BNA
-- SDF
-- IND
+Feedback:
 
-The player must infer a route-bank sequence from clues in the cockpit: departure board, radio scratchpad, logbook note, and map pins. This should feel like dispatch/route awareness rather than trivia.
+“Correct. Thrust controls power.”
 
-#### 2. Captain’s scan puzzle
+#### 3. Landing gear lever
 
-The player observes analog instrument positions, warning annunciators, and panel lighting to find the one item that is intentionally out of sequence for the commemorative qualification. The answer is discovered through careful scan discipline, not rote checklist memory.
+Feedback:
 
-#### 3. Weight-and-balance style puzzle
+“Good catch. That handles the gear.”
 
-A simplified family-friendly load-planning puzzle uses baggage tags, seat-row cards, or cargo labels. The player balances the aircraft symbolically, using visual zones and simple constraints instead of real performance math.
+#### 4. Radio panel
 
-#### 4. Call-sign and route-strip puzzle
+Feedback:
 
-A radio note, route strip, and destination board combine into a short unlock code. The puzzle should reward recognizing how operational paperwork, radios, and routes relate.
+“Right. That’s the radio panel.”
 
-#### 5. Baseball memory clue
+#### 5. Altitude display area
 
-A personal clue references Pop T playing baseball in high school with future Pro Football Hall of Famer **Anthony Muñoz**. The puzzle can ask:
+Feedback:
 
-> “Which future Pro Football Hall of Famer went to Chaffey High School in Ontario, California and crossed paths with Pop T on the baseball field?”
+“Correct. That’s where altitude is read.”
 
-Answer: **Anthony Muñoz**
+### Airbus clock challenge
 
-This should be a warm family-story moment, not a hard blocker. If the player misses it, hints should guide them toward the family memory and the name.
+After the main drag-and-drop labels are complete, the cockpit clock becomes active.
 
-#### 6. Captain’s final authorization
+The clock is clicked as a special object challenge.
 
-The final Captain Mode puzzle combines restored cockpit systems, a route-bank clue, Pop T’s legacy badge, and the baseball memory clue into a ceremonial “Legacy Qualification Authorized” moment.
+Prompt:
 
-Completing this mode triggers the staged ending and the Model Y reveal.
+**“How many flight hours are needed for a standard ATP certificate?”**
+
+Accepted answer:
+
+**1500**
+
+Feedback:
+
+**“ATP milestone recognized: 1500.”**
+
+Design note: this should feel like a cool aviation clue inside a computer game, not a legal lesson.
+
+### End of First-Officer Mode
+
+When the Airbus challenges are complete, display:
+
+**“FIRST-OFFICER MODE COMPLETE”**
+
+Then:
+
+**“Locker access granted.”**
+
+Do not mention the DC-9 yet.
+
+## Locker Room / Captain’s Locker Scene
+
+### Purpose
+
+The locker room is the emotional hinge of the game. This is where the experience stops feeling like a general aviation game and starts feeling personal to Pop T.
+
+The locker scene should be quieter, warmer, and more intimate than the Airbus cockpit.
+
+### Visual direction
+
+- Dim locker-room lighting.
+- One locker softly illuminated.
+- Warm spill light from inside the locker.
+- Carefully arranged personal objects.
+- The captain’s hat visible only as a dark silhouette in the shadows.
+- The hat is not readable or clickable at first.
+- The player must inspect the whole locker before the hat reveal happens.
+
+### Required locker objects
+
+- Nice watch
+- Baseball
+- Pop T nameplate
+- Chaffey High clue
+- Anthony Muñoz clue
+- Northwest-era route strip
+- Folded checklist card
+- Shadowed captain’s hat
+
+### Locker interaction philosophy
+
+Not every object needs to be a trivia prompt. The locker should feel like a place, not a quiz menu.
+
+Use a mix of:
+
+- click-to-learn objects
+- memory clues
+- short question prompts
+- one final promotion trigger
+
+### Locker objects
+
+#### 1. Nice watch
+
+Prompt:
+
+**“How many right-seat hours before captain upgrade?”**
+
+Accepted answer:
+
+**1000**
+
+Feedback:
+
+**“Experience recognized: 1000.”**
+
+The watch symbolizes time served, discipline, and earned captaincy.
+
+#### 2. Baseball
+
+Prompt:
+
+**“Before the captain wore wings, he wore a glove.”**
+
+Follow-up question:
+
+**“Which future Pro Football Hall of Famer from Chaffey High crossed paths with Pop T on the baseball field?”**
+
+Accepted answer:
+
+**Anthony Muñoz**
+
+Feedback:
+
+**“Memory recognized: Anthony Muñoz.”**
+
+This should feel like a family memory reveal, not random sports trivia.
+
+#### 3. Pop T nameplate
+
+Feedback:
+
+**“Pop T recognized.”**
+
+This is an identity reveal, not a quiz.
+
+#### 4. Route strip
+
+Feedback:
+
+**“Route awareness logged.”**
+
+This seeds the captain feel without explicitly explaining what comes next.
+
+#### 5. Folded checklist card
+
+A simple ceremonial ordering challenge can appear here.
+
+Suggested order:
+
+1. Power
+2. Lights
+3. Route
+4. Crew
+5. Release
+
+Feedback:
+
+**“Checklist rhythm recognized.”**
+
+## Captain’s hat shadow reveal
+
+### Locked state
+
+At the start of the locker scene, the captain’s hat is visible only as a blacked-out silhouette. The player notices it, but does not yet know what it is.
+
+Suggested hover text while locked:
+
+- “Something rests in the shadows.”
+- “Complete the locker inspection first.”
+
+Do not label it as a captain’s hat until the reveal.
+
+### Reveal trigger
+
+When all required locker objects are completed:
+
+- The locker lights dim briefly.
+- Completed objects glow softly.
+- A warm overhead light fades in.
+- The shadow lifts from the top shelf.
+- The captain’s hat becomes visible.
+- The scene pauses for a beat before interaction resumes.
+
+### Reveal text
+
+When the hat becomes visible:
+
+**“Final locker item revealed.”**
+
+When clicked:
+
+**“Captain’s hat recognized.”**
+
+Then:
+
+**“Promotion available.”**
+
+Then:
+
+**“POP T CAPTAIN MODE UNLOCKED”**
+
+This should feel like the emotional climax of the locker scene.
+
+## Pop T Captain Mode — DC-9
+
+### Purpose
+
+The DC-9 is now the earned legacy cockpit. It should feel older, denser, more analog, and more personal than the Airbus.
+
+This is not a generic hard mode. It is **Pop T Captain Mode**.
+
+### Tone
+
+- Reverent
+- Classic
+- More complex
+- More personal
+- Still family-friendly and solvable
+
+### Opening beat
+
+After the hat reveal:
+
+1. The hat is clicked.
+2. Screen fades down.
+3. Sound of a locker closing.
+4. DC-9 cockpit ambience fades in.
+5. Analog lights appear one by one.
+6. Camera settles into the captain-side view.
+7. Title appears.
+
+Title:
+
+**“POP T CAPTAIN MODE”**
+
+Subtitle:
+
+**“Legacy checklist ready.”**
+
+### Puzzle direction
+
+Pop T Captain Mode should use harder, checklist-like puzzles while staying fictional and safe.
+
+Suggested puzzle types:
+
+- Captain’s scan puzzle
+- Legacy checklist sequencing
+- MEM route-strip reasoning
+- Analog panel observation
+- Personal memory recall
+- Final hangar release authorization
+
+### Guardrails
+
+- Do not require real aircraft procedures.
+- Do not imply Dad forgot anything.
+- Do not frame anything as an emergency.
+- Let the player recover easily from wrong answers.
+- Make the challenge feel honorary and earned.
 
 ## Model Y surprise sequence
 
-The red Tesla Model Y must remain a surprise until the end of Captain Mode. Do not preview it in Crew Mode UI, menus, level cards, loading tips, or early hint text.
+The red Tesla Model Y must remain hidden until after Pop T Captain Mode completion.
+
+Do not preview it in:
+
+- First-Officer Mode
+- Locker room UI
+- Menus
+- Loading tips
+- Early hint text
+- Achievement lists shown before completion
 
 ### Staged reveal
 
-After Captain Mode completion:
+After Pop T Captain Mode completion:
 
-1. The cockpit lights settle into a warm completed-state glow.
-2. A hangar intercom announces: **“Legacy Qualification complete.”**
+1. The DC-9 settles into a warm completed-state glow.
+2. A hangar intercom announces: **“Legacy authorization confirmed.”**
 3. The hangar door begins opening.
-4. A polished Tesla Optimus 3-style robot appears as a playful escort.
-5. The robot leads the player out of the cockpit path toward the hangar floor.
-6. The red Tesla Model Y is revealed under clean hangar lighting.
-7. The celebration title appears: **“Ground Transport Upgrade Authorized.”**
+4. A polished Tesla Optimus 3-style robot appears as a short ceremonial escort.
+5. The robot leads the player toward the hangar floor.
+6. The red Tesla Model Y is revealed.
+7. The title appears: **“Ground Transport Upgrade Authorized.”**
 
-The moment should feel tasteful, cinematic, and personal rather than loud or gimmicky.
-
-### Optimus 3 role
-
-The Optimus 3 character acts as a short ceremonial guide. It should not dominate the ending or become a long cutscene. Its purpose is to create a delightful bridge from cockpit completion to Tesla reveal.
-
-Possible robot lines:
-
-- “Captain Pop T, your next transport is ready.”
-- “Ground Transport Upgrade Authorized.”
-- “Please proceed to Hangar Bay [PLACEHOLDER].”
+The moment should feel tasteful, cinematic, and personal.
 
 ## Father’s Day final message
 
-After the Model Y reveal, the game should unfold one final layer: a Father’s Day message from the family.
+The Father’s Day message should happen **after** the Model Y reveal, not before.
 
-This should be editable content, not hard-coded deep inside game logic. Store it in a data/config file so the family can revise the wording without touching the 3D scene.
+This content should remain editable in data/config rather than buried in scene logic.
 
 Suggested placeholder:
 
 > Happy Father’s Day, Pop T. This whole cockpit was built around the lessons you gave us: stay calm, scan carefully, trust your crew, and enjoy the ride. We love you, and your next chapter is cleared for departure.
 
-Replace with the family’s final approved wording before release.
-
-## Airbus Type Transition bonus
-
-The Airbus bonus level should unlock after the Model Y reveal or through a post-credits prompt.
-
-This must be a genuinely separate cockpit experience, not a reskinned DC-9. The exact Airbus model is not confirmed, so avoid final model-specific geometry until the aircraft type is approved.
-
-### Airbus bonus principles
-
-- Separate cockpit asset group.
-- Separate interaction set.
-- Separate visual language.
-- Modern Airbus feel: sidestick, ECAM-style displays, different overhead/pedestal logic.
-- Do not mix DC-9 cockpit geometry into Airbus layout.
-- Keep the bonus shorter than the main DC-9 experience.
-
-The theme is a playful **Type Transition**, celebrating Dad’s move from DC-9-era flying into Airbus-era systems.
-
 ## Mars Easter egg
 
-The Mars Easter egg is hidden, optional, and short. It should be discoverable after the Model Y reward, likely through a subtle cockpit, Tesla, or hangar interaction.
+The Mars Easter egg remains short, optional, and playful.
 
-Possible sequence:
+Suggested payoff:
 
-1. Player finds a small space-themed clue.
-2. The Model Y display or hangar panel shows a playful Mars route.
-3. The Model Y transforms in presentation into a fictional surface vehicle.
-4. The player receives the title: **“Commander, Mars Transport Division.”**
+- A hidden space clue activates after the main ending.
+- The Model Y briefly becomes a fictional Mars surface vehicle.
+- The player receives the title: **“Commander, Mars Transport Division.”**
 
-This should be a charming bonus, not a new full game mode.
+This should never block the main ending.
 
-## Visual realism priorities
+## Visual priorities
 
-The DC-9 cockpit should prioritize convincing realism from the captain’s seat:
+### Airbus A320 First-Officer Mode
 
-- Accurate-feeling cockpit scale and proportions.
+- Clean, modern glass-cockpit presentation.
+- Readable object highlighting for drag-and-drop play.
+- Clear cockpit landmarks for family players.
+- Friendly lighting and obvious interaction zones.
+
+### DC-9 Pop T Captain Mode
+
+- Convincing captain-seat scale.
 - Dense analog instrument panel.
-- Yokes with believable pivots.
-- Pedestal and overhead panel presence.
-- Blue-green/gray Northwest-era cockpit surfaces.
+- Northwest-era blue-green/gray surfaces.
 - Layered glass and restrained reflections.
-- Panel wear, labels, fasteners, knobs, placards, and small hardware.
-- Daylight hangar lighting with dim instrument lighting.
-- Camera framing that makes the cockpit feel real without requiring simulator-grade systems.
+- Yokes, pedestal, overhead presence, labels, and panel wear.
+- Lighting that makes the cockpit feel real but still readable.
 
-Use compatible real-aircraft references where possible. Do not silently combine complete layouts from DC-9-10, DC-9-30, DC-9-41, DC-9-51, MD-80, or unrelated aircraft. If references conflict, record uncertainty rather than guessing.
-
-Commercial simulator references may inspire presentation, camera framing, interaction scope, and lighting mood, but should not override model-specific real-aircraft references.
+Do not silently merge conflicting aircraft variants into one final production layout.
 
 ## Accessibility and UI
 
 Essential gameplay must not exist only inside WebGL. Use HTML overlays for:
 
-- Instructions
-- Hints
-- Captions
-- Settings
-- Progress
-- Interaction labels
-- Accessible alternatives
-- Status messages
-- Final Father’s Day message
+- instructions
+- hints
+- progress
+- captions
+- final family message
+- status messages
 
-Support:
+Keep the game approachable, visible, and easy to understand.
 
-- Keyboard navigation
-- Visible focus states
-- Mute option
-- Captions/text alternatives
-- Reduced motion
-- Readable contrast
-- Touch-friendly targets
-- Accessible alternatives for essential 3D interactions
-
-## Technical implementation notes
+## Technical direction
 
 Default stack:
 
@@ -256,8 +446,8 @@ Default stack:
 - TypeScript
 - Three.js through React Three Fiber
 - Drei where useful
-- Blender for 3D creation
-- GLB/glTF runtime assets
+- Blender
+- GLB/glTF assets
 - Vitest
 - Playwright
 - GitHub
@@ -265,23 +455,17 @@ Default stack:
 
 Keep asset groups separate and lazy-loaded:
 
-- DC-9 cockpit
-- Captain Mode overlays/interactions
+- Airbus A320 First-Officer cockpit
+- Locker room scene
+- DC-9 Pop T Captain cockpit
 - Model Y hangar reward
-- Airbus bonus cockpit
 - Mars Easter egg
 
-Interactive Blender objects need:
-
-- Stable object names
-- Correct pivots
-- Preserved hierarchy
-- Predictable metadata
-- Export notes in asset reports
+Interactive Blender objects need stable names, correct pivots, preserved hierarchy, and predictable metadata.
 
 ## Two-computer workflow
 
-Use separate task branches and do not let Windows and Ubuntu work on the same branch simultaneously.
+Use separate branches and do not let Windows and Ubuntu work on the same branch at the same time.
 
 ### Windows ownership
 
@@ -293,8 +477,6 @@ Use separate task branches and do not let Windows and Ubuntu work on the same br
 - `AGENTS.md`
 - `TEST_REPORT.md`
 
-Windows generally owns React, TypeScript, gameplay state, UI overlays, tests, GitHub workflow, and Vercel preview behavior.
-
 ### Ubuntu ownership
 
 - `art-source/`
@@ -303,28 +485,20 @@ Windows generally owns React, TypeScript, gameplay state, UI overlays, tests, Gi
 - `asset-reports/`
 - `preview-renders/`
 
-Ubuntu generally owns Blender scenes, reference organization, model cleanup, textures, GLB export, asset reports, and preview renders.
-
 ## Approval gates
 
-Recommended gates:
-
-1. DC-9 reference board and modeling brief
-2. DC-9 captain-view proof
-3. First interactive puzzle
-4. Complete DC-9 level
-5. Captain Mode and Model Y reward
-6. Exact Airbus model selection
-7. Airbus visual proof
-8. Mars Easter egg
-9. Release candidate
-
-Do not finalize the Airbus model, major story structure, or major visual style changes without approval.
+1. Airbus First-Officer cockpit interaction proof
+2. Locker room reveal proof
+3. DC-9 captain-view proof
+4. First Pop T Captain puzzle
+5. Model Y reward reveal
+6. Mars Easter egg
+7. Release candidate
 
 ## Immediate next design tasks
 
-1. Convert this design into repository `GAME_DESIGN.md`.
-2. Add a `story-data` or `content` file for editable family-facing text.
-3. Write Captain Mode puzzle briefs for route-bank reasoning, captain’s scan, weight-and-balance, and baseball memory clue.
-4. Add Model Y surprise protection rules to `AGENTS.md` so agents do not accidentally reveal it early.
-5. Create separate implementation prompts for Windows and Ubuntu workstreams.
+1. Add separate implementation briefs for Airbus, locker room, and DC-9 modes.
+2. Add explicit Model Y spoiler-protection rules to `AGENTS.md`.
+3. Write the exact locker object scripts and hint lines.
+4. Create a content file for editable family-facing text.
+5. Define the first Pop T Captain Mode puzzle in detail.
