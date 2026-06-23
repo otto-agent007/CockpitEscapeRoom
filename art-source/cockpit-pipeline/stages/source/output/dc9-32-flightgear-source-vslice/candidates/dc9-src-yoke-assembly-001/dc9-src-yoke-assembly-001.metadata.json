@@ -1,0 +1,61 @@
+{
+  "candidateId": "dc9-src-yoke-assembly-001",
+  "category": "yoke_assembly",
+  "sourceVariant": "DC-9-32",
+  "targetVariant": "unresolved",
+  "variantScope": "common",
+  "sourceFile": "Models/Flightdeck/flightdeck.ac",
+  "sourceXml": "Models/Flightdeck/Flightdeck.xml",
+  "sourceObjectNames": [
+    "YokeBase",
+    "YokeColL",
+    "YokeL",
+    "YokeTrimL"
+  ],
+  "pivotStatus": "XML animation centers exist for YokeColL/YokeL/YokeTrimL; source mesh origins require Agent 2 review.",
+  "confidenceScore": 0.91,
+  "discoveryReasons": [
+    "Object names directly identify yoke and left captain yoke column.",
+    "Flightdeck.xml rotate animations link YokeColL, YokeL, and YokeTrimL.",
+    "YokeBase is included as a mounting/support object from the same source file."
+  ],
+  "limitations": [
+    "Variant applicability to DC-9-51 remains unapproved.",
+    "This is source extraction only; hierarchy and pivots are not production-ready."
+  ],
+  "dimensions": {
+    "x": 0.30016,
+    "y": 0.79005,
+    "z": 1.25691
+  },
+  "triangleCount": 1723,
+  "materialNames": [
+    "ac3d_untextured",
+    "txt_cockpit_yoke.png"
+  ],
+  "childObjectCount": 4,
+  "exportedGlb": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-yoke-assembly-001/dc9-src-yoke-assembly-001.glb",
+  "previewPng": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/cockpit-pipeline/dc9-32-flightgear-source-vslice/dc9-src-yoke-assembly-001.png",
+  "metadataJson": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-yoke-assembly-001/dc9-src-yoke-assembly-001.metadata.json",
+  "validationJson": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-yoke-assembly-001/dc9-src-yoke-assembly-001.validation.json",
+  "reimportValidation": {
+    "status": "pass",
+    "meshCount": 4,
+    "materialCount": 2,
+    "dimensions": {
+      "x": 0.30016,
+      "y": 0.79005,
+      "z": 1.25691
+    },
+    "expectedDimensions": {
+      "x": 0.30016,
+      "y": 0.79005,
+      "z": 1.25691
+    },
+    "dimensionDelta": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    }
+  }
+}

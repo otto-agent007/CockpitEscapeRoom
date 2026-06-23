@@ -1,0 +1,508 @@
+{
+  "layoutId": "dc9-vslice-layout-001",
+  "componentReports": [
+    {
+      "componentId": "dc9-src-yoke-assembly-001",
+      "category": "yoke_assembly",
+      "runtimeNodeName": "DC9_CTRL_YOKE_CAPTAIN_01",
+      "parentGroupName": "DC9_VSLICE_YOKE_GROUP",
+      "importedObjectCount": 5,
+      "meshCount": 4,
+      "importedRootCount": 1,
+      "hierarchyPreserved": true,
+      "sourceBoundsCenter": [
+        2.635966,
+        0.585425,
+        0.048454
+      ],
+      "sourceBoundsRadius": 0.757313,
+      "renamedNodes": [
+        {
+          "source": "DC9-SRC-YOKE-ASSEMBLY-001",
+          "runtime": "DC9_CTRL_YOKE_CAPTAIN_01__00__DC9_SRC_YOKE_ASSEMBLY_001",
+          "type": "EMPTY"
+        },
+        {
+          "source": "YokeBase",
+          "runtime": "DC9_CTRL_YOKE_CAPTAIN_01__01__YOKEBASE",
+          "type": "MESH"
+        },
+        {
+          "source": "YokeColL",
+          "runtime": "DC9_CTRL_YOKE_CAPTAIN_01__02__YOKECOLL",
+          "type": "MESH"
+        },
+        {
+          "source": "YokeL",
+          "runtime": "DC9_CTRL_YOKE_CAPTAIN_01__03__YOKEL",
+          "type": "MESH"
+        },
+        {
+          "source": "YokeTrimL",
+          "runtime": "DC9_CTRL_YOKE_CAPTAIN_01__04__YOKETRIML",
+          "type": "MESH"
+        }
+      ],
+      "pivotRepairs": [
+        {
+          "componentId": "dc9-src-yoke-assembly-001",
+          "status": "repaired_with_parent_pivot_empty",
+          "method": "Create runtime pivot empty from layout and parent preserved source hierarchy beneath it.",
+          "pivotLocal": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "transform": {
+        "translation": [
+          -0.72,
+          -0.72,
+          0.86
+        ],
+        "rotationEuler": [
+          1.5708,
+          0.0,
+          1.5708
+        ],
+        "scale": [
+          0.32,
+          0.32,
+          0.32
+        ],
+        "status": "placeholder_transform"
+      }
+    },
+    {
+      "componentId": "dc9-src-throttle-assembly-001",
+      "category": "throttle_assembly",
+      "runtimeNodeName": "DC9_THR_QUADRANT_01",
+      "parentGroupName": "DC9_VSLICE_PEDESTAL_GROUP",
+      "importedObjectCount": 15,
+      "meshCount": 13,
+      "importedRootCount": 1,
+      "hierarchyPreserved": true,
+      "sourceBoundsCenter": [
+        2.670255,
+        0.42929,
+        0.0
+      ],
+      "sourceBoundsRadius": 0.667675,
+      "renamedNodes": [
+        {
+          "source": "DC9-SRC-THROTTLE-ASSEMBLY-001",
+          "runtime": "DC9_THR_QUADRANT_01__00__DC9_SRC_THROTTLE_ASSEMBLY_001",
+          "type": "EMPTY"
+        },
+        {
+          "source": "FlapLever",
+          "runtime": "DC9_THR_QUADRANT_01__01__FLAPLEVER",
+          "type": "MESH"
+        },
+        {
+          "source": "FuelCutoffL",
+          "runtime": "DC9_THR_QUADRANT_01__02__FUELCUTOFFL",
+          "type": "MESH"
+        },
+        {
+          "source": "FuelCutoffR",
+          "runtime": "DC9_THR_QUADRANT_01__03__FUELCUTOFFR",
+          "type": "MESH"
+        },
+        {
+          "source": "PedestalBase",
+          "runtime": "DC9_THR_QUADRANT_01__04__PEDESTALBASE",
+          "type": "EMPTY"
+        },
+        {
+          "source": "PedestalBase_0",
+          "runtime": "DC9_THR_QUADRANT_01__05__PEDESTALBASE_0",
+          "type": "MESH"
+        },
+        {
+          "source": "PedestalBase_1",
+          "runtime": "DC9_THR_QUADRANT_01__06__PEDESTALBASE_1",
+          "type": "MESH"
+        },
+        {
+          "source": "PedestalDrum",
+          "runtime": "DC9_THR_QUADRANT_01__07__PEDESTALDRUM",
+          "type": "MESH"
+        },
+        {
+          "source": "PedestalDrumFace",
+          "runtime": "DC9_THR_QUADRANT_01__08__PEDESTALDRUMFACE",
+          "type": "MESH"
+        },
+        {
+          "source": "SpdBrakeLever",
+          "runtime": "DC9_THR_QUADRANT_01__09__SPDBRAKELEVER",
+          "type": "MESH"
+        },
+        {
+          "source": "ThrottleL",
+          "runtime": "DC9_THR_QUADRANT_01__10__THROTTLEL",
+          "type": "MESH"
+        },
+        {
+          "source": "ThrottleR",
+          "runtime": "DC9_THR_QUADRANT_01__11__THROTTLER",
+          "type": "MESH"
+        },
+        {
+          "source": "ThrottleRevL",
+          "runtime": "DC9_THR_QUADRANT_01__12__THROTTLEREVL",
+          "type": "MESH"
+        },
+        {
+          "source": "ThrottleRevR",
+          "runtime": "DC9_THR_QUADRANT_01__13__THROTTLEREVR",
+          "type": "MESH"
+        },
+        {
+          "source": "XfeedLever",
+          "runtime": "DC9_THR_QUADRANT_01__14__XFEEDLEVER",
+          "type": "MESH"
+        }
+      ],
+      "pivotRepairs": [
+        {
+          "componentId": "dc9-src-throttle-assembly-001",
+          "status": "repaired_with_parent_pivot_empty",
+          "method": "Create runtime pivot empty from layout and parent preserved source hierarchy beneath it.",
+          "pivotLocal": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "transform": {
+        "translation": [
+          0.12,
+          -0.02,
+          0.55
+        ],
+        "rotationEuler": [
+          0.0,
+          0.0,
+          -0.04
+        ],
+        "scale": [
+          0.54,
+          0.54,
+          0.54
+        ],
+        "status": "placeholder_transform"
+      }
+    },
+    {
+      "componentId": "dc9-src-large-gauge-001",
+      "category": "large_cockpit_gauge",
+      "runtimeNodeName": "DC9_GAUGE_ALTITUDE_01",
+      "parentGroupName": "DC9_VSLICE_GAUGE_GROUP",
+      "importedObjectCount": 17,
+      "meshCount": 16,
+      "importedRootCount": 1,
+      "hierarchyPreserved": true,
+      "sourceBoundsCenter": [
+        0.006129,
+        0.0,
+        0.0
+      ],
+      "sourceBoundsRadius": 0.1,
+      "renamedNodes": [
+        {
+          "source": "DC9-SRC-LARGE-GAUGE-001",
+          "runtime": "DC9_GAUGE_ALTITUDE_01__00__DC9_SRC_LARGE_GAUGE_001",
+          "type": "EMPTY"
+        },
+        {
+          "source": "AltFace",
+          "runtime": "DC9_GAUGE_ALTITUDE_01__01__ALTFACE",
+          "type": "MESH"
+        },
+        {
+          "source": "ALTneedle",
+          "runtime": "DC9_GAUGE_ALTITUDE_01__02__ALTNEEDLE",
+          "type": "MESH"
+        },
+        {
+          "source": "altnum100",
+          "runtime": "DC9_GAUGE_ALTITUDE_01__03__ALTNUM100",
+          "type": "MESH"
+        },
+        {
+          "source": "altnum1000",
+          "runtime": "DC9_GAUGE_ALTITUDE_01__04__ALTNUM1000",
+          "type": "MESH"
+        },
+        {
+          "source": "altnum10000",
+          "runtime": "DC9_GAUGE_ALTITUDE_01__05__ALTNUM10000",
+          "type": "MESH"
+        },
+        {
+          "source": "BaroKnob",
+          "runtime": "DC9_GAUGE_ALTITUDE_01__06__BAROKNOB",
+          "type": "MESH"
+        },
+        {
+          "source": "Bezel_35",
+          "runtime": "DC9_GAUGE_ALTITUDE_01__07__BEZEL_35",
+          "type": "MESH"
+        },
+        {
+          "source": "inhg01",
+          "runtime": "DC9_GAUGE_ALTITUDE_01__08__INHG01",
+          "type": "MESH"
+        },
+        {
+          "source": "inhg02",
+          "runtime": "DC9_GAUGE_ALTITUDE_01__09__INHG02",
+          "type": "MESH"
+        },
+        {
+          "source": "inhg03",
+          "runtime": "DC9_GAUGE_ALTITUDE_01__10__INHG03",
+          "type": "MESH"
+        },
+        {
+          "source": "inhg04",
+          "runtime": "DC9_GAUGE_ALTITUDE_01__11__INHG04",
+          "type": "MESH"
+        },
+        {
+          "source": "mb01",
+          "runtime": "DC9_GAUGE_ALTITUDE_01__12__MB01",
+          "type": "MESH"
+        },
+        {
+          "source": "mb02",
+          "runtime": "DC9_GAUGE_ALTITUDE_01__13__MB02",
+          "type": "MESH"
+        },
+        {
+          "source": "mb03",
+          "runtime": "DC9_GAUGE_ALTITUDE_01__14__MB03",
+          "type": "MESH"
+        },
+        {
+          "source": "mb04",
+          "runtime": "DC9_GAUGE_ALTITUDE_01__15__MB04",
+          "type": "MESH"
+        },
+        {
+          "source": "Screws_35",
+          "runtime": "DC9_GAUGE_ALTITUDE_01__16__SCREWS_35",
+          "type": "MESH"
+        }
+      ],
+      "pivotRepairs": [
+        {
+          "componentId": "dc9-src-large-gauge-001",
+          "status": "repaired_with_parent_pivot_empty",
+          "method": "Create runtime pivot empty from layout and parent preserved source hierarchy beneath it.",
+          "pivotLocal": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "transform": {
+        "translation": [
+          -0.24,
+          -0.64,
+          1.18
+        ],
+        "rotationEuler": [
+          0.0,
+          0.0,
+          1.5708
+        ],
+        "scale": [
+          5.8,
+          5.8,
+          5.8
+        ],
+        "status": "placeholder_transform"
+      }
+    },
+    {
+      "componentId": "dc9-src-switch-cluster-001",
+      "category": "switch_cluster",
+      "runtimeNodeName": "DC9_SW_ABS_CLUSTER_01",
+      "parentGroupName": "DC9_VSLICE_SWITCH_GROUP",
+      "importedObjectCount": 5,
+      "meshCount": 4,
+      "importedRootCount": 1,
+      "hierarchyPreserved": true,
+      "sourceBoundsCenter": [
+        2.783351,
+        0.837519,
+        0.0
+      ],
+      "sourceBoundsRadius": 0.699943,
+      "renamedNodes": [
+        {
+          "source": "DC9-SRC-SWITCH-CLUSTER-001",
+          "runtime": "DC9_SW_ABS_CLUSTER_01__00__DC9_SRC_SWITCH_CLUSTER_001",
+          "type": "EMPTY"
+        },
+        {
+          "source": "KnobABS",
+          "runtime": "DC9_SW_ABS_CLUSTER_01__01__KNOBABS",
+          "type": "MESH"
+        },
+        {
+          "source": "LampABS",
+          "runtime": "DC9_SW_ABS_CLUSTER_01__02__LAMPABS",
+          "type": "MESH"
+        },
+        {
+          "source": "LampABSon",
+          "runtime": "DC9_SW_ABS_CLUSTER_01__03__LAMPABSON",
+          "type": "MESH"
+        },
+        {
+          "source": "SwABS",
+          "runtime": "DC9_SW_ABS_CLUSTER_01__04__SWABS",
+          "type": "MESH"
+        }
+      ],
+      "pivotRepairs": [
+        {
+          "componentId": "dc9-src-switch-cluster-001",
+          "status": "repaired_with_parent_pivot_empty",
+          "method": "Create runtime pivot empty from layout and parent preserved source hierarchy beneath it.",
+          "pivotLocal": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "transform": {
+        "translation": [
+          0.58,
+          -0.64,
+          1.08
+        ],
+        "rotationEuler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.3,
+          0.3,
+          0.3
+        ],
+        "status": "placeholder_transform"
+      }
+    }
+  ],
+  "runtimeNodeNames": [
+    "DC9_CTRL_YOKE_CAPTAIN_01",
+    "DC9_CTRL_YOKE_CAPTAIN_01__00__DC9_SRC_YOKE_ASSEMBLY_001",
+    "DC9_CTRL_YOKE_CAPTAIN_01__01__YOKEBASE",
+    "DC9_CTRL_YOKE_CAPTAIN_01__02__YOKECOLL",
+    "DC9_CTRL_YOKE_CAPTAIN_01__03__YOKEL",
+    "DC9_CTRL_YOKE_CAPTAIN_01__04__YOKETRIML",
+    "DC9_GAUGE_ALTITUDE_01",
+    "DC9_GAUGE_ALTITUDE_01__00__DC9_SRC_LARGE_GAUGE_001",
+    "DC9_GAUGE_ALTITUDE_01__01__ALTFACE",
+    "DC9_GAUGE_ALTITUDE_01__02__ALTNEEDLE",
+    "DC9_GAUGE_ALTITUDE_01__03__ALTNUM100",
+    "DC9_GAUGE_ALTITUDE_01__04__ALTNUM1000",
+    "DC9_GAUGE_ALTITUDE_01__05__ALTNUM10000",
+    "DC9_GAUGE_ALTITUDE_01__06__BAROKNOB",
+    "DC9_GAUGE_ALTITUDE_01__07__BEZEL_35",
+    "DC9_GAUGE_ALTITUDE_01__08__INHG01",
+    "DC9_GAUGE_ALTITUDE_01__09__INHG02",
+    "DC9_GAUGE_ALTITUDE_01__10__INHG03",
+    "DC9_GAUGE_ALTITUDE_01__11__INHG04",
+    "DC9_GAUGE_ALTITUDE_01__12__MB01",
+    "DC9_GAUGE_ALTITUDE_01__13__MB02",
+    "DC9_GAUGE_ALTITUDE_01__14__MB03",
+    "DC9_GAUGE_ALTITUDE_01__15__MB04",
+    "DC9_GAUGE_ALTITUDE_01__16__SCREWS_35",
+    "DC9_SW_ABS_CLUSTER_01",
+    "DC9_SW_ABS_CLUSTER_01__00__DC9_SRC_SWITCH_CLUSTER_001",
+    "DC9_SW_ABS_CLUSTER_01__01__KNOBABS",
+    "DC9_SW_ABS_CLUSTER_01__02__LAMPABS",
+    "DC9_SW_ABS_CLUSTER_01__03__LAMPABSON",
+    "DC9_SW_ABS_CLUSTER_01__04__SWABS",
+    "DC9_THR_QUADRANT_01",
+    "DC9_THR_QUADRANT_01__00__DC9_SRC_THROTTLE_ASSEMBLY_001",
+    "DC9_THR_QUADRANT_01__01__FLAPLEVER",
+    "DC9_THR_QUADRANT_01__02__FUELCUTOFFL",
+    "DC9_THR_QUADRANT_01__03__FUELCUTOFFR",
+    "DC9_THR_QUADRANT_01__04__PEDESTALBASE",
+    "DC9_THR_QUADRANT_01__05__PEDESTALBASE_0",
+    "DC9_THR_QUADRANT_01__06__PEDESTALBASE_1",
+    "DC9_THR_QUADRANT_01__07__PEDESTALDRUM",
+    "DC9_THR_QUADRANT_01__08__PEDESTALDRUMFACE",
+    "DC9_THR_QUADRANT_01__09__SPDBRAKELEVER",
+    "DC9_THR_QUADRANT_01__10__THROTTLEL",
+    "DC9_THR_QUADRANT_01__11__THROTTLER",
+    "DC9_THR_QUADRANT_01__12__THROTTLEREVL",
+    "DC9_THR_QUADRANT_01__13__THROTTLEREVR",
+    "DC9_THR_QUADRANT_01__14__XFEEDLEVER",
+    "DC9_VSLICE_CAPTAIN_YOKE_SOCKET",
+    "DC9_VSLICE_GAUGE_GROUP",
+    "DC9_VSLICE_GLARESHIELD_REFERENCE",
+    "DC9_VSLICE_LOWER_PANEL_REFERENCE",
+    "DC9_VSLICE_MAIN_PANEL_REFERENCE",
+    "DC9_VSLICE_PEDESTAL_GROUP",
+    "DC9_VSLICE_PEDESTAL_REFERENCE",
+    "DC9_VSLICE_REFERENCE_FRAME",
+    "DC9_VSLICE_ROOT",
+    "DC9_VSLICE_SWITCH_GROUP",
+    "DC9_VSLICE_YOKE_GROUP"
+  ],
+  "pivotRepairs": [
+    {
+      "componentId": "dc9-src-yoke-assembly-001",
+      "status": "repaired_with_parent_pivot_empty",
+      "method": "Create runtime pivot empty from layout and parent preserved source hierarchy beneath it.",
+      "pivotLocal": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "componentId": "dc9-src-throttle-assembly-001",
+      "status": "repaired_with_parent_pivot_empty",
+      "method": "Create runtime pivot empty from layout and parent preserved source hierarchy beneath it.",
+      "pivotLocal": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "componentId": "dc9-src-large-gauge-001",
+      "status": "repaired_with_parent_pivot_empty",
+      "method": "Create runtime pivot empty from layout and parent preserved source hierarchy beneath it.",
+      "pivotLocal": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "componentId": "dc9-src-switch-cluster-001",
+      "status": "repaired_with_parent_pivot_empty",
+      "method": "Create runtime pivot empty from layout and parent preserved source hierarchy beneath it.",
+      "pivotLocal": [
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

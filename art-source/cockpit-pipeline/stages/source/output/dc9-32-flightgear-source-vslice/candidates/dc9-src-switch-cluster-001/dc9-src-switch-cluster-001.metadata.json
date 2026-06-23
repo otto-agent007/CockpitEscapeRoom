@@ -1,0 +1,62 @@
+{
+  "candidateId": "dc9-src-switch-cluster-001",
+  "category": "switch_cluster",
+  "sourceVariant": "DC-9-32",
+  "targetVariant": "unresolved",
+  "variantScope": "unknown",
+  "sourceFile": "Models/Flightdeck/flightdeck.ac",
+  "sourceXml": "Models/Flightdeck/Flightdeck.xml",
+  "sourceObjectNames": [
+    "KnobABS",
+    "LampABS",
+    "LampABSon",
+    "SwABS"
+  ],
+  "pivotStatus": "No explicit switch-cluster XML animation was found for SwABS; pivot status unknown.",
+  "confidenceScore": 0.62,
+  "discoveryReasons": [
+    "Object names identify ABS switch, knob, and lamp elements in the cockpit model.",
+    "Objects share source file and ABS naming/material context.",
+    "This is the most credible source switch cluster found in the primary cockpit model."
+  ],
+  "limitations": [
+    "No switch guard object was identified for this cluster.",
+    "No explicit XML animation relationship was found for SwABS.",
+    "Variant scope remains unknown pending human review."
+  ],
+  "dimensions": {
+    "x": 0.57945,
+    "y": 0.58258,
+    "z": 1.13337
+  },
+  "triangleCount": 242,
+  "materialNames": [
+    "ac3d_untextured",
+    "txt_cockpit_abs.png"
+  ],
+  "childObjectCount": 4,
+  "exportedGlb": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-switch-cluster-001/dc9-src-switch-cluster-001.glb",
+  "previewPng": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/cockpit-pipeline/dc9-32-flightgear-source-vslice/dc9-src-switch-cluster-001.png",
+  "metadataJson": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-switch-cluster-001/dc9-src-switch-cluster-001.metadata.json",
+  "validationJson": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-switch-cluster-001/dc9-src-switch-cluster-001.validation.json",
+  "reimportValidation": {
+    "status": "pass",
+    "meshCount": 4,
+    "materialCount": 2,
+    "dimensions": {
+      "x": 0.57945,
+      "y": 0.58258,
+      "z": 1.13337
+    },
+    "expectedDimensions": {
+      "x": 0.57945,
+      "y": 0.58258,
+      "z": 1.13337
+    },
+    "dimensionDelta": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    }
+  }
+}

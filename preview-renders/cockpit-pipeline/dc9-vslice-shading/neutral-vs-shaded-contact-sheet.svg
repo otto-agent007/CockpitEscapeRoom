@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="496" height="900" viewBox="0 0 496 900">
+<rect width="496" height="900" fill="#f3f3ef" />
+<text x="24" y="30" font-family="Arial" font-size="18" fill="#222">Neutral assembly</text>
+<image x="24" y="44" width="448" height="280" href="../dc9-vslice-assembly/captain-seat-view.png" preserveAspectRatio="xMidYMid meet" />
+<text x="24" y="314" font-family="Arial" font-size="18" fill="#222">Shaded daylight</text>
+<image x="24" y="328" width="448" height="280" href="captain-daylight.png" preserveAspectRatio="xMidYMid meet" />
+<text x="24" y="598" font-family="Arial" font-size="18" fill="#222">Shaded dim lighting</text>
+<image x="24" y="612" width="448" height="280" href="captain-dim-instrument-lighting.png" preserveAspectRatio="xMidYMid meet" />
+</svg>

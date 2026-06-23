@@ -1,0 +1,275 @@
+{
+  "schema": "cockpit-pipeline/material-recipes-v1",
+  "jobId": "dc9-vslice-shading",
+  "sourceVariant": "DC-9-32",
+  "targetVariant": "unresolved",
+  "variantScope": "unknown",
+  "reference": "art-source/references/dc9-51/primary/dc9_51_n775nc_cockpit_primary.jpg",
+  "recipes": [
+    {
+      "recipeId": "dc9_painted_blue_green_gray",
+      "semanticMaterialRole": "blue-green/gray painted cockpit metal",
+      "baseColor": [
+        0.32,
+        0.52,
+        0.52,
+        1
+      ],
+      "roughness": 0.74,
+      "metallic": 0.0,
+      "proceduralSeed": 311,
+      "wearIntensity": 0.13,
+      "bakeSettings": {
+        "method": "deterministic procedural 128px PBR base-color texture",
+        "resolution": 128,
+        "colorSpace": "sRGB",
+        "noBakeReason": null
+      },
+      "intendedObjectRoles": [
+        "reference frame",
+        "panel faces",
+        "pedestal sides"
+      ]
+    },
+    {
+      "recipeId": "dc9_dark_instrument_panel",
+      "semanticMaterialRole": "dark instrument panel",
+      "baseColor": [
+        0.035,
+        0.038,
+        0.04,
+        1
+      ],
+      "roughness": 0.68,
+      "metallic": 0.0,
+      "proceduralSeed": 317,
+      "wearIntensity": 0.12,
+      "bakeSettings": {
+        "method": "deterministic procedural 128px PBR base-color texture",
+        "resolution": 128,
+        "colorSpace": "sRGB",
+        "noBakeReason": null
+      },
+      "intendedObjectRoles": [
+        "glareshield",
+        "instrument panel recesses"
+      ]
+    },
+    {
+      "recipeId": "dc9_black_rubber",
+      "semanticMaterialRole": "black rubber",
+      "baseColor": [
+        0.01,
+        0.009,
+        0.008,
+        1
+      ],
+      "roughness": 0.82,
+      "metallic": 0.0,
+      "proceduralSeed": 331,
+      "wearIntensity": 0.1,
+      "bakeSettings": {
+        "method": "deterministic procedural 128px PBR base-color texture",
+        "resolution": 128,
+        "colorSpace": "sRGB",
+        "noBakeReason": null
+      },
+      "intendedObjectRoles": [
+        "yoke grips",
+        "rubber boots"
+      ]
+    },
+    {
+      "recipeId": "dc9_aged_dark_plastic",
+      "semanticMaterialRole": "aged dark plastic",
+      "baseColor": [
+        0.045,
+        0.043,
+        0.04,
+        1
+      ],
+      "roughness": 0.58,
+      "metallic": 0.0,
+      "proceduralSeed": 337,
+      "wearIntensity": 0.14,
+      "bakeSettings": {
+        "method": "deterministic procedural 128px PBR base-color texture",
+        "resolution": 128,
+        "colorSpace": "sRGB",
+        "noBakeReason": null
+      },
+      "intendedObjectRoles": [
+        "switch housings",
+        "knobs",
+        "yoke centers"
+      ]
+    },
+    {
+      "recipeId": "dc9_brushed_worn_metal",
+      "semanticMaterialRole": "brushed or worn metal",
+      "baseColor": [
+        0.62,
+        0.6,
+        0.55,
+        1
+      ],
+      "roughness": 0.42,
+      "metallic": 0.65,
+      "proceduralSeed": 347,
+      "wearIntensity": 0.18,
+      "bakeSettings": {
+        "method": "deterministic procedural 128px PBR base-color texture",
+        "resolution": 128,
+        "colorSpace": "sRGB",
+        "noBakeReason": null
+      },
+      "intendedObjectRoles": [
+        "throttle levers",
+        "bezel rims",
+        "control rods"
+      ]
+    },
+    {
+      "recipeId": "dc9_instrument_glass",
+      "semanticMaterialRole": "instrument glass",
+      "baseColor": [
+        0.72,
+        0.88,
+        0.92,
+        0.26
+      ],
+      "roughness": 0.06,
+      "metallic": 0.0,
+      "proceduralSeed": 353,
+      "wearIntensity": 0.01,
+      "bakeSettings": {
+        "method": "deterministic procedural 128px PBR base-color texture",
+        "resolution": 128,
+        "colorSpace": "sRGB",
+        "noBakeReason": null
+      },
+      "intendedObjectRoles": [
+        "instrument glass covers"
+      ]
+    },
+    {
+      "recipeId": "dc9_gauge_face",
+      "semanticMaterialRole": "gauge face material",
+      "baseColor": [
+        0.055,
+        0.058,
+        0.052,
+        0.68
+      ],
+      "roughness": 0.78,
+      "metallic": 0.0,
+      "proceduralSeed": 359,
+      "wearIntensity": 0.03,
+      "bakeSettings": {
+        "method": "deterministic procedural 128px PBR base-color texture",
+        "resolution": 128,
+        "colorSpace": "sRGB",
+        "noBakeReason": null
+      },
+      "intendedObjectRoles": [
+        "gauge faces"
+      ]
+    },
+    {
+      "recipeId": "dc9_cream_stencil",
+      "semanticMaterialRole": "white/cream stencil or label markings",
+      "baseColor": [
+        0.94,
+        0.9,
+        0.74,
+        1
+      ],
+      "roughness": 0.62,
+      "metallic": 0.0,
+      "proceduralSeed": 367,
+      "wearIntensity": 0.02,
+      "bakeSettings": {
+        "method": "deterministic procedural 128px PBR base-color texture",
+        "resolution": 128,
+        "colorSpace": "sRGB",
+        "noBakeReason": null
+      },
+      "intendedObjectRoles": [
+        "needle marks",
+        "labels",
+        "stencil details"
+      ]
+    },
+    {
+      "recipeId": "dc9_fasteners",
+      "semanticMaterialRole": "fasteners",
+      "baseColor": [
+        0.36,
+        0.35,
+        0.32,
+        1
+      ],
+      "roughness": 0.5,
+      "metallic": 0.55,
+      "proceduralSeed": 373,
+      "wearIntensity": 0.2,
+      "bakeSettings": {
+        "method": "deterministic procedural 128px PBR base-color texture",
+        "resolution": 128,
+        "colorSpace": "sRGB",
+        "noBakeReason": null
+      },
+      "intendedObjectRoles": [
+        "screws",
+        "small fasteners"
+      ]
+    },
+    {
+      "recipeId": "dc9_subtle_grime_wear",
+      "semanticMaterialRole": "subtle grime/wear overlay",
+      "baseColor": [
+        0.12,
+        0.105,
+        0.085,
+        1
+      ],
+      "roughness": 0.9,
+      "metallic": 0.0,
+      "proceduralSeed": 379,
+      "wearIntensity": 0.09,
+      "bakeSettings": {
+        "method": "deterministic procedural 128px PBR base-color texture",
+        "resolution": 128,
+        "colorSpace": "sRGB",
+        "noBakeReason": null
+      },
+      "intendedObjectRoles": [
+        "localized switch grime",
+        "edge wear masks"
+      ]
+    },
+    {
+      "recipeId": "dc9_safe_neutral",
+      "semanticMaterialRole": "safe neutral fallback",
+      "baseColor": [
+        0.5,
+        0.52,
+        0.5,
+        1
+      ],
+      "roughness": 0.7,
+      "metallic": 0.0,
+      "proceduralSeed": 383,
+      "wearIntensity": 0.0,
+      "bakeSettings": {
+        "method": "deterministic procedural 128px PBR base-color texture",
+        "resolution": 128,
+        "colorSpace": "sRGB",
+        "noBakeReason": null
+      },
+      "intendedObjectRoles": [
+        "unclassified mesh fallback"
+      ]
+    }
+  ]
+}

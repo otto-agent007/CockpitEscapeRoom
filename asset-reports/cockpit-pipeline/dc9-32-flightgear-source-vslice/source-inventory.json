@@ -1,0 +1,756 @@
+{
+  "sourceRoot": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-32",
+  "formats": {
+    ".0": 1,
+    ".ac": 24,
+    ".fbx": 0,
+    ".glb": 0,
+    ".gltf": 0,
+    ".jpg": 1,
+    ".md": 1,
+    ".nas": 2,
+    ".obj": 0,
+    ".png": 41,
+    ".rgb": 25,
+    ".wav": 4,
+    ".xcf": 1,
+    ".xml": 45
+  },
+  "relevantFiles": [
+    {
+      "path": "DC-9-32-set.xml",
+      "format": ".xml",
+      "bytes": 5242
+    },
+    {
+      "path": "DC-9-32.xml",
+      "format": ".xml",
+      "bytes": 10271
+    },
+    {
+      "path": "DC-9-sound.xml",
+      "format": ".xml",
+      "bytes": 9604
+    },
+    {
+      "path": "Models/Blank.png",
+      "format": ".png",
+      "bytes": 959520
+    },
+    {
+      "path": "Models/DAL.png",
+      "format": ".png",
+      "bytes": 997614
+    },
+    {
+      "path": "Models/DC-9-32.ac",
+      "format": ".ac",
+      "bytes": 1124778
+    },
+    {
+      "path": "Models/DC-9-32.xml",
+      "format": ".xml",
+      "bytes": 9569
+    },
+    {
+      "path": "Models/EAA.png",
+      "format": ".png",
+      "bytes": 994300
+    },
+    {
+      "path": "Models/Flightdeck/Flightdeck.xml",
+      "format": ".xml",
+      "bytes": 22719
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/AI/ai.ac",
+      "format": ".ac",
+      "bytes": 234116
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/AI/ai.png",
+      "format": ".png",
+      "bytes": 3068
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/AI/ai.xml",
+      "format": ".xml",
+      "bytes": 4136
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/AI/aiball.png",
+      "format": ".png",
+      "bytes": 5030
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/ALT/alt-mb.png",
+      "format": ".png",
+      "bytes": 8925
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/ALT/alt-mb.rgb",
+      "format": ".rgb",
+      "bytes": 32867
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/ALT/alt.xml",
+      "format": ".xml",
+      "bytes": 8448
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/ALT/altimeter.ac",
+      "format": ".ac",
+      "bytes": 19504
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/ALT/digits.png",
+      "format": ".png",
+      "bytes": 34020
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/ALT/digits.rgb",
+      "format": ".rgb",
+      "bytes": 67203
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/ALT/digits2.rgb",
+      "format": ".rgb",
+      "bytes": 67603
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/ALT/digits3.rgb",
+      "format": ".rgb",
+      "bytes": 13577
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/ASI/asi.ac",
+      "format": ".ac",
+      "bytes": 12667
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/ASI/asi.rgb",
+      "format": ".rgb",
+      "bytes": 79598
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/ASI/asi.xml",
+      "format": ".xml",
+      "bytes": 1489
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/ASI/digits.png",
+      "format": ".png",
+      "bytes": 34020
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/ASI/digits.rgb",
+      "format": ".rgb",
+      "bytes": 67203
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/ASI/digits2.rgb",
+      "format": ".rgb",
+      "bytes": 67603
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/ASI/digits3.rgb",
+      "format": ".rgb",
+      "bytes": 13577
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/CDU/GNX-panel.xml",
+      "format": ".xml",
+      "bytes": 650
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/CDU/flightplan.xml",
+      "format": ".xml",
+      "bytes": 5701
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/CDU/gnx.ac",
+      "format": ".ac",
+      "bytes": 92538
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/CDU/gnx.png",
+      "format": ".png",
+      "bytes": 50624
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/CDU/gnx.xml",
+      "format": ".xml",
+      "bytes": 623
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/CDU/transparent.png",
+      "format": ".png",
+      "bytes": 175
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Clock/clock.ac",
+      "format": ".ac",
+      "bytes": 15164
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Clock/clock.rgb",
+      "format": ".rgb",
+      "bytes": 32468
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Clock/clock.xml",
+      "format": ".xml",
+      "bytes": 1627
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Clock/digits.png",
+      "format": ".png",
+      "bytes": 34020
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Clock/digits.rgb",
+      "format": ".rgb",
+      "bytes": 67203
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Clock/digits2.rgb",
+      "format": ".rgb",
+      "bytes": 67603
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Clock/digits3.rgb",
+      "format": ".rgb",
+      "bytes": 13577
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Flaps/flaps.ac",
+      "format": ".ac",
+      "bytes": 10213
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Flaps/flaps.rgb",
+      "format": ".rgb",
+      "bytes": 34997
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Flaps/flaps.xml",
+      "format": ".xml",
+      "bytes": 678
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Fuel/bezel.png",
+      "format": ".png",
+      "bytes": 14244
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Fuel/flightdeck2.png",
+      "format": ".png",
+      "bytes": 32502
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Fuel/fuel.ac",
+      "format": ".ac",
+      "bytes": 22124
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Fuel/fuel.xml",
+      "format": ".xml",
+      "bytes": 3188
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Fuel/fueldigits.png",
+      "format": ".png",
+      "bytes": 118780
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Fuel/text.png",
+      "format": ".png",
+      "bytes": 6612
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/HSI/hsi.ac",
+      "format": ".ac",
+      "bytes": 47661
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/HSI/hsi.png",
+      "format": ".png",
+      "bytes": 74829
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/HSI/hsi.xml",
+      "format": ".xml",
+      "bytes": 11405
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/KLN90B/display.xml",
+      "format": ".xml",
+      "bytes": 1182
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/KLN90B/gps.png",
+      "format": ".png",
+      "bytes": 17330
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/KLN90B/gps.xml",
+      "format": ".xml",
+      "bytes": 1526
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/KLN90B/kln90b.ac",
+      "format": ".ac",
+      "bytes": 33134
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/KLN90B/kln90b.xml",
+      "format": ".xml",
+      "bytes": 7224
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/KLN90B/lhtext.xml",
+      "format": ".xml",
+      "bytes": 4884
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/KLN90B/rhtext.xml",
+      "format": ".xml",
+      "bytes": 4884
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/KLN90B/supernav1.xml",
+      "format": ".xml",
+      "bytes": 4885
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/KLN90B/transparent-bg.png",
+      "format": ".png",
+      "bytes": 154
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/RMI/rmi.ac",
+      "format": ".ac",
+      "bytes": 24295
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/RMI/rmi.xml",
+      "format": ".xml",
+      "bytes": 2578
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/RMI/rmi_card.rgb",
+      "format": ".rgb",
+      "bytes": 39191
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/RMI/rmi_card_bad.rgb",
+      "format": ".rgb",
+      "bytes": 39260
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/RMI/rmi_needles.rgb",
+      "format": ".rgb",
+      "bytes": 16163
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/RMI/textures_gauge_support.rgb",
+      "format": ".rgb",
+      "bytes": 35547
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/RMI/txt_knobs.rgb",
+      "format": ".rgb",
+      "bytes": 28737
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Stby-AI/ai.ac",
+      "format": ".ac",
+      "bytes": 25847
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Stby-AI/ai.png",
+      "format": ".png",
+      "bytes": 10743
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Stby-AI/ai.xml",
+      "format": ".xml",
+      "bytes": 989
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Stby-AI/bezel.png",
+      "format": ".png",
+      "bytes": 14244
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/Stby-AI/horizon.png",
+      "format": ".png",
+      "bytes": 18329
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/VSI/vsi.ac",
+      "format": ".ac",
+      "bytes": 11232
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/VSI/vsi.png",
+      "format": ".png",
+      "bytes": 8681
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/VSI/vsi.rgb",
+      "format": ".rgb",
+      "bytes": 33380
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/VSI/vsi.xml",
+      "format": ".xml",
+      "bytes": 999
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/dimmer/efis_dimmer.ac",
+      "format": ".ac",
+      "bytes": 7882
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/dimmer/efis_dimmer.rgb",
+      "format": ".rgb",
+      "bytes": 18124
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/dimmer/efis_dimmer.xml",
+      "format": ".xml",
+      "bytes": 2635
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/egt/egt.ac",
+      "format": ".ac",
+      "bytes": 11374
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/egt/egt.rgb",
+      "format": ".rgb",
+      "bytes": 37466
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/egt/egtL.xml",
+      "format": ".xml",
+      "bytes": 1245
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/egt/egtR.xml",
+      "format": ".xml",
+      "bytes": 1245
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/epr/epr.ac",
+      "format": ".ac",
+      "bytes": 10218
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/epr/epr.rgb",
+      "format": ".rgb",
+      "bytes": 36191
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/epr/eprL.xml",
+      "format": ".xml",
+      "bytes": 714
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/epr/eprR.xml",
+      "format": ".xml",
+      "bytes": 714
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/misc/clock.ac",
+      "format": ".ac",
+      "bytes": 32514
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/misc/clock.png",
+      "format": ".png",
+      "bytes": 111569
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/misc/clock.rgb",
+      "format": ".rgb",
+      "bytes": 22841
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/misc/clock.xml",
+      "format": ".xml",
+      "bytes": 736
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/misc/clockframe.ac",
+      "format": ".ac",
+      "bytes": 31038
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/misc/ventilation.ac",
+      "format": ".ac",
+      "bytes": 141856
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/misc/ventilation.png",
+      "format": ".png",
+      "bytes": 101659
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/misc/ventilation.xml",
+      "format": ".xml",
+      "bytes": 89
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/radio/adf.ac",
+      "format": ".ac",
+      "bytes": 33303
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/radio/adf.png",
+      "format": ".png",
+      "bytes": 50428
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/radio/adf1.xml",
+      "format": ".xml",
+      "bytes": 7640
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/radio/adf2.xml",
+      "format": ".xml",
+      "bytes": 7784
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/radio/com.ac",
+      "format": ".ac",
+      "bytes": 33286
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/radio/com.png",
+      "format": ".png",
+      "bytes": 51126
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/rpm/n1.ac",
+      "format": ".ac",
+      "bytes": 10210
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/rpm/n1.rgb",
+      "format": ".rgb",
+      "bytes": 49059
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/rpm/rpmN1L.xml",
+      "format": ".xml",
+      "bytes": 664
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/rpm/rpmN1R.xml",
+      "format": ".xml",
+      "bytes": 664
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/rpm2/n2.ac",
+      "format": ".ac",
+      "bytes": 10210
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/rpm2/n2.rgb",
+      "format": ".rgb",
+      "bytes": 49245
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/rpm2/rpmN2L.xml",
+      "format": ".xml",
+      "bytes": 664
+    },
+    {
+      "path": "Models/Flightdeck/Instruments/rpm2/rpmN2R.xml",
+      "format": ".xml",
+      "bytes": 664
+    },
+    {
+      "path": "Models/Flightdeck/flightdeck.ac",
+      "format": ".ac",
+      "bytes": 1525238
+    },
+    {
+      "path": "Models/Flightdeck/txt_cloth1.png",
+      "format": ".png",
+      "bytes": 8606
+    },
+    {
+      "path": "Models/Flightdeck/txt_cockpit_cdu.png",
+      "format": ".png",
+      "bytes": 622
+    },
+    {
+      "path": "Models/Flightdeck/txt_cockpit_eyevent.png",
+      "format": ".png",
+      "bytes": 49478
+    },
+    {
+      "path": "Models/Flightdeck/txt_cockpit_floor1.png",
+      "format": ".png",
+      "bytes": 645
+    },
+    {
+      "path": "Models/Flightdeck/txt_cockpit_moulding1.png",
+      "format": ".png",
+      "bytes": 622
+    },
+    {
+      "path": "Models/Flightdeck/txt_cockpit_palette.png",
+      "format": ".png",
+      "bytes": 462
+    },
+    {
+      "path": "Models/Flightdeck/txt_cockpit_pedals.png",
+      "format": ".png",
+      "bytes": 7749
+    },
+    {
+      "path": "Models/Flightdeck/txt_cockpit_peddrum.png",
+      "format": ".png",
+      "bytes": 92977
+    },
+    {
+      "path": "Models/Flightdeck/txt_cockpit_throttles.png",
+      "format": ".png",
+      "bytes": 11555
+    },
+    {
+      "path": "Models/Flightdeck/txt_cockpit_yoke.png",
+      "format": ".png",
+      "bytes": 8625
+    },
+    {
+      "path": "Models/Flightdeck/ventilation.png",
+      "format": ".png",
+      "bytes": 101659
+    },
+    {
+      "path": "Models/Liveries/Blank.xml",
+      "format": ".xml",
+      "bytes": 189
+    },
+    {
+      "path": "Models/Liveries/DAL.xml",
+      "format": ".xml",
+      "bytes": 196
+    },
+    {
+      "path": "Models/Liveries/EAA.xml",
+      "format": ".xml",
+      "bytes": 202
+    },
+    {
+      "path": "Models/Liveries/NWA.xml",
+      "format": ".xml",
+      "bytes": 200
+    },
+    {
+      "path": "Models/Liveries/OZA.xml",
+      "format": ".xml",
+      "bytes": 196
+    },
+    {
+      "path": "Models/NWA.png",
+      "format": ".png",
+      "bytes": 854254
+    },
+    {
+      "path": "Models/OZA.png",
+      "format": ".png",
+      "bytes": 924884
+    },
+    {
+      "path": "Models/chrome1.png",
+      "format": ".png",
+      "bytes": 8458
+    },
+    {
+      "path": "Systems/DC-9-autopilot.xml",
+      "format": ".xml",
+      "bytes": 7808
+    },
+    {
+      "path": "Systems/init-instrumentation.xml",
+      "format": ".xml",
+      "bytes": 5627
+    },
+    {
+      "path": "Systems/instrumentation.xml",
+      "format": ".xml",
+      "bytes": 2574
+    },
+    {
+      "path": "splash.png",
+      "format": ".png",
+      "bytes": 417281
+    },
+    {
+      "path": "thumbnail.jpg",
+      "format": ".jpg",
+      "bytes": 8131
+    }
+  ],
+  "primaryCockpitModel": "Models/Flightdeck/flightdeck.ac",
+  "primaryCockpitXml": "Models/Flightdeck/Flightdeck.xml",
+  "unsupportedFormats": {
+    ".0": [
+      "LICENSE.CC-BY-NC-SA-4.0"
+    ],
+    ".md": [
+      "README.md"
+    ],
+    ".nas": [
+      "Models/Flightdeck/Instruments/KLN90B/kln90b.nas",
+      "Nasal/systems.nas"
+    ],
+    ".rgb": [
+      "Models/Flightdeck/Instruments/ALT/alt-mb.rgb",
+      "Models/Flightdeck/Instruments/ALT/digits.rgb",
+      "Models/Flightdeck/Instruments/ALT/digits2.rgb",
+      "Models/Flightdeck/Instruments/ALT/digits3.rgb",
+      "Models/Flightdeck/Instruments/ASI/asi.rgb",
+      "Models/Flightdeck/Instruments/ASI/digits.rgb",
+      "Models/Flightdeck/Instruments/ASI/digits2.rgb",
+      "Models/Flightdeck/Instruments/ASI/digits3.rgb",
+      "Models/Flightdeck/Instruments/Clock/clock.rgb",
+      "Models/Flightdeck/Instruments/Clock/digits.rgb",
+      "Models/Flightdeck/Instruments/Clock/digits2.rgb",
+      "Models/Flightdeck/Instruments/Clock/digits3.rgb",
+      "Models/Flightdeck/Instruments/Flaps/flaps.rgb",
+      "Models/Flightdeck/Instruments/RMI/rmi_card.rgb",
+      "Models/Flightdeck/Instruments/RMI/rmi_card_bad.rgb",
+      "Models/Flightdeck/Instruments/RMI/rmi_needles.rgb",
+      "Models/Flightdeck/Instruments/RMI/textures_gauge_support.rgb",
+      "Models/Flightdeck/Instruments/RMI/txt_knobs.rgb",
+      "Models/Flightdeck/Instruments/VSI/vsi.rgb",
+      "Models/Flightdeck/Instruments/dimmer/efis_dimmer.rgb",
+      "Models/Flightdeck/Instruments/egt/egt.rgb",
+      "Models/Flightdeck/Instruments/epr/epr.rgb",
+      "Models/Flightdeck/Instruments/misc/clock.rgb",
+      "Models/Flightdeck/Instruments/rpm/n1.rgb",
+      "Models/Flightdeck/Instruments/rpm2/n2.rgb"
+    ],
+    ".wav": [
+      "Sounds/flap.wav",
+      "Sounds/gear.wav",
+      "Sounds/running.wav",
+      "Sounds/touch.wav"
+    ],
+    ".xcf": [
+      "Models/Paintkit.xcf"
+    ]
+  },
+  "notes": [
+    "AC3D .ac files are imported through the pipeline's narrow internal data importer because no configured Blender AC3D import operator is available.",
+    "RGB texture files are inventoried for reproducibility but not converted in this sourcing task.",
+    "Nasal, sound, and paintkit files are treated as unsupported data and are not executed."
+  ]
+}

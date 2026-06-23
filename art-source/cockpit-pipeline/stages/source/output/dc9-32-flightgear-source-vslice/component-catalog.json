@@ -1,0 +1,289 @@
+{
+  "jobId": "dc9-32-flightgear-source-vslice",
+  "stage": "sourcing_complete",
+  "sourceRepository": "https://github.com/FGMEMBERS-NONGPL/DC-9-32.git",
+  "resolvedRevision": "d79e1476ce452a96126cc569a9c8a5d9fe705c8f",
+  "sourceVariant": "DC-9-32",
+  "targetVariant": "unresolved",
+  "candidateCountByCategory": {
+    "large_cockpit_gauge": 1,
+    "switch_cluster": 1,
+    "throttle_assembly": 1,
+    "yoke_assembly": 1
+  },
+  "candidates": [
+    {
+      "candidateId": "dc9-src-yoke-assembly-001",
+      "category": "yoke_assembly",
+      "sourceVariant": "DC-9-32",
+      "targetVariant": "unresolved",
+      "variantScope": "common",
+      "sourceFile": "Models/Flightdeck/flightdeck.ac",
+      "sourceXml": "Models/Flightdeck/Flightdeck.xml",
+      "sourceObjectNames": [
+        "YokeBase",
+        "YokeColL",
+        "YokeL",
+        "YokeTrimL"
+      ],
+      "pivotStatus": "XML animation centers exist for YokeColL/YokeL/YokeTrimL; source mesh origins require Agent 2 review.",
+      "confidenceScore": 0.91,
+      "discoveryReasons": [
+        "Object names directly identify yoke and left captain yoke column.",
+        "Flightdeck.xml rotate animations link YokeColL, YokeL, and YokeTrimL.",
+        "YokeBase is included as a mounting/support object from the same source file."
+      ],
+      "limitations": [
+        "Variant applicability to DC-9-51 remains unapproved.",
+        "This is source extraction only; hierarchy and pivots are not production-ready."
+      ],
+      "dimensions": {
+        "x": 0.30016,
+        "y": 0.79005,
+        "z": 1.25691
+      },
+      "triangleCount": 1723,
+      "materialNames": [
+        "ac3d_untextured",
+        "txt_cockpit_yoke.png"
+      ],
+      "childObjectCount": 4,
+      "exportedGlb": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-yoke-assembly-001/dc9-src-yoke-assembly-001.glb",
+      "previewPng": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/cockpit-pipeline/dc9-32-flightgear-source-vslice/dc9-src-yoke-assembly-001.png",
+      "metadataJson": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-yoke-assembly-001/dc9-src-yoke-assembly-001.metadata.json",
+      "validationJson": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-yoke-assembly-001/dc9-src-yoke-assembly-001.validation.json",
+      "reimportValidation": {
+        "status": "pass",
+        "meshCount": 4,
+        "materialCount": 2,
+        "dimensions": {
+          "x": 0.30016,
+          "y": 0.79005,
+          "z": 1.25691
+        },
+        "expectedDimensions": {
+          "x": 0.30016,
+          "y": 0.79005,
+          "z": 1.25691
+        },
+        "dimensionDelta": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        }
+      }
+    },
+    {
+      "candidateId": "dc9-src-throttle-assembly-001",
+      "category": "throttle_assembly",
+      "sourceVariant": "DC-9-32",
+      "targetVariant": "unresolved",
+      "variantScope": "common",
+      "sourceFile": "Models/Flightdeck/flightdeck.ac",
+      "sourceXml": "Models/Flightdeck/Flightdeck.xml",
+      "sourceObjectNames": [
+        "FlapLever",
+        "FuelCutoffL",
+        "FuelCutoffR",
+        "PedestalBase",
+        "PedestalBase_0",
+        "PedestalBase_1",
+        "PedestalDrum",
+        "PedestalDrumFace",
+        "SpdBrakeLever",
+        "ThrottleL",
+        "ThrottleR",
+        "ThrottleRevL",
+        "ThrottleRevR",
+        "XfeedLever"
+      ],
+      "pivotStatus": "XML animation centers exist for throttle, reverser, fuel cutoff, crossfeed, speedbrake, and flap levers.",
+      "confidenceScore": 0.88,
+      "discoveryReasons": [
+        "Flightdeck.xml includes throttle and reverser rotate/pick animations.",
+        "Pedestal drum/base objects provide mounting context for the levers.",
+        "Fuel cutoff, crossfeed, speedbrake, and flap levers are nearby pedestal controls in the same source file."
+      ],
+      "limitations": [
+        "Includes neighboring pedestal levers to preserve visual completeness; Agent 2 must decide final assembly boundaries.",
+        "Variant applicability to DC-9-51 remains unapproved."
+      ],
+      "dimensions": {
+        "x": 0.94128,
+        "y": 0.85858,
+        "z": 0.4
+      },
+      "triangleCount": 2052,
+      "materialNames": [
+        "txt_cockpit_abs.png",
+        "txt_cockpit_palette.png",
+        "txt_cockpit_peddrum.png",
+        "txt_cockpit_spdbrake.png",
+        "txt_cockpit_throttles.png"
+      ],
+      "childObjectCount": 13,
+      "exportedGlb": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-throttle-assembly-001/dc9-src-throttle-assembly-001.glb",
+      "previewPng": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/cockpit-pipeline/dc9-32-flightgear-source-vslice/dc9-src-throttle-assembly-001.png",
+      "metadataJson": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-throttle-assembly-001/dc9-src-throttle-assembly-001.metadata.json",
+      "validationJson": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-throttle-assembly-001/dc9-src-throttle-assembly-001.validation.json",
+      "reimportValidation": {
+        "status": "pass",
+        "meshCount": 13,
+        "materialCount": 5,
+        "dimensions": {
+          "x": 0.94128,
+          "y": 0.85858,
+          "z": 0.4
+        },
+        "expectedDimensions": {
+          "x": 0.94128,
+          "y": 0.85858,
+          "z": 0.4
+        },
+        "dimensionDelta": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        }
+      }
+    },
+    {
+      "candidateId": "dc9-src-large-gauge-001",
+      "category": "large_cockpit_gauge",
+      "sourceVariant": "DC-9-32",
+      "targetVariant": "unresolved",
+      "variantScope": "common",
+      "sourceFile": "Models/Flightdeck/Instruments/ALT/altimeter.ac",
+      "sourceXml": "Models/Flightdeck/Instruments/ALT/alt.xml",
+      "sourceObjectNames": [
+        "ALTneedle",
+        "AltFace",
+        "BaroKnob",
+        "Bezel_35",
+        "Screws_35",
+        "altnum100",
+        "altnum1000",
+        "altnum10000",
+        "inhg01",
+        "inhg02",
+        "inhg03",
+        "inhg04",
+        "mb01",
+        "mb02",
+        "mb03",
+        "mb04"
+      ],
+      "pivotStatus": "XML rotate animation exists for ALTneedle and BaroKnob; source mesh origins require Agent 2 review.",
+      "confidenceScore": 0.86,
+      "discoveryReasons": [
+        "Altimeter is a complete analog gauge source with face, bezel, needle, digits, knob, screws, and XML animations.",
+        "Flightdeck.xml places two ALT model instances on the cockpit panel.",
+        "Component includes all child objects from altimeter.ac to avoid isolated mesh extraction."
+      ],
+      "limitations": [
+        "Large gauge choice is an altimeter candidate, not a final production instrument selection.",
+        "RGB texture alternatives are inventoried but not converted in this sourcing pass."
+      ],
+      "dimensions": {
+        "x": 0.01226,
+        "y": 0.08785,
+        "z": 0.08785
+      },
+      "triangleCount": 200,
+      "materialNames": [
+        "ac3d_untextured",
+        "alt-mb.png",
+        "digits.png",
+        "textures_gauge_support.rgb"
+      ],
+      "childObjectCount": 16,
+      "exportedGlb": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-large-gauge-001/dc9-src-large-gauge-001.glb",
+      "previewPng": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/cockpit-pipeline/dc9-32-flightgear-source-vslice/dc9-src-large-gauge-001.png",
+      "metadataJson": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-large-gauge-001/dc9-src-large-gauge-001.metadata.json",
+      "validationJson": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-large-gauge-001/dc9-src-large-gauge-001.validation.json",
+      "reimportValidation": {
+        "status": "pass",
+        "meshCount": 16,
+        "materialCount": 4,
+        "dimensions": {
+          "x": 0.01226,
+          "y": 0.08785,
+          "z": 0.08785
+        },
+        "expectedDimensions": {
+          "x": 0.01226,
+          "y": 0.08785,
+          "z": 0.08785
+        },
+        "dimensionDelta": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        }
+      }
+    },
+    {
+      "candidateId": "dc9-src-switch-cluster-001",
+      "category": "switch_cluster",
+      "sourceVariant": "DC-9-32",
+      "targetVariant": "unresolved",
+      "variantScope": "unknown",
+      "sourceFile": "Models/Flightdeck/flightdeck.ac",
+      "sourceXml": "Models/Flightdeck/Flightdeck.xml",
+      "sourceObjectNames": [
+        "KnobABS",
+        "LampABS",
+        "LampABSon",
+        "SwABS"
+      ],
+      "pivotStatus": "No explicit switch-cluster XML animation was found for SwABS; pivot status unknown.",
+      "confidenceScore": 0.62,
+      "discoveryReasons": [
+        "Object names identify ABS switch, knob, and lamp elements in the cockpit model.",
+        "Objects share source file and ABS naming/material context.",
+        "This is the most credible source switch cluster found in the primary cockpit model."
+      ],
+      "limitations": [
+        "No switch guard object was identified for this cluster.",
+        "No explicit XML animation relationship was found for SwABS.",
+        "Variant scope remains unknown pending human review."
+      ],
+      "dimensions": {
+        "x": 0.57945,
+        "y": 0.58258,
+        "z": 1.13337
+      },
+      "triangleCount": 242,
+      "materialNames": [
+        "ac3d_untextured",
+        "txt_cockpit_abs.png"
+      ],
+      "childObjectCount": 4,
+      "exportedGlb": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-switch-cluster-001/dc9-src-switch-cluster-001.glb",
+      "previewPng": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/cockpit-pipeline/dc9-32-flightgear-source-vslice/dc9-src-switch-cluster-001.png",
+      "metadataJson": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-switch-cluster-001/dc9-src-switch-cluster-001.metadata.json",
+      "validationJson": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-switch-cluster-001/dc9-src-switch-cluster-001.validation.json",
+      "reimportValidation": {
+        "status": "pass",
+        "meshCount": 4,
+        "materialCount": 2,
+        "dimensions": {
+          "x": 0.57945,
+          "y": 0.58258,
+          "z": 1.13337
+        },
+        "expectedDimensions": {
+          "x": 0.57945,
+          "y": 0.58258,
+          "z": 1.13337
+        },
+        "dimensionDelta": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        }
+      }
+    }
+  ],
+  "missingCategories": []
+}

@@ -1,0 +1,479 @@
+{
+  "schema": "cockpit-pipeline/material-assignment-report-v1",
+  "assignmentCount": 42,
+  "countsByRecipe": {
+    "dc9_gauge_face": 1,
+    "dc9_cream_stencil": 12,
+    "dc9_brushed_worn_metal": 13,
+    "dc9_fasteners": 1,
+    "dc9_aged_dark_plastic": 6,
+    "dc9_painted_blue_green_gray": 3,
+    "dc9_dark_instrument_panel": 2,
+    "dc9_instrument_glass": 2,
+    "dc9_black_rubber": 2
+  },
+  "assignments": [
+    {
+      "runtimeNodeName": "DC9_GAUGE_ALTITUDE_01__01__ALTFACE",
+      "componentId": "dc9-src-large-gauge-001",
+      "sourceNodeName": "AltFace",
+      "oldMaterials": [
+        "neutral_large_cockpit_gauge"
+      ],
+      "semanticMaterialRole": "gauge face material",
+      "newMaterialRecipe": "dc9_gauge_face",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_GAUGE_ALTITUDE_01__02__ALTNEEDLE",
+      "componentId": "dc9-src-large-gauge-001",
+      "sourceNodeName": "ALTneedle",
+      "oldMaterials": [
+        "neutral_large_cockpit_gauge"
+      ],
+      "semanticMaterialRole": "white/cream stencil or label markings",
+      "newMaterialRecipe": "dc9_cream_stencil",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_GAUGE_ALTITUDE_01__03__ALTNUM100",
+      "componentId": "dc9-src-large-gauge-001",
+      "sourceNodeName": "altnum100",
+      "oldMaterials": [
+        "neutral_large_cockpit_gauge"
+      ],
+      "semanticMaterialRole": "white/cream stencil or label markings",
+      "newMaterialRecipe": "dc9_cream_stencil",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_GAUGE_ALTITUDE_01__04__ALTNUM1000",
+      "componentId": "dc9-src-large-gauge-001",
+      "sourceNodeName": "altnum1000",
+      "oldMaterials": [
+        "neutral_large_cockpit_gauge"
+      ],
+      "semanticMaterialRole": "white/cream stencil or label markings",
+      "newMaterialRecipe": "dc9_cream_stencil",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_GAUGE_ALTITUDE_01__05__ALTNUM10000",
+      "componentId": "dc9-src-large-gauge-001",
+      "sourceNodeName": "altnum10000",
+      "oldMaterials": [
+        "neutral_large_cockpit_gauge"
+      ],
+      "semanticMaterialRole": "white/cream stencil or label markings",
+      "newMaterialRecipe": "dc9_cream_stencil",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_GAUGE_ALTITUDE_01__06__BAROKNOB",
+      "componentId": "dc9-src-large-gauge-001",
+      "sourceNodeName": "BaroKnob",
+      "oldMaterials": [
+        "neutral_large_cockpit_gauge"
+      ],
+      "semanticMaterialRole": "brushed or worn metal",
+      "newMaterialRecipe": "dc9_brushed_worn_metal",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_GAUGE_ALTITUDE_01__07__BEZEL_35",
+      "componentId": "dc9-src-large-gauge-001",
+      "sourceNodeName": "Bezel_35",
+      "oldMaterials": [
+        "neutral_large_cockpit_gauge"
+      ],
+      "semanticMaterialRole": "brushed or worn metal",
+      "newMaterialRecipe": "dc9_brushed_worn_metal",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_GAUGE_ALTITUDE_01__08__INHG01",
+      "componentId": "dc9-src-large-gauge-001",
+      "sourceNodeName": "inhg01",
+      "oldMaterials": [
+        "neutral_large_cockpit_gauge"
+      ],
+      "semanticMaterialRole": "white/cream stencil or label markings",
+      "newMaterialRecipe": "dc9_cream_stencil",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_GAUGE_ALTITUDE_01__09__INHG02",
+      "componentId": "dc9-src-large-gauge-001",
+      "sourceNodeName": "inhg02",
+      "oldMaterials": [
+        "neutral_large_cockpit_gauge"
+      ],
+      "semanticMaterialRole": "white/cream stencil or label markings",
+      "newMaterialRecipe": "dc9_cream_stencil",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_GAUGE_ALTITUDE_01__10__INHG03",
+      "componentId": "dc9-src-large-gauge-001",
+      "sourceNodeName": "inhg03",
+      "oldMaterials": [
+        "neutral_large_cockpit_gauge"
+      ],
+      "semanticMaterialRole": "white/cream stencil or label markings",
+      "newMaterialRecipe": "dc9_cream_stencil",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_GAUGE_ALTITUDE_01__11__INHG04",
+      "componentId": "dc9-src-large-gauge-001",
+      "sourceNodeName": "inhg04",
+      "oldMaterials": [
+        "neutral_large_cockpit_gauge"
+      ],
+      "semanticMaterialRole": "white/cream stencil or label markings",
+      "newMaterialRecipe": "dc9_cream_stencil",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_GAUGE_ALTITUDE_01__12__MB01",
+      "componentId": "dc9-src-large-gauge-001",
+      "sourceNodeName": "mb01",
+      "oldMaterials": [
+        "neutral_large_cockpit_gauge"
+      ],
+      "semanticMaterialRole": "white/cream stencil or label markings",
+      "newMaterialRecipe": "dc9_cream_stencil",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_GAUGE_ALTITUDE_01__13__MB02",
+      "componentId": "dc9-src-large-gauge-001",
+      "sourceNodeName": "mb02",
+      "oldMaterials": [
+        "neutral_large_cockpit_gauge"
+      ],
+      "semanticMaterialRole": "white/cream stencil or label markings",
+      "newMaterialRecipe": "dc9_cream_stencil",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_GAUGE_ALTITUDE_01__14__MB03",
+      "componentId": "dc9-src-large-gauge-001",
+      "sourceNodeName": "mb03",
+      "oldMaterials": [
+        "neutral_large_cockpit_gauge"
+      ],
+      "semanticMaterialRole": "white/cream stencil or label markings",
+      "newMaterialRecipe": "dc9_cream_stencil",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_GAUGE_ALTITUDE_01__15__MB04",
+      "componentId": "dc9-src-large-gauge-001",
+      "sourceNodeName": "mb04",
+      "oldMaterials": [
+        "neutral_large_cockpit_gauge"
+      ],
+      "semanticMaterialRole": "white/cream stencil or label markings",
+      "newMaterialRecipe": "dc9_cream_stencil",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_GAUGE_ALTITUDE_01__16__SCREWS_35",
+      "componentId": "dc9-src-large-gauge-001",
+      "sourceNodeName": "Screws_35",
+      "oldMaterials": [
+        "neutral_large_cockpit_gauge"
+      ],
+      "semanticMaterialRole": "fasteners",
+      "newMaterialRecipe": "dc9_fasteners",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_THR_QUADRANT_01__01__FLAPLEVER",
+      "componentId": "dc9-src-throttle-assembly-001",
+      "sourceNodeName": "FlapLever",
+      "oldMaterials": [
+        "neutral_throttle_assembly"
+      ],
+      "semanticMaterialRole": "brushed or worn metal",
+      "newMaterialRecipe": "dc9_brushed_worn_metal",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_THR_QUADRANT_01__02__FUELCUTOFFL",
+      "componentId": "dc9-src-throttle-assembly-001",
+      "sourceNodeName": "FuelCutoffL",
+      "oldMaterials": [
+        "neutral_throttle_assembly"
+      ],
+      "semanticMaterialRole": "brushed or worn metal",
+      "newMaterialRecipe": "dc9_brushed_worn_metal",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_THR_QUADRANT_01__03__FUELCUTOFFR",
+      "componentId": "dc9-src-throttle-assembly-001",
+      "sourceNodeName": "FuelCutoffR",
+      "oldMaterials": [
+        "neutral_throttle_assembly"
+      ],
+      "semanticMaterialRole": "brushed or worn metal",
+      "newMaterialRecipe": "dc9_brushed_worn_metal",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_THR_QUADRANT_01__05__PEDESTALBASE_0",
+      "componentId": "dc9-src-throttle-assembly-001",
+      "sourceNodeName": "PedestalBase_0",
+      "oldMaterials": [
+        "neutral_throttle_assembly"
+      ],
+      "semanticMaterialRole": "aged dark plastic",
+      "newMaterialRecipe": "dc9_aged_dark_plastic",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_THR_QUADRANT_01__06__PEDESTALBASE_1",
+      "componentId": "dc9-src-throttle-assembly-001",
+      "sourceNodeName": "PedestalBase_1",
+      "oldMaterials": [
+        "neutral_throttle_assembly"
+      ],
+      "semanticMaterialRole": "aged dark plastic",
+      "newMaterialRecipe": "dc9_aged_dark_plastic",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_THR_QUADRANT_01__07__PEDESTALDRUM",
+      "componentId": "dc9-src-throttle-assembly-001",
+      "sourceNodeName": "PedestalDrum",
+      "oldMaterials": [
+        "neutral_throttle_assembly"
+      ],
+      "semanticMaterialRole": "brushed or worn metal",
+      "newMaterialRecipe": "dc9_brushed_worn_metal",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_THR_QUADRANT_01__08__PEDESTALDRUMFACE",
+      "componentId": "dc9-src-throttle-assembly-001",
+      "sourceNodeName": "PedestalDrumFace",
+      "oldMaterials": [
+        "neutral_throttle_assembly"
+      ],
+      "semanticMaterialRole": "aged dark plastic",
+      "newMaterialRecipe": "dc9_aged_dark_plastic",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_THR_QUADRANT_01__09__SPDBRAKELEVER",
+      "componentId": "dc9-src-throttle-assembly-001",
+      "sourceNodeName": "SpdBrakeLever",
+      "oldMaterials": [
+        "neutral_throttle_assembly"
+      ],
+      "semanticMaterialRole": "brushed or worn metal",
+      "newMaterialRecipe": "dc9_brushed_worn_metal",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_THR_QUADRANT_01__10__THROTTLEL",
+      "componentId": "dc9-src-throttle-assembly-001",
+      "sourceNodeName": "ThrottleL",
+      "oldMaterials": [
+        "neutral_throttle_assembly"
+      ],
+      "semanticMaterialRole": "brushed or worn metal",
+      "newMaterialRecipe": "dc9_brushed_worn_metal",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_THR_QUADRANT_01__11__THROTTLER",
+      "componentId": "dc9-src-throttle-assembly-001",
+      "sourceNodeName": "ThrottleR",
+      "oldMaterials": [
+        "neutral_throttle_assembly"
+      ],
+      "semanticMaterialRole": "brushed or worn metal",
+      "newMaterialRecipe": "dc9_brushed_worn_metal",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_THR_QUADRANT_01__12__THROTTLEREVL",
+      "componentId": "dc9-src-throttle-assembly-001",
+      "sourceNodeName": "ThrottleRevL",
+      "oldMaterials": [
+        "neutral_throttle_assembly"
+      ],
+      "semanticMaterialRole": "brushed or worn metal",
+      "newMaterialRecipe": "dc9_brushed_worn_metal",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_THR_QUADRANT_01__13__THROTTLEREVR",
+      "componentId": "dc9-src-throttle-assembly-001",
+      "sourceNodeName": "ThrottleRevR",
+      "oldMaterials": [
+        "neutral_throttle_assembly"
+      ],
+      "semanticMaterialRole": "brushed or worn metal",
+      "newMaterialRecipe": "dc9_brushed_worn_metal",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_THR_QUADRANT_01__14__XFEEDLEVER",
+      "componentId": "dc9-src-throttle-assembly-001",
+      "sourceNodeName": "XfeedLever",
+      "oldMaterials": [
+        "neutral_throttle_assembly"
+      ],
+      "semanticMaterialRole": "brushed or worn metal",
+      "newMaterialRecipe": "dc9_brushed_worn_metal",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_VSLICE_CAPTAIN_YOKE_SOCKET",
+      "componentId": "reference",
+      "sourceNodeName": "DC9_VSLICE_CAPTAIN_YOKE_SOCKET",
+      "oldMaterials": [
+        "neutral_control_mount"
+      ],
+      "semanticMaterialRole": "blue-green/gray painted cockpit metal",
+      "newMaterialRecipe": "dc9_painted_blue_green_gray",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_VSLICE_GLARESHIELD_REFERENCE",
+      "componentId": "reference",
+      "sourceNodeName": "DC9_VSLICE_GLARESHIELD_REFERENCE",
+      "oldMaterials": [
+        "neutral_glareshield"
+      ],
+      "semanticMaterialRole": "dark instrument panel",
+      "newMaterialRecipe": "dc9_dark_instrument_panel",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_VSLICE_LOWER_PANEL_REFERENCE",
+      "componentId": "reference",
+      "sourceNodeName": "DC9_VSLICE_LOWER_PANEL_REFERENCE",
+      "oldMaterials": [
+        "neutral_lower_panel"
+      ],
+      "semanticMaterialRole": "dark instrument panel",
+      "newMaterialRecipe": "dc9_dark_instrument_panel",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_VSLICE_MAIN_PANEL_REFERENCE",
+      "componentId": "reference",
+      "sourceNodeName": "DC9_VSLICE_MAIN_PANEL_REFERENCE",
+      "oldMaterials": [
+        "neutral_reference_frame"
+      ],
+      "semanticMaterialRole": "blue-green/gray painted cockpit metal",
+      "newMaterialRecipe": "dc9_painted_blue_green_gray",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_VSLICE_PEDESTAL_REFERENCE",
+      "componentId": "reference",
+      "sourceNodeName": "DC9_VSLICE_PEDESTAL_REFERENCE",
+      "oldMaterials": [
+        "neutral_pedestal"
+      ],
+      "semanticMaterialRole": "blue-green/gray painted cockpit metal",
+      "newMaterialRecipe": "dc9_painted_blue_green_gray",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_SW_ABS_CLUSTER_01__01__KNOBABS",
+      "componentId": "dc9-src-switch-cluster-001",
+      "sourceNodeName": "KnobABS",
+      "oldMaterials": [
+        "neutral_switch_cluster"
+      ],
+      "semanticMaterialRole": "aged dark plastic",
+      "newMaterialRecipe": "dc9_aged_dark_plastic",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_SW_ABS_CLUSTER_01__02__LAMPABS",
+      "componentId": "dc9-src-switch-cluster-001",
+      "sourceNodeName": "LampABS",
+      "oldMaterials": [
+        "neutral_switch_cluster"
+      ],
+      "semanticMaterialRole": "instrument glass",
+      "newMaterialRecipe": "dc9_instrument_glass",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_SW_ABS_CLUSTER_01__03__LAMPABSON",
+      "componentId": "dc9-src-switch-cluster-001",
+      "sourceNodeName": "LampABSon",
+      "oldMaterials": [
+        "neutral_switch_cluster"
+      ],
+      "semanticMaterialRole": "instrument glass",
+      "newMaterialRecipe": "dc9_instrument_glass",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_SW_ABS_CLUSTER_01__04__SWABS",
+      "componentId": "dc9-src-switch-cluster-001",
+      "sourceNodeName": "SwABS",
+      "oldMaterials": [
+        "neutral_switch_cluster"
+      ],
+      "semanticMaterialRole": "brushed or worn metal",
+      "newMaterialRecipe": "dc9_brushed_worn_metal",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_CTRL_YOKE_CAPTAIN_01__01__YOKEBASE",
+      "componentId": "dc9-src-yoke-assembly-001",
+      "sourceNodeName": "YokeBase",
+      "oldMaterials": [
+        "neutral_yoke_assembly"
+      ],
+      "semanticMaterialRole": "aged dark plastic",
+      "newMaterialRecipe": "dc9_aged_dark_plastic",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_CTRL_YOKE_CAPTAIN_01__02__YOKECOLL",
+      "componentId": "dc9-src-yoke-assembly-001",
+      "sourceNodeName": "YokeColL",
+      "oldMaterials": [
+        "neutral_yoke_assembly"
+      ],
+      "semanticMaterialRole": "aged dark plastic",
+      "newMaterialRecipe": "dc9_aged_dark_plastic",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_CTRL_YOKE_CAPTAIN_01__03__YOKEL",
+      "componentId": "dc9-src-yoke-assembly-001",
+      "sourceNodeName": "YokeL",
+      "oldMaterials": [
+        "neutral_yoke_assembly"
+      ],
+      "semanticMaterialRole": "black rubber",
+      "newMaterialRecipe": "dc9_black_rubber",
+      "classificationConfidence": 0.86
+    },
+    {
+      "runtimeNodeName": "DC9_CTRL_YOKE_CAPTAIN_01__04__YOKETRIML",
+      "componentId": "dc9-src-yoke-assembly-001",
+      "sourceNodeName": "YokeTrimL",
+      "oldMaterials": [
+        "neutral_yoke_assembly"
+      ],
+      "semanticMaterialRole": "black rubber",
+      "newMaterialRecipe": "dc9_black_rubber",
+      "classificationConfidence": 0.86
+    }
+  ]
+}

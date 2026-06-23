@@ -1,0 +1,164 @@
+{
+  "jobId": "dc9-32-flightgear-source-vslice",
+  "status": "pass",
+  "importProof": {
+    "sourceFile": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-32/Models/Flightdeck/flightdeck.ac",
+    "objectCount": 57,
+    "meshCount": 56,
+    "materialCount": 17,
+    "dimensions": {
+      "x": 2.25377,
+      "y": 1.97813,
+      "z": 2.88898
+    },
+    "importedObjectNames": [
+      "AirVents",
+      "CDUCasings",
+      "CDUs",
+      "FDFloorCarpet",
+      "FDFloorFwd",
+      "FDFloorMetal",
+      "FDFloorMetal2",
+      "FlapLever",
+      "FlapLever.002",
+      "FlapLever.003",
+      "FlightDeck",
+      "FlightDeckBulkhead",
+      "FlightDeckDoor",
+      "FuelCutoffL",
+      "FuelCutoffR",
+      "GlareShield",
+      "KnobABS",
+      "LGLever",
+      "LampABS",
+      "LampABSon",
+      "Moulding",
+      "Moulding.001",
+      "PanelMainC",
+      "PanelMainD",
+      "PanelMainL",
+      "PanelMainR",
+      "PedalCover",
+      "PedalL",
+      "PedalR",
+      "PedalRodL",
+      "PedalRodR",
+      "PedestalABS",
+      "PedestalBase",
+      "PedestalBase_0",
+      "PedestalBase_1",
+      "PedestalDrum",
+      "PedestalDrumFace",
+      "PneuLeverL",
+      "PneuLeverR",
+      "SeatCP",
+      "SeatCushionsCP",
+      "SeatCushionsP",
+      "SeatP",
+      "SpdBrakeLever",
+      "SwABS",
+      "ThrottleL",
+      "ThrottleR",
+      "ThrottleRevL",
+      "ThrottleRevR",
+      "XfeedLever",
+      "YokeBase",
+      "YokeColL",
+      "YokeColR",
+      "YokeL",
+      "YokeR",
+      "YokeTrimL",
+      "YokeTrimR"
+    ],
+    "inspectionScene": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/inspection/dc9-32-flightgear-source-vslice/flightgear-dc9-32-cockpit-import-proof.blend",
+    "preview": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/cockpit-pipeline/dc9-32-flightgear-source-vslice/import-proof-overview.png"
+  },
+  "candidateReimports": {
+    "dc9-src-yoke-assembly-001": {
+      "status": "pass",
+      "meshCount": 4,
+      "materialCount": 2,
+      "dimensions": {
+        "x": 0.30016,
+        "y": 0.79005,
+        "z": 1.25691
+      },
+      "expectedDimensions": {
+        "x": 0.30016,
+        "y": 0.79005,
+        "z": 1.25691
+      },
+      "dimensionDelta": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    "dc9-src-throttle-assembly-001": {
+      "status": "pass",
+      "meshCount": 13,
+      "materialCount": 5,
+      "dimensions": {
+        "x": 0.94128,
+        "y": 0.85858,
+        "z": 0.4
+      },
+      "expectedDimensions": {
+        "x": 0.94128,
+        "y": 0.85858,
+        "z": 0.4
+      },
+      "dimensionDelta": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    "dc9-src-large-gauge-001": {
+      "status": "pass",
+      "meshCount": 16,
+      "materialCount": 4,
+      "dimensions": {
+        "x": 0.01226,
+        "y": 0.08785,
+        "z": 0.08785
+      },
+      "expectedDimensions": {
+        "x": 0.01226,
+        "y": 0.08785,
+        "z": 0.08785
+      },
+      "dimensionDelta": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    "dc9-src-switch-cluster-001": {
+      "status": "pass",
+      "meshCount": 4,
+      "materialCount": 2,
+      "dimensions": {
+        "x": 0.57945,
+        "y": 0.58258,
+        "z": 1.13337
+      },
+      "expectedDimensions": {
+        "x": 0.57945,
+        "y": 0.58258,
+        "z": 1.13337
+      },
+      "dimensionDelta": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    }
+  },
+  "stableComponentIds": [
+    "dc9-src-yoke-assembly-001",
+    "dc9-src-throttle-assembly-001",
+    "dc9-src-large-gauge-001",
+    "dc9-src-switch-cluster-001"
+  ]
+}

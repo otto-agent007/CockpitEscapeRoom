@@ -1,0 +1,52 @@
+{
+  "jobId": "dc9-32-flightgear-source-vslice",
+  "title": "FlightGear DC-9-32 sourcing vertical slice",
+  "stage": "sourcing_complete",
+  "aircraft": "dc9",
+  "sourceVariant": "DC-9-32",
+  "targetVariant": "unresolved",
+  "variantScope": "unknown",
+  "sourceRepository": {
+    "url": "https://github.com/FGMEMBERS-NONGPL/DC-9-32.git",
+    "resolvedRevision": "d79e1476ce452a96126cc569a9c8a5d9fe705c8f"
+  },
+  "requestedComponents": [
+    {
+      "componentId": "dc9-src-yoke-assembly-001",
+      "label": "one yoke assembly",
+      "quantity": 1,
+      "acceptanceNotes": "Captain-side yoke, column, trim piece, and base as source candidates only."
+    },
+    {
+      "componentId": "dc9-src-throttle-assembly-001",
+      "label": "one throttle assembly",
+      "quantity": 1,
+      "acceptanceNotes": "Throttle quadrant levers, reversers, fuel cutoff levers, and pedestal mounting pieces."
+    },
+    {
+      "componentId": "dc9-src-large-gauge-001",
+      "label": "one large cockpit gauge",
+      "quantity": 1,
+      "acceptanceNotes": "A complete analog gauge group with face, bezel, needle, digits, and hardware."
+    },
+    {
+      "componentId": "dc9-src-switch-cluster-001",
+      "label": "one switch cluster",
+      "quantity": 1,
+      "acceptanceNotes": "A credible switch/knob/lamp cluster from the source, not production-approved."
+    }
+  ],
+  "stageDirectories": {
+    "sourceInput": "art-source/cockpit-pipeline/stages/source/input",
+    "sourceOutput": "art-source/cockpit-pipeline/stages/source/output",
+    "assemblyInput": "art-source/cockpit-pipeline/stages/assembly/input",
+    "assemblyOutput": "art-source/cockpit-pipeline/stages/assembly/output",
+    "shadingInput": "art-source/cockpit-pipeline/stages/shading/input",
+    "shadingOutput": "art-source/cockpit-pipeline/stages/shading/output"
+  },
+  "cachePolicy": {
+    "environmentVariable": "COCKPIT_PIPELINE_CACHE",
+    "defaultRelativePath": ".cache/cockpit-pipeline",
+    "gitPolicy": "outside-git"
+  }
+}

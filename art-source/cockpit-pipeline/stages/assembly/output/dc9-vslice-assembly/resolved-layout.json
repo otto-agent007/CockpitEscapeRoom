@@ -1,0 +1,232 @@
+{
+  "layoutId": "dc9-vslice-layout-001",
+  "jobId": "dc9-vslice-assembly",
+  "sourceJobId": "dc9-32-flightgear-source-vslice",
+  "aircraftFamily": "DC-9",
+  "sourceVariant": "DC-9-32",
+  "targetVariant": "unresolved",
+  "variantScope": "unknown",
+  "coordinateSystem": {
+    "units": "meters",
+    "description": "Blender coordinates: X lateral, Y fore-aft, Z up. Placeholder origin is the neutral cockpit reference frame."
+  },
+  "captainEyePoint": {
+    "translation": [
+      -0.58,
+      -2.0,
+      1.36
+    ],
+    "status": "placeholder_transform"
+  },
+  "baseCockpitReferenceFrame": {
+    "nodeName": "DC9_VSLICE_REFERENCE_FRAME",
+    "status": "placeholder_transform",
+    "notes": "Neutral main panel, glareshield, pedestal, and captain-eye frame only; not a production cockpit shell."
+  },
+  "componentInstances": [
+    {
+      "componentId": "dc9-src-yoke-assembly-001",
+      "category": "yoke_assembly",
+      "sourceVariant": "DC-9-32",
+      "targetVariant": "unresolved",
+      "variantScope": "common",
+      "sourceGlb": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-yoke-assembly-001/dc9-src-yoke-assembly-001.glb",
+      "sourceMetadata": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-yoke-assembly-001/dc9-src-yoke-assembly-001.metadata.json",
+      "sourceStageHashes": {
+        "glbSha256": "239bbf3965cb1a4381688371f4852f9223067bf5d98f50661acb53bddc3635ba",
+        "metadataSha256": "016da52d0368708e05d00d241654ac28d223787c6595c91b3d065eeabdfb8024"
+      },
+      "parentGroupName": "DC9_VSLICE_YOKE_GROUP",
+      "runtimeNodeName": "DC9_CTRL_YOKE_CAPTAIN_01",
+      "transform": {
+        "translation": [
+          -0.72,
+          -0.72,
+          0.86
+        ],
+        "rotationEuler": [
+          1.5708,
+          0.0,
+          1.5708
+        ],
+        "scale": [
+          0.32,
+          0.32,
+          0.32
+        ],
+        "status": "placeholder_transform"
+      },
+      "pivotRepair": {
+        "status": "repaired_with_parent_pivot_empty",
+        "method": "Create runtime pivot empty from layout and parent preserved source hierarchy beneath it.",
+        "pivotLocal": [
+          0,
+          0,
+          0
+        ]
+      },
+      "interactionMetadata": {
+        "game_id": "dc9.vslice.dc9-src-yoke-assembly-001",
+        "interaction": "yoke",
+        "puzzle_id": "legacy_qualification_vslice",
+        "rotation_axis": "LOCAL_Y",
+        "rest_angle": 0.0,
+        "active_angle": 0.35,
+        "sound_id": "source_neutral_click"
+      }
+    },
+    {
+      "componentId": "dc9-src-throttle-assembly-001",
+      "category": "throttle_assembly",
+      "sourceVariant": "DC-9-32",
+      "targetVariant": "unresolved",
+      "variantScope": "common",
+      "sourceGlb": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-throttle-assembly-001/dc9-src-throttle-assembly-001.glb",
+      "sourceMetadata": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-throttle-assembly-001/dc9-src-throttle-assembly-001.metadata.json",
+      "sourceStageHashes": {
+        "glbSha256": "5164a13f819752326afd22a55003f6fcc033b7330feb0a7c72f333988c3f7b27",
+        "metadataSha256": "5535a510775828f3c98d60c02dbd5b052586a5a0f909b4c4c91e4a57244b8fd4"
+      },
+      "parentGroupName": "DC9_VSLICE_PEDESTAL_GROUP",
+      "runtimeNodeName": "DC9_THR_QUADRANT_01",
+      "transform": {
+        "translation": [
+          0.12,
+          -0.02,
+          0.55
+        ],
+        "rotationEuler": [
+          0.0,
+          0.0,
+          -0.04
+        ],
+        "scale": [
+          0.54,
+          0.54,
+          0.54
+        ],
+        "status": "placeholder_transform"
+      },
+      "pivotRepair": {
+        "status": "repaired_with_parent_pivot_empty",
+        "method": "Create runtime pivot empty from layout and parent preserved source hierarchy beneath it.",
+        "pivotLocal": [
+          0,
+          0,
+          0
+        ]
+      },
+      "interactionMetadata": {
+        "game_id": "dc9.vslice.dc9-src-throttle-assembly-001",
+        "interaction": "throttle",
+        "puzzle_id": "legacy_qualification_vslice",
+        "rotation_axis": "LOCAL_X",
+        "rest_angle": 0.0,
+        "active_angle": 0.35,
+        "sound_id": "source_neutral_click"
+      }
+    },
+    {
+      "componentId": "dc9-src-large-gauge-001",
+      "category": "large_cockpit_gauge",
+      "sourceVariant": "DC-9-32",
+      "targetVariant": "unresolved",
+      "variantScope": "common",
+      "sourceGlb": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-large-gauge-001/dc9-src-large-gauge-001.glb",
+      "sourceMetadata": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-large-gauge-001/dc9-src-large-gauge-001.metadata.json",
+      "sourceStageHashes": {
+        "glbSha256": "29084fed84550f6214a487235ba504b6390b2799ea36eff99e74451702e6d494",
+        "metadataSha256": "10fa19407d5d995d8f936fd673e04b768a1ea60e052a7d78b714e55d6f64e418"
+      },
+      "parentGroupName": "DC9_VSLICE_GAUGE_GROUP",
+      "runtimeNodeName": "DC9_GAUGE_ALTITUDE_01",
+      "transform": {
+        "translation": [
+          -0.24,
+          -0.64,
+          1.18
+        ],
+        "rotationEuler": [
+          0.0,
+          0.0,
+          1.5708
+        ],
+        "scale": [
+          5.8,
+          5.8,
+          5.8
+        ],
+        "status": "placeholder_transform"
+      },
+      "pivotRepair": {
+        "status": "repaired_with_parent_pivot_empty",
+        "method": "Create runtime pivot empty from layout and parent preserved source hierarchy beneath it.",
+        "pivotLocal": [
+          0,
+          0,
+          0
+        ]
+      },
+      "interactionMetadata": {
+        "game_id": "dc9.vslice.dc9-src-large-gauge-001",
+        "interaction": "inspect",
+        "puzzle_id": "legacy_qualification_vslice",
+        "rotation_axis": "LOCAL_X",
+        "rest_angle": 0.0,
+        "active_angle": 0.35,
+        "sound_id": "source_neutral_click"
+      }
+    },
+    {
+      "componentId": "dc9-src-switch-cluster-001",
+      "category": "switch_cluster",
+      "sourceVariant": "DC-9-32",
+      "targetVariant": "unresolved",
+      "variantScope": "unknown",
+      "sourceGlb": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-switch-cluster-001/dc9-src-switch-cluster-001.glb",
+      "sourceMetadata": "art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/candidates/dc9-src-switch-cluster-001/dc9-src-switch-cluster-001.metadata.json",
+      "sourceStageHashes": {
+        "glbSha256": "e594a06f7bcde72257bda038f9163a343eeef3670c6e715db1776ebf2d9c4d3b",
+        "metadataSha256": "4eadd7950a23773c008d875be64acbd2b9b838bbe06e58fc854ad91e2ead1f17"
+      },
+      "parentGroupName": "DC9_VSLICE_SWITCH_GROUP",
+      "runtimeNodeName": "DC9_SW_ABS_CLUSTER_01",
+      "transform": {
+        "translation": [
+          0.58,
+          -0.64,
+          1.08
+        ],
+        "rotationEuler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.3,
+          0.3,
+          0.3
+        ],
+        "status": "placeholder_transform"
+      },
+      "pivotRepair": {
+        "status": "repaired_with_parent_pivot_empty",
+        "method": "Create runtime pivot empty from layout and parent preserved source hierarchy beneath it.",
+        "pivotLocal": [
+          0,
+          0,
+          0
+        ]
+      },
+      "interactionMetadata": {
+        "game_id": "dc9.vslice.dc9-src-switch-cluster-001",
+        "interaction": "toggle",
+        "puzzle_id": "legacy_qualification_vslice",
+        "rotation_axis": "LOCAL_X",
+        "rest_angle": 0.0,
+        "active_angle": 0.35,
+        "sound_id": "source_neutral_click"
+      }
+    }
+  ]
+}

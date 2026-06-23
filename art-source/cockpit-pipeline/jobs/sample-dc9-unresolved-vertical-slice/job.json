@@ -1,0 +1,48 @@
+{
+  "jobId": "sample-dc9-unresolved-vertical-slice",
+  "title": "Unresolved-variant DC-9 four-component vertical slice",
+  "stage": "requested",
+  "aircraft": "dc9",
+  "sourceVariant": "DC-9-32 source material permitted for proof",
+  "targetVariant": "unresolved owner-confirmed DC-9 variant",
+  "variantScope": "unresolved",
+  "requestedComponents": [
+    {
+      "componentId": "dc9-yoke-assembly-01",
+      "label": "one yoke assembly",
+      "quantity": 1,
+      "acceptanceNotes": "Captain-side yoke proportions and pivot planning only; no production cockpit construction."
+    },
+    {
+      "componentId": "dc9-throttle-assembly-01",
+      "label": "one throttle assembly",
+      "quantity": 1,
+      "acceptanceNotes": "Pedestal throttle shape reference and control grouping only."
+    },
+    {
+      "componentId": "dc9-large-gauge-01",
+      "label": "one large gauge",
+      "quantity": 1,
+      "acceptanceNotes": "Analog gauge face, bezel, glass, and needle treatment planning only."
+    },
+    {
+      "componentId": "dc9-switch-cluster-01",
+      "label": "one switch cluster",
+      "quantity": 1,
+      "acceptanceNotes": "Small grouped switches with stable naming and fictional interaction metadata planning only."
+    }
+  ],
+  "stageDirectories": {
+    "sourceInput": "art-source/cockpit-pipeline/stages/source/input",
+    "sourceOutput": "art-source/cockpit-pipeline/stages/source/output",
+    "assemblyInput": "art-source/cockpit-pipeline/stages/assembly/input",
+    "assemblyOutput": "art-source/cockpit-pipeline/stages/assembly/output",
+    "shadingInput": "art-source/cockpit-pipeline/stages/shading/input",
+    "shadingOutput": "art-source/cockpit-pipeline/stages/shading/output"
+  },
+  "cachePolicy": {
+    "environmentVariable": "COCKPIT_PIPELINE_CACHE",
+    "defaultRelativePath": ".cache/cockpit-pipeline",
+    "gitPolicy": "outside-git"
+  }
+}
