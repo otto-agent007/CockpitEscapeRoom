@@ -13,6 +13,13 @@ Checked on 2026-06-21. Prefer official documentation and recheck before major up
 - Codex review: https://developers.openai.com/codex/app/review
 - GitHub integration: https://developers.openai.com/codex/integrations/github
 
+## Loop Library inspirations
+
+Checked on 2026-06-22. The CockpitEscapeRoom repo-local Skills are adaptations, not direct replacements for the upstream references.
+
+- Loop Doctor: https://github.com/Forward-Future/loop-library/blob/main/skills/loop-library/references/audit.md
+- Loop Discovery: https://github.com/Forward-Future/loop-library/blob/main/skills/loop-library/references/discover.md
+
 ## Web stack
 
 - Vite guide: https://vite.dev/guide/
