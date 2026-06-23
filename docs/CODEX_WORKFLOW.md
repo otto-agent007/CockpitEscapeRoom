@@ -27,10 +27,12 @@ Use Codex Plan mode for complex, ambiguous, or visually consequential work. The 
 
 ## Skills
 
-The pack includes two repo-local Skills:
+The pack includes four repo-local Skills:
 
 - `$cockpit-feature` for implementing and validating a game feature or puzzle.
 - `$blender-web-assets` for validating, exporting, inspecting, and integrating a Blender asset.
+- `$loop-doctor` for auditing, diagnosing, and minimally repairing an existing workflow loop, prompt loop, asset pipeline loop, or agent handoff loop.
+- `$loop-discovery` for mining repo evidence and authorized coding-thread history for recurring work that should become a loop or Skill.
 
 Use explicit invocation while the workflows are new. After the descriptions prove reliable, Codex may select them implicitly.
 

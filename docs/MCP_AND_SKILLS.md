@@ -16,6 +16,14 @@ Use when adding or changing a puzzle, scene transition, reward, persistence beha
 
 Use when a `.blend`, material, texture, interactive node, GLB, or asset report changes. It enforces validation, stable contracts, browser integration, and approval renders.
 
+### `$loop-doctor`
+
+Use when an existing prompt, workflow, agent handoff, asset pipeline, or repair loop needs an audit. It checks whether the loop reads fresh state, takes bounded action, verifies with reproducible evidence, records outcomes, and stops safely.
+
+### `$loop-discovery`
+
+Use when looking for repeated CockpitEscapeRoom work that should become a feedback loop or Skill. It mines repo evidence and authorized coding-thread history, rejects one-shot checklists, and ranks only candidates with observable feedback and safe terminal states.
+
 ## Future MCP surface
 
 Only expose:
