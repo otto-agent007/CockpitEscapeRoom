@@ -7,7 +7,7 @@ import {
 } from './config'
 
 export const GAME_SCHEMA_VERSION = 2 as const
-export const SWITCH_ORDER = dc9LegacyFlow.checklistOrder as const
+export const SWITCH_ORDER = dc9LegacyFlow.checklistOrder
 export const PUZZLE_IDS = ['firstOfficer', 'locker', 'captain'] as const
 export type GamePhase = 'briefing' | 'airbus' | 'locker' | 'captain' | 'reward' | 'mars'
 export type GameAction =
@@ -27,7 +27,7 @@ export type GameAction =
 export type SwitchId = (typeof SWITCH_ORDER)[number]
 export type PuzzleId = (typeof PUZZLE_IDS)[number]
 
-interface AirbusAssignments {
+export type AirbusAssignments = {
   [K in FirstOfficerControl]: string | null
 }
 
@@ -62,7 +62,7 @@ function normalize(value: unknown): string {
     : ''
 }
 
-function unique<T>(items: T[]): T[] {
+function unique<T>(items: readonly T[]): T[] {
   return [...new Set(items)]
 }
 
@@ -106,7 +106,7 @@ function isLockerAnswerCorrect(objectId: LockerInteraction, response: string): b
 }
 
 function lockerInteractionComplete(current: LockerInteraction[], objectId: LockerInteraction): LockerPayload {
-  const completed = unique([...current, objectId]).sort()
+  const completed = [...unique([...current, objectId])].sort()
   const requirementMet = lockerFlow.requiredInteractionIds.every((id) => completed.includes(id))
   return {
     completed,
@@ -274,7 +274,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         lockerCompleted: payload.completed,
         lockerHatRevealed: true,
-        statusMessage: `${feedback} ${lockerFlow.interactions[action.objectId]?.trigger} ${lockerFlow.hatText.revealText}`,
+        statusMessage: `${feedback} ${lockerFlow.interactions[action.objectId]?.trigger} ${lockerFlow.hatText.unlockText}`,
       }
     }
 
@@ -390,7 +390,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
 export function gameProgress(state: GameState): number {
   const completed = new Set(state.completedPuzzles.filter((id): id is PuzzleId => PUZZLE_IDS.includes(id)))
-  const totalPuzzles = PUZZLE_IDS.length
+  const totalPuzzles = PUZZLE_IDS.length as number
   if (totalPuzzles === 0) return 0
   const ratio = completed.size / totalPuzzles
   return Math.round(Math.max(0, Math.min(1, ratio)) * 100)

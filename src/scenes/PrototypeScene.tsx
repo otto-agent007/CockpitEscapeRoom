@@ -4,6 +4,8 @@ import { OrbitControls as ThreeOrbitControls } from 'three/addons/controls/Orbit
 import * as THREE from 'three'
 import { type GamePhase, type SwitchId } from '../game/state'
 
+const CAPTAIN_SWITCH_IDS = ['battery', 'navigation', 'cabin'] as const
+
 interface PrototypeSceneProps {
   phase: Exclude<GamePhase, 'briefing'>
   activeSwitches: SwitchId[]
@@ -161,7 +163,7 @@ function CaptainCockpit({
         <meshStandardMaterial color="#3c5258" roughness={0.82} />
       </mesh>
       {positions.map((position, index) => {
-        const switchId = ['battery', 'navigation', 'cabin'][index]
+        const switchId = CAPTAIN_SWITCH_IDS[index]
         if (!switchId) return null
         const active = activeSwitches.includes(switchId)
         return (

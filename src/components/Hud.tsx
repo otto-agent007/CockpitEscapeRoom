@@ -114,47 +114,55 @@ export function Hud({ state, dispatch, onRestart }: HudProps) {
           <h2 id="locker-heading">Locker reveal sequence</h2>
           <p>Inspect each object. A hidden reward reveal waits for all locker moments to complete.</p>
 
-          <label>
-            <span>{lockerFlow.interactions.watch.label}</span>
-            <input
-              type="text"
-              value={watchInput}
-              onChange={(event) => setWatchInput(event.target.value)}
-              placeholder="Right-seat hours"
-            />
+          <div>
+            <label>
+              <span>{lockerFlow.interactions.watch.label}</span>
+              <input
+                type="text"
+                value={watchInput}
+                onChange={(event) => setWatchInput(event.target.value)}
+                placeholder="Right-seat hours"
+                aria-label="Right-seat hours"
+              />
+            </label>
             <button
               type="button"
               className="secondary-button"
               aria-label="Confirm watch answer"
-              disabled={state.lockerCompleted.includes('watch')}
+              aria-disabled={state.lockerCompleted.includes('watch')}
               onClick={() => {
+                if (state.lockerCompleted.includes('watch')) return
                 dispatch({ type: 'COMPLETE_LOCKER_OBJECT', objectId: 'watch', response: watchInput })
               }}
             >
               Confirm
             </button>
-          </label>
+          </div>
 
-          <label>
-            <span>{lockerFlow.interactions.baseball.label}</span>
-            <input
-              type="text"
-              value={baseballInput}
-              onChange={(event) => setBaseballInput(event.target.value)}
-              placeholder="Name"
-            />
+          <div>
+            <label>
+              <span>{lockerFlow.interactions.baseball.label}</span>
+              <input
+                type="text"
+                value={baseballInput}
+                onChange={(event) => setBaseballInput(event.target.value)}
+                placeholder="Name"
+                aria-label="Name"
+              />
+            </label>
             <button
               type="button"
               className="secondary-button"
               aria-label="Confirm baseball answer"
-              disabled={state.lockerCompleted.includes('baseball')}
+              aria-disabled={state.lockerCompleted.includes('baseball')}
               onClick={() => {
+                if (state.lockerCompleted.includes('baseball')) return
                 dispatch({ type: 'COMPLETE_LOCKER_OBJECT', objectId: 'baseball', response: baseballInput })
               }}
             >
               Confirm
             </button>
-          </label>
+          </div>
 
           {lockerItems
             .filter((item) => item !== 'watch' && item !== 'baseball')
@@ -164,8 +172,9 @@ export function Hud({ state, dispatch, onRestart }: HudProps) {
                 type="button"
                 className="secondary-button"
                 aria-label={`Inspect ${lockerFlow.interactions[item].label}`}
-                disabled={state.lockerCompleted.includes(item)}
+                aria-disabled={state.lockerCompleted.includes(item)}
                 onClick={() => {
+                  if (state.lockerCompleted.includes(item)) return
                   const payload: { type: 'COMPLETE_LOCKER_OBJECT'; objectId: LockerInteraction; response?: string } = {
                     type: 'COMPLETE_LOCKER_OBJECT',
                     objectId: item,
@@ -189,6 +198,7 @@ export function Hud({ state, dispatch, onRestart }: HudProps) {
               value={checklistInput}
               onChange={(event) => setChecklistInput(event.target.value)}
               placeholder="Power,Lights,Route,Crew,Release"
+              aria-label="Power,Lights,Route,Crew,Release"
             />
           </label>
 

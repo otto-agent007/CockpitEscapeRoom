@@ -1,4 +1,5 @@
-import { createInitialState, type FirstOfficerControl, type GamePhase, type GameState, type LockerInteraction, type PuzzleId, type SwitchId } from './state'
+import { createInitialState, type GamePhase, type GameState, type PuzzleId, type SwitchId } from './state'
+import { type FirstOfficerControl, type LockerInteraction } from './config'
 import { firstOfficerFlow, lockerFlow } from './config'
 
 export const STORAGE_KEY = 'cockpit-escape-room:game-state:v1'

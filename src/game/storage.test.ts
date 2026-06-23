@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createInitialState } from './state'
+import { createInitialState, type GameState } from './state'
 import { loadGameState, saveGameState, STORAGE_KEY } from './storage'
 
 function createMemoryStorage(initial: Record<string, string> = {}) {
@@ -20,7 +20,7 @@ function createMemoryStorage(initial: Record<string, string> = {}) {
 describe('game storage', () => {
   it('round-trips valid saved progress', () => {
     const storage = createMemoryStorage()
-    const state = { ...createInitialState(), phase: 'airbus', captainRewardUnlocked: true }
+    const state: GameState = { ...createInitialState(), phase: 'airbus', captainRewardUnlocked: true }
     saveGameState(state, storage)
     expect(loadGameState(storage)).toEqual(state)
   })

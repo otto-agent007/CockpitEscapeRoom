@@ -23,9 +23,15 @@ function useReducedMotion(): boolean {
   return reduced
 }
 
+function shouldSkipPrototypeScene(): boolean {
+  if (typeof window === 'undefined') return false
+  return new URLSearchParams(window.location.search).get('skip3d') === '1'
+}
+
 export default function App() {
   const { state, dispatch } = useGame()
   const reducedMotion = useReducedMotion()
+  const skipPrototypeScene = shouldSkipPrototypeScene()
 
   const restart = () => {
     const confirmed = window.confirm('Restart CockpitEscapeRoom and clear saved progress?')
@@ -68,18 +74,22 @@ export default function App() {
 
   return (
     <main className="game-shell">
-      <Suspense fallback={<div className="scene scene--loading">Loading the cockpit sequence…</div>}>
-        <PrototypeScene
-          phase={state.phase}
-          activeSwitches={state.switchSequence}
-          lockerHatRevealed={state.lockerHatRevealed}
-          captainRewardUnlocked={state.captainRewardUnlocked}
-          reducedMotion={reducedMotion}
-          onSwitch={(switchId) => dispatch({ type: 'ACTIVATE_SWITCH', switchId })}
-          onMars={() => dispatch({ type: 'UNLOCK_MARS' })}
-          onLockerHat={() => dispatch({ type: 'REVEAL_CAPTAIN_HAT' })}
-        />
-      </Suspense>
+      {skipPrototypeScene ? (
+        <div className="scene scene--loading">3D scene skipped. Use the mirrored controls below.</div>
+      ) : (
+        <Suspense fallback={<div className="scene scene--loading">Loading the cockpit sequence…</div>}>
+          <PrototypeScene
+            phase={state.phase}
+            activeSwitches={state.switchSequence}
+            lockerHatRevealed={state.lockerHatRevealed}
+            captainRewardUnlocked={state.captainRewardUnlocked}
+            reducedMotion={reducedMotion}
+            onSwitch={(switchId) => dispatch({ type: 'ACTIVATE_SWITCH', switchId })}
+            onMars={() => dispatch({ type: 'UNLOCK_MARS' })}
+            onLockerHat={() => dispatch({ type: 'REVEAL_CAPTAIN_HAT' })}
+          />
+        </Suspense>
+      )}
       <Hud state={state} dispatch={dispatch} onRestart={restart} />
     </main>
   )
