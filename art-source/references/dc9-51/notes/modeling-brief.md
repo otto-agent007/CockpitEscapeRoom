@@ -2,6 +2,14 @@
 
 Target: Northwest-style McDonnell Douglas DC-9-51 cockpit. Use this brief as reference triage, not as production approval.
 
+## Derived Package Files
+
+- Primary callout annotation: `art-source/references/dc9-51/annotations/dc9_51_n775nc_cockpit_primary_callouts.svg`
+- Primary zone brief: `art-source/references/dc9-51/notes/dc9-51-primary-zone-brief.md`
+- Source discovery seed: `art-source/references/dc9-51/notes/source-discovery-seed.md`
+- First source-discovery job: `art-source/cockpit-pipeline/jobs/dc9-reference-source-discovery/job.json`
+- Package report: `asset-reports/references/dc9-51-reference-source-package.md`
+
 ## Reference Hierarchy
 
 ### Primary
@@ -59,3 +67,4 @@ Target: Northwest-style McDonnell Douglas DC-9-51 cockpit. Use this brief as ref
 - Use secondary rows only when a shared component/material cue is explicitly relevant.
 - Keep all interactions fictional and non-operational.
 - Do not use reference photos as textures unless downstream license obligations are reviewed.
+- Source discovery may use DC-9-32 geometry as extractable candidate material only when `sourceVariant`, `targetVariant`, `variantScope`, limitations, and downstream Agent 2 warnings are recorded.
