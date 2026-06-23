@@ -53,6 +53,8 @@ Job file: `art-source/cockpit-pipeline/jobs/dc9-reference-source-discovery/job.j
 
 Seed spec: `art-source/cockpit-pipeline/source-discovery-seeds/dc9-reference-source-discovery.seed.json`
 
+Schema-safe variant scope: the job uses `variantScope: target-confirmed` because the primary visual target is DC-9-51. The broader source-discovery intent remains target visual reference with mixed source candidates; Agent 1 must keep each candidate's own source variant and limitations in the ranking report before any source handoff.
+
 Requested components:
 
 - cockpit shell and main panel blockout;
