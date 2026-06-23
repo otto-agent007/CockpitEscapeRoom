@@ -8,7 +8,7 @@ Generated for `otto-agent007/CockpitEscapeRoom` on 2026-06-21.
 - Crew Mode and Captain Mode with a repeatable, safe-retry player loop.
 - Versioned local progress, corrupt-save recovery, keyboard-accessible controls, red Model Y reward proxy, and Mars Easter egg.
 - Product blueprint, game design, realism guidance, historical context, architecture, personalization checklist, quality bar, and deployment workflow.
-- Root `AGENTS.md`, living ExecPlan conventions, two repo-local Codex Skills, and six milestone prompts.
+- Root `AGENTS.md`, living ExecPlan conventions, four repo-local Codex Skills, and six milestone prompts.
 - Blender scene validation, GLB export, preview-render, and asset-check scaffolding.
 - GitHub Actions, pull-request template, issue forms, Git LFS configuration, and Vercel deployment guidance.
 - Unit and browser smoke tests.
