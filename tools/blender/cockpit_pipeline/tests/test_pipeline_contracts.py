@@ -49,6 +49,8 @@ class PipelineContractTests(unittest.TestCase):
         require_transition("source-approved", "assembly_complete")
         require_transition("assembly_complete", "assembly-approved")
         require_transition("source-approved", "assembly-approved")
+        require_transition("assembly-approved", "shading_complete")
+        require_transition("shading_complete", "shading-approved")
         require_transition("assembly-approved", "shading-approved")
         with self.assertRaises(StateTransitionError):
             require_transition("requested", "assembly-approved")
@@ -56,6 +58,8 @@ class PipelineContractTests(unittest.TestCase):
             require_transition("sourcing_complete", "assembly-approved")
         with self.assertRaises(StateTransitionError):
             require_transition("assembly_complete", "shading-approved")
+        with self.assertRaises(StateTransitionError):
+            require_transition("shading_complete", "assembly-approved")
         with self.assertRaises(StateTransitionError):
             require_transition("source-approved", "shading-approved")
 

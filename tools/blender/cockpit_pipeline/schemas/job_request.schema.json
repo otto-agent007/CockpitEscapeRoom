@@ -21,7 +21,7 @@
     "title": { "type": "string", "minLength": 1 },
     "stage": {
       "type": "string",
-      "enum": ["requested", "sourcing_complete", "source-approved", "assembly-approved", "shading-approved", "rejected"]
+      "enum": ["requested", "sourcing_complete", "source-approved", "assembly-approved", "shading_complete", "shading-approved", "rejected"]
     },
     "aircraft": { "type": "string", "enum": ["dc9"] },
     "sourceVariant": { "type": "string", "minLength": 1 },

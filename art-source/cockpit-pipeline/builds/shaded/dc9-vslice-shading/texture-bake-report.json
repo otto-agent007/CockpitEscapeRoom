@@ -1,0 +1,87 @@
+{
+  "schema": "cockpit-pipeline/texture-bake-report-v1",
+  "textureCount": 11,
+  "textures": [
+    {
+      "recipeId": "dc9_painted_blue_green_gray",
+      "path": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_painted_blue_green_gray.png",
+      "resolution": 128,
+      "baked": true,
+      "purpose": "glTF-compatible deterministic base-color wear texture"
+    },
+    {
+      "recipeId": "dc9_dark_instrument_panel",
+      "path": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_dark_instrument_panel.png",
+      "resolution": 128,
+      "baked": true,
+      "purpose": "glTF-compatible deterministic base-color wear texture"
+    },
+    {
+      "recipeId": "dc9_black_rubber",
+      "path": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_black_rubber.png",
+      "resolution": 128,
+      "baked": true,
+      "purpose": "glTF-compatible deterministic base-color wear texture"
+    },
+    {
+      "recipeId": "dc9_aged_dark_plastic",
+      "path": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_aged_dark_plastic.png",
+      "resolution": 128,
+      "baked": true,
+      "purpose": "glTF-compatible deterministic base-color wear texture"
+    },
+    {
+      "recipeId": "dc9_brushed_worn_metal",
+      "path": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_brushed_worn_metal.png",
+      "resolution": 128,
+      "baked": true,
+      "purpose": "glTF-compatible deterministic base-color wear texture"
+    },
+    {
+      "recipeId": "dc9_instrument_glass",
+      "path": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_instrument_glass.png",
+      "resolution": 128,
+      "baked": true,
+      "purpose": "glTF-compatible deterministic base-color wear texture"
+    },
+    {
+      "recipeId": "dc9_gauge_face",
+      "path": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_gauge_face.png",
+      "resolution": 128,
+      "baked": true,
+      "purpose": "glTF-compatible deterministic base-color wear texture"
+    },
+    {
+      "recipeId": "dc9_cream_stencil",
+      "path": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_cream_stencil.png",
+      "resolution": 128,
+      "baked": true,
+      "purpose": "glTF-compatible deterministic base-color wear texture"
+    },
+    {
+      "recipeId": "dc9_fasteners",
+      "path": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_fasteners.png",
+      "resolution": 128,
+      "baked": true,
+      "purpose": "glTF-compatible deterministic base-color wear texture"
+    },
+    {
+      "recipeId": "dc9_subtle_grime_wear",
+      "path": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_subtle_grime_wear.png",
+      "resolution": 128,
+      "baked": true,
+      "purpose": "glTF-compatible deterministic base-color wear texture"
+    },
+    {
+      "recipeId": "dc9_safe_neutral",
+      "path": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_safe_neutral.png",
+      "resolution": 128,
+      "baked": true,
+      "purpose": "glTF-compatible deterministic base-color wear texture"
+    }
+  ],
+  "limitations": [
+    "Textures are deterministic procedural proof maps, not final hand-painted cockpit texture art.",
+    "No normal or roughness maps were required for this vertical-slice proof."
+  ]
+}

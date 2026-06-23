@@ -1,0 +1,88 @@
+{
+  "status": "pass",
+  "runtimeNodeNamesPreserved": true,
+  "interactionMetadataPreserved": true,
+  "missingRuntimeNodes": [],
+  "dimensionDriftMax": 0.0,
+  "neutralDimensions": {
+    "x": 1.641917,
+    "y": 1.24,
+    "z": 1.415,
+    "center": [
+      -0.154041,
+      -0.21,
+      0.9075
+    ]
+  },
+  "shadedReimportDimensions": {
+    "x": 1.641917,
+    "y": 1.24,
+    "z": 1.415,
+    "center": [
+      -0.154041,
+      -0.21,
+      0.9075
+    ]
+  },
+  "assignmentCount": 42,
+  "safeNeutralAssignments": [],
+  "textureCount": 11,
+  "reimportValidation": {
+    "status": "pass",
+    "runtimeNodeNames": [
+      "DC9_CTRL_YOKE_CAPTAIN_01",
+      "DC9_GAUGE_ALTITUDE_01",
+      "DC9_SW_ABS_CLUSTER_01",
+      "DC9_THR_QUADRANT_01"
+    ],
+    "runtimeMetadata": {
+      "DC9_CTRL_YOKE_CAPTAIN_01": {
+        "game_id": "dc9.vslice.dc9-src-yoke-assembly-001.pivot",
+        "interaction": "yoke",
+        "rotation_axis": "LOCAL_Y",
+        "rest_angle": 0.0,
+        "active_angle": 0.35,
+        "sound_id": "source_neutral_click"
+      },
+      "DC9_THR_QUADRANT_01": {
+        "game_id": "dc9.vslice.dc9-src-throttle-assembly-001.pivot",
+        "interaction": "throttle",
+        "rotation_axis": "LOCAL_X",
+        "rest_angle": 0.0,
+        "active_angle": 0.35,
+        "sound_id": "source_neutral_click"
+      },
+      "DC9_GAUGE_ALTITUDE_01": {
+        "game_id": "dc9.vslice.dc9-src-large-gauge-001.pivot",
+        "interaction": "inspect",
+        "rotation_axis": "LOCAL_X",
+        "rest_angle": 0.0,
+        "active_angle": 0.35,
+        "sound_id": "source_neutral_click"
+      },
+      "DC9_SW_ABS_CLUSTER_01": {
+        "game_id": "dc9.vslice.dc9-src-switch-cluster-001.pivot",
+        "interaction": "toggle",
+        "rotation_axis": "LOCAL_X",
+        "rest_angle": 0.0,
+        "active_angle": 0.35,
+        "sound_id": "source_neutral_click"
+      }
+    },
+    "objectCount": 57,
+    "meshCount": 42,
+    "materialCount": 9,
+    "dimensions": {
+      "x": 1.641917,
+      "y": 1.24,
+      "z": 1.415,
+      "center": [
+        -0.154041,
+        -0.21,
+        0.9075
+      ]
+    }
+  },
+  "approvedAssemblyInputsImmutable": true,
+  "approvedAssemblyArtifact": "art-source/cockpit-pipeline/stages/assembly/output/dc9-vslice-assembly/dc9-vslice-assembly.glb"
+}

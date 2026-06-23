@@ -10,6 +10,7 @@ from pathlib import Path
 from .hashing import verify_manifest_hashes
 from .assembly_job import run_assembly_job
 from .schema_validation import SchemaError, validate_json_file
+from .shading_job import run_shading_job
 from .source_job import run_source_job
 from .state_machine import StateTransitionError, require_transition
 
@@ -43,6 +44,10 @@ def main(argv: list[str] | None = None) -> int:
     assembly_parser.add_argument("--source-job-id", default="dc9-32-flightgear-source-vslice")
     assembly_parser.add_argument("--assembly-job-id", default="dc9-vslice-assembly")
 
+    shading_parser = subparsers.add_parser("run-shading-job", help="Run the DC-9 shaded vertical slice job.")
+    shading_parser.add_argument("--assembly-job-id", default="dc9-vslice-assembly")
+    shading_parser.add_argument("--shading-job-id", default="dc9-vslice-shading")
+
     args = parser.parse_args(argv)
     try:
         if args.command == "validate-job":
@@ -61,6 +66,8 @@ def main(argv: list[str] | None = None) -> int:
             run_source_job(repo_url=args.repo_url, job_id=args.job_id, cache_override=args.cache)
         elif args.command == "run-assembly-job":
             run_assembly_job(source_job_id=args.source_job_id, assembly_job_id=args.assembly_job_id)
+        elif args.command == "run-shading-job":
+            run_shading_job(assembly_job_id=args.assembly_job_id, shading_job_id=args.shading_job_id)
         return 0
     except (SchemaError, StateTransitionError, FileNotFoundError, ValueError, RuntimeError) as exc:
         print(f"{args.command} failed: {exc}", file=sys.stderr)

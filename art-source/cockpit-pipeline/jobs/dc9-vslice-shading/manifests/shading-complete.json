@@ -1,0 +1,209 @@
+{
+  "manifestId": "dc9-vslice-shading-shading-complete",
+  "jobId": "dc9-vslice-shading",
+  "stage": "shading_complete",
+  "createdAt": "2026-06-23T00:21:21Z",
+  "sourceVariant": "DC-9-32",
+  "targetVariant": "unresolved",
+  "variantScope": "unknown",
+  "artifactBasePath": "/mnt/2TBHDD/CockpitEscapeRoom",
+  "inputs": [
+    {
+      "path": "art-source/cockpit-pipeline/jobs/dc9-vslice-assembly/assembly-approval.json",
+      "sha256": "411427717d2b7db07943c0aeb891ff2d7ec18b671b5944a997e732b8f77e9460",
+      "bytes": 3687
+    },
+    {
+      "path": "art-source/cockpit-pipeline/jobs/dc9-vslice-assembly/manifests/assembly-complete.json",
+      "sha256": "740295c3f64ec5157e3ae172e2120f8b27ec1b64d2385a6b21aa4305ddaf103a",
+      "bytes": 5731
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-vslice-assembly/dc9-vslice-assembly.blend",
+      "sha256": "3b057e35d609ec1c9c8665abde13495debf94215a98ffdbc624a2460d7178aed",
+      "bytes": 218160
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-vslice-assembly/dc9-vslice-assembly.glb",
+      "sha256": "12697eadb8cb261e2945cebda86e6639da48f33b1e7c2095d429c59b5e58e7db",
+      "bytes": 287216
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-vslice-assembly/resolved-layout.json",
+      "sha256": "9b0d56b833f7f1483f762396d633edc8f22007f749a800aa6c5ad683897a2dd0",
+      "bytes": 7989
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-vslice-assembly/node-pivot-report.json",
+      "sha256": "927080771a600c2ee822f2be1306ea57c6b50a5afd1d5ee65573afc9fab495e0",
+      "bytes": 14239
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-vslice-assembly/validation-report.json",
+      "sha256": "ee65fc45ddccd8ef2be04945868e68a2d89b58151a0cb35d8450f76342108159",
+      "bytes": 815
+    },
+    {
+      "path": "asset-reports/cockpit-pipeline/dc9-vslice-assembly/assembly-report.md",
+      "sha256": "b72e5497239e5eddd658ac26bdad8748bbc17043496d33e553b6cf0b1eab0673",
+      "bytes": 2769
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-vslice-assembly/captain-seat-view.png",
+      "sha256": "9da8882cb42345a8004855e5d6b94ed0d7929fca63c736df4d152618e89acbf2",
+      "bytes": 636366
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-vslice-assembly/wide-cockpit-view.png",
+      "sha256": "c233ea06b10e63493863bdd78226337c7a874ed3b1c4b92bc62005bc53753aa1",
+      "bytes": 608000
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-vslice-assembly/yoke-close-up.png",
+      "sha256": "9794bae609e5653d10a1be4d9f4f727229645143e7f501d53087537ebcf5f962",
+      "bytes": 716970
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-vslice-assembly/pedestal-throttle-close-up.png",
+      "sha256": "5edb7e9dc7154ab71d51cb5506d60ba65984b7a866cc5aa2cabca2b58401c739",
+      "bytes": 822606
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-vslice-assembly/gauge-switch-close-up.png",
+      "sha256": "dfd055327dc0a0bc186277b5f1da8f55124cac15b2142db25bcd44975b44e67a",
+      "bytes": 739328
+    }
+  ],
+  "outputs": [
+    {
+      "path": "art-source/cockpit-pipeline/stages/shading/input/dc9-vslice-shading/material-recipes.json",
+      "sha256": "b66e456837c22eb0ce6ec4b00939fde0a1f32a5c4542ec9dd654ca3143f7c3e7",
+      "bytes": 6717
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/dc9-vslice-shaded.blend",
+      "sha256": "aa2624c06437260ffe7f80d8b159811ceddcf6fc571384436f418c47b28d5f2d",
+      "bytes": 226570
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/dc9-vslice-shaded.glb",
+      "sha256": "59998ef0cee966509fdda583c5f1760c447af9a46386f71dc77118d27eae8845",
+      "bytes": 391400
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/material-assignment-report.json",
+      "sha256": "4c88ee2f4cbd17ffe9175c01b363d8440ce85e7eebf5319e21d23d90ea687548",
+      "bytes": 16479
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/texture-bake-report.json",
+      "sha256": "08e29dcea2cb5e73fe7fbc92c650cd8fc603de9666092565ba551f2b50e6c832",
+      "bytes": 3764
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/validation-report.json",
+      "sha256": "c5dab4b6e5205cd38a912d97242c181159a71fb6f7c449afcb5b5f9c215a07cd",
+      "bytes": 2279
+    },
+    {
+      "path": "asset-reports/cockpit-pipeline/dc9-vslice-shading/shading-report.md",
+      "sha256": "59e6c8ee7ea81c90a5f829423fbd2b72c4d59897a38c08c930ffce1bc9f9b356",
+      "bytes": 3468
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-vslice-shading/neutral-vs-shaded-contact-sheet.svg",
+      "sha256": "caa6bf37cfb0e1ee23c80ae4b3fcd66bb3e7b45cc2f16c145b8336c94c57dbaa",
+      "bytes": 801
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_painted_blue_green_gray.png",
+      "sha256": "fa3d4e59de3ad5784d3c05919fe79fcd5eca167394f5c0a056348aa8df58f9a8",
+      "bytes": 16828
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_dark_instrument_panel.png",
+      "sha256": "6a0131c8c856a6a9e04273a79f6269ae5c11fd5bfcf9569c1a81d9cf9ad01eed",
+      "bytes": 6222
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_black_rubber.png",
+      "sha256": "82dd1aa4d7201b1f52cc5cf3b2cdb9d57ee519b4aaf7796ee2dfb52dece7ed75",
+      "bytes": 2319
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_aged_dark_plastic.png",
+      "sha256": "2bca2f16a6fb0bb7aafd9430de31f3b6039e934a71cdbf5547ce1f27d2b3e17e",
+      "bytes": 7423
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_brushed_worn_metal.png",
+      "sha256": "a8f9f162114df79dbe23b2a1338f3c9088f5e766d985875a1990460e4b4e6340",
+      "bytes": 20734
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_instrument_glass.png",
+      "sha256": "7b6c3f57c9001d34522c3745322b49dc5fe83d4acb0239d5734d7c47132ed121",
+      "bytes": 10649
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_gauge_face.png",
+      "sha256": "1e66f11dad4e3b9b75279e03f97f3614b40d5b978920f13d9389b6e87a3fd99e",
+      "bytes": 4065
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_cream_stencil.png",
+      "sha256": "73d45a887c9c1c78c10a63a3afb218debf5594c6619e018f11f3286339b9ec42",
+      "bytes": 8948
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_fasteners.png",
+      "sha256": "93dab7f5c5ce31ee87c750113d9c047e5c439388fcfc7e08236b0b9438bc9535",
+      "bytes": 20633
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_subtle_grime_wear.png",
+      "sha256": "dd50024b9c7a6941d0e4f9d5f194c62f8226c1e0f5ce9e15e0f3c84a7193e705",
+      "bytes": 10038
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_safe_neutral.png",
+      "sha256": "15b58d1bebd820634c58438f7a51996f6285edc2642af76060e97926cf2e2839",
+      "bytes": 710
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-vslice-shading/captain-daylight.png",
+      "sha256": "cf89118d1da6a7e6c8662161517fd483dd618512223270a7ae7264be7613ecd5",
+      "bytes": 1151377
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-vslice-shading/captain-dim-instrument-lighting.png",
+      "sha256": "4a4ca55fee11245c70e7a0e43ba0f8922c5a5787b66375539a19d3bd91513c95",
+      "bytes": 1105250
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-vslice-shading/yoke-material-close-up.png",
+      "sha256": "2a73b536a1bf7dab8489c6d5b2a24d99ea6307f21321ca041d8010316a696f92",
+      "bytes": 1011268
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-vslice-shading/throttle-material-close-up.png",
+      "sha256": "cfca44464bfff977339716a4f9edab9d4bde22bf8a8b21bbe4306f7b5dea15a5",
+      "bytes": 1247384
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-vslice-shading/gauge-glass-face-close-up.png",
+      "sha256": "573ddc4b866f9d2899c940470667376b3f5dcdaf28732fa32aff0e91c8cda38a",
+      "bytes": 1489735
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/dc9-vslice-shading/switch-cluster-close-up.png",
+      "sha256": "7a823f2224f5135da983e7bdf36b12bac56725ba9d8cd3ba0fa6847d86b6648e",
+      "bytes": 1018206
+    }
+  ],
+  "approval": {
+    "approved": false,
+    "approvedBy": "human-review-pending",
+    "notes": "Shading complete only. Human review is required before final visual approval."
+  }
+}

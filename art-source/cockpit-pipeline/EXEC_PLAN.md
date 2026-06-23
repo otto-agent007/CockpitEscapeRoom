@@ -214,3 +214,47 @@ Execute Agent 2 assembly using the approved Agent 1 source candidates. The outpu
 ### Outcome
 
 The job reached `assembly_complete`, not `assembly-approved`. Human review is required before Agent 3 shading.
+
+## Shading Job: DC-9 Vertical Slice
+
+### Purpose
+
+Execute Agent 3 shading using the approved Agent 2 neutral assembly. The output is a shaded four-component vertical slice with deterministic procedural material recipes, baked PBR base-color textures, preserved runtime node contracts, preview evidence, and a `shading_complete` handoff. This is not a full cockpit and not final visual approval.
+
+### Progress
+
+- [x] 2026-06-22 - Created branch `asset/dc9-vslice-shading`.
+- [x] 2026-06-22 - Ran preflight and validated `assembly-approval.json` through the shading job.
+- [x] 2026-06-22 - Verified approved assembly artifact hashes against the `assembly_complete` manifest.
+- [x] 2026-06-22 - Added `shading_complete` as a non-final stage that can advance only after `assembly-approved`.
+- [x] 2026-06-22 - Created deterministic material recipes at `art-source/cockpit-pipeline/stages/shading/input/dc9-vslice-shading/material-recipes.json`.
+- [x] 2026-06-22 - Applied Northwest-era blue-green/gray, dark panel, rubber, metal, glass, gauge face, stencil, fastener, and subtle wear materials in Blender background mode.
+- [x] 2026-06-22 - Exported shaded `.blend`, shaded `.glb`, baked texture PNGs, material and texture reports, validation report, preview renders, and comparison contact sheet.
+- [x] 2026-06-22 - Validated shaded GLB reimport, runtime node preservation, interaction metadata preservation, dimension stability, and manifest hashes.
+
+### Discoveries
+
+- The approved assembly geometry remains intentionally sparse, so the shading proof uses restrained materials rather than attempting to hide missing cockpit detail.
+- The gauge face needed a slightly translucent charcoal material so extracted label and needle geometry remained readable.
+- The switch cluster remains visually small because Agent 1 source geometry is sparse; Agent 3 did not fabricate substitute geometry.
+
+### Evidence
+
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli run-shading-job` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/dc9-vslice-shading/manifests/shading-complete.json` - pass, hashes verified.
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass, 5 tests.
+- `python3 -m tools.blender.cockpit_pipeline.preflight` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli can-transition --from assembly-approved --to shading_complete` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli can-transition --from shading_complete --to shading-approved` - pass.
+- Visual previews inspected:
+  - `preview-renders/cockpit-pipeline/dc9-vslice-shading/captain-daylight.png`
+  - `preview-renders/cockpit-pipeline/dc9-vslice-shading/captain-dim-instrument-lighting.png`
+  - `preview-renders/cockpit-pipeline/dc9-vslice-shading/yoke-material-close-up.png`
+  - `preview-renders/cockpit-pipeline/dc9-vslice-shading/throttle-material-close-up.png`
+  - `preview-renders/cockpit-pipeline/dc9-vslice-shading/gauge-glass-face-close-up.png`
+  - `preview-renders/cockpit-pipeline/dc9-vslice-shading/switch-cluster-close-up.png`
+  - `preview-renders/cockpit-pipeline/dc9-vslice-shading/neutral-vs-shaded-contact-sheet.svg`
+
+### Outcome
+
+The job reached `shading_complete`, not final visual approval. Human review is required before any final approval or production promotion.
