@@ -1,12 +1,5 @@
-import {
-  createInitialState,
-  GAME_SCHEMA_VERSION,
-  type GameState,
-  type GameMode,
-  type GamePhase,
-  type PuzzleId,
-  type SwitchId,
-} from './state'
+import { createInitialState, type FirstOfficerControl, type GamePhase, type GameState, type LockerInteraction, type PuzzleId, type SwitchId } from './state'
+import { firstOfficerFlow, lockerFlow } from './config'
 
 export const STORAGE_KEY = 'cockpit-escape-room:game-state:v1'
 
@@ -18,12 +11,27 @@ function isString(value: unknown): value is string {
   return typeof value === 'string'
 }
 
-function isSafeMode(value: unknown): value is GameMode {
-  return value === 'crew' || value === 'captain'
+function isSafePhase(value: unknown): value is GamePhase {
+  return (
+    value === 'briefing' ||
+    value === 'airbus' ||
+    value === 'locker' ||
+    value === 'captain' ||
+    value === 'reward' ||
+    value === 'mars'
+  )
 }
 
-function isSafePhase(value: unknown): value is GamePhase {
-  return value === 'briefing' || value === 'power' || value === 'route' || value === 'complete' || value === 'mars'
+function isSafeAssignments(value: unknown): value is Record<FirstOfficerControl, string | null> {
+  if (!value || typeof value !== 'object') return false
+  const candidate = value as Record<string, unknown>
+  const controls = [...firstOfficerFlow.controlIds]
+  return (
+    controls.every((control) => {
+      const raw = candidate[control]
+      return raw === null || typeof raw === 'string'
+    }) && controls.every((control) => Object.prototype.hasOwnProperty.call(candidate, control))
+  )
 }
 
 function isSafeSwitchSequence(value: unknown): value is SwitchId[] {
@@ -37,13 +45,19 @@ function isSafeSwitchSequence(value: unknown): value is SwitchId[] {
 function isSafePuzzleIds(value: unknown): value is PuzzleId[] {
   return (
     Array.isArray(value) &&
-    value.every((entry): entry is PuzzleId => entry === 'power' || entry === 'route') &&
+    value.every((entry): entry is PuzzleId => entry === 'firstOfficer' || entry === 'locker' || entry === 'captain') &&
     hasNoDuplicates(value)
   )
 }
 
-function isSafeRouteSelections(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every(isString) && hasNoDuplicates(value)
+function isSafeLockerCompleted(value: unknown): value is LockerInteraction[] {
+  return (
+    Array.isArray(value) &&
+    value.every((entry): entry is LockerInteraction =>
+      (lockerFlow.requiredInteractionIds as readonly string[]).includes(entry),
+    ) &&
+    hasNoDuplicates(value)
+  )
 }
 
 function isSafeNonNegativeInteger(value: unknown): value is number {
@@ -54,11 +68,17 @@ function isGameState(value: unknown): value is GameState {
   if (!value || typeof value !== 'object') return false
   const candidate = value as Partial<GameState>
   return (
-    candidate.schemaVersion === GAME_SCHEMA_VERSION &&
-    isSafeMode(candidate.mode) &&
+    candidate.schemaVersion === 2 &&
     isSafePhase(candidate.phase) &&
+    isSafeAssignments(candidate.airbusAssignments) &&
+    typeof candidate.airbusClockAnswer === 'string' &&
+    isSafeLockerCompleted(candidate.lockerCompleted) &&
+    typeof candidate.lockerHatRevealed === 'boolean' &&
+    typeof candidate.captainModeUnlocked === 'boolean' &&
     isSafeSwitchSequence(candidate.switchSequence) &&
-    isSafeRouteSelections(candidate.routeSelections) &&
+    Array.isArray(candidate.routeSelections) &&
+    candidate.routeSelections.every((value): value is string => typeof value === 'string') &&
+    candidate.routeSelections.length === new Set(candidate.routeSelections).size &&
     isSafePuzzleIds(candidate.completedPuzzles) &&
     isSafeNonNegativeInteger(candidate.hintsUsed) &&
     typeof candidate.captainRewardUnlocked === 'boolean' &&

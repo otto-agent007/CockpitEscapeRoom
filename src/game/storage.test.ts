@@ -20,7 +20,7 @@ function createMemoryStorage(initial: Record<string, string> = {}) {
 describe('game storage', () => {
   it('round-trips valid saved progress', () => {
     const storage = createMemoryStorage()
-    const state = { ...createInitialState('captain'), phase: 'power' as const }
+    const state = { ...createInitialState(), phase: 'airbus', captainRewardUnlocked: true }
     saveGameState(state, storage)
     expect(loadGameState(storage)).toEqual(state)
   })
@@ -33,7 +33,7 @@ describe('game storage', () => {
 
   it('rejects an outdated schema', () => {
     const storage = createMemoryStorage({
-      [STORAGE_KEY]: JSON.stringify({ ...createInitialState(), schemaVersion: 999 }),
+      [STORAGE_KEY]: JSON.stringify({ ...createInitialState(), schemaVersion: 1 }),
     })
     expect(loadGameState(storage)).toEqual(createInitialState())
   })

@@ -1,8 +1,16 @@
 # CockpitEscapeRoom
 
-A personalized browser escape-room game built around a realistic McDonnell Douglas DC-9 cockpit, a separate realistic Airbus bonus cockpit, a red Tesla Model Y Captain Mode reward, and a hidden Mars mission.
+A personalized, family-first 3D browser escape room honoring Dad as a highly capable former airline pilot.
 
-This repository starts with a **working greybox vertical slice**, not final aircraft art. The slice proves the player loop, Crew/Captain modes, persistent progress, keyboard-accessible controls, the Memphis feeder-route flavor, the reward unlock, and the Mars Easter egg before time is spent on detailed Blender assets.
+The current narrative direction is:
+
+1. **Airbus A320 First-Officer Mode** — accessible drag-and-drop onboarding.
+2. **Locker Room / Captain’s Locker** — personal reveal space and memory-gate progression.
+3. **Pop T Captain Mode in DC-9** — earned legacy cockpit challenge.
+4. **Model Y reveal** — personal reward reveal.
+5. **Optional Mars Easter egg** after the ending.
+
+The DC-9 and Airbus experiences are non-operational fiction, built as respectful family tribute gameplay.
 
 ## Run it
 
@@ -14,6 +22,15 @@ npm run dev
 
 Open the local URL printed by Vite.
 
+## What this repo contains now
+
+- Game design source-of-truth in [`docs/GAME_DESIGN.md`](docs/GAME_DESIGN.md)
+- Current production rules and architecture in [`AGENTS.md`](AGENTS.md) and [`docs/CODEX_WORKFLOW.md`](docs/CODEX_WORKFLOW.md)
+- Progress tracking and milestones in `plans/`
+- Game state and persistence logic in `src/game/`
+- 3D scenes and interaction entry points in `src/scenes/`
+- Blender and asset pipeline under `tools/blender/`, `art-source/`, `public/models/`, and `asset-reports/`
+
 ## Verify it
 
 ```bash
@@ -22,22 +39,30 @@ npm run test:e2e
 npm run assets:check
 ```
 
+Use `npm run dev` and confirm:
+
+- The modern First-Officer onboarding flow runs and gives safe retry/hint behavior.
+- The locker scene reveal sequence unlocks **Pop T Captain Mode** only after required interactions.
+- The DC-9 Captain progression preserves completed progress on wrong answers.
+- The red Tesla reveal stays hidden until the Captain Mode completion.
+- The final message and hidden Mars payoff remain optional and separate.
+
 ## Start with Codex
 
-1. Read [`START_HERE.md`](START_HERE.md).
-2. Open the repository in Codex.
-3. Use Plan mode for the first production milestone.
-4. Paste [`prompts/00_BOOTSTRAP_CODEX.md`](prompts/00_BOOTSTRAP_CODEX.md).
-5. Review the proposed ExecPlan before production cockpit modeling begins.
+1. Read [`AGENTS.md`](AGENTS.md), [`docs/GAME_DESIGN.md`](docs/GAME_DESIGN.md), and current `plans/`.
+2. Open the repository in Codex and run the real checks (`npm run check`, `npm run test:e2e`, `npm run assets:check`) before implementation changes.
+3. Update an active ExecPlan (`plans/`) as edits are made, and keep implementation changes scoped to one milestone at a time.
+4. Preserve the player loop and safe retry behavior; avoid hard resets that erase completed milestones.
 
 ## Important boundaries
 
 - The project name is **CockpitEscapeRoom**.
-- Dad is portrayed as an expert pilot; the story is a commemorative legacy lockout, not a mistake or emergency he caused.
-- The DC-9 and Airbus must be visually convincing, but puzzle procedures remain fictional and non-operational.
-- The Airbus model and exact DC-9 variant are still confirmation items.
+- Dad is portrayed as an expert pilot; the game is a legacy tribute, never an emergency failure scenario.
+- The narrative is locked to `docs/GAME_DESIGN.md`; do not present the legacy reveal before the locker stage is complete.
+- The DC-9 and Airbus flows must remain distinct and production-realistic in their own right.
 - Private, personalized noncommercial builds may include owner-supplied or privately licensed aircraft, airline, and vehicle assets with explicit scope and consent.
 - For any public or distributable release flow, only production aircraft, airline, or vehicle assets with an original-work or license record may be used.
 - Do not implement a Blender MCP until the command-line asset pipeline is proven reliable.
+- Do not remove or rename the greybox label until visual approval milestones are passed.
 
-See [`BLUEPRINT.md`](BLUEPRINT.md) for the full product and delivery blueprint.
+See [`BLUEPRINT.md`](BLUEPRINT.md) for the detailed blueprint and delivery details.

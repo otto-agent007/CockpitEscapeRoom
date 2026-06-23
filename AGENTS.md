@@ -4,7 +4,7 @@
 
 The repository and product are named **CockpitEscapeRoom**. Do not rename the project or reintroduce earlier working titles.
 
-Build a fun, personalized browser escape room honoring an expert pilot who started on McDonnell Douglas DC-9 aircraft and later flew Airbus aircraft. The main level is a highly realistic DC-9 cockpit. The Airbus is a separate realistic bonus level. Captain Mode unlocks a red Tesla Model Y reward. A hidden Mars mission is an Easter egg.
+Build a fun, personalized browser escape room honoring an expert pilot who started on McDonnell Douglas DC-9 aircraft and later flew Airbus aircraft. The gameplay should open in Airbus First-Officer onboarding, transition through a personal locker reveal, then unlock Pop T Captain Mode in a DC-9 legacy cockpit. A red Tesla Model Y reward unlocks after Captain Mode completion, with a hidden Mars mission as an optional Easter egg.
 
 The aircraft is safely parked for a commemorative legacy flight. Never frame Dad as causing an accident, emergency, or systems failure.
 
@@ -12,12 +12,11 @@ The aircraft is safely parked for a commemorative legacy flight. Never frame Dad
 
 Read, in order:
 
-1. `START_HERE.md`
-2. `BLUEPRINT.md`
-3. `docs/GAME_DESIGN.md`
-4. `docs/VISUAL_REALISM.md`
-5. `docs/CODEX_WORKFLOW.md`
-6. `docs/WORKSTREAM_OWNERSHIP.md`
+1. `BLUEPRINT.md`
+2. `docs/GAME_DESIGN.md`
+3. `docs/VISUAL_REALISM.md`
+4. `docs/CODEX_WORKFLOW.md`
+5. `docs/WORKSTREAM_OWNERSHIP.md`
 7. The closest applicable `AGENTS.md`, Skill, and active ExecPlan
 
 Inspect the existing tree and Git status before editing. Preserve unrelated work.

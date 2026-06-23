@@ -2,12 +2,13 @@
 
 ## Functional
 
-- Every required puzzle has a correct path, wrong path, repeated-wrong path, and progressive hints.
+- Every required phase has correct path, wrong path recovery, repeated wrong-path recovery, and progressive hints.
 - Completed puzzles are never erased by an ordinary mistake.
 - Reload resumes safely.
 - Corrupt and outdated saves recover without a blank screen.
 - Restart requires confirmation and can be canceled.
-- Final reveals cannot run twice accidentally.
+- Final reward reveal does not run twice accidentally.
+- Model Y must remain hidden until after Captain Mode is complete.
 
 ## Accessibility
 

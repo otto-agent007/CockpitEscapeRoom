@@ -1,5 +1,6 @@
-import { dc9Atmosphere, gameCopy, personalization } from '../game/config'
-import { gameProgress, SWITCH_ORDER, type GameAction, type GameState, type SwitchId } from '../game/state'
+import { useState } from 'react'
+import { dc9LegacyFlow, firstOfficerFlow, gameCopy, lockerFlow, type FirstOfficerControl, type LockerInteraction } from '../game/config'
+import { SWITCH_ORDER, gameProgress, type GameAction, type GameState, type SwitchId } from '../game/state'
 
 interface HudProps {
   state: GameState
@@ -13,14 +14,32 @@ const switchLabels: Record<SwitchId, string> = {
   cabin: 'Cabin circuit',
 }
 
+const lockerItems: ReadonlyArray<LockerInteraction> = [...lockerFlow.requiredInteractionIds]
+
 export function Hud({ state, dispatch, onRestart }: HudProps) {
+  const [airbusClockInput, setAirbusClockInput] = useState(state.airbusClockAnswer)
+  const [watchInput, setWatchInput] = useState('')
+  const [baseballInput, setBaseballInput] = useState('')
+  const [checklistInput, setChecklistInput] = useState('')
   const selectedRoutes = new Set(state.routeSelections)
+
+  const isComplete = (id: FirstOfficerControl) => state.airbusAssignments[id] === firstOfficerFlow.controlMatch[id]
 
   return (
     <aside className="hud" aria-label="Game controls">
       <div className="hud__topline">
-        <span className="eyebrow">{state.mode === 'captain' ? 'Captain Mode' : 'Crew Mode'}</span>
-        <span>{gameProgress(state)}% restored</span>
+        <span className="eyebrow">
+          {state.phase === 'airbus'
+            ? 'Airbus First-Officer Mode'
+            : state.phase === 'locker'
+              ? 'Locker reveal'
+              : state.phase === 'captain'
+                ? 'Pop T Captain Mode'
+                : state.phase === 'reward'
+                  ? 'Hangar access'
+                  : 'Completion beat'}
+        </span>
+        <span>{gameProgress(state)}% complete</span>
       </div>
 
       <progress max={100} value={gameProgress(state)} aria-label="Puzzle progress" />
@@ -29,42 +48,191 @@ export function Hud({ state, dispatch, onRestart }: HudProps) {
         {state.statusMessage}
       </div>
 
-      {state.phase === 'power' && (
-        <section aria-labelledby="power-heading">
-          <h2 id="power-heading">1. Fictional power sequence</h2>
-          <p>
-            {state.mode === 'captain'
-              ? 'Use the compact panel clues. A wrong attempt resets only this sequence.'
-              : 'Restore the three circuits in a logical order. The 3D switches and these buttons control the same state.'}
-          </p>
-          <div className="control-grid">
-            {SWITCH_ORDER.map((switchId) => {
-              const active = state.switchSequence.includes(switchId)
-              return (
-                <button
-                  key={switchId}
-                  type="button"
-                  className="control-button"
-                  aria-pressed={active}
-                  onClick={() => dispatch({ type: 'ACTIVATE_SWITCH', switchId })}
+      {state.phase === 'airbus' && (
+        <section aria-labelledby="airbus-heading">
+          <h2 id="airbus-heading">Airbus First-Officer onboarding</h2>
+          <p>Match each label card to the correct control in a drag-and-drop style interaction.</p>
+          {firstOfficerFlow.controlIds.map((control) => (
+            <div key={control} style={{ marginBottom: '0.75rem' }}>
+              <label>
+                <span>
+                  {firstOfficerFlow.controlLabels[control]} ({firstOfficerFlow.controlMatch[control]})
+                </span>
+                <select
+                  aria-label={`Select card for ${firstOfficerFlow.controlLabels[control]}`}
+                  value={state.airbusAssignments[control] ?? ''}
+                  onChange={(event) =>
+                    dispatch({ type: 'ASSIGN_AIRBUS_CARD', control, card: event.target.value === '' ? '' : event.target.value })
+                  }
                 >
-                  <span>{state.mode === 'captain' ? switchId.slice(0, 3).toUpperCase() : switchLabels[switchId]}</span>
-                  <strong>{active ? 'Latched' : 'Ready'}</strong>
-                </button>
-              )
-            })}
-          </div>
+                  <option value="">Pick card…</option>
+                  {firstOfficerFlow.controlCards.map((card) => (
+                    <option key={card} value={card}>
+                      {card}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <span style={{ fontSize: '0.9rem' }}>
+                {state.airbusAssignments[control]
+                  ? isComplete(control)
+                    ? 'Correct.'
+                    : 'Checking…'
+                  : 'Unmatched'}
+              </span>
+              <p>{state.airbusAssignments[control] ? firstOfficerFlow.controlHints[control] : ''}</p>
+            </div>
+          ))}
+
+          <p className="primary-note">{firstOfficerFlow.clockQuestion}</p>
+          <label>
+            <span>ATP answer</span>
+            <input
+              type="text"
+              value={airbusClockInput}
+              onChange={(event) => {
+                setAirbusClockInput(event.target.value)
+                dispatch({ type: 'SET_AIRBUS_CLOCK_ANSWER', value: event.target.value })
+              }}
+              inputMode="numeric"
+              aria-label="ATP answer"
+            />
+          </label>
+          <button
+            type="button"
+            className="primary-button"
+            onClick={() => dispatch({ type: 'SUBMIT_AIRBUS_CLOCK' })}
+          >
+            Verify First-Officer challenge
+          </button>
+          <p>Correctly complete all matches and submit to unlock the locker.</p>
         </section>
       )}
 
-      {state.phase === 'route' && (
-        <section aria-labelledby="route-heading">
-          <h2 id="route-heading">2. Memphis feeder route</h2>
-          <p>
-            Select three short-haul routes that fit the Southern funnel into {personalization.homeBaseAirport}. The details add atmosphere; this is not a history exam.
-          </p>
+      {state.phase === 'locker' && (
+        <section aria-labelledby="locker-heading">
+          <h2 id="locker-heading">Locker reveal sequence</h2>
+          <p>Inspect each object. A hidden reward reveal waits for all locker moments to complete.</p>
+
+          <label>
+            <span>{lockerFlow.interactions.watch.label}</span>
+            <input
+              type="text"
+              value={watchInput}
+              onChange={(event) => setWatchInput(event.target.value)}
+              placeholder="Right-seat hours"
+            />
+            <button
+              type="button"
+              className="secondary-button"
+              aria-label="Confirm watch answer"
+              disabled={state.lockerCompleted.includes('watch')}
+              onClick={() => {
+                dispatch({ type: 'COMPLETE_LOCKER_OBJECT', objectId: 'watch', response: watchInput })
+              }}
+            >
+              Confirm
+            </button>
+          </label>
+
+          <label>
+            <span>{lockerFlow.interactions.baseball.label}</span>
+            <input
+              type="text"
+              value={baseballInput}
+              onChange={(event) => setBaseballInput(event.target.value)}
+              placeholder="Name"
+            />
+            <button
+              type="button"
+              className="secondary-button"
+              aria-label="Confirm baseball answer"
+              disabled={state.lockerCompleted.includes('baseball')}
+              onClick={() => {
+                dispatch({ type: 'COMPLETE_LOCKER_OBJECT', objectId: 'baseball', response: baseballInput })
+              }}
+            >
+              Confirm
+            </button>
+          </label>
+
+          {lockerItems
+            .filter((item) => item !== 'watch' && item !== 'baseball')
+            .map((item) => (
+              <button
+                key={item}
+                type="button"
+                className="secondary-button"
+                aria-label={`Inspect ${lockerFlow.interactions[item].label}`}
+                disabled={state.lockerCompleted.includes(item)}
+                onClick={() => {
+                  const payload: { type: 'COMPLETE_LOCKER_OBJECT'; objectId: LockerInteraction; response?: string } = {
+                    type: 'COMPLETE_LOCKER_OBJECT',
+                    objectId: item,
+                  }
+                  if (item === 'checklist') {
+                    payload.response = checklistInput
+                  }
+                  dispatch(payload)
+                }}
+              >
+                {state.lockerCompleted.includes(item)
+                  ? `${lockerFlow.interactions[item].label} complete`
+                  : `Inspect ${lockerFlow.interactions[item].label}`}
+              </button>
+            ))}
+
+          <label>
+            <span>{lockerFlow.interactions.checklist.label}</span>
+            <input
+              type="text"
+              value={checklistInput}
+              onChange={(event) => setChecklistInput(event.target.value)}
+              placeholder="Power,Lights,Route,Crew,Release"
+            />
+          </label>
+
+          <p>{lockerFlow.hatText.hiddenText}</p>
+
+          <button
+            type="button"
+            className="primary-button"
+            disabled={!state.lockerHatRevealed}
+            aria-label="Complete captain hat reveal"
+            onClick={() => dispatch({ type: 'REVEAL_CAPTAIN_HAT' })}
+          >
+            {state.lockerHatRevealed ? 'Touch the captain’s hat' : 'Complete locker inspection first'}
+          </button>
+        </section>
+      )}
+
+      {(state.phase === 'airbus' || state.phase === 'locker') && (
+        <button type="button" className="secondary-button" onClick={() => dispatch({ type: 'USE_HINT' })}>
+          Request progressive hint
+        </button>
+      )}
+
+      {state.phase === 'captain' && (
+        <section aria-labelledby="captain-heading">
+          <h2 id="captain-heading">{dc9LegacyFlow.title}</h2>
+          <p>{dc9LegacyFlow.subtitle}</p>
+          <div className="control-grid">
+            {SWITCH_ORDER.map((switchId) => (
+              <button
+                key={switchId}
+                type="button"
+                className="control-button"
+                aria-pressed={state.switchSequence.includes(switchId)}
+                onClick={() => dispatch({ type: 'ACTIVATE_SWITCH', switchId })}
+              >
+                <span>{switchLabels[switchId]}</span>
+                <strong>{state.switchSequence.includes(switchId) ? 'Latched' : 'Ready'}</strong>
+              </button>
+            ))}
+          </div>
+
           <div className="route-grid">
-            {dc9Atmosphere.routePuzzleOptions.map((route) => (
+            {dc9LegacyFlow.routePuzzleOptions.map((route) => (
               <button
                 key={route.code}
                 type="button"
@@ -73,56 +241,47 @@ export function Hud({ state, dispatch, onRestart }: HudProps) {
                 onClick={() => dispatch({ type: 'TOGGLE_ROUTE', code: route.code })}
               >
                 <strong>{route.code}</strong>
-                {state.mode === 'crew' && <span>{route.city}</span>}
+                <span>{route.city}</span>
               </button>
             ))}
           </div>
+
           <button
             type="button"
             className="primary-button"
-            disabled={state.routeSelections.length !== dc9Atmosphere.routePuzzleAnswers.length}
+            disabled={state.routeSelections.length !== dc9LegacyFlow.routePuzzleAnswers.length}
             onClick={() => dispatch({ type: 'SUBMIT_ROUTE' })}
           >
-            Submit route strip
+            Submit captain legacy strip
           </button>
+          <p>{dc9LegacyFlow.routeQuestion}</p>
         </section>
       )}
 
-      {state.phase === 'complete' && (
-        <section aria-labelledby="complete-heading">
-          <h2 id="complete-heading">Legacy flight complete</h2>
+      {state.phase === 'reward' && (
+        <section aria-labelledby="reward-heading">
+          <h2 id="reward-heading">Ground transport release</h2>
+          <p>{gameCopy.rewardTitle}</p>
+          <p>{gameCopy.rewardVehicleLine}</p>
           <p>{gameCopy.finalMessage}</p>
-          {state.captainRewardUnlocked ? (
-            <div className="reward-card">
-              <span className="eyebrow">Captain Mode reward</span>
-              <strong>{gameCopy.captainReward}</strong>
-              <span>The 3D car is an intentionally simple proxy until an original or licensed production asset is approved.</span>
-            </div>
-          ) : (
-            <p>Restart and select Captain Mode to unlock the red Model Y hangar reward.</p>
-          )}
-          <button type="button" className="mars-button" onClick={() => dispatch({ type: 'UNLOCK_MARS' })}>
-            Inspect the tiny red destination light
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => dispatch({ type: 'UNLOCK_MARS' })}
+          >
+            Request Mars option
           </button>
         </section>
       )}
 
       {state.phase === 'mars' && (
         <section aria-labelledby="mars-heading">
-          <span className="eyebrow">Hidden mission</span>
-          <h2 id="mars-heading">Mars diversion accepted</h2>
-          <p>{gameCopy.marsRank}</p>
-          <p>The final game will hide this trigger inside the realistic Airbus bonus cockpit.</p>
-          <button type="button" className="primary-button" onClick={() => dispatch({ type: 'RETURN_TO_COMPLETE' })}>
-            Return to the hangar
+          <h2 id="mars-heading">{gameCopy.marsRank}</h2>
+          <p>{gameCopy.hiddenEasterEgg.message}</p>
+          <button type="button" className="primary-button" onClick={() => dispatch({ type: 'RETURN_TO_REWARD' })}>
+            Return to hangar
           </button>
         </section>
-      )}
-
-      {(state.phase === 'power' || state.phase === 'route') && (
-        <button type="button" className="secondary-button" onClick={() => dispatch({ type: 'USE_HINT' })}>
-          Request progressive hint
-        </button>
       )}
 
       <button type="button" className="text-button" onClick={onRestart}>
