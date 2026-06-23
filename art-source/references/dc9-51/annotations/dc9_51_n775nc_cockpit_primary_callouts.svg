@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="960" viewBox="0 0 1280 960" role="img" aria-labelledby="title desc">
+  <title id="title">DC-9-51 N775NC cockpit primary reference callouts</title>
+  <desc id="desc">Annotated zones for the CockpitEscapeRoom DC-9 cockpit reference image. Coordinates are approximate and intended for modeling briefs, not pixel-perfect tracing.</desc>
+  <defs>
+    <style>
+      .photo { opacity: 0.42; }
+      .zone { fill: rgba(255, 214, 89, 0.16); stroke: #ffd659; stroke-width: 3; }
+      .zone-secondary { fill: rgba(100, 190, 255, 0.14); stroke: #64beff; stroke-width: 3; }
+      .zone-critical { fill: rgba(255, 110, 85, 0.15); stroke: #ff6e55; stroke-width: 3; }
+      .label { font-family: Inter, Arial, sans-serif; font-size: 22px; font-weight: 700; fill: #fff7d6; paint-order: stroke; stroke: #111; stroke-width: 5px; stroke-linejoin: round; }
+      .small { font-size: 17px; font-weight: 600; }
+      .note { font-size: 18px; fill: #ffffff; paint-order: stroke; stroke: #111; stroke-width: 4px; }
+    </style>
+  </defs>
+
+  <image class="photo" href="../primary/dc9_51_n775nc_cockpit_primary.jpg" x="0" y="0" width="1280" height="960" preserveAspectRatio="xMidYMid meet" />
+
+  <rect x="255" y="255" width="790" height="400" rx="10" class="zone-critical" />
+  <text x="270" y="282" class="label">main analog instrument panel</text>
+
+  <rect x="350" y="130" width="575" height="145" rx="10" class="zone" />
+  <text x="365" y="162" class="label">glareshield / autopilot / annunciators</text>
+
+  <rect x="410" y="615" width="445" height="330" rx="10" class="zone-critical" />
+  <text x="425" y="646" class="label">throttle pedestal + radios</text>
+
+  <rect x="0" y="0" width="1280" height="130" rx="10" class="zone-secondary" />
+  <text x="25" y="45" class="label">overhead panel density reference</text>
+  <text x="25" y="77" class="note">needs close-up sources before production modeling</text>
+
+  <rect x="80" y="460" width="315" height="360" rx="14" class="zone-critical" />
+  <text x="95" y="492" class="label">captain yoke</text>
+  <text x="95" y="520" class="small label">shape, column, checklist placard</text>
+
+  <rect x="890" y="460" width="315" height="360" rx="14" class="zone-critical" />
+  <text x="905" y="492" class="label">first officer yoke</text>
+  <text x="905" y="520" class="small label">symmetry + placement check</text>
+
+  <rect x="470" y="315" width="335" height="245" rx="12" class="zone" />
+  <text x="485" y="348" class="label">center gauge stack</text>
+  <text x="485" y="377" class="small label">engine / systems density</text>
+
+  <rect x="5" y="140" width="220" height="680" rx="12" class="zone-secondary" />
+  <text x="22" y="175" class="label">left sidewall</text>
+  <text x="22" y="203" class="small label">needs extra source</text>
+
+  <rect x="1055" y="140" width="220" height="680" rx="12" class="zone-secondary" />
+  <text x="1070" y="175" class="label">right sidewall</text>
+  <text x="1070" y="203" class="small label">needs extra source</text>
+
+  <rect x="235" y="130" width="815" height="155" rx="10" fill="none" stroke="#ffffff" stroke-width="2" stroke-dasharray="10 8" />
+  <text x="245" y="119" class="note">windshield frame / wiper / daylight framing</text>
+
+  <text x="32" y="920" class="note">Primary target: DC-9-51 / Northwest Airlines / N775NC. Use as visual reference, not texture source.</text>
+</svg>
