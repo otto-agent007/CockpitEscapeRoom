@@ -216,11 +216,85 @@ Use this loop whenever a stage is about to consume another stage's output or pub
 - Do not treat preview render inspection as final visual approval.
 - Do not update Windows-owned browser code or `TEST_REPORT.md` from this Ubuntu loop.
 
+### Source discovery quality loop
+
+Unpublished CockpitEscapeRoom adaptation for Agent 1 source selection.
+
+Use this loop before Agent 1 publishes any source handoff. The goal is not to prove that a simulator or open-source model is production-correct. The goal is to make Agent 1 show that it looked for better component sources, ranked what it found, and warned Agent 2 about source limitations before assembly starts.
+
+#### Trigger
+
+- Agent 1 starts a new DC-9 source batch.
+- Agent 1 adds or replaces a source component candidate.
+- A source category has only one candidate.
+- A candidate has weak variant match, sparse geometry, missing animation metadata, unsupported formats, unclear source hierarchy, or poor preview evidence.
+
+#### Candidate record
+
+Every candidate, selected or rejected, must record:
+
+- component category and candidate ID
+- source URL or local source collection
+- resolved revision, when available
+- source path inside the source collection
+- source variant
+- target variant and `variantScope`
+- intended use in the CockpitEscapeRoom pipeline
+- confidence: `high`, `medium`, or `low`
+- reasons for the confidence rating
+- known limitations
+- extraction or import route used
+- preview path, validation report path, and metadata path when generated
+
+#### Cycle
+
+1. Read fresh source state:
+   - current job JSON
+   - existing component catalog
+   - source inventory, XML/reference report, extraction report, and previews
+   - unresolved DC-9 variant notes
+2. Search or inspect alternatives within the allowed source scope:
+   - require at least one alternative candidate for each component category when practical
+   - if no viable alternative is found, record `no viable alternative found` with inspected paths, query terms, or source areas
+   - do not silently mix DC-9 variants, MD-80 layouts, or unrelated cockpit geometry
+3. Rank candidates within each component category:
+   - variant match and cockpit-area specificity
+   - component completeness and grouping
+   - geometry readability from the intended cockpit view
+   - pivot, hierarchy, animation, or XML relationship evidence
+   - material/texture availability as source evidence, not final production quality
+   - import reliability and reimport validation
+   - licensing or private-use notes when known
+4. Select the handoff candidate:
+   - record selection reasons
+   - record rejected candidates and rejection reasons
+   - record confidence and downstream assembly warnings
+   - preserve `sourceVariant`, `targetVariant`, and `variantScope`
+5. Verify and record:
+   - regenerate candidate metadata, preview, validation report, and catalog when the selection changes
+   - validate the source-stage manifest after publication
+   - update the source report with selected candidate, alternatives considered, rejected candidates, confidence, limitations, and next trigger
+6. Stop with one explicit outcome:
+   - `success`: selected candidates are ranked, validated, previewed, and recorded
+   - `clean no-op`: existing ranked candidates and alternatives are still current
+   - `approval-required`: source handoff is complete and needs owner review before assembly
+   - `blocked`: no credible candidate exists for a required category or source access is unavailable
+   - `no-progress`: repeated source discovery does not improve confidence or evidence
+
+#### Safety checks
+
+- Do not claim a source candidate is production-correct unless model-specific reference evidence supports it.
+- Do not fabricate missing geometry or animation relationships during sourcing.
+- Do not treat a keyword match as a cockpit-component match without preview or hierarchy evidence.
+- Do not use one source candidate per category by default; either compare alternatives or explain why no viable alternative was found.
+- Do not let a high-confidence visual candidate override variant, licensing, or runtime-contract warnings.
+
 ### Source Review Gate
 
 Required before Agent 2:
 
 - component catalog
+- source candidate ranking with selected and rejected candidates
 - candidate metadata
 - candidate GLBs
 - preview PNGs
