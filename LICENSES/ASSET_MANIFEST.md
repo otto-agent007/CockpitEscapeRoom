@@ -1,6 +1,6 @@
 # Asset source and license manifest
 
-No external production assets are included in the starter pack.
+No external production assets are included in the current prototype flow.
 
 Private, personalized noncommercial builds may import owner-supplied or privately licensed aircraft, airline, and vehicle assets when explicitly scoped and consented, and when they are not intended for public/distributable release.
 

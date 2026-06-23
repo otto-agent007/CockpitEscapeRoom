@@ -7,7 +7,7 @@ Use short-lived branches and pull requests. The starter includes CI for lint, Ty
 Recommended branch progression:
 
 ```text
-chore/bootstrap-starter-pack
+chore/design-sync
 asset/dc9-pipeline-proof
 feature/dc9-first-puzzle
 feature/dc9-main-game
@@ -26,7 +26,7 @@ Framework preset: Vite
 Install command: npm install
 Build command: npm run build
 Output directory: dist
-Node.js: 22.x
+Node.js: 24.x
 ```
 
 Every pull request should receive a preview deployment. Use that URL for owner visual approval and phone testing.

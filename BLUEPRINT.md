@@ -2,27 +2,49 @@
 
 ## 1. Core thesis
 
-CockpitEscapeRoom is a personalized Father’s Day escape-room game that uses aviation realism as emotional credibility, not as a flight-training exercise. The experience honors an accomplished pilot’s move from the analog DC-9 era to a modern Airbus cockpit, while weaving in his interest in investing, technology, Elon Musk, a recently purchased red Tesla Model Y, and Mars exploration.
-
-The product succeeds when a former pilot recognizes the cockpits, the family can still solve the game, and the personal reward feels earned.
+CockpitEscapeRoom is a personalized Father’s Day tribute flow with one emotional arc:
+Airbus First-Officer onboarding → locker memory reveal → Pop T Captain Mode in the DC-9 → hidden Model Y reveal.
 
 ## 2. Player and occasion
 
-The primary honoree is a former pilot who began on DC-9s and later flew Airbus aircraft. The primary players are family members with mixed aviation knowledge. The game should work as a shared Father’s Day event on a laptop or large screen, with phone and tablet support for convenience.
+The honoree is a former pilot who began on DC-9 and later flew Airbus aircraft. The game should remain ceremonial and family-friendly.
 
-The game is not built around the captain failing. The aircraft is safely parked for a commemorative legacy flight. The family crew is reconstructing lessons and memories to unlock the hangar and reveal the reward.
+Wrong choices should never erase earned milestones. The aircraft is safely parked; this is legacy, not an emergency.
 
 ## 3. Experience structure
 
-The approved structure is:
+1. **Airbus A320 First-Officer Mode** onboarding.
+2. **Locker room sequence** with personal memory objects.
+3. **Pop T Captain Mode** (DC-9 legacy checklist challenge).
+4. **Red Tesla Model Y reveal** as the personal reward.
+5. **Optional Mars Easter egg** after completion.
 
-1. DC-9 main escape room.
-2. Optional Captain Mode with slightly leaner clues and more authentic aviation flavor.
-3. Red Tesla Model Y reward after Captain Mode completion.
-4. Separate Airbus bonus level using a model-specific cockpit.
-5. Hidden Mars mission Easter egg.
+## 4. Player loop
 
-The production game should use roughly five short DC-9 puzzles and one substantial Airbus bonus challenge. The starter slice implements two representative puzzles so the interaction model can be tested before the full content is authored.
+**Observe → inspect → decide → feedback → retry or hint → unlock next layer → reveal personal reward → advance**
+
+Wrong answers must never erase completed stages.
+
+## 5. Story and spoiler rules
+
+- Airbus is the first gameplay layer and should not reveal DC-9 or Model Y spoilers.
+- Do not show the Model Y before final Captain Mode completion and hangar reveal.
+- The DC-9 is personal and more dense than Airbus.
+
+## 6. Technical direction
+
+- Vite + React + TypeScript + React Three Fiber + Three.js.
+- Pure reducer/state in `src/game`, presentation in `src/scenes`, controls and status in `src/components`.
+- Load Airbus first, then DC-9 and reward layers as unlocked.
+- Keep hints progressive and persistent saves robust.
+
+## 7. Delivery priorities
+
+1. Stable First-Officer matcher and clock gate.
+2. Locker memory interaction and hat-reveal gate.
+3. DC-9 checklist/route sequence.
+4. Reward reveal UI and final closing message.
+5. Mars optional trigger.
 
 ## 4. Player loop
 
