@@ -258,3 +258,56 @@ Execute Agent 3 shading using the approved Agent 2 neutral assembly. The output 
 ### Outcome
 
 The job reached `shading_complete`, not final visual approval. Human review is required before any final approval or production promotion.
+
+## Loop Discovery Checkpoint: Stage Handoff Validation
+
+### Purpose
+
+Use `$loop-discovery`, `$loop-doctor`, and `$blender-web-assets` to identify the highest-value repeated Ubuntu/Blender workflow and make one small durable improvement without expanding the pipeline or touching Windows-owned paths.
+
+### Files inspected
+
+- `AGENTS.md`
+- `docs/WORKSTREAM_OWNERSHIP.md`
+- `docs/CODEX_WORKFLOW.md`
+- `docs/MCP_AND_SKILLS.md`
+- `docs/VISUAL_REALISM.md`
+- `docs/ASSET_CONTRACT.md`
+- `docs/BLENDER_PIPELINE.md`
+- `.agents/skills/loop-discovery/SKILL.md`
+- `.agents/skills/loop-doctor/SKILL.md`
+- `.agents/skills/blender-web-assets/SKILL.md`
+- `tools/blender/AGENTS.md`
+- `tools/blender/cockpit_pipeline/pipeline_cli.py`
+- `tools/blender/cockpit_pipeline/prompts/agent1-sourcing.md`
+- `tools/blender/cockpit_pipeline/prompts/agent2-assembly.md`
+- `tools/blender/cockpit_pipeline/prompts/agent3-shading.md`
+- `asset-reports/cockpit-pipeline/dc9-three-agent-foundation.md`
+- `asset-reports/cockpit-pipeline/dc9-32-flightgear-source-vslice/source-job-report.md`
+- `asset-reports/cockpit-pipeline/dc9-vslice-assembly/assembly-report.md`
+- `asset-reports/cockpit-pipeline/dc9-vslice-shading/shading-report.md`
+- `art-source/cockpit-pipeline/THREE_AGENT_PLAYBOOK.md`
+
+### Candidate chosen
+
+Stage handoff validation loop. The foundation, source, assembly, and shading passes all repeated a high-value cycle: read fresh state, validate job or upstream manifest, run a bounded stage command when approval exists, validate output hashes, inspect preview evidence, record a stage report, and stop at success, clean no-op, approval-required, blocked, or no-progress.
+
+### Loop diagnosis
+
+`$loop-doctor` verdict: repair needed, then ready. The repeated cycle was present but scattered across reports, prompts, and CLI commands. The repair was to add an explicit unpublished CockpitEscapeRoom stage handoff validation loop to `art-source/cockpit-pipeline/THREE_AGENT_PLAYBOOK.md`, including fresh-state checks, bounded action choices, reproducible validation commands, handoff records, and stop conditions.
+
+### Files changed
+
+- `art-source/cockpit-pipeline/THREE_AGENT_PLAYBOOK.md`
+- `asset-reports/cockpit-pipeline/stage-handoff-loop-discovery.md`
+- `art-source/cockpit-pipeline/EXEC_PLAN.md`
+
+### Validation evidence
+
+- `python3 -m tools.blender.cockpit_pipeline.preflight` - pass; reported Blender 5.1.2 and dirty status as report-only.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/dc9-vslice-shading/manifests/shading-complete.json` - pass, hashes verified.
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass, 5 tests.
+
+### Remaining limitation
+
+No Blender scene, GLB, material, texture, or script changed, so `$blender-web-assets` does not require export, render, or browser preview for this checkpoint. The future production handoff still needs owner visual approval before any `shading_complete` output is treated as final.

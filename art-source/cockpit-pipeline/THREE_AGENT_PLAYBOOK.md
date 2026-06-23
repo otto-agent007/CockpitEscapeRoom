@@ -158,6 +158,64 @@ A batch cannot skip a stage. A batch cannot move to the next stage without the r
 
 ## Required review gates
 
+### Stage handoff validation loop
+
+Unpublished CockpitEscapeRoom adaptation, derived from the completed foundation, source, assembly, and shading passes.
+
+Use this loop whenever a stage is about to consume another stage's output or publish a new stage handoff. It is intentionally smaller than a new Skill: the pipeline already has commands and reports, but the repeatable cycle needs to stay explicit so agents do not act on stale approvals or incomplete evidence.
+
+#### Trigger
+
+- Agent 1 starts a new source batch.
+- Agent 2 is about to consume source outputs.
+- Agent 3 is about to consume assembly outputs.
+- Any stage report, manifest, GLB, texture set, preview render, layout, pivot policy, or material recipe changes.
+
+#### Cycle
+
+1. Read fresh state:
+   - `git status --short --branch`
+   - current stage job JSON
+   - required upstream approval file, if this is Agent 2 or Agent 3
+   - required upstream manifest
+   - latest stage report and preview evidence
+2. Choose one bounded action:
+   - validate only, if evidence is stale or approval is missing
+   - rerun the current stage job, if the input contract is valid
+   - stop for owner review, if the previous stage is complete but not approved
+   - stop for Windows/browser handoff, if the change requires app integration
+3. Verify with reproducible evidence:
+   - `python3 -m tools.blender.cockpit_pipeline.preflight`
+   - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-job <job.json>`
+   - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest <required-upstream-manifest>`
+   - stage command, when acting: `run-source-job`, `run-assembly-job`, or `run-shading-job`
+   - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest <new-output-manifest>`
+   - `python3 -m unittest discover tools/blender/cockpit_pipeline/tests`
+   - visual inspection of the generated preview renders or contact sheet
+4. Record the handoff:
+   - branch and commit
+   - job ID and batch ID, if applicable
+   - upstream approval file consumed
+   - commands actually run and pass/fail results
+   - generated files and manifest path
+   - preview paths inspected
+   - known limitations and next stage
+   - any runtime contract changes for Windows/browser integration
+5. Stop with one explicit outcome:
+   - `success`: manifest hashes verify, previews are inspected, and the stage report is updated
+   - `clean no-op`: current evidence is already valid and no files need changes
+   - `approval-required`: a stage is complete but lacks human approval for the next stage
+   - `blocked`: required input, Blender, cache, or approval evidence is unavailable
+   - `no-progress`: the same validation failure remains after a bounded repair attempt
+
+#### Safety checks
+
+- Do not consume a `*_complete` stage as approved unless a matching human approval file exists and is listed in the stage report.
+- Do not rerun a downstream job from a stale branch or dirty worktree without recording why dirty state is acceptable.
+- Do not overwrite generated GLBs by hand.
+- Do not treat preview render inspection as final visual approval.
+- Do not update Windows-owned browser code or `TEST_REPORT.md` from this Ubuntu loop.
+
 ### Source Review Gate
 
 Required before Agent 2:
