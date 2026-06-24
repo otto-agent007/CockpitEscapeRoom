@@ -453,6 +453,8 @@ Default stack:
 - GitHub
 - Vercel preview deployments
 
+Tripo AI may support rapid 3D candidate generation for props, blockouts, or exploratory asset passes. It is not story canon and does not decide aircraft accuracy, progression, or final production approval.
+
 Keep asset groups separate and lazy-loaded:
 
 - Airbus A320 First-Officer cockpit

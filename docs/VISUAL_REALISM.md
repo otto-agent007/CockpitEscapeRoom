@@ -2,7 +2,7 @@
 
 ## Goal
 
-A former DC-9 pilot should recognize the main cockpit immediately from the captain’s viewpoint. A former Airbus pilot should recognize the bonus cockpit as the exact model selected. Realism comes from correct proportions, materials, camera placement, lighting, and familiar visual relationships—not from simulating every operational system.
+A former DC-9 pilot should recognize the main cockpit immediately from the captain’s viewpoint. A former Airbus pilot should recognize the First-Officer cockpit as the exact model selected. Realism comes from correct proportions, materials, camera placement, lighting, and familiar visual relationships—not from simulating every operational system.
 
 ## Reference policy
 

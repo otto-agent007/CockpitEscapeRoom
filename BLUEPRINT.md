@@ -66,13 +66,13 @@ The DC-9 level celebrates the aircraft as a durable short-haul workhorse in the 
 
 Completing Captain Mode opens the hangar and reveals a red Model Y. The production reward scene may use a playful plate such as `CAPT DAD`, `DC9 2 EV`, `MEM FLYR`, or `MARS 09` after the owner chooses one.
 
-The Airbus bonus represents type transition and adaptability. A hidden Mars control turns the Model Y into a humorous surface vehicle and awards the rank “Commander, Mars Transport Division.”
+The Airbus First-Officer opening represents type transition and adaptability. A hidden Mars control turns the Model Y into a humorous surface vehicle and awards the rank “Commander, Mars Transport Division.”
 
 ## 7. Visual realism standard
 
 The DC-9 must read immediately as a DC-9 from the captain’s seat. Required qualities include correct major geometry, analog instrument density, center-panel proportions, yokes, overhead and pedestal relationships, era-appropriate panel color, believable wear, glass, labels, restrained annunciator light, and a convincing captain-eye camera.
 
-The Airbus bonus must be a completely separate cockpit asset. It may not be a recolored or rearranged DC-9. The exact Airbus model must be confirmed before final modeling because display, side-stick, flight-control-unit, overhead, pedestal, and lighting details depend on the model.
+The Airbus First-Officer cockpit must be a completely separate asset. It may not be a recolored or rearranged DC-9. The exact Airbus model must be confirmed before final modeling because display, side-stick, flight-control-unit, overhead, pedestal, and lighting details depend on the model.
 
 Visual accuracy and puzzle behavior are separated: the cockpit can look authentic while the interactive sequences remain fictional.
 
@@ -87,7 +87,7 @@ HTML overlays carry instructions, hints, settings, captions, and accessible alte
 Each production scene has its own master file and deployable GLB:
 
 - `dc9_master.blend` → `dc9-cockpit.glb`
-- `airbus_master.blend` → `airbus-bonus.glb`
+- `airbus_master.blend` → `airbus-first-officer.glb`
 - `tesla_reward.blend` → `model-y-reward.glb`
 
 The pipeline validates roots, cameras, pivots, object names, `game_id` values, textures, materials, scale, and GLB structure before copying an asset into `public/models`.
@@ -119,15 +119,15 @@ The loop stops when validation passes, the maximum bounded attempts are reached,
 
 **Phase 0 — Bootstrap:** working greybox, docs, tests, CI, Vercel preview, Blender scripts.
 
-**Phase 1 — DC-9 visual proof:** captain-eye blockout, three switches, one gauge, one annunciator, one route card, browser integration.
+**Phase 1 — Airbus First-Officer proof:** approachable cockpit landmarks, drag-and-drop object matching, clock gate, browser integration.
 
-**Phase 2 — DC-9 vertical slice:** one polished puzzle with approved materials, sound, lighting, interaction, keyboard equivalent, and performance budget.
+**Phase 2 — locker reveal proof:** personal locker objects, captain’s hat reveal, accessible inspection flow, and spoiler-safe transition.
 
-**Phase 3 — Main game:** five short puzzles, progressive hints, saved progress, final hangar opening.
+**Phase 3 — DC-9 Captain Mode proof:** captain-eye blockout, analog checklist puzzle, route card, browser integration, and owner visual gate.
 
 **Phase 4 — Captain reward:** original or licensed red Model Y asset, achievement card, optional plate.
 
-**Phase 5 — Airbus bonus:** model-specific cockpit, one substantial transition puzzle, separate bundle.
+**Phase 5 — main game polish:** progressive hints, saved progress, final message, performance budget, and cross-scene regression pass.
 
 **Phase 6 — Mars Easter egg and release:** hidden trigger, final family copy, complete regression pass, print/share packaging if desired.
 
