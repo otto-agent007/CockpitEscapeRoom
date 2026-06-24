@@ -98,6 +98,10 @@ git add .gitattributes
 
 Vercel should deploy optimized GLBs, textures, audio, and application code. It should not receive master Blender files or source reference folders.
 
-## 9. MCP later
+## 9. Tripo AI and Blender MCP support
 
-After `validate_scene`, `render_preview`, and `export_glb` work reliably from the command line and Blender side panel, a narrow local MCP can wrap those functions. See `docs/MCP_AND_SKILLS.md`.
+Tripo AI may generate rapid candidate or proxy meshes, but every output must be imported into Blender before runtime use. Assign stable names, check pivots and local axes, record material counts and texture sizes, optimize before GLB export, and document the result in `asset-reports/`.
+
+The official Blender MCP may support scene inspection, controlled cleanup, validation, naming, pivot checks, metadata review, preview renders, and export support. Do not use it for uncontrolled broad rewrites of approved scenes or to bypass `validate_scene`, `render_preview`, `export_glb`, asset reports, or owner approval gates.
+
+See `docs/ASSET_PIPELINE.md` for the full Tripo AI -> Blender MCP -> GLB -> React integration workflow.

@@ -36,18 +36,15 @@ The pack includes four repo-local Skills:
 
 Use explicit invocation while the workflows are new. After the descriptions prove reliable, Codex may select them implicitly.
 
-## MCP decision
+## Asset pipeline and MCP
 
-Do not start with a general-purpose Blender MCP. The current need is a repeatable local workflow, so Skills plus deterministic scripts are the first tool.
+Use `docs/ASSET_PIPELINE.md` for the current Tripo AI, official Blender MCP, GLB export, and React integration workflow.
 
-Add a narrow MCP only after the same manual loop is repeated often and the command-line implementation is stable. The allowed future tool surface is:
+Tripo AI is allowed only as a rapid candidate/proxy generator. Its outputs must be imported into Blender, inspected, cleaned, optimized, assigned stable names, checked for pivots and local axes, and documented in `asset-reports/` before runtime use.
 
-- `scene_inventory`
-- `validate_scene`
-- `render_preview`
-- `export_glb`
+The official Blender MCP may be used for scene inspection and controlled edits such as cleanup, naming, pivot checks, metadata review, validation support, preview renders, and export support. It must not be used for uncontrolled broad rewrites of approved scenes or to bypass deterministic scripts, asset reports, owner visual gates, or the Windows/Ubuntu ownership model.
 
-Do not expose arbitrary Python, shell, file-write, or “edit anything in Blender” tools.
+Keep generated assets separated by scene group: Airbus A320 First-Officer cockpit, locker room scene, DC-9 Pop T Captain cockpit, Model Y hangar reward, and Mars Easter egg. Do not mix Airbus and DC-9 aircraft-specific details.
 
 ## Implementation and repair loop
 

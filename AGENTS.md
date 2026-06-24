@@ -108,10 +108,18 @@ Stop only when validation passes, a bounded maximum attempt count is reached, th
 - The DC-9 must be model-correct in major visible geometry; do not invent a generic retro cockpit.
 - The Airbus must be a separate model-specific cockpit. `exactAirbusModel` is a blocking production-art field.
 - Interactions are fictional and non-operational even when the cockpit looks authentic.
+- Tripo AI may be used only as a rapid candidate/proxy generator. Its outputs are not production authority and must not silently override aircraft-specific references.
+- Tripo-generated assets must be imported into Blender before runtime use, cleaned, optimized, given stable object names, checked for pivots/local axes, and documented in `asset-reports/`.
+- The official Blender MCP may be used for scene inspection, controlled cleanup, validation support, naming, pivots, metadata, preview renders, and export support.
+- Do not use Blender MCP for uncontrolled broad rewrites of approved scenes or edits that bypass the asset report and validation trail.
+- Keep generated assets separated by scene group: Airbus A320 First-Officer cockpit, locker room scene, DC-9 Pop T Captain cockpit, Model Y hangar reward, and Mars Easter egg.
+- Do not mix Airbus and DC-9 aircraft-specific details.
 - Blender master files live under `art-source/blender` and generated deployable GLBs under `public/models`.
 - Never edit generated GLBs by hand.
 - Stable object names, pivots, hierarchy, animations, and `game_id` custom properties are public runtime contracts.
 - Do not run destructive GLB optimization until hierarchy and interaction regression tests prove it safe.
+- Record material count, texture sizes, optimization decisions, validation output, and preview-render evidence before treating a generated asset as production-ready.
+- Preserve Model Y spoiler protection: no reward asset, thumbnail, menu item, loading copy, hint, or achievement may reveal the Model Y before Pop T Captain Mode completion.
 - Private, personalized noncommercial builds may import owner-supplied airline artwork, logos, textures, and production assets when clearly intended for that private scope.
 - For any import used outside the private, noncommercial flow, keep only original-work or licensed rights for production use, and record each source in `LICENSES/ASSET_MANIFEST.md`.
 
