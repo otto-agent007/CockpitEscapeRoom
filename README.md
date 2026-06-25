@@ -27,6 +27,7 @@ Open the local URL printed by Vite.
 - Game design source-of-truth in [`docs/GAME_DESIGN.md`](docs/GAME_DESIGN.md)
 - Current production rules and architecture in [`AGENTS.md`](AGENTS.md) and [`docs/CODEX_WORKFLOW.md`](docs/CODEX_WORKFLOW.md)
 - Progress tracking and milestones in `plans/`
+- Airbus reference photos, system notes, and loading/intro copy in [`art-source/references/a320`](art-source/references/a320) (`airbus_reference_notes.md`).
 - Game state and persistence logic in `src/game/`
 - 3D scenes and interaction entry points in `src/scenes/`
 - Blender and asset pipeline under `tools/blender/`, `art-source/`, `public/models/`, and `asset-reports/`
