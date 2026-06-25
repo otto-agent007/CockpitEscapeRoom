@@ -258,3 +258,265 @@ Execute Agent 3 shading using the approved Agent 2 neutral assembly. The output 
 ### Outcome
 
 The job reached `shading_complete`, not final visual approval. Human review is required before any final approval or production promotion.
+
+## Loop Discovery Checkpoint: Stage Handoff Validation
+
+### Purpose
+
+Use `$loop-discovery`, `$loop-doctor`, and `$blender-web-assets` to identify the highest-value repeated Ubuntu/Blender workflow and make one small durable improvement without expanding the pipeline or touching Windows-owned paths.
+
+### Files inspected
+
+- `AGENTS.md`
+- `docs/WORKSTREAM_OWNERSHIP.md`
+- `docs/CODEX_WORKFLOW.md`
+- `docs/MCP_AND_SKILLS.md`
+- `docs/VISUAL_REALISM.md`
+- `docs/ASSET_CONTRACT.md`
+- `docs/BLENDER_PIPELINE.md`
+- `.agents/skills/loop-discovery/SKILL.md`
+- `.agents/skills/loop-doctor/SKILL.md`
+- `.agents/skills/blender-web-assets/SKILL.md`
+- `tools/blender/AGENTS.md`
+- `tools/blender/cockpit_pipeline/pipeline_cli.py`
+- `tools/blender/cockpit_pipeline/prompts/agent1-sourcing.md`
+- `tools/blender/cockpit_pipeline/prompts/agent2-assembly.md`
+- `tools/blender/cockpit_pipeline/prompts/agent3-shading.md`
+- `asset-reports/cockpit-pipeline/dc9-three-agent-foundation.md`
+- `asset-reports/cockpit-pipeline/dc9-32-flightgear-source-vslice/source-job-report.md`
+- `asset-reports/cockpit-pipeline/dc9-vslice-assembly/assembly-report.md`
+- `asset-reports/cockpit-pipeline/dc9-vslice-shading/shading-report.md`
+- `art-source/cockpit-pipeline/THREE_AGENT_PLAYBOOK.md`
+
+### Candidate chosen
+
+Stage handoff validation loop. The foundation, source, assembly, and shading passes all repeated a high-value cycle: read fresh state, validate job or upstream manifest, run a bounded stage command when approval exists, validate output hashes, inspect preview evidence, record a stage report, and stop at success, clean no-op, approval-required, blocked, or no-progress.
+
+### Loop diagnosis
+
+`$loop-doctor` verdict: repair needed, then ready. The repeated cycle was present but scattered across reports, prompts, and CLI commands. The repair was to add an explicit unpublished CockpitEscapeRoom stage handoff validation loop to `art-source/cockpit-pipeline/THREE_AGENT_PLAYBOOK.md`, including fresh-state checks, bounded action choices, reproducible validation commands, handoff records, and stop conditions.
+
+### Files changed
+
+- `art-source/cockpit-pipeline/THREE_AGENT_PLAYBOOK.md`
+- `asset-reports/cockpit-pipeline/stage-handoff-loop-discovery.md`
+- `art-source/cockpit-pipeline/EXEC_PLAN.md`
+
+### Validation evidence
+
+- `python3 -m tools.blender.cockpit_pipeline.preflight` - pass; reported Blender 5.1.2 and dirty status as report-only.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/dc9-vslice-shading/manifests/shading-complete.json` - pass, hashes verified.
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass, 5 tests.
+
+### Remaining limitation
+
+No Blender scene, GLB, material, texture, or script changed, so `$blender-web-assets` does not require export, render, or browser preview for this checkpoint. The future production handoff still needs owner visual approval before any `shading_complete` output is treated as final.
+
+## Shading Handoff Checkpoint: 2026-06-23
+
+### Purpose
+
+Run the next safe `shading_complete` handoff checkpoint using the stage handoff validation loop. Produce fresh validation evidence without treating the shaded vertical slice as production-approved.
+
+### Branch and base
+
+- Branch: `asset/dc9-shading-handoff-checkpoint`
+- Base dependency: `asset/blender-loop-discovery`, because the loop documentation is pending review in PR #16 and is not merged to `main` yet.
+
+### Fresh state
+
+- `art-source/cockpit-pipeline/jobs/dc9-vslice-assembly/assembly-approval.json` exists and approves Agent 3 shading input.
+- `art-source/cockpit-pipeline/jobs/dc9-vslice-shading/manifests/shading-complete.json` exists, verifies current shaded handoff artifacts, and records `approved: false` with `human-review-pending`.
+- No `shading-approval.json` exists.
+
+### Bounded action decision
+
+Used the validate-only path. `run-shading-job` was not rerun because the upstream approval, output manifest, and preview evidence were present and no fresh input or validation failure justified regenerating identical shaded artifacts.
+
+### Commands run
+
+- `git status --short --branch` - pass; active branch confirmed.
+- `python3 -m tools.blender.cockpit_pipeline.preflight` - pass; reported Blender 5.1.2 and dirty state as report-only.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/dc9-vslice-assembly/manifests/assembly-complete.json` - pass, hashes verified.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/dc9-vslice-shading/manifests/shading-complete.json` - pass, hashes verified.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli can-transition --from assembly-approved --to shading_complete` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli can-transition --from shading_complete --to shading-approved` - pass.
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass, 5 tests.
+- `file preview-renders/cockpit-pipeline/dc9-vslice-shading/*.png preview-renders/cockpit-pipeline/dc9-vslice-shading/*.svg` - pass; six PNG renders at 1280 x 800 and one SVG contact sheet present.
+
+### Preview inspection
+
+Inspected:
+
+- `preview-renders/cockpit-pipeline/dc9-vslice-shading/captain-daylight.png`
+- `preview-renders/cockpit-pipeline/dc9-vslice-shading/captain-dim-instrument-lighting.png`
+- `preview-renders/cockpit-pipeline/dc9-vslice-shading/gauge-glass-face-close-up.png`
+- `preview-renders/cockpit-pipeline/dc9-vslice-shading/yoke-material-close-up.png`
+- `preview-renders/cockpit-pipeline/dc9-vslice-shading/throttle-material-close-up.png`
+- `preview-renders/cockpit-pipeline/dc9-vslice-shading/switch-cluster-close-up.png`
+
+All inspected renders were nonblank and showed the expected shaded four-component vertical slice. Daylight and dim-lighting renders are suitable as handoff evidence. The switch cluster remains tiny and visually weak, matching the known source limitation. The asset remains sparse proof geometry, not model-correct production DC-9 cockpit art.
+
+### Files changed
+
+- `asset-reports/cockpit-pipeline/dc9-vslice-shading/handoff-checkpoint-2026-06-23.md`
+- `art-source/cockpit-pipeline/EXEC_PLAN.md`
+
+### Stop outcome
+
+`approval-required`. The `shading_complete` handoff is validated and ready for human visual review as a pipeline checkpoint. It is not approved for final visual acceptance, production promotion, browser integration, or public model replacement.
+
+Next trigger: before Agent 3 shading consumes any newly approved assembly manifest.
+
+### Remaining delta
+
+- Human visual review is required before any `shading-approved` handoff.
+- The final production DC-9 variant remains unresolved.
+- The switch cluster and overall cockpit geometry are too sparse for production-quality DC-9 approval.
+- Windows/browser integration remains a separate workstream and was not touched.
+
+## Source Discovery Quality Loop Checkpoint: 2026-06-23
+
+### Purpose
+
+Add a source-specific quality loop so Agent 1 ranks component source candidates before publishing a source handoff. The loop is intended to improve the decision that happens before stage handoff validation: whether Agent 1 found the best available source candidate for each component category, or documented why no viable alternative was found.
+
+### Files inspected
+
+- `AGENTS.md`
+- `docs/WORKSTREAM_OWNERSHIP.md`
+- `docs/CODEX_WORKFLOW.md`
+- `.agents/skills/loop-doctor/SKILL.md`
+- `art-source/cockpit-pipeline/THREE_AGENT_PLAYBOOK.md`
+- `art-source/cockpit-pipeline/EXEC_PLAN.md`
+- `asset-reports/cockpit-pipeline/dc9-32-flightgear-source-vslice/source-job-report.md`
+
+### Loop Doctor diagnosis
+
+Verdict: repair needed, then ready.
+
+The existing playbook required source review artifacts but did not require Agent 1 to compare alternatives before selecting a handoff candidate. The first source report shows the risk: it produced one candidate per category and correctly flagged the switch cluster as lower confidence, but the durable workflow did not yet require an alternative search, ranking, rejected-candidate record, confidence rating, or downstream assembly warnings.
+
+### Files changed
+
+- `art-source/cockpit-pipeline/THREE_AGENT_PLAYBOOK.md`
+- `art-source/cockpit-pipeline/EXEC_PLAN.md`
+
+### Change summary
+
+Added an unpublished CockpitEscapeRoom `Source discovery quality loop` under the three-agent review gates. It requires Agent 1 to:
+
+- record variant, source path, confidence, intended use, and limitations for every selected or rejected source candidate
+- inspect at least one alternative candidate per component category when practical, or document `no viable alternative found`
+- rank candidates by variant match, cockpit specificity, completeness, readability, pivot/animation/XML evidence, material/texture evidence, import reliability, and licensing/private-use notes
+- record selected and rejected candidates, selection reasons, confidence, and downstream assembly warnings before source handoff
+
+The Source Review Gate now also requires a source candidate ranking with selected and rejected candidates.
+
+### Validation evidence
+
+- `git diff --check` - pass.
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass, 5 tests.
+
+### Remaining limitation
+
+This checkpoint changes only playbook and ExecPlan documentation. It does not rerun Agent 1 sourcing, does not create new source candidates, and does not change Blender scene files, GLBs, runtime code, or Windows-owned paths.
+
+## Agent 1 Source Quality Ranking: 2026-06-23
+
+### Purpose
+
+Run Agent 1 through the Source Discovery Quality Loop for the existing DC-9 FlightGear source vertical slice. Produce a ranked source handoff record without regenerating source GLBs or treating simulator-source assets as production truth.
+
+### Branch
+
+- `asset/dc9-source-quality-ranking`
+
+### Fresh source state
+
+- Source job: `dc9-32-flightgear-source-vslice`
+- Source repository: `https://github.com/FGMEMBERS-NONGPL/DC-9-32.git`
+- Resolved revision: `d79e1476ce452a96126cc569a9c8a5d9fe705c8f`
+- Source variant: `DC-9-32`
+- Target variant: `unresolved`
+- Variant scope: `unknown`
+
+### Files inspected
+
+- `art-source/cockpit-pipeline/jobs/dc9-32-flightgear-source-vslice/job.json`
+- `art-source/cockpit-pipeline/stages/source/output/dc9-32-flightgear-source-vslice/component-catalog.json`
+- `asset-reports/cockpit-pipeline/dc9-32-flightgear-source-vslice/source-inventory.json`
+- `asset-reports/cockpit-pipeline/dc9-32-flightgear-source-vslice/xml-reference-report.json`
+- `asset-reports/cockpit-pipeline/dc9-32-flightgear-source-vslice/extraction-report.json`
+- `.cache/cockpit-pipeline/sources/DC-9-32/Models/Flightdeck/Flightdeck.xml`
+- `.cache/cockpit-pipeline/sources/DC-9-32/Models/Flightdeck/flightdeck.ac`
+- `.cache/cockpit-pipeline/sources/DC-9-32/Models/Flightdeck/Instruments/**`
+
+### Bounded action decision
+
+Used a ranking/report-only Agent 1 pass. The current source GLBs, metadata, previews, and manifest already exist and validate; no fresh evidence required rerunning `run-source-job`. The missing handoff evidence was source ranking: selected candidates, rejected alternatives, confidence, source limitations, and assembly warnings.
+
+### Candidate ranking summary
+
+- `dc9-src-yoke-assembly-001` - high confidence. Selected for captain-side yoke proof. FO/copilot yoke objects were rejected for this handoff but retained as a future alternate.
+- `dc9-src-throttle-assembly-001` - high confidence. Selected for throttle/pedestal proof. Individual nearby levers were rejected as incomplete standalone throttle alternatives.
+- `dc9-src-large-gauge-001` - medium confidence. Selected as a complete altimeter source package. Other instrument model/XML pairs remain viable future gauge candidates.
+- `dc9-src-switch-cluster-001` - low confidence. Kept only as the best available inspected switch-cluster proof candidate; no stronger switch-cluster alternative was found. This is the first source category to revisit in a future Agent 1 batch.
+
+### Files changed
+
+- `asset-reports/cockpit-pipeline/dc9-32-flightgear-source-vslice/source-candidate-ranking.md`
+- `art-source/cockpit-pipeline/EXEC_PLAN.md`
+
+### Validation evidence
+
+- Initial `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/dc9-32-flightgear-source-vslice/manifests/sourcing-complete.json` failed after editing `source-job-report.md`, because that report is hash-declared in the existing source manifest. Repaired by reverting the `source-job-report.md` edit and keeping the ranking as a separate checkpoint report.
+- `python3 -m tools.blender.cockpit_pipeline.preflight` - pass; reported Blender 5.1.2 and dirty state as report-only.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-job art-source/cockpit-pipeline/jobs/dc9-32-flightgear-source-vslice/job.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/dc9-32-flightgear-source-vslice/manifests/sourcing-complete.json` - pass after repair, hashes verified.
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass, 5 tests.
+- `git diff --check` - pass.
+
+### Stop outcome
+
+`approval-required`. The source candidates remain suitable for a pipeline-proof source handoff with ranking evidence now attached. They are not production-correct DC-9 components and should not be treated as final art.
+
+Next trigger: before Agent 1 publishes any new or replacement DC-9 source component batch.
+
+### Remaining delta
+
+- Human source review is still required before any future Agent 2 assembly consumes a new source batch.
+- The final production DC-9 variant remains unresolved.
+- The switch cluster source remains low confidence and should be revisited first.
+
+## Reference Source Job Schema Repair: 2026-06-23
+
+### Purpose
+
+Repair the newly merged DC-9 reference source discovery job so it validates against the checked-in job schema while preserving the richer source-discovery nuance in an asset report.
+
+### Fresh state
+
+After syncing PR #18, `art-source/cockpit-pipeline/jobs/dc9-reference-source-discovery/job.json` failed schema validation because `variantScope` used `target_visual_reference_with_mixed_source_candidates`, which is not an allowed enum value.
+
+### Files changed
+
+- `art-source/cockpit-pipeline/jobs/dc9-reference-source-discovery/job.json`
+- `asset-reports/references/dc9-51-reference-source-package.md`
+- `art-source/cockpit-pipeline/EXEC_PLAN.md`
+
+### Repair
+
+- Changed the job file to `variantScope: target-confirmed`, matching the schema and the DC-9-51 primary visual target.
+- Added report text explaining that the broader discovery intent remains target visual reference with mixed source candidates, and that Agent 1 must record each candidate's source variant and limitations before handoff.
+
+### Validation evidence
+
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-job art-source/cockpit-pipeline/jobs/dc9-reference-source-discovery/job.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-job art-source/cockpit-pipeline/jobs/dc9-32-flightgear-source-vslice/job.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/dc9-32-flightgear-source-vslice/manifests/sourcing-complete.json` - pass, hashes verified.
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass, 5 tests.
+
+### Remaining delta
+
+- This repair does not run the new DC-9 reference source discovery job. It only restores schema validity for the checked-in request.

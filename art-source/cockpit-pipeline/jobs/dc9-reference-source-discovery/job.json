@@ -1,0 +1,58 @@
+{
+  "jobId": "dc9-reference-source-discovery",
+  "title": "DC-9 reference-guided source discovery seed",
+  "stage": "requested",
+  "aircraft": "dc9",
+  "sourceVariant": "multiple",
+  "targetVariant": "DC-9-51",
+  "variantScope": "target-confirmed",
+  "sourceRepository": {
+    "url": "art-source/cockpit-pipeline/source-discovery-seeds/dc9-reference-source-discovery.seed.json",
+    "resolvedRevision": "local-seed-spec"
+  },
+  "requestedComponents": [
+    {
+      "componentId": "dc9-ref-shell-main-panel-001",
+      "label": "cockpit shell and main panel blockout",
+      "quantity": 1,
+      "acceptanceNotes": "Use the DC-9-51 primary image for silhouette, panel density, windshield framing, and color family. Source geometry may be mixed only when variant scope is recorded."
+    },
+    {
+      "componentId": "dc9-ref-yoke-pair-001",
+      "label": "captain and first-officer yoke pair",
+      "quantity": 2,
+      "acceptanceNotes": "Prioritize shape, placement, checklist placard, and column hierarchy. Record pivot and animation evidence in the source report before assembly."
+    },
+    {
+      "componentId": "dc9-ref-throttle-pedestal-001",
+      "label": "throttle pedestal blockout and source candidates",
+      "quantity": 1,
+      "acceptanceNotes": "Use the primary photo for placement and broad shape. Require selected and rejected source candidates before assembly."
+    },
+    {
+      "componentId": "dc9-ref-gauge-density-001",
+      "label": "main panel gauge density set",
+      "quantity": 1,
+      "acceptanceNotes": "Represent dense analog gauge clusters without operational training detail. Source exact gauge candidates separately when available."
+    },
+    {
+      "componentId": "dc9-ref-overhead-density-001",
+      "label": "overhead panel density placeholder",
+      "quantity": 1,
+      "acceptanceNotes": "Use the primary image for position and density only. Do not finalize switch layout without close-up sources."
+    }
+  ],
+  "stageDirectories": {
+    "sourceInput": "art-source/cockpit-pipeline/stages/source/input",
+    "sourceOutput": "art-source/cockpit-pipeline/stages/source/output",
+    "assemblyInput": "art-source/cockpit-pipeline/stages/assembly/input",
+    "assemblyOutput": "art-source/cockpit-pipeline/stages/assembly/output",
+    "shadingInput": "art-source/cockpit-pipeline/stages/shading/input",
+    "shadingOutput": "art-source/cockpit-pipeline/stages/shading/output"
+  },
+  "cachePolicy": {
+    "environmentVariable": "COCKPIT_PIPELINE_CACHE",
+    "defaultRelativePath": ".cache/cockpit-pipeline",
+    "gitPolicy": "outside-git"
+  }
+}

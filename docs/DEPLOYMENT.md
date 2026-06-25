@@ -12,7 +12,7 @@ asset/dc9-pipeline-proof
 feature/dc9-first-puzzle
 feature/dc9-main-game
 feature/model-y-reward
-feature/airbus-bonus
+feature/airbus-first-officer
 feature/mars-easter-egg
 release/fathers-day
 ```

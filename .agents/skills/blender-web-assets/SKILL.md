@@ -14,7 +14,7 @@ description: Validate, export, inspect, preview, and integrate Blender cockpit o
 
 ## Workflow
 
-1. Read the root `AGENTS.md`, `docs/VISUAL_REALISM.md`, `docs/ASSET_CONTRACT.md`, `docs/BLENDER_PIPELINE.md`, and active ExecPlan.
+1. Read the root `AGENTS.md`, `docs/VISUAL_REALISM.md`, `docs/ASSET_CONTRACT.md`, `docs/BLENDER_PIPELINE.md`, `docs/ASSET_PIPELINE.md`, and active ExecPlan.
 2. Confirm `BLENDER_BIN` exists and record the exact Blender version.
 3. Never overwrite a reference image or edit a generated GLB manually.
 4. Inspect scene roots, approval cameras, names, pivots, local axes, custom properties, materials, texture paths, and unapplied transforms.
@@ -35,7 +35,8 @@ description: Validate, export, inspect, preview, and integrate Blender cockpit o
 - Use invisible colliders instead of distorting visible controls.
 - Visual realism does not authorize real operational puzzle procedures.
 - Do not use an external asset without an original-work or redistribution license record.
-- Do not implement or use a broad arbitrary-code Blender MCP.
+- Tripo AI outputs are candidate/proxy assets until imported into Blender, inspected, cleaned, optimized, assigned stable names, checked for pivots, and documented in `asset-reports/`.
+- The official Blender MCP may be used for scene inspection and controlled edits, but not for uncontrolled broad rewrites of approved scenes.
 
 ## Output
 

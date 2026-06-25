@@ -158,11 +158,143 @@ A batch cannot skip a stage. A batch cannot move to the next stage without the r
 
 ## Required review gates
 
+### Stage handoff validation loop
+
+Unpublished CockpitEscapeRoom adaptation, derived from the completed foundation, source, assembly, and shading passes.
+
+Use this loop whenever a stage is about to consume another stage's output or publish a new stage handoff. It is intentionally smaller than a new Skill: the pipeline already has commands and reports, but the repeatable cycle needs to stay explicit so agents do not act on stale approvals or incomplete evidence.
+
+#### Trigger
+
+- Agent 1 starts a new source batch.
+- Agent 2 is about to consume source outputs.
+- Agent 3 is about to consume assembly outputs.
+- Any stage report, manifest, GLB, texture set, preview render, layout, pivot policy, or material recipe changes.
+
+#### Cycle
+
+1. Read fresh state:
+   - `git status --short --branch`
+   - current stage job JSON
+   - required upstream approval file, if this is Agent 2 or Agent 3
+   - required upstream manifest
+   - latest stage report and preview evidence
+2. Choose one bounded action:
+   - validate only, if evidence is stale or approval is missing
+   - rerun the current stage job, if the input contract is valid
+   - stop for owner review, if the previous stage is complete but not approved
+   - stop for Windows/browser handoff, if the change requires app integration
+3. Verify with reproducible evidence:
+   - `python3 -m tools.blender.cockpit_pipeline.preflight`
+   - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-job <job.json>`
+   - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest <required-upstream-manifest>`
+   - stage command, when acting: `run-source-job`, `run-assembly-job`, or `run-shading-job`
+   - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest <new-output-manifest>`
+   - `python3 -m unittest discover tools/blender/cockpit_pipeline/tests`
+   - visual inspection of the generated preview renders or contact sheet
+4. Record the handoff:
+   - branch and commit
+   - job ID and batch ID, if applicable
+   - upstream approval file consumed
+   - commands actually run and pass/fail results
+   - generated files and manifest path
+   - preview paths inspected
+   - known limitations and next stage
+   - any runtime contract changes for Windows/browser integration
+5. Stop with one explicit outcome:
+   - `success`: manifest hashes verify, previews are inspected, and the stage report is updated
+   - `clean no-op`: current evidence is already valid and no files need changes
+   - `approval-required`: a stage is complete but lacks human approval for the next stage
+   - `blocked`: required input, Blender, cache, or approval evidence is unavailable
+   - `no-progress`: the same validation failure remains after a bounded repair attempt
+
+#### Safety checks
+
+- Do not consume a `*_complete` stage as approved unless a matching human approval file exists and is listed in the stage report.
+- Do not rerun a downstream job from a stale branch or dirty worktree without recording why dirty state is acceptable.
+- Do not overwrite generated GLBs by hand.
+- Do not treat preview render inspection as final visual approval.
+- Do not update Windows-owned browser code or `TEST_REPORT.md` from this Ubuntu loop.
+
+### Source discovery quality loop
+
+Unpublished CockpitEscapeRoom adaptation for Agent 1 source selection.
+
+Use this loop before Agent 1 publishes any source handoff. The goal is not to prove that a simulator or open-source model is production-correct. The goal is to make Agent 1 show that it looked for better component sources, ranked what it found, and warned Agent 2 about source limitations before assembly starts.
+
+#### Trigger
+
+- Agent 1 starts a new DC-9 source batch.
+- Agent 1 adds or replaces a source component candidate.
+- A source category has only one candidate.
+- A candidate has weak variant match, sparse geometry, missing animation metadata, unsupported formats, unclear source hierarchy, or poor preview evidence.
+
+#### Candidate record
+
+Every candidate, selected or rejected, must record:
+
+- component category and candidate ID
+- source URL or local source collection
+- resolved revision, when available
+- source path inside the source collection
+- source variant
+- target variant and `variantScope`
+- intended use in the CockpitEscapeRoom pipeline
+- confidence: `high`, `medium`, or `low`
+- reasons for the confidence rating
+- known limitations
+- extraction or import route used
+- preview path, validation report path, and metadata path when generated
+
+#### Cycle
+
+1. Read fresh source state:
+   - current job JSON
+   - existing component catalog
+   - source inventory, XML/reference report, extraction report, and previews
+   - unresolved DC-9 variant notes
+2. Search or inspect alternatives within the allowed source scope:
+   - require at least one alternative candidate for each component category when practical
+   - if no viable alternative is found, record `no viable alternative found` with inspected paths, query terms, or source areas
+   - do not silently mix DC-9 variants, MD-80 layouts, or unrelated cockpit geometry
+3. Rank candidates within each component category:
+   - variant match and cockpit-area specificity
+   - component completeness and grouping
+   - geometry readability from the intended cockpit view
+   - pivot, hierarchy, animation, or XML relationship evidence
+   - material/texture availability as source evidence, not final production quality
+   - import reliability and reimport validation
+   - licensing or private-use notes when known
+4. Select the handoff candidate:
+   - record selection reasons
+   - record rejected candidates and rejection reasons
+   - record confidence and downstream assembly warnings
+   - preserve `sourceVariant`, `targetVariant`, and `variantScope`
+5. Verify and record:
+   - regenerate candidate metadata, preview, validation report, and catalog when the selection changes
+   - validate the source-stage manifest after publication
+   - update the source report with selected candidate, alternatives considered, rejected candidates, confidence, limitations, and next trigger
+6. Stop with one explicit outcome:
+   - `success`: selected candidates are ranked, validated, previewed, and recorded
+   - `clean no-op`: existing ranked candidates and alternatives are still current
+   - `approval-required`: source handoff is complete and needs owner review before assembly
+   - `blocked`: no credible candidate exists for a required category or source access is unavailable
+   - `no-progress`: repeated source discovery does not improve confidence or evidence
+
+#### Safety checks
+
+- Do not claim a source candidate is production-correct unless model-specific reference evidence supports it.
+- Do not fabricate missing geometry or animation relationships during sourcing.
+- Do not treat a keyword match as a cockpit-component match without preview or hierarchy evidence.
+- Do not use one source candidate per category by default; either compare alternatives or explain why no viable alternative was found.
+- Do not let a high-confidence visual candidate override variant, licensing, or runtime-contract warnings.
+
 ### Source Review Gate
 
 Required before Agent 2:
 
 - component catalog
+- source candidate ranking with selected and rejected candidates
 - candidate metadata
 - candidate GLBs
 - preview PNGs
