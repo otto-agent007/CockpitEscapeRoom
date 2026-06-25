@@ -124,6 +124,318 @@ md81_midwest_cockpit_secondary:
   notes: Included to document lower-confidence family material cues and variant differences.
   sha256: 87ba8045077f287d85ef58b0abb8abbe30d3e331000da89c2c54b9e10d8721e6
   downloaded_at: '2026-06-22T01:02:59+00:00'
+dc9_import_centerview:
+  title: DC-9-51 centerview reference photo
+  source_page: https://commons.wikimedia.org/w/index.php?search=dc-9-51+centerview
+  source_type: local_download
+  creator: Private source
+  license: Unknown
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9-51
+    operator: Unknown
+    registration: Unknown
+  era: Not recorded
+  viewpoint: cockpit forward, captain-eye approximate
+  classification: secondary
+  confidence: low
+  target_compatibility: Supplementary visual context for cockpit framing and panel density.
+  intended_uses:
+  - cockpit framing checks
+  - analog layout awareness
+  limitations: Source and licensing details are not yet verified.
+  local_file: dc9-51/secondary/dc-9-51_centerview.jpg
+  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  download_status: local
+dc9_import_northwest_51:
+  title: DC-9-51 Northwest reference photo
+  source_page: https://commons.wikimedia.org/w/index.php?search=DC9+51+northwest
+  source_type: local_download
+  creator: Private source
+  license: Unknown
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9-51
+    operator: Unknown
+    registration: Unknown
+  era: Not recorded
+  viewpoint: cockpit forward, wide view
+  classification: secondary
+  confidence: low
+  target_compatibility: Supplemental visual context for panel density and panel language.
+  intended_uses:
+  - layout density checks
+  - material and lighting comparison
+  limitations: Source, date, and rights are not yet verified.
+  local_file: dc9-51/secondary/DC9_51_northwest.jpg
+  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  download_status: local
+dc9_import_airport_view:
+  title: DC-9 cockpit airport-view photo
+  source_page: https://commons.wikimedia.org/w/index.php?search=dc9+cockpit+airportview
+  source_type: local_download
+  creator: Private source
+  license: Unknown
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9 family
+    operator: Unknown
+    registration: Unknown
+  era: Not recorded
+  viewpoint: cockpit-forward, broad
+  classification: secondary
+  confidence: low
+  target_compatibility: Supplemental framing and cockpit-to-window relationship reference.
+  intended_uses:
+  - external context checks
+  - general instrument layout checks
+  limitations: Not validated for geometric authority or redistribution rights.
+  local_file: dc9-51/secondary/dc9_cockpit_airportview.jpg
+  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  download_status: local
+dc9_import_instrument_panel:
+  title: DC-9 instrument panel close-up
+  source_page: https://commons.wikimedia.org/w/index.php?search=dc9+instrument+panel
+  source_type: local_download
+  creator: Private source
+  license: Unknown
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9 family
+    operator: Unknown
+    registration: Unknown
+  era: Not recorded
+  viewpoint: cockpit instrument panel close-up
+  classification: secondary
+  confidence: low
+  target_compatibility: Supplemental gauge style and panel density reference.
+  intended_uses:
+  - analog panel comparison
+  - instrument spacing checks
+  limitations: Source and rights are unverified.
+  local_file: dc9-51/secondary/dc9_instrument_panel.jpg
+  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  download_status: local
+dc9_import_n776nc:
+  title: DC-9 N776NC cockpit photo
+  source_page: https://commons.wikimedia.org/w/index.php?search=DC9+N776NC
+  source_type: local_download
+  creator: Private source
+  license: Unknown
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9 family
+    operator: Unknown
+    registration: N776NC
+  era: Not recorded
+  viewpoint: cockpit or aircraft context
+  classification: secondary
+  confidence: low
+  target_compatibility: Supplemental identification and visual direction context.
+  intended_uses:
+  - family registration context
+  - visual identity checks
+  limitations: Source/license and date are not verified.
+  local_file: dc9-51/secondary/DC9_n776NC.jpg
+  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  download_status: local
+dc9_import_reference_pic:
+  title: DC-9 reference picture
+  source_page: https://commons.wikimedia.org/w/index.php?search=dc9+reference+picture
+  source_type: local_download
+  creator: Private source
+  license: Unknown
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9 family
+    operator: Unknown
+    registration: Unknown
+  era: Not recorded
+  viewpoint: cockpit interior
+  classification: secondary
+  confidence: low
+  target_compatibility: Supplemental interior reference for layout feel.
+  intended_uses:
+  - overall panel proportion checks
+  - candidate control spacing checks
+  limitations: Source rights and authorship are not yet verified.
+  local_file: dc9-51/secondary/dc9_referencepic.jpg
+  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  download_status: local
+dc9_import_runway_view:
+  title: DC-9 runway-view reference photo
+  source_page: https://commons.wikimedia.org/w/index.php?search=dc9+runway+view
+  source_type: local_download
+  creator: Private source
+  license: Unknown
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9 family
+    operator: Unknown
+    registration: Unknown
+  era: Not recorded
+  viewpoint: cockpit and runway
+  classification: secondary
+  confidence: low
+  target_compatibility: Supplemental context for external and cockpit framing.
+  intended_uses:
+  - contextual lighting checks
+  - runway scene orientation
+  limitations: Not validated for geometry or licensing.
+  local_file: dc9-51/secondary/dc9_runwayview.jpg
+  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  download_status: local
+dc9_import_dc9_a3201:
+  title: DC-9 A3201 photo
+  source_page: https://commons.wikimedia.org/w/index.php?search=DC9+v+A3201
+  source_type: local_download
+  creator: Private source
+  license: Unknown
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9 family
+    operator: Unknown
+    registration: Unknown
+  era: Not recorded
+  viewpoint: cockpit interior
+  classification: secondary
+  confidence: low
+  target_compatibility: Supplemental cockpit composition reference.
+  intended_uses:
+  - material feel checks
+  - control cluster comparison
+  limitations: Source and rights remain unverified.
+  local_file: dc9-51/secondary/DC9-v-A3201.webp
+  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  download_status: local
+dc9_import_elder_instruments:
+  title: Elder museum DC-9 cockpit instrument reference
+  source_page: https://commons.wikimedia.org/w/index.php?search=dc-9+instruments+elder+EG49WH
+  source_type: local_download
+  creator: Private source
+  license: Unknown
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9 family
+    operator: Unknown
+    registration: Unknown
+  era: Not recorded
+  viewpoint: cockpit instrument close-up
+  classification: secondary
+  confidence: low
+  target_compatibility: Supplemental instrument and glass references.
+  intended_uses:
+  - glass and gauge studies
+  - panel finish comparison
+  limitations: Source/license not yet confirmed.
+  local_file: dc9-51/secondary/instruments-in-cockpit-of-mcdonnell-douglas-dc-9-airliner-in-elder-EG49WH.jpg
+  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  download_status: local
+dc9_import_northwest_hat:
+  title: Northwest DC-9 captain hat and manuals photo
+  source_page: https://commons.wikimedia.org/w/index.php?search=Northwest+DC9+CaptainsHat
+  source_type: local_download
+  creator: Private source
+  license: Unknown
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9 family
+    operator: Unknown
+    registration: Unknown
+  era: Not recorded
+  viewpoint: cockpit-side memorabilia
+  classification: secondary
+  confidence: low
+  target_compatibility: Supplemental legacy detail reference only.
+  intended_uses:
+  - story detail references
+  - side area cues
+  limitations: Not authoritative geometry source; source rights are unverified.
+  local_file: dc9-51/secondary/Northwest_DC9_CaptainsHat_Manuals_Wings_Nametag.jpg
+  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  download_status: local
+dc9_import_legacy_cockpit:
+  title: Legacy DC-9 cockpit view
+  source_page: https://commons.wikimedia.org/w/index.php?search=old+dc-9+cockpit+KE2E3D
+  source_type: local_download
+  creator: Private source
+  license: Unknown
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9 family
+    operator: Unknown
+    registration: Unknown
+  era: Not recorded
+  viewpoint: cockpit interior
+  classification: secondary
+  confidence: low
+  target_compatibility: Supplemental legacy interior reference for style cues.
+  intended_uses:
+  - shape comparisons
+  - general interior styling checks
+  limitations: Source and licensing are pending.
+  local_file: dc9-51/secondary/old-dc-9-jet-airplane-cockpit-KE2E3D.jpg
+  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  download_status: local
+dc9_import_sps:
+  title: DC-9 cockpit photo SPS-DC9C-1
+  source_page: https://commons.wikimedia.org/w/index.php?search=SPS-DC9C-1
+  source_type: local_download
+  creator: Private source
+  license: Unknown
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9 family
+    operator: Unknown
+    registration: Unknown
+  era: Not recorded
+  viewpoint: cockpit interior
+  classification: secondary
+  confidence: low
+  target_compatibility: Supplemental close reference for control cluster style.
+  intended_uses:
+  - panel detail comparison
+  - control spacing study
+  limitations: Source rights and provenance are not validated.
+  local_file: dc9-51/secondary/SPS-DC9C-1.jpg
+  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  download_status: local
+dc9_import_elder_museum:
+  title: DC-9 elder museum cockpit photo
+  source_page: https://commons.wikimedia.org/w/index.php?search=dc-9+museum+EG49WP
+  source_type: local_download
+  creator: Private source
+  license: Unknown
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9 family
+    operator: Unknown
+    registration: Unknown
+  era: Not recorded
+  viewpoint: cockpit interior close
+  classification: secondary
+  confidence: low
+  target_compatibility: Supplemental museum-reference visual context.
+  intended_uses:
+  - sidewall and lighting checks
+  - control placement awareness
+  limitations: Not validated for geometry authority or licensing.
+  local_file: dc9-51/secondary/view-into-cockpit-of-mcdonnell-douglas-dc-9-airliner-in-elder-museum-EG49WP.jpg
+  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  download_status: local
 simulation_daily_dc9_release_presentation:
   title: Simulation Daily DC-9 simulator release coverage
   source_page: https://simulationdaily.com/news/dc9-released-microsoft-flight-simulator-2024/
