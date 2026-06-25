@@ -4,11 +4,12 @@ This folder stores source records and locally cached references for CockpitEscap
 
 ## Policy
 
-- The target for this pack is Northwest-style McDonnell Douglas DC-9-51.
+- The active packs are Northwest-style McDonnell Douglas DC-9-51 and Airbus A320 references used for cockpit and game preparation.
 - Use `reference-manifest.yaml` as the source of truth for rights, variant, confidence, and intended use.
 - Do not copy photos from sources unless the manifest records a direct download URL and license-compatible source.
 - Do not use simulator screenshots as geometry authority. They can inform presentation benchmarks only.
 - Do not mix DC-9 variants without labeling the source variant and recording compatibility limits.
+- Keep Airbus references in `a320/` for cockpit photos, panel references, and loading-copy assets.
 - Keep private owner-supplied or personally licensed files under `local-private/`; that directory is intentionally not part of automated public download flow.
 
 ## Commands
@@ -36,6 +37,9 @@ art-source/references/
 │   ├── annotations/
 │   ├── notes/
 │   └── contact-sheets/
+├── a320/
+│   ├── airbus_reference_notes.md
+│   └── cockpit photos and reference assets (jpg, png)
 └── local-private/
 ```
 

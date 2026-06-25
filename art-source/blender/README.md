@@ -13,4 +13,4 @@ Install Git LFS before committing them. Machine-specific Blender paths do not be
 
 Start with the DC-9 proof asset described in `plans/0001-dc9-pipeline-proof.md`. Do not create the Airbus production file until the exact model is confirmed.
 
-Airbus source references are organized separately in `../references/a320`; pull A320 cockpit, panel, and system references from that folder when preparing `airbus_master.blend`.
+Airbus source references (photos, notes, and onboard copy) are organized in `../references/a320`. Pull A320 cockpit, panel, and system references from there when preparing `airbus_master.blend`.
