@@ -273,11 +273,11 @@ export function PrototypeScene({
       </Canvas>
       <div className="prototype-badge">
         {phase === 'airbus'
-          ? 'GREYBOX — FIRST-OFFICER FLOW'
+          ? 'GREYBOX — A320 FIRST-OFFICER FLOW'
           : phase === 'locker'
             ? 'LOCKER REVEAL SCENE'
             : phase === 'captain'
-              ? 'GREYBOX — DC-9 CAPTAIN FLOW'
+              ? 'GREYBOX — DC-9-50 CAPTAIN FLOW'
               : 'HANGAR VIEW'}
       </div>
     </div>
