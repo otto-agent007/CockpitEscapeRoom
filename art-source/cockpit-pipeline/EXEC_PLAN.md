@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Establish the Ubuntu-side foundation for a three-agent Blender cockpit pipeline before Agent 1 starts a four-component DC-9 vertical slice. A maintainer can validate machine readiness, create and advance stage manifests, verify handoff hashes, and run a Blender headless smoke test without constructing or replacing production cockpit assets.
+Establish the Ubuntu-side foundation for the staged Blender cockpit pipeline before Agent 1 starts a four-component DC-9 vertical slice. A maintainer can validate machine readiness, create and advance stage manifests, verify handoff hashes, and run a Blender headless smoke test without constructing or replacing production cockpit assets.
 
 ## Current state
 
@@ -520,3 +520,46 @@ After syncing PR #18, `art-source/cockpit-pipeline/jobs/dc9-reference-source-dis
 ### Remaining delta
 
 - This repair does not run the new DC-9 reference source discovery job. It only restores schema validity for the checked-in request.
+
+## Cockpit Pipeline Gate Hardening: 2026-06-25
+
+### Purpose
+
+Strengthen the staged cockpit pipeline before more generated, simulator-source, or Tripo AI candidates enter the asset flow. The goal is to prevent proxy assets from bypassing reference authority, runtime contract evidence, optimization review, or Windows/browser integration.
+
+### Bounded action decision
+
+Made a documentation and prompt-template update only. No source jobs, assembly jobs, shading jobs, Blender exports, generated assets, or runtime loaders were changed.
+
+### Files changed
+
+- `art-source/cockpit-pipeline/THREE_AGENT_PLAYBOOK.md`
+- `art-source/cockpit-pipeline/README.md`
+- `tools/blender/AGENTS.md`
+- `tools/blender/cockpit_pipeline/prompts/agent0-reference-authority.md`
+- `tools/blender/cockpit_pipeline/prompts/agent1-sourcing.md`
+- `tools/blender/cockpit_pipeline/prompts/agent2-assembly.md`
+- `tools/blender/cockpit_pipeline/prompts/agent3-shading.md`
+- `docs/ASSET_PIPELINE.md`
+
+### Change summary
+
+- Added Agent 0 Reference Authority as the required source-authority gate before Agent 1.
+- Added a Tripo AI candidate lane that treats generated assets as candidate/proxy source material until imported into Blender, inspected, cleaned, optimized, documented, and approved.
+- Expanded Agent 2 handoff requirements with a runtime contract checklist for node names, hierarchy, pivots, local axes, scale, `game_id` metadata, interaction metadata, and GLB reimport evidence.
+- Reframed Agent 3 as Materials and Optimization, with material counts, texture sizes, GLB size, optimization decisions, and non-destructive contract preservation.
+- Added a Windows Browser Integration Gate so Ubuntu asset completion does not imply React/browser acceptance.
+
+### Validation evidence
+
+- `rg -n "Do not implement a Blender MCP|MCP until|Airbus bonus|bonus cockpit|Agent 3 — Shading|Shading Review Gate|three-agent Blender cockpit pipeline|3-Agent Cockpit" README.md AGENTS.md BLUEPRINT.md docs src art-source/cockpit-pipeline tools/blender .agents/skills -g '*.md' -g '*.ts' -g '*.tsx' -g '!art-source/cockpit-pipeline/EXEC_PLAN.md'` - pass, no matches.
+- `git diff --check` - pass.
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass, 5 tests.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-job art-source/cockpit-pipeline/jobs/dc9-reference-source-discovery/job.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/dc9-32-flightgear-source-vslice/manifests/sourcing-complete.json` - pass, hashes verified.
+- `npm run check` - pass.
+
+### Remaining delta
+
+- Existing checked-in pipeline manifests and state-machine stage names still use `shading` terminology. This checkpoint does not rename artifacts or commands because that would be a broader compatibility migration.
+- Future stage reports should start recording Agent 0 authority notes and runtime contract checklists.

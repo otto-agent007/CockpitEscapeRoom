@@ -63,7 +63,8 @@ Use `npm run dev` and confirm:
 - The DC-9 and Airbus flows must remain distinct and production-realistic in their own right.
 - Private, personalized noncommercial builds may include owner-supplied or privately licensed aircraft, airline, and vehicle assets with explicit scope and consent.
 - For any public or distributable release flow, only production aircraft, airline, or vehicle assets with an original-work or license record may be used.
-- Do not implement a Blender MCP until the command-line asset pipeline is proven reliable.
+- Use the official Blender MCP only for controlled scene inspection, cleanup, validation support, naming, pivots, metadata, preview renders, and export support.
+- Do not use Blender MCP for uncontrolled broad rewrites of approved scenes or to bypass the asset-report and validation trail.
 - Do not remove or rename the greybox label until visual approval milestones are passed.
 
 See [`BLUEPRINT.md`](BLUEPRINT.md) for the detailed blueprint and delivery details.

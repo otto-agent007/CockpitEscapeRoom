@@ -4,6 +4,7 @@ CockpitEscapeRoom uses a controlled asset flow:
 
 ```text
 references and owner intent
+-> reference authority gate
 -> Tripo AI candidate generation when useful
 -> Blender import, inspection, cleanup, naming, pivots, optimization
 -> official Blender MCP inspection or controlled edits when useful
@@ -13,6 +14,18 @@ references and owner intent
 ```
 
 Tripo AI and Blender MCP are production aids. They are not story canon, visual approval authority, or replacements for aircraft-specific references.
+
+## Pipeline gates
+
+Asset work moves through explicit gates:
+
+1. **Reference Authority:** define the target scene group, aircraft/object identity, variant status, allowed source usage, forbidden usage, licensing/private-use limits, and owner approval state.
+2. **Sourcing:** discover or generate candidates, including Tripo proxies, with selected and rejected options documented.
+3. **Assembly:** import approved candidates into Blender, repair pivots, assign stable names, preserve hierarchy, and publish a runtime contract checklist.
+4. **Materials and Optimization:** apply materials, bake textures where useful, record material counts and texture sizes, and optimize only when runtime contracts still pass.
+5. **Windows/browser integration:** load the approved GLB in React, verify node names and `game_id` metadata, test HTML-accessible equivalents, capture viewport screenshots, and rerun relevant app checks.
+
+No gate may approve its own work. Completion means evidence is ready for the next gate; approval requires the recorded owner or receiving-workstream decision.
 
 ## Scene groups
 
@@ -57,6 +70,22 @@ Every MCP-assisted asset pass should record:
 - Object count, material count, texture sizes, and GLB size when available.
 - Validation warnings and known deviations from the approved reference set.
 - Whether the output is a proxy, candidate, blockout, or approved production asset.
+
+## Runtime contract checklist
+
+Before a GLB is handed to the React workstream, record:
+
+- scene group and root object
+- stable runtime node names
+- hierarchy changes
+- pivots and local axes
+- scale and camera assumptions
+- `game_id` values and interaction metadata
+- animation tracks, if any
+- expected HTML or equivalent accessible control for every required 3D action
+- material count, texture sizes, GLB size, and optimization decisions
+- GLB reimport validation result
+- known aircraft-reference deviations
 
 ## Export and integration
 

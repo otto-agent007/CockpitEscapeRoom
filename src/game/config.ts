@@ -6,7 +6,7 @@ export const personalization = {
   startingAircraft: 'McDonnell Douglas DC-9',
   exactDc9Variant: 'TBD — confirm before final cockpit modeling',
   laterAircraft: 'Airbus',
-  exactAirbusModel: 'TBD — required before the Airbus bonus cockpit is modeled',
+  exactAirbusModel: 'TBD — required before the Airbus First-Officer cockpit is modeled',
   airlineContext: 'Northwest-era Memphis hub operation',
   rewardVehicle: 'Red Tesla Model Y',
   rewardPlateIdeas: ['CAPT DAD', 'DC9 2 EV', 'MEM FLYR', 'MARS 09'],
