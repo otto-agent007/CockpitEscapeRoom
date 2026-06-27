@@ -4,7 +4,7 @@
 
 The repository and product are named **CockpitEscapeRoom**. Do not rename the project or reintroduce earlier working titles.
 
-Build a fun, personalized browser escape room honoring an expert pilot who started on McDonnell Douglas DC-9 aircraft and later flew Airbus aircraft. The gameplay should open in Airbus First-Officer onboarding, transition through a personal locker reveal, then unlock Pop T Captain Mode in a DC-9 legacy cockpit. A red Tesla Model Y reward unlocks after Captain Mode completion, with a hidden Mars mission as an optional Easter egg.
+Build a fun, personalized browser escape room honoring an expert pilot who started on McDonnell Douglas DC-9 aircraft and later flew Airbus aircraft. The gameplay opens in **Airbus A320 First-Officer onboarding**, transitions through a personal locker reveal, then unlocks **Pop T Captain Mode in a McDonnell Douglas DC-9-50 legacy cockpit**. A red Tesla Model Y reward unlocks after Captain Mode completion, followed by a sleek near-future **Flight Mode** transformation with clean panel movement, wing/stabilizer deployment, hidden lift fans, and concealed propulsion accents. A hidden Mars mission remains an optional Easter egg after the main ending.
 
 The aircraft is safely parked for a commemorative legacy flight. Never frame Dad as causing an accident, emergency, or systems failure.
 
@@ -97,7 +97,7 @@ Stop only when validation passes, a bounded maximum attempt count is reached, th
 - Keep game rules and content separate from Three.js presentation components.
 - Mirror every required 3D interaction with a native HTML control or equivalent accessible path.
 - Version persisted data and recover safely from corrupt or stale saves.
-- Lazy-load the production DC-9, Airbus, vehicle, and Mars assets as appropriate.
+- Lazy-load the production DC-9-50, Airbus A320, vehicle, and Mars assets as appropriate.
 - Keep personal data local. No analytics, accounts, uploads, paid APIs, or tracking without explicit approval.
 - Prefer no new production dependency. Explain and request review before adding one.
 - Do not weaken tests merely to make them pass.
@@ -105,21 +105,22 @@ Stop only when validation passes, a bounded maximum attempt count is reached, th
 ## Visual and asset rules
 
 - The current 3D panel is a greybox and must remain labeled as such until approval.
-- The DC-9 must be model-correct in major visible geometry; do not invent a generic retro cockpit.
-- The Airbus must be a separate model-specific cockpit. `exactAirbusModel` is a blocking production-art field.
+- The DC-9-50 must be model-correct in major visible geometry; do not invent a generic retro cockpit.
+- The Airbus target is **Airbus A320** and must be a separate A320-specific cockpit, not a recolored or rearranged DC-9-50.
 - Interactions are fictional and non-operational even when the cockpit looks authentic.
 - Tripo AI may be used only as a rapid candidate/proxy generator. Its outputs are not production authority and must not silently override aircraft-specific references.
 - Tripo-generated assets must be imported into Blender before runtime use, cleaned, optimized, given stable object names, checked for pivots/local axes, and documented in `asset-reports/`.
 - The official Blender MCP may be used for scene inspection, controlled cleanup, validation support, naming, pivots, metadata, preview renders, and export support.
 - Do not use Blender MCP for uncontrolled broad rewrites of approved scenes or edits that bypass the asset report and validation trail.
-- Keep generated assets separated by scene group: Airbus A320 First-Officer cockpit, locker room scene, DC-9 Pop T Captain cockpit, Model Y hangar reward, and Mars Easter egg.
-- Do not mix Airbus and DC-9 aircraft-specific details.
+- Keep generated assets separated by scene group: Airbus A320 First-Officer cockpit, locker room scene, DC-9-50 Pop T Captain cockpit, Model Y hangar reward and Flight Mode transformation, and Mars Easter egg.
+- Do not mix Airbus A320 and DC-9-50 aircraft-specific details.
 - Blender master files live under `art-source/blender` and generated deployable GLBs under `public/models`.
 - Never edit generated GLBs by hand.
 - Stable object names, pivots, hierarchy, animations, and `game_id` custom properties are public runtime contracts.
 - Do not run destructive GLB optimization until hierarchy and interaction regression tests prove it safe.
 - Record material count, texture sizes, optimization decisions, validation output, and preview-render evidence before treating a generated asset as production-ready.
-- Preserve Model Y spoiler protection: no reward asset, thumbnail, menu item, loading copy, hint, or achievement may reveal the Model Y before Pop T Captain Mode completion.
+- Preserve Model Y spoiler protection: no reward asset, Flight Mode thumbnail, menu item, loading copy, hint, or achievement may reveal the Model Y before Pop T Captain Mode completion.
+- The Model Y Flight Mode transformation should stay sleek, plausible-futuristic, and premium: clean mechanical panels, wing/stabilizer deployment, hidden lift fans or concealed propulsion accents, restrained lighting, no aggressive sci-fi styling, and no humanoid robot transformation.
 - Private, personalized noncommercial builds may import owner-supplied airline artwork, logos, textures, and production assets when clearly intended for that private scope.
 - For any import used outside the private, noncommercial flow, keep only original-work or licensed rights for production use, and record each source in `LICENSES/ASSET_MANIFEST.md`.
 
@@ -127,11 +128,12 @@ Stop only when validation passes, a bounded maximum attempt count is reached, th
 
 Pause for owner review after:
 
-1. DC-9 captain-seat blockout and first browser export.
-2. First polished DC-9 puzzle.
-3. Airbus model identification and cockpit blockout.
-4. Red Model Y production reward asset.
-5. Final complete-game review.
+1. Airbus A320 First-Officer interaction proof.
+2. Locker room reveal proof.
+3. DC-9-50 captain-seat blockout and first browser export.
+4. First polished DC-9-50 puzzle.
+5. Red Model Y reward and Flight Mode transformation asset.
+6. Final complete-game review.
 
 A Vercel preview and consistent screenshots should accompany each visual gate.
 
