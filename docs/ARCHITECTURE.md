@@ -21,7 +21,7 @@
 
 ## Asset loading
 
-Load the application shell immediately. Lazy-load Three.js after the player begins. Load Airbus First-Officer assets first, then fetch DC-9, vehicle reward, and Mars assets only when unlocked.
+Load the application shell immediately. Lazy-load Three.js after the player begins. Load Airbus A320 First-Officer assets first, then fetch DC-9-50, vehicle reward, and Mars assets only when unlocked.
 
 Use stable filenames during development. Before production, consider content-hashed asset URLs or an asset manifest so long-lived browser caches do not serve stale models.
 
@@ -37,10 +37,10 @@ The WebGL canvas is enhancement, not the sole control surface. Every required ac
 
 ## Performance targets
 
-Initial application JavaScript should remain light because the 3D scene is lazy-loaded. Production targets should be established after the first real DC-9 export, then enforced in the asset report. Start with:
+Initial application JavaScript should remain light because the 3D scene is lazy-loaded. Production targets should be established after the first real DC-9-50 export, then enforced in the asset report. Start with:
 
-- Main DC-9 GLB review threshold: 50 MiB maximum, with a lower target preferred.
-- Airbus and reward assets loaded on demand.
+- Main DC-9-50 GLB review threshold: 50 MiB maximum, with a lower target preferred.
+- Airbus A320 and reward assets loaded on demand.
 - Texture dimensions justified by camera distance.
 - Reasonable draw calls and material counts.
 - No continuous animation loop when the scene is static, unless profiling shows the cost is acceptable.
