@@ -9,6 +9,7 @@ from pathlib import Path
 
 from .hashing import verify_manifest_hashes
 from .assembly_job import run_assembly_job
+from .eval_runner import run_evals
 from .schema_validation import SchemaError, validate_json_file
 from .shading_job import run_shading_job
 from .source_job import run_source_job
@@ -27,6 +28,16 @@ def main(argv: list[str] | None = None) -> int:
 
     manifest_parser = subparsers.add_parser("validate-manifest", help="Validate a stage manifest and declared hashes.")
     manifest_parser.add_argument("path", type=Path)
+
+    gate_parser = subparsers.add_parser("validate-gate", help="Validate a structured gate artifact JSON file.")
+    gate_parser.add_argument(
+        "gate",
+        choices=["reference-authority", "runtime-contract", "material-optimization", "browser-integration"],
+    )
+    gate_parser.add_argument("path", type=Path)
+
+    eval_parser = subparsers.add_parser("run-evals", help="Run deterministic agent workflow guardrail eval fixtures.")
+    eval_parser.add_argument("--fixtures-dir", type=Path, default=None)
 
     transition_parser = subparsers.add_parser("can-transition", help="Validate a stage transition.")
     transition_parser.add_argument("--from", dest="from_stage", required=True)
@@ -57,6 +68,18 @@ def main(argv: list[str] | None = None) -> int:
             manifest = validate_json_file(args.path, "stage_manifest.schema.json")
             verify_manifest_hashes(manifest, args.path)
             print(f"Stage manifest valid with verified hashes: {args.path}")
+        elif args.command == "validate-gate":
+            schema_name = {
+                "reference-authority": "reference_authority.schema.json",
+                "runtime-contract": "runtime_contract.schema.json",
+                "material-optimization": "material_optimization.schema.json",
+                "browser-integration": "browser_integration.schema.json",
+            }[args.gate]
+            validate_json_file(args.path, schema_name)
+            print(f"Gate artifact valid: {args.gate} {args.path}")
+        elif args.command == "run-evals":
+            summary = run_evals(args.fixtures_dir)
+            print(f"Agent workflow evals passed: {summary['passed']}/{summary['total']}")
         elif args.command == "can-transition":
             transition = require_transition(args.from_stage, args.to_stage)
             print(f"Transition valid: {transition.from_stage} -> {transition.to_stage}")

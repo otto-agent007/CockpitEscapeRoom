@@ -1,0 +1,23 @@
+{
+  "gate": "runtime-contract",
+  "artifactId": "agent2-dc9-vslice-runtime-contract-example",
+  "createdAt": "2026-06-26T00:00:00Z",
+  "sceneGroup": "DC-9 Pop T Captain cockpit",
+  "assetPath": "art-source/cockpit-pipeline/stages/assembly/output/dc9-vslice-assembly/dc9-vslice-assembly.glb",
+  "rootObject": "DC9_VSLICE_ROOT",
+  "runtimeNodes": [
+    {
+      "name": "DC9_YOKE_CAPTAIN",
+      "gameId": "dc9.yoke.captain",
+      "pivotVerified": true,
+      "localAxis": "LOCAL_Y",
+      "htmlEquivalent": "Captain yoke inspect button"
+    }
+  ],
+  "customPropertiesPreserved": true,
+  "reimportValidation": "pass",
+  "scaleAndCameraAssumptions": "Neutral assembly proof only; not production-scaled final cockpit.",
+  "knownReferenceDeviations": [
+    "Source geometry is sparse and not final visual authority."
+  ]
+}

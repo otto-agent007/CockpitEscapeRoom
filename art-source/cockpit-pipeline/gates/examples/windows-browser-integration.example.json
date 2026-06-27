@@ -1,0 +1,22 @@
+{
+  "gate": "browser-integration",
+  "artifactId": "windows-browser-integration-dc9-vslice-example",
+  "createdAt": "2026-06-26T00:00:00Z",
+  "assetPath": "public/models/dc9-cockpit.glb",
+  "documentedRuntimeContract": "art-source/cockpit-pipeline/gates/examples/agent2-runtime-contract.example.json",
+  "browserSceneLoaded": true,
+  "nodeNamesVerified": true,
+  "gameIdsVerified": true,
+  "htmlEquivalentsVerified": true,
+  "viewportWidthsChecked": [
+    375,
+    768,
+    1440
+  ],
+  "modelYSpoilerProtectionChecked": true,
+  "commandsRun": [
+    "npm run check",
+    "npm run assets:check"
+  ],
+  "remainingBlockers": []
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cockpit-pipeline/reference-authority.schema.json",
+  "title": "Agent 0 reference authority gate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "gate",
+    "artifactId",
+    "createdAt",
+    "sceneGroup",
+    "targetAircraftOrObject",
+    "targetVariantStatus",
+    "sourceCandidateType",
+    "sourceIdentity",
+    "allowedUsage",
+    "forbiddenUsage",
+    "variantCompatibility",
+    "licenseScope",
+    "ownerApprovalStatus",
+    "nextAllowedStage"
+  ],
+  "properties": {
+    "gate": { "type": "string", "enum": ["reference-authority"] },
+    "artifactId": { "type": "string", "minLength": 1 },
+    "createdAt": { "type": "string", "minLength": 1 },
+    "sceneGroup": { "type": "string", "minLength": 1 },
+    "targetAircraftOrObject": { "type": "string", "minLength": 1 },
+    "targetVariantStatus": { "type": "string", "minLength": 1 },
+    "sourceCandidateType": {
+      "type": "string",
+      "enum": ["real-aircraft-reference", "simulator-geometry", "tripo-candidate", "owner-supplied-asset", "private-only-artwork", "presentation-benchmark"]
+    },
+    "sourceIdentity": { "type": "string", "minLength": 1 },
+    "allowedUsage": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "forbiddenUsage": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "variantCompatibility": { "type": "string", "minLength": 1 },
+    "licenseScope": { "type": "string", "minLength": 1 },
+    "ownerApprovalStatus": {
+      "type": "string",
+      "enum": ["approved-for-next-stage", "approval-required", "rejected"]
+    },
+    "nextAllowedStage": {
+      "type": "string",
+      "enum": ["agent1-sourcing", "blocked"]
+    }
+  }
+}

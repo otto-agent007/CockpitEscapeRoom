@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cockpit-pipeline/runtime-contract.schema.json",
+  "title": "Agent 2 runtime contract gate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "gate",
+    "artifactId",
+    "createdAt",
+    "sceneGroup",
+    "assetPath",
+    "rootObject",
+    "runtimeNodes",
+    "customPropertiesPreserved",
+    "reimportValidation",
+    "scaleAndCameraAssumptions",
+    "knownReferenceDeviations"
+  ],
+  "properties": {
+    "gate": { "type": "string", "enum": ["runtime-contract"] },
+    "artifactId": { "type": "string", "minLength": 1 },
+    "createdAt": { "type": "string", "minLength": 1 },
+    "sceneGroup": { "type": "string", "minLength": 1 },
+    "assetPath": { "type": "string", "minLength": 1 },
+    "rootObject": { "type": "string", "minLength": 1 },
+    "runtimeNodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "gameId", "pivotVerified", "localAxis", "htmlEquivalent"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "gameId": { "type": "string", "minLength": 1 },
+          "pivotVerified": { "type": "boolean" },
+          "localAxis": { "type": "string", "minLength": 1 },
+          "htmlEquivalent": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "customPropertiesPreserved": { "type": "boolean" },
+    "reimportValidation": { "type": "string", "enum": ["pass", "blocked", "fail"] },
+    "scaleAndCameraAssumptions": { "type": "string", "minLength": 1 },
+    "knownReferenceDeviations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}

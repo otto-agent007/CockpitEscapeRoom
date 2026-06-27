@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 
 from tools.blender.cockpit_pipeline.hashing import file_record, verify_file_record
+from tools.blender.cockpit_pipeline.eval_runner import run_evals
 from tools.blender.cockpit_pipeline.schema_validation import SchemaError, load_schema, validate_json_file, validate
 from tools.blender.cockpit_pipeline.state_machine import StateTransitionError, require_transition
 
@@ -13,6 +14,7 @@ from tools.blender.cockpit_pipeline.state_machine import StateTransitionError, r
 ROOT = Path(__file__).resolve().parents[4]
 JOB = ROOT / "art-source/cockpit-pipeline/jobs/sample-dc9-unresolved-vertical-slice/job.json"
 MANIFEST = ROOT / "art-source/cockpit-pipeline/jobs/sample-dc9-unresolved-vertical-slice/manifests/source-approved.json"
+GATE_EXAMPLES = ROOT / "art-source/cockpit-pipeline/gates/examples"
 
 
 class PipelineContractTests(unittest.TestCase):
@@ -74,6 +76,22 @@ class PipelineContractTests(unittest.TestCase):
             tampered["sha256"] = "f" * 64
             with self.assertRaises(ValueError):
                 verify_file_record(tampered, base)
+
+    def test_gate_artifact_examples_validate(self) -> None:
+        cases = [
+            ("agent0-dc9-reference-authority.example.json", "reference_authority.schema.json"),
+            ("agent2-runtime-contract.example.json", "runtime_contract.schema.json"),
+            ("agent3-material-optimization.example.json", "material_optimization.schema.json"),
+            ("windows-browser-integration.example.json", "browser_integration.schema.json"),
+        ]
+        for filename, schema in cases:
+            with self.subTest(filename=filename):
+                validate_json_file(GATE_EXAMPLES / filename, schema)
+
+    def test_agent_workflow_guardrail_evals(self) -> None:
+        summary = run_evals()
+        self.assertEqual(summary["passed"], summary["total"])
+        self.assertGreaterEqual(summary["total"], 5)
 
 
 if __name__ == "__main__":

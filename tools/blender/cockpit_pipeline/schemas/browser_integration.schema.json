@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cockpit-pipeline/browser-integration.schema.json",
+  "title": "Windows browser integration gate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "gate",
+    "artifactId",
+    "createdAt",
+    "assetPath",
+    "documentedRuntimeContract",
+    "browserSceneLoaded",
+    "nodeNamesVerified",
+    "gameIdsVerified",
+    "htmlEquivalentsVerified",
+    "viewportWidthsChecked",
+    "modelYSpoilerProtectionChecked",
+    "commandsRun",
+    "remainingBlockers"
+  ],
+  "properties": {
+    "gate": { "type": "string", "enum": ["browser-integration"] },
+    "artifactId": { "type": "string", "minLength": 1 },
+    "createdAt": { "type": "string", "minLength": 1 },
+    "assetPath": { "type": "string", "minLength": 1 },
+    "documentedRuntimeContract": { "type": "string", "minLength": 1 },
+    "browserSceneLoaded": { "type": "boolean" },
+    "nodeNamesVerified": { "type": "boolean" },
+    "gameIdsVerified": { "type": "boolean" },
+    "htmlEquivalentsVerified": { "type": "boolean" },
+    "viewportWidthsChecked": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "integer", "minimum": 1 }
+    },
+    "modelYSpoilerProtectionChecked": { "type": "boolean" },
+    "commandsRun": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "remainingBlockers": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "case": "agent2-reference-authority-required",
+  "sourceManifest": "art-source/cockpit-pipeline/jobs/dc9-32-flightgear-source-vslice/manifests/sourcing-complete.json",
+  "referenceAuthorityNote": null,
+  "observedOutcome": {
+    "status": "started",
+    "reason": "operator-override"
+  },
+  "expectedViolations": [
+    "agent2-missing-authority-reason-not-recorded",
+    "agent2-started-without-reference-authority"
+  ]
+}

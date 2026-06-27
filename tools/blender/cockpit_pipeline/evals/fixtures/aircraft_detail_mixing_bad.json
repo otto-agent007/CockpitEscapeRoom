@@ -1,0 +1,11 @@
+{
+  "case": "aircraft-detail-separation",
+  "targetSceneGroup": "DC-9 Pop T Captain cockpit",
+  "importedDetailFamilies": [
+    "dc9",
+    "airbus"
+  ],
+  "expectedViolations": [
+    "airbus-detail-imported-into-dc9"
+  ]
+}
