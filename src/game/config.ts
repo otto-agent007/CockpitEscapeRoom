@@ -3,12 +3,13 @@ export const PROJECT_NAME = 'CockpitEscapeRoom'
 export const personalization = {
   captainDisplayName: 'Pop T',
   homeBaseAirport: 'MEM',
-  startingAircraft: 'McDonnell Douglas DC-9',
-  exactDc9Variant: 'TBD — confirm before final cockpit modeling',
-  laterAircraft: 'Airbus',
-  exactAirbusModel: 'TBD — required before the Airbus bonus cockpit is modeled',
+  startingAircraft: 'Airbus A320',
+  exactDc9Variant: 'McDonnell Douglas DC-9-50',
+  laterAircraft: 'McDonnell Douglas DC-9-50 legacy cockpit',
+  exactAirbusModel: 'Airbus A320',
   airlineContext: 'Northwest-era Memphis hub operation',
   rewardVehicle: 'Red Tesla Model Y',
+  rewardUpgrade: 'Model Y Flight Mode',
   rewardPlateIdeas: ['CAPT DAD', 'DC9 2 EV', 'MEM FLYR', 'MARS 09'],
 } as const
 
@@ -36,9 +37,9 @@ export const firstOfficerFlow = {
     radio: 'Right. That’s the radio panel.',
     altitude: 'Correct. That’s where altitude is read.',
   } as const,
-  clockQuestion: 'How many flight hours are needed for a standard ATP certificate?',
+  clockQuestion: 'Enter the milestone number shown by the cockpit clock clue.',
   clockAnswer: '1500',
-  clockFeedback: 'ATP milestone recognized: 1500.',
+  clockFeedback: 'Milestone recognized: 1500.',
   firstCompleteBanner: 'FIRST-OFFICER MODE COMPLETE',
   lockerAccessText: 'Locker access granted.',
 } as const
@@ -105,7 +106,7 @@ export const lockerFlow = {
 
 export const dc9LegacyFlow = {
   title: 'POP T CAPTAIN MODE',
-  subtitle: 'Legacy checklist ready.',
+  subtitle: 'DC-9-50 legacy checklist ready.',
   checklistOrder: ['battery', 'navigation', 'cabin'] as const,
   routePuzzleAnswers: ['LIT', 'JAN', 'BHM'],
   routePuzzleOptions: [
@@ -122,11 +123,13 @@ export const dc9LegacyFlow = {
 
 export const gameCopy = {
   title: 'Cockpit Escape Room',
-  subtitle: 'First-Officer onboarding in Airbus, then the DC-9 legacy reveal.',
+  subtitle: 'Airbus A320 First-Officer onboarding, then the DC-9-50 legacy reveal.',
   premise:
-    'The game is a personalized tribute. Start in a modern Airbus coaching loop, discover the locker story, then unlock Pop T Captain Mode in the DC-9.',
+    'The game is a personalized tribute. Start in a modern Airbus A320 coaching loop, discover the locker story, then unlock Pop T Captain Mode in the DC-9-50.',
   rewardTitle: 'Ground Transport Upgrade Authorized',
   rewardVehicleLine: 'The red Tesla Model Y is unlocked.',
+  rewardUpgradeTitle: 'Advanced Mobility Package Unlocked',
+  rewardFlightModeLine: 'Flight Mode enabled for the final reward pose.',
   finalMessage:
     'Happy Father’s Day, Pop T. Built for calm hands, strong memory, and the joy of flying forward together.',
   captainReward: 'Legacy hangar release authorized.',
@@ -136,7 +139,7 @@ export const gameCopy = {
     title: 'Mars diversion accepted.',
     message: 'The final game will hide this trigger behind the completed ending.',
   },
-  briefInstructions: 'Start in Airbus First-Officer Mode, complete the locker reveal, then enter Pop T Captain Mode.',
+  briefInstructions: 'Start in Airbus A320 First-Officer Mode, complete the locker reveal, then enter DC-9-50 Pop T Captain Mode.',
 } as const
 
 export type FirstOfficerControl = (typeof firstOfficerFlow.controlIds)[number]
