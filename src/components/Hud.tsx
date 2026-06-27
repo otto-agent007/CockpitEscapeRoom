@@ -30,11 +30,11 @@ export function Hud({ state, dispatch, onRestart }: HudProps) {
       <div className="hud__topline">
         <span className="eyebrow">
           {state.phase === 'airbus'
-            ? 'Airbus First-Officer Mode'
+            ? 'Airbus A320 First-Officer Mode'
             : state.phase === 'locker'
               ? 'Locker reveal'
               : state.phase === 'captain'
-                ? 'Pop T Captain Mode'
+                ? 'DC-9-50 Pop T Captain Mode'
                 : state.phase === 'reward'
                   ? 'Hangar access'
                   : 'Completion beat'}
@@ -50,7 +50,7 @@ export function Hud({ state, dispatch, onRestart }: HudProps) {
 
       {state.phase === 'airbus' && (
         <section aria-labelledby="airbus-heading">
-          <h2 id="airbus-heading">Airbus First-Officer onboarding</h2>
+          <h2 id="airbus-heading">Airbus A320 First-Officer onboarding</h2>
           <p>Match each label card to the correct control in a drag-and-drop style interaction.</p>
           {firstOfficerFlow.controlIds.map((control) => (
             <div key={control} style={{ marginBottom: '0.75rem' }}>
@@ -86,7 +86,7 @@ export function Hud({ state, dispatch, onRestart }: HudProps) {
 
           <p className="primary-note">{firstOfficerFlow.clockQuestion}</p>
           <label>
-            <span>ATP answer</span>
+            <span>Milestone answer</span>
             <input
               type="text"
               value={airbusClockInput}
@@ -95,7 +95,7 @@ export function Hud({ state, dispatch, onRestart }: HudProps) {
                 dispatch({ type: 'SET_AIRBUS_CLOCK_ANSWER', value: event.target.value })
               }}
               inputMode="numeric"
-              aria-label="ATP answer"
+              aria-label="Milestone answer"
             />
           </label>
           <button
@@ -273,6 +273,8 @@ export function Hud({ state, dispatch, onRestart }: HudProps) {
           <h2 id="reward-heading">Ground transport release</h2>
           <p>{gameCopy.rewardTitle}</p>
           <p>{gameCopy.rewardVehicleLine}</p>
+          <p>{gameCopy.rewardUpgradeTitle}</p>
+          <p>{gameCopy.rewardFlightModeLine}</p>
           <p>{gameCopy.finalMessage}</p>
           <button
             type="button"
