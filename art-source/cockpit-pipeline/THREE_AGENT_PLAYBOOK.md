@@ -233,6 +233,12 @@ Required before Agent 1:
 
 For DC-9 work, record `sourceVariant`, `targetVariant`, and `variantScope`. For Airbus work, do not start production modeling until `exactAirbusModel` is confirmed.
 
+Reference authority artifacts should be JSON and validate with:
+
+```bash
+python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate reference-authority <path>
+```
+
 ### Stage handoff validation loop
 
 Unpublished CockpitEscapeRoom adaptation, derived from the completed foundation, source, assembly, and materials passes.
@@ -412,6 +418,12 @@ Agent 2 must also publish a runtime contract checklist:
 - forbidden variant-mixing notes
 - GLB reimport result
 
+Runtime contract artifacts should be JSON and validate with:
+
+```bash
+python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate runtime-contract <path>
+```
+
 ### Materials And Optimization Review Gate
 
 Required before browser integration or production promotion:
@@ -428,6 +440,12 @@ Required before browser integration or production promotion:
 - human `shading-approval.json`
 
 Agents may mark their stage complete. They must not mark their own work approved.
+
+Material and optimization artifacts should be JSON and validate with:
+
+```bash
+python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate material-optimization <path>
+```
 
 ### Windows Browser Integration Gate
 
@@ -446,9 +464,23 @@ Required after Agent 3 and before production promotion:
 
 The Ubuntu pipeline produces assets and evidence. Windows decides whether the runtime integration is complete.
 
+Browser integration artifacts should be JSON and validate with:
+
+```bash
+python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate browser-integration <path>
+```
+
+Before opening a milestone PR, run the deterministic workflow evals:
+
+```bash
+npm run pipeline:evals
+```
+
 ## Branch and worktree rules
 
 Use separate branches per stage and batch.
+
+Do not do new milestone or gate work directly on `main`. Create a branch such as `codex/<short-description>` or `asset/<stage-batch>`, commit only owned-path changes for that scope, push, and open a draft PR with the commands actually run and any owner approval still required.
 
 Examples:
 

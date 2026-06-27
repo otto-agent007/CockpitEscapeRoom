@@ -15,6 +15,7 @@ from reference_utils import (
     load_manifest,
     local_path,
     repo_relative,
+    sha256_file,
     write_json_report,
 )
 
@@ -88,17 +89,26 @@ def validate_manifest() -> tuple[list[str], list[str]]:
                 basenames.append(path.name)
                 if path.suffix.lower() in IMAGE_SUFFIXES:
                     manifest_image_paths.add(path.resolve())
-                if classification in CLASSIFICATION_FOLDERS:
+                if local_file.startswith("dc9-51/") and classification in CLASSIFICATION_FOLDERS:
                     expected = f"dc9-51/{CLASSIFICATION_FOLDERS[classification]}/"
                     if not local_file.startswith(expected):
                         errors.append(
                             f"{reference_id}: {classification} reference must live under {expected}"
                         )
+                if local_file.startswith("a320/") and "A320" not in str(get_nested(entry, "aircraft.model")):
+                    errors.append(f"{reference_id}: a320 reference must identify aircraft.model as A320")
                 if not entry.get("direct_image_url") and not path.exists():
                     errors.append(f"{reference_id}: non-downloadable local_file is missing: {repo_relative(path)}")
 
-        if entry.get("sha256") and not local_path(entry).exists():
-            errors.append(f"{reference_id}: sha256 is recorded but local file is missing")
+        if entry.get("sha256"):
+            path = local_path(entry)
+            if not path.exists():
+                errors.append(f"{reference_id}: sha256 is recorded but local file is missing")
+            elif sha256_file(path) != entry["sha256"]:
+                errors.append(f"{reference_id}: sha256 does not match local file")
+
+        if str(entry.get("license", "")).strip().lower() == "unknown":
+            warnings.append(f"{reference_id}: license is Unknown; keep private/reference-only until resolved")
 
         if entry.get("download_status") == "downloaded":
             path = local_path(entry)
@@ -117,10 +127,9 @@ def validate_manifest() -> tuple[list[str], list[str]]:
     for name in duplicate_basenames:
         errors.append(f"Duplicate local filename in manifest: {name}")
 
-    for folder in ("primary", "secondary", "presentation"):
-        for path in (REFERENCE_ROOT / "dc9-51" / folder).glob("*"):
-            if path.is_file() and path.suffix.lower() in IMAGE_SUFFIXES and path.resolve() not in manifest_image_paths:
-                errors.append(f"Unmanifested downloaded image: {repo_relative(path)}")
+    for path in REFERENCE_ROOT.rglob("*"):
+        if path.is_file() and path.suffix.lower() in IMAGE_SUFFIXES and path.resolve() not in manifest_image_paths:
+            errors.append(f"Unmanifested reference image: {repo_relative(path)}")
 
     report_path = write_json_report(
         "manifest-validation.json",

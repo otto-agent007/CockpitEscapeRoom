@@ -27,6 +27,23 @@ Asset work moves through explicit gates:
 
 No gate may approve its own work. Completion means evidence is ready for the next gate; approval requires the recorded owner or receiving-workstream decision.
 
+Gate evidence should be machine-readable before it is treated as handoff-ready. The cockpit pipeline CLI validates the current structured gate artifacts:
+
+```bash
+python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate reference-authority art-source/cockpit-pipeline/gates/examples/agent0-dc9-reference-authority.example.json
+python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate runtime-contract art-source/cockpit-pipeline/gates/examples/agent2-runtime-contract.example.json
+python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate material-optimization art-source/cockpit-pipeline/gates/examples/agent3-material-optimization.example.json
+python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate browser-integration art-source/cockpit-pipeline/gates/examples/windows-browser-integration.example.json
+```
+
+Agent workflow guardrails are also tested with deterministic fixtures:
+
+```bash
+npm run pipeline:evals
+```
+
+The eval fixtures cover known failure modes: Tripo candidates promoted beyond proxy use, Agent 2 starting without Agent 0 authority, Agent 3 destructive optimization breaking runtime contracts, Airbus/DC-9 detail mixing, and Model Y spoiler leaks before Captain Mode completion.
+
 ## Scene groups
 
 Keep generated assets separated by scene group:
@@ -86,6 +103,8 @@ Before a GLB is handed to the React workstream, record:
 - material count, texture sizes, GLB size, and optimization decisions
 - GLB reimport validation result
 - known aircraft-reference deviations
+
+The Blender GLB exporter writes `.cache/assets/<asset>/export-contract-report.json` through the asset build scripts. That report records the export settings that affect runtime contracts, including `export_extras: true`, selection-only export, animations, cameras, lights, selected object count, and any exported `game_id` nodes.
 
 ## Export and integration
 

@@ -72,9 +72,13 @@ mkdirSync(dirname(resolve(config.output)), { recursive: true })
 copyFileSync(rawGlb, config.output)
 
 const validationPath = resolve(cacheDir, 'validation.json')
+const exportContractPath = resolve(cacheDir, 'export-contract-report.json')
 const validation = existsSync(validationPath)
   ? JSON.parse(readFileSync(validationPath, 'utf8'))
   : { warning: 'No validation report was generated.' }
+const exportContract = existsSync(exportContractPath)
+  ? JSON.parse(readFileSync(exportContractPath, 'utf8'))
+  : { warning: 'No export contract report was generated.' }
 
 writeFileSync(
   reportPath,
@@ -86,6 +90,7 @@ writeFileSync(
       rootObject: config.root,
       builtAt: new Date().toISOString(),
       note: 'No destructive optimization is applied by default; preserve node names, pivots, hierarchy, extras, and animations.',
+      exportContract,
       validation,
     },
     null,

@@ -23,6 +23,7 @@
     "references:contact-sheet": "python3 tools/references/build_contact_sheet.py",
     "references:brief": "python3 tools/references/generate_modeling_brief.py",
     "references:check": "python3 tools/references/check_references.py",
+    "pipeline:evals": "python3 -m tools.blender.cockpit_pipeline.pipeline_cli run-evals",
     "asset:dc9": "node tools/assets/build-asset.mjs dc9",
     "asset:airbus": "node tools/assets/build-asset.mjs airbus",
     "asset:tesla": "node tools/assets/build-asset.mjs tesla"

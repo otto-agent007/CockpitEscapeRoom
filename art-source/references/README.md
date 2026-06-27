@@ -6,10 +6,11 @@ This folder stores source records and locally cached references for CockpitEscap
 
 - The active packs are Northwest-style McDonnell Douglas DC-9-51 and Airbus A320 references used for cockpit and game preparation.
 - Use `reference-manifest.yaml` as the source of truth for rights, variant, confidence, and intended use.
+- Every checked-in JPG, PNG, JPEG, or WebP under this tree must have a manifest entry; `npm run references:validate` now scans all reference folders, not only DC-9.
 - Do not copy photos from sources unless the manifest records a direct download URL and license-compatible source.
 - Do not use simulator screenshots as geometry authority. They can inform presentation benchmarks only.
 - Do not mix DC-9 variants without labeling the source variant and recording compatibility limits.
-- Keep Airbus references in `a320/` for cockpit photos, panel references, and loading-copy assets.
+- Keep Airbus references in `a320/` for cockpit photos, panel references, and loading-copy assets. These remain private/reference-only until source pages, creators, license scope, and exact Airbus model authority are resolved.
 - Keep private owner-supplied or personally licensed files under `local-private/`; that directory is intentionally not part of automated public download flow.
 
 ## Commands

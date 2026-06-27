@@ -1,0 +1,18 @@
+{
+  "case": "agent1-tripo-authority",
+  "candidate": {
+    "sourceType": "tripo-candidate",
+    "targetSceneGroup": "DC-9 Pop T Captain cockpit",
+    "description": "Generated retro cockpit proxy mesh"
+  },
+  "observedOutcome": {
+    "authority": "proxy-only",
+    "mayProceedToAssembly": true,
+    "mayProceedToProduction": false,
+    "warnings": [
+      "not-aircraft-specific-production-authority",
+      "must-import-into-blender-before-runtime-use"
+    ]
+  },
+  "expectedViolations": []
+}

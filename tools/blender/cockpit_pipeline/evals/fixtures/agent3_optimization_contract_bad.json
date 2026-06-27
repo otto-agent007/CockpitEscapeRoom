@@ -1,0 +1,27 @@
+{
+  "case": "agent3-runtime-contract-preservation",
+  "beforeOptimization": {
+    "runtimeNodes": [
+      "DC9_YOKE_CAPTAIN",
+      "DC9_RADIO_PANEL"
+    ],
+    "gameIds": [
+      "dc9.yoke.captain",
+      "dc9.radio.panel"
+    ],
+    "pivotReport": "art-source/cockpit-pipeline/stages/assembly/output/dc9-vslice-assembly/node-pivot-report.json"
+  },
+  "afterOptimization": {
+    "runtimeNodes": [
+      "Mesh_001",
+      "Mesh_002"
+    ],
+    "gameIds": [],
+    "pivotReport": "missing"
+  },
+  "expectedViolations": [
+    "game-ids-changed",
+    "pivot-report-changed",
+    "runtime-node-names-changed"
+  ]
+}

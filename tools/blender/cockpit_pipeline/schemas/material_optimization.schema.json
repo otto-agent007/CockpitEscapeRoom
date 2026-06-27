@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cockpit-pipeline/material-optimization.schema.json",
+  "title": "Agent 3 material and optimization gate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "gate",
+    "artifactId",
+    "createdAt",
+    "assetPath",
+    "materialCount",
+    "textureReports",
+    "glbSizeBytes",
+    "optimizationDecision",
+    "destructiveOptimizationUsed",
+    "runtimeContractPreserved",
+    "reimportValidation"
+  ],
+  "properties": {
+    "gate": { "type": "string", "enum": ["material-optimization"] },
+    "artifactId": { "type": "string", "minLength": 1 },
+    "createdAt": { "type": "string", "minLength": 1 },
+    "assetPath": { "type": "string", "minLength": 1 },
+    "materialCount": { "type": "integer", "minimum": 0 },
+    "textureReports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "width", "height", "usage"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "width": { "type": "integer", "minimum": 1 },
+          "height": { "type": "integer", "minimum": 1 },
+          "usage": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "glbSizeBytes": { "type": "integer", "minimum": 0 },
+    "optimizationDecision": { "type": "string", "minLength": 1 },
+    "destructiveOptimizationUsed": { "type": "boolean" },
+    "runtimeContractPreserved": { "type": "boolean" },
+    "reimportValidation": { "type": "string", "enum": ["pass", "blocked", "fail"] }
+  }
+}

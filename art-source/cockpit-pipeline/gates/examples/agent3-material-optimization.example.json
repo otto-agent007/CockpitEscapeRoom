@@ -1,0 +1,20 @@
+{
+  "gate": "material-optimization",
+  "artifactId": "agent3-dc9-vslice-material-optimization-example",
+  "createdAt": "2026-06-26T00:00:00Z",
+  "assetPath": "art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/dc9-vslice-shaded.glb",
+  "materialCount": 10,
+  "textureReports": [
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-vslice-shading/textures/dc9_gauge_face.png",
+      "width": 1024,
+      "height": 1024,
+      "usage": "gauge face material"
+    }
+  ],
+  "glbSizeBytes": 0,
+  "optimizationDecision": "No destructive optimization in example; preserve runtime node names, pivots, hierarchy, and custom properties.",
+  "destructiveOptimizationUsed": false,
+  "runtimeContractPreserved": true,
+  "reimportValidation": "pass"
+}

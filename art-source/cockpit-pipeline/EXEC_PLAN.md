@@ -563,3 +563,67 @@ Made a documentation and prompt-template update only. No source jobs, assembly j
 
 - Existing checked-in pipeline manifests and state-machine stage names still use `shading` terminology. This checkpoint does not rename artifacts or commands because that would be a broader compatibility migration.
 - Future stage reports should start recording Agent 0 authority notes and runtime contract checklists.
+
+## Agent Gate Validation and Eval Upgrade: 2026-06-26
+
+### Purpose
+
+Implement the five recommended workflow upgrades from the agent best-practices comparison:
+
+1. structured, machine-validated gate artifacts
+2. deterministic agent workflow evals
+3. branch/PR milestone guidance
+4. explicit glTF export contract reporting
+5. stronger reference/source manifest validation
+
+### Bounded action decision
+
+Added validators, schemas, eval fixtures, docs, and manifest records only. No Blender source scenes, production GLBs, generated models, preview renders, or runtime gameplay behavior were changed.
+
+### Files changed
+
+- `tools/blender/cockpit_pipeline/schemas/*.schema.json`
+- `tools/blender/cockpit_pipeline/eval_runner.py`
+- `tools/blender/cockpit_pipeline/evals/fixtures/*.json`
+- `tools/blender/cockpit_pipeline/pipeline_cli.py`
+- `tools/blender/cockpit_pipeline/tests/test_pipeline_contracts.py`
+- `tools/blender/export_glb.py`
+- `tools/assets/build-asset.mjs`
+- `tools/references/validate_manifest.py`
+- `art-source/cockpit-pipeline/gates/examples/*.json`
+- `art-source/cockpit-pipeline/README.md`
+- `art-source/cockpit-pipeline/THREE_AGENT_PLAYBOOK.md`
+- `art-source/references/README.md`
+- `art-source/references/reference-manifest.yaml`
+- `docs/ASSET_PIPELINE.md`
+- `package.json`
+- `tools/blender/AGENTS.md`
+- `TEST_REPORT.md`
+
+### Change summary
+
+- Added `validate-gate` CLI support for Agent 0 reference authority, Agent 2 runtime contract, Agent 3 material/optimization, and Windows/browser integration artifacts.
+- Added example JSON gate artifacts under `art-source/cockpit-pipeline/gates/examples/`.
+- Added deterministic eval fixtures and `npm run pipeline:evals` for Tripo proxy handling, missing Agent 0 authority, runtime contract preservation, Airbus/DC-9 detail separation, and Model Y spoiler protection.
+- Updated GLB export reporting so asset builds record contract-sensitive export settings, including `export_extras: true`, selected object count, and `game_id` nodes.
+- Strengthened reference validation to scan every checked-in reference image, verify recorded hashes, and warn about unknown-license sources.
+- Added A320 reference-folder manifest records and removed stale manifest entries for images no longer checked in.
+
+### Validation evidence
+
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass, 7 tests.
+- `npm run pipeline:evals` - pass, 6/6 deterministic workflow evals.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate reference-authority art-source/cockpit-pipeline/gates/examples/agent0-dc9-reference-authority.example.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate runtime-contract art-source/cockpit-pipeline/gates/examples/agent2-runtime-contract.example.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate material-optimization art-source/cockpit-pipeline/gates/examples/agent3-material-optimization.example.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate browser-integration art-source/cockpit-pipeline/gates/examples/windows-browser-integration.example.json` - pass.
+- `npm run references:validate` - pass for 24 references; warnings remain for unknown-license private/reference-only sources.
+- `git diff --check` - pass.
+- `npm run check` - pass; lint, typecheck, 9 tests, and production build completed.
+- `npm run assets:check` - pass with existing glTF validator warning table for unused texture coordinates and empty nodes in `public/models/dc9-cockpit.glb`.
+- `npm run references:check` - pass with unknown-license warnings; rendered `.cache/references/dc9_reference_overview.png` with Blender 5.1.2.
+
+### Remaining delta
+
+- The new gate examples are templates, not owner approvals for a production asset.
+- Unknown-license reference entries still require source/rights resolution before any public or distributable production use.

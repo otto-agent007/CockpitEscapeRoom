@@ -1,0 +1,24 @@
+{
+  "gate": "reference-authority",
+  "artifactId": "agent0-dc9-vslice-reference-authority-example",
+  "createdAt": "2026-06-26T00:00:00Z",
+  "sceneGroup": "DC-9 Pop T Captain cockpit",
+  "targetAircraftOrObject": "McDonnell Douglas DC-9",
+  "targetVariantStatus": "TBD; preserve sourceVariant, targetVariant, and variantScope until owner approval",
+  "sourceCandidateType": "tripo-candidate",
+  "sourceIdentity": "Generated or imported proxy component candidate",
+  "allowedUsage": [
+    "proxy blockout only",
+    "scale and composition exploration after Blender import",
+    "candidate comparison against approved DC-9 references"
+  ],
+  "forbiddenUsage": [
+    "production geometry authority",
+    "direct runtime use before Blender cleanup and validation",
+    "overriding aircraft-specific DC-9 reference boards"
+  ],
+  "variantCompatibility": "Unresolved; do not treat generated or simulator candidates as DC-9-51 authority.",
+  "licenseScope": "Private noncommercial evaluation only until source rights are recorded.",
+  "ownerApprovalStatus": "approval-required",
+  "nextAllowedStage": "agent1-sourcing"
+}

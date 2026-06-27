@@ -39,3 +39,5 @@ Do not operate the agents as a swarm editing the same cockpit simultaneously. Ru
 - Preserve stable object names, pivots, hierarchy, animations, and `game_id` custom properties as runtime contracts.
 - Treat Tripo AI outputs as candidate/proxy inputs only until imported into Blender, inspected, cleaned, optimized, documented, and approved.
 - Record a Windows/browser integration handoff when an asset needs React loader, interaction, accessibility, or screenshot verification.
+- Validate structured gate artifacts with `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate ...` before a downstream agent consumes them.
+- Run `npm run pipeline:evals` before publishing pipeline changes that affect source authority, Tripo candidate handling, runtime contracts, optimization, aircraft detail separation, or Model Y spoiler surfaces.

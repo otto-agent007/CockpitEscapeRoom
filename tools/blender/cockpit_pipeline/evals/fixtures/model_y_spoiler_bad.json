@@ -1,0 +1,17 @@
+{
+  "case": "model-y-spoiler-protection",
+  "captainModeComplete": false,
+  "publicSurfaces": [
+    {
+      "surface": "loading-copy",
+      "copy": "Loading red Tesla Model Y reward"
+    },
+    {
+      "surface": "menu",
+      "label": "Locked reward"
+    }
+  ],
+  "expectedViolations": [
+    "model-y-spoiler-before-captain-complete"
+  ]
+}
