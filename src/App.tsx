@@ -63,8 +63,8 @@ export default function App() {
               <dd>{personalization.rewardVehicle}</dd>
             </div>
             <div>
-              <dt>Home aircraft</dt>
-              <dd>{personalization.startingAircraft}</dd>
+              <dt>Legacy cockpit</dt>
+              <dd>{personalization.exactDc9Variant}</dd>
             </div>
           </dl>
         </section>
