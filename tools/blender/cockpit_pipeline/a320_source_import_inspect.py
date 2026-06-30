@@ -56,6 +56,7 @@ def main() -> None:
 
     bpy.context.view_layer.update()
     stats = _scene_stats(imported, root)
+    render_visibility = _isolate_cockpit_interior_for_render(imported)
     _add_approval_lighting(stats["bboxCenter"], stats["bboxSize"])
     camera_record = _add_cockpit_camera(stats["bboxMin"], stats["bboxMax"], stats["bboxSize"])
 
@@ -74,6 +75,7 @@ def main() -> None:
         "blenderVersion": bpy.app.version_string,
         "rootObject": root.name,
         "camera": camera_record,
+        "renderIsolation": render_visibility,
         **stats,
     }
     report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
@@ -150,6 +152,32 @@ def _bbox_world(objects: list[bpy.types.Object]) -> tuple[Vector, Vector]:
     return bbox_min, bbox_max
 
 
+def _isolate_cockpit_interior_for_render(imported: list[bpy.types.Object]) -> dict[str, object]:
+    hidden = []
+    visible = []
+    for obj in imported:
+        if obj.type != "MESH":
+            continue
+        pts = [obj.matrix_world @ Vector(corner) for corner in obj.bound_box]
+        bbox_min = Vector((min(point.x for point in pts), min(point.y for point in pts), min(point.z for point in pts)))
+        bbox_max = Vector((max(point.x for point in pts), max(point.y for point in pts), max(point.z for point in pts)))
+        center = (bbox_min + bbox_max) * 0.5
+        size = bbox_max - bbox_min
+        is_cockpit_region = -0.92 <= center.y <= -0.36 and -0.12 <= center.z <= 0.34 and abs(center.x) <= 0.34
+        is_detail_scale = max(size.x, size.y, size.z) <= 0.22 or len(obj.data.polygons) <= 5000
+        if is_cockpit_region and is_detail_scale:
+            visible.append(obj.name)
+        else:
+            obj.hide_render = True
+            obj.hide_viewport = True
+            hidden.append(obj.name)
+    return {
+        "mode": "cockpit-interior-isolation",
+        "visibleObjects": sorted(visible),
+        "hiddenObjectCount": len(hidden),
+    }
+
+
 def _add_approval_lighting(center: list[float], size: list[float]) -> None:
     c = Vector(center)
     radius = max(max(size), 1.0)
@@ -168,30 +196,29 @@ def _add_cockpit_camera(bbox_min: list[float], bbox_max: list[float], size: list
     minimum = Vector(bbox_min)
     maximum = Vector(bbox_max)
     dimensions = Vector(size)
-    # Sketchfab did not provide an embedded camera. Aim from a front-left,
-    # slightly elevated position at the forward cockpit/window area instead
-    # of the full aircraft center.
-    target = Vector((
-        minimum.x + dimensions.x * 0.25,
-        maximum.y - dimensions.y * 0.07,
-        minimum.z + dimensions.z * 0.54,
-    ))
-    location = Vector((
-        minimum.x - dimensions.x * 0.16,
-        maximum.y + dimensions.y * 0.13,
-        minimum.z + dimensions.z * 0.65,
-    ))
+    # Sketchfab did not provide an embedded camera. Place an inspection camera
+    # inside the forward-left cockpit volume to look from the captain-seat area.
+    target = _cockpit_point(minimum, dimensions, x=0.51, y=0.944, z=0.405)
+    location = _cockpit_point(minimum, dimensions, x=0.46, y=0.930, z=0.455)
     bpy.ops.object.camera_add(location=location)
     camera = bpy.context.object
-    camera.name = "CAM_AIRBUS_A320_SOURCE_IMPORT_COCKPIT_VIEW"
+    camera.name = "CAM_AIRBUS_A320_SOURCE_IMPORT_CAPTAIN_SEAT_VIEW"
     direction = target - location
     camera.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
-    camera.data.lens = 95
+    camera.data.lens = 26
+    camera.data.clip_start = 0.005
     camera.data.clip_end = max(max(size) * 8.0, 1000.0)
     bpy.context.scene.camera = camera
+
+    bpy.ops.object.light_add(type="POINT", location=location + Vector((0.0, 0.05, 0.15)))
+    light = bpy.context.object
+    light.name = "AIRBUS_A320_IMPORT_CAPTAIN_SEAT_FILL_LIGHT"
+    light.data.energy = 320
+    light.data.shadow_soft_size = 1.0
+
     return {
         "name": camera.name,
-        "purpose": "cockpit-focused inspection view",
+        "purpose": "captain-seat interior inspection view",
         "location": _vector_list(location),
         "target": _vector_list(target),
         "lensMm": camera.data.lens,
@@ -200,6 +227,16 @@ def _add_cockpit_camera(bbox_min: list[float], bbox_max: list[float], size: list
 
 def _near_tuple(value, expected: tuple[float, float, float], epsilon: float = 0.0001) -> bool:
     return all(math.isclose(float(actual), float(want), abs_tol=epsilon) for actual, want in zip(value, expected))
+
+
+def _cockpit_point(minimum: Vector, dimensions: Vector, x: float, y: float, z: float) -> Vector:
+    # Coordinates are normalized against the imported model's observed cockpit
+    # cluster, not a production scale contract.
+    return Vector((
+        minimum.x + dimensions.x * x,
+        minimum.y + dimensions.y * y,
+        minimum.z + dimensions.z * z,
+    ))
 
 
 def _vector_list(vector: Vector) -> list[float]:

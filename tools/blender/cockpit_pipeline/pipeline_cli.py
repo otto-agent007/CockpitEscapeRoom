@@ -188,7 +188,7 @@ def run_a320_source_candidate_import(archive: Path, candidate_id: str, cache: Pa
         raise RuntimeError("Blender executable unavailable; set BLENDER_BIN or install blender on PATH")
 
     blend_path = inspection_dir / "a320-cockpit-2-import-inspection.blend"
-    preview_path = preview_dir / "a320-cockpit-2-import-cockpit-view.png"
+    preview_path = preview_dir / "a320-cockpit-2-import-captain-seat-view.png"
     json_report_path = report_dir / "a320-cockpit-2-blender-import-report.json"
     script = Path(__file__).with_name("a320_source_import_inspect.py")
     command = [

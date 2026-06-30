@@ -14,7 +14,7 @@ This report does not approve Agent 2 assembly. No deployable GLB was produced or
 - Source archive SHA-256: `1f7ec972d2a34c24b1df574142c40659cb294d372ac7e3c2cd64f9d7d69f65d4`
 - Extracted glTF: `.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/extracted/a320_cockpit_2/scene.gltf`
 - Inspection blend: `.cache/cockpit-pipeline/inspection/a320-prebuilt-parts-source-discovery/a320-cockpit-2/a320-cockpit-2-import-inspection.blend`
-- Preview render: `preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-cockpit-view.png`
+- Preview render: `preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-captain-seat-view.png`
 - Machine report: `asset-reports/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-blender-import-report.json`
 
 ## Blender Import Stats
@@ -33,7 +33,9 @@ This report does not approve Agent 2 assembly. No deployable GLB was produced or
 
 ## Visual Review
 
-The generated preview uses a cockpit-focused camera aimed at the aircraft nose/window area to approximate the useful Sketchfab cockpit-facing view. It is still an exterior-window view, not a confirmed cockpit-interior base. The asset imported cleanly and may be useful as a presentation or exterior/cockpit-window source candidate, but it should not be promoted as the Airbus A320 cockpit interior base without owner review and a closer inspection pass proving usable interior geometry exists.
+The generated preview uses a captain-seat interior inspection camera with a render-only cockpit isolation pass. The source file and inspection `.blend` still contain the full imported model, but the preview hides non-cockpit objects so the seat, sidestick, glareshield/panel geometry, and cockpit windows are readable.
+
+The isolated render confirms that this package contains some cockpit interior geometry. It still needs cleanup before use: object names are generic Sketchfab imports, the cockpit is embedded in a full aircraft model, and no runtime-safe hierarchy, pivots, `game_id` metadata, or interaction contracts exist yet.
 
 Object and mesh names are generic Sketchfab import names such as `Sketchfab_model` and `Object_0`, so a future assembly pass would need cleanup, stable naming, and cockpit-specific hierarchy work before any runtime contract exists.
 
@@ -48,4 +50,4 @@ python3 -m tools.blender.cockpit_pipeline.pipeline_cli import-a320-source-candid
 
 Outcome: `approval-required`.
 
-Owner review is required before this asset can be treated as source-approved for any Agent 2 assembly step. If approved for continued use, the next bounded Agent 1 action should be a cockpit-interior focused inspection pass that identifies whether the imported source actually contains usable A320 cockpit interior components.
+Owner review is required before this asset can be treated as source-approved for any Agent 2 assembly step. If approved for continued use, the next bounded Agent 1 action should classify cockpit interior objects, identify which meshes can become source components, and record cleanup/naming risks before assembly.

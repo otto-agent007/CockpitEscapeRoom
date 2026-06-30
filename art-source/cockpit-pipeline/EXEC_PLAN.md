@@ -158,17 +158,17 @@ Pull the owner-approved `A320 Cockpit 2` source package into Blender for Agent 1
 - [x] 2026-06-30 - Extracted the glTF package under `.cache/cockpit-pipeline`.
 - [x] 2026-06-30 - Imported `scene.gltf` into Blender 5.1.2 with factory startup and auto-execution disabled.
 - [x] 2026-06-30 - Saved cache-only inspection file `.cache/cockpit-pipeline/inspection/a320-prebuilt-parts-source-discovery/a320-cockpit-2/a320-cockpit-2-import-inspection.blend`.
-- [x] 2026-06-30 - Rendered preview evidence at `preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-cockpit-view.png`.
+- [x] 2026-06-30 - Rendered preview evidence at `preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-captain-seat-view.png`.
 
 ### Evidence
 
 - `python3 -m tools.blender.cockpit_pipeline.preflight` - pass; Blender 5.1.2.
 - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli import-a320-source-candidate` - pass; imported 135 meshes, 620 objects including inspection root, 13 materials, and 537334 triangles.
-- Visual inspection of the generated cockpit-view preview - warning; it shows the exterior nose/window area rather than a confirmed cockpit-interior base.
+- Visual inspection of the generated captain-seat preview - pass for source inspection; render-only isolation exposes cockpit interior geometry including sidestick/panel/window/seat forms.
 
 ### Outcome
 
-Outcome: `approval-required`. The source imports cleanly into Blender with a cockpit-focused inspection camera, but it should not be source-approved for Agent 2 cockpit assembly until owner review resolves whether the asset contains usable cockpit interior geometry or should be reclassified as exterior/presentation material.
+Outcome: `approval-required`. The source imports cleanly into Blender and the captain-seat isolation preview confirms usable cockpit interior geometry exists. It should not be source-approved for Agent 2 cockpit assembly until owner review accepts this source and a follow-up Agent 1 pass classifies/cleans cockpit interior component candidates.
 
 ## Outcome and handoff
 
