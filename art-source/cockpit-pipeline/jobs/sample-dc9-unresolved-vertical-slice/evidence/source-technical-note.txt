@@ -1,7 +1,7 @@
 Sample technical reproducibility note for the CockpitEscapeRoom three-agent pipeline.
 
 This placeholder proves manifest hashing only. It is not a sourced aircraft model,
-not a production DC-9 asset, and not a licensing assessment.
+not a production DC-9 asset, and not a visual approval assessment.
 
 sourceUrl: sample-local-placeholder
 resolvedRevision: n/a

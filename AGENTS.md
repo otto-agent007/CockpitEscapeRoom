@@ -63,7 +63,7 @@ Every implementation task must establish:
 
 - **Goal:** the observable player or maintainer outcome.
 - **Context:** relevant files, screenshots, reference material, and current behavior.
-- **Constraints:** architecture, safety, accessibility, licensing, performance, and scope boundaries.
+- **Constraints:** architecture, safety, accessibility, performance, and scope boundaries.
 - **Done when:** exact checks and behaviors that prove completion.
 
 Resolve non-blocking ambiguity with an editable default and record the decision. Do not stop after writing a plan unless the task explicitly requests planning only.
@@ -121,8 +121,7 @@ Stop only when validation passes, a bounded maximum attempt count is reached, th
 - Record material count, texture sizes, optimization decisions, validation output, and preview-render evidence before treating a generated asset as production-ready.
 - Preserve Model Y spoiler protection: no reward asset, Flight Mode thumbnail, menu item, loading copy, hint, or achievement may reveal the Model Y before Pop T Captain Mode completion.
 - The Model Y Flight Mode transformation should stay sleek, plausible-futuristic, and premium: clean mechanical panels, wing/stabilizer deployment, hidden lift fans or concealed propulsion accents, restrained lighting, no aggressive sci-fi styling, and no humanoid robot transformation.
-- Private, personalized noncommercial builds may import owner-supplied airline artwork, logos, textures, and production assets when clearly intended for that private scope.
-- For any import used outside the private, noncommercial flow, keep only original-work or licensed rights for production use, and record each source in `LICENSES/ASSET_MANIFEST.md`.
+- Owner-approved airline artwork, logos, textures, and production assets may be used when they match the current scene group and asset authority.
 
 ## Approval gates
 

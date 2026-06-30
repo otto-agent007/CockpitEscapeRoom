@@ -18,12 +18,12 @@ Primary target: Northwest-style McDonnell Douglas DC-9-51 cockpit, with N775NC a
 - Pedestal/throttle quadrant close-up for Northwest DC-9-51.
 - Captain sidewall and window mechanism details.
 - First officer side view.
-- Label and placard close-ups with confirmed redistribution rights.
+- Label and placard close-ups with source records.
 
 ## Modeling Notes
 
-The single primary cockpit photo can establish the captain-eye main-panel read, but it cannot prove overhead/pedestal geometry or sidewall details. Before production cockpit modeling, collect or commission additional real-aircraft references and update the manifest with license and compatibility notes.
+The single primary cockpit photo can establish the captain-eye main-panel read, but it cannot prove overhead/pedestal geometry or sidewall details. Before production cockpit modeling, collect or commission additional real-aircraft references and update the manifest with source and compatibility notes.
 
-## License Notes
+## Source Notes
 
-Commons downloads in this pack are cached only when a direct image URL is recorded. Their licenses may require attribution and share-alike terms. Treat each reference as visual source material; do not bake or distribute any photo as a texture unless the downstream license implications are reviewed.
+Commons downloads in this pack are cached only when a direct image URL is recorded. Treat each reference as visual source material and keep source records current.

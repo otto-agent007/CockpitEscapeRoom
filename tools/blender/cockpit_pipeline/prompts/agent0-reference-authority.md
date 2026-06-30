@@ -21,7 +21,6 @@ Define what source material is allowed to influence the next CockpitEscapeRoom a
 - Preserve `sourceVariant`, `targetVariant`, and `variantScope` for DC-9 work.
 - Do not start production Airbus modeling until `exactAirbusModel` is confirmed.
 - Keep Airbus and DC-9 aircraft-specific details separate.
-- Record private-use, licensing, and redistribution limits when known.
 
 ## Required Output
 
@@ -35,11 +34,10 @@ Write or update a reference-authority note that records:
 - allowed usage scope
 - forbidden usage scope
 - variant compatibility limits
-- licensing or private-use notes
 - owner approval status
 - next allowed stage
 
 ## Done When
 
 - Agent 1 can read the note and know exactly what it may source, extract, generate, or reject.
-- Any unresolved visual or licensing authority is marked `approval-required` instead of being implied by the source candidate.
+- Any unresolved visual authority is marked `approval-required` instead of being implied by the source candidate.

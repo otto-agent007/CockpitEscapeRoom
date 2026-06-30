@@ -6,7 +6,7 @@ A former DC-9 pilot should recognize the main cockpit immediately from the capta
 
 ## Reference policy
 
-Build an approved reference board for each aircraft. Record source, model/variant, angle, date if known, license, and what the reference is used for. Separate visual reference from texture rights: permission to view a photograph does not necessarily permit distributing it as a texture.
+Build an approved reference board for each aircraft. Record source, model/variant, angle, date if known, and what the reference is used for.
 
 ## DC-9 approval criteria
 
@@ -64,4 +64,4 @@ Each visual gate includes:
 - GLB size and object/material counts.
 - Mobile and desktop screenshots.
 - Known deviations from the reference set.
-- License/source manifest updates.
+- Source manifest updates.

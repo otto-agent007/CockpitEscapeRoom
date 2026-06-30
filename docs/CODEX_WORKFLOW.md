@@ -12,7 +12,7 @@ Every significant prompt should contain four explicit fields:
 
 - **Goal:** the observable result.
 - **Context:** relevant files, current behavior, references, screenshots, logs, and owner decisions.
-- **Constraints:** architecture, visual realism, accessibility, privacy, licensing, performance, and scope limits.
+- **Constraints:** architecture, visual realism, accessibility, privacy, performance, and scope limits.
 - **Done when:** commands and player-visible behaviors that prove completion.
 
 Use low reasoning for small mechanical edits, medium/high for multi-file changes, and the strongest available reasoning for production cockpit integration, difficult debugging, or long ExecPlans.

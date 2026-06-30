@@ -51,14 +51,14 @@ def generate_brief() -> Path:
             "- DC-9-51 pedestal and throttle quadrant close-up.",
             "- Captain sidewall and window mechanism.",
             "- First officer side view.",
-            "- Label/placard close-ups with redistribution terms reviewed.",
+            "- Label/placard close-ups with complete source records.",
             "",
             "## Production Modeling Guardrails",
             "",
             "- Do not start final cockpit geometry from the secondary or presentation rows.",
             "- Use secondary rows only when a shared component/material cue is explicitly relevant.",
             "- Keep all interactions fictional and non-operational.",
-            "- Do not use reference photos as textures unless downstream license obligations are reviewed.",
+            "- Do not use reference photos as textures unless the source record supports that use.",
             "",
         ]
     )

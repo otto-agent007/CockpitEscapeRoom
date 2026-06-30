@@ -64,7 +64,7 @@ def download_references(force: bool = False) -> int:
                 headers={
                     "User-Agent": (
                         "CockpitEscapeRoomReferenceTool/0.1 "
-                        "(license-aware art reference downloader; local development)"
+                        "(art reference downloader; local development)"
                     )
                 },
             )
