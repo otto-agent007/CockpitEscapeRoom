@@ -29,7 +29,7 @@ Sketchfab public metadata API returned:
 
 ## Download result
 
-Blocked. The official Sketchfab download API returned:
+Initial API attempt blocked. The official Sketchfab download API returned:
 
 ```text
 HTTPError HTTP Error 401: Unauthorized
@@ -37,13 +37,16 @@ HTTPError HTTP Error 401: Unauthorized
 
 The browser-style `/download` page returned an HTML/challenge response and did not expose a model archive. No model archive, extracted model file, texture, Blender file, GLB, or runtime asset was downloaded or committed.
 
+## Browser download follow-up
+
+The owner completed the download through the browser and placed the original archive in the configured cache path:
+
+- `.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/a320_cockpit_2.zip`
+
+Tracked intake evidence:
+
+- `asset-reports/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-intake-report.md`
+
 ## Next step
 
-Set up an authenticated Sketchfab download route, preferably with a Sketchfab OAuth/API token available only in the local shell environment, then retry:
-
-```bash
-python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate reference-authority art-source/cockpit-pipeline/gates/agent0-airbus-a320-prebuilt-parts-authority.json
-python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-job art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/job.json
-```
-
-After the download succeeds, keep the archive under `.cache/cockpit-pipeline`, record hashes and package contents, and do not start Agent 2 assembly until source approval exists.
+Inspect the downloaded package through the Agent 1 import/inspection path if the owner approves that bounded action. Keep the archive under `.cache/cockpit-pipeline`, preserve the original zip, and do not start Agent 2 assembly until source approval exists.

@@ -122,6 +122,30 @@ For each checkpoint, review the diff, run the focused command, repair the root c
 
 The preview render was visually inspected and is a neutral disposable scene.
 
+## Source Intake: Airbus A320 Prebuilt Cockpit Candidate
+
+### Purpose
+
+Record the owner-approved browser download for the top-ranked Airbus A320 prebuilt cockpit candidate as an Agent 1 source-intake artifact. This is not an Agent 2 assembly approval and does not produce or replace deployable GLBs.
+
+### Progress
+
+- [x] 2026-06-30 - Confirmed branch `codex/asset-workflow-health-rehearsal` and clean tracked worktree before intake.
+- [x] 2026-06-30 - Verified the owner-downloaded archive exists under `.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/`.
+- [x] 2026-06-30 - Recorded archive SHA-256, package contents, integrity check, license lead, and glTF metadata in the source intake report.
+- [x] 2026-06-30 - Preserved the original downloaded archive outside Git and did not extract, import, assemble, optimize, or export runtime assets.
+
+### Evidence
+
+- `sha256sum .cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/a320_cockpit_2.zip` - pass; SHA-256 `1f7ec972d2a34c24b1df574142c40659cb294d372ac7e3c2cd64f9d7d69f65d4`.
+- `unzip -t .cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/a320_cockpit_2.zip` - pass.
+- `unzip -l .cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/a320_cockpit_2.zip` - pass; glTF package with `scene.gltf`, `scene.bin`, `license.txt`, and 11 texture images.
+- glTF metadata inspection - pass; 619 nodes, 135 meshes, 13 materials, 11 textures, no animations.
+
+### Outcome
+
+The downloaded `A320 Cockpit 2` source package is recorded as a cache-only Agent 1 input. Outcome: `approval-required`. The next bounded action is owner approval for Agent 1 Blender import/inspection. Agent 2 assembly remains blocked until an inspected source package receives human `source-approval.json`.
+
 ## Outcome and handoff
 
 The foundation is in place for Agent 1 to begin sourcing against the unresolved-variant four-component vertical slice. Agent 1 should start with:
