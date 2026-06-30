@@ -627,3 +627,61 @@ Added validators, schemas, eval fixtures, docs, and manifest records only. No Bl
 
 - The new gate examples are templates, not owner approvals for a production asset.
 - Reference entries still require source/provenance cleanup where manifest notes remain incomplete.
+
+## Airbus A320 Agent 1 Web Reference Sourcing: 2026-06-30
+
+### Purpose
+
+Run the Airbus A320 Agent 1 sourcing step after Agent 0 authorized web-reference discovery for the Airbus A320 First-Officer cockpit. This pass searched and ranked web source leads only. It did not download images, import assets into Blender, run Tripo/Marble generation, create GLBs, or start Agent 2 assembly.
+
+### Fresh state
+
+- Branch: `codex/asset-workflow-health-rehearsal`
+- Agent 0 authority: `art-source/cockpit-pipeline/gates/agent0-airbus-a320-web-reference-authority.json`
+- Source seed: `art-source/cockpit-pipeline/source-discovery-seeds/a320-web-reference-source-discovery.seed.json`
+- Job: `art-source/cockpit-pipeline/jobs/a320-web-reference-source-discovery/job.json`
+- Target scene group: Airbus A320 First-Officer cockpit
+- Target aircraft: Airbus A320
+
+### Bounded action decision
+
+Ran Agent 1 web-reference source discovery and stopped at `sourcing_complete`. No downstream stage work was run because the source handoff still requires human review before downloads, source approval, reference-board approval, or Agent 2 assembly.
+
+### Source ranking summary
+
+- Airbus official cockpits page - selected as primary manufacturer context for A320-family cockpit commonality; not a downloadable modeling board.
+- Wikimedia Commons `Cockpits of Airbus A320` category - selected as a source index; each file requires per-file license/provenance review before manifesting or downloading.
+- Wikimedia Commons `EasyJet airbus A320 cockpit.jpg` - selected as a real A320 cockpit candidate for future manifest/download review.
+- Wikimedia Commons `Airbus A320 Glass Cockpit.jpg` - rejected for geometry authority because it is a simulator cockpit; may be presentation-only after license review.
+- FlyByWire A32NX flight deck overview - selected only as simulator documentation for panel-name/source-triage orientation.
+
+### Files changed
+
+- `tools/blender/cockpit_pipeline/schemas/job_request.schema.json`
+- `art-source/cockpit-pipeline/jobs/a320-web-reference-source-discovery/job.json`
+- `art-source/cockpit-pipeline/jobs/a320-web-reference-source-discovery/manifests/sourcing-complete.json`
+- `art-source/cockpit-pipeline/stages/source/output/a320-web-reference-source-discovery/component-catalog.json`
+- `asset-reports/cockpit-pipeline/a320-web-reference-source-discovery/source-candidate-ranking.md`
+- `asset-reports/cockpit-pipeline/a320-web-reference-source-discovery/source-job-report.md`
+- `art-source/cockpit-pipeline/EXEC_PLAN.md`
+
+### Validation evidence
+
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate reference-authority art-source/cockpit-pipeline/gates/agent0-airbus-a320-web-reference-authority.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-job art-source/cockpit-pipeline/jobs/a320-web-reference-source-discovery/job.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/a320-web-reference-source-discovery/manifests/sourcing-complete.json` - pass, hashes verified.
+- `python3 -m tools.blender.cockpit_pipeline.preflight` - pass; Blender 5.1.2 found and dirty state reported as expected.
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass, 7 tests.
+- `npm run pipeline:evals` - pass, 6/6.
+- `npm run references:validate` - pass, 24 references.
+
+### Stop outcome
+
+`approval-required`. The A320 source handoff is complete enough for owner/source review, but no source is approved for download, Blender use, production geometry, or Agent 2 assembly.
+
+### Remaining delta
+
+- Pick which real A320 Commons file pages should become manifest entries.
+- Add source records before any downloads.
+- Find stronger first-officer side-stick, overhead, and pedestal close-up references with compatible licenses.
+- Keep simulator/FlyByWire sources presentation-only.

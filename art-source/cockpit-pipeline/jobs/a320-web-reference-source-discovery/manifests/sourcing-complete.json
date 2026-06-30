@@ -1,0 +1,49 @@
+{
+  "manifestId": "a320-web-reference-source-discovery-sourcing-complete",
+  "jobId": "a320-web-reference-source-discovery",
+  "stage": "sourcing_complete",
+  "createdAt": "2026-06-30T00:00:00Z",
+  "sourceVariant": "web-reference-leads",
+  "targetVariant": "Airbus A320",
+  "variantScope": "target-confirmed",
+  "artifactBasePath": "/mnt/2TBHDD/CockpitEscapeRoom",
+  "inputs": [
+    {
+      "path": "art-source/cockpit-pipeline/gates/agent0-airbus-a320-web-reference-authority.json",
+      "sha256": "3c75be8b48e57f95d390311155d394d769b56d89be96f1c776c2125d4f050b4b",
+      "bytes": 1790
+    },
+    {
+      "path": "art-source/cockpit-pipeline/source-discovery-seeds/a320-web-reference-source-discovery.seed.json",
+      "sha256": "5779cfc8280b67c1556108df4173c130dcc58de13fd03b794ad26b8a1cdb539c",
+      "bytes": 3956
+    }
+  ],
+  "outputs": [
+    {
+      "path": "art-source/cockpit-pipeline/jobs/a320-web-reference-source-discovery/job.json",
+      "sha256": "a6e97e5ee2e89c2bf7a86f3d5e283119827277829903cddd1681a6ac64e3f795",
+      "bytes": 2868
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/source/output/a320-web-reference-source-discovery/component-catalog.json",
+      "sha256": "d1563221309f4e72141c007cec08613622f0fc0163b85bfb9eb95f81f3a1c053",
+      "bytes": 5557
+    },
+    {
+      "path": "asset-reports/cockpit-pipeline/a320-web-reference-source-discovery/source-candidate-ranking.md",
+      "sha256": "a8d9285f3a90d9af844b8e8a0a45ab2f11c511d6d6514a892433951b977b95c7",
+      "bytes": 2981
+    },
+    {
+      "path": "asset-reports/cockpit-pipeline/a320-web-reference-source-discovery/source-job-report.md",
+      "sha256": "7b1cab8e79b1e5dd9f4478fac9f0ca9f8c76e02eefa068a9db4d51ee3e35795e",
+      "bytes": 2583
+    }
+  ],
+  "approval": {
+    "approved": false,
+    "approvedBy": "human-review-pending",
+    "notes": "Sourcing complete only. Human review is required before downloads, source approval, or Agent 2 assembly."
+  }
+}

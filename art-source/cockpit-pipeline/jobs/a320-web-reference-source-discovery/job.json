@@ -1,0 +1,64 @@
+{
+  "jobId": "a320-web-reference-source-discovery",
+  "title": "Airbus A320 web reference source discovery",
+  "stage": "sourcing_complete",
+  "aircraft": "airbus",
+  "sourceVariant": "web-reference-leads",
+  "targetVariant": "Airbus A320",
+  "variantScope": "target-confirmed",
+  "sourceRepository": {
+    "url": "art-source/cockpit-pipeline/source-discovery-seeds/a320-web-reference-source-discovery.seed.json",
+    "resolvedRevision": "web-search-2026-06-30"
+  },
+  "requestedComponents": [
+    {
+      "componentId": "a320-ref-officer-sidestick-seat-001",
+      "label": "first-officer side-stick and seat relationship",
+      "quantity": 1,
+      "acceptanceNotes": "Find real A320 cockpit references that show first-officer side-stick placement, sidewall spacing, and seat relationship. Simulator sources may only be presentation references."
+    },
+    {
+      "componentId": "a320-ref-main-display-arrangement-001",
+      "label": "main display arrangement",
+      "quantity": 1,
+      "acceptanceNotes": "Prioritize A320-family display layout and glareshield relationship from official or license-screened sources."
+    },
+    {
+      "componentId": "a320-ref-fcu-glareshield-001",
+      "label": "flight-control-unit and glareshield geometry",
+      "quantity": 1,
+      "acceptanceNotes": "Record FCU/glareshield viewpoint, cockpit family, and whether the source is real aircraft, simulator, or manufacturer context."
+    },
+    {
+      "componentId": "a320-ref-pedestal-thrust-001",
+      "label": "pedestal and thrust lever quadrant",
+      "quantity": 1,
+      "acceptanceNotes": "Find A320 pedestal/thrust quadrant references with clear license terms before any download."
+    },
+    {
+      "componentId": "a320-ref-overhead-panel-001",
+      "label": "overhead panel density and lighting",
+      "quantity": 1,
+      "acceptanceNotes": "Find A320 overhead references and record whether they are exact A320, A320-family, or simulator/presentation only."
+    },
+    {
+      "componentId": "a320-ref-cockpit-volume-001",
+      "label": "cockpit volume and window proportions",
+      "quantity": 1,
+      "acceptanceNotes": "Find wide A320 cockpit views for window, sidewall, and first-officer volume proportions."
+    }
+  ],
+  "stageDirectories": {
+    "sourceInput": "art-source/cockpit-pipeline/stages/source/input",
+    "sourceOutput": "art-source/cockpit-pipeline/stages/source/output",
+    "assemblyInput": "art-source/cockpit-pipeline/stages/assembly/input",
+    "assemblyOutput": "art-source/cockpit-pipeline/stages/assembly/output",
+    "shadingInput": "art-source/cockpit-pipeline/stages/shading/input",
+    "shadingOutput": "art-source/cockpit-pipeline/stages/shading/output"
+  },
+  "cachePolicy": {
+    "environmentVariable": "COCKPIT_PIPELINE_CACHE",
+    "defaultRelativePath": ".cache/cockpit-pipeline",
+    "gitPolicy": "outside-git"
+  }
+}
