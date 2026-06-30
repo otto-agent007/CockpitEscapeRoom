@@ -199,7 +199,7 @@ def _add_cockpit_camera(bbox_min: list[float], bbox_max: list[float], size: list
     # Sketchfab did not provide an embedded camera. Place an inspection camera
     # inside the forward-left cockpit volume to look from the captain-seat area.
     target = _cockpit_point(minimum, dimensions, x=0.488, y=0.950, z=0.350)
-    location = _cockpit_point(minimum, dimensions, x=0.465, y=0.922, z=0.395)
+    location = _cockpit_point(minimum, dimensions, x=0.465, y=0.867, z=0.395)
     bpy.ops.object.camera_add(location=location)
     camera = bpy.context.object
     camera.name = "CAM_AIRBUS_A320_SOURCE_IMPORT_CAPTAIN_SEAT_VIEW"

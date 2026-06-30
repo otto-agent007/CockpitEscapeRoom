@@ -11,7 +11,7 @@
     "purpose": "captain-seat interior inspection view",
     "location": [
       -0.303763,
-      -0.71283,
+      -1.215466,
       0.191386
     ],
     "target": [
@@ -288,6 +288,6 @@
   "sourceArchiveBytes": 17398950,
   "sourceArchiveSha256": "1f7ec972d2a34c24b1df574142c40659cb294d372ac7e3c2cd64f9d7d69f65d4",
   "extractedGltf": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/extracted/a320_cockpit_2/scene.gltf",
-  "inspectionBlendBytes": 27141246,
-  "previewBytes": 783333
+  "inspectionBlendBytes": 27141275,
+  "previewBytes": 840270
 }
