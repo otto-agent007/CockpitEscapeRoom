@@ -685,3 +685,66 @@ Ran Agent 1 web-reference source discovery and stopped at `sourcing_complete`. N
 - Add source records before any downloads.
 - Find stronger first-officer side-stick, overhead, and pedestal close-up references with compatible licenses.
 - Keep simulator/FlyByWire sources presentation-only.
+
+## Airbus A320 Agent 1 Prebuilt Parts Sourcing: 2026-06-30
+
+### Purpose
+
+Run a free/open-first Agent 1 sourcing pass for prebuilt Airbus A320 cockpit parts. This pass searched and ranked prebuilt source leads only. It did not download models, clone repositories, import assets into Blender, run Tripo/Marble generation, create GLBs, or start Agent 2 assembly.
+
+### Fresh state
+
+- Branch: `codex/asset-workflow-health-rehearsal`
+- Agent 0 authority: `art-source/cockpit-pipeline/gates/agent0-airbus-a320-prebuilt-parts-authority.json`
+- Source seed: `art-source/cockpit-pipeline/source-discovery-seeds/a320-prebuilt-parts-source-discovery.seed.json`
+- Job: `art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/job.json`
+- Target scene group: Airbus A320 First-Officer cockpit
+- Target aircraft: Airbus A320
+
+### Bounded action decision
+
+Ran Agent 1 prebuilt-parts source discovery and stopped at `sourcing_complete`. No downstream stage work was run because the source handoff requires human review before downloads, source approval, Blender import, or Agent 2 assembly.
+
+### Source ranking summary
+
+- Sketchfab `A320 Cockpit 2` - selected as the strongest broad cockpit mesh lead; CC Attribution lead; 537.6k triangle page lead.
+- Sketchfab `A320-200 Cockpit` - selected as an alternate broad cockpit mesh lead; CC Attribution lead; 50.7k triangle page lead.
+- Sketchfab `A320 - Airbus Pilot Chair` - selected as a standalone chair candidate; CC Attribution lead; 13.1k triangle page lead.
+- GitHub `FGDATA/IDG-A32X` - selected for safe repository inspection planning only; GPL-2.0 license lead and simulator-source limitations apply.
+- Printables A320 FCU/pedestal search pools - selected for individual page review; search results are not source approval.
+- Thingiverse A320 sidestick search pool - selected as a weak fallback for side-stick/mount proxy leads.
+- Sketchfab `A320 Part Cockpit` - retained as a partial cockpit alternate; CC Attribution lead; 197.9k triangle page lead.
+
+### Files changed
+
+- `tools/blender/cockpit_pipeline/schemas/reference_authority.schema.json`
+- `art-source/cockpit-pipeline/gates/agent0-airbus-a320-prebuilt-parts-authority.json`
+- `art-source/cockpit-pipeline/source-discovery-seeds/a320-prebuilt-parts-source-discovery.seed.json`
+- `art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/job.json`
+- `art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/manifests/sourcing-complete.json`
+- `art-source/cockpit-pipeline/stages/source/output/a320-prebuilt-parts-source-discovery/component-catalog.json`
+- `asset-reports/cockpit-pipeline/a320-prebuilt-parts-source-discovery/source-candidate-ranking.md`
+- `asset-reports/cockpit-pipeline/a320-prebuilt-parts-source-discovery/source-job-report.md`
+- `art-source/cockpit-pipeline/EXEC_PLAN.md`
+
+### Validation evidence
+
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate reference-authority art-source/cockpit-pipeline/gates/agent0-airbus-a320-prebuilt-parts-authority.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-job art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/job.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/manifests/sourcing-complete.json` - pass, hashes verified.
+- `python3 -m tools.blender.cockpit_pipeline.preflight` - pass; Blender 5.1.2 found and dirty state reported as expected.
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass, 7 tests.
+- `npm run pipeline:evals` - pass, 6/6.
+- `npm run references:validate` - pass, 24 references.
+- URL checks - live HTTP responses for selected Sketchfab, GitHub, Printables, and Thingiverse leads after replacing stale Sketchfab URLs.
+
+### Stop outcome
+
+`approval-required`. The A320 prebuilt-parts handoff is ready for owner/source review, but no source is approved for download, Blender use, production geometry, or Agent 2 assembly.
+
+### Remaining delta
+
+- Choose which prebuilt candidates should be downloaded for inspection.
+- Add source/asset records before any downloads.
+- Inspect each selected model page license, author, download availability, file format, polygon count, and texture sizes.
+- Keep simulator/home-cockpit/printable sources as proxy candidates until checked against real Airbus A320 references.

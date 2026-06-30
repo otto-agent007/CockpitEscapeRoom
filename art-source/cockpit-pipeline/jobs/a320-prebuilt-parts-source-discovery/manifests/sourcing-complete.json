@@ -1,0 +1,49 @@
+{
+  "manifestId": "a320-prebuilt-parts-source-discovery-sourcing-complete",
+  "jobId": "a320-prebuilt-parts-source-discovery",
+  "stage": "sourcing_complete",
+  "createdAt": "2026-06-30T00:00:00Z",
+  "sourceVariant": "prebuilt-free-open-leads",
+  "targetVariant": "Airbus A320",
+  "variantScope": "target-confirmed",
+  "artifactBasePath": "/mnt/2TBHDD/CockpitEscapeRoom",
+  "inputs": [
+    {
+      "path": "art-source/cockpit-pipeline/gates/agent0-airbus-a320-prebuilt-parts-authority.json",
+      "sha256": "faf7c427195bdfe08c62874220f233a1f5ebc76da3509f13c72a85b48642551e",
+      "bytes": 1825
+    },
+    {
+      "path": "art-source/cockpit-pipeline/source-discovery-seeds/a320-prebuilt-parts-source-discovery.seed.json",
+      "sha256": "c078a243476861c0acb4ae424a0935d9ba31a373c2acc35daf866e629734ec9e",
+      "bytes": 3697
+    }
+  ],
+  "outputs": [
+    {
+      "path": "art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/job.json",
+      "sha256": "9d5a9cf6ebc97ac130b78ab52748b46a6c9dd7e2c8d8c252e876374fdee6598c",
+      "bytes": 2524
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/source/output/a320-prebuilt-parts-source-discovery/component-catalog.json",
+      "sha256": "49693bf2183fda4e5afb07124e0bb8b06015cfb595e25a909fbe79ec3f73b0ca",
+      "bytes": 11328
+    },
+    {
+      "path": "asset-reports/cockpit-pipeline/a320-prebuilt-parts-source-discovery/source-candidate-ranking.md",
+      "sha256": "1912abe712d7dd91fdc2eca0e2d89936a4b984ac4aafa4fdafa84d04a9563c7b",
+      "bytes": 3132
+    },
+    {
+      "path": "asset-reports/cockpit-pipeline/a320-prebuilt-parts-source-discovery/source-job-report.md",
+      "sha256": "19b9323f0ddc073935094972409a41e01e0ab7a96f92f9c84b2a6d0749dd125d",
+      "bytes": 2480
+    }
+  ],
+  "approval": {
+    "approved": false,
+    "approvedBy": "human-review-pending",
+    "notes": "Sourcing complete only. Human review is required before downloads, source approval, Blender import, or Agent 2 assembly."
+  }
+}
