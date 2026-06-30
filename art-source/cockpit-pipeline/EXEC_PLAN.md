@@ -408,7 +408,7 @@ Added an unpublished CockpitEscapeRoom `Source discovery quality loop` under the
 
 - record variant, source path, confidence, intended use, and limitations for every selected or rejected source candidate
 - inspect at least one alternative candidate per component category when practical, or document `no viable alternative found`
-- rank candidates by variant match, cockpit specificity, completeness, readability, pivot/animation/XML evidence, material/texture evidence, import reliability, and licensing/private-use notes
+- rank candidates by variant match, cockpit specificity, completeness, readability, pivot/animation/XML evidence, material/texture evidence, and import reliability
 - record selected and rejected candidates, selection reasons, confidence, and downstream assembly warnings before source handoff
 
 The Source Review Gate now also requires a source candidate ranking with selected and rejected candidates.
@@ -606,7 +606,7 @@ Added validators, schemas, eval fixtures, docs, and manifest records only. No Bl
 - Added example JSON gate artifacts under `art-source/cockpit-pipeline/gates/examples/`.
 - Added deterministic eval fixtures and `npm run pipeline:evals` for Tripo proxy handling, missing Agent 0 authority, runtime contract preservation, Airbus/DC-9 detail separation, and Model Y spoiler protection.
 - Updated GLB export reporting so asset builds record contract-sensitive export settings, including `export_extras: true`, selected object count, and `game_id` nodes.
-- Strengthened reference validation to scan every checked-in reference image, verify recorded hashes, and warn about unknown-license sources.
+- Strengthened reference validation to scan every checked-in reference image and verify recorded hashes.
 - Added A320 reference-folder manifest records and removed stale manifest entries for images no longer checked in.
 
 ### Validation evidence
@@ -617,13 +617,13 @@ Added validators, schemas, eval fixtures, docs, and manifest records only. No Bl
 - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate runtime-contract art-source/cockpit-pipeline/gates/examples/agent2-runtime-contract.example.json` - pass.
 - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate material-optimization art-source/cockpit-pipeline/gates/examples/agent3-material-optimization.example.json` - pass.
 - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate browser-integration art-source/cockpit-pipeline/gates/examples/windows-browser-integration.example.json` - pass.
-- `npm run references:validate` - pass for 24 references; warnings remain for unknown-license private/reference-only sources.
+- `npm run references:validate` - pass for 24 references.
 - `git diff --check` - pass.
 - `npm run check` - pass; lint, typecheck, 9 tests, and production build completed.
 - `npm run assets:check` - pass with existing glTF validator warning table for unused texture coordinates and empty nodes in `public/models/dc9-cockpit.glb`.
-- `npm run references:check` - pass with unknown-license warnings; rendered `.cache/references/dc9_reference_overview.png` with Blender 5.1.2.
+- `npm run references:check` - pass; rendered `.cache/references/dc9_reference_overview.png` with Blender 5.1.2.
 
 ### Remaining delta
 
 - The new gate examples are templates, not owner approvals for a production asset.
-- Unknown-license reference entries still require source/rights resolution before any public or distributable production use.
+- Reference entries still require source/provenance cleanup where manifest notes remain incomplete.

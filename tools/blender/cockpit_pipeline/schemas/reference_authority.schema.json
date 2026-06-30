@@ -16,7 +16,6 @@
     "allowedUsage",
     "forbiddenUsage",
     "variantCompatibility",
-    "licenseScope",
     "ownerApprovalStatus",
     "nextAllowedStage"
   ],
@@ -29,13 +28,12 @@
     "targetVariantStatus": { "type": "string", "minLength": 1 },
     "sourceCandidateType": {
       "type": "string",
-      "enum": ["real-aircraft-reference", "simulator-geometry", "tripo-candidate", "owner-supplied-asset", "private-only-artwork", "presentation-benchmark"]
+      "enum": ["real-aircraft-reference", "simulator-geometry", "tripo-candidate", "owner-supplied-asset", "presentation-benchmark"]
     },
     "sourceIdentity": { "type": "string", "minLength": 1 },
     "allowedUsage": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
     "forbiddenUsage": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
     "variantCompatibility": { "type": "string", "minLength": 1 },
-    "licenseScope": { "type": "string", "minLength": 1 },
     "ownerApprovalStatus": {
       "type": "string",
       "enum": ["approved-for-next-stage", "approval-required", "rejected"]

@@ -19,7 +19,7 @@ Tripo AI and Blender MCP are production aids. They are not story canon, visual a
 
 Asset work moves through explicit gates:
 
-1. **Reference Authority:** define the target scene group, aircraft/object identity, variant status, allowed source usage, forbidden usage, licensing/private-use limits, and owner approval state.
+1. **Reference Authority:** define the target scene group, aircraft/object identity, variant status, allowed source usage, forbidden usage, and owner approval state.
 2. **Sourcing:** discover or generate candidates, including Tripo proxies, with selected and rejected options documented.
 3. **Assembly:** import approved candidates into Blender, repair pivots, assign stable names, preserve hierarchy, and publish a runtime contract checklist.
 4. **Materials and Optimization:** apply materials, bake textures where useful, record material counts and texture sizes, and optimize only when runtime contracts still pass.

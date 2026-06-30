@@ -16,7 +16,6 @@ Find and record technically reproducible source inputs for the requested four-co
 - Network access is allowed for Agent 1 only.
 - Record source URL, resolved revision, and source file for technical reproducibility.
 - Respect the Agent 0 allowed and forbidden usage scope.
-- Do not decide production licensing in this stage.
 - Treat Tripo AI outputs as candidate/proxy source material only.
 - Do not let simulator, Tripo, or open-source candidates override aircraft-specific reference boards.
 - Do not execute Python, shell scripts, Blender handlers, add-ons, or build files from downloaded aircraft repositories.

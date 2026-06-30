@@ -19,7 +19,7 @@ Target: Northwest-style McDonnell Douglas DC-9-51 cockpit. Use this brief as ref
   Viewpoint: flight deck forward, captain/center perspective
   Intended uses: captain-eye main panel silhouette, analog instrument density, yoke, glare shield, and windshield relationship, blue-gray panel material family
   Compatibility: Primary target match for Northwest DC-9-51 cockpit layout, material family, yokes, main-panel density, glare shield, and windshield relationship. Does not resolve overhead, pedestal, or sidewall close-up details.
-  Limitations: Single wide cockpit photo; some labels and lower pedestal details are not readable. Use as visual reference only, not as a distributable texture without downstream license review.
+  Limitations: Single wide cockpit photo; some labels and lower pedestal details are not readable. Use as visual reference only unless the source record supports texture use.
 
 ### Secondary
 
@@ -49,91 +49,91 @@ Target: Northwest-style McDonnell Douglas DC-9-51 cockpit. Use this brief as ref
   Viewpoint: cockpit forward, captain-eye approximate
   Intended uses: cockpit framing checks, analog layout awareness
   Compatibility: Supplementary visual context for cockpit framing and panel density.
-  Limitations: Source and licensing details are not yet verified.
+  Limitations: Source details are not yet verified.
 
 - `dc9_import_northwest_51`: DC-9-51 Northwest reference photo
   Variant/operator: DC-9-51 / Unknown
   Viewpoint: cockpit forward, wide view
   Intended uses: layout density checks, material and lighting comparison
   Compatibility: Supplemental visual context for panel density and panel language.
-  Limitations: Source, date, and rights are not yet verified.
+  Limitations: Source and date are not yet verified.
 
 - `dc9_import_airport_view`: DC-9 cockpit airport-view photo
   Variant/operator: DC-9 family / Unknown
   Viewpoint: cockpit-forward, broad
   Intended uses: external context checks, general instrument layout checks
   Compatibility: Supplemental framing and cockpit-to-window relationship reference.
-  Limitations: Not validated for geometric authority or redistribution rights.
+  Limitations: Not validated for geometric authority.
 
 - `dc9_import_instrument_panel`: DC-9 instrument panel close-up
   Variant/operator: DC-9 family / Unknown
   Viewpoint: cockpit instrument panel close-up
   Intended uses: analog panel comparison, instrument spacing checks
   Compatibility: Supplemental gauge style and panel density reference.
-  Limitations: Source and rights are unverified.
+  Limitations: Source is unverified.
 
 - `dc9_import_n776nc`: DC-9 N776NC cockpit photo
   Variant/operator: DC-9 family / Unknown
   Viewpoint: cockpit or aircraft context
   Intended uses: family registration context, visual identity checks
   Compatibility: Supplemental identification and visual direction context.
-  Limitations: Source/license and date are not verified.
+  Limitations: Source and date are not verified.
 
 - `dc9_import_reference_pic`: DC-9 reference picture
   Variant/operator: DC-9 family / Unknown
   Viewpoint: cockpit interior
   Intended uses: overall panel proportion checks, candidate control spacing checks
   Compatibility: Supplemental interior reference for layout feel.
-  Limitations: Source rights and authorship are not yet verified.
+  Limitations: Source authorship is not yet verified.
 
 - `dc9_import_runway_view`: DC-9 runway-view reference photo
   Variant/operator: DC-9 family / Unknown
   Viewpoint: cockpit and runway
   Intended uses: contextual lighting checks, runway scene orientation
   Compatibility: Supplemental context for external and cockpit framing.
-  Limitations: Not validated for geometry or licensing.
+  Limitations: Not validated for geometry.
 
 - `dc9_import_dc9_a3201`: DC-9 A3201 photo
   Variant/operator: DC-9 family / Unknown
   Viewpoint: cockpit interior
   Intended uses: material feel checks, control cluster comparison
   Compatibility: Supplemental cockpit composition reference.
-  Limitations: Source and rights remain unverified.
+  Limitations: Source remains unverified.
 
 - `dc9_import_elder_instruments`: Elder museum DC-9 cockpit instrument reference
   Variant/operator: DC-9 family / Unknown
   Viewpoint: cockpit instrument close-up
   Intended uses: glass and gauge studies, panel finish comparison
   Compatibility: Supplemental instrument and glass references.
-  Limitations: Source/license not yet confirmed.
+  Limitations: Source not yet confirmed.
 
 - `dc9_import_northwest_hat`: Northwest DC-9 captain hat and manuals photo
   Variant/operator: DC-9 family / Unknown
   Viewpoint: cockpit-side memorabilia
   Intended uses: story detail references, side area cues
   Compatibility: Supplemental legacy detail reference only.
-  Limitations: Not authoritative geometry source; source rights are unverified.
+  Limitations: Not authoritative geometry source; source is unverified.
 
 - `dc9_import_legacy_cockpit`: Legacy DC-9 cockpit view
   Variant/operator: DC-9 family / Unknown
   Viewpoint: cockpit interior
   Intended uses: shape comparisons, general interior styling checks
   Compatibility: Supplemental legacy interior reference for style cues.
-  Limitations: Source and licensing are pending.
+  Limitations: Source details are pending.
 
 - `dc9_import_sps`: DC-9 cockpit photo SPS-DC9C-1
   Variant/operator: DC-9 family / Unknown
   Viewpoint: cockpit interior
   Intended uses: panel detail comparison, control spacing study
   Compatibility: Supplemental close reference for control cluster style.
-  Limitations: Source rights and provenance are not validated.
+  Limitations: Source provenance is not validated.
 
 - `dc9_import_elder_museum`: DC-9 elder museum cockpit photo
   Variant/operator: DC-9 family / Unknown
   Viewpoint: cockpit interior close
   Intended uses: sidewall and lighting checks, control placement awareness
   Compatibility: Supplemental museum-reference visual context.
-  Limitations: Not validated for geometry authority or licensing.
+  Limitations: Not validated for geometry authority.
 
 ### Presentation
 
@@ -150,12 +150,12 @@ Target: Northwest-style McDonnell Douglas DC-9-51 cockpit. Use this brief as ref
 - DC-9-51 pedestal and throttle quadrant close-up.
 - Captain sidewall and window mechanism.
 - First officer side view.
-- Label/placard close-ups with redistribution terms reviewed.
+- Label/placard close-ups with complete source records.
 
 ## Production Modeling Guardrails
 
 - Do not start final cockpit geometry from the secondary or presentation rows.
 - Use secondary rows only when a shared component/material cue is explicitly relevant.
 - Keep all interactions fictional and non-operational.
-- Do not use reference photos as textures unless downstream license obligations are reviewed.
+- Do not use reference photos as textures unless the source record supports that use.
 - Source discovery may use DC-9-32 geometry as extractable candidate material only when `sourceVariant`, `targetVariant`, `variantScope`, limitations, and downstream Agent 2 warnings are recorded.

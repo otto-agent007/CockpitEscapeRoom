@@ -18,7 +18,6 @@
     "overriding aircraft-specific DC-9 reference boards"
   ],
   "variantCompatibility": "Unresolved; do not treat generated or simulator candidates as DC-9-51 authority.",
-  "licenseScope": "Private noncommercial evaluation only until source rights are recorded.",
   "ownerApprovalStatus": "approval-required",
   "nextAllowedStage": "agent1-sourcing"
 }

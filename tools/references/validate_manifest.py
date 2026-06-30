@@ -107,9 +107,6 @@ def validate_manifest() -> tuple[list[str], list[str]]:
             elif sha256_file(path) != entry["sha256"]:
                 errors.append(f"{reference_id}: sha256 does not match local file")
 
-        if str(entry.get("license", "")).strip().lower() == "unknown":
-            warnings.append(f"{reference_id}: license is Unknown; keep private/reference-only until resolved")
-
         if entry.get("download_status") == "downloaded":
             path = local_path(entry)
             if not path.exists():

@@ -4,7 +4,7 @@
 
 This playbook defines how the Ubuntu/Blender computer runs the CockpitEscapeRoom staged cockpit pipeline after the first completed vertical slice.
 
-The first slice proved that Agent 1 Sourcing, Agent 2 Assembly, and Agent 3 Shading can each produce stage outputs. It did **not** prove final cockpit quality. Future work should use the pipeline to improve reference authority, component quality, pivots, scale, materials, reports, optimization evidence, and browser readiness without letting agents collide in the same Blender scene.
+The first slice proved that Agent 1 Sourcing, Agent 2 Assembly, and Agent 3 Shading can each produce stage outputs. It predated the explicit Agent 0 gate and did **not** prove final cockpit quality. Current and future batches must start with Agent 0 reference authority, then use the pipeline to improve component quality, pivots, scale, materials, reports, optimization evidence, and browser readiness without letting agents collide in the same Blender scene.
 
 The goal is a strict staged asset factory, not a swarm. The production flow has four gates:
 
@@ -91,7 +91,7 @@ Agent 0 may:
 
 - read owner decisions, reference manifests, aircraft notes, asset reports, and visual approval records
 - classify target aircraft, source aircraft, source type, and allowed usage scope
-- mark a source as visual authority, geometry authority, proxy candidate, presentation benchmark, private-only asset, or rejected
+- mark a source as visual authority, geometry authority, proxy candidate, presentation benchmark, or rejected
 - record forbidden uses and variant-mixing risks
 - prepare a reference-authority note for Agent 1
 
@@ -223,12 +223,11 @@ Required before Agent 1:
 
 - target scene group
 - target aircraft and variant status
-- source candidate type: real-aircraft reference, simulator/open-source geometry, Tripo candidate, owner-supplied asset, private-only artwork, or presentation benchmark
+- source candidate type: real-aircraft reference, simulator/open-source geometry, Tripo candidate, owner-supplied asset, or presentation benchmark
 - source aircraft or object identity
 - allowed usage scope
 - forbidden usage scope
 - variant compatibility notes
-- licensing/private-use notes
 - owner decision or unresolved approval requirement
 
 For DC-9 work, record `sourceVariant`, `targetVariant`, and `variantScope`. For Airbus work, do not start production modeling until `exactAirbusModel` is confirmed.
@@ -351,7 +350,6 @@ Every candidate, selected or rejected, must record:
    - pivot, hierarchy, animation, or XML relationship evidence
    - material/texture availability as source evidence, not final production quality
    - import reliability and reimport validation
-   - licensing or private-use notes when known
 4. Select the handoff candidate:
    - record selection reasons
    - record rejected candidates and rejection reasons
@@ -374,7 +372,7 @@ Every candidate, selected or rejected, must record:
 - Do not fabricate missing geometry or animation relationships during sourcing.
 - Do not treat a keyword match as a cockpit-component match without preview or hierarchy evidence.
 - Do not use one source candidate per category by default; either compare alternatives or explain why no viable alternative was found.
-- Do not let a high-confidence visual candidate override variant, licensing, or runtime-contract warnings.
+- Do not let a high-confidence visual candidate override variant or runtime-contract warnings.
 
 ### Source Review Gate
 
@@ -525,13 +523,9 @@ Any contract change must be recorded in the stage report and called out for the 
 
 Runtime contracts must not be inferred from screenshots. They need a machine-readable report or manifest entry plus a GLB reimport check.
 
-## Private noncommercial asset rule
+## Owner-approved asset intake
 
-CockpitEscapeRoom is currently a private, personalized, noncommercial build.
-
-For this private flow, agents may use owner-approved source assets, textures, logos, and airline artwork when clearly intended for this scope.
-
-If an asset is later intended for public, commercial, reusable, or template production release, it must be reviewed separately and recorded in the asset manifest according to the production asset rules.
+Agents may use owner-approved source assets, textures, logos, and airline artwork when they match the current batch authority and scene group.
 
 ## Quality bar
 

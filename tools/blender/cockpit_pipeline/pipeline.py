@@ -1,25 +1,33 @@
-export CER_MAIN="$HOME/Projects/CockpitEscapeRoom-main"
-export CER_WORKTREES="$HOME/Worktrees"
+from __future__ import annotations
 
-cd "$CER_MAIN"
+import sys
+from pathlib import Path
 
-git fetch origin --prune
-git switch main
-git pull --ff-only origin main
-git status --short
 
-# Confirm the foundation is present.
-test -f tools/blender/cockpit_pipeline/pipeline.py
-test -d art-source/cockpit-pipeline
+def _ensure_repo_importable() -> None:
+    if __package__:
+        return
+    repo_root = Path(__file__).resolve().parents[3]
+    repo_root_text = str(repo_root)
+    if repo_root_text not in sys.path:
+        sys.path.insert(0, repo_root_text)
 
-# Review existing worktrees before adding another.
-git worktree list
 
-git worktree add \
-  "$CER_WORKTREES/cer-source" \
-  -b asset/dc9-vslice-source \
-  origin/main
+def main(argv: list[str] | None = None) -> int:
+    _ensure_repo_importable()
 
-cd "$CER_WORKTREES/cer-source"
+    if argv is None:
+        argv = sys.argv[1:]
 
-python3 tools/blender/cockpit_pipeline/pipeline.py preflight
+    if argv and argv[0] == "preflight":
+        from tools.blender.cockpit_pipeline.preflight import main as preflight_main
+
+        return preflight_main(argv[1:])
+
+    from tools.blender.cockpit_pipeline.pipeline_cli import main as pipeline_cli_main
+
+    return pipeline_cli_main(argv)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
