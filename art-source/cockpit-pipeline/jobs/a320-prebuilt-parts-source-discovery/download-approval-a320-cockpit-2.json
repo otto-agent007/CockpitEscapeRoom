@@ -1,0 +1,31 @@
+{
+  "approvalId": "a320-prebuilt-a320-cockpit-2-download-approval-001",
+  "jobId": "a320-prebuilt-parts-source-discovery",
+  "candidateId": "a320-prebuilt-sketchfab-a320-cockpit-2",
+  "stage": "download-approved",
+  "approved": true,
+  "approvedBy": "owner prompt 2026-06-30",
+  "approvedAt": "2026-06-30T00:00:00Z",
+  "sourceUrl": "https://sketchfab.com/3d-models/a320-cockpit-2-5fb0c671a91042c1a9d8f2cf3e2df021",
+  "sourceApiUrl": "https://api.sketchfab.com/v3/models/5fb0c671a91042c1a9d8f2cf3e2df021",
+  "sourceDownloadApiUrl": "https://api.sketchfab.com/v3/models/5fb0c671a91042c1a9d8f2cf3e2df021/download",
+  "approvedUse": [
+    "Download to the configured cockpit pipeline cache for source inspection",
+    "Record source package hashes, archive contents, mesh formats, and texture metadata",
+    "Import into Blender only after download succeeds and source package records are updated"
+  ],
+  "forbiddenUse": [
+    "Direct runtime use",
+    "Production Airbus geometry authority before real-reference comparison",
+    "Agent 2 assembly before source approval",
+    "Committing downloaded model archives or extracted asset files to Git"
+  ],
+  "licenseLead": {
+    "label": "CC Attribution",
+    "url": "http://creativecommons.org/licenses/by/4.0/",
+    "requirements": "Author must be credited. Commercial use is allowed.",
+    "authorName": "davidmarton1987",
+    "authorUrl": "https://sketchfab.com/davidmarton1987"
+  },
+  "notes": "Owner selected the top-ranked Sketchfab A320 Cockpit 2 candidate as the base cockpit candidate. Download is approved for cache-only inspection, but the official Sketchfab download API requires authentication."
+}

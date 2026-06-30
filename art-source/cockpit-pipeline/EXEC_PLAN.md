@@ -748,3 +748,36 @@ Ran Agent 1 prebuilt-parts source discovery and stopped at `sourcing_complete`. 
 - Add source/asset records before any downloads.
 - Inspect each selected model page license, author, download availability, file format, polygon count, and texture sizes.
 - Keep simulator/home-cockpit/printable sources as proxy candidates until checked against real Airbus A320 references.
+
+## Airbus A320 Cockpit 2 Download Approval Attempt: 2026-06-30
+
+### Purpose
+
+Act on the owner decision to use the top-ranked Sketchfab `A320 Cockpit 2` candidate as the base Airbus cockpit candidate. The intended action was to download the asset to the cockpit pipeline cache for inspection only.
+
+### Fresh state
+
+- Candidate: `a320-prebuilt-sketchfab-a320-cockpit-2`
+- Source page: `https://sketchfab.com/3d-models/a320-cockpit-2-5fb0c671a91042c1a9d8f2cf3e2df021`
+- Job: `art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/job.json`
+- Source handoff manifest: `art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/manifests/sourcing-complete.json`
+
+### Bounded action decision
+
+Recorded download approval and attempted the official Sketchfab download route. No scraping, bypassing, Blender import, GLB export, runtime integration, or Agent 2 assembly was attempted.
+
+### Result
+
+`blocked`. The Sketchfab public metadata API confirmed the model, author, CC BY 4.0 license, and face count, but the official download API returned `401 Unauthorized` without a Sketchfab OAuth token. The browser-style download page did not expose a model archive.
+
+### Files changed
+
+- `art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/download-approval-a320-cockpit-2.json`
+- `asset-reports/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-download-attempt.md`
+- `art-source/cockpit-pipeline/EXEC_PLAN.md`
+
+### Remaining delta
+
+- Provide an authenticated Sketchfab download route, preferably a local-only OAuth/API token.
+- Retry the download into `.cache/cockpit-pipeline`.
+- Record archive hashes, package contents, file formats, texture sizes, and import plan before Blender inspection.
