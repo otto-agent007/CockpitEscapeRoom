@@ -1,0 +1,69 @@
+{
+  "seedId": "a320-web-reference-source-discovery",
+  "title": "Airbus A320 web reference source discovery seed",
+  "status": "web_leads_seeded_not_downloaded",
+  "aircraft": "airbus",
+  "sourceVariant": "web-reference-leads",
+  "targetVariant": "Airbus A320",
+  "variantScope": "confirmed_a320_first_officer_scene_with_ceo_neo_operator_metadata_required",
+  "referenceAuthority": "art-source/cockpit-pipeline/gates/agent0-airbus-a320-web-reference-authority.json",
+  "sceneGroup": "Airbus A320 First-Officer cockpit",
+  "webSearchDate": "2026-06-30",
+  "webSourceLeads": [
+    {
+      "leadId": "airbus-official-cockpits-commonality",
+      "sourceUrl": "https://www.airbus.com/en/products-services/commercial-aircraft/cockpits",
+      "sourceFamily": "official-manufacturer-reference",
+      "authorityRank": "primary",
+      "intendedUse": "Airbus cockpit commonality, fly-by-wire philosophy, and first-pass A320-family cockpit language.",
+      "downloadPolicy": "Do not download media from this page unless a separate source record confirms use rights.",
+      "limitations": "Manufacturer page is broad cockpit/commonality context, not a complete A320 modeling board."
+    },
+    {
+      "leadId": "wikimedia-a320-family-cockpits-category",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Cockpits_of_Airbus_A320_family",
+      "sourceFamily": "license-screened-photo-index",
+      "authorityRank": "secondary",
+      "intendedUse": "Find cockpit-section candidates with explicit license pages, author attribution, and file history.",
+      "downloadPolicy": "Inspect each file license and source provenance before adding a manifest entry or downloading.",
+      "limitations": "Category includes mixed operators, A320-family variants, simulator views, in-flight views, and non-modeling viewpoints."
+    },
+    {
+      "leadId": "wikimedia-airbus-a320-glass-cockpit-simulator",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Airbus_A320_Glass_Cockpit.jpg",
+      "sourceFamily": "simulator-photo",
+      "authorityRank": "presentation",
+      "intendedUse": "Possible presentation benchmark for general A320-family glass cockpit layout after license review.",
+      "downloadPolicy": "Treat as simulator/photo candidate only; record CC BY 2.0 attribution if used.",
+      "limitations": "Simulator cockpit, not real aircraft geometry authority."
+    },
+    {
+      "leadId": "wikimedia-easyjet-a320-cockpit",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:EasyJet_airbus_A320_cockpit.jpg",
+      "sourceFamily": "real-aircraft-photo-candidate",
+      "authorityRank": "secondary",
+      "intendedUse": "Candidate real A320 cockpit visual reference if license, operator, and cockpit section metadata validate.",
+      "downloadPolicy": "Inspect the file page, source, author, and license before manifesting or downloading.",
+      "limitations": "Must confirm exact cockpit applicability and whether the image can support geometry, material, or presentation only."
+    },
+    {
+      "leadId": "flybywire-a320neo-flight-deck-overview",
+      "sourceUrl": "https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/",
+      "sourceFamily": "simulator-documentation",
+      "authorityRank": "presentation",
+      "intendedUse": "Panel naming and orientation aid for source triage only.",
+      "downloadPolicy": "Do not use images as production reference without license review.",
+      "limitations": "Simulator/add-on documentation; not production geometry authority."
+    }
+  ],
+  "requestedReferenceCoverage": [
+    "first-officer side-stick and seat relationship",
+    "captain/first-officer display arrangement",
+    "FCU and glareshield geometry",
+    "pedestal and thrust lever quadrant",
+    "overhead panel density and lighting",
+    "sidewall/window proportions from first-officer perspective"
+  ],
+  "stopAt": "sourcing_complete",
+  "requiresHumanApprovalBeforeAssembly": true
+}

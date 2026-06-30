@@ -1,0 +1,25 @@
+{
+  "gate": "reference-authority",
+  "artifactId": "agent0-airbus-a320-web-reference-authority",
+  "createdAt": "2026-06-30T00:00:00Z",
+  "sceneGroup": "Airbus A320 First-Officer cockpit",
+  "targetAircraftOrObject": "Airbus A320 flight deck",
+  "targetVariantStatus": "Confirmed production target is Airbus A320 First-Officer cockpit. Exact ceo/neo/operator fit remains reference metadata and must be recorded per source before modeling.",
+  "sourceCandidateType": "real-aircraft-reference",
+  "sourceIdentity": "Airbus official cockpit/commonality pages and license-screened web image references for A320-family flight deck layout, side-stick, FCU/glareshield, pedestal, overhead, and display relationships.",
+  "allowedUsage": [
+    "Agent 1 web source discovery for Airbus A320 cockpit references",
+    "license and attribution screening before any local download",
+    "reference-pack ranking by cockpit section, viewpoint, operator, and A320 ceo/neo applicability",
+    "source manifest proposals for owner review before production modeling"
+  ],
+  "forbiddenUsage": [
+    "downloading or committing copyrighted images without a manifest record and compatible use terms",
+    "using simulator, add-on, or game cockpit screenshots as production geometry authority",
+    "mixing DC-9 or Model Y details into the Airbus scene group",
+    "starting production Airbus geometry before source authority and exact source compatibility are documented"
+  ],
+  "variantCompatibility": "Use A320-family references for first-pass source discovery. Label A319/A321/A320neo simulator or derivative sources as compatibility or presentation only unless the source proves exact A320 cockpit applicability.",
+  "ownerApprovalStatus": "approved-for-next-stage",
+  "nextAllowedStage": "agent1-sourcing"
+}

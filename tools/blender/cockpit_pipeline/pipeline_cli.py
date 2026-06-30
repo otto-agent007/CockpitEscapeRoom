@@ -46,7 +46,10 @@ def main(argv: list[str] | None = None) -> int:
     smoke_parser = subparsers.add_parser("blender-smoke", help="Run the Blender headless smoke test.")
     smoke_parser.add_argument("--cache", type=Path, default=None)
 
-    source_parser = subparsers.add_parser("run-source-job", help="Run the DC-9 FlightGear source vertical slice job.")
+    source_parser = subparsers.add_parser(
+        "run-source-job",
+        help="Run the legacy DC-9-32 FlightGear source vertical slice proxy job.",
+    )
     source_parser.add_argument("--repo-url", default="https://github.com/FGMEMBERS-NONGPL/DC-9-32.git")
     source_parser.add_argument("--job-id", default="dc9-32-flightgear-source-vslice")
     source_parser.add_argument("--cache", type=Path, default=None)

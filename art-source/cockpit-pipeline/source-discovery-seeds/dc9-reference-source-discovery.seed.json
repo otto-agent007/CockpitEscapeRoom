@@ -4,8 +4,8 @@
   "status": "seed_spec_not_validated_job",
   "aircraft": "dc9",
   "sourceVariant": "multiple",
-  "targetVariant": "DC-9-51",
-  "variantScope": "target_visual_reference_with_mixed_source_candidates",
+  "targetVariant": "DC-9-50",
+  "variantScope": "production_target_dc9_50_with_labeled_compatibility_sources",
   "primaryReference": {
     "referenceId": "dc9_51_n775nc_cockpit_primary",
     "localFile": "art-source/references/dc9-51/primary/dc9_51_n775nc_cockpit_primary.jpg",
@@ -22,7 +22,7 @@
     {
       "familyId": "real_cockpit_visual_reference",
       "required": true,
-      "notes": "Use the DC-9-51 N775NC cockpit photo as the target visual reference and nearby DC-9 references only for shared material/layout cues."
+      "notes": "Prioritize DC-9-50 cockpit references for production geometry. Existing DC-9-51/N775NC material may remain a labeled compatibility source for shared material/layout cues only."
     },
     {
       "familyId": "variant_documentation_source",
@@ -35,7 +35,7 @@
       "componentId": "dc9-ref-shell-main-panel-001",
       "label": "cockpit shell and main panel blockout",
       "quantity": 1,
-      "acceptanceNotes": "Use the DC-9-51 primary image for silhouette, panel density, windshield framing, and color family. Source geometry may be mixed only when variant scope is recorded."
+      "acceptanceNotes": "Use DC-9-50 production-target references for final geometry. DC-9-51 references may support same-family silhouette, panel density, windshield framing, and color family only when variant scope is recorded."
     },
     {
       "componentId": "dc9-ref-yoke-pair-001",

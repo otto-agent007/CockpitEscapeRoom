@@ -15,7 +15,7 @@ from .state_machine import require_transition
 
 DEFAULT_CACHE = ".cache/cockpit-pipeline"
 SOURCE_VARIANT = "DC-9-32"
-TARGET_VARIANT = "unresolved"
+TARGET_VARIANT = "DC-9-50"
 
 RELEVANT_FORMATS = {".ac", ".obj", ".gltf", ".glb", ".fbx", ".xml", ".png", ".jpg", ".jpeg", ".rgb", ".dds"}
 SUPPORTED_SOURCE_FORMATS = {".ac", ".xml", ".png", ".jpg", ".jpeg"}
@@ -152,7 +152,7 @@ def _write_job(root: Path, job_dir: Path, job_id: str, repo_url: str, resolved_r
         "aircraft": "dc9",
         "sourceVariant": SOURCE_VARIANT,
         "targetVariant": TARGET_VARIANT,
-        "variantScope": "unknown",
+        "variantScope": "compatibility-proxy",
         "sourceRepository": {
             "url": repo_url,
             "resolvedRevision": resolved_revision,
@@ -292,7 +292,7 @@ def _candidate_plan(repo_path: Path) -> dict[str, object]:
                     "YokeBase is included as a mounting/support object from the same source file."
                 ],
                 "limitations": [
-                    "Variant applicability to DC-9-51 remains unapproved.",
+                    "Variant applicability to DC-9-50 remains compatibility-only unless reviewed against DC-9-50 references.",
                     "This is source extraction only; hierarchy and pivots are not production-ready."
                 ]
             },
@@ -318,7 +318,7 @@ def _candidate_plan(repo_path: Path) -> dict[str, object]:
                 ],
                 "limitations": [
                     "Includes neighboring pedestal levers to preserve visual completeness; Agent 2 must decide final assembly boundaries.",
-                    "Variant applicability to DC-9-51 remains unapproved."
+                    "Variant applicability to DC-9-50 remains compatibility-only unless reviewed against DC-9-50 references."
                 ]
             },
             {
@@ -533,7 +533,7 @@ The generated previews were inspected. The import proof, yoke, throttle, large g
 ## Known Limitations
 
 - This is source extraction only. The candidates are not source-approved and are not ready for assembly.
-- The source is DC-9-32; target variant remains unresolved.
+- The source is DC-9-32; target variant is DC-9-50, so this remains a compatibility proxy unless reviewed against DC-9-50 references.
 - The ABS switch cluster is lower confidence because no explicit XML animation was found for `SwABS`.
 - The switch cluster source objects are spatially sparse in preview, which should be reviewed before assembly.
 - RGB textures were inventoried but not converted during this task.
