@@ -225,6 +225,9 @@ def run_a320_source_candidate_import(archive: Path, candidate_id: str, cache: Pa
     import_report["extractedGltf"] = str(gltf_path)
     import_report["inspectionBlendBytes"] = blend_path.stat().st_size
     import_report["previewBytes"] = preview_path.stat().st_size
+    dashboard_preview = import_report.get("dashboardPreview")
+    if dashboard_preview:
+        import_report["dashboardPreviewBytes"] = Path(dashboard_preview).stat().st_size
     json_report_path.write_text(json.dumps(import_report, indent=2) + "\n", encoding="utf-8")
 
     print(result.stdout.strip())

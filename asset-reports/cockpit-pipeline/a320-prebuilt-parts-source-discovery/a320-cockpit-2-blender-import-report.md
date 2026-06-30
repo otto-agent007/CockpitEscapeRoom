@@ -4,7 +4,7 @@
 
 Status: `imported-for-agent1-inspection`
 
-The owner-approved Sketchfab `A320 Cockpit 2` zip was extracted only under `.cache`, imported into Blender 5.1.2, rooted under `AIRBUS_A320_SOURCE_CANDIDATE_ROOT`, rendered once for visual inspection, and saved as a cache-only inspection `.blend`.
+The owner-approved Sketchfab `A320 Cockpit 2` zip was extracted only under `.cache`, imported into Blender 5.1.2, rooted under `AIRBUS_A320_SOURCE_CANDIDATE_ROOT`, rendered for visual inspection, and saved as a cache-only inspection `.blend`.
 
 This report does not approve Agent 2 assembly. No deployable GLB was produced or replaced.
 
@@ -14,7 +14,8 @@ This report does not approve Agent 2 assembly. No deployable GLB was produced or
 - Source archive SHA-256: `1f7ec972d2a34c24b1df574142c40659cb294d372ac7e3c2cd64f9d7d69f65d4`
 - Extracted glTF: `.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/extracted/a320_cockpit_2/scene.gltf`
 - Inspection blend: `.cache/cockpit-pipeline/inspection/a320-prebuilt-parts-source-discovery/a320-cockpit-2/a320-cockpit-2-import-inspection.blend`
-- Preview render: `preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-captain-seat-view.png`
+- Captain-seat preview render: `preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-captain-seat-view.png`
+- Dashboard/screens preview render: `preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-dashboard-screens-view.png`
 - Machine report: `asset-reports/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-blender-import-report.json`
 
 ## Blender Import Stats
@@ -33,9 +34,9 @@ This report does not approve Agent 2 assembly. No deployable GLB was produced or
 
 ## Visual Review
 
-The generated preview uses a captain-seat interior inspection camera with a render-only cockpit isolation pass. The source file and inspection `.blend` still contain the full imported model, but the preview hides non-cockpit objects so the seat, sidestick, glareshield/panel geometry, and cockpit windows are readable.
+The generated previews use a captain-seat inspection camera and a dashboard/screens inspection camera. The source file and inspection `.blend` still contain the full imported model. The preview pass hides only oversized exterior shell meshes and three ray-confirmed wall blockers that occlude the camera; cockpit-scale controls, panels, seats, pedestal, and display geometry remain visible.
 
-The isolated render confirms that this package contains some cockpit interior geometry. It still needs cleanup before use: object names are generic Sketchfab imports, the cockpit is embedded in a full aircraft model, and no runtime-safe hierarchy, pivots, `game_id` metadata, or interaction contracts exist yet.
+The renders confirm that this package contains usable cockpit interior geometry, including sidestick, main dashboard/screen rectangles, FCU/glareshield detail, pedestal controls, and seats. It still needs cleanup before use: object names are generic Sketchfab imports, the cockpit is embedded in a full aircraft model, and no runtime-safe hierarchy, pivots, `game_id` metadata, or interaction contracts exist yet.
 
 Object and mesh names are generic Sketchfab import names such as `Sketchfab_model` and `Object_0`, so a future assembly pass would need cleanup, stable naming, and cockpit-specific hierarchy work before any runtime contract exists.
 

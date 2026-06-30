@@ -21,8 +21,9 @@ def main() -> None:
     gltf_path = Path(args.gltf)
     blend_path = Path(args.blend_path)
     preview_path = Path(args.preview_path)
+    dashboard_preview_path = preview_path.with_name("a320-cockpit-2-import-dashboard-screens-view.png")
     report_path = Path(args.report_path)
-    for path in (blend_path.parent, preview_path.parent, report_path.parent):
+    for path in (blend_path.parent, preview_path.parent, dashboard_preview_path.parent, report_path.parent):
         path.mkdir(parents=True, exist_ok=True)
 
     _reset_scene()
@@ -56,13 +57,18 @@ def main() -> None:
 
     bpy.context.view_layer.update()
     stats = _scene_stats(imported, root)
-    render_visibility = _isolate_cockpit_interior_for_render(imported)
+    render_visibility = _show_cockpit_meshes_for_render(imported)
     _add_approval_lighting(stats["bboxCenter"], stats["bboxSize"])
     camera_record = _add_cockpit_camera(stats["bboxMin"], stats["bboxMax"], stats["bboxSize"])
+    dashboard_camera_record = _add_dashboard_camera(stats["bboxMin"], stats["bboxMax"], stats["bboxSize"])
 
     scene.render.resolution_x = 1280
     scene.render.resolution_y = 720
+    scene.camera = bpy.data.objects[camera_record["name"]]
     scene.render.filepath = str(preview_path)
+    bpy.ops.render.render(write_still=True)
+    scene.camera = bpy.data.objects[dashboard_camera_record["name"]]
+    scene.render.filepath = str(dashboard_preview_path)
     bpy.ops.render.render(write_still=True)
     bpy.ops.wm.save_as_mainfile(filepath=str(blend_path))
 
@@ -72,9 +78,11 @@ def main() -> None:
         "sourceGltf": _posix(gltf_path),
         "inspectionBlend": _posix(blend_path),
         "preview": _posix(preview_path),
+        "dashboardPreview": _posix(dashboard_preview_path),
         "blenderVersion": bpy.app.version_string,
         "rootObject": root.name,
         "camera": camera_record,
+        "dashboardCamera": dashboard_camera_record,
         "renderIsolation": render_visibility,
         **stats,
     }
@@ -152,7 +160,7 @@ def _bbox_world(objects: list[bpy.types.Object]) -> tuple[Vector, Vector]:
     return bbox_min, bbox_max
 
 
-def _isolate_cockpit_interior_for_render(imported: list[bpy.types.Object]) -> dict[str, object]:
+def _show_cockpit_meshes_for_render(imported: list[bpy.types.Object]) -> dict[str, object]:
     hidden = []
     visible = []
     for obj in imported:
@@ -161,20 +169,22 @@ def _isolate_cockpit_interior_for_render(imported: list[bpy.types.Object]) -> di
         pts = [obj.matrix_world @ Vector(corner) for corner in obj.bound_box]
         bbox_min = Vector((min(point.x for point in pts), min(point.y for point in pts), min(point.z for point in pts)))
         bbox_max = Vector((max(point.x for point in pts), max(point.y for point in pts), max(point.z for point in pts)))
-        center = (bbox_min + bbox_max) * 0.5
         size = bbox_max - bbox_min
-        is_cockpit_region = -0.92 <= center.y <= -0.36 and -0.12 <= center.z <= 0.34 and abs(center.x) <= 0.34
-        is_detail_scale = max(size.x, size.y, size.z) <= 0.22 or len(obj.data.polygons) <= 5000
-        if is_cockpit_region and is_detail_scale:
-            visible.append(obj.name)
-        else:
+        is_exterior_shell = max(size.x, size.y, size.z) > 2.0
+        is_obstructing_wall_panel = obj.name in {"Object_7.001", "Object_55", "Object_56"}
+        if is_exterior_shell or is_obstructing_wall_panel:
             obj.hide_render = True
             obj.hide_viewport = True
             hidden.append(obj.name)
+        else:
+            obj.hide_render = False
+            obj.hide_viewport = False
+            visible.append(obj.name)
     return {
-        "mode": "cockpit-interior-isolation",
+        "mode": "hide-exterior-shell-and-wall-blockers",
         "visibleObjects": sorted(visible),
         "hiddenObjectCount": len(hidden),
+        "hiddenObjects": sorted(hidden),
     }
 
 
@@ -219,6 +229,35 @@ def _add_cockpit_camera(bbox_min: list[float], bbox_max: list[float], size: list
     return {
         "name": camera.name,
         "purpose": "captain-seat interior inspection view",
+        "location": _vector_list(location),
+        "target": _vector_list(target),
+        "lensMm": camera.data.lens,
+    }
+
+
+def _add_dashboard_camera(bbox_min: list[float], bbox_max: list[float], size: list[float]) -> dict[str, object]:
+    minimum = Vector(bbox_min)
+    dimensions = Vector(size)
+    target = _cockpit_point(minimum, dimensions, x=0.500, y=0.940, z=0.390)
+    location = _cockpit_point(minimum, dimensions, x=0.475, y=0.885, z=0.425)
+    bpy.ops.object.camera_add(location=location)
+    camera = bpy.context.object
+    camera.name = "CAM_AIRBUS_A320_SOURCE_IMPORT_DASHBOARD_SCREENS_VIEW"
+    direction = target - location
+    camera.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
+    camera.data.lens = 70
+    camera.data.clip_start = 0.005
+    camera.data.clip_end = max(max(size) * 8.0, 1000.0)
+
+    bpy.ops.object.light_add(type="POINT", location=location + Vector((0.0, 0.04, 0.12)))
+    light = bpy.context.object
+    light.name = "AIRBUS_A320_IMPORT_DASHBOARD_FILL_LIGHT"
+    light.data.energy = 260
+    light.data.shadow_soft_size = 0.8
+
+    return {
+        "name": camera.name,
+        "purpose": "dashboard and screens inspection view",
         "location": _vector_list(location),
         "target": _vector_list(target),
         "lensMm": camera.data.lens,

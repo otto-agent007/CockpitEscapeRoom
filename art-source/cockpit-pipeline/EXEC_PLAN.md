@@ -829,3 +829,32 @@ Recorded download approval and attempted the official Sketchfab download route. 
 - Provide an authenticated Sketchfab download route, preferably a local-only OAuth/API token.
 - Retry the download into `.cache/cockpit-pipeline`.
 - Record archive hashes, package contents, file formats, texture sizes, and import plan before Blender inspection.
+
+## Airbus A320 Cockpit 2 Preview Repair: 2026-06-30
+
+### Purpose
+
+Repair the Agent 1 Blender inspection preview so the imported cockpit dashboard, screens, FCU/glareshield, pedestal, seats, and sidestick are visible from useful inspection cameras.
+
+### Bounded action decision
+
+Updated preview generation only. This did not run Agent 2 assembly, optimize geometry, produce a runtime GLB, or replace any deployable asset.
+
+### Result
+
+The preview pass now hides only oversized exterior shell meshes and three ray-confirmed wall blockers that occlude the inspection cameras. It no longer hides cockpit-scale source meshes. A second dashboard/screens preview render is generated alongside the captain-seat view.
+
+### Evidence
+
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli import-a320-source-candidate` - pass; generated captain-seat and dashboard/screens previews.
+- Visual inspection - pass; the captain-seat render shows dashboard/screens, FCU/glareshield, sidestick, pedestal, and seats together.
+- Visual inspection - pass; the dashboard/screens render shows the front panel, FCU/glareshield, and display rectangles for source evaluation.
+
+### Preview paths
+
+- `preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-captain-seat-view.png`
+- `preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-dashboard-screens-view.png`
+
+### Remaining delta
+
+Owner review is still required before treating this source as approved for Agent 2 assembly. The asset still needs component classification, stable naming, hierarchy cleanup, pivot review, metadata planning, and runtime contract documentation.
