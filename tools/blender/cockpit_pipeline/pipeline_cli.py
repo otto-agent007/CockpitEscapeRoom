@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import shutil
 import subprocess
 import sys
+import zipfile
 from pathlib import Path
 
-from .hashing import verify_manifest_hashes
+from .hashing import sha256_file, verify_manifest_hashes
 from .assembly_job import run_assembly_job
 from .eval_runner import run_evals
 from .schema_validation import SchemaError, validate_json_file
@@ -45,6 +47,20 @@ def main(argv: list[str] | None = None) -> int:
 
     smoke_parser = subparsers.add_parser("blender-smoke", help="Run the Blender headless smoke test.")
     smoke_parser.add_argument("--cache", type=Path, default=None)
+
+    a320_import_parser = subparsers.add_parser(
+        "import-a320-source-candidate",
+        help="Extract and import the approved Airbus A320 glTF source candidate for Blender inspection.",
+    )
+    a320_import_parser.add_argument(
+        "--archive",
+        type=Path,
+        default=Path(
+            ".cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/a320_cockpit_2.zip"
+        ),
+    )
+    a320_import_parser.add_argument("--candidate-id", default="a320-prebuilt-sketchfab-a320-cockpit-2")
+    a320_import_parser.add_argument("--cache", type=Path, default=None)
 
     source_parser = subparsers.add_parser(
         "run-source-job",
@@ -88,6 +104,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Transition valid: {transition.from_stage} -> {transition.to_stage}")
         elif args.command == "blender-smoke":
             run_blender_smoke(args.cache)
+        elif args.command == "import-a320-source-candidate":
+            run_a320_source_candidate_import(args.archive, args.candidate_id, args.cache)
         elif args.command == "run-source-job":
             run_source_job(repo_url=args.repo_url, job_id=args.job_id, cache_override=args.cache)
         elif args.command == "run-assembly-job":
@@ -136,6 +154,95 @@ def run_blender_smoke(cache: Path | None) -> None:
         raise RuntimeError(f"Blender smoke did not produce expected evidence {missing}: {detail}")
     print(result.stdout.strip())
     print(f"Blender smoke evidence: {smoke_dir}")
+
+
+def run_a320_source_candidate_import(archive: Path, candidate_id: str, cache: Path | None) -> None:
+    root = Path(__file__).resolve().parents[3]
+    archive_path = archive.expanduser()
+    if not archive_path.is_absolute():
+        archive_path = root / archive_path
+    archive_path = archive_path.resolve()
+    if not archive_path.is_file():
+        raise FileNotFoundError(f"A320 source archive not found: {archive_path}")
+
+    cache_path = cache or Path(os.environ.get("COCKPIT_PIPELINE_CACHE", root / DEFAULT_CACHE))
+    cache_path = cache_path.expanduser().resolve()
+    work_dir = cache_path / "sources" / "a320-prebuilt-parts-source-discovery" / "a320-cockpit-2"
+    extract_dir = work_dir / "extracted" / archive_path.stem
+    inspection_dir = cache_path / "inspection" / "a320-prebuilt-parts-source-discovery" / "a320-cockpit-2"
+    preview_dir = root / "preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery"
+    report_dir = root / "asset-reports/cockpit-pipeline/a320-prebuilt-parts-source-discovery"
+    for path in (extract_dir, inspection_dir, preview_dir, report_dir):
+        path.mkdir(parents=True, exist_ok=True)
+
+    _extract_zip_safely(archive_path, extract_dir)
+    gltf_path = extract_dir / "scene.gltf"
+    if not gltf_path.is_file():
+        matches = sorted(extract_dir.rglob("*.gltf"))
+        if not matches:
+            raise FileNotFoundError(f"no glTF file found after extracting {archive_path}")
+        gltf_path = matches[0]
+
+    blender = os.environ.get("BLENDER_BIN") or shutil.which("blender")
+    if not blender:
+        raise RuntimeError("Blender executable unavailable; set BLENDER_BIN or install blender on PATH")
+
+    blend_path = inspection_dir / "a320-cockpit-2-import-inspection.blend"
+    preview_path = preview_dir / "a320-cockpit-2-import-cockpit-view.png"
+    json_report_path = report_dir / "a320-cockpit-2-blender-import-report.json"
+    script = Path(__file__).with_name("a320_source_import_inspect.py")
+    command = [
+        blender,
+        "--background",
+        "--factory-startup",
+        "--disable-autoexec",
+        "--python",
+        str(script),
+        "--",
+        "--gltf",
+        str(gltf_path),
+        "--candidate-id",
+        candidate_id,
+        "--blend-path",
+        str(blend_path),
+        "--preview-path",
+        str(preview_path),
+        "--report-path",
+        str(json_report_path),
+    ]
+    result = subprocess.run(command, check=False, text=True, capture_output=True)
+    if result.returncode != 0 or "Traceback" in result.stdout or "Traceback" in result.stderr:
+        detail = result.stderr.strip() or result.stdout.strip()
+        raise RuntimeError(f"A320 Blender import failed with exit {result.returncode}: {detail}")
+    for expected in (blend_path, preview_path, json_report_path):
+        if not expected.is_file():
+            raise RuntimeError(f"A320 Blender import did not produce expected evidence: {expected}")
+
+    import_report = json.loads(json_report_path.read_text(encoding="utf-8"))
+    import_report["sourceArchive"] = str(archive_path)
+    import_report["sourceArchiveBytes"] = archive_path.stat().st_size
+    import_report["sourceArchiveSha256"] = sha256_file(archive_path)
+    import_report["extractedGltf"] = str(gltf_path)
+    import_report["inspectionBlendBytes"] = blend_path.stat().st_size
+    import_report["previewBytes"] = preview_path.stat().st_size
+    json_report_path.write_text(json.dumps(import_report, indent=2) + "\n", encoding="utf-8")
+
+    print(result.stdout.strip())
+    print(f"A320 source candidate import evidence: {json_report_path}")
+
+
+def _extract_zip_safely(archive_path: Path, output_dir: Path) -> None:
+    with zipfile.ZipFile(archive_path) as archive:
+        for info in archive.infolist():
+            target = (output_dir / info.filename).resolve()
+            if not str(target).startswith(str(output_dir.resolve()) + os.sep) and target != output_dir.resolve():
+                raise RuntimeError(f"unsafe zip path rejected: {info.filename}")
+            if info.is_dir():
+                target.mkdir(parents=True, exist_ok=True)
+                continue
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with archive.open(info) as source, target.open("wb") as destination:
+                shutil.copyfileobj(source, destination)
 
 
 if __name__ == "__main__":

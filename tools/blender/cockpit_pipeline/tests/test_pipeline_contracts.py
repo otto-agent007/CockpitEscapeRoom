@@ -3,10 +3,12 @@ from __future__ import annotations
 import copy
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 
 from tools.blender.cockpit_pipeline.hashing import file_record, verify_file_record
 from tools.blender.cockpit_pipeline.eval_runner import run_evals
+from tools.blender.cockpit_pipeline.pipeline_cli import _extract_zip_safely
 from tools.blender.cockpit_pipeline.schema_validation import SchemaError, load_schema, validate_json_file, validate
 from tools.blender.cockpit_pipeline.state_machine import StateTransitionError, require_transition
 
@@ -76,6 +78,17 @@ class PipelineContractTests(unittest.TestCase):
             tampered["sha256"] = "f" * 64
             with self.assertRaises(ValueError):
                 verify_file_record(tampered, base)
+
+    def test_safe_zip_extraction_rejects_path_traversal(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            archive = base / "unsafe.zip"
+            output = base / "output"
+            with zipfile.ZipFile(archive, "w") as zip_file:
+                zip_file.writestr("../escape.txt", "nope")
+            with self.assertRaises(RuntimeError):
+                _extract_zip_safely(archive, output)
+            self.assertFalse((base / "escape.txt").exists())
 
     def test_gate_artifact_examples_validate(self) -> None:
         cases = [

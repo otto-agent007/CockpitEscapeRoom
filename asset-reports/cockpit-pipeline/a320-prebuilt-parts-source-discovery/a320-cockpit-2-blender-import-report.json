@@ -1,0 +1,236 @@
+{
+  "status": "pass",
+  "candidateId": "a320-prebuilt-sketchfab-a320-cockpit-2",
+  "sourceGltf": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/extracted/a320_cockpit_2/scene.gltf",
+  "inspectionBlend": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/inspection/a320-prebuilt-parts-source-discovery/a320-cockpit-2/a320-cockpit-2-import-inspection.blend",
+  "preview": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-cockpit-view.png",
+  "blenderVersion": "5.1.2",
+  "rootObject": "AIRBUS_A320_SOURCE_CANDIDATE_ROOT",
+  "camera": {
+    "name": "CAM_AIRBUS_A320_SOURCE_IMPORT_COCKPIT_VIEW",
+    "purpose": "cockpit-focused inspection view",
+    "location": [
+      -5.722916,
+      1.18805,
+      0.956387
+    ],
+    "target": [
+      -2.167952,
+      -0.639719,
+      0.626387
+    ],
+    "lensMm": 95.0
+  },
+  "objectCount": 620,
+  "meshCount": 135,
+  "emptyCount": 485,
+  "materialCount": 13,
+  "imageCount": 12,
+  "triangleCount": 537334,
+  "bboxMin": [
+    -4.335613,
+    -9.138844,
+    -0.993614
+  ],
+  "bboxMax": [
+    4.335032,
+    0.0,
+    2.006387
+  ],
+  "bboxCenter": [
+    -0.000291,
+    -4.569422,
+    0.506387
+  ],
+  "bboxSize": [
+    8.670645,
+    9.138844,
+    3.000001
+  ],
+  "materialNames": [
+    "m0mat",
+    "m0mat_001",
+    "m0mat_003",
+    "m0mat_004",
+    "m0mat_005",
+    "m0mat_006",
+    "m0mat_007",
+    "m0mat_008",
+    "m0mat_009",
+    "m0mat_010",
+    "m0mat_015",
+    "m1mat",
+    "m1mat_001"
+  ],
+  "images": [
+    {
+      "name": "Viewer Node",
+      "filepath": "",
+      "width": 256,
+      "height": 256
+    },
+    {
+      "name": "m0mat_001_baseColor.jpeg",
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/extracted/a320_cockpit_2/textures/m0mat_001_baseColor.jpeg",
+      "width": 32,
+      "height": 32
+    },
+    {
+      "name": "m0mat_003_baseColor.jpeg",
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/extracted/a320_cockpit_2/textures/m0mat_003_baseColor.jpeg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "name": "m0mat_004_baseColor.jpeg",
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/extracted/a320_cockpit_2/textures/m0mat_004_baseColor.jpeg",
+      "width": 2048,
+      "height": 2048
+    },
+    {
+      "name": "m0mat_005_baseColor.jpeg",
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/extracted/a320_cockpit_2/textures/m0mat_005_baseColor.jpeg",
+      "width": 2048,
+      "height": 2048
+    },
+    {
+      "name": "m0mat_006_baseColor.jpeg",
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/extracted/a320_cockpit_2/textures/m0mat_006_baseColor.jpeg",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "name": "m0mat_007_baseColor.png",
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/extracted/a320_cockpit_2/textures/m0mat_007_baseColor.png",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "name": "m0mat_008_baseColor.jpeg",
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/extracted/a320_cockpit_2/textures/m0mat_008_baseColor.jpeg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "name": "m0mat_009_baseColor.jpeg",
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/extracted/a320_cockpit_2/textures/m0mat_009_baseColor.jpeg",
+      "width": 2048,
+      "height": 2048
+    },
+    {
+      "name": "m0mat_baseColor.jpeg",
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/extracted/a320_cockpit_2/textures/m0mat_baseColor.jpeg",
+      "width": 2048,
+      "height": 2048
+    },
+    {
+      "name": "m1mat_001_baseColor.jpeg",
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/extracted/a320_cockpit_2/textures/m1mat_001_baseColor.jpeg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "name": "m1mat_baseColor.jpeg",
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/extracted/a320_cockpit_2/textures/m1mat_baseColor.jpeg",
+      "width": 1024,
+      "height": 1024
+    }
+  ],
+  "topLevelChildren": [
+    "Sketchfab_model"
+  ],
+  "sampleMeshNames": [
+    "Object_0",
+    "Object_1",
+    "Object_10",
+    "Object_100",
+    "Object_101",
+    "Object_102",
+    "Object_103",
+    "Object_104.001",
+    "Object_105",
+    "Object_106",
+    "Object_107.001",
+    "Object_108",
+    "Object_109",
+    "Object_11.001",
+    "Object_110",
+    "Object_111",
+    "Object_112.001",
+    "Object_113",
+    "Object_114",
+    "Object_115.001",
+    "Object_116",
+    "Object_117",
+    "Object_118.001",
+    "Object_119",
+    "Object_12",
+    "Object_120",
+    "Object_121.001",
+    "Object_122",
+    "Object_123",
+    "Object_124.001",
+    "Object_125",
+    "Object_126",
+    "Object_127",
+    "Object_128.001",
+    "Object_129",
+    "Object_13",
+    "Object_130",
+    "Object_131",
+    "Object_132.001",
+    "Object_133.001",
+    "Object_134.001",
+    "Object_14",
+    "Object_15.001",
+    "Object_16",
+    "Object_17",
+    "Object_18.001",
+    "Object_19",
+    "Object_2",
+    "Object_20",
+    "Object_21.001",
+    "Object_22",
+    "Object_23",
+    "Object_24.001",
+    "Object_25",
+    "Object_26",
+    "Object_27",
+    "Object_28.001",
+    "Object_29",
+    "Object_3",
+    "Object_30",
+    "Object_31",
+    "Object_32.001",
+    "Object_33",
+    "Object_34.001",
+    "Object_35.001",
+    "Object_36",
+    "Object_37.001",
+    "Object_38",
+    "Object_39",
+    "Object_4",
+    "Object_40",
+    "Object_41.001",
+    "Object_42",
+    "Object_43",
+    "Object_44.001",
+    "Object_45",
+    "Object_46",
+    "Object_47",
+    "Object_48",
+    "Object_49.001"
+  ],
+  "unappliedTransformObjectCount": 0,
+  "unappliedTransformSample": [],
+  "customPropertyObjects": [
+    "AIRBUS_A320_SOURCE_CANDIDATE_ROOT"
+  ],
+  "animationCount": 0,
+  "sourceArchive": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/a320_cockpit_2.zip",
+  "sourceArchiveBytes": 17398950,
+  "sourceArchiveSha256": "1f7ec972d2a34c24b1df574142c40659cb294d372ac7e3c2cd64f9d7d69f65d4",
+  "extractedGltf": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/extracted/a320_cockpit_2/scene.gltf",
+  "inspectionBlendBytes": 27139587,
+  "previewBytes": 677606
+}

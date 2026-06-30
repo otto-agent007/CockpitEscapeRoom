@@ -59,6 +59,7 @@ The package contents list reports 15 zip entries with an uncompressed total of `
 - It must be compared against A320-specific reference evidence before any production geometry decision.
 - It has no embedded animation tracks and no cameras.
 - Agent 2 assembly remains blocked until a human `source-approval.json` exists for the imported and inspected source package.
+- Follow-up Blender import evidence suggests the package renders as an exterior aircraft model, not a cockpit-interior base. See `asset-reports/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-blender-import-report.md`.
 
 ## Commands Run
 

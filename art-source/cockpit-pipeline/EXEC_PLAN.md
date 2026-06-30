@@ -146,6 +146,30 @@ Record the owner-approved browser download for the top-ranked Airbus A320 prebui
 
 The downloaded `A320 Cockpit 2` source package is recorded as a cache-only Agent 1 input. Outcome: `approval-required`. The next bounded action is owner approval for Agent 1 Blender import/inspection. Agent 2 assembly remains blocked until an inspected source package receives human `source-approval.json`.
 
+## Blender Import: Airbus A320 Prebuilt Cockpit Candidate
+
+### Purpose
+
+Pull the owner-approved `A320 Cockpit 2` source package into Blender for Agent 1 inspection while keeping extracted files and the inspection `.blend` outside Git.
+
+### Progress
+
+- [x] 2026-06-30 - Added a bounded `import-a320-source-candidate` pipeline command and Blender-side import inspection script.
+- [x] 2026-06-30 - Extracted the glTF package under `.cache/cockpit-pipeline`.
+- [x] 2026-06-30 - Imported `scene.gltf` into Blender 5.1.2 with factory startup and auto-execution disabled.
+- [x] 2026-06-30 - Saved cache-only inspection file `.cache/cockpit-pipeline/inspection/a320-prebuilt-parts-source-discovery/a320-cockpit-2/a320-cockpit-2-import-inspection.blend`.
+- [x] 2026-06-30 - Rendered preview evidence at `preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-cockpit-view.png`.
+
+### Evidence
+
+- `python3 -m tools.blender.cockpit_pipeline.preflight` - pass; Blender 5.1.2.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli import-a320-source-candidate` - pass; imported 135 meshes, 620 objects including inspection root, 13 materials, and 537334 triangles.
+- Visual inspection of the generated cockpit-view preview - warning; it shows the exterior nose/window area rather than a confirmed cockpit-interior base.
+
+### Outcome
+
+Outcome: `approval-required`. The source imports cleanly into Blender with a cockpit-focused inspection camera, but it should not be source-approved for Agent 2 cockpit assembly until owner review resolves whether the asset contains usable cockpit interior geometry or should be reclassified as exterior/presentation material.
+
 ## Outcome and handoff
 
 The foundation is in place for Agent 1 to begin sourcing against the unresolved-variant four-component vertical slice. Agent 1 should start with:
