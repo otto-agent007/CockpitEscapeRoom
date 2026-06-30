@@ -10,16 +10,16 @@
     "name": "CAM_AIRBUS_A320_SOURCE_IMPORT_CAPTAIN_SEAT_VIEW",
     "purpose": "captain-seat interior inspection view",
     "location": [
-      -0.347116,
-      -0.639719,
-      0.371386
+      -0.303763,
+      -0.71283,
+      0.191386
     ],
     "target": [
-      0.086416,
-      -0.511775,
-      0.221386
+      -0.104338,
+      -0.456942,
+      0.056386
     ],
-    "lensMm": 26.0
+    "lensMm": 50.0
   },
   "renderIsolation": {
     "mode": "cockpit-interior-isolation",
@@ -288,6 +288,6 @@
   "sourceArchiveBytes": 17398950,
   "sourceArchiveSha256": "1f7ec972d2a34c24b1df574142c40659cb294d372ac7e3c2cd64f9d7d69f65d4",
   "extractedGltf": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/extracted/a320_cockpit_2/scene.gltf",
-  "inspectionBlendBytes": 27141277,
-  "previewBytes": 819187
+  "inspectionBlendBytes": 27141246,
+  "previewBytes": 783333
 }
