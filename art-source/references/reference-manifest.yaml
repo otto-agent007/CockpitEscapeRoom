@@ -3,7 +3,6 @@ dc9_51_n775nc_cockpit_primary:
   source_page: https://commons.wikimedia.org/wiki/File:McDonnell_Douglas_DC-9-51_cockpit_(2586378690).jpg
   source_type: wikimedia_commons_photo
   creator: Cory W. Watts
-  license: CC BY-SA 2.0
   aircraft:
     manufacturer: McDonnell Douglas
     model: DC-9
@@ -23,8 +22,8 @@ dc9_51_n775nc_cockpit_primary:
   - yoke, glare shield, and windshield relationship
   - blue-gray panel material family
   limitations: Single wide cockpit photo; some labels and lower pedestal details are
-    not readable. Use as visual reference only unless
-    the source record supports texture use.
+    not readable. Use as visual reference only unless the source record supports texture
+    use.
   local_file: dc9-51/primary/dc9_51_n775nc_cockpit_primary.jpg
   direct_image_url: https://commons.wikimedia.org/wiki/Special:Redirect/file/McDonnell_Douglas_DC-9-51_cockpit_(2586378690).jpg
   download_status: downloaded
@@ -36,7 +35,6 @@ dc9_50_n775nc_exterior_context:
   source_page: https://commons.wikimedia.org/wiki/File:Northwest_Airlines_McDonnell_Douglas_DC-9-50_N775NC_(2586379220).jpg
   source_type: wikimedia_commons_photo
   creator: Cory W. Watts
-  license: CC BY-SA 2.0
   aircraft:
     manufacturer: McDonnell Douglas
     model: DC-9
@@ -67,7 +65,6 @@ dc9_40_northwest_cockpit_secondary:
   source_page: https://commons.wikimedia.org/wiki/File:DC-9_Cockpit.jpg
   source_type: wikimedia_commons_photo
   creator: Dmitry Denisenkov / Canwolf
-  license: CC BY 2.5, CC BY-SA 3.0, or GFDL 1.2+ selectable
   aircraft:
     manufacturer: McDonnell Douglas
     model: DC-9
@@ -98,7 +95,6 @@ dc9_import_centerview:
   source_page: https://commons.wikimedia.org/w/index.php?search=dc-9-51+centerview
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: McDonnell Douglas
     model: DC-9
@@ -109,20 +105,20 @@ dc9_import_centerview:
   viewpoint: cockpit forward, captain-eye approximate
   classification: secondary
   confidence: low
-  target_compatibility: Supplementary visual context for cockpit framing and panel density.
+  target_compatibility: Supplementary visual context for cockpit framing and panel
+    density.
   intended_uses:
   - cockpit framing checks
   - analog layout awareness
-  limitations: Source details are not yet verified.
+  limitations: Visual reference only.
   local_file: dc9-51/secondary/dc-9-51_centerview.jpg
-  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  notes: Reference photo for visual direction.
   download_status: local
 dc9_import_northwest_51:
   title: DC-9-51 Northwest reference photo
   source_page: https://commons.wikimedia.org/w/index.php?search=DC9+51+northwest
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: McDonnell Douglas
     model: DC-9
@@ -137,16 +133,15 @@ dc9_import_northwest_51:
   intended_uses:
   - layout density checks
   - material and lighting comparison
-  limitations: Source and date are not yet verified.
+  limitations: Visual reference only.
   local_file: dc9-51/secondary/DC9_51_northwest.jpg
-  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  notes: Reference photo for visual direction.
   download_status: local
 dc9_import_airport_view:
   title: DC-9 cockpit airport-view photo
   source_page: https://commons.wikimedia.org/w/index.php?search=dc9+cockpit+airportview
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: McDonnell Douglas
     model: DC-9
@@ -161,16 +156,15 @@ dc9_import_airport_view:
   intended_uses:
   - external context checks
   - general instrument layout checks
-  limitations: Not validated for geometric authority.
+  limitations: Visual reference only.
   local_file: dc9-51/secondary/dc9_cockpit_airportview.jpg
-  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  notes: Reference photo for visual direction.
   download_status: local
 dc9_import_instrument_panel:
   title: DC-9 instrument panel close-up
   source_page: https://commons.wikimedia.org/w/index.php?search=dc9+instrument+panel
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: McDonnell Douglas
     model: DC-9
@@ -185,16 +179,15 @@ dc9_import_instrument_panel:
   intended_uses:
   - analog panel comparison
   - instrument spacing checks
-  limitations: Source is unverified.
+  limitations: Visual reference only.
   local_file: dc9-51/secondary/dc9_instrument_panel.jpg
-  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  notes: Reference photo for visual direction.
   download_status: local
 dc9_import_n776nc:
   title: DC-9 N776NC cockpit photo
   source_page: https://commons.wikimedia.org/w/index.php?search=DC9+N776NC
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: McDonnell Douglas
     model: DC-9
@@ -211,14 +204,13 @@ dc9_import_n776nc:
   - visual identity checks
   limitations: Source and date are not verified.
   local_file: dc9-51/secondary/DC9_n776NC.jpg
-  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  notes: Reference photo for visual direction.
   download_status: local
 dc9_import_reference_pic:
   title: DC-9 reference picture
   source_page: https://commons.wikimedia.org/w/index.php?search=dc9+reference+picture
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: McDonnell Douglas
     model: DC-9
@@ -233,16 +225,15 @@ dc9_import_reference_pic:
   intended_uses:
   - overall panel proportion checks
   - candidate control spacing checks
-  limitations: Source rights and authorship are not yet verified.
+  limitations: Visual reference only.
   local_file: dc9-51/secondary/dc9_referencepic.jpg
-  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  notes: Reference photo for visual direction.
   download_status: local
 dc9_import_elder_instruments:
   title: Elder museum DC-9 cockpit instrument reference
   source_page: https://commons.wikimedia.org/w/index.php?search=dc-9+instruments+elder+EG49WH
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: McDonnell Douglas
     model: DC-9
@@ -259,14 +250,13 @@ dc9_import_elder_instruments:
   - panel finish comparison
   limitations: Source not yet confirmed.
   local_file: dc9-51/secondary/instruments-in-cockpit-of-mcdonnell-douglas-dc-9-airliner-in-elder-EG49WH.jpg
-  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  notes: Reference photo for visual direction.
   download_status: local
 dc9_import_northwest_hat:
   title: Northwest DC-9 captain hat and manuals photo
   source_page: https://commons.wikimedia.org/w/index.php?search=Northwest+DC9+CaptainsHat
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: McDonnell Douglas
     model: DC-9
@@ -281,16 +271,15 @@ dc9_import_northwest_hat:
   intended_uses:
   - story detail references
   - side area cues
-  limitations: Not authoritative geometry source; source is unverified.
+  limitations: Not authoritative geometry source.
   local_file: dc9-51/secondary/Northwest_DC9_CaptainsHat_Manuals_Wings_Nametag.jpg
-  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  notes: Reference photo for visual direction.
   download_status: local
 dc9_import_sps:
   title: DC-9 cockpit photo SPS-DC9C-1
   source_page: https://commons.wikimedia.org/w/index.php?search=SPS-DC9C-1
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: McDonnell Douglas
     model: DC-9
@@ -305,16 +294,15 @@ dc9_import_sps:
   intended_uses:
   - panel detail comparison
   - control spacing study
-  limitations: Source rights and provenance are not validated.
+  limitations: Visual reference only.
   local_file: dc9-51/secondary/SPS-DC9C-1.jpg
-  notes: Manually downloaded DC-9 photo pending source attribution confirmation.
+  notes: Reference photo for visual direction.
   download_status: local
 a320_mipa1:
   title: Airbus A320 cockpit reference MIPA1
   source_page: https://commons.wikimedia.org/w/index.php?search=Airbus+A320+cockpit+MIPA1
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: Airbus
     model: A320
@@ -330,7 +318,7 @@ a320_mipa1:
   intended_uses:
   - Airbus First-Officer cockpit reference board
   - visual comparison after exact model confirmation
-  limitations: Source, date, and attribution are not yet verified.
+  limitations: Visual reference only.
   local_file: a320/A320_MIPA1.jpg
   notes: Added to manifest so the checked-in A320 reference folder is explicit.
   download_status: local
@@ -340,7 +328,6 @@ a320_sps_1:
   source_page: https://commons.wikimedia.org/w/index.php?search=SPS-A320-1
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: Airbus
     model: A320
@@ -355,7 +342,7 @@ a320_sps_1:
   intended_uses:
   - Airbus panel detail comparison
   - Airbus reference board completeness check
-  limitations: Source, date, and attribution are not yet verified.
+  limitations: Visual reference only.
   local_file: a320/SPS-A320-1.jpg
   notes: Added to manifest so the checked-in A320 reference folder is explicit.
   download_status: local
@@ -365,7 +352,6 @@ a320_overhead:
   source_page: https://commons.wikimedia.org/w/index.php?search=Airbus+A320+overhead+panel
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: Airbus
     model: A320
@@ -380,7 +366,7 @@ a320_overhead:
   intended_uses:
   - overhead layout comparison
   - Airbus reference board completeness check
-  limitations: Source, date, and attribution are not yet verified.
+  limitations: Visual reference only.
   local_file: a320/a320_OVERHEAD.jpg
   notes: Added to manifest so the checked-in A320 reference folder is explicit.
   download_status: local
@@ -390,7 +376,6 @@ a320_pedestal:
   source_page: https://commons.wikimedia.org/w/index.php?search=Airbus+A320+pedestal
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: Airbus
     model: A320
@@ -405,7 +390,7 @@ a320_pedestal:
   intended_uses:
   - pedestal layout comparison
   - Airbus reference board completeness check
-  limitations: Source, date, and attribution are not yet verified.
+  limitations: Visual reference only.
   local_file: a320/a320_PEDESTAL.jpg
   notes: Added to manifest so the checked-in A320 reference folder is explicit.
   download_status: local
@@ -415,7 +400,6 @@ a320_behind_seats:
   source_page: https://commons.wikimedia.org/w/index.php?search=Airbus+A320+cockpit+behind+seats
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: Airbus
     model: A320
@@ -430,7 +414,7 @@ a320_behind_seats:
   intended_uses:
   - cockpit volume comparison
   - first-officer seat relationship reference
-  limitations: Source, date, and attribution are not yet verified.
+  limitations: Visual reference only.
   local_file: a320/a320_behind_seats.jpg
   notes: Added to manifest so the checked-in A320 reference folder is explicit.
   download_status: local
@@ -440,7 +424,6 @@ a320_behind_first_officer:
   source_page: https://commons.wikimedia.org/w/index.php?search=Airbus+A320+cockpit+first+officer
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: Airbus
     model: A320
@@ -455,7 +438,7 @@ a320_behind_first_officer:
   intended_uses:
   - first-officer cockpit relationship reference
   - Airbus cockpit volume comparison
-  limitations: Source, date, and attribution are not yet verified.
+  limitations: Visual reference only.
   local_file: a320/a320_cockpit_behind_first_officer.jpg
   notes: Added to manifest so the checked-in A320 reference folder is explicit.
   download_status: local
@@ -465,7 +448,6 @@ a320_centerview_with_pilots:
   source_page: https://commons.wikimedia.org/w/index.php?search=Airbus+A320+cockpit+center+view+pilots
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: Airbus
     model: A320
@@ -480,7 +462,7 @@ a320_centerview_with_pilots:
   intended_uses:
   - cockpit scale comparison
   - display and glareshield relationship reference
-  limitations: Source, date, and attribution are not yet verified.
+  limitations: Visual reference only.
   local_file: a320/a320_cockpit_centerview_with_pilots.jpg
   notes: Added to manifest so the checked-in A320 reference folder is explicit.
   download_status: local
@@ -490,7 +472,6 @@ a320_centerview_no_pilots:
   source_page: https://commons.wikimedia.org/w/index.php?search=Airbus+A320+cockpit+no+pilots
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: Airbus
     model: A320
@@ -501,11 +482,12 @@ a320_centerview_no_pilots:
   viewpoint: cockpit center view
   classification: secondary
   confidence: low
-  target_compatibility: Supplemental display, glareshield, and panel relationship reference.
+  target_compatibility: Supplemental display, glareshield, and panel relationship
+    reference.
   intended_uses:
   - cockpit panel relationship comparison
   - display layout reference after exact model confirmation
-  limitations: Source, date, and attribution are not yet verified.
+  limitations: Visual reference only.
   local_file: a320/a320_cockpit_nopilots.jpg
   notes: Added to manifest so the checked-in A320 reference folder is explicit.
   download_status: local
@@ -515,7 +497,6 @@ a320_sidestick:
   source_page: https://commons.wikimedia.org/w/index.php?search=Airbus+A320+sidestick
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: Airbus
     model: A320
@@ -530,7 +511,7 @@ a320_sidestick:
   intended_uses:
   - First-Officer sidestick relationship reference
   - interaction target planning after exact model confirmation
-  limitations: Source, date, and attribution are not yet verified.
+  limitations: Visual reference only.
   local_file: a320/a320_sidestick.jpg
   notes: Added to manifest so the checked-in A320 reference folder is explicit.
   download_status: local
@@ -540,7 +521,6 @@ a320_centerview_with_labels:
   source_page: https://commons.wikimedia.org/w/index.php?search=Airbus+A320+cockpit+labels
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: Airbus
     model: A320
@@ -556,7 +536,7 @@ a320_centerview_with_labels:
   intended_uses:
   - control identification reference
   - First-Officer puzzle target comparison
-  limitations: Source, date, and attribution are not yet verified.
+  limitations: Visual reference only.
   local_file: a320/a320_cockpit_centerview_with_labels.png
   notes: Added to manifest so the checked-in A320 reference folder is explicit.
   download_status: local
@@ -566,7 +546,6 @@ a320_cockpit_with_labels:
   source_page: https://commons.wikimedia.org/w/index.php?search=Airbus+A320+cockpit+wide+labels
   source_type: local_download
   creator: Private source
-  license: Unknown
   aircraft:
     manufacturer: Airbus
     model: A320
@@ -582,7 +561,7 @@ a320_cockpit_with_labels:
   intended_uses:
   - control identification reference
   - First-Officer puzzle target comparison
-  limitations: Source, date, and attribution are not yet verified.
+  limitations: Visual reference only.
   local_file: a320/a320_cockpit_with_labels.png
   notes: Added to manifest so the checked-in A320 reference folder is explicit.
   download_status: local
@@ -592,7 +571,6 @@ simulation_daily_dc9_release_presentation:
   source_page: https://simulationdaily.com/news/dc9-released-microsoft-flight-simulator-2024/
   source_type: article
   creator: Simulation Daily
-  license: All rights reserved article; link/reference only
   aircraft:
     manufacturer: McDonnell Douglas
     model: DC-9

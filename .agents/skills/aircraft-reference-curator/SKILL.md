@@ -1,6 +1,6 @@
 ---
 name: aircraft-reference-curator
-description: Build and maintain license-aware aircraft reference packs for CockpitEscapeRoom, including manifest entries, contact sheets, modeling briefs, and variant-mixing guardrails.
+description: Build and maintain aircraft reference packs for CockpitEscapeRoom, including manifest entries, contact sheets, modeling briefs, and variant-mixing guardrails.
 ---
 
 # Aircraft Reference Curator Workflow
@@ -24,7 +24,7 @@ Use this skill when adding or revising aircraft references, source manifests, co
    - Mood: broad texture/lighting inspiration only.
    - Rejected: documented but excluded.
 3. Record every source in `art-source/references/reference-manifest.yaml` before downloading.
-4. Download only when the manifest includes a direct image URL and license-compatible source record.
+4. Download only when the manifest includes a direct image URL.
 5. Label variant, operator, registration, viewpoint, confidence, intended uses, limitations, and target compatibility for every entry.
 6. Keep original images untouched. Put callouts and markups under `annotations/`.
 7. Run `npm run references:check` after changing the manifest, downloads, contact sheets, brief, or Blender reference scene.
@@ -39,4 +39,4 @@ Use this skill when adding or revising aircraft references, source manifests, co
 
 ## Output
 
-Report source IDs added or changed, license/usage limits, generated artifacts, validation commands, missing views, and any owner decisions required before production modeling.
+Report source IDs added or changed, usage limits, generated artifacts, validation commands, missing views, and any owner decisions required before production modeling.

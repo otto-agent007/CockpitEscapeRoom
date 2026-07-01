@@ -26,7 +26,7 @@ description: Validate, export, inspect, preview, and integrate Blender cockpit o
 10. Compare against the approved model-correct references. Record known deviations rather than hiding them with lighting.
 11. Review asset size, material count, texture dimensions, and runtime behavior.
 12. Repair root causes and rerun the failing plus adjacent checks.
-13. Update the asset report, active ExecPlan, source/license manifest, and `TEST_REPORT.md`.
+13. Update the asset report, active ExecPlan, and `TEST_REPORT.md`.
 
 ## Guardrails
 
@@ -34,7 +34,6 @@ description: Validate, export, inspect, preview, and integrate Blender cockpit o
 - Preserve stable names, hierarchy, pivots, animation tracks, and extras.
 - Use invisible colliders instead of distorting visible controls.
 - Visual realism does not authorize real operational puzzle procedures.
-- Do not use an external asset without an original-work or redistribution license record.
 - Tripo AI outputs are candidate/proxy assets until imported into Blender, inspected, cleaned, optimized, assigned stable names, checked for pivots, and documented in `asset-reports/`.
 - The official Blender MCP may be used for scene inspection and controlled edits, but not for uncontrolled broad rewrites of approved scenes.
 

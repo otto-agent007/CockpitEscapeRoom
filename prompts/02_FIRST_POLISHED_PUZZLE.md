@@ -11,7 +11,7 @@ Use the first puzzle described in `docs/GAME_DESIGN.md` and invoke both `$cockpi
 ## Constraints
 
 - Polish only one puzzle and nearby cockpit area.
-- Add sound only with mute and volume controls and local licensed/original files.
+- Add sound only with mute and volume controls and local audio files.
 - Wrong answers reset only the current sequence.
 - Crew and Captain modes remain fair.
 - Every 3D action has an HTML equivalent.

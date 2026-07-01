@@ -41,7 +41,7 @@ State what is included and explicitly excluded.
 
 ## Context and constraints
 
-Record architecture, realism, accessibility, licensing, performance, privacy, and personalization requirements.
+Record architecture, realism, accessibility, performance, privacy, and personalization requirements.
 
 ## Progress
 

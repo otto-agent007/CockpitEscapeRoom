@@ -1,8 +1,62 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { OrbitControls as ThreeOrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import * as THREE from 'three'
 import { type GamePhase, type SwitchId } from '../game/state'
+
+// Cockpit shells produced by the asset pipeline and served from public/models.
+const AIRBUS_MODEL_URL = `${import.meta.env.BASE_URL}models/airbus-cockpit.glb`
+const DC9_MODEL_URL = `${import.meta.env.BASE_URL}models/dc9-cockpit.glb`
+
+// Provisional placement, tuned in-browser during visual approval — not final framing.
+// NOTE: the A320 shell is a deep walk-in interior (~8.6m deep, centered ~4.6m forward)
+// authored around AIRBUS_ROOT. The origin-orbit camera rig below was built for a flat
+// greybox panel and will need to move toward the captain eye point for the A320 to frame well.
+const AIRBUS_MODEL_TRANSFORM = { position: [0, 0, 0] as [number, number, number], scale: 1 }
+const DC9_MODEL_TRANSFORM = { position: [0, -0.35, 0] as [number, number, number], scale: 1 }
+
+// Fetch and parse each cockpit GLB once per session, even across scene remounts.
+const cockpitModelCache = new Map<string, Promise<THREE.Group>>()
+
+function loadCockpitModel(url: string): Promise<THREE.Group> {
+  let promise = cockpitModelCache.get(url)
+  if (!promise) {
+    promise = new GLTFLoader().loadAsync(url).then((gltf) => gltf.scene)
+    cockpitModelCache.set(url, promise)
+  }
+  return promise
+}
+
+// Renders a real cockpit shell, falling back to greybox while it loads or if it fails.
+function CockpitModel({
+  url,
+  transform,
+  fallback,
+}: {
+  url: string
+  transform: { position: [number, number, number]; scale: number }
+  fallback: ReactNode
+}) {
+  const [scene, setScene] = useState<THREE.Group | null>(null)
+
+  useEffect(() => {
+    let active = true
+    loadCockpitModel(url)
+      .then((loaded) => {
+        if (active) setScene(loaded)
+      })
+      .catch((error) => {
+        console.error(`CockpitEscapeRoom: failed to load cockpit model ${url}`, error)
+      })
+    return () => {
+      active = false
+    }
+  }, [url])
+
+  if (!scene) return <>{fallback}</>
+  return <primitive object={scene} position={transform.position} scale={transform.scale} />
+}
 
 const CAPTAIN_SWITCH_IDS = ['battery', 'navigation', 'cabin'] as const
 
@@ -77,18 +131,26 @@ function AirbusCabin({ reducedMotion }: { reducedMotion: boolean }) {
       <ambientLight intensity={0.75} />
       <pointLight position={[2.4, 4, 3]} intensity={1.2} color="#f7fafb" />
       <pointLight position={[-2.1, 2.4, 2.1]} intensity={0.85} color="#7a8ea5" />
-      <mesh position={[0, 0, 0]} rotation={[0, 0.02, 0]}>
-        <boxGeometry args={[3.35, 2.35, 0.28]} />
-        <meshStandardMaterial color="#edf3ff" roughness={0.82} />
-      </mesh>
-      <mesh position={[-0.22, 0.24, 0.16]}>
-        <boxGeometry args={[1.7, 0.85, 0.11]} />
-        <meshStandardMaterial color="#2b3a55" roughness={0.18} metalness={0.65} />
-      </mesh>
-      <mesh ref={gauge} position={[-0.35, 0.6, 0.25]} rotation={[0, 0, 0]}>
-        <ringGeometry args={[0.12, 0.18, 28]} />
-        <meshStandardMaterial color="#152033" />
-      </mesh>
+      <CockpitModel
+        url={AIRBUS_MODEL_URL}
+        transform={AIRBUS_MODEL_TRANSFORM}
+        fallback={
+          <>
+            <mesh position={[0, 0, 0]} rotation={[0, 0.02, 0]}>
+              <boxGeometry args={[3.35, 2.35, 0.28]} />
+              <meshStandardMaterial color="#edf3ff" roughness={0.82} />
+            </mesh>
+            <mesh position={[-0.22, 0.24, 0.16]}>
+              <boxGeometry args={[1.7, 0.85, 0.11]} />
+              <meshStandardMaterial color="#2b3a55" roughness={0.18} metalness={0.65} />
+            </mesh>
+            <mesh ref={gauge} position={[-0.35, 0.6, 0.25]}>
+              <ringGeometry args={[0.12, 0.18, 28]} />
+              <meshStandardMaterial color="#152033" />
+            </mesh>
+          </>
+        }
+      />
     </>
   )
 }
@@ -158,10 +220,16 @@ function CaptainCockpit({
       <color attach="background" args={['#0d1517']} />
       <ambientLight intensity={0.64} />
       <directionalLight position={[2.5, 3.8, 2.4]} intensity={2} castShadow />
-      <mesh receiveShadow>
-        <boxGeometry args={[3.4, 2.45, 0.35]} />
-        <meshStandardMaterial color="#3c5258" roughness={0.82} />
-      </mesh>
+      <CockpitModel
+        url={DC9_MODEL_URL}
+        transform={DC9_MODEL_TRANSFORM}
+        fallback={
+          <mesh receiveShadow>
+            <boxGeometry args={[3.4, 2.45, 0.35]} />
+            <meshStandardMaterial color="#3c5258" roughness={0.82} />
+          </mesh>
+        }
+      />
       {positions.map((position, index) => {
         const switchId = CAPTAIN_SWITCH_IDS[index]
         if (!switchId) return null
