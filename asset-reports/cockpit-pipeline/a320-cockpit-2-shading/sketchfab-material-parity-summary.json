@@ -1,0 +1,2491 @@
+{
+  "generatedAt": "2026-07-01T03:32:43.957308+00:00",
+  "materials": [
+    {
+      "cullFace": "DISABLE",
+      "disabledImportantChannels": [
+        {
+          "channel": "AOPBR",
+          "enable": false,
+          "factor": 1,
+          "occludeSpecular": true
+        },
+        {
+          "channel": "Anisotropy",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "BumpMap",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "CavityPBR",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "ClearCoat",
+          "enable": false,
+          "factor": 1,
+          "reflectivity": 0,
+          "thickness": 5
+        },
+        {
+          "channel": "NormalMap",
+          "enable": false,
+          "factor": 1,
+          "flipY": false
+        },
+        {
+          "channel": "Opacity",
+          "enable": false,
+          "factor": 1,
+          "invert": false,
+          "ior": 1.05,
+          "roughnessFactor": 0,
+          "type": "alphaBlend"
+        }
+      ],
+      "enabledChannels": [
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "AlbedoPBR",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m1mat.001_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "eeb26810a89a4e05832b9be90edf17de",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "ClearCoatNormalMap",
+          "enable": true,
+          "factor": 1,
+          "flipY": true
+        },
+        {
+          "channel": "ClearCoatRoughness",
+          "enable": true,
+          "factor": 0.04
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "DiffuseColor",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m1mat.001_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "eeb26810a89a4e05832b9be90edf17de",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "DiffuseIntensity",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "enable": true,
+          "factor": 1
+        },
+        {
+          "channel": "EmitColor",
+          "color": [
+            0,
+            0,
+            0
+          ],
+          "enable": true,
+          "factor": 0,
+          "type": "additive"
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "Matcap",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "curvature": 0,
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": null,
+            "texCoordUnit": 0,
+            "uid": "35c4d334eded44d8a657f390954a32dd",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "MetalnessPBR",
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "RoughnessPBR",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularColor",
+          "color": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "SpecularF0",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularHardness",
+          "enable": true,
+          "factor": 12.5
+        }
+      ],
+      "id": "1906f71b-9423-4d5b-af0f-9fd54ed75eff",
+      "name": "m1mat_001",
+      "reflection": 0.1,
+      "shadeless": false
+    },
+    {
+      "cullFace": "DISABLE",
+      "disabledImportantChannels": [
+        {
+          "channel": "AOPBR",
+          "enable": false,
+          "factor": 1,
+          "occludeSpecular": true
+        },
+        {
+          "channel": "Anisotropy",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "BumpMap",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "CavityPBR",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "ClearCoat",
+          "enable": false,
+          "factor": 1,
+          "reflectivity": 0,
+          "thickness": 5
+        },
+        {
+          "channel": "NormalMap",
+          "enable": false,
+          "factor": 1,
+          "flipY": false
+        },
+        {
+          "channel": "Opacity",
+          "enable": false,
+          "factor": 1,
+          "invert": false,
+          "ior": 1.05,
+          "roughnessFactor": 0,
+          "type": "alphaBlend"
+        }
+      ],
+      "enabledChannels": [
+        {
+          "channel": "AlbedoPBR",
+          "color": [
+            0.799099,
+            0,
+            0.00242823
+          ],
+          "enable": true,
+          "factor": 1
+        },
+        {
+          "channel": "ClearCoatNormalMap",
+          "enable": true,
+          "factor": 1,
+          "flipY": true
+        },
+        {
+          "channel": "ClearCoatRoughness",
+          "enable": true,
+          "factor": 0.04
+        },
+        {
+          "channel": "DiffuseColor",
+          "color": [
+            0.799099,
+            0,
+            0.00242823
+          ],
+          "enable": true,
+          "factor": 1
+        },
+        {
+          "channel": "DiffuseIntensity",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "enable": true,
+          "factor": 1
+        },
+        {
+          "channel": "EmitColor",
+          "color": [
+            0,
+            0,
+            0
+          ],
+          "enable": true,
+          "factor": 0,
+          "type": "additive"
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "Matcap",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "curvature": 0,
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": null,
+            "texCoordUnit": 0,
+            "uid": "35c4d334eded44d8a657f390954a32dd",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "MetalnessPBR",
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "RoughnessPBR",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularColor",
+          "color": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "SpecularF0",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularHardness",
+          "enable": true,
+          "factor": 12.5
+        }
+      ],
+      "id": "1d593b03-21af-4887-bf87-a2bdd78d6660",
+      "name": "m0mat_015",
+      "reflection": 0.1,
+      "shadeless": false
+    },
+    {
+      "cullFace": "DISABLE",
+      "disabledImportantChannels": [
+        {
+          "channel": "AOPBR",
+          "enable": false,
+          "factor": 1,
+          "occludeSpecular": true
+        },
+        {
+          "channel": "Anisotropy",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "BumpMap",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "CavityPBR",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "ClearCoat",
+          "enable": false,
+          "factor": 1,
+          "reflectivity": 0,
+          "thickness": 5
+        },
+        {
+          "channel": "NormalMap",
+          "enable": false,
+          "factor": 1,
+          "flipY": false
+        },
+        {
+          "channel": "Opacity",
+          "enable": false,
+          "factor": 1,
+          "invert": false,
+          "ior": 1.05,
+          "roughnessFactor": 0,
+          "type": "alphaBlend"
+        }
+      ],
+      "enabledChannels": [
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "AlbedoPBR",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.008_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "eb66f0043805410ea82bf66c9d8ebe51",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "ClearCoatNormalMap",
+          "enable": true,
+          "factor": 1,
+          "flipY": true
+        },
+        {
+          "channel": "ClearCoatRoughness",
+          "enable": true,
+          "factor": 0.04
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "DiffuseColor",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.008_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "eb66f0043805410ea82bf66c9d8ebe51",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "DiffuseIntensity",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "enable": true,
+          "factor": 1
+        },
+        {
+          "channel": "EmitColor",
+          "color": [
+            0,
+            0,
+            0
+          ],
+          "enable": true,
+          "factor": 0,
+          "type": "additive"
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "Matcap",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "curvature": 0,
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": null,
+            "texCoordUnit": 0,
+            "uid": "35c4d334eded44d8a657f390954a32dd",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "MetalnessPBR",
+          "enable": true,
+          "factor": 1
+        },
+        {
+          "channel": "RoughnessPBR",
+          "enable": true,
+          "factor": 0.3825777937144574
+        },
+        {
+          "channel": "SpecularColor",
+          "color": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "SpecularF0",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularHardness",
+          "enable": true,
+          "factor": 12.5
+        }
+      ],
+      "id": "24155e97-0762-495f-b19b-8ac23e8c2acc",
+      "name": "m0mat_008",
+      "reflection": 0.1,
+      "shadeless": false
+    },
+    {
+      "cullFace": "DISABLE",
+      "disabledImportantChannels": [
+        {
+          "channel": "AOPBR",
+          "enable": false,
+          "factor": 1,
+          "occludeSpecular": true
+        },
+        {
+          "channel": "Anisotropy",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "BumpMap",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "CavityPBR",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "ClearCoat",
+          "enable": false,
+          "factor": 1,
+          "reflectivity": 0,
+          "thickness": 5
+        },
+        {
+          "channel": "NormalMap",
+          "enable": false,
+          "factor": 1,
+          "flipY": false
+        },
+        {
+          "channel": "Opacity",
+          "enable": false,
+          "factor": 1,
+          "invert": false,
+          "ior": 1.05,
+          "roughnessFactor": 0,
+          "type": "alphaBlend"
+        }
+      ],
+      "enabledChannels": [
+        {
+          "channel": "AlbedoPBR",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.006_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "85ed9479f0674ae998ee3050398faad9",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "ClearCoatNormalMap",
+          "enable": true,
+          "factor": 1,
+          "flipY": true
+        },
+        {
+          "channel": "ClearCoatRoughness",
+          "enable": true,
+          "factor": 0.04
+        },
+        {
+          "channel": "DiffuseColor",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.006_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "85ed9479f0674ae998ee3050398faad9",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "DiffuseIntensity",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "enable": true,
+          "factor": 1
+        },
+        {
+          "channel": "EmitColor",
+          "color": [
+            0,
+            0,
+            0
+          ],
+          "enable": true,
+          "factor": 0,
+          "type": "additive"
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "Matcap",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "curvature": 0,
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": null,
+            "texCoordUnit": 0,
+            "uid": "35c4d334eded44d8a657f390954a32dd",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "MetalnessPBR",
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "RoughnessPBR",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularColor",
+          "color": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "SpecularF0",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularHardness",
+          "enable": true,
+          "factor": 12.5
+        }
+      ],
+      "id": "6b7307b2-53af-4cac-a8fd-a433a3596a26",
+      "name": "m0mat_006",
+      "reflection": 0.1,
+      "shadeless": false
+    },
+    {
+      "cullFace": "DISABLE",
+      "disabledImportantChannels": [
+        {
+          "channel": "AOPBR",
+          "enable": false,
+          "factor": 1,
+          "occludeSpecular": true
+        },
+        {
+          "channel": "Anisotropy",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "BumpMap",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "CavityPBR",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "ClearCoat",
+          "enable": false,
+          "factor": 1,
+          "reflectivity": 0,
+          "thickness": 5
+        },
+        {
+          "channel": "NormalMap",
+          "enable": false,
+          "factor": 1,
+          "flipY": false
+        },
+        {
+          "channel": "Opacity",
+          "enable": false,
+          "factor": 1,
+          "invert": false,
+          "ior": 1.05,
+          "roughnessFactor": 0,
+          "type": "alphaBlend"
+        }
+      ],
+      "enabledChannels": [
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "AlbedoPBR",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.010_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "7160f858c442480993d07ce565f91279",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "ClearCoatNormalMap",
+          "enable": true,
+          "factor": 1,
+          "flipY": true
+        },
+        {
+          "channel": "ClearCoatRoughness",
+          "enable": true,
+          "factor": 0.04
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "DiffuseColor",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.010_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "7160f858c442480993d07ce565f91279",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "DiffuseIntensity",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "enable": true,
+          "factor": 1
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "Matcap",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "curvature": 0,
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": null,
+            "texCoordUnit": 0,
+            "uid": "35c4d334eded44d8a657f390954a32dd",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "MetalnessPBR",
+          "enable": true,
+          "factor": 0.27331802862295235
+        },
+        {
+          "channel": "RoughnessPBR",
+          "enable": true,
+          "factor": 0.06693847233899834
+        },
+        {
+          "channel": "SpecularColor",
+          "color": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "SpecularF0",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularHardness",
+          "enable": true,
+          "factor": 12.5
+        }
+      ],
+      "id": "a6fe5401-e047-4d8e-9a01-9163d9fc7ca0",
+      "name": "m0mat_010",
+      "reflection": 0.1,
+      "shadeless": false
+    },
+    {
+      "cullFace": "DISABLE",
+      "disabledImportantChannels": [
+        {
+          "channel": "AOPBR",
+          "enable": false,
+          "factor": 1,
+          "occludeSpecular": true
+        },
+        {
+          "channel": "Anisotropy",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "BumpMap",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "CavityPBR",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "ClearCoat",
+          "enable": false,
+          "factor": 1,
+          "reflectivity": 0,
+          "thickness": 5
+        },
+        {
+          "channel": "NormalMap",
+          "enable": false,
+          "factor": 1,
+          "flipY": false
+        },
+        {
+          "channel": "Opacity",
+          "enable": false,
+          "factor": 1,
+          "invert": false,
+          "ior": 1.05,
+          "roughnessFactor": 0,
+          "type": "alphaBlend"
+        }
+      ],
+      "enabledChannels": [
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "AlbedoPBR",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.010_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "7160f858c442480993d07ce565f91279",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "ClearCoatNormalMap",
+          "enable": true,
+          "factor": 1,
+          "flipY": true
+        },
+        {
+          "channel": "ClearCoatRoughness",
+          "enable": true,
+          "factor": 0.04
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "DiffuseColor",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.010_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "7160f858c442480993d07ce565f91279",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "DiffuseIntensity",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "enable": true,
+          "factor": 1
+        },
+        {
+          "channel": "EmitColor",
+          "color": [
+            0,
+            0,
+            0
+          ],
+          "enable": true,
+          "factor": 0,
+          "type": "additive"
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "Matcap",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "curvature": 0,
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": null,
+            "texCoordUnit": 0,
+            "uid": "35c4d334eded44d8a657f390954a32dd",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "MetalnessPBR",
+          "enable": true,
+          "factor": 0.3947177676135135
+        },
+        {
+          "channel": "RoughnessPBR",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularColor",
+          "color": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "SpecularF0",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularHardness",
+          "enable": true,
+          "factor": 12.5
+        }
+      ],
+      "id": "a7939739-7dc8-48bc-b47c-5a86774166cf",
+      "name": "m0mat",
+      "reflection": 0.1,
+      "shadeless": false
+    },
+    {
+      "cullFace": "DISABLE",
+      "disabledImportantChannels": [
+        {
+          "channel": "AOPBR",
+          "enable": false,
+          "factor": 1,
+          "occludeSpecular": true
+        },
+        {
+          "channel": "Anisotropy",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "BumpMap",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "CavityPBR",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "ClearCoat",
+          "enable": false,
+          "factor": 1,
+          "reflectivity": 0,
+          "thickness": 5
+        },
+        {
+          "channel": "NormalMap",
+          "enable": false,
+          "factor": 1,
+          "flipY": false
+        }
+      ],
+      "enabledChannels": [
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "AlbedoPBR",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.007_baseColor.png",
+            "texCoordUnit": 0,
+            "uid": "55230181e35b4b389b99114a10957d34",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "ClearCoatNormalMap",
+          "enable": true,
+          "factor": 1,
+          "flipY": true
+        },
+        {
+          "channel": "ClearCoatRoughness",
+          "enable": true,
+          "factor": 0.04
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "DiffuseColor",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.007_baseColor.png",
+            "texCoordUnit": 0,
+            "uid": "55230181e35b4b389b99114a10957d34",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "DiffuseIntensity",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "enable": true,
+          "factor": 1
+        },
+        {
+          "channel": "EmitColor",
+          "color": [
+            0,
+            0,
+            0
+          ],
+          "enable": true,
+          "factor": 0,
+          "type": "additive"
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "Matcap",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "curvature": 0,
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": null,
+            "texCoordUnit": 0,
+            "uid": "35c4d334eded44d8a657f390954a32dd",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "MetalnessPBR",
+          "enable": true,
+          "factor": 0.3582978459163451
+        },
+        {
+          "channel": "Opacity",
+          "enable": true,
+          "factor": 0.07907844623805445,
+          "invert": false,
+          "ior": 1.05,
+          "roughnessFactor": 0,
+          "type": "refraction"
+        },
+        {
+          "channel": "RoughnessPBR",
+          "enable": true,
+          "factor": 0.10335839403616669
+        },
+        {
+          "channel": "SpecularColor",
+          "color": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "SpecularF0",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularHardness",
+          "enable": true,
+          "factor": 12.5
+        }
+      ],
+      "id": "a873040d-3b73-402a-afce-1ee74adcc271",
+      "name": "m0mat_007",
+      "reflection": 0.1,
+      "shadeless": false
+    },
+    {
+      "cullFace": "DISABLE",
+      "disabledImportantChannels": [
+        {
+          "channel": "AOPBR",
+          "enable": false,
+          "factor": 1,
+          "occludeSpecular": true
+        },
+        {
+          "channel": "Anisotropy",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "BumpMap",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "CavityPBR",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "ClearCoat",
+          "enable": false,
+          "factor": 1,
+          "reflectivity": 0,
+          "thickness": 5
+        },
+        {
+          "channel": "NormalMap",
+          "enable": false,
+          "factor": 1,
+          "flipY": false
+        },
+        {
+          "channel": "Opacity",
+          "enable": false,
+          "factor": 1,
+          "invert": false,
+          "ior": 1.05,
+          "roughnessFactor": 0,
+          "type": "alphaBlend"
+        }
+      ],
+      "enabledChannels": [
+        {
+          "channel": "AlbedoPBR",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.001_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "c5155670626d469990fa55c12dc7a163",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "ClearCoatNormalMap",
+          "enable": true,
+          "factor": 1,
+          "flipY": true
+        },
+        {
+          "channel": "ClearCoatRoughness",
+          "enable": true,
+          "factor": 0.04
+        },
+        {
+          "channel": "DiffuseColor",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.001_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "c5155670626d469990fa55c12dc7a163",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "DiffuseIntensity",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "enable": true,
+          "factor": 1
+        },
+        {
+          "channel": "EmitColor",
+          "color": [
+            0,
+            0,
+            0
+          ],
+          "enable": true,
+          "factor": 0,
+          "type": "additive"
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "Matcap",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "curvature": 0,
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": null,
+            "texCoordUnit": 0,
+            "uid": "35c4d334eded44d8a657f390954a32dd",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "MetalnessPBR",
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "RoughnessPBR",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularColor",
+          "color": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "SpecularF0",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularHardness",
+          "enable": true,
+          "factor": 12.5
+        }
+      ],
+      "id": "c3e837fd-757a-4456-92ac-f75f79996a6e",
+      "name": "m0mat_001",
+      "reflection": 0.1,
+      "shadeless": false
+    },
+    {
+      "cullFace": "DISABLE",
+      "disabledImportantChannels": [
+        {
+          "channel": "AOPBR",
+          "enable": false,
+          "factor": 1,
+          "occludeSpecular": true
+        },
+        {
+          "channel": "Anisotropy",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "BumpMap",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "CavityPBR",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "ClearCoat",
+          "enable": false,
+          "factor": 1,
+          "reflectivity": 0,
+          "thickness": 5
+        },
+        {
+          "channel": "NormalMap",
+          "enable": false,
+          "factor": 1,
+          "flipY": false
+        },
+        {
+          "channel": "Opacity",
+          "enable": false,
+          "factor": 1,
+          "invert": false,
+          "ior": 1.05,
+          "roughnessFactor": 0,
+          "type": "alphaBlend"
+        }
+      ],
+      "enabledChannels": [
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "AlbedoPBR",
+          "enable": true,
+          "factor": 0.29759797642106456,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m1mat_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "9e27d4e012c4425686ed7c4a55417aba",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "ClearCoatNormalMap",
+          "enable": true,
+          "factor": 1,
+          "flipY": true
+        },
+        {
+          "channel": "ClearCoatRoughness",
+          "enable": true,
+          "factor": 0.04
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "DiffuseColor",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m1mat_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "9e27d4e012c4425686ed7c4a55417aba",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "DiffuseIntensity",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "enable": true,
+          "factor": 1
+        },
+        {
+          "channel": "EmitColor",
+          "color": [
+            0,
+            0,
+            0
+          ],
+          "enable": true,
+          "factor": 0,
+          "type": "additive"
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "Matcap",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "curvature": 0,
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": null,
+            "texCoordUnit": 0,
+            "uid": "35c4d334eded44d8a657f390954a32dd",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "MetalnessPBR",
+          "enable": true,
+          "factor": 0.2915279894715365
+        },
+        {
+          "channel": "RoughnessPBR",
+          "enable": true,
+          "factor": 0.09728840708663863
+        },
+        {
+          "channel": "SpecularColor",
+          "color": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "SpecularF0",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularHardness",
+          "enable": true,
+          "factor": 12.5
+        }
+      ],
+      "id": "d6e774c0-2064-4d52-9069-35f153aa5f78",
+      "name": "m1mat",
+      "reflection": 0.1,
+      "shadeless": false
+    },
+    {
+      "cullFace": "DISABLE",
+      "disabledImportantChannels": [
+        {
+          "channel": "AOPBR",
+          "enable": false,
+          "factor": 1,
+          "occludeSpecular": true
+        },
+        {
+          "channel": "Anisotropy",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "BumpMap",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "CavityPBR",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "ClearCoat",
+          "enable": false,
+          "factor": 1,
+          "reflectivity": 0,
+          "thickness": 5
+        },
+        {
+          "channel": "NormalMap",
+          "enable": false,
+          "factor": 1,
+          "flipY": false
+        },
+        {
+          "channel": "Opacity",
+          "enable": false,
+          "factor": 1,
+          "invert": false,
+          "ior": 1.05,
+          "roughnessFactor": 0,
+          "type": "alphaBlend"
+        }
+      ],
+      "enabledChannels": [
+        {
+          "channel": "AlbedoPBR",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.004_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "44ce5381fe944da396aae895634e605e",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "ClearCoatNormalMap",
+          "enable": true,
+          "factor": 1,
+          "flipY": true
+        },
+        {
+          "channel": "ClearCoatRoughness",
+          "enable": true,
+          "factor": 0.04
+        },
+        {
+          "channel": "DiffuseColor",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.004_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "44ce5381fe944da396aae895634e605e",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "DiffuseIntensity",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "enable": true,
+          "factor": 1
+        },
+        {
+          "channel": "EmitColor",
+          "color": [
+            0,
+            0,
+            0
+          ],
+          "enable": true,
+          "factor": 0,
+          "type": "additive"
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "Matcap",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "curvature": 0,
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": null,
+            "texCoordUnit": 0,
+            "uid": "35c4d334eded44d8a657f390954a32dd",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "MetalnessPBR",
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "RoughnessPBR",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularColor",
+          "color": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "SpecularF0",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularHardness",
+          "enable": true,
+          "factor": 12.5
+        }
+      ],
+      "id": "d71b30f8-fed0-4718-a7de-a79d3d7f6306",
+      "name": "m0mat_004",
+      "reflection": 0.1,
+      "shadeless": false
+    },
+    {
+      "cullFace": "DISABLE",
+      "disabledImportantChannels": [
+        {
+          "channel": "AOPBR",
+          "enable": false,
+          "factor": 1,
+          "occludeSpecular": true
+        },
+        {
+          "channel": "Anisotropy",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "BumpMap",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "CavityPBR",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "ClearCoat",
+          "enable": false,
+          "factor": 1,
+          "reflectivity": 0,
+          "thickness": 5
+        },
+        {
+          "channel": "NormalMap",
+          "enable": false,
+          "factor": 1,
+          "flipY": false
+        },
+        {
+          "channel": "Opacity",
+          "enable": false,
+          "factor": 1,
+          "invert": false,
+          "ior": 1.05,
+          "roughnessFactor": 0,
+          "type": "alphaBlend"
+        }
+      ],
+      "enabledChannels": [
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "AlbedoPBR",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.009_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "03a36daaada94bf28f07179e00dbfee4",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "ClearCoatNormalMap",
+          "enable": true,
+          "factor": 1,
+          "flipY": true
+        },
+        {
+          "channel": "ClearCoatRoughness",
+          "enable": true,
+          "factor": 0.04
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "DiffuseColor",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.009_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "03a36daaada94bf28f07179e00dbfee4",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "DiffuseIntensity",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "enable": true,
+          "factor": 1
+        },
+        {
+          "channel": "EmitColor",
+          "color": [
+            0,
+            0,
+            0
+          ],
+          "enable": true,
+          "factor": 0,
+          "type": "additive"
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "Matcap",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "curvature": 0,
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": null,
+            "texCoordUnit": 0,
+            "uid": "35c4d334eded44d8a657f390954a32dd",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "MetalnessPBR",
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "RoughnessPBR",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularColor",
+          "color": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "SpecularF0",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularHardness",
+          "enable": true,
+          "factor": 12.5
+        }
+      ],
+      "id": "dca7f623-1bbd-4433-9e3d-8f0d32b139f3",
+      "name": "m0mat_009",
+      "reflection": 0.1,
+      "shadeless": false
+    },
+    {
+      "cullFace": "DISABLE",
+      "disabledImportantChannels": [
+        {
+          "channel": "AOPBR",
+          "enable": false,
+          "factor": 1,
+          "occludeSpecular": true
+        },
+        {
+          "channel": "Anisotropy",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "BumpMap",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "CavityPBR",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "ClearCoat",
+          "enable": false,
+          "factor": 1,
+          "reflectivity": 0,
+          "thickness": 5
+        },
+        {
+          "channel": "NormalMap",
+          "enable": false,
+          "factor": 1,
+          "flipY": false
+        },
+        {
+          "channel": "Opacity",
+          "enable": false,
+          "factor": 1,
+          "invert": false,
+          "ior": 1.05,
+          "roughnessFactor": 0,
+          "type": "alphaBlend"
+        }
+      ],
+      "enabledChannels": [
+        {
+          "channel": "AlbedoPBR",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.003_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "341197d9fc954317968ca2cb79c3a4a1",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "ClearCoatNormalMap",
+          "enable": true,
+          "factor": 1,
+          "flipY": true
+        },
+        {
+          "channel": "ClearCoatRoughness",
+          "enable": true,
+          "factor": 0.04
+        },
+        {
+          "channel": "DiffuseColor",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.003_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "341197d9fc954317968ca2cb79c3a4a1",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "DiffuseIntensity",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "enable": true,
+          "factor": 1
+        },
+        {
+          "channel": "EmitColor",
+          "color": [
+            0,
+            0,
+            0
+          ],
+          "enable": true,
+          "factor": 0,
+          "type": "additive"
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "Matcap",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "curvature": 0,
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": null,
+            "texCoordUnit": 0,
+            "uid": "35c4d334eded44d8a657f390954a32dd",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "MetalnessPBR",
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "RoughnessPBR",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularColor",
+          "color": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "SpecularF0",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularHardness",
+          "enable": true,
+          "factor": 12.5
+        }
+      ],
+      "id": "f115d96f-3fe7-4f65-8f23-22c9e1ea4376",
+      "name": "m0mat_003",
+      "reflection": 0.1,
+      "shadeless": false
+    },
+    {
+      "cullFace": "DISABLE",
+      "disabledImportantChannels": [
+        {
+          "channel": "AOPBR",
+          "enable": false,
+          "factor": 1,
+          "occludeSpecular": true
+        },
+        {
+          "channel": "Anisotropy",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "BumpMap",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "CavityPBR",
+          "enable": false,
+          "factor": 1
+        },
+        {
+          "channel": "ClearCoat",
+          "enable": false,
+          "factor": 1,
+          "reflectivity": 0,
+          "thickness": 5
+        },
+        {
+          "channel": "NormalMap",
+          "enable": false,
+          "factor": 1,
+          "flipY": false
+        },
+        {
+          "channel": "Opacity",
+          "enable": false,
+          "factor": 1,
+          "invert": false,
+          "ior": 1.05,
+          "roughnessFactor": 0,
+          "type": "alphaBlend"
+        }
+      ],
+      "enabledChannels": [
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "AlbedoPBR",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.005_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "756cdb979a374de492c477cecb83cdaa",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "ClearCoatNormalMap",
+          "enable": true,
+          "factor": 1,
+          "flipY": true
+        },
+        {
+          "channel": "ClearCoatRoughness",
+          "enable": true,
+          "factor": 0.04
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "DiffuseColor",
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": "m0mat.005_baseColor.jpg",
+            "texCoordUnit": 0,
+            "uid": "756cdb979a374de492c477cecb83cdaa",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "DiffuseIntensity",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "enable": true,
+          "factor": 1
+        },
+        {
+          "channel": "EmitColor",
+          "color": [
+            0,
+            0,
+            0
+          ],
+          "enable": true,
+          "factor": 0,
+          "type": "additive"
+        },
+        {
+          "UVTransforms": {
+            "offset": [
+              0,
+              0
+            ],
+            "rotation": 0,
+            "scale": [
+              1,
+              1
+            ]
+          },
+          "channel": "Matcap",
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "curvature": 0,
+          "enable": true,
+          "factor": 1,
+          "texture": {
+            "internalFormat": "RGB",
+            "name": null,
+            "texCoordUnit": 0,
+            "uid": "35c4d334eded44d8a657f390954a32dd",
+            "wrapS": "REPEAT",
+            "wrapT": "REPEAT"
+          }
+        },
+        {
+          "channel": "MetalnessPBR",
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "RoughnessPBR",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularColor",
+          "color": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "enable": true,
+          "factor": 0
+        },
+        {
+          "channel": "SpecularF0",
+          "enable": true,
+          "factor": 0.5
+        },
+        {
+          "channel": "SpecularHardness",
+          "enable": true,
+          "factor": 12.5
+        }
+      ],
+      "id": "f645e3d6-5c33-42dc-8617-bbe2df6ddaf2",
+      "name": "m0mat_005",
+      "reflection": 0.1,
+      "shadeless": false
+    }
+  ],
+  "postProcess": {
+    "bloom": {
+      "enable": false,
+      "factor": 0.5,
+      "radius": 0.7,
+      "threshold": 0
+    },
+    "chromaticAberration": {
+      "enable": false,
+      "factor": 0.05
+    },
+    "colorBalance": {
+      "enable": true,
+      "high": [
+        0,
+        0,
+        0
+      ],
+      "low": [
+        0,
+        0,
+        0
+      ],
+      "mid": [
+        0,
+        0,
+        0
+      ]
+    },
+    "dof": {
+      "blurFar": 0.5,
+      "blurNear": 0.5,
+      "enable": false,
+      "focusPoint": [
+        0,
+        0,
+        0
+      ]
+    },
+    "enable": true,
+    "grain": {
+      "animated": false,
+      "enable": true,
+      "factor": 0.15
+    },
+    "sharpen": {
+      "enable": true,
+      "factor": 0.2
+    },
+    "ssao": {
+      "bias": 0.03229868685671854,
+      "enable": true,
+      "intensity": 0.5,
+      "radius": 0.16149343428359272
+    },
+    "ssr": {
+      "enable": true,
+      "factor": 1
+    },
+    "taa": {
+      "enable": true,
+      "transparent": true
+    },
+    "toneMapping": {
+      "brightness": 0,
+      "contrast": 0,
+      "enable": true,
+      "exposure": 1,
+      "method": "default",
+      "saturation": 1
+    },
+    "vignette": {
+      "amount": 0.475,
+      "enable": true,
+      "hardness": 0.725
+    }
+  },
+  "reportKind": "sketchfab-material-render-parity-summary",
+  "source": {
+    "cachedEmbedHtml": ".cache/cockpit-pipeline/sketchfab-a320-embed.html",
+    "modelUid": "5fb0c671a91042c1a9d8f2cf3e2df021",
+    "viewerSettingsJson": "asset-reports/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-viewer-settings.json",
+    "viewerUrl": "https://sketchfab.com/3d-models/a320-cockpit-2-5fb0c671a91042c1a9d8f2cf3e2df021"
+  },
+  "summary": {
+    "allMaterialsUseMatcap": true,
+    "environmentCount": 1,
+    "matcapCount": 2,
+    "materialCount": 13,
+    "modelTextureCount": 11
+  }
+}
