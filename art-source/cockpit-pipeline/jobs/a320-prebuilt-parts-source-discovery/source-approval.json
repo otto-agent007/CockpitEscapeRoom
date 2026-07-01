@@ -1,0 +1,13 @@
+{
+  "approvalId": "a320-cockpit-2-source-approval-001",
+  "sourceJobId": "a320-prebuilt-parts-source-discovery",
+  "stage": "source-approved",
+  "approved": true,
+  "approvedBy": "owner prompt 2026-06-30",
+  "sourceManifest": "art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/manifests/sourcing-complete.json",
+  "candidateId": "a320-prebuilt-sketchfab-a320-cockpit-2",
+  "sourceArchive": ".cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/a320_cockpit_2.zip",
+  "sourceArchiveSha256": "1f7ec972d2a34c24b1df574142c40659cb294d372ac7e3c2cd64f9d7d69f65d4",
+  "inspectionReport": "asset-reports/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-blender-import-report.json",
+  "notes": "Owner approved the inspected A320 Cockpit 2 source candidate as the base input for Agent 2 assembly cleanup. Approval does not approve production runtime use, final materials, optimization, or browser integration."
+}

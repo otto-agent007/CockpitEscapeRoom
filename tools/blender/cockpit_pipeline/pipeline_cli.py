@@ -10,6 +10,7 @@ import zipfile
 from pathlib import Path
 
 from .hashing import sha256_file, verify_manifest_hashes
+from .a320_assembly_job import run_a320_assembly_job
 from .assembly_job import run_assembly_job
 from .eval_runner import run_evals
 from .schema_validation import SchemaError, validate_json_file
@@ -62,6 +63,13 @@ def main(argv: list[str] | None = None) -> int:
     a320_import_parser.add_argument("--candidate-id", default="a320-prebuilt-sketchfab-a320-cockpit-2")
     a320_import_parser.add_argument("--cache", type=Path, default=None)
 
+    a320_assembly_parser = subparsers.add_parser(
+        "run-a320-assembly-job",
+        help="Run the Airbus A320 Cockpit 2 neutral Agent 2 assembly handoff.",
+    )
+    a320_assembly_parser.add_argument("--source-job-id", default="a320-prebuilt-parts-source-discovery")
+    a320_assembly_parser.add_argument("--assembly-job-id", default="a320-cockpit-2-assembly")
+
     source_parser = subparsers.add_parser(
         "run-source-job",
         help="Run the legacy DC-9-32 FlightGear source vertical slice proxy job.",
@@ -106,6 +114,8 @@ def main(argv: list[str] | None = None) -> int:
             run_blender_smoke(args.cache)
         elif args.command == "import-a320-source-candidate":
             run_a320_source_candidate_import(args.archive, args.candidate_id, args.cache)
+        elif args.command == "run-a320-assembly-job":
+            run_a320_assembly_job(source_job_id=args.source_job_id, assembly_job_id=args.assembly_job_id)
         elif args.command == "run-source-job":
             run_source_job(repo_url=args.repo_url, job_id=args.job_id, cache_override=args.cache)
         elif args.command == "run-assembly-job":

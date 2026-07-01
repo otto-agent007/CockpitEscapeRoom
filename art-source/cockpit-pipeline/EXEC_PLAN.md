@@ -858,3 +858,62 @@ The preview pass now hides only oversized exterior shell meshes and three ray-co
 ### Remaining delta
 
 Owner review is still required before treating this source as approved for Agent 2 assembly. The asset still needs component classification, stable naming, hierarchy cleanup, pivot review, metadata planning, and runtime contract documentation.
+
+## Airbus A320 Cockpit 2 Agent 2 Assembly: 2026-06-30
+
+### Purpose
+
+Run the first Agent 2 assembly pass for the owner-approved `A320 Cockpit 2` source candidate and convert the inspected source model into a neutral staged asset contract.
+
+### Codex workflow note
+
+The owner asked Codex to update itself before running Agent 2. This Ubuntu branch cannot edit root `AGENTS.md`, `docs/**`, or `TEST_REPORT.md` under the current ownership rules, so the durable workflow update is recorded here: when an imported source is already visually assembled, Agent 2 should still run as the contract/cleanup stage. Its work is to remove approved non-cockpit blockers, create stable roots/groups, assign stable runtime names and metadata, export a neutral staged GLB, produce a runtime contract gate, and stop for assembly review before Agent 3.
+
+### Source approval consumed
+
+- `art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/source-approval.json`
+- Owner approval source: prompt on 2026-06-30 approving the inspected A320 Cockpit 2 source as the Agent 2 base candidate.
+
+### Bounded action decision
+
+Ran Agent 2 assembly only. No Agent 3 materials/optimization, destructive GLB optimization, `public/models/**` deployable asset replacement, or browser/runtime code changes were performed.
+
+### Result
+
+Agent 2 produced a neutral A320 cockpit assembly handoff under `AIRBUS_ROOT`. The pass removed the known exterior shell and camera-blocking wall objects, kept 125 cockpit/source meshes, created stable Airbus grouping roots, added basic `game_id` metadata, exported a staged neutral GLB, wrote a runtime contract gate, and generated captain-seat plus dashboard/screens preview evidence.
+
+### Generated files
+
+- `art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/a320-cockpit-2-assembly.blend`
+- `art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/a320-cockpit-2-assembly.glb`
+- `art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/node-pivot-report.json`
+- `art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/runtime-contract-summary.json`
+- `art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/validation-report.json`
+- `art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json`
+- `art-source/cockpit-pipeline/jobs/a320-cockpit-2-assembly/manifests/assembly-complete.json`
+- `asset-reports/cockpit-pipeline/a320-cockpit-2-assembly/assembly-report.md`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/captain-seat-view.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/dashboard-screens-view.png`
+
+### Validation evidence
+
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli run-a320-assembly-job` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.preflight` - pass; dirty tree reported as expected during local validation.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate reference-authority art-source/cockpit-pipeline/gates/agent0-airbus-a320-prebuilt-parts-authority.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-job art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/job.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/manifests/sourcing-complete.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate runtime-contract art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/a320-cockpit-2-assembly/manifests/assembly-complete.json` - pass.
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass, 8 tests.
+- `npm run pipeline:evals` - pass, 6/6.
+- `npm run references:validate` - pass, 24 references.
+- `git diff --check` - pass.
+
+### Visual review
+
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/captain-seat-view.png` shows dashboard/screens, FCU/glareshield, sidestick, pedestal, and seat geometry.
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/dashboard-screens-view.png` shows the FCU/glareshield and display rectangles for assembly review.
+
+### Remaining delta
+
+Outcome: `approval-required`. Owner review is required before treating this Agent 2 handoff as assembly-approved for Agent 3. Individual control pivots remain unverified, display content is still static source geometry, materials are not optimized, and the staged GLB is not a deployable `public/models/**` asset.

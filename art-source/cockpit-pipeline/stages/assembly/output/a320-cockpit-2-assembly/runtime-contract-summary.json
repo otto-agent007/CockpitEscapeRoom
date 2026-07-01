@@ -1,0 +1,49 @@
+{
+  "rootObject": "AIRBUS_ROOT",
+  "sceneGroup": "Airbus A320 First-Officer cockpit",
+  "assetPath": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/a320-cockpit-2-assembly.glb",
+  "runtimeNodes": [
+    {
+      "name": "AIRBUS_ROOT",
+      "gameId": "airbus.a320.root",
+      "pivotVerified": false,
+      "localAxis": "GROUP_ROOT",
+      "htmlEquivalent": "Scene container; no direct HTML control."
+    },
+    {
+      "name": "AIRBUS_A320_STATIC",
+      "gameId": "airbus.a320.static",
+      "pivotVerified": false,
+      "localAxis": "GROUP_ROOT",
+      "htmlEquivalent": "Static cockpit geometry; no direct HTML control."
+    },
+    {
+      "name": "AIRBUS_A320_DISPLAY_CANDIDATES",
+      "gameId": "airbus.a320.displays",
+      "pivotVerified": false,
+      "localAxis": "GROUP_ROOT",
+      "htmlEquivalent": "Display inspection candidate; future HTML panel mirror required if interactive."
+    },
+    {
+      "name": "AIRBUS_A320_INTERACTIVE_CANDIDATES",
+      "gameId": "airbus.a320.interactive",
+      "pivotVerified": false,
+      "localAxis": "GROUP_ROOT",
+      "htmlEquivalent": "Interactive candidate group; controls require later pivot-specific HTML equivalents."
+    },
+    {
+      "name": "AIRBUS_A320_LOC_CAPTAIN_EYE",
+      "gameId": "airbus.a320.locator.captain_eye",
+      "pivotVerified": true,
+      "localAxis": "WORLD",
+      "htmlEquivalent": "Camera locator; no direct HTML control."
+    },
+    {
+      "name": "AIRBUS_A320_LOC_DASHBOARD_FOCUS",
+      "gameId": "airbus.a320.locator.dashboard_focus",
+      "pivotVerified": true,
+      "localAxis": "WORLD",
+      "htmlEquivalent": "Camera target locator; no direct HTML control."
+    }
+  ]
+}
