@@ -8,13 +8,11 @@ import bpy
 from mathutils import Vector
 
 
-SHELL_OR_BLOCKER_NAMES = {
+EXTERIOR_OR_CONFIRMED_BLOCKER_NAMES = {
     "Object_0",
     "Object_1",
     "Object_2",
     "Object_7.001",
-    "Object_55",
-    "Object_56",
     "Object_83",
     "Object_92",
     "Object_129",
@@ -28,6 +26,30 @@ GROUPS = {
     "locators": "AIRBUS_A320_LOCATORS",
     "colliders": "AIRBUS_A320_COLLIDERS",
     "puzzle_props": "AIRBUS_A320_PUZZLE_PROPS",
+}
+
+SOURCE_SEMANTIC_NAMES = {
+    "Object_40": "PEDESTAL_PANEL_CLUSTER",
+    "Object_41.001": "PEDESTAL_PANEL_CLUSTER",
+    "Object_42": "CENTER_CONSOLE_CONTROLS",
+    "Object_55": "COCKPIT_FORWARD_INTERIOR_SHELL_AND_SEATS",
+    "Object_56": "COCKPIT_REAR_BULKHEAD_SEATS_AND_SIDEWALLS",
+    "Object_57": "COCKPIT_INTERIOR_TRIM_PANEL",
+    "Object_67": "COCKPIT_FLOOR_CARPET",
+    "Object_68": "COCKPIT_REAR_TRIM_PANEL",
+    "Object_69.001": "FIRST_OFFICER_SEAT_SIDE_STRUCTURE",
+    "Object_70": "FIRST_OFFICER_SEAT_BASE",
+    "Object_74.001": "CAPTAIN_SEAT_SIDE_STRUCTURE",
+    "Object_75": "CAPTAIN_SEAT_BASE",
+    "Object_77.001": "CENTER_PEDESTAL_LOWER_STRUCTURE",
+    "Object_97": "FIRST_OFFICER_MAIN_DISPLAY_PANEL",
+    "Object_100": "RIGHT_FORWARD_PANEL_SURFACE",
+    "Object_101": "LEFT_FORWARD_PANEL_SURFACE",
+    "Object_108": "FIRST_OFFICER_LOWER_DISPLAY_PANEL",
+    "Object_109": "CAPTAIN_MAIN_DISPLAY_PANEL",
+    "Object_110": "FIRST_OFFICER_MAIN_DISPLAY_PANEL",
+    "Object_127": "OVERHEAD_PANEL_STRUCTURE",
+    "Object_133.001": "CAPTAIN_MAIN_DISPLAY_PANEL",
 }
 
 
@@ -67,10 +89,11 @@ def main() -> None:
         group["game_id"] = f"airbus.a320.{key}"
         groups[key] = group
 
-    deleted = _delete_shell_and_blockers()
+    deleted = _delete_exterior_and_confirmed_blockers()
     mesh_reports = _classify_and_parent_meshes(groups)
-    _add_locator(groups["locators"], "AIRBUS_A320_LOC_CAPTAIN_EYE", (-0.30, -1.22, 0.19), "airbus.a320.locator.captain_eye")
+    _add_locator(groups["locators"], "AIRBUS_A320_LOC_CAPTAIN_EYE", (-0.30, -1.22, 0.62), "airbus.a320.locator.captain_eye")
     _add_locator(groups["locators"], "AIRBUS_A320_LOC_DASHBOARD_FOCUS", (0.0, -0.55, 0.18), "airbus.a320.locator.dashboard_focus")
+    _add_locator(groups["locators"], "AIRBUS_A320_LOC_INTERIOR_360_CENTER", (0.0, -1.05, 0.62), "airbus.a320.locator.interior_360_center")
 
     blend_path = output_dir / "a320-cockpit-2-assembly.blend"
     blend_backup_path = output_dir / "a320-cockpit-2-assembly.blend1"
@@ -94,7 +117,8 @@ def main() -> None:
     node_report = {
         "rootObject": root.name,
         "groups": {key: group.name for key, group in groups.items()},
-        "deletedShellOrBlockerObjects": deleted,
+        "deletedExteriorOrConfirmedBlockerObjects": deleted,
+        "preservedInteriorSizedObjects": sorted(["Object_55", "Object_56"]),
         "meshReports": mesh_reports,
         "runtimeNodeNames": sorted(obj.name for obj in bpy.context.scene.objects),
         "pivotNotes": [
@@ -118,6 +142,7 @@ def main() -> None:
             _runtime_node(groups["interactive"].name, "airbus.a320.interactive", False, "GROUP_ROOT", "Interactive candidate group; controls require later pivot-specific HTML equivalents."),
             _runtime_node("AIRBUS_A320_LOC_CAPTAIN_EYE", "airbus.a320.locator.captain_eye", True, "WORLD", "Camera locator; no direct HTML control."),
             _runtime_node("AIRBUS_A320_LOC_DASHBOARD_FOCUS", "airbus.a320.locator.dashboard_focus", True, "WORLD", "Camera target locator; no direct HTML control."),
+            _runtime_node("AIRBUS_A320_LOC_INTERIOR_360_CENTER", "airbus.a320.locator.interior_360_center", True, "WORLD", "Interior scan locator between the cockpit seats; no direct HTML control."),
         ],
     }
     runtime_contract_summary_path.write_text(json.dumps(contract_summary, indent=2) + "\n", encoding="utf-8")
@@ -136,10 +161,10 @@ def main() -> None:
     }, indent=2))
 
 
-def _delete_shell_and_blockers() -> list[str]:
+def _delete_exterior_and_confirmed_blockers() -> list[str]:
     deleted = []
     for obj in list(bpy.context.scene.objects):
-        if obj.name in SHELL_OR_BLOCKER_NAMES:
+        if obj.name in EXTERIOR_OR_CONFIRMED_BLOCKER_NAMES:
             deleted.append(obj.name)
             bpy.data.objects.remove(obj, do_unlink=True)
     return sorted(deleted)
@@ -157,19 +182,23 @@ def _classify_and_parent_meshes(groups: dict[str, bpy.types.Object]) -> list[dic
         obj.parent = parent
         obj.matrix_parent_inverse = parent.matrix_world.inverted()
         obj.matrix_world = world
-        obj.name = f"AIRBUS_A320_{category.upper()}_{index:03d}_{_stable_name(source_name)}"
+        material_names = [slot.material.name for slot in obj.material_slots if slot.material]
+        semantic_name = _semantic_part_name(source_name, category, bounds, material_names)
+        obj.name = f"AIRBUS_A320_{category.upper()}_{index:03d}_{semantic_name}"
         obj["sourceNodeName"] = source_name
+        obj["semanticPartName"] = semantic_name
         obj["game_id"] = f"airbus.a320.{category}.{index:03d}"
         obj["assemblyCategory"] = category
         obj["pivotVerified"] = False
         reports.append({
             "sourceNodeName": source_name,
             "runtimeNodeName": obj.name,
+            "semanticPartName": semantic_name,
             "category": category,
             "gameId": obj["game_id"],
             "center": _vector_list(bounds["center"]),
             "size": _vector_list(bounds["size"]),
-            "materialNames": [slot.material.name for slot in obj.material_slots if slot.material],
+            "materialNames": material_names,
             "polygonCount": len(obj.data.polygons),
             "pivotVerified": False,
         })
@@ -199,19 +228,21 @@ def _add_locator(parent: bpy.types.Object, name: str, location: tuple[float, flo
 def _render_views(preview_dir: Path) -> None:
     _render_preview(
         preview_dir / "captain-seat-view.png",
-        Vector((-0.303763, -1.215466, 0.191386)),
+        Vector((-0.303763, -1.215466, 0.62)),
         Vector((-0.104338, -0.456942, 0.056386)),
         50,
+        hidden_semantic_parts={"COCKPIT_FORWARD_INTERIOR_SHELL_AND_SEATS", "COCKPIT_REAR_BULKHEAD_SEATS_AND_SIDEWALLS"},
     )
     _render_preview(
         preview_dir / "dashboard-screens-view.png",
         Vector((-0.217057, -1.050967, 0.281386)),
         Vector((-0.00029, -0.548331, 0.176386)),
         70,
+        hidden_semantic_parts={"COCKPIT_FORWARD_INTERIOR_SHELL_AND_SEATS", "COCKPIT_REAR_BULKHEAD_SEATS_AND_SIDEWALLS"},
     )
 
 
-def _render_preview(path: Path, location: Vector, target: Vector, lens: float) -> None:
+def _render_preview(path: Path, location: Vector, target: Vector, lens: float, hidden_semantic_parts: set[str] | None = None) -> None:
     scene = bpy.context.scene
     try:
         scene.render.engine = "BLENDER_EEVEE_NEXT"
@@ -239,10 +270,29 @@ def _render_preview(path: Path, location: Vector, target: Vector, lens: float) -
     scene.render.resolution_x = 1280
     scene.render.resolution_y = 720
     scene.render.filepath = str(path)
+    hidden_state = _set_preview_hidden_semantics(hidden_semantic_parts or set())
     bpy.ops.render.render(write_still=True)
+    _restore_preview_hidden_state(hidden_state)
     bpy.data.objects.remove(camera, do_unlink=True)
     bpy.data.objects.remove(light, do_unlink=True)
     bpy.data.objects.remove(fill, do_unlink=True)
+
+
+def _set_preview_hidden_semantics(hidden_semantic_parts: set[str]) -> list[tuple[bpy.types.Object, bool]]:
+    if not hidden_semantic_parts:
+        return []
+    state = []
+    for obj in bpy.context.scene.objects:
+        if obj.type != "MESH" or obj.get("semanticPartName") not in hidden_semantic_parts:
+            continue
+        state.append((obj, obj.hide_render))
+        obj.hide_render = True
+    return state
+
+
+def _restore_preview_hidden_state(state: list[tuple[bpy.types.Object, bool]]) -> None:
+    for obj, hide_render in state:
+        obj.hide_render = hide_render
 
 
 def _assembly_stats(root_name: str, groups: dict[str, bpy.types.Object], mesh_reports: list[dict[str, object]]) -> dict[str, object]:
@@ -305,6 +355,33 @@ def _stable_name(value: str) -> str:
     while "__" in cleaned:
         cleaned = cleaned.replace("__", "_")
     return cleaned.strip("_") or "NODE"
+
+
+def _semantic_part_name(source_name: str, category: str, bounds: dict[str, Vector], material_names: list[str]) -> str:
+    if source_name in SOURCE_SEMANTIC_NAMES:
+        return SOURCE_SEMANTIC_NAMES[source_name]
+    materials = set(material_names)
+    center = bounds["center"]
+    size = bounds["size"]
+    if category == "displays":
+        if center.y < -4.0:
+            if center.x < -0.2:
+                return "CAPTAIN_DISPLAY_OR_PANEL_FACE"
+            if center.x > 0.2:
+                return "FIRST_OFFICER_DISPLAY_OR_PANEL_FACE"
+            return "CENTER_DISPLAY_OR_PANEL_FACE"
+        return "DISPLAY_INDICATOR_OR_LABEL"
+    if category == "interactive":
+        if max(size.x, size.y, size.z) > 0.20:
+            return "PEDESTAL_OR_PANEL_CONTROL_CLUSTER"
+        return "SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR"
+    if "m0mat_006" in materials and size.z < 0.02:
+        return "COCKPIT_FLOOR_CARPET"
+    if "m0mat_008" in materials and center.y < -3.5:
+        return "SEAT_OR_SIDE_CONSOLE_STRUCTURE"
+    if "m0mat_010" in materials and center.y < -4.0:
+        return "FORWARD_PANEL_OR_EXTERIOR_TRIM"
+    return _stable_name(source_name)
 
 
 def _runtime_node(name: str, game_id: str, pivot_verified: bool, local_axis: str, html_equivalent: str) -> dict[str, object]:

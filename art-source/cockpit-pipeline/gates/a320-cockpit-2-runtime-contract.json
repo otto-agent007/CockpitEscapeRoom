@@ -1,7 +1,7 @@
 {
   "gate": "runtime-contract",
   "artifactId": "a320-cockpit-2-runtime-contract-001",
-  "createdAt": "2026-07-01T00:08:19Z",
+  "createdAt": "2026-07-01T05:01:23Z",
   "sceneGroup": "Airbus A320 First-Officer cockpit",
   "assetPath": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/a320-cockpit-2-assembly.glb",
   "rootObject": "AIRBUS_ROOT",
@@ -47,6 +47,13 @@
       "pivotVerified": true,
       "localAxis": "WORLD",
       "htmlEquivalent": "Camera target locator; no direct HTML control."
+    },
+    {
+      "name": "AIRBUS_A320_LOC_INTERIOR_360_CENTER",
+      "gameId": "airbus.a320.locator.interior_360_center",
+      "pivotVerified": true,
+      "localAxis": "WORLD",
+      "htmlEquivalent": "Interior scan locator between the cockpit seats; no direct HTML control."
     }
   ],
   "customPropertiesPreserved": true,

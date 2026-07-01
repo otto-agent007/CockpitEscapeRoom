@@ -196,22 +196,25 @@ def _render_previews(preview_dir: Path, viewer_settings: dict[str, object]) -> N
         Vector((-0.303763, -1.215466, 0.191386)),
         Vector((-0.104338, -0.456942, 0.056386)),
         50,
+        hidden_semantic_parts={"COCKPIT_FORWARD_INTERIOR_SHELL_AND_SEATS", "COCKPIT_REAR_BULKHEAD_SEATS_AND_SIDEWALLS"},
     )
     _render_preview(
         preview_dir / "captain-display-check.png",
         Vector((-0.217057, -1.050967, 0.281386)),
         Vector((-0.00029, -0.548331, 0.176386)),
         70,
+        hidden_semantic_parts={"COCKPIT_FORWARD_INTERIOR_SHELL_AND_SEATS", "COCKPIT_REAR_BULKHEAD_SEATS_AND_SIDEWALLS"},
     )
     _render_preview(
         preview_dir / "captain-pullback-review.png",
         Vector((-0.303763, -1.715466, 0.191386)),
         Vector((-0.104338, -0.456942, 0.056386)),
         50,
+        hidden_semantic_parts={"COCKPIT_FORWARD_INTERIOR_SHELL_AND_SEATS", "COCKPIT_REAR_BULKHEAD_SEATS_AND_SIDEWALLS"},
     )
 
 
-def _render_preview(path: Path, location: Vector, target: Vector, lens: float) -> None:
+def _render_preview(path: Path, location: Vector, target: Vector, lens: float, hidden_semantic_parts: set[str] | None = None) -> None:
     scene = bpy.context.scene
     world = scene.world or bpy.data.worlds.new("World")
     scene.world = world
@@ -231,7 +234,9 @@ def _render_preview(path: Path, location: Vector, target: Vector, lens: float) -
     scene.render.resolution_x = 1280
     scene.render.resolution_y = 720
     scene.render.filepath = str(path)
+    hidden_state = _set_preview_hidden_semantics(hidden_semantic_parts or set())
     bpy.ops.render.render(write_still=True)
+    _restore_preview_hidden_state(hidden_state)
     bpy.data.objects.remove(camera, do_unlink=True)
     bpy.data.objects.remove(fill, do_unlink=True)
 
@@ -316,6 +321,23 @@ def _try_set(obj: object, attr: str, value: object) -> None:
             setattr(obj, attr, value)
         except Exception:
             pass
+
+
+def _set_preview_hidden_semantics(hidden_semantic_parts: set[str]) -> list[tuple[bpy.types.Object, bool]]:
+    if not hidden_semantic_parts:
+        return []
+    state = []
+    for obj in bpy.context.scene.objects:
+        if obj.type != "MESH" or obj.get("semanticPartName") not in hidden_semantic_parts:
+            continue
+        state.append((obj, obj.hide_render))
+        obj.hide_render = True
+    return state
+
+
+def _restore_preview_hidden_state(state: list[tuple[bpy.types.Object, bool]]) -> None:
+    for obj, hide_render in state:
+        obj.hide_render = hide_render
 
 
 def _snapshot(expected_nodes: list[str]) -> dict[str, object]:

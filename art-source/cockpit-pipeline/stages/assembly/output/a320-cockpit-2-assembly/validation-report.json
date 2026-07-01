@@ -1,19 +1,19 @@
 {
   "status": "pass",
   "rootObject": "AIRBUS_ROOT",
-  "meshCount": 125,
-  "objectCount": 618,
+  "meshCount": 127,
+  "objectCount": 621,
   "materialCount": 13,
-  "runtimeNodeCount": 618,
+  "runtimeNodeCount": 621,
   "duplicateRuntimeNodeNames": [],
   "groupMetadataFailures": [],
-  "meshReportCount": 125,
+  "meshReportCount": 127,
   "pivotVerifiedCount": 0,
   "reimportValidation": {
     "status": "pass",
     "rootFound": true,
-    "objectCount": 134,
-    "meshCount": 125
+    "objectCount": 137,
+    "meshCount": 127
   },
   "sourceInputsImmutable": true
 }

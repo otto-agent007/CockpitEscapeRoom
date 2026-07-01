@@ -202,14 +202,26 @@ Agent 2 consumed the owner-approved A320 Cockpit 2 source inspection artifact an
 - Validation report: `{(output_dir / 'validation-report.json').as_posix()}`
 - Runtime contract gate: `{runtime_contract_path.as_posix()}`
 - Preview directory: `{preview_dir.as_posix()}`
+- Preview renders:
+  - `{(preview_dir / 'captain-seat-view.png').as_posix()}`
+  - `{(preview_dir / 'dashboard-screens-view.png').as_posix()}`
 
 ## Assembly Work
 
-- Removed only the known exterior shell and wall-blocker objects from the inspected source.
+- Removed only the known oversized exterior shell and confirmed camera-blocker objects from the inspected source.
+- Preserved the previously over-culled interior source objects (`Object_55` and `Object_56`) so the seats, floor/rear shell, and side interior candidates remain available for review.
 - Created `AIRBUS_ROOT` and stable Airbus grouping nodes for static geometry, display candidates, interactive candidates, locators, colliders, and puzzle props.
-- Renamed imported mesh nodes with stable `AIRBUS_A320_*` prefixes while preserving original source node names in custom properties.
+- Renamed imported mesh nodes with stable, semantic `AIRBUS_A320_*` prefixes such as seat, sidewall, floor, pedestal, and display-panel roles while preserving original generic Sketchfab source node names in custom properties.
 - Added basic `game_id` metadata to root, groups, locators, and classified meshes.
 - Exported a neutral GLB with `export_extras=True`.
+
+## Sketchfab 360 Interior Evidence
+
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-360-interior/front-panel-between-seats-final-render.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-360-interior/down-seats-pedestal-final-render.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-360-interior/left-seat-sidewall-final-render.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-360-interior/right-seat-sidewall-final-render.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-360-interior/up-overhead-final-render.png`
 
 ## Validation Results
 

@@ -3,7 +3,7 @@
 ## Branch And Stage
 
 - Branch: `codex/asset-workflow-health-rehearsal`
-- Commit: `f91a769755ee5f87f17f893506d7de551b1412e5`
+- Commit: `4fa1fdb622e49ef806a02c89aa6731a5dfb113bd`
 - Assembly job: `a320-cockpit-2-assembly`
 - Shading job: `a320-cockpit-2-shading`
 - Stage: `shading_complete`
@@ -36,8 +36,10 @@ This revision also consumes the extracted Sketchfab viewer settings to improve B
 ## Material Role Mapping
 
 - `a320_control_dark_plastic`: `46` objects
+- `a320_dark_panel_plastic`: `1` objects
 - `a320_display_glass`: `42` objects
-- `a320_preserve_source_pbr`: `37` objects
+- `a320_preserve_source_pbr`: `23` objects
+- `a320_soft_trim_fabric`: `15` objects
 
 ## Texture Inventory
 

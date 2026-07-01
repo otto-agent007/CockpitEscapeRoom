@@ -44,6 +44,13 @@
       "pivotVerified": true,
       "localAxis": "WORLD",
       "htmlEquivalent": "Camera target locator; no direct HTML control."
+    },
+    {
+      "name": "AIRBUS_A320_LOC_INTERIOR_360_CENTER",
+      "gameId": "airbus.a320.locator.interior_360_center",
+      "pivotVerified": true,
+      "localAxis": "WORLD",
+      "htmlEquivalent": "Interior scan locator between the cockpit seats; no direct HTML control."
     }
   ]
 }
