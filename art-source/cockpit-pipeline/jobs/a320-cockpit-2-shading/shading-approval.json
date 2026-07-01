@@ -1,0 +1,105 @@
+{
+  "approvalId": "a320-cockpit-2-shading-approval-001",
+  "jobId": "a320-cockpit-2-shading",
+  "assemblyJobId": "a320-cockpit-2-assembly",
+  "sourceJobId": "a320-prebuilt-parts-source-discovery",
+  "stage": "shading-approved",
+  "approved": true,
+  "approvedBy": "owner prompt 2026-07-01",
+  "approvedAt": "2026-07-01T05:37:44Z",
+  "shadingManifest": "art-source/cockpit-pipeline/jobs/a320-cockpit-2-shading/manifests/shading-complete.json",
+  "assemblyApproval": "art-source/cockpit-pipeline/jobs/a320-cockpit-2-assembly/assembly-approval.json",
+  "sourceVariant": "prebuilt-free-open-leads",
+  "targetVariant": "Airbus A320",
+  "variantScope": "target-confirmed",
+  "notes": "Owner approved the A320 Cockpit 2 shaded staged asset and Sketchfab reference evidence as good enough to proceed to downstream browser-integration planning. Approval does not promote this GLB to public/models, does not mark it production-final, and does not authorize destructive optimization.",
+  "approvedComponentIds": [
+    "a320-prebuilt-sketchfab-a320-cockpit-2"
+  ],
+  "approvedArtifacts": [
+    {
+      "path": "art-source/cockpit-pipeline/stages/shading/input/a320-cockpit-2-shading/material-recipes.json",
+      "sha256": "84b06f6f7d8ded324f0372dfbfced821fb6d321c8921d1b35a3fe03c7b03250b",
+      "bytes": 5541
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend",
+      "sha256": "a218350986a5cc81d419eb0c9b8c2210a4a33f3b2194b7e938a5eaa954a7de69",
+      "bytes": 24425043
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.glb",
+      "sha256": "5ee903a9d0bcfc18d11b07457eb3463b86bb78b76d6a75510d9fc07c3671b4b5",
+      "bytes": 39918824
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/material-assignment-report.json",
+      "sha256": "945e952275ebf353afc9b1b9a082a3ecb8ae247c29ce9886be5637f78e3d91bb",
+      "bytes": 56114
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/texture-inventory-report.json",
+      "sha256": "ac45e99ba75df5647218c88d0f949da418d28edac2895bfa860d447f55b3e09d",
+      "bytes": 2471
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/validation-report.json",
+      "sha256": "683ea81791115ce4cb4a0d7611a666cc0916017e8ebc5c81dc088c86e719d1e7",
+      "bytes": 39115
+    },
+    {
+      "path": "art-source/cockpit-pipeline/gates/a320-cockpit-2-material-optimization.json",
+      "sha256": "aca6e6e96576d6db0b44f759effd0a9b730e0b5de8b8323e1a5184d818b3d8cd",
+      "bytes": 2223
+    },
+    {
+      "path": "asset-reports/cockpit-pipeline/a320-cockpit-2-shading/shading-report.md",
+      "sha256": "31a74ae887359b614f6e6b7a0dfe3b55c36cd6f9c2106e7e5d4da195171fb891",
+      "bytes": 4586
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-source-parity-contact-sheet.png",
+      "sha256": "e27bf66a681e9044a7d220fda1580c1def2b82c01ebc198c0a74ffcb85bb2b19",
+      "bytes": 877291
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/captain-daylight.png",
+      "sha256": "7495c4e948e87d57102affa13cad448bce993541742a329d48873d4bc71502d2",
+      "bytes": 1033409
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/captain-display-check.png",
+      "sha256": "9fffb76465b5fa53fd9e58bf661cf048d0db11df97ab66f9d728875d7e561f5d",
+      "bytes": 969181
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/captain-pullback-review.png",
+      "sha256": "32e65d52363016e6fbfae193625fde4f397ede74b6f9e57b99e5f5734a3c187a",
+      "bytes": 993067
+    }
+  ],
+  "referenceEvidence": [
+    "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-360-interior/front-panel-between-seats-final-render.png",
+    "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-360-interior/down-seats-pedestal-final-render.png",
+    "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-360-interior/left-seat-sidewall-final-render.png",
+    "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-360-interior/right-seat-sidewall-final-render.png",
+    "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-360-interior/up-overhead-final-render.png",
+    "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-source-parity-contact-sheet.png"
+  ],
+  "validationSummary": {
+    "status": "pass",
+    "runtimeNodeNamesPreserved": true,
+    "gameIdMetadataPreserved": true,
+    "uvLayersPreserved": true,
+    "sourceTextureLinksPreserved": true,
+    "reimportValidation": {
+      "status": "pass",
+      "objectCount": 137,
+      "meshCount": 127,
+      "materialCount": 12
+    },
+    "approvedAssemblyInputsImmutable": true,
+    "destructiveOptimizationUsed": false,
+    "knownLimitation": "Object_55 and Object_56 remain compound cockpit-interior source chunks; future cleanup should split or remodel seats/sidewalls without changing approved source evidence."
+  }
+}
