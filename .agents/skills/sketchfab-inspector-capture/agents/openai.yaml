@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sketchfab Inspector Capture"
+  short_description: "Capture Sketchfab inspector evidence."
+  default_prompt: "Capture Sketchfab Model Inspector screenshots for the current asset and prepare cropped evidence for the asset report."
