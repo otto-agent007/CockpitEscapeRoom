@@ -2,7 +2,7 @@
   "manifestId": "a320-cockpit-2-shading-shading-complete",
   "jobId": "a320-cockpit-2-shading",
   "stage": "shading_complete",
-  "createdAt": "2026-07-01T02:00:05Z",
+  "createdAt": "2026-07-01T02:35:37Z",
   "sourceVariant": "prebuilt-free-open-leads",
   "targetVariant": "Airbus A320",
   "variantScope": "target-confirmed",
@@ -72,18 +72,18 @@
     },
     {
       "path": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend",
-      "sha256": "884a6b0c74607f3d0d027b099e6757bc26d63a8da00a3d1749315dd7c119e586",
-      "bytes": 21147588
+      "sha256": "c5f702b4ee0ee84380d0b45775012475e892a0fc07612c96a881946c97d97f99",
+      "bytes": 21149056
     },
     {
       "path": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.glb",
-      "sha256": "97c7c9bf369d215c0a73ad63a375383d7a29723ef82ed574994a4cc5aca0c8d6",
-      "bytes": 34674500
+      "sha256": "5815112425c809e7938592eb3b2f34e972c712d6fb2261499e88dd2b3a44a291",
+      "bytes": 34674180
     },
     {
       "path": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/material-assignment-report.json",
-      "sha256": "1c57b9d11d2460dece7695d27f5c1a926344636787aae7ff8b5f96a0aa0b60ec",
-      "bytes": 47977
+      "sha256": "fdc250e946d58e73760d85473a59a93ee16401665edb2b2babdfa754dc11b0c9",
+      "bytes": 53356
     },
     {
       "path": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/texture-inventory-report.json",
@@ -92,38 +92,38 @@
     },
     {
       "path": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/validation-report.json",
-      "sha256": "4b9b182850c9cd65615021947e0ac1661b6cde2093a76d5997cba1244af8accf",
-      "bytes": 32363
+      "sha256": "ee055899ac28d40cd03b0d395aafe273b656548a0648ad06229f073c263f8bbe",
+      "bytes": 32434
     },
     {
       "path": "art-source/cockpit-pipeline/gates/a320-cockpit-2-material-optimization.json",
-      "sha256": "8968716f55f1d0b58c7d3fa330b7dabf2f7ecc8ebc72652356db2cb683894631",
-      "bytes": 2185
+      "sha256": "e9fcf3f613a381f496b536a3f4e91593df17950a223540b59727ce056b29308e",
+      "bytes": 2223
     },
     {
       "path": "asset-reports/cockpit-pipeline/a320-cockpit-2-shading/shading-report.md",
-      "sha256": "a05074f60e80acad79ecd31a0362a3224bcae3f9ea8fc425a5f7a47bdb3261bd",
-      "bytes": 3356
+      "sha256": "97f7b5e899b77b221104bedac0e988ac8afbc9db61bc208954ae3812670e3441",
+      "bytes": 3816
     },
     {
-      "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/neutral-vs-shaded-contact-sheet.svg",
-      "sha256": "7685fa45bbe900f7de1bc41c40c7a13cddfa2d16fcc679414b29c477dcf27c0f",
-      "bytes": 798
+      "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-source-parity-contact-sheet.svg",
+      "sha256": "8b7a145277b5f9b6e1ab00f6e704725ca4dee8a38802995a059d5f8fa952221b",
+      "bytes": 1622
     },
     {
       "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/captain-daylight.png",
-      "sha256": "cf93ad31024b9b103213600ff91cabe55213e0f1ee18004ffda094a756027137",
-      "bytes": 1051508
+      "sha256": "9395c77d98f0e52113514df65e97bccbeb0b0750a4055d68ad759f2e7f7f722a",
+      "bytes": 1048290
     },
     {
       "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/captain-display-check.png",
-      "sha256": "7860d6b12c7faf973301e78f351d39308089c79a1b1c0f8cd1d4576fe9ad2654",
-      "bytes": 1142911
+      "sha256": "998b5a3e216621bd884873121e6dfa795517253a999c87c060e12aef9b60e1d2",
+      "bytes": 980104
     },
     {
-      "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/overhead-pedestal-material-check.png",
-      "sha256": "d781ae6100043536ebc0b476b7f845798742361bd2c675c7a6d15217579530ba",
-      "bytes": 1414876
+      "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/captain-pullback-review.png",
+      "sha256": "97763efe8420d9d13ceff5c8d1021ea3f13faf796eae914b795da0bde83a3889",
+      "bytes": 1006318
     }
   ],
   "approval": {

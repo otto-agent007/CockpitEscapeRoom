@@ -34,7 +34,7 @@ def main() -> None:
     before = _snapshot(expected_nodes)
 
     recipe_index = {recipe["recipeId"]: recipe for recipe in recipes["recipes"]}
-    assignments = _apply_material_normalization(recipe_index)
+    assignments = _apply_material_annotation(recipe_index)
     texture_report = _write_texture_inventory(output_dir / "texture-inventory-report.json")
     _write_assignment_report(assignments, output_dir / "material-assignment-report.json")
 
@@ -71,7 +71,7 @@ def _expected_runtime_nodes(node_report: dict[str, object]) -> list[str]:
     return sorted(names)
 
 
-def _apply_material_normalization(recipes: dict[str, dict[str, object]]) -> list[dict[str, object]]:
+def _apply_material_annotation(recipes: dict[str, dict[str, object]]) -> list[dict[str, object]]:
     assignments = []
     fallback_materials: dict[str, bpy.types.Material] = {}
     for obj in sorted((item for item in bpy.context.scene.objects if item.type == "MESH"), key=lambda item: item.name):
@@ -94,6 +94,7 @@ def _apply_material_normalization(recipes: dict[str, dict[str, object]]) -> list
             "newMaterialRecipe": role,
             "semanticMaterialRole": recipes[role]["semanticMaterialRole"],
             "preservedExistingMaterialSlots": bool(old_materials),
+            "sourceTextureLinksPreserved": _has_base_color_texture_link(obj),
         })
     return assignments
 
@@ -121,20 +122,21 @@ def _classify_role(obj: bpy.types.Object) -> str:
 def _configure_material(material: bpy.types.Material, recipe: dict[str, object]) -> None:
     material["materialRecipeId"] = recipe["recipeId"]
     material["semanticMaterialRole"] = recipe["semanticMaterialRole"]
-    material.diffuse_color = tuple(recipe["baseColor"])
     material.use_nodes = True
     nodes = material.node_tree.nodes
     bsdf = nodes.get("Principled BSDF")
     if not bsdf:
         return
-    _set_input(bsdf, "Base Color", tuple(recipe["baseColor"]))
+    if not _input_has_link(bsdf, "Base Color"):
+        material.diffuse_color = tuple(recipe["baseColor"])
+        _set_input(bsdf, "Base Color", tuple(recipe["baseColor"]))
+    # Keep the downloaded Sketchfab color/UV texture network intact. Agent 3
+    # only records semantic roles and makes light-touch scalar PBR adjustments.
     _set_input(bsdf, "Metallic", recipe["metallic"])
     _set_input(bsdf, "Roughness", recipe["roughness"])
-    _set_input(bsdf, "Alpha", recipe["baseColor"][3])
-    if recipe["recipeId"] == "a320_display_glass":
-        _set_input(bsdf, "Emission Color", (0.08, 0.45, 0.42, 1.0))
-        _set_input(bsdf, "Emission Strength", 0.18)
-        material.blend_method = "BLEND"
+    if recipe["recipeId"] == "a320_display_glass" and not _input_has_link(bsdf, "Base Color"):
+        _set_input(bsdf, "Emission Color", (0.05, 0.22, 0.2, 1.0))
+        _set_input(bsdf, "Emission Strength", 0.05)
 
 
 def _fallback_material(cache: dict[str, bpy.types.Material], recipe: dict[str, object]) -> bpy.types.Material:
@@ -184,30 +186,29 @@ def _write_texture_inventory(path: Path) -> dict[str, object]:
 
 
 def _render_previews(preview_dir: Path) -> None:
+    center, radius = _scene_center_radius()
+    _add_source_like_lighting(center, radius)
     _render_preview(
         preview_dir / "captain-daylight.png",
-        Vector((-0.303763, -1.715466, 0.191386)),
+        Vector((-0.303763, -1.215466, 0.191386)),
         Vector((-0.104338, -0.456942, 0.056386)),
         50,
-        "daylight",
     )
     _render_preview(
         preview_dir / "captain-display-check.png",
-        Vector((-0.217057, -1.550967, 0.281386)),
+        Vector((-0.217057, -1.050967, 0.281386)),
         Vector((-0.00029, -0.548331, 0.176386)),
         70,
-        "display",
     )
     _render_preview(
-        preview_dir / "overhead-pedestal-material-check.png",
-        Vector((0.05, -1.35, 0.65)),
-        Vector((0.0, -0.55, -0.05)),
-        45,
-        "daylight",
+        preview_dir / "captain-pullback-review.png",
+        Vector((-0.303763, -1.715466, 0.191386)),
+        Vector((-0.104338, -0.456942, 0.056386)),
+        50,
     )
 
 
-def _render_preview(path: Path, location: Vector, target: Vector, lens: float, mode: str) -> None:
+def _render_preview(path: Path, location: Vector, target: Vector, lens: float) -> None:
     scene = bpy.context.scene
     try:
         scene.render.engine = "BLENDER_EEVEE_NEXT"
@@ -215,18 +216,11 @@ def _render_preview(path: Path, location: Vector, target: Vector, lens: float, m
         scene.render.engine = "BLENDER_EEVEE"
     world = scene.world or bpy.data.worlds.new("World")
     scene.world = world
-    world.color = (0.12, 0.13, 0.135)
-    bpy.ops.object.light_add(type="AREA", location=(0.0, -1.4, 2.1))
-    key = bpy.context.object
-    key.name = "AIRBUS_A320_SHADED_PREVIEW_KEY"
-    key.data.energy = 760 if mode == "daylight" else 520
-    key.data.size = 3.8
     bpy.ops.object.light_add(type="POINT", location=location + Vector((0.0, 0.08, 0.12)))
     fill = bpy.context.object
     fill.name = "AIRBUS_A320_SHADED_CAMERA_FILL"
-    fill.data.energy = 220 if mode == "daylight" else 290
-    fill.data.color = (0.78, 0.93, 0.96) if mode == "display" else (1.0, 0.96, 0.88)
-    fill.data.shadow_soft_size = 0.8
+    fill.data.energy = 240
+    fill.data.shadow_soft_size = 1.0
     bpy.ops.object.camera_add(location=location)
     camera = bpy.context.object
     camera.name = "CAM_" + path.stem.upper().replace("-", "_")
@@ -240,8 +234,23 @@ def _render_preview(path: Path, location: Vector, target: Vector, lens: float, m
     scene.render.filepath = str(path)
     bpy.ops.render.render(write_still=True)
     bpy.data.objects.remove(camera, do_unlink=True)
-    bpy.data.objects.remove(key, do_unlink=True)
     bpy.data.objects.remove(fill, do_unlink=True)
+
+
+def _add_source_like_lighting(center: Vector, radius: float) -> None:
+    scene = bpy.context.scene
+    world = scene.world or bpy.data.worlds.new("World")
+    scene.world = world
+    world.color = (0.055, 0.058, 0.06)
+    bpy.ops.object.light_add(type="AREA", location=(center.x, center.y - radius * 0.7, center.z + radius * 0.9))
+    key = bpy.context.object
+    key.name = "AIRBUS_A320_SOURCE_PARITY_AREA_LIGHT"
+    key.data.energy = 650
+    key.data.size = max(radius * 0.8, 2.0)
+    bpy.ops.object.light_add(type="POINT", location=(center.x + radius * 0.35, center.y + radius * 0.25, center.z + radius * 0.35))
+    fill = bpy.context.object
+    fill.name = "AIRBUS_A320_SOURCE_PARITY_FILL_LIGHT"
+    fill.data.energy = 120
 
 
 def _snapshot(expected_nodes: list[str]) -> dict[str, object]:
@@ -251,6 +260,7 @@ def _snapshot(expected_nodes: list[str]) -> dict[str, object]:
         "uvLayerCounts": {obj.name: len(obj.data.uv_layers) for obj in bpy.context.scene.objects if obj.type == "MESH"},
         "dimensions": _scene_dimensions(),
         "materialCount": len(bpy.data.materials),
+        "sourceTextureLinkCount": _source_texture_link_count(),
     }
 
 
@@ -283,6 +293,8 @@ def _validate(before: dict[str, object], reimport: dict[str, object], assignment
         "materialCount": reimport["materialCount"],
         "textureCount": texture_report["textureCount"],
         "destructiveOptimizationUsed": False,
+        "sourceTextureLinkCount": before["sourceTextureLinkCount"],
+        "sourceTextureLinksPreserved": before["sourceTextureLinkCount"] > 0,
         "reimportValidation": reimport,
     }
 
@@ -314,6 +326,18 @@ def _scene_dimensions() -> dict[str, float]:
     return {"x": round(size.x, 6), "y": round(size.y, 6), "z": round(size.z, 6), "center": [round(value, 6) for value in center]}
 
 
+def _scene_center_radius() -> tuple[Vector, float]:
+    meshes = [obj for obj in bpy.context.scene.objects if obj.type == "MESH"]
+    if not meshes:
+        return Vector((0.0, 0.0, 0.0)), 1.0
+    points = [obj.matrix_world @ Vector(corner) for obj in meshes for corner in obj.bound_box]
+    mins = Vector((min(point.x for point in points), min(point.y for point in points), min(point.z for point in points)))
+    maxs = Vector((max(point.x for point in points), max(point.y for point in points), max(point.z for point in points)))
+    center = (mins + maxs) * 0.5
+    radius = max((maxs - mins).length * 0.5, 1.0)
+    return center, radius
+
+
 def _select_descendants(obj: bpy.types.Object) -> None:
     for child in obj.children:
         child.select_set(True)
@@ -323,6 +347,32 @@ def _select_descendants(obj: bpy.types.Object) -> None:
 def _set_input(bsdf: bpy.types.Node, name: str, value: object) -> None:
     if name in bsdf.inputs:
         bsdf.inputs[name].default_value = value
+
+
+def _input_has_link(node: bpy.types.Node, input_name: str) -> bool:
+    return input_name in node.inputs and bool(node.inputs[input_name].links)
+
+
+def _has_base_color_texture_link(obj: bpy.types.Object) -> bool:
+    for slot in obj.material_slots:
+        material = slot.material
+        if not material or not material.use_nodes:
+            continue
+        bsdf = material.node_tree.nodes.get("Principled BSDF")
+        if bsdf and _input_has_link(bsdf, "Base Color"):
+            return True
+    return False
+
+
+def _source_texture_link_count() -> int:
+    count = 0
+    for material in bpy.data.materials:
+        if not material.use_nodes:
+            continue
+        bsdf = material.node_tree.nodes.get("Principled BSDF")
+        if bsdf and _input_has_link(bsdf, "Base Color"):
+            count += 1
+    return count
 
 
 def _assert_glb(path: Path) -> None:

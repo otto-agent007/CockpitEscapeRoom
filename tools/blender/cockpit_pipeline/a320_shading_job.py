@@ -83,7 +83,7 @@ def run_a320_shading_job(assembly_job_id: str = ASSEMBLY_JOB_ID, shading_job_id:
             *(preview_dir / name for name in [
                 "captain-daylight.png",
                 "captain-display-check.png",
-                "overhead-pedestal-material-check.png",
+                "captain-pullback-review.png",
             ]),
         ],
     )
@@ -225,7 +225,7 @@ def _write_material_gate(path: Path, output_dir: Path, validation: dict[str, obj
             for item in texture_report["textures"][:12]
         ],
         "glbSizeBytes": (output_dir / "a320-cockpit-2-shaded.glb").stat().st_size,
-        "optimizationDecision": "Preservation-first A320 material normalization. No mesh joining, decimation, UV rebake, or destructive GLB optimization; source cockpit detail is the asset value.",
+        "optimizationDecision": "Preservation-first A320 source-parity pass. Source texture node links, UVs, mesh hierarchy, and runtime metadata are preserved; no mesh joining, decimation, UV rebake, or destructive GLB optimization.",
         "destructiveOptimizationUsed": False,
         "runtimeContractPreserved": validation["runtimeNodeNamesPreserved"] and validation["gameIdMetadataPreserved"],
         "reimportValidation": validation["reimportValidation"]["status"],
@@ -235,20 +235,27 @@ def _write_material_gate(path: Path, output_dir: Path, validation: dict[str, obj
 
 
 def _write_contact_sheet(root: Path, preview_dir: Path) -> Path:
-    path = preview_dir / "neutral-vs-shaded-contact-sheet.svg"
-    neutral = root / "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/captain-seat-view.png"
-    daylight = preview_dir / "captain-daylight.png"
-    display = preview_dir / "captain-display-check.png"
-    labels = [("Neutral assembly", neutral), ("Agent 3 daylight", daylight), ("Agent 3 display check", display)]
+    path = preview_dir / "sketchfab-source-parity-contact-sheet.svg"
+    entries = [
+        ("Sketchfab final render", root / "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/final-render.png"),
+        ("Sketchfab no post-processing", root / "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/no-post-processing.png"),
+        ("Original Blender import", root / "preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-captain-seat-view.png"),
+        ("Agent 3 source-parity", preview_dir / "captain-daylight.png"),
+        ("Sketchfab base color", root / "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/base-color.png"),
+        ("Agent 3 display check", preview_dir / "captain-display-check.png"),
+    ]
     rows = []
-    for index, (label, image) in enumerate(labels):
-        y = 44 + index * 244
+    for index, (label, image) in enumerate(entries):
+        col = index % 2
+        row = index // 2
+        x = 24 + col * 468
+        y = 44 + row * 304
         rel = image.relative_to(preview_dir).as_posix() if image.is_relative_to(preview_dir) else os.path.relpath(image, preview_dir)
-        rows.append(f'<text x="24" y="{y - 14}" font-family="Arial" font-size="18" fill="#222">{label}</text>')
-        rows.append(f'<image x="24" y="{y}" width="512" height="216" href="{rel}" preserveAspectRatio="xMidYMid meet" />')
+        rows.append(f'<text x="{x}" y="{y - 14}" font-family="Arial" font-size="18" fill="#222">{label}</text>')
+        rows.append(f'<image x="{x}" y="{y}" width="440" height="248" href="{rel}" preserveAspectRatio="xMidYMid meet" />')
     svg = "\n".join([
-        '<svg xmlns="http://www.w3.org/2000/svg" width="560" height="760" viewBox="0 0 560 760">',
-        '<rect width="560" height="760" fill="#f3f3ef" />',
+        '<svg xmlns="http://www.w3.org/2000/svg" width="960" height="960" viewBox="0 0 960 960">',
+        '<rect width="960" height="960" fill="#f3f3ef" />',
         *rows,
         '</svg>',
         '',
@@ -299,14 +306,16 @@ def _write_shading_report(path: Path, approval: dict[str, object], recipe_path: 
 
 ## Bounded Action
 
-Agent 3 consumed the owner-approved A320 Agent 2 assembly and applied a preservation-first material and optimization pass. This pass did not write to `public/models/**`, did not modify browser/runtime code, did not join meshes, and did not run destructive GLB optimization.
+Agent 3 consumed the owner-approved A320 Agent 2 assembly and applied a source-parity material pass. The pass preserves the downloaded Sketchfab material texture links and UV layout, then records semantic material roles for later optimization. It does not write to `public/models/**`, does not modify browser/runtime code, does not join meshes, and does not run destructive GLB optimization.
 
 ## Reference Evidence Used
 
 - `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/no-post-processing.png`
 - `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/base-color.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/matcap.png`
 - `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/wireframe.png`
 - `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/uv-checker.png`
+- `preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-captain-seat-view.png`
 
 ## Material Recipes
 
@@ -320,6 +329,8 @@ Agent 3 consumed the owner-approved A320 Agent 2 assembly and applied a preserva
 
 - Texture count: `{texture_report["textureCount"]}`
 - Source texture preservation: `{texture_report["sourceTexturesPreserved"]}`
+- Source texture links preserved: `{validation["sourceTextureLinksPreserved"]}`
+- Source texture link count: `{validation["sourceTextureLinkCount"]}`
 
 ## Generated Files
 
@@ -329,7 +340,7 @@ Agent 3 consumed the owner-approved A320 Agent 2 assembly and applied a preserva
 - Texture inventory report: `{output_dir / "texture-inventory-report.json"}`
 - Validation report: `{output_dir / "validation-report.json"}`
 - Preview directory: `{preview_dir}`
-- Comparison contact sheet: `{contact_sheet}`
+- Sketchfab comparison contact sheet: `{contact_sheet}`
 
 ## Validation Results
 
@@ -337,6 +348,7 @@ Agent 3 consumed the owner-approved A320 Agent 2 assembly and applied a preserva
 - Runtime node names preserved: `{validation["runtimeNodeNamesPreserved"]}`
 - `game_id` metadata preserved: `{validation["gameIdMetadataPreserved"]}`
 - UV layers preserved: `{validation["uvLayersPreserved"]}`
+- Source texture links preserved: `{validation["sourceTextureLinksPreserved"]}`
 - Reimport status: `{validation["reimportValidation"]["status"]}`
 - Dimension drift max meters: `{validation["dimensionDriftMax"]}`
 - Approved assembly inputs immutable: `{validation["approvedAssemblyInputsImmutable"]}`

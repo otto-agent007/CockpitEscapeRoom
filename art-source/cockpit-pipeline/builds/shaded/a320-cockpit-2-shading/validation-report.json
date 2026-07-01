@@ -29,6 +29,8 @@
   "materialCount": 12,
   "textureCount": 11,
   "destructiveOptimizationUsed": false,
+  "sourceTextureLinkCount": 11,
+  "sourceTextureLinksPreserved": true,
   "reimportValidation": {
     "status": "pass",
     "runtimeNodeNames": [

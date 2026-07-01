@@ -1,7 +1,7 @@
 {
   "gate": "material-optimization",
   "artifactId": "a320-cockpit-2-material-optimization-001",
-  "createdAt": "2026-07-01T02:00:05Z",
+  "createdAt": "2026-07-01T02:35:37Z",
   "assetPath": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.glb",
   "materialCount": 12,
   "textureReports": [
@@ -72,8 +72,8 @@
       "usage": "preserved imported source texture"
     }
   ],
-  "glbSizeBytes": 34674500,
-  "optimizationDecision": "Preservation-first A320 material normalization. No mesh joining, decimation, UV rebake, or destructive GLB optimization; source cockpit detail is the asset value.",
+  "glbSizeBytes": 34674180,
+  "optimizationDecision": "Preservation-first A320 source-parity pass. Source texture node links, UVs, mesh hierarchy, and runtime metadata are preserved; no mesh joining, decimation, UV rebake, or destructive GLB optimization.",
   "destructiveOptimizationUsed": false,
   "runtimeContractPreserved": true,
   "reimportValidation": "pass"
