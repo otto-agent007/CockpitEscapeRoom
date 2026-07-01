@@ -235,7 +235,7 @@ def _write_material_gate(path: Path, output_dir: Path, validation: dict[str, obj
 
 
 def _write_contact_sheet(root: Path, preview_dir: Path) -> Path:
-    path = preview_dir / "sketchfab-source-parity-contact-sheet.svg"
+    path = preview_dir / "sketchfab-source-parity-contact-sheet.png"
     entries = [
         ("Sketchfab final render", root / "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/final-render.png"),
         ("Sketchfab no post-processing", root / "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/no-post-processing.png"),
@@ -244,23 +244,34 @@ def _write_contact_sheet(root: Path, preview_dir: Path) -> Path:
         ("Sketchfab base color", root / "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/base-color.png"),
         ("Agent 3 display check", preview_dir / "captain-display-check.png"),
     ]
-    rows = []
+    convert = shutil.which("convert")
+    if not convert:
+        raise RuntimeError("ImageMagick convert is required to build the PNG contact sheet")
+    command = [
+        convert,
+        "-size",
+        "960x960",
+        "xc:#f3f3ef",
+    ]
     for index, (label, image) in enumerate(entries):
-        col = index % 2
-        row = index // 2
-        x = 24 + col * 468
-        y = 44 + row * 304
-        rel = image.relative_to(preview_dir).as_posix() if image.is_relative_to(preview_dir) else os.path.relpath(image, preview_dir)
-        rows.append(f'<text x="{x}" y="{y - 14}" font-family="Arial" font-size="18" fill="#222">{label}</text>')
-        rows.append(f'<image x="{x}" y="{y}" width="440" height="248" href="{rel}" preserveAspectRatio="xMidYMid meet" />')
-    svg = "\n".join([
-        '<svg xmlns="http://www.w3.org/2000/svg" width="960" height="960" viewBox="0 0 960 960">',
-        '<rect width="960" height="960" fill="#f3f3ef" />',
-        *rows,
-        '</svg>',
-        '',
-    ])
-    path.write_text(svg, encoding="utf-8")
+        thumb = preview_dir / f".contact-thumb-{index}.png"
+        label_img = preview_dir / f".contact-label-{index}.png"
+        x = 24 + (index % 2) * 468
+        y = 44 + (index // 2) * 304
+        subprocess.run(
+            [convert, str(image), "-resize", "440x248", "-background", "#f3f3ef", "-gravity", "center", "-extent", "440x248", str(thumb)],
+            check=True,
+        )
+        subprocess.run(
+            [convert, "-size", "440x28", "xc:#f3f3ef", "-fill", "#222222", "-font", "DejaVu-Sans", "-pointsize", "18", "-annotate", "+0+21", label, str(label_img)],
+            check=True,
+        )
+        command.extend([str(label_img), "-geometry", f"+{x}+{y - 34}", "-composite"])
+        command.extend([str(thumb), "-geometry", f"+{x}+{y}", "-composite"])
+    command.append(str(path))
+    subprocess.run(command, check=True)
+    for temp in preview_dir.glob(".contact-*.png"):
+        temp.unlink(missing_ok=True)
     return path
 
 

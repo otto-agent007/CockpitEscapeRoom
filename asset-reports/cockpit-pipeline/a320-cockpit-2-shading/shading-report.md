@@ -3,7 +3,7 @@
 ## Branch And Stage
 
 - Branch: `codex/asset-workflow-health-rehearsal`
-- Commit: `0289dae937767214109e4cfe1f46ec194e41f01d`
+- Commit: `84c19b85569ceabaf0a83ee5fd8b4ec46905729c`
 - Assembly job: `a320-cockpit-2-assembly`
 - Shading job: `a320-cockpit-2-shading`
 - Stage: `shading_complete`
@@ -49,7 +49,7 @@ Agent 3 consumed the owner-approved A320 Agent 2 assembly and applied a source-p
 - Texture inventory report: `/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/texture-inventory-report.json`
 - Validation report: `/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/validation-report.json`
 - Preview directory: `/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/cockpit-pipeline/a320-cockpit-2-shading`
-- Sketchfab comparison contact sheet: `/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-source-parity-contact-sheet.svg`
+- Sketchfab comparison contact sheet: `/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-source-parity-contact-sheet.png`
 
 ## Validation Results
 
