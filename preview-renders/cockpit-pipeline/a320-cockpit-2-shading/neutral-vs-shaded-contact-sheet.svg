@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="760" viewBox="0 0 560 760">
+<rect width="560" height="760" fill="#f3f3ef" />
+<text x="24" y="30" font-family="Arial" font-size="18" fill="#222">Neutral assembly</text>
+<image x="24" y="44" width="512" height="216" href="../a320-cockpit-2-assembly/captain-seat-view.png" preserveAspectRatio="xMidYMid meet" />
+<text x="24" y="274" font-family="Arial" font-size="18" fill="#222">Agent 3 daylight</text>
+<image x="24" y="288" width="512" height="216" href="captain-daylight.png" preserveAspectRatio="xMidYMid meet" />
+<text x="24" y="518" font-family="Arial" font-size="18" fill="#222">Agent 3 display check</text>
+<image x="24" y="532" width="512" height="216" href="captain-display-check.png" preserveAspectRatio="xMidYMid meet" />
+</svg>

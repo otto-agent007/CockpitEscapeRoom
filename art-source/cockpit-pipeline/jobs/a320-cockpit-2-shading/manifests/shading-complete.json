@@ -1,0 +1,134 @@
+{
+  "manifestId": "a320-cockpit-2-shading-shading-complete",
+  "jobId": "a320-cockpit-2-shading",
+  "stage": "shading_complete",
+  "createdAt": "2026-07-01T02:00:05Z",
+  "sourceVariant": "prebuilt-free-open-leads",
+  "targetVariant": "Airbus A320",
+  "variantScope": "target-confirmed",
+  "artifactBasePath": "/mnt/2TBHDD/CockpitEscapeRoom",
+  "inputs": [
+    {
+      "path": "art-source/cockpit-pipeline/jobs/a320-cockpit-2-assembly/assembly-approval.json",
+      "sha256": "29e3cc200f07f0748952c43af0732b162d69eefea0b4bb95d1a657ceee9da901",
+      "bytes": 3289
+    },
+    {
+      "path": "art-source/cockpit-pipeline/jobs/a320-cockpit-2-assembly/manifests/assembly-complete.json",
+      "sha256": "12db177d60ad478807c3f9007f55351effd2210dce7a057cfef9dc1b751dde41",
+      "bytes": 3357
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/a320-cockpit-2-assembly.blend",
+      "sha256": "4b7af7142486b199a7a5315ef02d25235677cb5659e0e0e3310749b3c52646a0",
+      "bytes": 21006318
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/a320-cockpit-2-assembly.glb",
+      "sha256": "f7c1a622d2636a70b188484c657b213bd96156d9742edba7f0b704f018483fd8",
+      "bytes": 34582184
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/node-pivot-report.json",
+      "sha256": "0bebb9a665b71c38062ee41ce1cbf3ef29d434e2ac7cdfe1fc2a4ce31af7365d",
+      "bytes": 73635
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/validation-report.json",
+      "sha256": "a1a5974396f6ce270fb6344df8dcdba614101727919871defd395ab0e841d7d2",
+      "bytes": 419
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/runtime-contract-summary.json",
+      "sha256": "f0eeb1ed4bcc32a7106fd3f96c8db492d18def187fd664c64fbc52461fd083b1",
+      "bytes": 1726
+    },
+    {
+      "path": "art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json",
+      "sha256": "db8bbd9e4a1dc24cfc173c583138bbfa1f6a5d8b54579aa8a145520b6b2db81a",
+      "bytes": 2481
+    },
+    {
+      "path": "asset-reports/cockpit-pipeline/a320-cockpit-2-assembly/assembly-report.md",
+      "sha256": "84921aad18b8f3f5194d4abd43203ef010ced0ffbb35feee91ac032b450a62a7",
+      "bytes": 2728
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/captain-seat-view.png",
+      "sha256": "a56b4582ad93f6bfd1004feb7c9a27441c2c15246d3dc327e75c85153d7a51ae",
+      "bytes": 1047208
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/dashboard-screens-view.png",
+      "sha256": "6e83c01123c98dad145fec6632fc4f163bd568126a0bdab11b28ed7041310315",
+      "bytes": 954858
+    }
+  ],
+  "outputs": [
+    {
+      "path": "art-source/cockpit-pipeline/stages/shading/input/a320-cockpit-2-shading/material-recipes.json",
+      "sha256": "84b06f6f7d8ded324f0372dfbfced821fb6d321c8921d1b35a3fe03c7b03250b",
+      "bytes": 5541
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend",
+      "sha256": "884a6b0c74607f3d0d027b099e6757bc26d63a8da00a3d1749315dd7c119e586",
+      "bytes": 21147588
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.glb",
+      "sha256": "97c7c9bf369d215c0a73ad63a375383d7a29723ef82ed574994a4cc5aca0c8d6",
+      "bytes": 34674500
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/material-assignment-report.json",
+      "sha256": "1c57b9d11d2460dece7695d27f5c1a926344636787aae7ff8b5f96a0aa0b60ec",
+      "bytes": 47977
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/texture-inventory-report.json",
+      "sha256": "ac45e99ba75df5647218c88d0f949da418d28edac2895bfa860d447f55b3e09d",
+      "bytes": 2471
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/validation-report.json",
+      "sha256": "4b9b182850c9cd65615021947e0ac1661b6cde2093a76d5997cba1244af8accf",
+      "bytes": 32363
+    },
+    {
+      "path": "art-source/cockpit-pipeline/gates/a320-cockpit-2-material-optimization.json",
+      "sha256": "8968716f55f1d0b58c7d3fa330b7dabf2f7ecc8ebc72652356db2cb683894631",
+      "bytes": 2185
+    },
+    {
+      "path": "asset-reports/cockpit-pipeline/a320-cockpit-2-shading/shading-report.md",
+      "sha256": "a05074f60e80acad79ecd31a0362a3224bcae3f9ea8fc425a5f7a47bdb3261bd",
+      "bytes": 3356
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/neutral-vs-shaded-contact-sheet.svg",
+      "sha256": "7685fa45bbe900f7de1bc41c40c7a13cddfa2d16fcc679414b29c477dcf27c0f",
+      "bytes": 798
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/captain-daylight.png",
+      "sha256": "cf93ad31024b9b103213600ff91cabe55213e0f1ee18004ffda094a756027137",
+      "bytes": 1051508
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/captain-display-check.png",
+      "sha256": "7860d6b12c7faf973301e78f351d39308089c79a1b1c0f8cd1d4576fe9ad2654",
+      "bytes": 1142911
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/overhead-pedestal-material-check.png",
+      "sha256": "d781ae6100043536ebc0b476b7f845798742361bd2c675c7a6d15217579530ba",
+      "bytes": 1414876
+    }
+  ],
+  "approval": {
+    "approved": false,
+    "approvedBy": "human-review-pending",
+    "notes": "A320 Agent 3 material optimization complete only. Human review is required before shaded approval or browser integration."
+  }
+}

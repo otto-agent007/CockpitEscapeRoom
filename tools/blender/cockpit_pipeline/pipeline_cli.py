@@ -11,6 +11,7 @@ from pathlib import Path
 
 from .hashing import sha256_file, verify_manifest_hashes
 from .a320_assembly_job import run_a320_assembly_job
+from .a320_shading_job import run_a320_shading_job
 from .assembly_job import run_assembly_job
 from .eval_runner import run_evals
 from .schema_validation import SchemaError, validate_json_file
@@ -70,6 +71,13 @@ def main(argv: list[str] | None = None) -> int:
     a320_assembly_parser.add_argument("--source-job-id", default="a320-prebuilt-parts-source-discovery")
     a320_assembly_parser.add_argument("--assembly-job-id", default="a320-cockpit-2-assembly")
 
+    a320_shading_parser = subparsers.add_parser(
+        "run-a320-shading-job",
+        help="Run the Airbus A320 Cockpit 2 Agent 3 material and optimization handoff.",
+    )
+    a320_shading_parser.add_argument("--assembly-job-id", default="a320-cockpit-2-assembly")
+    a320_shading_parser.add_argument("--shading-job-id", default="a320-cockpit-2-shading")
+
     source_parser = subparsers.add_parser(
         "run-source-job",
         help="Run the legacy DC-9-32 FlightGear source vertical slice proxy job.",
@@ -116,6 +124,8 @@ def main(argv: list[str] | None = None) -> int:
             run_a320_source_candidate_import(args.archive, args.candidate_id, args.cache)
         elif args.command == "run-a320-assembly-job":
             run_a320_assembly_job(source_job_id=args.source_job_id, assembly_job_id=args.assembly_job_id)
+        elif args.command == "run-a320-shading-job":
+            run_a320_shading_job(assembly_job_id=args.assembly_job_id, shading_job_id=args.shading_job_id)
         elif args.command == "run-source-job":
             run_source_job(repo_url=args.repo_url, job_id=args.job_id, cache_override=args.cache)
         elif args.command == "run-assembly-job":

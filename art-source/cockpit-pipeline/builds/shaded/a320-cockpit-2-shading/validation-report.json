@@ -1,0 +1,846 @@
+{
+  "status": "pass",
+  "runtimeNodeNamesPreserved": true,
+  "gameIdMetadataPreserved": true,
+  "uvLayersPreserved": true,
+  "missingRuntimeNodes": [],
+  "dimensionDriftMax": 0.0,
+  "neutralDimensions": {
+    "x": 7.993553,
+    "y": 8.809936,
+    "z": 3.000001,
+    "center": [
+      -0.000419,
+      -4.733877,
+      0.506386
+    ]
+  },
+  "shadedReimportDimensions": {
+    "x": 7.993553,
+    "y": 8.809936,
+    "z": 3.000001,
+    "center": [
+      -0.000419,
+      -4.733877,
+      0.506386
+    ]
+  },
+  "assignmentCount": 125,
+  "materialCount": 12,
+  "textureCount": 11,
+  "destructiveOptimizationUsed": false,
+  "reimportValidation": {
+    "status": "pass",
+    "runtimeNodeNames": [
+      "AIRBUS_A320_COLLIDERS",
+      "AIRBUS_A320_DISPLAYS_002_OBJECT_100",
+      "AIRBUS_A320_DISPLAYS_003_OBJECT_101",
+      "AIRBUS_A320_DISPLAYS_004_OBJECT_102",
+      "AIRBUS_A320_DISPLAYS_005_OBJECT_103",
+      "AIRBUS_A320_DISPLAYS_006_OBJECT_104_001",
+      "AIRBUS_A320_DISPLAYS_007_OBJECT_105",
+      "AIRBUS_A320_DISPLAYS_008_OBJECT_106",
+      "AIRBUS_A320_DISPLAYS_009_OBJECT_107_001",
+      "AIRBUS_A320_DISPLAYS_010_OBJECT_108",
+      "AIRBUS_A320_DISPLAYS_011_OBJECT_109",
+      "AIRBUS_A320_DISPLAYS_013_OBJECT_110",
+      "AIRBUS_A320_DISPLAYS_014_OBJECT_111",
+      "AIRBUS_A320_DISPLAYS_015_OBJECT_112_001",
+      "AIRBUS_A320_DISPLAYS_016_OBJECT_113",
+      "AIRBUS_A320_DISPLAYS_017_OBJECT_114",
+      "AIRBUS_A320_DISPLAYS_018_OBJECT_115_001",
+      "AIRBUS_A320_DISPLAYS_019_OBJECT_116",
+      "AIRBUS_A320_DISPLAYS_020_OBJECT_117",
+      "AIRBUS_A320_DISPLAYS_021_OBJECT_118_001",
+      "AIRBUS_A320_DISPLAYS_022_OBJECT_119",
+      "AIRBUS_A320_DISPLAYS_024_OBJECT_120",
+      "AIRBUS_A320_DISPLAYS_025_OBJECT_121_001",
+      "AIRBUS_A320_DISPLAYS_026_OBJECT_122",
+      "AIRBUS_A320_DISPLAYS_027_OBJECT_123",
+      "AIRBUS_A320_DISPLAYS_028_OBJECT_124_001",
+      "AIRBUS_A320_DISPLAYS_029_OBJECT_125",
+      "AIRBUS_A320_DISPLAYS_030_OBJECT_126",
+      "AIRBUS_A320_DISPLAYS_031_OBJECT_127",
+      "AIRBUS_A320_DISPLAYS_032_OBJECT_128_001",
+      "AIRBUS_A320_DISPLAYS_034_OBJECT_130",
+      "AIRBUS_A320_DISPLAYS_035_OBJECT_132_001",
+      "AIRBUS_A320_DISPLAYS_036_OBJECT_133_001",
+      "AIRBUS_A320_DISPLAYS_037_OBJECT_134_001",
+      "AIRBUS_A320_DISPLAYS_046_OBJECT_22",
+      "AIRBUS_A320_DISPLAYS_047_OBJECT_23",
+      "AIRBUS_A320_DISPLAYS_051_OBJECT_27",
+      "AIRBUS_A320_DISPLAYS_073_OBJECT_47",
+      "AIRBUS_A320_DISPLAYS_079_OBJECT_52",
+      "AIRBUS_A320_DISPLAYS_091_OBJECT_65",
+      "AIRBUS_A320_DISPLAYS_123_OBJECT_97",
+      "AIRBUS_A320_DISPLAYS_124_OBJECT_98",
+      "AIRBUS_A320_DISPLAYS_125_OBJECT_99_001",
+      "AIRBUS_A320_DISPLAY_CANDIDATES",
+      "AIRBUS_A320_INTERACTIVE_001_OBJECT_10",
+      "AIRBUS_A320_INTERACTIVE_012_OBJECT_11_001",
+      "AIRBUS_A320_INTERACTIVE_023_OBJECT_12",
+      "AIRBUS_A320_INTERACTIVE_033_OBJECT_13",
+      "AIRBUS_A320_INTERACTIVE_038_OBJECT_14",
+      "AIRBUS_A320_INTERACTIVE_039_OBJECT_15_001",
+      "AIRBUS_A320_INTERACTIVE_040_OBJECT_16",
+      "AIRBUS_A320_INTERACTIVE_041_OBJECT_17",
+      "AIRBUS_A320_INTERACTIVE_042_OBJECT_18_001",
+      "AIRBUS_A320_INTERACTIVE_043_OBJECT_19",
+      "AIRBUS_A320_INTERACTIVE_044_OBJECT_20",
+      "AIRBUS_A320_INTERACTIVE_045_OBJECT_21_001",
+      "AIRBUS_A320_INTERACTIVE_048_OBJECT_24_001",
+      "AIRBUS_A320_INTERACTIVE_049_OBJECT_25",
+      "AIRBUS_A320_INTERACTIVE_050_OBJECT_26",
+      "AIRBUS_A320_INTERACTIVE_052_OBJECT_28_001",
+      "AIRBUS_A320_INTERACTIVE_053_OBJECT_29",
+      "AIRBUS_A320_INTERACTIVE_055_OBJECT_30",
+      "AIRBUS_A320_INTERACTIVE_056_OBJECT_31",
+      "AIRBUS_A320_INTERACTIVE_057_OBJECT_32_001",
+      "AIRBUS_A320_INTERACTIVE_058_OBJECT_33",
+      "AIRBUS_A320_INTERACTIVE_063_OBJECT_38",
+      "AIRBUS_A320_INTERACTIVE_064_OBJECT_39",
+      "AIRBUS_A320_INTERACTIVE_066_OBJECT_40",
+      "AIRBUS_A320_INTERACTIVE_067_OBJECT_41_001",
+      "AIRBUS_A320_INTERACTIVE_068_OBJECT_42",
+      "AIRBUS_A320_INTERACTIVE_069_OBJECT_43",
+      "AIRBUS_A320_INTERACTIVE_070_OBJECT_44_001",
+      "AIRBUS_A320_INTERACTIVE_071_OBJECT_45",
+      "AIRBUS_A320_INTERACTIVE_072_OBJECT_46",
+      "AIRBUS_A320_INTERACTIVE_074_OBJECT_48",
+      "AIRBUS_A320_INTERACTIVE_075_OBJECT_49_001",
+      "AIRBUS_A320_INTERACTIVE_077_OBJECT_50",
+      "AIRBUS_A320_INTERACTIVE_078_OBJECT_51",
+      "AIRBUS_A320_INTERACTIVE_080_OBJECT_53",
+      "AIRBUS_A320_INTERACTIVE_081_OBJECT_54_001",
+      "AIRBUS_A320_INTERACTIVE_083_OBJECT_58",
+      "AIRBUS_A320_INTERACTIVE_084_OBJECT_59_001",
+      "AIRBUS_A320_INTERACTIVE_086_OBJECT_60",
+      "AIRBUS_A320_INTERACTIVE_087_OBJECT_61",
+      "AIRBUS_A320_INTERACTIVE_088_OBJECT_62",
+      "AIRBUS_A320_INTERACTIVE_089_OBJECT_63",
+      "AIRBUS_A320_INTERACTIVE_090_OBJECT_64_001",
+      "AIRBUS_A320_INTERACTIVE_092_OBJECT_66",
+      "AIRBUS_A320_INTERACTIVE_106_OBJECT_8",
+      "AIRBUS_A320_INTERACTIVE_116_OBJECT_9_001",
+      "AIRBUS_A320_INTERACTIVE_CANDIDATES",
+      "AIRBUS_A320_LOCATORS",
+      "AIRBUS_A320_LOC_CAPTAIN_EYE",
+      "AIRBUS_A320_LOC_DASHBOARD_FOCUS",
+      "AIRBUS_A320_PUZZLE_PROPS",
+      "AIRBUS_A320_STATIC",
+      "AIRBUS_A320_STATIC_054_OBJECT_3",
+      "AIRBUS_A320_STATIC_059_OBJECT_34_001",
+      "AIRBUS_A320_STATIC_060_OBJECT_35_001",
+      "AIRBUS_A320_STATIC_061_OBJECT_36",
+      "AIRBUS_A320_STATIC_062_OBJECT_37_001",
+      "AIRBUS_A320_STATIC_065_OBJECT_4",
+      "AIRBUS_A320_STATIC_076_OBJECT_5",
+      "AIRBUS_A320_STATIC_082_OBJECT_57",
+      "AIRBUS_A320_STATIC_085_OBJECT_6",
+      "AIRBUS_A320_STATIC_093_OBJECT_67",
+      "AIRBUS_A320_STATIC_094_OBJECT_68",
+      "AIRBUS_A320_STATIC_095_OBJECT_69_001",
+      "AIRBUS_A320_STATIC_096_OBJECT_70",
+      "AIRBUS_A320_STATIC_097_OBJECT_71",
+      "AIRBUS_A320_STATIC_098_OBJECT_72",
+      "AIRBUS_A320_STATIC_099_OBJECT_73",
+      "AIRBUS_A320_STATIC_100_OBJECT_74_001",
+      "AIRBUS_A320_STATIC_101_OBJECT_75",
+      "AIRBUS_A320_STATIC_102_OBJECT_76",
+      "AIRBUS_A320_STATIC_103_OBJECT_77_001",
+      "AIRBUS_A320_STATIC_104_OBJECT_78",
+      "AIRBUS_A320_STATIC_105_OBJECT_79",
+      "AIRBUS_A320_STATIC_107_OBJECT_80_001",
+      "AIRBUS_A320_STATIC_108_OBJECT_81",
+      "AIRBUS_A320_STATIC_109_OBJECT_82",
+      "AIRBUS_A320_STATIC_110_OBJECT_84",
+      "AIRBUS_A320_STATIC_111_OBJECT_85_001",
+      "AIRBUS_A320_STATIC_112_OBJECT_86",
+      "AIRBUS_A320_STATIC_113_OBJECT_87",
+      "AIRBUS_A320_STATIC_114_OBJECT_88",
+      "AIRBUS_A320_STATIC_115_OBJECT_89",
+      "AIRBUS_A320_STATIC_117_OBJECT_90_001",
+      "AIRBUS_A320_STATIC_118_OBJECT_91",
+      "AIRBUS_A320_STATIC_119_OBJECT_93_001",
+      "AIRBUS_A320_STATIC_120_OBJECT_94",
+      "AIRBUS_A320_STATIC_121_OBJECT_95",
+      "AIRBUS_A320_STATIC_122_OBJECT_96_001",
+      "AIRBUS_ROOT"
+    ],
+    "runtimeMetadata": {
+      "AIRBUS_A320_COLLIDERS": {
+        "game_id": "airbus.a320.colliders"
+      },
+      "AIRBUS_A320_DISPLAYS_002_OBJECT_100": {
+        "game_id": "airbus.a320.displays.002",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_003_OBJECT_101": {
+        "game_id": "airbus.a320.displays.003",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_004_OBJECT_102": {
+        "game_id": "airbus.a320.displays.004",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_005_OBJECT_103": {
+        "game_id": "airbus.a320.displays.005",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_006_OBJECT_104_001": {
+        "game_id": "airbus.a320.displays.006",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_007_OBJECT_105": {
+        "game_id": "airbus.a320.displays.007",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_008_OBJECT_106": {
+        "game_id": "airbus.a320.displays.008",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_009_OBJECT_107_001": {
+        "game_id": "airbus.a320.displays.009",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_010_OBJECT_108": {
+        "game_id": "airbus.a320.displays.010",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_011_OBJECT_109": {
+        "game_id": "airbus.a320.displays.011",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_013_OBJECT_110": {
+        "game_id": "airbus.a320.displays.013",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_014_OBJECT_111": {
+        "game_id": "airbus.a320.displays.014",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_015_OBJECT_112_001": {
+        "game_id": "airbus.a320.displays.015",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_016_OBJECT_113": {
+        "game_id": "airbus.a320.displays.016",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_017_OBJECT_114": {
+        "game_id": "airbus.a320.displays.017",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_018_OBJECT_115_001": {
+        "game_id": "airbus.a320.displays.018",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_019_OBJECT_116": {
+        "game_id": "airbus.a320.displays.019",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_020_OBJECT_117": {
+        "game_id": "airbus.a320.displays.020",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_021_OBJECT_118_001": {
+        "game_id": "airbus.a320.displays.021",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_022_OBJECT_119": {
+        "game_id": "airbus.a320.displays.022",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_024_OBJECT_120": {
+        "game_id": "airbus.a320.displays.024",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_025_OBJECT_121_001": {
+        "game_id": "airbus.a320.displays.025",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_026_OBJECT_122": {
+        "game_id": "airbus.a320.displays.026",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_027_OBJECT_123": {
+        "game_id": "airbus.a320.displays.027",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_028_OBJECT_124_001": {
+        "game_id": "airbus.a320.displays.028",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_029_OBJECT_125": {
+        "game_id": "airbus.a320.displays.029",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_030_OBJECT_126": {
+        "game_id": "airbus.a320.displays.030",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_031_OBJECT_127": {
+        "game_id": "airbus.a320.displays.031",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_032_OBJECT_128_001": {
+        "game_id": "airbus.a320.displays.032",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_034_OBJECT_130": {
+        "game_id": "airbus.a320.displays.034",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_035_OBJECT_132_001": {
+        "game_id": "airbus.a320.displays.035",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_036_OBJECT_133_001": {
+        "game_id": "airbus.a320.displays.036",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_037_OBJECT_134_001": {
+        "game_id": "airbus.a320.displays.037",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_046_OBJECT_22": {
+        "game_id": "airbus.a320.displays.046",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_047_OBJECT_23": {
+        "game_id": "airbus.a320.displays.047",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_051_OBJECT_27": {
+        "game_id": "airbus.a320.displays.051",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_073_OBJECT_47": {
+        "game_id": "airbus.a320.displays.073",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_079_OBJECT_52": {
+        "game_id": "airbus.a320.displays.079",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_091_OBJECT_65": {
+        "game_id": "airbus.a320.displays.091",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_123_OBJECT_97": {
+        "game_id": "airbus.a320.displays.123",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_124_OBJECT_98": {
+        "game_id": "airbus.a320.displays.124",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAYS_125_OBJECT_99_001": {
+        "game_id": "airbus.a320.displays.125",
+        "assemblyCategory": "displays"
+      },
+      "AIRBUS_A320_DISPLAY_CANDIDATES": {
+        "game_id": "airbus.a320.displays"
+      },
+      "AIRBUS_A320_INTERACTIVE_001_OBJECT_10": {
+        "game_id": "airbus.a320.interactive.001",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_012_OBJECT_11_001": {
+        "game_id": "airbus.a320.interactive.012",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_023_OBJECT_12": {
+        "game_id": "airbus.a320.interactive.023",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_033_OBJECT_13": {
+        "game_id": "airbus.a320.interactive.033",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_038_OBJECT_14": {
+        "game_id": "airbus.a320.interactive.038",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_039_OBJECT_15_001": {
+        "game_id": "airbus.a320.interactive.039",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_040_OBJECT_16": {
+        "game_id": "airbus.a320.interactive.040",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_041_OBJECT_17": {
+        "game_id": "airbus.a320.interactive.041",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_042_OBJECT_18_001": {
+        "game_id": "airbus.a320.interactive.042",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_043_OBJECT_19": {
+        "game_id": "airbus.a320.interactive.043",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_044_OBJECT_20": {
+        "game_id": "airbus.a320.interactive.044",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_045_OBJECT_21_001": {
+        "game_id": "airbus.a320.interactive.045",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_048_OBJECT_24_001": {
+        "game_id": "airbus.a320.interactive.048",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_049_OBJECT_25": {
+        "game_id": "airbus.a320.interactive.049",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_050_OBJECT_26": {
+        "game_id": "airbus.a320.interactive.050",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_052_OBJECT_28_001": {
+        "game_id": "airbus.a320.interactive.052",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_053_OBJECT_29": {
+        "game_id": "airbus.a320.interactive.053",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_055_OBJECT_30": {
+        "game_id": "airbus.a320.interactive.055",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_056_OBJECT_31": {
+        "game_id": "airbus.a320.interactive.056",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_057_OBJECT_32_001": {
+        "game_id": "airbus.a320.interactive.057",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_058_OBJECT_33": {
+        "game_id": "airbus.a320.interactive.058",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_063_OBJECT_38": {
+        "game_id": "airbus.a320.interactive.063",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_064_OBJECT_39": {
+        "game_id": "airbus.a320.interactive.064",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_066_OBJECT_40": {
+        "game_id": "airbus.a320.interactive.066",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_067_OBJECT_41_001": {
+        "game_id": "airbus.a320.interactive.067",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_068_OBJECT_42": {
+        "game_id": "airbus.a320.interactive.068",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_069_OBJECT_43": {
+        "game_id": "airbus.a320.interactive.069",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_070_OBJECT_44_001": {
+        "game_id": "airbus.a320.interactive.070",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_071_OBJECT_45": {
+        "game_id": "airbus.a320.interactive.071",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_072_OBJECT_46": {
+        "game_id": "airbus.a320.interactive.072",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_074_OBJECT_48": {
+        "game_id": "airbus.a320.interactive.074",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_075_OBJECT_49_001": {
+        "game_id": "airbus.a320.interactive.075",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_077_OBJECT_50": {
+        "game_id": "airbus.a320.interactive.077",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_078_OBJECT_51": {
+        "game_id": "airbus.a320.interactive.078",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_080_OBJECT_53": {
+        "game_id": "airbus.a320.interactive.080",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_081_OBJECT_54_001": {
+        "game_id": "airbus.a320.interactive.081",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_083_OBJECT_58": {
+        "game_id": "airbus.a320.interactive.083",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_084_OBJECT_59_001": {
+        "game_id": "airbus.a320.interactive.084",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_086_OBJECT_60": {
+        "game_id": "airbus.a320.interactive.086",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_087_OBJECT_61": {
+        "game_id": "airbus.a320.interactive.087",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_088_OBJECT_62": {
+        "game_id": "airbus.a320.interactive.088",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_089_OBJECT_63": {
+        "game_id": "airbus.a320.interactive.089",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_090_OBJECT_64_001": {
+        "game_id": "airbus.a320.interactive.090",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_092_OBJECT_66": {
+        "game_id": "airbus.a320.interactive.092",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_106_OBJECT_8": {
+        "game_id": "airbus.a320.interactive.106",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_116_OBJECT_9_001": {
+        "game_id": "airbus.a320.interactive.116",
+        "assemblyCategory": "interactive"
+      },
+      "AIRBUS_A320_INTERACTIVE_CANDIDATES": {
+        "game_id": "airbus.a320.interactive"
+      },
+      "AIRBUS_A320_LOCATORS": {
+        "game_id": "airbus.a320.locators"
+      },
+      "AIRBUS_A320_LOC_CAPTAIN_EYE": {
+        "game_id": "airbus.a320.locator.captain_eye"
+      },
+      "AIRBUS_A320_LOC_DASHBOARD_FOCUS": {
+        "game_id": "airbus.a320.locator.dashboard_focus"
+      },
+      "AIRBUS_A320_PUZZLE_PROPS": {
+        "game_id": "airbus.a320.puzzle_props"
+      },
+      "AIRBUS_A320_STATIC": {
+        "game_id": "airbus.a320.static"
+      },
+      "AIRBUS_A320_STATIC_054_OBJECT_3": {
+        "game_id": "airbus.a320.static.054",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_059_OBJECT_34_001": {
+        "game_id": "airbus.a320.static.059",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_060_OBJECT_35_001": {
+        "game_id": "airbus.a320.static.060",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_061_OBJECT_36": {
+        "game_id": "airbus.a320.static.061",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_062_OBJECT_37_001": {
+        "game_id": "airbus.a320.static.062",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_065_OBJECT_4": {
+        "game_id": "airbus.a320.static.065",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_076_OBJECT_5": {
+        "game_id": "airbus.a320.static.076",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_082_OBJECT_57": {
+        "game_id": "airbus.a320.static.082",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_085_OBJECT_6": {
+        "game_id": "airbus.a320.static.085",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_093_OBJECT_67": {
+        "game_id": "airbus.a320.static.093",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_094_OBJECT_68": {
+        "game_id": "airbus.a320.static.094",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_095_OBJECT_69_001": {
+        "game_id": "airbus.a320.static.095",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_096_OBJECT_70": {
+        "game_id": "airbus.a320.static.096",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_097_OBJECT_71": {
+        "game_id": "airbus.a320.static.097",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_098_OBJECT_72": {
+        "game_id": "airbus.a320.static.098",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_099_OBJECT_73": {
+        "game_id": "airbus.a320.static.099",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_100_OBJECT_74_001": {
+        "game_id": "airbus.a320.static.100",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_101_OBJECT_75": {
+        "game_id": "airbus.a320.static.101",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_102_OBJECT_76": {
+        "game_id": "airbus.a320.static.102",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_103_OBJECT_77_001": {
+        "game_id": "airbus.a320.static.103",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_104_OBJECT_78": {
+        "game_id": "airbus.a320.static.104",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_105_OBJECT_79": {
+        "game_id": "airbus.a320.static.105",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_107_OBJECT_80_001": {
+        "game_id": "airbus.a320.static.107",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_108_OBJECT_81": {
+        "game_id": "airbus.a320.static.108",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_109_OBJECT_82": {
+        "game_id": "airbus.a320.static.109",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_110_OBJECT_84": {
+        "game_id": "airbus.a320.static.110",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_111_OBJECT_85_001": {
+        "game_id": "airbus.a320.static.111",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_112_OBJECT_86": {
+        "game_id": "airbus.a320.static.112",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_113_OBJECT_87": {
+        "game_id": "airbus.a320.static.113",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_114_OBJECT_88": {
+        "game_id": "airbus.a320.static.114",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_115_OBJECT_89": {
+        "game_id": "airbus.a320.static.115",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_117_OBJECT_90_001": {
+        "game_id": "airbus.a320.static.117",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_118_OBJECT_91": {
+        "game_id": "airbus.a320.static.118",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_119_OBJECT_93_001": {
+        "game_id": "airbus.a320.static.119",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_120_OBJECT_94": {
+        "game_id": "airbus.a320.static.120",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_121_OBJECT_95": {
+        "game_id": "airbus.a320.static.121",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_A320_STATIC_122_OBJECT_96_001": {
+        "game_id": "airbus.a320.static.122",
+        "assemblyCategory": "static"
+      },
+      "AIRBUS_ROOT": {
+        "game_id": "airbus.a320.root",
+        "scene_group": "Airbus A320 First-Officer cockpit",
+        "target_aircraft": "Airbus A320",
+        "assemblyStage": "assembly_complete",
+        "source_candidate_id": "a320-prebuilt-sketchfab-a320-cockpit-2"
+      }
+    },
+    "uvLayerCounts": {
+      "AIRBUS_A320_DISPLAYS_002_OBJECT_100": 1,
+      "AIRBUS_A320_DISPLAYS_003_OBJECT_101": 1,
+      "AIRBUS_A320_DISPLAYS_004_OBJECT_102": 1,
+      "AIRBUS_A320_DISPLAYS_005_OBJECT_103": 1,
+      "AIRBUS_A320_DISPLAYS_006_OBJECT_104_001": 1,
+      "AIRBUS_A320_DISPLAYS_007_OBJECT_105": 1,
+      "AIRBUS_A320_DISPLAYS_008_OBJECT_106": 1,
+      "AIRBUS_A320_DISPLAYS_009_OBJECT_107_001": 1,
+      "AIRBUS_A320_DISPLAYS_010_OBJECT_108": 1,
+      "AIRBUS_A320_DISPLAYS_011_OBJECT_109": 1,
+      "AIRBUS_A320_DISPLAYS_013_OBJECT_110": 1,
+      "AIRBUS_A320_DISPLAYS_014_OBJECT_111": 1,
+      "AIRBUS_A320_DISPLAYS_015_OBJECT_112_001": 1,
+      "AIRBUS_A320_DISPLAYS_016_OBJECT_113": 1,
+      "AIRBUS_A320_DISPLAYS_017_OBJECT_114": 1,
+      "AIRBUS_A320_DISPLAYS_018_OBJECT_115_001": 1,
+      "AIRBUS_A320_DISPLAYS_019_OBJECT_116": 1,
+      "AIRBUS_A320_DISPLAYS_020_OBJECT_117": 1,
+      "AIRBUS_A320_DISPLAYS_021_OBJECT_118_001": 1,
+      "AIRBUS_A320_DISPLAYS_022_OBJECT_119": 1,
+      "AIRBUS_A320_DISPLAYS_024_OBJECT_120": 1,
+      "AIRBUS_A320_DISPLAYS_025_OBJECT_121_001": 1,
+      "AIRBUS_A320_DISPLAYS_026_OBJECT_122": 1,
+      "AIRBUS_A320_DISPLAYS_027_OBJECT_123": 1,
+      "AIRBUS_A320_DISPLAYS_028_OBJECT_124_001": 1,
+      "AIRBUS_A320_DISPLAYS_029_OBJECT_125": 1,
+      "AIRBUS_A320_DISPLAYS_030_OBJECT_126": 1,
+      "AIRBUS_A320_DISPLAYS_031_OBJECT_127": 1,
+      "AIRBUS_A320_DISPLAYS_032_OBJECT_128_001": 1,
+      "AIRBUS_A320_DISPLAYS_034_OBJECT_130": 1,
+      "AIRBUS_A320_DISPLAYS_035_OBJECT_132_001": 1,
+      "AIRBUS_A320_DISPLAYS_036_OBJECT_133_001": 1,
+      "AIRBUS_A320_DISPLAYS_037_OBJECT_134_001": 1,
+      "AIRBUS_A320_DISPLAYS_046_OBJECT_22": 1,
+      "AIRBUS_A320_DISPLAYS_047_OBJECT_23": 1,
+      "AIRBUS_A320_DISPLAYS_051_OBJECT_27": 1,
+      "AIRBUS_A320_DISPLAYS_073_OBJECT_47": 1,
+      "AIRBUS_A320_DISPLAYS_079_OBJECT_52": 1,
+      "AIRBUS_A320_DISPLAYS_091_OBJECT_65": 1,
+      "AIRBUS_A320_DISPLAYS_123_OBJECT_97": 1,
+      "AIRBUS_A320_DISPLAYS_124_OBJECT_98": 1,
+      "AIRBUS_A320_DISPLAYS_125_OBJECT_99_001": 1,
+      "AIRBUS_A320_INTERACTIVE_001_OBJECT_10": 1,
+      "AIRBUS_A320_INTERACTIVE_012_OBJECT_11_001": 1,
+      "AIRBUS_A320_INTERACTIVE_023_OBJECT_12": 1,
+      "AIRBUS_A320_INTERACTIVE_033_OBJECT_13": 1,
+      "AIRBUS_A320_INTERACTIVE_038_OBJECT_14": 1,
+      "AIRBUS_A320_INTERACTIVE_039_OBJECT_15_001": 1,
+      "AIRBUS_A320_INTERACTIVE_040_OBJECT_16": 1,
+      "AIRBUS_A320_INTERACTIVE_041_OBJECT_17": 1,
+      "AIRBUS_A320_INTERACTIVE_042_OBJECT_18_001": 1,
+      "AIRBUS_A320_INTERACTIVE_043_OBJECT_19": 1,
+      "AIRBUS_A320_INTERACTIVE_044_OBJECT_20": 1,
+      "AIRBUS_A320_INTERACTIVE_045_OBJECT_21_001": 1,
+      "AIRBUS_A320_INTERACTIVE_048_OBJECT_24_001": 1,
+      "AIRBUS_A320_INTERACTIVE_049_OBJECT_25": 1,
+      "AIRBUS_A320_INTERACTIVE_050_OBJECT_26": 1,
+      "AIRBUS_A320_INTERACTIVE_052_OBJECT_28_001": 1,
+      "AIRBUS_A320_INTERACTIVE_053_OBJECT_29": 1,
+      "AIRBUS_A320_INTERACTIVE_055_OBJECT_30": 1,
+      "AIRBUS_A320_INTERACTIVE_056_OBJECT_31": 1,
+      "AIRBUS_A320_INTERACTIVE_057_OBJECT_32_001": 1,
+      "AIRBUS_A320_INTERACTIVE_058_OBJECT_33": 1,
+      "AIRBUS_A320_INTERACTIVE_063_OBJECT_38": 1,
+      "AIRBUS_A320_INTERACTIVE_064_OBJECT_39": 1,
+      "AIRBUS_A320_INTERACTIVE_066_OBJECT_40": 1,
+      "AIRBUS_A320_INTERACTIVE_067_OBJECT_41_001": 1,
+      "AIRBUS_A320_INTERACTIVE_068_OBJECT_42": 1,
+      "AIRBUS_A320_INTERACTIVE_069_OBJECT_43": 1,
+      "AIRBUS_A320_INTERACTIVE_070_OBJECT_44_001": 1,
+      "AIRBUS_A320_INTERACTIVE_071_OBJECT_45": 1,
+      "AIRBUS_A320_INTERACTIVE_072_OBJECT_46": 1,
+      "AIRBUS_A320_INTERACTIVE_074_OBJECT_48": 1,
+      "AIRBUS_A320_INTERACTIVE_075_OBJECT_49_001": 1,
+      "AIRBUS_A320_INTERACTIVE_077_OBJECT_50": 1,
+      "AIRBUS_A320_INTERACTIVE_078_OBJECT_51": 1,
+      "AIRBUS_A320_INTERACTIVE_080_OBJECT_53": 1,
+      "AIRBUS_A320_INTERACTIVE_081_OBJECT_54_001": 1,
+      "AIRBUS_A320_INTERACTIVE_083_OBJECT_58": 1,
+      "AIRBUS_A320_INTERACTIVE_084_OBJECT_59_001": 1,
+      "AIRBUS_A320_INTERACTIVE_086_OBJECT_60": 1,
+      "AIRBUS_A320_INTERACTIVE_087_OBJECT_61": 1,
+      "AIRBUS_A320_INTERACTIVE_088_OBJECT_62": 1,
+      "AIRBUS_A320_INTERACTIVE_089_OBJECT_63": 1,
+      "AIRBUS_A320_INTERACTIVE_090_OBJECT_64_001": 1,
+      "AIRBUS_A320_INTERACTIVE_092_OBJECT_66": 1,
+      "AIRBUS_A320_INTERACTIVE_106_OBJECT_8": 1,
+      "AIRBUS_A320_INTERACTIVE_116_OBJECT_9_001": 1,
+      "AIRBUS_A320_STATIC_054_OBJECT_3": 1,
+      "AIRBUS_A320_STATIC_059_OBJECT_34_001": 1,
+      "AIRBUS_A320_STATIC_060_OBJECT_35_001": 1,
+      "AIRBUS_A320_STATIC_061_OBJECT_36": 1,
+      "AIRBUS_A320_STATIC_062_OBJECT_37_001": 1,
+      "AIRBUS_A320_STATIC_065_OBJECT_4": 1,
+      "AIRBUS_A320_STATIC_076_OBJECT_5": 1,
+      "AIRBUS_A320_STATIC_082_OBJECT_57": 1,
+      "AIRBUS_A320_STATIC_085_OBJECT_6": 1,
+      "AIRBUS_A320_STATIC_093_OBJECT_67": 1,
+      "AIRBUS_A320_STATIC_094_OBJECT_68": 1,
+      "AIRBUS_A320_STATIC_095_OBJECT_69_001": 1,
+      "AIRBUS_A320_STATIC_096_OBJECT_70": 1,
+      "AIRBUS_A320_STATIC_097_OBJECT_71": 1,
+      "AIRBUS_A320_STATIC_098_OBJECT_72": 1,
+      "AIRBUS_A320_STATIC_099_OBJECT_73": 1,
+      "AIRBUS_A320_STATIC_100_OBJECT_74_001": 1,
+      "AIRBUS_A320_STATIC_101_OBJECT_75": 1,
+      "AIRBUS_A320_STATIC_102_OBJECT_76": 1,
+      "AIRBUS_A320_STATIC_103_OBJECT_77_001": 1,
+      "AIRBUS_A320_STATIC_104_OBJECT_78": 1,
+      "AIRBUS_A320_STATIC_105_OBJECT_79": 1,
+      "AIRBUS_A320_STATIC_107_OBJECT_80_001": 1,
+      "AIRBUS_A320_STATIC_108_OBJECT_81": 1,
+      "AIRBUS_A320_STATIC_109_OBJECT_82": 1,
+      "AIRBUS_A320_STATIC_110_OBJECT_84": 1,
+      "AIRBUS_A320_STATIC_111_OBJECT_85_001": 1,
+      "AIRBUS_A320_STATIC_112_OBJECT_86": 1,
+      "AIRBUS_A320_STATIC_113_OBJECT_87": 1,
+      "AIRBUS_A320_STATIC_114_OBJECT_88": 1,
+      "AIRBUS_A320_STATIC_115_OBJECT_89": 1,
+      "AIRBUS_A320_STATIC_117_OBJECT_90_001": 1,
+      "AIRBUS_A320_STATIC_118_OBJECT_91": 1,
+      "AIRBUS_A320_STATIC_119_OBJECT_93_001": 0,
+      "AIRBUS_A320_STATIC_120_OBJECT_94": 0,
+      "AIRBUS_A320_STATIC_121_OBJECT_95": 0,
+      "AIRBUS_A320_STATIC_122_OBJECT_96_001": 0
+    },
+    "objectCount": 134,
+    "meshCount": 125,
+    "materialCount": 12,
+    "dimensions": {
+      "x": 7.993553,
+      "y": 8.809936,
+      "z": 3.000001,
+      "center": [
+        -0.000419,
+        -4.733877,
+        0.506386
+      ]
+    }
+  },
+  "approvedAssemblyInputsImmutable": true,
+  "approvedAssemblyArtifact": "art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/a320-cockpit-2-assembly.glb"
+}
