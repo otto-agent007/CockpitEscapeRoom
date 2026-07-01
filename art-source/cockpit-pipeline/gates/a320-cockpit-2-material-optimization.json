@@ -1,7 +1,7 @@
 {
   "gate": "material-optimization",
   "artifactId": "a320-cockpit-2-material-optimization-001",
-  "createdAt": "2026-07-01T05:02:34Z",
+  "createdAt": "2026-07-01T06:20:27Z",
   "assetPath": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.glb",
   "materialCount": 12,
   "textureReports": [

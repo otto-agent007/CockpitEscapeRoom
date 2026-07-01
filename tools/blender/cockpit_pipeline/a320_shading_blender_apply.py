@@ -41,13 +41,11 @@ def main() -> None:
     _write_assignment_report(assignments, output_dir / "material-assignment-report.json")
 
     _render_previews(preview_dir, viewer_settings)
+    _add_between_seats_review_camera()
 
     blend_path = output_dir / "a320-cockpit-2-shaded.blend"
     backup_path = output_dir / "a320-cockpit-2-shaded.blend1"
     glb_path = output_dir / "a320-cockpit-2-shaded.glb"
-    backup_path.unlink(missing_ok=True)
-    bpy.ops.wm.save_as_mainfile(filepath=str(blend_path))
-    backup_path.unlink(missing_ok=True)
     bpy.ops.object.select_all(action="DESELECT")
     root = bpy.data.objects.get("AIRBUS_ROOT")
     if root:
@@ -58,6 +56,10 @@ def main() -> None:
         bpy.ops.object.select_all(action="SELECT")
     bpy.ops.export_scene.gltf(filepath=str(glb_path), export_format="GLB", export_extras=True, use_selection=True)
     _assert_glb(glb_path)
+    _set_between_seats_review_visibility()
+    backup_path.unlink(missing_ok=True)
+    bpy.ops.wm.save_as_mainfile(filepath=str(blend_path))
+    backup_path.unlink(missing_ok=True)
 
     reimport = _reimport_validation(glb_path, expected_nodes)
     validation = _validate(before, reimport, assignments, texture_report)
@@ -239,6 +241,38 @@ def _render_preview(path: Path, location: Vector, target: Vector, lens: float, h
     _restore_preview_hidden_state(hidden_state)
     bpy.data.objects.remove(camera, do_unlink=True)
     bpy.data.objects.remove(fill, do_unlink=True)
+
+
+def _add_between_seats_review_camera() -> None:
+    name = "AIRBUS_A320_CAM_BETWEEN_SEATS_REVIEW"
+    camera = bpy.data.objects.get(name)
+    if camera is None:
+        camera_data = bpy.data.cameras.new(name)
+        camera = bpy.data.objects.new(name, camera_data)
+        bpy.context.scene.collection.objects.link(camera)
+    camera.location = (0.0, -1.715466, 0.32)
+    target = Vector((0.0, -0.456942, 0.11))
+    camera.rotation_euler = (target - camera.location).to_track_quat("-Z", "Y").to_euler()
+    camera.data.lens = 20
+    camera.data.angle = 1.186824
+    camera.data.clip_start = 0.005
+    camera.data.clip_end = 1000
+    camera.data.display_size = 0.12
+    camera["game_id"] = "airbus.a320.camera.between_seats_review"
+    camera["cameraPurpose"] = "Blender owner review camera between cockpit seats facing the front panel"
+    bpy.context.scene.camera = camera
+
+
+def _set_between_seats_review_visibility() -> None:
+    hidden_semantics = {"COCKPIT_FORWARD_INTERIOR_SHELL_AND_SEATS", "COCKPIT_REAR_BULKHEAD_SEATS_AND_SIDEWALLS"}
+    for obj in bpy.context.scene.objects:
+        if obj.type != "MESH" or obj.get("semanticPartName") not in hidden_semantics:
+            continue
+        obj.hide_set(True)
+        obj["reviewHiddenReason"] = (
+            "Compound interior/shell chunk blocks the between-seats owner review camera; "
+            "the staged GLB is exported before this viewport-only review hide."
+        )
 
 
 def _configure_source_parity_render_settings(viewer_settings: dict[str, object]) -> None:
@@ -469,8 +503,8 @@ def _assert_glb(path: Path) -> None:
 
 
 def _reset_scene() -> None:
-    bpy.ops.object.select_all(action="SELECT")
-    bpy.ops.object.delete()
+    for obj in list(bpy.data.objects):
+        bpy.data.objects.remove(obj, do_unlink=True)
     for collection in (bpy.data.meshes, bpy.data.materials, bpy.data.images, bpy.data.cameras, bpy.data.lights):
         for item in list(collection):
             if item.users == 0:

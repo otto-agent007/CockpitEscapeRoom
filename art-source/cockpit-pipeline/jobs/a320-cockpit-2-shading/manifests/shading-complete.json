@@ -2,7 +2,7 @@
   "manifestId": "a320-cockpit-2-shading-shading-complete",
   "jobId": "a320-cockpit-2-shading",
   "stage": "shading_complete",
-  "createdAt": "2026-07-01T05:02:35Z",
+  "createdAt": "2026-07-01T06:20:28Z",
   "sourceVariant": "prebuilt-free-open-leads",
   "targetVariant": "Airbus A320",
   "variantScope": "target-confirmed",
@@ -77,8 +77,8 @@
     },
     {
       "path": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend",
-      "sha256": "a218350986a5cc81d419eb0c9b8c2210a4a33f3b2194b7e938a5eaa954a7de69",
-      "bytes": 24425043
+      "sha256": "ad1ce4f59245955e627fd450a401eae00b8a4dc9301b999491b2d149b05e608c",
+      "bytes": 24422796
     },
     {
       "path": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.glb",
@@ -102,32 +102,32 @@
     },
     {
       "path": "art-source/cockpit-pipeline/gates/a320-cockpit-2-material-optimization.json",
-      "sha256": "aca6e6e96576d6db0b44f759effd0a9b730e0b5de8b8323e1a5184d818b3d8cd",
+      "sha256": "903e44cf35e0369f3b62aaf27a1b211830bfebe1be9bc1fcd4321da961cd2dc0",
       "bytes": 2223
     },
     {
       "path": "asset-reports/cockpit-pipeline/a320-cockpit-2-shading/shading-report.md",
-      "sha256": "31a74ae887359b614f6e6b7a0dfe3b55c36cd6f9c2106e7e5d4da195171fb891",
+      "sha256": "d4553ee5b5e40fb67604714a7480e0ae966c8e6fa42bb1444a0f660cb846e583",
       "bytes": 4586
     },
     {
       "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-source-parity-contact-sheet.png",
-      "sha256": "e27bf66a681e9044a7d220fda1580c1def2b82c01ebc198c0a74ffcb85bb2b19",
+      "sha256": "4cf283a421796e2849bdd3643f8d86d943b5927e95d22f0f8e27a8876e5f2b18",
       "bytes": 877291
     },
     {
       "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/captain-daylight.png",
-      "sha256": "7495c4e948e87d57102affa13cad448bce993541742a329d48873d4bc71502d2",
+      "sha256": "df4b8dbad71db39c8e6291546d2fbb86a39a2f76629bed3ed1eb74487c8b17b4",
       "bytes": 1033409
     },
     {
       "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/captain-display-check.png",
-      "sha256": "9fffb76465b5fa53fd9e58bf661cf048d0db11df97ab66f9d728875d7e561f5d",
+      "sha256": "6a41ec162798a8600b363ac793bf630ee408af554c7b6c492ec3e3ad88ff2009",
       "bytes": 969181
     },
     {
       "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/captain-pullback-review.png",
-      "sha256": "32e65d52363016e6fbfae193625fde4f397ede74b6f9e57b99e5f5734a3c187a",
+      "sha256": "4c528e474a4d4a6d37427b2193c5db5947edaefc1061bc4a7803665a0a7f1e99",
       "bytes": 993067
     }
   ],
