@@ -1,11 +1,7 @@
-# Asset source manifest
+# Asset notes
 
-No external production assets are included in the current prototype flow.
+This is a private, personal build that will not be distributed. Owner-supplied or
+self-made aircraft, airline, and vehicle assets may be used freely; no external asset
+source, license, or redistribution records are required for this project.
 
-Add one row for every reference-derived texture, model, sound, font, photograph, logo-like graphic, or other external asset.
-
-| Asset | Project path | Source/creator | Modifications | Notes |
-|---|---|---|---|---|
-| Greybox geometry | Generated in source code | CockpitEscapeRoom project | Yes | Not production aircraft art |
-
-Keep rows complete enough for future agents to understand source, path, transformation, and intended use.
+This file is retained only as a placeholder so existing references to its path do not break.

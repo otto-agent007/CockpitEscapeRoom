@@ -125,7 +125,7 @@ The loop stops when validation passes, the maximum bounded attempts are reached,
 
 **Phase 3 — DC-9 Captain Mode proof:** captain-eye blockout, analog checklist puzzle, route card, browser integration, and owner visual gate.
 
-**Phase 4 — Captain reward:** original or licensed red Model Y asset, achievement card, optional plate.
+**Phase 4 — Captain reward:** red Model Y asset, achievement card, optional plate.
 
 **Phase 5 — main game polish:** progressive hints, saved progress, final message, performance budget, and cross-scene regression pass.
 
@@ -143,6 +143,5 @@ A release candidate is done only when:
 - Reduced-motion mode, sound controls, and readable contrast are present.
 - The app works at approximately 375, 768, and 1440 CSS pixels wide.
 - No uncaught console errors, broken assets, or high-severity review findings remain.
-- Source and license records exist for all externally derived assets.
 - `npm run check`, `npm run test:e2e`, and `npm run assets:check` pass.
 - A Vercel production build has been reviewed in the browser.

@@ -25,4 +25,4 @@ Use the approved DC-9 references, `plans/0001-dc9-pipeline-proof.md`, `docs/VISU
 - No console error occurs.
 - Approval screenshots exist at desktop and phone widths plus fixed Blender cameras.
 - The owner can judge whether the captain view reads unmistakably as a DC-9.
-- The ExecPlan, asset report, source/license manifest, and `TEST_REPORT.md` are updated with evidence.
+- The ExecPlan, asset report, and `TEST_REPORT.md` are updated with evidence.

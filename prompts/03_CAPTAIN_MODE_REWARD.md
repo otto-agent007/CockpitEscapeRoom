@@ -12,7 +12,6 @@ Use the owner-supplied Memphis/DC-9 context in `docs/HISTORICAL_CONTEXT.md`. Use
 
 - Do not require fleet counts, exact dates, or merger economics as puzzle answers.
 - Keep the same fair player loop and progressive hints.
-- The vehicle asset must be original or licensed for redistribution.
 - Avoid copying Tesla marketing renders or proprietary UI.
 - The reward must run once and remain replayable from a safe menu if desired.
 

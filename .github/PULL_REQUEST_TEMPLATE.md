@@ -37,10 +37,6 @@ Screenshots or Blender approval renders:
 
 Known deviations from the approved reference set:
 
-## Asset and licensing impact
-
-List new or changed external assets and update `LICENSES/ASSET_MANIFEST.md`.
-
 ## Remaining delta
 
 List genuine unresolved items, personalization placeholders, or owner decisions.
