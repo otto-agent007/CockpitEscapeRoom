@@ -1,0 +1,1537 @@
+{
+  "schema": "cockpit-pipeline/material-assignment-report-v1",
+  "assignmentCount": 127,
+  "countsByRecipe": {
+    "a320_display_glass": 42,
+    "a320_control_dark_plastic": 46,
+    "a320_preserve_source_pbr": 23,
+    "a320_soft_trim_fabric": 15,
+    "a320_dark_panel_plastic": 1
+  },
+  "assignments": [
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_002_RIGHT_FORWARD_PANEL_SURFACE",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_100",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_003_LEFT_FORWARD_PANEL_SURFACE",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_101",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_004_CAPTAIN_DISPLAY_OR_PANEL_FACE",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_102",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_005_CAPTAIN_DISPLAY_OR_PANEL_FACE",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_103",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_006_CAPTAIN_DISPLAY_OR_PANEL_FACE",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_104.001",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_007_FIRST_OFFICER_DISPLAY_OR_PANEL_FACE",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_105",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_008_FIRST_OFFICER_DISPLAY_OR_PANEL_FACE",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_106",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_009_FIRST_OFFICER_DISPLAY_OR_PANEL_FACE",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_107.001",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_010_FIRST_OFFICER_LOWER_DISPLAY_PANEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_108",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_011_CAPTAIN_MAIN_DISPLAY_PANEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_109",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_013_FIRST_OFFICER_MAIN_DISPLAY_PANEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_110",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_014_CAPTAIN_DISPLAY_OR_PANEL_FACE",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_111",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_015_CAPTAIN_DISPLAY_OR_PANEL_FACE",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_112.001",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_016_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_113",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_017_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_114",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_018_CAPTAIN_DISPLAY_OR_PANEL_FACE",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_115.001",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_019_FIRST_OFFICER_DISPLAY_OR_PANEL_FACE",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_116",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_020_CAPTAIN_DISPLAY_OR_PANEL_FACE",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_117",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_021_FIRST_OFFICER_DISPLAY_OR_PANEL_FACE",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_118.001",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_022_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_119",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_024_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_120",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_025_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_121.001",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_026_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_122",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_027_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_123",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_028_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_124.001",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_029_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_125",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_030_FIRST_OFFICER_DISPLAY_OR_PANEL_FACE",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_126",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_031_OVERHEAD_PANEL_STRUCTURE",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_127",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_032_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_128.001",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_034_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_130",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_035_FIRST_OFFICER_DISPLAY_OR_PANEL_FACE",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_132.001",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_036_CAPTAIN_MAIN_DISPLAY_PANEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_133.001",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_037_CAPTAIN_DISPLAY_OR_PANEL_FACE",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_134.001",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_046_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_22",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_047_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_23",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_051_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_27",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_073_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_47",
+      "oldMaterials": [
+        "m0mat_004"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_079_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_52",
+      "oldMaterials": [
+        "m0mat_004"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_093_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_65",
+      "oldMaterials": [
+        "m0mat_005"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_125_FIRST_OFFICER_MAIN_DISPLAY_PANEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_97",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_126_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_98",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_DISPLAYS_127_DISPLAY_INDICATOR_OR_LABEL",
+      "assemblyCategory": "displays",
+      "sourceNodeName": "Object_99.001",
+      "oldMaterials": [
+        "m0mat_010"
+      ],
+      "newMaterialRecipe": "a320_display_glass",
+      "semanticMaterialRole": "dark glass display face with restrained avionics glow",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_001_PEDESTAL_OR_PANEL_CONTROL_CLUSTER",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_10",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_012_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_11.001",
+      "oldMaterials": [
+        "m0mat"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_023_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_12",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_033_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_13",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_038_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_14",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_039_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_15.001",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_040_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_16",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_041_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_17",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_042_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_18.001",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_043_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_19",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_044_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_20",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_045_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_21.001",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_048_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_24.001",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_049_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_25",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_050_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_26",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_052_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_28.001",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_053_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_29",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_055_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_30",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_056_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_31",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_057_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_32.001",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_058_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_33",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_063_PEDESTAL_OR_PANEL_CONTROL_CLUSTER",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_38",
+      "oldMaterials": [
+        "m0mat_004"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_064_PEDESTAL_OR_PANEL_CONTROL_CLUSTER",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_39",
+      "oldMaterials": [
+        "m0mat_004"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_066_PEDESTAL_PANEL_CLUSTER",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_40",
+      "oldMaterials": [
+        "m0mat_004"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_067_PEDESTAL_PANEL_CLUSTER",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_41.001",
+      "oldMaterials": [
+        "m0mat_004"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_068_CENTER_CONSOLE_CONTROLS",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_42",
+      "oldMaterials": [
+        "m0mat_004"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_069_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_43",
+      "oldMaterials": [
+        "m0mat"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_070_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_44.001",
+      "oldMaterials": [
+        "m0mat"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_071_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_45",
+      "oldMaterials": [
+        "m0mat_004"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_072_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_46",
+      "oldMaterials": [
+        "m0mat_004"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_074_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_48",
+      "oldMaterials": [
+        "m0mat_004"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_075_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_49.001",
+      "oldMaterials": [
+        "m0mat_004"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_077_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_50",
+      "oldMaterials": [
+        "m0mat_004"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_078_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_51",
+      "oldMaterials": [
+        "m0mat_004"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_080_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_53",
+      "oldMaterials": [
+        "m0mat_004"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_081_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_54.001",
+      "oldMaterials": [
+        "m0mat_004"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_085_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_58",
+      "oldMaterials": [
+        "m0mat_005"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_086_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_59.001",
+      "oldMaterials": [
+        "m0mat_005"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_088_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_60",
+      "oldMaterials": [
+        "m0mat_005"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_089_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_61",
+      "oldMaterials": [
+        "m0mat_005"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_090_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_62",
+      "oldMaterials": [
+        "m0mat_005"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_091_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_63",
+      "oldMaterials": [
+        "m0mat_005"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_092_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_64.001",
+      "oldMaterials": [
+        "m0mat_005"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_094_SWITCH_KNOB_BUTTON_OR_ANNUNCIATOR",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_66",
+      "oldMaterials": [
+        "m0mat_005"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_108_PEDESTAL_OR_PANEL_CONTROL_CLUSTER",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_8",
+      "oldMaterials": [
+        "m0mat"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_INTERACTIVE_118_PEDESTAL_OR_PANEL_CONTROL_CLUSTER",
+      "assemblyCategory": "interactive",
+      "sourceNodeName": "Object_9.001",
+      "oldMaterials": [
+        "m1mat_001"
+      ],
+      "newMaterialRecipe": "a320_control_dark_plastic",
+      "semanticMaterialRole": "dark molded control plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_054_OBJECT_3",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_3",
+      "oldMaterials": [
+        "m1mat"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_059_OBJECT_34_001",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_34.001",
+      "oldMaterials": [
+        "m0mat_003"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_060_OBJECT_35_001",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_35.001",
+      "oldMaterials": [
+        "m0mat_004"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_061_OBJECT_36",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_36",
+      "oldMaterials": [
+        "m0mat_004"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_062_OBJECT_37_001",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_37.001",
+      "oldMaterials": [
+        "m0mat_004"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_065_OBJECT_4",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_4",
+      "oldMaterials": [
+        "m1mat"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_076_OBJECT_5",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_5",
+      "oldMaterials": [
+        "m1mat"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_082_COCKPIT_FORWARD_INTERIOR_SHELL_AND_SEATS",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_55",
+      "oldMaterials": [
+        "m0mat_005"
+      ],
+      "newMaterialRecipe": "a320_soft_trim_fabric",
+      "semanticMaterialRole": "matte cockpit trim and seat material",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_083_COCKPIT_REAR_BULKHEAD_SEATS_AND_SIDEWALLS",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_56",
+      "oldMaterials": [
+        "m0mat_005"
+      ],
+      "newMaterialRecipe": "a320_soft_trim_fabric",
+      "semanticMaterialRole": "matte cockpit trim and seat material",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_084_COCKPIT_INTERIOR_TRIM_PANEL",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_57",
+      "oldMaterials": [
+        "m0mat_005"
+      ],
+      "newMaterialRecipe": "a320_soft_trim_fabric",
+      "semanticMaterialRole": "matte cockpit trim and seat material",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_087_OBJECT_6",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_6",
+      "oldMaterials": [
+        "m1mat"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_095_COCKPIT_FLOOR_CARPET",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_67",
+      "oldMaterials": [
+        "m0mat_006"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_096_COCKPIT_REAR_TRIM_PANEL",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_68",
+      "oldMaterials": [
+        "m0mat_007"
+      ],
+      "newMaterialRecipe": "a320_soft_trim_fabric",
+      "semanticMaterialRole": "matte cockpit trim and seat material",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_097_FIRST_OFFICER_SEAT_SIDE_STRUCTURE",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_69.001",
+      "oldMaterials": [
+        "m0mat_008"
+      ],
+      "newMaterialRecipe": "a320_soft_trim_fabric",
+      "semanticMaterialRole": "matte cockpit trim and seat material",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_098_FIRST_OFFICER_SEAT_BASE",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_70",
+      "oldMaterials": [
+        "m0mat_008"
+      ],
+      "newMaterialRecipe": "a320_soft_trim_fabric",
+      "semanticMaterialRole": "matte cockpit trim and seat material",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_099_SEAT_OR_SIDE_CONSOLE_STRUCTURE",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_71",
+      "oldMaterials": [
+        "m0mat_008"
+      ],
+      "newMaterialRecipe": "a320_soft_trim_fabric",
+      "semanticMaterialRole": "matte cockpit trim and seat material",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_100_SEAT_OR_SIDE_CONSOLE_STRUCTURE",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_72",
+      "oldMaterials": [
+        "m0mat_008"
+      ],
+      "newMaterialRecipe": "a320_soft_trim_fabric",
+      "semanticMaterialRole": "matte cockpit trim and seat material",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_101_SEAT_OR_SIDE_CONSOLE_STRUCTURE",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_73",
+      "oldMaterials": [
+        "m0mat_008"
+      ],
+      "newMaterialRecipe": "a320_soft_trim_fabric",
+      "semanticMaterialRole": "matte cockpit trim and seat material",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_102_CAPTAIN_SEAT_SIDE_STRUCTURE",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_74.001",
+      "oldMaterials": [
+        "m0mat_008"
+      ],
+      "newMaterialRecipe": "a320_soft_trim_fabric",
+      "semanticMaterialRole": "matte cockpit trim and seat material",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_103_CAPTAIN_SEAT_BASE",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_75",
+      "oldMaterials": [
+        "m0mat_008"
+      ],
+      "newMaterialRecipe": "a320_soft_trim_fabric",
+      "semanticMaterialRole": "matte cockpit trim and seat material",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_104_SEAT_OR_SIDE_CONSOLE_STRUCTURE",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_76",
+      "oldMaterials": [
+        "m0mat_008"
+      ],
+      "newMaterialRecipe": "a320_soft_trim_fabric",
+      "semanticMaterialRole": "matte cockpit trim and seat material",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_105_CENTER_PEDESTAL_LOWER_STRUCTURE",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_77.001",
+      "oldMaterials": [
+        "m0mat_008"
+      ],
+      "newMaterialRecipe": "a320_dark_panel_plastic",
+      "semanticMaterialRole": "dark Airbus instrument panel plastic",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_106_OBJECT_78",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_78",
+      "oldMaterials": [
+        "m0mat_008"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_107_OBJECT_79",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_79",
+      "oldMaterials": [
+        "m0mat_008"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_109_SEAT_OR_SIDE_CONSOLE_STRUCTURE",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_80.001",
+      "oldMaterials": [
+        "m0mat_008"
+      ],
+      "newMaterialRecipe": "a320_soft_trim_fabric",
+      "semanticMaterialRole": "matte cockpit trim and seat material",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_110_SEAT_OR_SIDE_CONSOLE_STRUCTURE",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_81",
+      "oldMaterials": [
+        "m0mat_008"
+      ],
+      "newMaterialRecipe": "a320_soft_trim_fabric",
+      "semanticMaterialRole": "matte cockpit trim and seat material",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_111_SEAT_OR_SIDE_CONSOLE_STRUCTURE",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_82",
+      "oldMaterials": [
+        "m0mat_008"
+      ],
+      "newMaterialRecipe": "a320_soft_trim_fabric",
+      "semanticMaterialRole": "matte cockpit trim and seat material",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_112_OBJECT_84",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_84",
+      "oldMaterials": [
+        "m0mat_009"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_113_OBJECT_85_001",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_85.001",
+      "oldMaterials": [
+        "m0mat_009"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_114_OBJECT_86",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_86",
+      "oldMaterials": [
+        "m0mat_009"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_115_OBJECT_87",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_87",
+      "oldMaterials": [
+        "m0mat_009"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_116_OBJECT_88",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_88",
+      "oldMaterials": [
+        "m0mat_009"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_117_OBJECT_89",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_89",
+      "oldMaterials": [
+        "m0mat_009"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_119_OBJECT_90_001",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_90.001",
+      "oldMaterials": [
+        "m0mat_009"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_120_OBJECT_91",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_91",
+      "oldMaterials": [
+        "m0mat_009"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": true
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_121_OBJECT_93_001",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_93.001",
+      "oldMaterials": [
+        "m0mat_015"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": false
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_122_OBJECT_94",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_94",
+      "oldMaterials": [
+        "m0mat_015"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": false
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_123_OBJECT_95",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_95",
+      "oldMaterials": [
+        "m0mat_015"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": false
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_STATIC_124_OBJECT_96_001",
+      "assemblyCategory": "static",
+      "sourceNodeName": "Object_96.001",
+      "oldMaterials": [
+        "m0mat_015"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": false
+    }
+  ]
+}

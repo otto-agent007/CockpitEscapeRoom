@@ -1,0 +1,218 @@
+{
+  "jobId": "a320-prebuilt-parts-source-discovery",
+  "stage": "sourcing_complete",
+  "sceneGroup": "Airbus A320 First-Officer cockpit",
+  "sourceVariant": "prebuilt-free-open-leads",
+  "targetVariant": "Airbus A320",
+  "variantScope": "target-confirmed",
+  "referenceAuthority": "art-source/cockpit-pipeline/gates/agent0-airbus-a320-prebuilt-parts-authority.json",
+  "downloadedFiles": [],
+  "candidates": [
+    {
+      "candidateId": "a320-prebuilt-sketchfab-a320-cockpit-2",
+      "componentId": "a320-part-cockpit-shell-001",
+      "sourceUrl": "https://sketchfab.com/3d-models/a320-cockpit-2-5fb0c671a91042c1a9d8f2cf3e2df021",
+      "sourceFamily": "sketchfab-downloadable-mesh",
+      "licenseLead": "CC Attribution on Sketchfab page as of 2026-06-30",
+      "sourceVariant": "A320 cockpit",
+      "targetVariant": "Airbus A320",
+      "variantScope": "target-confirmed",
+      "formatLead": "downloadable 3D model; exact package formats require download approval",
+      "meshLead": "537.6k triangles, 318.6k vertices on Sketchfab page as of 2026-06-30",
+      "coverage": [
+        "cockpit shell",
+        "main panel",
+        "glareshield",
+        "pedestal broad layout"
+      ],
+      "confidence": "medium",
+      "selectionStatus": "selected-for-license-review",
+      "selectionReason": "Best free/open lead for a broad A320 cockpit mesh; useful for scale and grouping inspection if license and file quality validate.",
+      "limitations": [
+        "Author/model provenance is not Airbus authority.",
+        "Mesh accuracy, object hierarchy, pivots, texture sizes, and polygon count are unknown until download and Blender inspection.",
+        "Must be compared against real A320 references before any geometry use."
+      ],
+      "downstreamWarningForAgent2": "Do not assemble from this until it is downloaded through an approved manifest, imported into Blender, inspected, and source-approved."
+    },
+    {
+      "candidateId": "a320-prebuilt-sketchfab-a320-cockpit-200",
+      "componentId": "a320-part-cockpit-shell-001",
+      "sourceUrl": "https://sketchfab.com/3d-models/a320-200-cockpit-75621962dfca454597d36e9a54e1f9ea",
+      "sourceFamily": "sketchfab-downloadable-mesh",
+      "licenseLead": "CC Attribution on Sketchfab page as of 2026-06-30",
+      "sourceVariant": "A320-200 cockpit",
+      "targetVariant": "Airbus A320",
+      "variantScope": "target-confirmed",
+      "formatLead": "downloadable 3D model; exact package formats require download approval",
+      "meshLead": "50.7k triangles, 30.5k vertices on Sketchfab page as of 2026-06-30",
+      "coverage": [
+        "cockpit shell",
+        "main display arrangement",
+        "FCU/glareshield candidate"
+      ],
+      "confidence": "medium",
+      "selectionStatus": "alternate-for-license-review",
+      "selectionReason": "A320-200 label is variant-relevant and may be useful as an alternate broad cockpit mesh.",
+      "limitations": [
+        "Likely needs cleanup and object naming before any runtime use.",
+        "Accuracy and license details must be verified on the model page before download."
+      ],
+      "downstreamWarningForAgent2": "Alternate broad mesh only; source approval and Blender inspection required."
+    },
+    {
+      "candidateId": "a320-prebuilt-sketchfab-part-cockpit",
+      "componentId": "a320-part-cockpit-shell-001",
+      "sourceUrl": "https://sketchfab.com/3d-models/a320-part-cockpit-a31a149df8f344ca9a688dbc07b9f4df",
+      "sourceFamily": "sketchfab-downloadable-mesh",
+      "licenseLead": "CC Attribution on Sketchfab page as of 2026-06-30",
+      "sourceVariant": "A320 part cockpit",
+      "targetVariant": "Airbus A320",
+      "variantScope": "target-confirmed",
+      "formatLead": "downloadable 3D model; exact package formats require download approval",
+      "meshLead": "197.9k triangles, 126.5k vertices on Sketchfab page as of 2026-06-30",
+      "coverage": [
+        "partial cockpit",
+        "main panel candidate"
+      ],
+      "confidence": "low",
+      "selectionStatus": "alternate-partial-candidate",
+      "selectionReason": "Potentially smaller candidate if full cockpit meshes are too heavy or poorly structured.",
+      "limitations": [
+        "Partial coverage only.",
+        "Must inspect whether useful cockpit sections are present."
+      ],
+      "downstreamWarningForAgent2": "Use only if higher-coverage cockpit candidates fail license or import review."
+    },
+    {
+      "candidateId": "a320-prebuilt-sketchfab-pilot-chair",
+      "componentId": "a320-part-seat-001",
+      "sourceUrl": "https://sketchfab.com/3d-models/a320-airbus-pilot-chair-267be1d8701e4db2b0b19b0d1f5f6f99",
+      "sourceFamily": "sketchfab-downloadable-mesh",
+      "licenseLead": "CC Attribution on Sketchfab page as of 2026-06-30",
+      "sourceVariant": "A320 Airbus pilot chair",
+      "targetVariant": "Airbus A320",
+      "variantScope": "target-confirmed",
+      "formatLead": "downloadable 3D model; exact package formats require download approval",
+      "meshLead": "13.1k triangles, 6.9k vertices on Sketchfab page as of 2026-06-30",
+      "coverage": [
+        "pilot chair",
+        "seat scale reference"
+      ],
+      "confidence": "medium",
+      "selectionStatus": "selected-for-license-review",
+      "selectionReason": "Standalone chair candidate can improve First-Officer seat relationship if mesh quality and dimensions validate.",
+      "limitations": [
+        "May not include seat rails, sidewall, or first-officer context.",
+        "Must verify scale, texture license, and object structure."
+      ],
+      "downstreamWarningForAgent2": "Potential standalone component after Blender import and source approval."
+    },
+    {
+      "candidateId": "a320-prebuilt-github-fgdata-idg-a32x",
+      "componentId": "a320-part-cockpit-shell-001",
+      "sourceUrl": "https://github.com/FGDATA/IDG-A32X",
+      "sourceFamily": "flightgear-github-source-package",
+      "licenseLead": "GPL-2.0 repository license lead as of 2026-06-30",
+      "sourceVariant": "A320-family simulator aircraft package",
+      "targetVariant": "Airbus A320",
+      "variantScope": "target-confirmed",
+      "formatLead": "FlightGear source package; exact model formats require repository inspection after approval",
+      "coverage": [
+        "simulator cockpit hierarchy candidate",
+        "panel/source package candidate",
+        "texture/material source evidence"
+      ],
+      "confidence": "medium",
+      "selectionStatus": "selected-for-repository-inspection",
+      "selectionReason": "Open-source simulator package may provide structured cockpit components and metadata useful for source extraction planning.",
+      "limitations": [
+        "GPL licensing has compatibility implications for derived assets.",
+        "Downloaded repository scripts/add-ons must never be executed.",
+        "Simulator geometry is not production geometry authority."
+      ],
+      "downstreamWarningForAgent2": "Only inspect with safe offline inventory/import tooling after approval; no direct assembly."
+    },
+    {
+      "candidateId": "a320-prebuilt-printables-fcu-efis",
+      "componentId": "a320-part-fcu-glareshield-001",
+      "sourceUrl": "https://www.printables.com/search/models?q=A320%20FCU",
+      "sourceFamily": "printables-home-cockpit-parts",
+      "licenseLead": "Per-model license required; search/index lead only",
+      "sourceVariant": "A320 home-cockpit FCU/EFIS parts",
+      "targetVariant": "Airbus A320",
+      "variantScope": "target-confirmed",
+      "formatLead": "STL/F3D/printable parts likely; exact formats require per-model review",
+      "coverage": [
+        "FCU panel",
+        "EFIS panel",
+        "knobs/buttons"
+      ],
+      "confidence": "medium",
+      "selectionStatus": "selected-search-pool",
+      "selectionReason": "Strong source pool for cockpit controls that are hard to recover from broad meshes.",
+      "limitations": [
+        "Search result, not a specific approved file.",
+        "Print parts may need substantial cleanup and material rebuilding for web runtime.",
+        "License varies per model."
+      ],
+      "downstreamWarningForAgent2": "Select individual model pages before manifesting; do not assemble from search results."
+    },
+    {
+      "candidateId": "a320-prebuilt-thingiverse-sidestick-mount",
+      "componentId": "a320-part-side-stick-area-001",
+      "sourceUrl": "https://www.thingiverse.com/search?q=A320+sidestick",
+      "sourceFamily": "thingiverse-home-cockpit-parts",
+      "licenseLead": "Per-model license required; search/index lead only",
+      "sourceVariant": "A320 simulator side-stick or mount parts",
+      "targetVariant": "Airbus A320",
+      "variantScope": "target-confirmed",
+      "formatLead": "STL/printable parts likely; exact formats require per-model review",
+      "coverage": [
+        "side-stick area",
+        "side-stick mount or cabinet proxy"
+      ],
+      "confidence": "low",
+      "selectionStatus": "selected-search-pool",
+      "selectionReason": "No high-confidence open side-stick mesh was found quickly; home-cockpit mount parts are a fallback pool.",
+      "limitations": [
+        "Likely simulator hardware mounts rather than real cockpit geometry.",
+        "May not visually match an A320 first-officer sidewall.",
+        "License and file quality vary per model."
+      ],
+      "downstreamWarningForAgent2": "Use only as proxy/mechanical cue after real A320 references define visible shape."
+    },
+    {
+      "candidateId": "a320-prebuilt-printables-rmp-transponder-knobs",
+      "componentId": "a320-part-pedestal-controls-001",
+      "sourceUrl": "https://www.printables.com/search/models?q=A320%20pedestal",
+      "sourceFamily": "printables-home-cockpit-parts",
+      "licenseLead": "Per-model license required; search/index lead only",
+      "sourceVariant": "A320 home-cockpit pedestal/control parts",
+      "targetVariant": "Airbus A320",
+      "variantScope": "target-confirmed",
+      "formatLead": "STL/F3D/printable parts likely; exact formats require per-model review",
+      "coverage": [
+        "RMP",
+        "transponder",
+        "pedestal knobs",
+        "radio/control panels"
+      ],
+      "confidence": "medium",
+      "selectionStatus": "selected-search-pool",
+      "selectionReason": "Home-cockpit ecosystem appears likely to cover small pedestal parts better than broad mesh sources.",
+      "limitations": [
+        "Search/index lead only.",
+        "Printable panel details may be too operational or too detailed for the fictional puzzle surface unless simplified."
+      ],
+      "downstreamWarningForAgent2": "Pick individual compatible-license parts and simplify for fictional non-operational controls."
+    }
+  ],
+  "missingCoverage": [
+    "High-confidence exact A320 first-officer side-stick/sidewall mesh.",
+    "Specific approved FCU/glareshield model page with license and file format recorded.",
+    "Specific approved pedestal/thrust quadrant model page with license and file format recorded.",
+    "Polygon count, texture sizes, hierarchy, and import-route data for every mesh candidate."
+  ],
+  "nextAction": "Owner/source review should approve specific model pages for download inspection, starting with Sketchfab cockpit/chair candidates and then individual Printables/Thingiverse control parts."
+}

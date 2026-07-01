@@ -23,7 +23,7 @@
       "type": "string",
       "enum": ["requested", "sourcing_complete", "source-approved", "assembly-approved", "shading_complete", "shading-approved", "rejected"]
     },
-    "aircraft": { "type": "string", "enum": ["dc9"] },
+    "aircraft": { "type": "string", "enum": ["dc9", "airbus"] },
     "sourceVariant": { "type": "string", "minLength": 1 },
     "targetVariant": { "type": "string", "minLength": 1 },
     "variantScope": { "type": "string", "enum": ["common", "dc9-32", "dc9-51", "unknown", "unresolved", "source-proof-only", "target-confirmed"] },

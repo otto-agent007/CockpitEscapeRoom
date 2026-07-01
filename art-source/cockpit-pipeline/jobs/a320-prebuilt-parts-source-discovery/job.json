@@ -1,0 +1,58 @@
+{
+  "jobId": "a320-prebuilt-parts-source-discovery",
+  "title": "Airbus A320 prebuilt parts source discovery",
+  "stage": "sourcing_complete",
+  "aircraft": "airbus",
+  "sourceVariant": "prebuilt-free-open-leads",
+  "targetVariant": "Airbus A320",
+  "variantScope": "target-confirmed",
+  "sourceRepository": {
+    "url": "art-source/cockpit-pipeline/source-discovery-seeds/a320-prebuilt-parts-source-discovery.seed.json",
+    "resolvedRevision": "web-search-2026-06-30"
+  },
+  "requestedComponents": [
+    {
+      "componentId": "a320-part-cockpit-shell-001",
+      "label": "cockpit shell and main panel blockout",
+      "quantity": 1,
+      "acceptanceNotes": "Find free/open prebuilt A320 cockpit meshes for possible Blender inspection after source approval."
+    },
+    {
+      "componentId": "a320-part-seat-001",
+      "label": "pilot or first-officer chair",
+      "quantity": 1,
+      "acceptanceNotes": "Find standalone A320 pilot-chair candidates with clear license leads and manageable geometry."
+    },
+    {
+      "componentId": "a320-part-fcu-glareshield-001",
+      "label": "FCU/glareshield and autopilot panel parts",
+      "quantity": 1,
+      "acceptanceNotes": "Find FCU/glareshield candidates from downloadable meshes or home-cockpit printables."
+    },
+    {
+      "componentId": "a320-part-side-stick-area-001",
+      "label": "side-stick, side-stick mount, or side cabinet candidates",
+      "quantity": 1,
+      "acceptanceNotes": "Find side-stick area parts and record whether they are exact A320 cockpit pieces, simulator mounts, or home-cockpit approximations."
+    },
+    {
+      "componentId": "a320-part-pedestal-controls-001",
+      "label": "pedestal, RMP, transponder, knobs, and throttle-related parts",
+      "quantity": 1,
+      "acceptanceNotes": "Find pedestal/control candidates and record license, format, cockpit section, and assembly risk."
+    }
+  ],
+  "stageDirectories": {
+    "sourceInput": "art-source/cockpit-pipeline/stages/source/input",
+    "sourceOutput": "art-source/cockpit-pipeline/stages/source/output",
+    "assemblyInput": "art-source/cockpit-pipeline/stages/assembly/input",
+    "assemblyOutput": "art-source/cockpit-pipeline/stages/assembly/output",
+    "shadingInput": "art-source/cockpit-pipeline/stages/shading/input",
+    "shadingOutput": "art-source/cockpit-pipeline/stages/shading/output"
+  },
+  "cachePolicy": {
+    "environmentVariable": "COCKPIT_PIPELINE_CACHE",
+    "defaultRelativePath": ".cache/cockpit-pipeline",
+    "gitPolicy": "outside-git"
+  }
+}

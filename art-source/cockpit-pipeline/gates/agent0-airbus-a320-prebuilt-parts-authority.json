@@ -1,0 +1,26 @@
+{
+  "gate": "reference-authority",
+  "artifactId": "agent0-airbus-a320-prebuilt-parts-authority",
+  "createdAt": "2026-06-30T00:00:00Z",
+  "sceneGroup": "Airbus A320 First-Officer cockpit",
+  "targetAircraftOrObject": "Airbus A320 cockpit prebuilt component candidates",
+  "targetVariantStatus": "Confirmed production target is Airbus A320 First-Officer cockpit. Candidate source variants must record A320, A320-family, A320neo, simulator, printable/home-cockpit, or unknown status.",
+  "sourceCandidateType": "prebuilt-geometry",
+  "sourceIdentity": "Free/open-first prebuilt 3D candidates from Sketchfab, FlightGear/GitHub, Printables, and Thingiverse for A320 cockpit shell, chair, FCU/glareshield, side-stick area, pedestal, knobs, and panels.",
+  "allowedUsage": [
+    "Agent 1 source discovery and ranking for downloadable or inspectable prebuilt A320 cockpit parts",
+    "license and attribution screening before any local download",
+    "format, polygon-count, component-coverage, and import-route planning",
+    "candidate comparison against approved Airbus A320 real-aircraft references"
+  ],
+  "forbiddenUsage": [
+    "downloading, importing, or committing prebuilt assets before manifest/source approval",
+    "treating Sketchfab, simulator, home-cockpit, or 3D-print parts as production geometry authority",
+    "using paid marketplace assets in this pass",
+    "mixing DC-9, Model Y, or unrelated cockpit details into the Airbus scene group",
+    "starting Agent 2 assembly before human source approval"
+  ],
+  "variantCompatibility": "A320 exact candidates are preferred. A320-family, A320neo, simulator, printable, and home-cockpit parts may be proxy candidates only until inspected against real A320 references.",
+  "ownerApprovalStatus": "approved-for-next-stage",
+  "nextAllowedStage": "agent1-sourcing"
+}

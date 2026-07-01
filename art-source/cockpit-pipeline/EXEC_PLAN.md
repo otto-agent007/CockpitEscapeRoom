@@ -122,6 +122,54 @@ For each checkpoint, review the diff, run the focused command, repair the root c
 
 The preview render was visually inspected and is a neutral disposable scene.
 
+## Source Intake: Airbus A320 Prebuilt Cockpit Candidate
+
+### Purpose
+
+Record the owner-approved browser download for the top-ranked Airbus A320 prebuilt cockpit candidate as an Agent 1 source-intake artifact. This is not an Agent 2 assembly approval and does not produce or replace deployable GLBs.
+
+### Progress
+
+- [x] 2026-06-30 - Confirmed branch `codex/asset-workflow-health-rehearsal` and clean tracked worktree before intake.
+- [x] 2026-06-30 - Verified the owner-downloaded archive exists under `.cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/`.
+- [x] 2026-06-30 - Recorded archive SHA-256, package contents, integrity check, license lead, and glTF metadata in the source intake report.
+- [x] 2026-06-30 - Preserved the original downloaded archive outside Git and did not extract, import, assemble, optimize, or export runtime assets.
+
+### Evidence
+
+- `sha256sum .cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/a320_cockpit_2.zip` - pass; SHA-256 `1f7ec972d2a34c24b1df574142c40659cb294d372ac7e3c2cd64f9d7d69f65d4`.
+- `unzip -t .cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/a320_cockpit_2.zip` - pass.
+- `unzip -l .cache/cockpit-pipeline/sources/a320-prebuilt-parts-source-discovery/a320-cockpit-2/a320_cockpit_2.zip` - pass; glTF package with `scene.gltf`, `scene.bin`, `license.txt`, and 11 texture images.
+- glTF metadata inspection - pass; 619 nodes, 135 meshes, 13 materials, 11 textures, no animations.
+
+### Outcome
+
+The downloaded `A320 Cockpit 2` source package is recorded as a cache-only Agent 1 input. Outcome: `approval-required`. The next bounded action is owner approval for Agent 1 Blender import/inspection. Agent 2 assembly remains blocked until an inspected source package receives human `source-approval.json`.
+
+## Blender Import: Airbus A320 Prebuilt Cockpit Candidate
+
+### Purpose
+
+Pull the owner-approved `A320 Cockpit 2` source package into Blender for Agent 1 inspection while keeping extracted files and the inspection `.blend` outside Git.
+
+### Progress
+
+- [x] 2026-06-30 - Added a bounded `import-a320-source-candidate` pipeline command and Blender-side import inspection script.
+- [x] 2026-06-30 - Extracted the glTF package under `.cache/cockpit-pipeline`.
+- [x] 2026-06-30 - Imported `scene.gltf` into Blender 5.1.2 with factory startup and auto-execution disabled.
+- [x] 2026-06-30 - Saved cache-only inspection file `.cache/cockpit-pipeline/inspection/a320-prebuilt-parts-source-discovery/a320-cockpit-2/a320-cockpit-2-import-inspection.blend`.
+- [x] 2026-06-30 - Rendered preview evidence at `preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-captain-seat-view.png`.
+
+### Evidence
+
+- `python3 -m tools.blender.cockpit_pipeline.preflight` - pass; Blender 5.1.2.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli import-a320-source-candidate` - pass; imported 135 meshes, 620 objects including inspection root, 13 materials, and 537334 triangles.
+- Visual inspection of the generated captain-seat preview - pass for source inspection; render-only isolation exposes cockpit interior geometry including sidestick/panel/window/seat forms.
+
+### Outcome
+
+Outcome: `approval-required`. The source imports cleanly into Blender and the captain-seat isolation preview confirms usable cockpit interior geometry exists. It should not be source-approved for Agent 2 cockpit assembly until owner review accepts this source and a follow-up Agent 1 pass classifies/cleans cockpit interior component candidates.
+
 ## Outcome and handoff
 
 The foundation is in place for Agent 1 to begin sourcing against the unresolved-variant four-component vertical slice. Agent 1 should start with:
@@ -627,3 +675,245 @@ Added validators, schemas, eval fixtures, docs, and manifest records only. No Bl
 
 - The new gate examples are templates, not owner approvals for a production asset.
 - Reference entries still require source/provenance cleanup where manifest notes remain incomplete.
+
+## Airbus A320 Agent 1 Web Reference Sourcing: 2026-06-30
+
+### Purpose
+
+Run the Airbus A320 Agent 1 sourcing step after Agent 0 authorized web-reference discovery for the Airbus A320 First-Officer cockpit. This pass searched and ranked web source leads only. It did not download images, import assets into Blender, run Tripo/Marble generation, create GLBs, or start Agent 2 assembly.
+
+### Fresh state
+
+- Branch: `codex/asset-workflow-health-rehearsal`
+- Agent 0 authority: `art-source/cockpit-pipeline/gates/agent0-airbus-a320-web-reference-authority.json`
+- Source seed: `art-source/cockpit-pipeline/source-discovery-seeds/a320-web-reference-source-discovery.seed.json`
+- Job: `art-source/cockpit-pipeline/jobs/a320-web-reference-source-discovery/job.json`
+- Target scene group: Airbus A320 First-Officer cockpit
+- Target aircraft: Airbus A320
+
+### Bounded action decision
+
+Ran Agent 1 web-reference source discovery and stopped at `sourcing_complete`. No downstream stage work was run because the source handoff still requires human review before downloads, source approval, reference-board approval, or Agent 2 assembly.
+
+### Source ranking summary
+
+- Airbus official cockpits page - selected as primary manufacturer context for A320-family cockpit commonality; not a downloadable modeling board.
+- Wikimedia Commons `Cockpits of Airbus A320` category - selected as a source index; each file requires per-file license/provenance review before manifesting or downloading.
+- Wikimedia Commons `EasyJet airbus A320 cockpit.jpg` - selected as a real A320 cockpit candidate for future manifest/download review.
+- Wikimedia Commons `Airbus A320 Glass Cockpit.jpg` - rejected for geometry authority because it is a simulator cockpit; may be presentation-only after license review.
+- FlyByWire A32NX flight deck overview - selected only as simulator documentation for panel-name/source-triage orientation.
+
+### Files changed
+
+- `tools/blender/cockpit_pipeline/schemas/job_request.schema.json`
+- `art-source/cockpit-pipeline/jobs/a320-web-reference-source-discovery/job.json`
+- `art-source/cockpit-pipeline/jobs/a320-web-reference-source-discovery/manifests/sourcing-complete.json`
+- `art-source/cockpit-pipeline/stages/source/output/a320-web-reference-source-discovery/component-catalog.json`
+- `asset-reports/cockpit-pipeline/a320-web-reference-source-discovery/source-candidate-ranking.md`
+- `asset-reports/cockpit-pipeline/a320-web-reference-source-discovery/source-job-report.md`
+- `art-source/cockpit-pipeline/EXEC_PLAN.md`
+
+### Validation evidence
+
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate reference-authority art-source/cockpit-pipeline/gates/agent0-airbus-a320-web-reference-authority.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-job art-source/cockpit-pipeline/jobs/a320-web-reference-source-discovery/job.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/a320-web-reference-source-discovery/manifests/sourcing-complete.json` - pass, hashes verified.
+- `python3 -m tools.blender.cockpit_pipeline.preflight` - pass; Blender 5.1.2 found and dirty state reported as expected.
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass, 7 tests.
+- `npm run pipeline:evals` - pass, 6/6.
+- `npm run references:validate` - pass, 24 references.
+
+### Stop outcome
+
+`approval-required`. The A320 source handoff is complete enough for owner/source review, but no source is approved for download, Blender use, production geometry, or Agent 2 assembly.
+
+### Remaining delta
+
+- Pick which real A320 Commons file pages should become manifest entries.
+- Add source records before any downloads.
+- Find stronger first-officer side-stick, overhead, and pedestal close-up references with compatible licenses.
+- Keep simulator/FlyByWire sources presentation-only.
+
+## Airbus A320 Agent 1 Prebuilt Parts Sourcing: 2026-06-30
+
+### Purpose
+
+Run a free/open-first Agent 1 sourcing pass for prebuilt Airbus A320 cockpit parts. This pass searched and ranked prebuilt source leads only. It did not download models, clone repositories, import assets into Blender, run Tripo/Marble generation, create GLBs, or start Agent 2 assembly.
+
+### Fresh state
+
+- Branch: `codex/asset-workflow-health-rehearsal`
+- Agent 0 authority: `art-source/cockpit-pipeline/gates/agent0-airbus-a320-prebuilt-parts-authority.json`
+- Source seed: `art-source/cockpit-pipeline/source-discovery-seeds/a320-prebuilt-parts-source-discovery.seed.json`
+- Job: `art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/job.json`
+- Target scene group: Airbus A320 First-Officer cockpit
+- Target aircraft: Airbus A320
+
+### Bounded action decision
+
+Ran Agent 1 prebuilt-parts source discovery and stopped at `sourcing_complete`. No downstream stage work was run because the source handoff requires human review before downloads, source approval, Blender import, or Agent 2 assembly.
+
+### Source ranking summary
+
+- Sketchfab `A320 Cockpit 2` - selected as the strongest broad cockpit mesh lead; CC Attribution lead; 537.6k triangle page lead.
+- Sketchfab `A320-200 Cockpit` - selected as an alternate broad cockpit mesh lead; CC Attribution lead; 50.7k triangle page lead.
+- Sketchfab `A320 - Airbus Pilot Chair` - selected as a standalone chair candidate; CC Attribution lead; 13.1k triangle page lead.
+- GitHub `FGDATA/IDG-A32X` - selected for safe repository inspection planning only; GPL-2.0 license lead and simulator-source limitations apply.
+- Printables A320 FCU/pedestal search pools - selected for individual page review; search results are not source approval.
+- Thingiverse A320 sidestick search pool - selected as a weak fallback for side-stick/mount proxy leads.
+- Sketchfab `A320 Part Cockpit` - retained as a partial cockpit alternate; CC Attribution lead; 197.9k triangle page lead.
+
+### Files changed
+
+- `tools/blender/cockpit_pipeline/schemas/reference_authority.schema.json`
+- `art-source/cockpit-pipeline/gates/agent0-airbus-a320-prebuilt-parts-authority.json`
+- `art-source/cockpit-pipeline/source-discovery-seeds/a320-prebuilt-parts-source-discovery.seed.json`
+- `art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/job.json`
+- `art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/manifests/sourcing-complete.json`
+- `art-source/cockpit-pipeline/stages/source/output/a320-prebuilt-parts-source-discovery/component-catalog.json`
+- `asset-reports/cockpit-pipeline/a320-prebuilt-parts-source-discovery/source-candidate-ranking.md`
+- `asset-reports/cockpit-pipeline/a320-prebuilt-parts-source-discovery/source-job-report.md`
+- `art-source/cockpit-pipeline/EXEC_PLAN.md`
+
+### Validation evidence
+
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate reference-authority art-source/cockpit-pipeline/gates/agent0-airbus-a320-prebuilt-parts-authority.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-job art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/job.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/manifests/sourcing-complete.json` - pass, hashes verified.
+- `python3 -m tools.blender.cockpit_pipeline.preflight` - pass; Blender 5.1.2 found and dirty state reported as expected.
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass, 7 tests.
+- `npm run pipeline:evals` - pass, 6/6.
+- `npm run references:validate` - pass, 24 references.
+- URL checks - live HTTP responses for selected Sketchfab, GitHub, Printables, and Thingiverse leads after replacing stale Sketchfab URLs.
+
+### Stop outcome
+
+`approval-required`. The A320 prebuilt-parts handoff is ready for owner/source review, but no source is approved for download, Blender use, production geometry, or Agent 2 assembly.
+
+### Remaining delta
+
+- Choose which prebuilt candidates should be downloaded for inspection.
+- Add source/asset records before any downloads.
+- Inspect each selected model page license, author, download availability, file format, polygon count, and texture sizes.
+- Keep simulator/home-cockpit/printable sources as proxy candidates until checked against real Airbus A320 references.
+
+## Airbus A320 Cockpit 2 Download Approval Attempt: 2026-06-30
+
+### Purpose
+
+Act on the owner decision to use the top-ranked Sketchfab `A320 Cockpit 2` candidate as the base Airbus cockpit candidate. The intended action was to download the asset to the cockpit pipeline cache for inspection only.
+
+### Fresh state
+
+- Candidate: `a320-prebuilt-sketchfab-a320-cockpit-2`
+- Source page: `https://sketchfab.com/3d-models/a320-cockpit-2-5fb0c671a91042c1a9d8f2cf3e2df021`
+- Job: `art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/job.json`
+- Source handoff manifest: `art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/manifests/sourcing-complete.json`
+
+### Bounded action decision
+
+Recorded download approval and attempted the official Sketchfab download route. No scraping, bypassing, Blender import, GLB export, runtime integration, or Agent 2 assembly was attempted.
+
+### Result
+
+`blocked`. The Sketchfab public metadata API confirmed the model, author, CC BY 4.0 license, and face count, but the official download API returned `401 Unauthorized` without a Sketchfab OAuth token. The browser-style download page did not expose a model archive.
+
+### Files changed
+
+- `art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/download-approval-a320-cockpit-2.json`
+- `asset-reports/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-download-attempt.md`
+- `art-source/cockpit-pipeline/EXEC_PLAN.md`
+
+### Remaining delta
+
+- Provide an authenticated Sketchfab download route, preferably a local-only OAuth/API token.
+- Retry the download into `.cache/cockpit-pipeline`.
+- Record archive hashes, package contents, file formats, texture sizes, and import plan before Blender inspection.
+
+## Airbus A320 Cockpit 2 Preview Repair: 2026-06-30
+
+### Purpose
+
+Repair the Agent 1 Blender inspection preview so the imported cockpit dashboard, screens, FCU/glareshield, pedestal, seats, and sidestick are visible from useful inspection cameras.
+
+### Bounded action decision
+
+Updated preview generation only. This did not run Agent 2 assembly, optimize geometry, produce a runtime GLB, or replace any deployable asset.
+
+### Result
+
+The preview pass now hides only oversized exterior shell meshes and three ray-confirmed wall blockers that occlude the inspection cameras. It no longer hides cockpit-scale source meshes. A second dashboard/screens preview render is generated alongside the captain-seat view.
+
+### Evidence
+
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli import-a320-source-candidate` - pass; generated captain-seat and dashboard/screens previews.
+- Visual inspection - pass; the captain-seat render shows dashboard/screens, FCU/glareshield, sidestick, pedestal, and seats together.
+- Visual inspection - pass; the dashboard/screens render shows the front panel, FCU/glareshield, and display rectangles for source evaluation.
+
+### Preview paths
+
+- `preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-captain-seat-view.png`
+- `preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-dashboard-screens-view.png`
+
+### Remaining delta
+
+Owner review is still required before treating this source as approved for Agent 2 assembly. The asset still needs component classification, stable naming, hierarchy cleanup, pivot review, metadata planning, and runtime contract documentation.
+
+## Airbus A320 Cockpit 2 Agent 2 Assembly: 2026-06-30
+
+### Purpose
+
+Run the first Agent 2 assembly pass for the owner-approved `A320 Cockpit 2` source candidate and convert the inspected source model into a neutral staged asset contract.
+
+### Codex workflow note
+
+The owner asked Codex to update itself before running Agent 2. This Ubuntu branch cannot edit root `AGENTS.md`, `docs/**`, or `TEST_REPORT.md` under the current ownership rules, so the durable workflow update is recorded here: when an imported source is already visually assembled, Agent 2 should still run as the contract/cleanup stage. Its work is to remove approved non-cockpit blockers, create stable roots/groups, assign stable runtime names and metadata, export a neutral staged GLB, produce a runtime contract gate, and stop for assembly review before Agent 3.
+
+### Source approval consumed
+
+- `art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/source-approval.json`
+- Owner approval source: prompt on 2026-06-30 approving the inspected A320 Cockpit 2 source as the Agent 2 base candidate.
+
+### Bounded action decision
+
+Ran Agent 2 assembly only. No Agent 3 materials/optimization, destructive GLB optimization, `public/models/**` deployable asset replacement, or browser/runtime code changes were performed.
+
+### Result
+
+Agent 2 produced a neutral A320 cockpit assembly handoff under `AIRBUS_ROOT`. The pass removed the known exterior shell and camera-blocking wall objects, kept 125 cockpit/source meshes, created stable Airbus grouping roots, added basic `game_id` metadata, exported a staged neutral GLB, wrote a runtime contract gate, and generated captain-seat plus dashboard/screens preview evidence.
+
+### Generated files
+
+- `art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/a320-cockpit-2-assembly.blend`
+- `art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/a320-cockpit-2-assembly.glb`
+- `art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/node-pivot-report.json`
+- `art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/runtime-contract-summary.json`
+- `art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/validation-report.json`
+- `art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json`
+- `art-source/cockpit-pipeline/jobs/a320-cockpit-2-assembly/manifests/assembly-complete.json`
+- `asset-reports/cockpit-pipeline/a320-cockpit-2-assembly/assembly-report.md`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/captain-seat-view.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/dashboard-screens-view.png`
+
+### Validation evidence
+
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli run-a320-assembly-job` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.preflight` - pass; dirty tree reported as expected during local validation.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate reference-authority art-source/cockpit-pipeline/gates/agent0-airbus-a320-prebuilt-parts-authority.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-job art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/job.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/a320-prebuilt-parts-source-discovery/manifests/sourcing-complete.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate runtime-contract art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/a320-cockpit-2-assembly/manifests/assembly-complete.json` - pass.
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass, 8 tests.
+- `npm run pipeline:evals` - pass, 6/6.
+- `npm run references:validate` - pass, 24 references.
+- `git diff --check` - pass.
+
+### Visual review
+
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/captain-seat-view.png` shows dashboard/screens, FCU/glareshield, sidestick, pedestal, and seat geometry.
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/dashboard-screens-view.png` shows the FCU/glareshield and display rectangles for assembly review.
+
+### Remaining delta
+
+Outcome: `approval-required`. Owner review is required before treating this Agent 2 handoff as assembly-approved for Agent 3. Individual control pivots remain unverified, display content is still static source geometry, materials are not optimized, and the staged GLB is not a deployable `public/models/**` asset.

@@ -1,0 +1,67 @@
+{
+  "gate": "runtime-contract",
+  "artifactId": "a320-cockpit-2-runtime-contract-001",
+  "createdAt": "2026-07-01T05:01:23Z",
+  "sceneGroup": "Airbus A320 First-Officer cockpit",
+  "assetPath": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/a320-cockpit-2-assembly.glb",
+  "rootObject": "AIRBUS_ROOT",
+  "runtimeNodes": [
+    {
+      "name": "AIRBUS_ROOT",
+      "gameId": "airbus.a320.root",
+      "pivotVerified": false,
+      "localAxis": "GROUP_ROOT",
+      "htmlEquivalent": "Scene container; no direct HTML control."
+    },
+    {
+      "name": "AIRBUS_A320_STATIC",
+      "gameId": "airbus.a320.static",
+      "pivotVerified": false,
+      "localAxis": "GROUP_ROOT",
+      "htmlEquivalent": "Static cockpit geometry; no direct HTML control."
+    },
+    {
+      "name": "AIRBUS_A320_DISPLAY_CANDIDATES",
+      "gameId": "airbus.a320.displays",
+      "pivotVerified": false,
+      "localAxis": "GROUP_ROOT",
+      "htmlEquivalent": "Display inspection candidate; future HTML panel mirror required if interactive."
+    },
+    {
+      "name": "AIRBUS_A320_INTERACTIVE_CANDIDATES",
+      "gameId": "airbus.a320.interactive",
+      "pivotVerified": false,
+      "localAxis": "GROUP_ROOT",
+      "htmlEquivalent": "Interactive candidate group; controls require later pivot-specific HTML equivalents."
+    },
+    {
+      "name": "AIRBUS_A320_LOC_CAPTAIN_EYE",
+      "gameId": "airbus.a320.locator.captain_eye",
+      "pivotVerified": true,
+      "localAxis": "WORLD",
+      "htmlEquivalent": "Camera locator; no direct HTML control."
+    },
+    {
+      "name": "AIRBUS_A320_LOC_DASHBOARD_FOCUS",
+      "gameId": "airbus.a320.locator.dashboard_focus",
+      "pivotVerified": true,
+      "localAxis": "WORLD",
+      "htmlEquivalent": "Camera target locator; no direct HTML control."
+    },
+    {
+      "name": "AIRBUS_A320_LOC_INTERIOR_360_CENTER",
+      "gameId": "airbus.a320.locator.interior_360_center",
+      "pivotVerified": true,
+      "localAxis": "WORLD",
+      "htmlEquivalent": "Interior scan locator between the cockpit seats; no direct HTML control."
+    }
+  ],
+  "customPropertiesPreserved": true,
+  "reimportValidation": "pass",
+  "scaleAndCameraAssumptions": "Source model is kept in imported Blender scale. Captain-seat and dashboard locators are inspection references, not final gameplay cameras.",
+  "knownReferenceDeviations": [
+    "Prebuilt Sketchfab source still needs model-correct A320 reference review before production promotion.",
+    "Individual control pivots are not verified; only grouping roots and camera locators are contract-stable in this pass.",
+    "Display content is dark/static source geometry; live display materials and interaction belong to later stages."
+  ]
+}

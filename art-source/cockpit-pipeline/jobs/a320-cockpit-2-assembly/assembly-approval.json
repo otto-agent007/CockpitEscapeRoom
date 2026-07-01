@@ -1,0 +1,85 @@
+{
+  "approvalId": "a320-cockpit-2-assembly-approval-001",
+  "jobId": "a320-cockpit-2-assembly",
+  "sourceJobId": "a320-prebuilt-parts-source-discovery",
+  "stage": "assembly-approved",
+  "approved": true,
+  "approvedBy": "owner prompt 2026-07-01",
+  "approvedAt": "2026-07-01T04:50:14Z",
+  "assemblyManifest": "art-source/cockpit-pipeline/jobs/a320-cockpit-2-assembly/manifests/assembly-complete.json",
+  "sourceVariant": "prebuilt-free-open-leads",
+  "targetVariant": "Airbus A320",
+  "variantScope": "target-confirmed",
+  "notes": "Owner approved repair to preserve the full A320 cockpit interior candidate, including previously over-culled seat/interior source objects and semantic runtime naming. Sketchfab 360 interior screenshots are recorded as reference evidence. Approval does not promote this GLB to public/models and does not authorize destructive optimization.",
+  "approvedComponentIds": [
+    "a320-prebuilt-sketchfab-a320-cockpit-2"
+  ],
+  "approvedArtifacts": [
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/a320-cockpit-2-assembly.blend",
+      "sha256": "7b966959a57d253877446461ca215252a31dbf2fc11984342b0f46f9029cd37e",
+      "bytes": 24261152
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/a320-cockpit-2-assembly.glb",
+      "sha256": "0d64f6248306b6f55b0a2a35f971e5c0011e988f39e8d0989fbb5bf5e6219e51",
+      "bytes": 39812884
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/node-pivot-report.json",
+      "sha256": "36e4f59b03952bf51cb813ba662ef7241d57833564d9841a8359b7409809e89f",
+      "bytes": 86080
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/validation-report.json",
+      "sha256": "073705aff8b5be1aff6c12c5f8ed74930e63b25298b1c71b9f7f009347c5a420",
+      "bytes": 419
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/runtime-contract-summary.json",
+      "sha256": "f9a2cb17440d21d7c89f1ed94f29d7eb4385bc93b3b27bd502277cc05c6ddf07",
+      "bytes": 2007
+    },
+    {
+      "path": "art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json",
+      "sha256": "d377e0ae1004baad70f6a12947cb1d2090f931bed245708fe65aa191700ce5cd",
+      "bytes": 2762
+    },
+    {
+      "path": "asset-reports/cockpit-pipeline/a320-cockpit-2-assembly/assembly-report.md",
+      "sha256": "a18fb02636fd9a040556efb50908deab4c3bb3c88057077110b934008f55bcf7",
+      "bytes": 3919
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/captain-seat-view.png",
+      "sha256": "b1b4154c5a4e1be91b6fae49b057332833c887ab2bed952f96901861c5c99359",
+      "bytes": 1163191
+    },
+    {
+      "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/dashboard-screens-view.png",
+      "sha256": "eddb583b4f4d4eb1367555911a28da70a7c4e17ffeb2d21a36a1877981e999f5",
+      "bytes": 954858
+    }
+  ],
+  "validationSummary": {
+    "status": "pass",
+    "objectCount": 621,
+    "meshCount": 127,
+    "materialCount": 13,
+    "reimportValidation": {
+      "status": "pass",
+      "rootFound": true,
+      "objectCount": 137,
+      "meshCount": 127
+    },
+    "sourceInputsImmutable": true,
+    "duplicateRuntimeNodeNames": [],
+    "metadataFailures": null,
+    "pivotVerifiedCount": 0,
+    "preservedInteriorSizedObjects": [
+      "Object_55",
+      "Object_56"
+    ],
+    "interiorRepair": "Preserved and semantically named Object_55/Object_56 as cockpit interior compounds; front-panel review renders hide those compounds only to prevent camera occlusion, while the staged GLB preserves them."
+  }
+}

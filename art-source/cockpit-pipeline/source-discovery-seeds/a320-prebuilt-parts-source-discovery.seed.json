@@ -1,0 +1,83 @@
+{
+  "seedId": "a320-prebuilt-parts-source-discovery",
+  "title": "Airbus A320 prebuilt parts source discovery seed",
+  "status": "prebuilt_leads_seeded_not_downloaded",
+  "aircraft": "airbus",
+  "sourceVariant": "prebuilt-free-open-leads",
+  "targetVariant": "Airbus A320",
+  "variantScope": "target-confirmed",
+  "referenceAuthority": "art-source/cockpit-pipeline/gates/agent0-airbus-a320-prebuilt-parts-authority.json",
+  "sceneGroup": "Airbus A320 First-Officer cockpit",
+  "webSearchDate": "2026-06-30",
+  "sourcePools": [
+    {
+      "poolId": "sketchfab-cc-downloadable",
+      "priority": 1,
+      "searchTerms": [
+        "A320 cockpit downloadable CC Attribution",
+        "A320-200 cockpit Sketchfab",
+        "A320 Part Cockpit Sketchfab",
+        "A320 Airbus pilot chair Sketchfab"
+      ],
+      "allowedUse": "Find downloadable CC Attribution candidate meshes for inspection after source approval.",
+      "limitations": "Each model must be reviewed for license, author, download availability, file format, mesh quality, and aircraft accuracy before download."
+    },
+    {
+      "poolId": "flightgear-github-a320",
+      "priority": 2,
+      "searchTerms": [
+        "FGDATA IDG-A32X FlightGear",
+        "A320-family FlightGear cockpit models"
+      ],
+      "allowedUse": "Find open-source simulator cockpit packages and hierarchy references for component extraction planning.",
+      "limitations": "GPL assets are simulator-source proxy candidates; do not execute downloaded scripts or treat as production geometry authority."
+    },
+    {
+      "poolId": "printables-thingiverse-home-cockpit",
+      "priority": 3,
+      "searchTerms": [
+        "Airbus A320 FCU panel 3D print",
+        "Airbus A320 home cockpit knobs",
+        "Airbus A320 sidestick mount",
+        "Airbus A320 transponder panel"
+      ],
+      "allowedUse": "Find STL/F3D home-cockpit part candidates for FCU, EFIS, knobs, RMP, transponder, side-stick cabinet, and pedestal controls.",
+      "limitations": "Printable parts may be mechanically useful but need license review and visual cleanup before web runtime use."
+    }
+  ],
+  "requestedComponents": [
+    {
+      "componentId": "a320-part-cockpit-shell-001",
+      "label": "cockpit shell and main panel blockout",
+      "quantity": 1,
+      "acceptanceNotes": "Prefer downloadable A320 cockpit meshes with manageable polygon counts and visible main panel/glareshield relationships."
+    },
+    {
+      "componentId": "a320-part-seat-001",
+      "label": "pilot or first-officer chair",
+      "quantity": 1,
+      "acceptanceNotes": "Prefer standalone chair assets with clear license and texture/material evidence."
+    },
+    {
+      "componentId": "a320-part-fcu-glareshield-001",
+      "label": "FCU/glareshield and autopilot panel parts",
+      "quantity": 1,
+      "acceptanceNotes": "Prefer downloadable meshes or printable panel sets that can inform A320 FCU proportions after reference review."
+    },
+    {
+      "componentId": "a320-part-side-stick-area-001",
+      "label": "side-stick, side-stick mount, or side cabinet candidates",
+      "quantity": 1,
+      "acceptanceNotes": "Prefer first-officer-relevant sidestick area parts; record if only captain-side or simulator-mount parts are found."
+    },
+    {
+      "componentId": "a320-part-pedestal-controls-001",
+      "label": "pedestal, RMP, transponder, knobs, and throttle-related parts",
+      "quantity": 1,
+      "acceptanceNotes": "Prefer A320-specific printable or mesh parts for pedestal controls; no assembly until source approval."
+    }
+  ],
+  "stopAt": "sourcing_complete",
+  "requiresHumanApprovalBeforeDownload": true,
+  "requiresHumanApprovalBeforeAssembly": true
+}

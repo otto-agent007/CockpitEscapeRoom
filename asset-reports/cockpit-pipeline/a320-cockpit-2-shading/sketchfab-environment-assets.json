@@ -1,0 +1,636 @@
+{
+  "environments": [
+    {
+      "diffuseSPH": [
+        1.01193,
+        1.01375,
+        1.01879,
+        -0.694768,
+        -0.694859,
+        -0.695153,
+        0.202904,
+        0.202937,
+        0.203051,
+        -0.254005,
+        -0.253968,
+        -0.25386,
+        0.144697,
+        0.144685,
+        0.144648,
+        -0.123928,
+        -0.123908,
+        -0.123857,
+        -0.126223,
+        -0.12619,
+        -0.1261,
+        -0.0929714,
+        -0.09296,
+        -0.0929254,
+        -0.213489,
+        -0.213415,
+        -0.21321,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.0177606,
+        0.0177593,
+        0.0177556,
+        0.010893,
+        0.0108891,
+        0.010878,
+        -0.00790218,
+        -0.00790106,
+        -0.00789738,
+        -0.0097911,
+        -0.00979368,
+        -0.00979967,
+        0.00153139,
+        0.00153227,
+        0.00153387,
+        -0.00908768,
+        -0.00908694,
+        -0.00908524,
+        -0.00956135,
+        -0.00955923,
+        -0.00955261,
+        -0.0264342,
+        -0.0264322,
+        -0.0264265,
+        -0.00164072,
+        -0.00164002,
+        -0.00163813
+      ],
+      "isDefault": true,
+      "name": "Studio",
+      "textureGroups": [
+        {
+          "encoding": "srgb",
+          "format": "panorama",
+          "imageCount": 1,
+          "images": [
+            {
+              "file": "https://media.sketchfab.com/environments/df380da788ee444885722735039b0c09/8236c08eba9d4a3d83ffe09a437d657b.jpg",
+              "height": 128,
+              "name": "thumbnail_256.jpg",
+              "uid": "584af7796bd84d06a5becce21d4fa92a",
+              "width": 256
+            }
+          ],
+          "type": "thumbnail"
+        },
+        {
+          "encoding": "luv",
+          "format": "cubemap",
+          "imageCount": 5,
+          "images": [
+            {
+              "blur": 0.15,
+              "file": "https://media.sketchfab.com/environments/df380da788ee444885722735039b0c09/a532d546417d4c45ad38bca4ef1d6cf7.bin.gz",
+              "height": 64,
+              "name": "background_cubemap_64_0.15_luv.bin.gz",
+              "samples": 512,
+              "sizeCompressed": 24877,
+              "sizeUncompressed": 98304,
+              "uid": "1d148270f2764fc6bd850625a62c41ac",
+              "width": 64
+            },
+            {
+              "blur": 0.1,
+              "file": "https://media.sketchfab.com/environments/df380da788ee444885722735039b0c09/49f7bb43297345a4be2932c563a322e2.bin.gz",
+              "height": 128,
+              "name": "background_cubemap_128_0.1_luv.bin.gz",
+              "samples": 512,
+              "sizeCompressed": 68611,
+              "sizeUncompressed": 393216,
+              "uid": "6bb03947b156436585cb384e17d96c2c",
+              "width": 128
+            },
+            {
+              "blur": 0.055,
+              "file": "https://media.sketchfab.com/environments/df380da788ee444885722735039b0c09/d84537c8bc0c46b8a88e79b26f3992ad.bin.gz",
+              "height": 256,
+              "name": "background_cubemap_256_0.055_luv.bin.gz",
+              "samples": 512,
+              "sizeCompressed": 168284,
+              "sizeUncompressed": 1572864,
+              "uid": "e6b2bb8067534a589462ae2bb31af24b",
+              "width": 256
+            },
+            {
+              "blur": 0.02,
+              "file": "https://media.sketchfab.com/environments/df380da788ee444885722735039b0c09/9f4176f010624a2eaace71099f571feb.bin.gz",
+              "height": 512,
+              "name": "background_cubemap_512_0.02_luv.bin.gz",
+              "samples": 512,
+              "sizeCompressed": 477706,
+              "sizeUncompressed": 6291456,
+              "uid": "099fb15d444a499a91dd3f4061794888",
+              "width": 512
+            },
+            {
+              "blur": 0.0,
+              "file": "https://media.sketchfab.com/environments/df380da788ee444885722735039b0c09/ba6bf54702c44599abd3b2f5ebaf62f1.bin.gz",
+              "height": 512,
+              "name": "background_cubemap_512_0.0_luv.bin.gz",
+              "samples": 512,
+              "sizeCompressed": 922530,
+              "sizeUncompressed": 6291456,
+              "uid": "146183ed68484234817c18c86b891b2a",
+              "width": 512
+            }
+          ],
+          "type": "background"
+        },
+        {
+          "encoding": "luv",
+          "format": "panorama",
+          "imageCount": 2,
+          "images": [
+            {
+              "file": "https://media.sketchfab.com/environments/df380da788ee444885722735039b0c09/b7fda8fd059e460a88cf9cb07a76f265.bin.gz",
+              "height": 1024,
+              "name": "specular_panorama_ue4_1024_luv.bin.gz",
+              "samples": 1024,
+              "sizeCompressed": 372862,
+              "sizeUncompressed": 4194304,
+              "uid": "9a950a2f61cc4f66ba23b1155c4dd418",
+              "width": 1024
+            },
+            {
+              "file": "https://media.sketchfab.com/environments/df380da788ee444885722735039b0c09/e3a0ea10706f4dbeb70073455d1a5068.bin.gz",
+              "height": 256,
+              "name": "specular_panorama_ue4_256_luv.bin.gz",
+              "samples": 1024,
+              "sizeCompressed": 40207,
+              "sizeUncompressed": 262144,
+              "uid": "b3ccb91117434570bf890462d85cdd16",
+              "width": 256
+            }
+          ],
+          "type": "specular_ue4"
+        },
+        {
+          "encoding": "luv",
+          "format": "cubemap",
+          "imageCount": 2,
+          "images": [
+            {
+              "file": "https://media.sketchfab.com/environments/df380da788ee444885722735039b0c09/d3a1904a13734f7bac54b7db2a5a4e1c.bin.gz",
+              "height": 256,
+              "name": "specular_cubemap_ue4_256_luv.bin.gz",
+              "samples": 1024,
+              "sizeCompressed": 366456,
+              "sizeUncompressed": 2097144,
+              "uid": "dfc81b6c20f845fea7718d2bd12cac8c",
+              "width": 256
+            },
+            {
+              "file": "https://media.sketchfab.com/environments/df380da788ee444885722735039b0c09/3f9f73ed422344e9a2ebf79356638943.bin.gz",
+              "height": 64,
+              "name": "specular_cubemap_ue4_64_luv.bin.gz",
+              "samples": 1024,
+              "sizeCompressed": 34442,
+              "sizeUncompressed": 131064,
+              "uid": "11c4dbd6928a4507a5b522b2a7c6553a",
+              "width": 64
+            }
+          ],
+          "type": "specular_ue4"
+        },
+        {
+          "encoding": "rg16",
+          "format": "lut",
+          "imageCount": 1,
+          "images": [
+            {
+              "file": "https://media.sketchfab.com/environments/df380da788ee444885722735039b0c09/d36eda1ec05942668dacc01452f26f7e.bin.gz",
+              "height": 128,
+              "name": "brdf_ue4.bin.gz",
+              "samples": 1024,
+              "sizeCompressed": 59987,
+              "sizeUncompressed": 65536,
+              "uid": "a824d69f04a9477da077e02612fb43dd",
+              "width": 128
+            }
+          ],
+          "type": "brdf_ue4"
+        }
+      ],
+      "uid": "df380da788ee444885722735039b0c09"
+    }
+  ],
+  "generatedAt": "2026-07-01T03:32:43.956990+00:00",
+  "matcaps": [
+    {
+      "imageCount": 12,
+      "images": [
+        {
+          "height": 1024,
+          "size": 37249,
+          "url": "https://media.sketchfab.com/matcaps/43a40dd3e9c34fc0b7da9cbf07b82ac8/2c08715b53aa4d0184bd40589b88bb7a.jpeg",
+          "width": 1024
+        },
+        {
+          "height": 1024,
+          "size": 37249,
+          "url": "https://media.sketchfab.com/matcaps/43a40dd3e9c34fc0b7da9cbf07b82ac8/e6f59dec94594d51ab1edd74ed75bac5.jpeg",
+          "width": 1024
+        },
+        {
+          "height": 512,
+          "size": 13185,
+          "url": "https://media.sketchfab.com/matcaps/43a40dd3e9c34fc0b7da9cbf07b82ac8/06976fbe40944f1aa0a4f1146e02d064.jpeg",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "size": 13185,
+          "url": "https://media.sketchfab.com/matcaps/43a40dd3e9c34fc0b7da9cbf07b82ac8/3d9326e3e9bd47419353550cd0e22175.jpeg",
+          "width": 512
+        },
+        {
+          "height": 256,
+          "size": 5182,
+          "url": "https://media.sketchfab.com/matcaps/43a40dd3e9c34fc0b7da9cbf07b82ac8/be9d6e4a392a4b1a93431c895d59edec.jpeg",
+          "width": 256
+        },
+        {
+          "height": 256,
+          "size": 5802,
+          "url": "https://media.sketchfab.com/matcaps/43a40dd3e9c34fc0b7da9cbf07b82ac8/7a9b1337041041a1aa378c07b1503a91.jpeg",
+          "width": 256
+        },
+        {
+          "height": 128,
+          "size": 2090,
+          "url": "https://media.sketchfab.com/matcaps/43a40dd3e9c34fc0b7da9cbf07b82ac8/d374d6bc98f24284b584368426f6ec73.jpeg",
+          "width": 128
+        },
+        {
+          "height": 64,
+          "size": 956,
+          "url": "https://media.sketchfab.com/matcaps/43a40dd3e9c34fc0b7da9cbf07b82ac8/39e5f04d945b4970baa87988e00c683e.jpeg",
+          "width": 64
+        },
+        {
+          "height": 128,
+          "size": 2468,
+          "url": "https://media.sketchfab.com/matcaps/43a40dd3e9c34fc0b7da9cbf07b82ac8/2b1e83688e1145a1a337abd439a54dde.jpeg",
+          "width": 128
+        },
+        {
+          "height": 64,
+          "size": 1278,
+          "url": "https://media.sketchfab.com/matcaps/43a40dd3e9c34fc0b7da9cbf07b82ac8/928f27d223574a18bc3122b6f88f4d54.jpeg",
+          "width": 64
+        },
+        {
+          "height": 32,
+          "size": 856,
+          "url": "https://media.sketchfab.com/matcaps/43a40dd3e9c34fc0b7da9cbf07b82ac8/23bde41abc30449d89f6803d1ce8693a.jpeg",
+          "width": 32
+        },
+        {
+          "height": 32,
+          "size": 856,
+          "url": "https://media.sketchfab.com/matcaps/43a40dd3e9c34fc0b7da9cbf07b82ac8/d0c3a4aaf8744d608f0f425abd3474a3.jpeg",
+          "width": 32
+        }
+      ],
+      "name": "metal.png",
+      "uid": "43a40dd3e9c34fc0b7da9cbf07b82ac8"
+    },
+    {
+      "imageCount": 12,
+      "images": [
+        {
+          "height": 1024,
+          "size": 27120,
+          "url": "https://media.sketchfab.com/matcaps/35c4d334eded44d8a657f390954a32dd/a77379e6fc3145a998102df4cccf2332.jpeg",
+          "width": 1024
+        },
+        {
+          "height": 512,
+          "size": 9631,
+          "url": "https://media.sketchfab.com/matcaps/35c4d334eded44d8a657f390954a32dd/a3e162e6e0524a5097410bdc03154d3c.jpeg",
+          "width": 512
+        },
+        {
+          "height": 1024,
+          "size": 27120,
+          "url": "https://media.sketchfab.com/matcaps/35c4d334eded44d8a657f390954a32dd/e7035fc0cfc84ae0bfe9df4a7703bfae.jpeg",
+          "width": 1024
+        },
+        {
+          "height": 256,
+          "size": 3800,
+          "url": "https://media.sketchfab.com/matcaps/35c4d334eded44d8a657f390954a32dd/57290d088562432f896dd6bf10519bbb.jpeg",
+          "width": 256
+        },
+        {
+          "height": 512,
+          "size": 11313,
+          "url": "https://media.sketchfab.com/matcaps/35c4d334eded44d8a657f390954a32dd/e895d660f71249d2a4ea1114dcf6348d.jpeg",
+          "width": 512
+        },
+        {
+          "height": 256,
+          "size": 4424,
+          "url": "https://media.sketchfab.com/matcaps/35c4d334eded44d8a657f390954a32dd/23a7755128a74912b9fb9317ebedcbe6.jpeg",
+          "width": 256
+        },
+        {
+          "height": 128,
+          "size": 1608,
+          "url": "https://media.sketchfab.com/matcaps/35c4d334eded44d8a657f390954a32dd/f69430ab5cfa40ecab7a1ca115206ac8.jpeg",
+          "width": 128
+        },
+        {
+          "height": 128,
+          "size": 2002,
+          "url": "https://media.sketchfab.com/matcaps/35c4d334eded44d8a657f390954a32dd/e3f7ee638dbb4c0295b9b82aa63e3186.jpeg",
+          "width": 128
+        },
+        {
+          "height": 64,
+          "size": 1141,
+          "url": "https://media.sketchfab.com/matcaps/35c4d334eded44d8a657f390954a32dd/cc47a38e76914f42ba20fe208e7520ea.jpeg",
+          "width": 64
+        },
+        {
+          "height": 64,
+          "size": 1141,
+          "url": "https://media.sketchfab.com/matcaps/35c4d334eded44d8a657f390954a32dd/1bda0b59fe6c456988f3a9465379e6de.jpeg",
+          "width": 64
+        },
+        {
+          "height": 32,
+          "size": 815,
+          "url": "https://media.sketchfab.com/matcaps/35c4d334eded44d8a657f390954a32dd/48f1c7b4b72b44639d1c5b4f76c24b1b.jpeg",
+          "width": 32
+        },
+        {
+          "height": 32,
+          "size": 815,
+          "url": "https://media.sketchfab.com/matcaps/35c4d334eded44d8a657f390954a32dd/24aa2c3128f24b90b3d3e71a49b825e2.jpeg",
+          "width": 32
+        }
+      ],
+      "name": "skin_soft.png",
+      "uid": "35c4d334eded44d8a657f390954a32dd"
+    }
+  ],
+  "modelTextures": [
+    {
+      "imageCount": 8,
+      "maxImage": {
+        "height": 2048,
+        "size": 296288,
+        "uid": "cf6ea93fafbb4604ba5a870510d56d42",
+        "url": "https://media.sketchfab.com/models/5fb0c671a91042c1a9d8f2cf3e2df021/d9080c36ab1741f49b76218456f84c7e/textures/03a36daaada94bf28f07179e00dbfee4/cf6ea93fafbb4604ba5a870510d56d42.jpeg",
+        "width": 2048
+      },
+      "maxResolution": [
+        2048,
+        2048
+      ],
+      "maxSize": 296288,
+      "name": "m0mat.009_baseColor.jpg",
+      "uid": "03a36daaada94bf28f07179e00dbfee4"
+    },
+    {
+      "imageCount": 7,
+      "maxImage": {
+        "height": 1024,
+        "size": 126938,
+        "uid": "7059333d3b6546a786eb49879d2d5e76",
+        "url": "https://media.sketchfab.com/models/5fb0c671a91042c1a9d8f2cf3e2df021/d9080c36ab1741f49b76218456f84c7e/textures/341197d9fc954317968ca2cb79c3a4a1/7059333d3b6546a786eb49879d2d5e76.jpeg",
+        "width": 1024
+      },
+      "maxResolution": [
+        1024,
+        1024
+      ],
+      "maxSize": 126938,
+      "name": "m0mat.003_baseColor.jpg",
+      "uid": "341197d9fc954317968ca2cb79c3a4a1"
+    },
+    {
+      "imageCount": 8,
+      "maxImage": {
+        "height": 2048,
+        "size": 671471,
+        "uid": "0f1499b7dcd64679a1a6af60cc490b71",
+        "url": "https://media.sketchfab.com/models/5fb0c671a91042c1a9d8f2cf3e2df021/d9080c36ab1741f49b76218456f84c7e/textures/44ce5381fe944da396aae895634e605e/0f1499b7dcd64679a1a6af60cc490b71.jpeg",
+        "width": 2048
+      },
+      "maxResolution": [
+        2048,
+        2048
+      ],
+      "maxSize": 671471,
+      "name": "m0mat.004_baseColor.jpg",
+      "uid": "44ce5381fe944da396aae895634e605e"
+    },
+    {
+      "imageCount": 6,
+      "maxImage": {
+        "height": 512,
+        "size": 55107,
+        "uid": "b76ad4e8a8084b06a125e4e10568d7de",
+        "url": "https://media.sketchfab.com/models/5fb0c671a91042c1a9d8f2cf3e2df021/d9080c36ab1741f49b76218456f84c7e/textures/55230181e35b4b389b99114a10957d34/b76ad4e8a8084b06a125e4e10568d7de.jpeg",
+        "width": 512
+      },
+      "maxResolution": [
+        512,
+        512
+      ],
+      "maxSize": 55107,
+      "name": "m0mat.007_baseColor.png",
+      "uid": "55230181e35b4b389b99114a10957d34"
+    },
+    {
+      "imageCount": 8,
+      "maxImage": {
+        "height": 2048,
+        "size": 397655,
+        "uid": "61a85c3b54f24a5fbd9da794356bc399",
+        "url": "https://media.sketchfab.com/models/5fb0c671a91042c1a9d8f2cf3e2df021/d9080c36ab1741f49b76218456f84c7e/textures/7160f858c442480993d07ce565f91279/61a85c3b54f24a5fbd9da794356bc399.jpeg",
+        "width": 2048
+      },
+      "maxResolution": [
+        2048,
+        2048
+      ],
+      "maxSize": 397655,
+      "name": "m0mat.010_baseColor.jpg",
+      "uid": "7160f858c442480993d07ce565f91279"
+    },
+    {
+      "imageCount": 8,
+      "maxImage": {
+        "height": 2048,
+        "size": 574626,
+        "uid": "19ed2924879846daacc22c3c76099fd9",
+        "url": "https://media.sketchfab.com/models/5fb0c671a91042c1a9d8f2cf3e2df021/d9080c36ab1741f49b76218456f84c7e/textures/756cdb979a374de492c477cecb83cdaa/19ed2924879846daacc22c3c76099fd9.jpeg",
+        "width": 2048
+      },
+      "maxResolution": [
+        2048,
+        2048
+      ],
+      "maxSize": 574626,
+      "name": "m0mat.005_baseColor.jpg",
+      "uid": "756cdb979a374de492c477cecb83cdaa"
+    },
+    {
+      "imageCount": 6,
+      "maxImage": {
+        "height": 512,
+        "size": 56931,
+        "uid": "c9c4eeb8114848329c50b7ec9c24e86f",
+        "url": "https://media.sketchfab.com/models/5fb0c671a91042c1a9d8f2cf3e2df021/d9080c36ab1741f49b76218456f84c7e/textures/85ed9479f0674ae998ee3050398faad9/c9c4eeb8114848329c50b7ec9c24e86f.jpeg",
+        "width": 512
+      },
+      "maxResolution": [
+        512,
+        512
+      ],
+      "maxSize": 56931,
+      "name": "m0mat.006_baseColor.jpg",
+      "uid": "85ed9479f0674ae998ee3050398faad9"
+    },
+    {
+      "imageCount": 7,
+      "maxImage": {
+        "height": 1024,
+        "size": 144312,
+        "uid": "2707ee01461b41b7b5d4284c948ffbc3",
+        "url": "https://media.sketchfab.com/models/5fb0c671a91042c1a9d8f2cf3e2df021/d9080c36ab1741f49b76218456f84c7e/textures/9e27d4e012c4425686ed7c4a55417aba/2707ee01461b41b7b5d4284c948ffbc3.jpeg",
+        "width": 1024
+      },
+      "maxResolution": [
+        1024,
+        1024
+      ],
+      "maxSize": 144312,
+      "name": "m1mat_baseColor.jpg",
+      "uid": "9e27d4e012c4425686ed7c4a55417aba"
+    },
+    {
+      "imageCount": 3,
+      "maxImage": {
+        "height": 32,
+        "size": 882,
+        "uid": "777f80ac070546219cc636f799460f16",
+        "url": "https://media.sketchfab.com/models/5fb0c671a91042c1a9d8f2cf3e2df021/d9080c36ab1741f49b76218456f84c7e/textures/c5155670626d469990fa55c12dc7a163/777f80ac070546219cc636f799460f16.jpeg",
+        "width": 32
+      },
+      "maxResolution": [
+        32,
+        32
+      ],
+      "maxSize": 882,
+      "name": "m0mat.001_baseColor.jpg",
+      "uid": "c5155670626d469990fa55c12dc7a163"
+    },
+    {
+      "imageCount": 7,
+      "maxImage": {
+        "height": 1024,
+        "size": 91038,
+        "uid": "af4368891181411d8d9ef1a41b5d5e99",
+        "url": "https://media.sketchfab.com/models/5fb0c671a91042c1a9d8f2cf3e2df021/d9080c36ab1741f49b76218456f84c7e/textures/eb66f0043805410ea82bf66c9d8ebe51/af4368891181411d8d9ef1a41b5d5e99.jpeg",
+        "width": 1024
+      },
+      "maxResolution": [
+        1024,
+        1024
+      ],
+      "maxSize": 91038,
+      "name": "m0mat.008_baseColor.jpg",
+      "uid": "eb66f0043805410ea82bf66c9d8ebe51"
+    },
+    {
+      "imageCount": 7,
+      "maxImage": {
+        "height": 1024,
+        "size": 182305,
+        "uid": "6047adcfbbdf46469adc4684c0bedc04",
+        "url": "https://media.sketchfab.com/models/5fb0c671a91042c1a9d8f2cf3e2df021/d9080c36ab1741f49b76218456f84c7e/textures/eeb26810a89a4e05832b9be90edf17de/6047adcfbbdf46469adc4684c0bedc04.jpeg",
+        "width": 1024
+      },
+      "maxResolution": [
+        1024,
+        1024
+      ],
+      "maxSize": 182305,
+      "name": "m1mat.001_baseColor.jpg",
+      "uid": "eeb26810a89a4e05832b9be90edf17de"
+    }
+  ],
+  "reportKind": "sketchfab-render-environment-assets",
+  "source": {
+    "cachedEmbedHtml": ".cache/cockpit-pipeline/sketchfab-a320-embed.html",
+    "modelUid": "5fb0c671a91042c1a9d8f2cf3e2df021",
+    "note": "CDN URLs are recorded as reference evidence only. Binary Sketchfab viewer environment assets are not vendored into the repository.",
+    "payloadEndpoints": {
+      "environments": "/i/models/5fb0c671a91042c1a9d8f2cf3e2df021/environments?optimized=1",
+      "matcaps": "/i/models/5fb0c671a91042c1a9d8f2cf3e2df021/matcaps?optimized=1",
+      "textures": "/i/models/5fb0c671a91042c1a9d8f2cf3e2df021/textures?optimized=1"
+    },
+    "viewerSettingsJson": "asset-reports/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-viewer-settings.json",
+    "viewerUrl": "https://sketchfab.com/3d-models/a320-cockpit-2-5fb0c671a91042c1a9d8f2cf3e2df021"
+  },
+  "viewerBackgroundSettings": {
+    "color": [
+      0.86667,
+      0.86667,
+      0.86667
+    ],
+    "enable": "ambient",
+    "uid": "51af6a870cce449eb75b0345feebaebb"
+  },
+  "viewerEnvironmentSettings": {
+    "backgroundExposure": 1,
+    "blur": 0.1,
+    "enable": true,
+    "exposure": 0.8,
+    "lightIntensity": 3,
+    "rotation": 0.28531964269438514,
+    "shadowBias": 0.005,
+    "shadowEnable": true,
+    "uid": "df380da788ee444885722735039b0c09"
+  },
+  "viewerGroundSettings": {
+    "enable": true,
+    "fade": 0.25,
+    "opacity": 1,
+    "position": [
+      -0.00028228615093217613,
+      -4.5559865734033735,
+      -0.9933130265534387
+    ],
+    "samplingRange": 0.6,
+    "scale": 9.689606057015563,
+    "shadowMode": "ShadowCatcher"
+  }
+}
