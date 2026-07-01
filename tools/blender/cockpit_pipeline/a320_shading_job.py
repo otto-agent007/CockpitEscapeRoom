@@ -25,6 +25,7 @@ def run_a320_shading_job(assembly_job_id: str = ASSEMBLY_JOB_ID, shading_job_id:
     approval_path = assembly_job_dir / "assembly-approval.json"
     manifest_path = assembly_job_dir / "manifests/assembly-complete.json"
     recipe_path = root / "art-source/cockpit-pipeline/stages/shading/input" / shading_job_id / "material-recipes.json"
+    viewer_settings_path = root / "asset-reports/cockpit-pipeline" / shading_job_id / "sketchfab-viewer-settings.json"
     output_dir = root / "art-source/cockpit-pipeline/builds/shaded" / shading_job_id
     report_dir = root / "asset-reports/cockpit-pipeline" / shading_job_id
     preview_dir = root / "preview-renders/cockpit-pipeline" / shading_job_id
@@ -45,7 +46,7 @@ def run_a320_shading_job(assembly_job_id: str = ASSEMBLY_JOB_ID, shading_job_id:
 
     assembly_glb = root / _artifact(approval, "a320-cockpit-2-assembly.glb")["path"]
     node_report_path = root / _artifact(approval, "node-pivot-report.json")["path"]
-    _run_blender_a320_shading(assembly_glb, node_report_path, recipe_path, output_dir, preview_dir)
+    _run_blender_a320_shading(assembly_glb, node_report_path, recipe_path, viewer_settings_path, output_dir, preview_dir)
 
     after_hashes = _approved_hashes(root, approval)
     if before_hashes != after_hashes:
@@ -69,7 +70,7 @@ def run_a320_shading_job(assembly_job_id: str = ASSEMBLY_JOB_ID, shading_job_id:
         root=root,
         manifest_dir=manifest_dir,
         shading_job_id=shading_job_id,
-        inputs=[approval_path, manifest_path, *(root / item["path"] for item in approval["approvedArtifacts"])],
+        inputs=[approval_path, manifest_path, viewer_settings_path, *(root / item["path"] for item in approval["approvedArtifacts"])],
         outputs=[
             recipe_path,
             output_dir / "a320-cockpit-2-shaded.blend",
@@ -177,7 +178,7 @@ def _material_recipes() -> dict[str, object]:
     }
 
 
-def _run_blender_a320_shading(assembly_glb: Path, node_report_path: Path, recipe_path: Path, output_dir: Path, preview_dir: Path) -> None:
+def _run_blender_a320_shading(assembly_glb: Path, node_report_path: Path, recipe_path: Path, viewer_settings_path: Path, output_dir: Path, preview_dir: Path) -> None:
     blender = os.environ.get("BLENDER_BIN") or shutil.which("blender")
     if not blender:
         raise RuntimeError("Blender executable unavailable; set BLENDER_BIN or install blender on PATH")
@@ -196,6 +197,8 @@ def _run_blender_a320_shading(assembly_glb: Path, node_report_path: Path, recipe
         str(node_report_path),
         "--recipes",
         str(recipe_path),
+        "--viewer-settings",
+        str(viewer_settings_path),
         "--output-dir",
         str(output_dir),
         "--preview-dir",
@@ -319,6 +322,8 @@ def _write_shading_report(path: Path, approval: dict[str, object], recipe_path: 
 
 Agent 3 consumed the owner-approved A320 Agent 2 assembly and applied a source-parity material pass. The pass preserves the downloaded Sketchfab material texture links and UV layout, then records semantic material roles for later optimization. It does not write to `public/models/**`, does not modify browser/runtime code, does not join meshes, and does not run destructive GLB optimization.
 
+This revision also consumes the extracted Sketchfab viewer settings to improve Blender review parity: Studio background color, three directional light colors/intensities/transforms, ambient occlusion/reflection render settings where Blender exposes them, and restrained display emission. These look-development settings are recorded as preview evidence and are not a shaded-approval or public-model promotion.
+
 ## Reference Evidence Used
 
 - `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/no-post-processing.png`
@@ -327,6 +332,9 @@ Agent 3 consumed the owner-approved A320 Agent 2 assembly and applied a source-p
 - `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/wireframe.png`
 - `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/uv-checker.png`
 - `preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-captain-seat-view.png`
+- `asset-reports/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-viewer-settings.json`
+- `asset-reports/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-environment-assets.json`
+- `asset-reports/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-material-parity-summary.json`
 
 ## Material Recipes
 

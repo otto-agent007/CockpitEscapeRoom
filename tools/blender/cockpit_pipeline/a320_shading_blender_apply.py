@@ -16,6 +16,7 @@ def main() -> None:
     parser.add_argument("--assembly-glb", required=True)
     parser.add_argument("--node-report", required=True)
     parser.add_argument("--recipes", required=True)
+    parser.add_argument("--viewer-settings")
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--preview-dir", required=True)
     args = parser.parse_args(_args_after_double_dash())
@@ -23,6 +24,7 @@ def main() -> None:
     assembly_glb = Path(args.assembly_glb)
     node_report = json.loads(Path(args.node_report).read_text(encoding="utf-8"))
     recipes = json.loads(Path(args.recipes).read_text(encoding="utf-8"))
+    viewer_settings = json.loads(Path(args.viewer_settings).read_text(encoding="utf-8")) if args.viewer_settings else {}
     output_dir = Path(args.output_dir)
     preview_dir = Path(args.preview_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -38,7 +40,7 @@ def main() -> None:
     texture_report = _write_texture_inventory(output_dir / "texture-inventory-report.json")
     _write_assignment_report(assignments, output_dir / "material-assignment-report.json")
 
-    _render_previews(preview_dir)
+    _render_previews(preview_dir, viewer_settings)
 
     blend_path = output_dir / "a320-cockpit-2-shaded.blend"
     backup_path = output_dir / "a320-cockpit-2-shaded.blend1"
@@ -134,9 +136,9 @@ def _configure_material(material: bpy.types.Material, recipe: dict[str, object])
     # only records semantic roles and makes light-touch scalar PBR adjustments.
     _set_input(bsdf, "Metallic", recipe["metallic"])
     _set_input(bsdf, "Roughness", recipe["roughness"])
-    if recipe["recipeId"] == "a320_display_glass" and not _input_has_link(bsdf, "Base Color"):
-        _set_input(bsdf, "Emission Color", (0.05, 0.22, 0.2, 1.0))
-        _set_input(bsdf, "Emission Strength", 0.05)
+    if recipe["recipeId"] == "a320_display_glass":
+        _set_input(bsdf, "Emission Color", (0.035, 0.18, 0.16, 1.0))
+        _set_input(bsdf, "Emission Strength", 0.18)
 
 
 def _fallback_material(cache: dict[str, bpy.types.Material], recipe: dict[str, object]) -> bpy.types.Material:
@@ -185,9 +187,10 @@ def _write_texture_inventory(path: Path) -> dict[str, object]:
     return report
 
 
-def _render_previews(preview_dir: Path) -> None:
+def _render_previews(preview_dir: Path, viewer_settings: dict[str, object]) -> None:
     center, radius = _scene_center_radius()
-    _add_source_like_lighting(center, radius)
+    _configure_source_parity_render_settings(viewer_settings)
+    _add_source_like_lighting(center, radius, viewer_settings)
     _render_preview(
         preview_dir / "captain-daylight.png",
         Vector((-0.303763, -1.215466, 0.191386)),
@@ -210,16 +213,12 @@ def _render_previews(preview_dir: Path) -> None:
 
 def _render_preview(path: Path, location: Vector, target: Vector, lens: float) -> None:
     scene = bpy.context.scene
-    try:
-        scene.render.engine = "BLENDER_EEVEE_NEXT"
-    except TypeError:
-        scene.render.engine = "BLENDER_EEVEE"
     world = scene.world or bpy.data.worlds.new("World")
     scene.world = world
     bpy.ops.object.light_add(type="POINT", location=location + Vector((0.0, 0.08, 0.12)))
     fill = bpy.context.object
     fill.name = "AIRBUS_A320_SHADED_CAMERA_FILL"
-    fill.data.energy = 240
+    fill.data.energy = 95
     fill.data.shadow_soft_size = 1.0
     bpy.ops.object.camera_add(location=location)
     camera = bpy.context.object
@@ -237,20 +236,86 @@ def _render_preview(path: Path, location: Vector, target: Vector, lens: float) -
     bpy.data.objects.remove(fill, do_unlink=True)
 
 
-def _add_source_like_lighting(center: Vector, radius: float) -> None:
+def _configure_source_parity_render_settings(viewer_settings: dict[str, object]) -> None:
+    scene = bpy.context.scene
+    try:
+        scene.render.engine = "BLENDER_EEVEE_NEXT"
+    except TypeError:
+        scene.render.engine = "BLENDER_EEVEE"
+    scene.render.film_transparent = False
+    scene.display_settings.display_device = "sRGB"
+    scene.view_settings.view_transform = _first_supported_view_transform(("Standard", "AgX", "Filmic"))
+    scene.view_settings.look = "None"
+    scene.view_settings.exposure = float(_nested(viewer_settings, ["postProcess", "toneMapping", "exposure"], 0.0))
+    scene.view_settings.gamma = 1.0
+    scene.sequencer_colorspace_settings.name = "sRGB"
+    scene.render.resolution_percentage = 100
+    eevee = getattr(scene, "eevee", None)
+    if eevee:
+        _try_set(eevee, "use_gtao", True)
+        _try_set(eevee, "gtao_distance", float(_nested(viewer_settings, ["postProcess", "ssao", "radius"], 0.16)) * 8.0)
+        _try_set(eevee, "gtao_factor", float(_nested(viewer_settings, ["postProcess", "ssao", "intensity"], 0.5)) * 1.7)
+        _try_set(eevee, "use_ssr", True)
+        _try_set(eevee, "use_taa_reprojection", True)
+        _try_set(eevee, "taa_render_samples", 64)
+
+
+def _add_source_like_lighting(center: Vector, radius: float, viewer_settings: dict[str, object]) -> None:
     scene = bpy.context.scene
     world = scene.world or bpy.data.worlds.new("World")
     scene.world = world
-    world.color = (0.055, 0.058, 0.06)
-    bpy.ops.object.light_add(type="AREA", location=(center.x, center.y - radius * 0.7, center.z + radius * 0.9))
-    key = bpy.context.object
-    key.name = "AIRBUS_A320_SOURCE_PARITY_AREA_LIGHT"
-    key.data.energy = 650
-    key.data.size = max(radius * 0.8, 2.0)
-    bpy.ops.object.light_add(type="POINT", location=(center.x + radius * 0.35, center.y + radius * 0.25, center.z + radius * 0.35))
+    background = _nested(viewer_settings, ["background", "color"], [0.86667, 0.86667, 0.86667])
+    world.color = tuple(float(value) for value in background[:3])
+    for existing in [obj for obj in bpy.context.scene.objects if obj.name.startswith("AIRBUS_A320_SOURCE_PARITY_")]:
+        bpy.data.objects.remove(existing, do_unlink=True)
+    for index, light in enumerate(viewer_settings.get("lights", []) if isinstance(viewer_settings.get("lights"), list) else [], start=1):
+        matrix = light.get("matrix", [])
+        if len(matrix) == 16:
+            location = Vector((float(matrix[12]), float(matrix[13]), float(matrix[14])))
+        else:
+            location = center + Vector((0.0, -radius, radius))
+        bpy.ops.object.light_add(type="SUN", location=location)
+        obj = bpy.context.object
+        obj.name = f"AIRBUS_A320_SOURCE_PARITY_SUN_{index:02d}"
+        obj.rotation_euler = (center - location).to_track_quat("-Z", "Y").to_euler()
+        color = light.get("color", [1, 1, 1])
+        obj.data.color = tuple(float(value) for value in color[:3])
+        obj.data.energy = float(light.get("intensity", 1.0)) * 2.2
+        obj["source"] = "Sketchfab extracted directional light"
+    # Keep a broad soft fill for Blender viewport parity; Sketchfab's Studio
+    # environment also contributes indirect light that is not portable to glTF.
+    bpy.ops.object.light_add(type="AREA", location=(center.x, center.y - radius * 0.45, center.z + radius * 0.85))
     fill = bpy.context.object
-    fill.name = "AIRBUS_A320_SOURCE_PARITY_FILL_LIGHT"
-    fill.data.energy = 120
+    fill.name = "AIRBUS_A320_SOURCE_PARITY_STUDIO_FILL"
+    fill.data.energy = float(_nested(viewer_settings, ["environment", "lightIntensity"], 3.0)) * 55
+    fill.data.size = max(radius * 0.95, 2.0)
+    fill["source"] = "Sketchfab Studio environment approximation"
+
+
+def _first_supported_view_transform(candidates: tuple[str, ...]) -> str:
+    enum_items = bpy.context.scene.view_settings.bl_rna.properties["view_transform"].enum_items
+    supported = {item.identifier for item in enum_items}
+    for candidate in candidates:
+        if candidate in supported:
+            return candidate
+    return bpy.context.scene.view_settings.view_transform
+
+
+def _nested(data: dict[str, object], keys: list[str], default: object) -> object:
+    current: object = data
+    for key in keys:
+        if not isinstance(current, dict) or key not in current:
+            return default
+        current = current[key]
+    return current
+
+
+def _try_set(obj: object, attr: str, value: object) -> None:
+    if hasattr(obj, attr):
+        try:
+            setattr(obj, attr, value)
+        except Exception:
+            pass
 
 
 def _snapshot(expected_nodes: list[str]) -> dict[str, object]:

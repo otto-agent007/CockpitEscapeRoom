@@ -3,7 +3,7 @@
 ## Branch And Stage
 
 - Branch: `codex/asset-workflow-health-rehearsal`
-- Commit: `84c19b85569ceabaf0a83ee5fd8b4ec46905729c`
+- Commit: `f91a769755ee5f87f17f893506d7de551b1412e5`
 - Assembly job: `a320-cockpit-2-assembly`
 - Shading job: `a320-cockpit-2-shading`
 - Stage: `shading_complete`
@@ -15,6 +15,8 @@
 
 Agent 3 consumed the owner-approved A320 Agent 2 assembly and applied a source-parity material pass. The pass preserves the downloaded Sketchfab material texture links and UV layout, then records semantic material roles for later optimization. It does not write to `public/models/**`, does not modify browser/runtime code, does not join meshes, and does not run destructive GLB optimization.
 
+This revision also consumes the extracted Sketchfab viewer settings to improve Blender review parity: Studio background color, three directional light colors/intensities/transforms, ambient occlusion/reflection render settings where Blender exposes them, and restrained display emission. These look-development settings are recorded as preview evidence and are not a shaded-approval or public-model promotion.
+
 ## Reference Evidence Used
 
 - `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/no-post-processing.png`
@@ -23,6 +25,9 @@ Agent 3 consumed the owner-approved A320 Agent 2 assembly and applied a source-p
 - `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/wireframe.png`
 - `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/uv-checker.png`
 - `preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-captain-seat-view.png`
+- `asset-reports/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-viewer-settings.json`
+- `asset-reports/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-environment-assets.json`
+- `asset-reports/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-material-parity-summary.json`
 
 ## Material Recipes
 
