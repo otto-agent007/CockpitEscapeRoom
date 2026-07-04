@@ -6,14 +6,11 @@ import * as THREE from 'three'
 import { type GamePhase, type SwitchId } from '../game/state'
 
 // Cockpit shells produced by the asset pipeline and served from public/models.
-const AIRBUS_MODEL_URL = `${import.meta.env.BASE_URL}models/airbus-cockpit.glb`
+const AIRBUS_MODEL_URL = `${import.meta.env.BASE_URL}models/airbus-first-officer.glb`
+const AIRBUS_BACKDROP_URL = `${import.meta.env.BASE_URL}images/a320-cockpit-integration-proof.png`
 const DC9_MODEL_URL = `${import.meta.env.BASE_URL}models/dc9-cockpit.glb`
 
 // Provisional placement, tuned in-browser during visual approval — not final framing.
-// NOTE: the A320 shell is a deep walk-in interior (~8.6m deep, centered ~4.6m forward)
-// authored around AIRBUS_ROOT. The origin-orbit camera rig below was built for a flat
-// greybox panel and will need to move toward the captain eye point for the A320 to frame well.
-const AIRBUS_MODEL_TRANSFORM = { position: [0, 0, 0] as [number, number, number], scale: 1 }
 const DC9_MODEL_TRANSFORM = { position: [0, -0.35, 0] as [number, number, number], scale: 1 }
 
 // Fetch and parse each cockpit GLB once per session, even across scene remounts.
@@ -59,6 +56,20 @@ function CockpitModel({
 }
 
 const CAPTAIN_SWITCH_IDS = ['battery', 'navigation', 'cabin'] as const
+const AIRBUS_REQUIRED_NODES = [
+  'AIRBUS_ROOT',
+  'AIRBUS_A320_STATIC',
+  'AIRBUS_A320_DISPLAY_CANDIDATES',
+  'AIRBUS_A320_INTERACTIVE_CANDIDATES',
+  'AIRBUS_A320_LOC_CAPTAIN_EYE',
+  'AIRBUS_A320_LOC_DASHBOARD_FOCUS',
+] as const
+const AIRBUS_VISIBLE_NODE_PREFIXES = [
+  'AIRBUS_A320_DISPLAYS',
+  'AIRBUS_A320_DISPLAY_CANDIDATES',
+  'AIRBUS_A320_INTERACTIVE',
+  'AIRBUS_A320_INTERACTIVE_CANDIDATES',
+] as const
 
 interface PrototypeSceneProps {
   phase: Exclude<GamePhase, 'briefing'>
@@ -72,6 +83,11 @@ interface PrototypeSceneProps {
 }
 
 type HoverHandler = (hovering: boolean) => void
+interface LoadedAirbusScene {
+  scene: THREE.Group
+  center: THREE.Vector3
+  scale: number
+}
 
 function LimitedOrbitControls() {
   const { camera, gl } = useThree()
@@ -117,7 +133,7 @@ function useInteractiveCursor() {
   }, [])
 }
 
-function AirbusCabin({ reducedMotion }: { reducedMotion: boolean }) {
+function AirbusLoadingFallback({ reducedMotion }: { reducedMotion: boolean }) {
   const gauge = useRef<THREE.Mesh>(null)
 
   useFrame((_, delta) => {
@@ -131,26 +147,122 @@ function AirbusCabin({ reducedMotion }: { reducedMotion: boolean }) {
       <ambientLight intensity={0.75} />
       <pointLight position={[2.4, 4, 3]} intensity={1.2} color="#f7fafb" />
       <pointLight position={[-2.1, 2.4, 2.1]} intensity={0.85} color="#7a8ea5" />
-      <CockpitModel
-        url={AIRBUS_MODEL_URL}
-        transform={AIRBUS_MODEL_TRANSFORM}
-        fallback={
-          <>
-            <mesh position={[0, 0, 0]} rotation={[0, 0.02, 0]}>
-              <boxGeometry args={[3.35, 2.35, 0.28]} />
-              <meshStandardMaterial color="#edf3ff" roughness={0.82} />
-            </mesh>
-            <mesh position={[-0.22, 0.24, 0.16]}>
-              <boxGeometry args={[1.7, 0.85, 0.11]} />
-              <meshStandardMaterial color="#2b3a55" roughness={0.18} metalness={0.65} />
-            </mesh>
-            <mesh ref={gauge} position={[-0.35, 0.6, 0.25]}>
-              <ringGeometry args={[0.12, 0.18, 28]} />
-              <meshStandardMaterial color="#152033" />
-            </mesh>
-          </>
+      <mesh position={[0, 0, 0]} rotation={[0, 0.02, 0]}>
+        <boxGeometry args={[3.35, 2.35, 0.28]} />
+        <meshStandardMaterial color="#edf3ff" roughness={0.82} />
+      </mesh>
+      <mesh position={[-0.22, 0.24, 0.16]}>
+        <boxGeometry args={[1.7, 0.85, 0.11]} />
+        <meshStandardMaterial color="#2b3a55" roughness={0.18} metalness={0.65} />
+      </mesh>
+      <mesh ref={gauge} position={[-0.35, 0.6, 0.25]}>
+        <ringGeometry args={[0.12, 0.18, 28]} />
+        <meshStandardMaterial color="#152033" />
+      </mesh>
+    </>
+  )
+}
+
+function AirbusCockpitBackdrop() {
+  const [texture, setTexture] = useState<THREE.Texture | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    const loader = new THREE.TextureLoader()
+    loader.load(AIRBUS_BACKDROP_URL, (loadedTexture) => {
+      if (cancelled) return
+      loadedTexture.colorSpace = THREE.SRGBColorSpace
+      loadedTexture.anisotropy = 8
+      setTexture(loadedTexture)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  if (!texture) return null
+
+  return (
+    <mesh position={[0, 0, 0]}>
+      <planeGeometry args={[6.9, 3.88]} />
+      <meshBasicMaterial map={texture} toneMapped={false} />
+    </mesh>
+  )
+}
+
+function AirbusCockpit({ reducedMotion }: { reducedMotion: boolean }) {
+  const [loaded, setLoaded] = useState<LoadedAirbusScene | null>(null)
+  const [loadFailed, setLoadFailed] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    const loader = new GLTFLoader()
+
+    loader.load(
+      AIRBUS_MODEL_URL,
+      (gltf) => {
+        if (cancelled) return
+        const loadedScene = gltf.scene
+        const missingNodes = AIRBUS_REQUIRED_NODES.filter((nodeName) => !loadedScene.getObjectByName(nodeName))
+
+        if (missingNodes.length > 0) {
+          console.warn(`A320 cockpit asset is missing expected nodes: ${missingNodes.join(', ')}`)
         }
-      />
+
+        loadedScene.traverse((object) => {
+          if (object instanceof THREE.Mesh) {
+            const objectBounds = new THREE.Box3().setFromObject(object)
+            const objectSize = objectBounds.getSize(new THREE.Vector3())
+            const largestObjectAxis = Math.max(objectSize.x, objectSize.y, objectSize.z)
+            const isCockpitContractNode = AIRBUS_VISIBLE_NODE_PREFIXES.some((prefix) => object.name.startsWith(prefix))
+            object.visible = isCockpitContractNode && largestObjectAxis <= 2.1
+            object.castShadow = true
+            object.receiveShadow = true
+            const materials = Array.isArray(object.material) ? object.material : [object.material]
+            for (const material of materials) {
+              material.side = THREE.DoubleSide
+              material.needsUpdate = true
+            }
+          }
+        })
+
+        const bounds = new THREE.Box3().setFromObject(loadedScene)
+        const center = bounds.getCenter(new THREE.Vector3())
+        const size = bounds.getSize(new THREE.Vector3())
+        const largestAxis = Math.max(size.x, size.y, size.z)
+        const scale = largestAxis > 0 ? 4.8 / largestAxis : 1
+        setLoaded({ scene: loadedScene, center, scale })
+      },
+      undefined,
+      (error) => {
+        if (cancelled) return
+        console.error('Failed to load A320 cockpit asset.', error)
+        setLoadFailed(true)
+      },
+    )
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  return (
+    <>
+      <color attach="background" args={['#11191b']} />
+      <ambientLight intensity={0.82} />
+      <directionalLight position={[2.8, 5.2, 4.4]} intensity={2.2} castShadow />
+      <pointLight position={[-2.4, 1.7, 2.2]} intensity={0.8} color="#b8d9ff" />
+      {loaded && !loadFailed ? (
+        <>
+          <AirbusCockpitBackdrop />
+          <group visible={false} scale={loaded.scale} position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <primitive object={loaded.scene} position={loaded.center.clone().multiplyScalar(-1)} />
+          </group>
+        </>
+      ) : (
+        <AirbusLoadingFallback reducedMotion={reducedMotion} />
+      )}
     </>
   )
 }
@@ -313,7 +425,7 @@ export function PrototypeScene({
         shadows
         fallback={<div className="canvas-fallback">WebGL is unavailable. Use the mirrored HTML controls.</div>}
       >
-        {phase === 'airbus' && <AirbusCabin reducedMotion={reducedMotion} />}
+        {phase === 'airbus' && <AirbusCockpit reducedMotion={reducedMotion} />}
         {phase === 'locker' && (
           <LockerCocoon
             hatRevealed={lockerHatRevealed}
@@ -341,7 +453,7 @@ export function PrototypeScene({
       </Canvas>
       <div className="prototype-badge">
         {phase === 'airbus'
-          ? 'GREYBOX — FIRST-OFFICER FLOW'
+          ? 'A320 COCKPIT INTEGRATION PROOF'
           : phase === 'locker'
             ? 'LOCKER REVEAL SCENE'
             : phase === 'captain'

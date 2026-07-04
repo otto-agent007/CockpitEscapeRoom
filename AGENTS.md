@@ -49,13 +49,11 @@ For complex features, asset-pipeline changes, large refactors, or any milestone 
 
 Use Plan mode before implementation when the solution or acceptance criteria are not already explicit.
 
-## Parallel ownership rule
+## Workspace rule
 
-- Inspect `docs/WORKSTREAM_OWNERSHIP.md` before editing.
-- Modify only paths owned by the current workspace.
-- Treat unlisted paths as frozen unless an explicit one-off exception is recorded in the active PR.
-- Preserve unrelated work from the other branch and never overwrite non-owned files.
-- Report any required cross-boundary changes through PR comments or review discussion instead of editing the other workspace’s files.
+This project now runs from one active workspace on this computer. Agents may edit application code, tests, docs, asset pipeline files, generated deployable models, reports, and validation records when the task requires it.
+
+Preserve unrelated local work. Inspect Git status before editing, do not hand-edit generated GLBs, and keep source/license, asset-report, ExecPlan, and `TEST_REPORT.md` evidence current for asset or browser milestones.
 
 ## Prompt contract
 

@@ -1,1 +1,1 @@
-"""Ubuntu-side cockpit asset pipeline helpers."""
+"""Cockpit asset pipeline helpers."""

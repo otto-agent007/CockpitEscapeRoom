@@ -1,0 +1,98 @@
+{
+  "schema": "cockpit-pipeline/a320-exterior-cleanup-v2",
+  "asset": "A320 Cockpit 2",
+  "targetAircraft": "Airbus A320",
+  "sourceScreenshot": "/home/user1/Pictures/Screenshots/Screenshot from 2026-07-02 19-27-37.png",
+  "sourceViewerSettings": "asset-reports/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-viewer-settings.json",
+  "assemblyBlend": "art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/a320-cockpit-2-assembly.blend",
+  "assemblyGlb": "art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/a320-cockpit-2-assembly.glb",
+  "shadedBlend": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend",
+  "shadedGlb": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.glb",
+  "removedExteriorSourceNodes": [
+    {
+      "sourceNodeName": "Object_128.001",
+      "previousRuntimeNodeName": "AIRBUS_A320_DISPLAYS_032_DISPLAY_INDICATOR_OR_LABEL",
+      "reason": "Confirmed by contact-sheet review as an exterior/nose strip fragment mislabeled as a display candidate."
+    },
+    {
+      "sourceNodeName": "Object_130",
+      "previousRuntimeNodeName": "AIRBUS_A320_DISPLAYS_034_DISPLAY_INDICATOR_OR_LABEL",
+      "reason": "Confirmed by contact-sheet review as an exterior/nose strip fragment mislabeled as a display candidate."
+    }
+  ],
+  "preservedInteriorSourceNodes": [
+    {
+      "sourceNodeName": "Object_55",
+      "reason": "Large cockpit interior compound required for visible interior completeness."
+    },
+    {
+      "sourceNodeName": "Object_56",
+      "reason": "Large cockpit interior compound required for visible interior completeness."
+    },
+    {
+      "sourceNodeName": "Object_67",
+      "reason": "Interior-sized source object preserved after over-cull review."
+    }
+  ],
+  "postProcessingAndLightingApplied": {
+    "background": "Sketchfab background color",
+    "lighting": "Sketchfab nested lighting.lights directional colors, intensities, and transforms",
+    "environment": "Sketchfab Studio light intensity approximated with a Blender area fill",
+    "postProcess": "Tone-mapping exposure, ambient occlusion, reflection, and TAA settings mapped where Blender exposes equivalents"
+  },
+  "approvalCameras": [
+    {
+      "name": "AIRBUS_A320_CAM_COMPLETE_INTERIOR_APPROVAL",
+      "gameId": "airbus.a320.camera.complete_interior_approval",
+      "preview": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/complete-interior-approval.png"
+    },
+    {
+      "name": "AIRBUS_A320_CAM_FIRST_OFFICER_APPROVAL",
+      "gameId": "airbus.a320.camera.first_officer_approval",
+      "preview": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/first-officer-approval.png"
+    },
+    {
+      "name": "AIRBUS_A320_CAM_SKETCHFAB_VIEWER_PARITY",
+      "gameId": "airbus.a320.camera.sketchfab_viewer_parity",
+      "preview": "preview-renders/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-camera-parity.png",
+      "note": "Derived from the saved Sketchfab target/FOV because the raw saved position imports too close to the target and clips into compound shell geometry."
+    }
+  ],
+  "finalCounts": {
+    "assemblyMeshCount": 125,
+    "assemblyObjectCount": 619,
+    "shadedReimportMeshCount": 125,
+    "shadedReimportObjectCount": 143,
+    "shadedMaterialCount": 12,
+    "textureCount": 11,
+    "shadedBlendSizeBytes": 28196545,
+    "shadedGlbSizeBytes": 39869908
+  },
+  "validation": [
+    {
+      "command": "python3 -m tools.blender.cockpit_pipeline.pipeline_cli run-a320-assembly-job",
+      "result": "passed"
+    },
+    {
+      "command": "python3 -m tools.blender.cockpit_pipeline.pipeline_cli run-a320-shading-job",
+      "result": "passed"
+    },
+    {
+      "command": "npx gltf-transform validate art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.glb",
+      "result": "passed with no errors, warnings, infos, or hints"
+    },
+    {
+      "command": "python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate material-optimization art-source/cockpit-pipeline/gates/a320-cockpit-2-material-optimization.json",
+      "result": "passed"
+    },
+    {
+      "command": "python3 -m tools.blender.cockpit_pipeline.pipeline_cli run-evals",
+      "result": "passed 6/6"
+    }
+  ],
+  "knownLimitations": [
+    "The chosen asset still has large fused shell/seat/sidewall source chunks. They are preserved for interior completeness, but they create a teal overlay in inside-cockpit review renders.",
+    "Getting to screenshot-quality parity requires the next Blender pass to split that fused compound shell into separate opaque trim, glass/window, seat, and sidewall meshes with corrected material roles.",
+    "Browser/runtime camera wiring is not changed in this asset pass."
+  ]
+}

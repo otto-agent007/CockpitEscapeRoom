@@ -85,6 +85,9 @@ def run_a320_shading_job(assembly_job_id: str = ASSEMBLY_JOB_ID, shading_job_id:
                 "captain-daylight.png",
                 "captain-display-check.png",
                 "captain-pullback-review.png",
+                "complete-interior-approval.png",
+                "first-officer-approval.png",
+                "sketchfab-camera-parity.png",
             ]),
         ],
     )
@@ -245,7 +248,9 @@ def _write_contact_sheet(root: Path, preview_dir: Path) -> Path:
         ("Original Blender import", root / "preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-captain-seat-view.png"),
         ("Agent 3 source-parity", preview_dir / "captain-daylight.png"),
         ("Sketchfab base color", root / "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/base-color.png"),
-        ("Agent 3 display check", preview_dir / "captain-display-check.png"),
+        ("Complete interior approval", preview_dir / "complete-interior-approval.png"),
+        ("First Officer approval", preview_dir / "first-officer-approval.png"),
+        ("Sketchfab camera parity", preview_dir / "sketchfab-camera-parity.png"),
     ]
     convert = shutil.which("convert")
     if not convert:
@@ -253,7 +258,7 @@ def _write_contact_sheet(root: Path, preview_dir: Path) -> Path:
     command = [
         convert,
         "-size",
-        "960x960",
+        "960x1264",
         "xc:#f3f3ef",
     ]
     for index, (label, image) in enumerate(entries):
@@ -322,7 +327,9 @@ def _write_shading_report(path: Path, approval: dict[str, object], recipe_path: 
 
 Agent 3 consumed the owner-approved A320 Agent 2 assembly and applied a source-parity material pass. The pass preserves the downloaded Sketchfab material texture links and UV layout, then records semantic material roles for later optimization. It does not write to `public/models/**`, does not modify browser/runtime code, does not join meshes, and does not run destructive GLB optimization.
 
-This revision also consumes the extracted Sketchfab viewer settings to improve Blender review parity: Studio background color, three directional light colors/intensities/transforms, ambient occlusion/reflection render settings where Blender exposes them, and restrained display emission. These look-development settings are recorded as preview evidence and are not a shaded-approval or public-model promotion.
+This revision also consumes the extracted Sketchfab viewer settings to improve Blender review parity: Studio background color, the nested `lighting.lights` directional light colors/intensities/transforms, ambient occlusion/reflection render settings where Blender exposes them, the saved Sketchfab camera, and restrained display emission. These look-development settings are recorded as preview evidence and are not a shaded-approval or public-model promotion.
+
+The final shaded blend keeps the compound cockpit shell, seats, and sidewall chunks visible. The older captain comparison previews still hide those chunks for historical camera comparison only; the new owner approval cameras and saved `.blend` do not hide them, because this asset is intended to render from inside the cockpit.
 
 ## Reference Evidence Used
 
@@ -360,6 +367,9 @@ This revision also consumes the extracted Sketchfab viewer settings to improve B
 - Validation report: `{output_dir / "validation-report.json"}`
 - Preview directory: `{preview_dir}`
 - Sketchfab comparison contact sheet: `{contact_sheet}`
+- Complete interior approval render: `{preview_dir / "complete-interior-approval.png"}`
+- First Officer approval render: `{preview_dir / "first-officer-approval.png"}`
+- Sketchfab camera parity render: `{preview_dir / "sketchfab-camera-parity.png"}`
 
 ## Validation Results
 
@@ -376,8 +386,9 @@ This revision also consumes the extracted Sketchfab viewer settings to improve B
 ## Known Limitations
 
 - This is a material/optimization handoff for a prebuilt A320 cockpit source, not final browser integration.
+- Some source mesh chunks remain compound parts with broad semantic labels; they are preserved for visual completeness and will need finer splitting only where downstream interactions require independent pivots.
 - Individual interactive control pivots remain unverified from Agent 2 and are not changed in this pass.
-- Display treatment is restrained preview material work; live avionics UI and accessible HTML mirrors remain downstream Windows/browser work.
+- Display treatment is restrained preview material work; live avionics UI and accessible HTML mirrors remain downstream browser work.
 - Human review is required before shaded approval or public model promotion.
 
 ## Reproduce

@@ -1,10 +1,10 @@
-# CockpitEscapeRoom Ubuntu Blender Pipeline Guidance
+# CockpitEscapeRoom Blender Pipeline Guidance
 
 ## Scope
 
-This directory is owned by the Ubuntu asset-production workspace. It may define Blender tooling, pipeline contracts, validation scripts, smoke tests, and generated asset handoff checks for CockpitEscapeRoom.
+This directory defines Blender tooling, pipeline contracts, validation scripts, smoke tests, and generated asset handoff checks for CockpitEscapeRoom.
 
-Do not edit Windows-owned files from this workspace: `src/**`, `tests/**`, `e2e/**`, `.github/**`, `package.json`, root `AGENTS.md`, `TEST_REPORT.md`, or `docs/**`.
+The old split-workspace ownership rule is retired. Asset changes may be implemented alongside browser/runtime changes from this computer when a milestone requires both, but generated GLBs must still be produced through the documented pipeline and validated before runtime use.
 
 ## Required pipeline playbook
 
@@ -38,6 +38,6 @@ Do not operate the agents as a swarm editing the same cockpit simultaneously. Ru
 - Preserve `sourceVariant`, `targetVariant`, and `variantScope` in all DC-9 job and manifest records until the owner resolves the final variant.
 - Preserve stable object names, pivots, hierarchy, animations, and `game_id` custom properties as runtime contracts.
 - Treat Tripo AI outputs as candidate/proxy inputs only until imported into Blender, inspected, cleaned, optimized, documented, and approved.
-- Record a Windows/browser integration handoff when an asset needs React loader, interaction, accessibility, or screenshot verification.
+- Record a browser integration handoff when an asset needs React loader, interaction, accessibility, or screenshot verification.
 - Validate structured gate artifacts with `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate ...` before a downstream agent consumes them.
 - Run `npm run pipeline:evals` before publishing pipeline changes that affect source authority, Tripo candidate handling, runtime contracts, optimization, aircraft detail separation, or Model Y spoiler surfaces.

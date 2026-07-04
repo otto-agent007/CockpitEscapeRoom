@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 
 import bpy
@@ -41,23 +42,35 @@ def main() -> None:
     _write_assignment_report(assignments, output_dir / "material-assignment-report.json")
 
     _render_previews(preview_dir, viewer_settings)
+    _add_approval_cameras(viewer_settings)
 
     blend_path = output_dir / "a320-cockpit-2-shaded.blend"
     backup_path = output_dir / "a320-cockpit-2-shaded.blend1"
     glb_path = output_dir / "a320-cockpit-2-shaded.glb"
-    backup_path.unlink(missing_ok=True)
-    bpy.ops.wm.save_as_mainfile(filepath=str(blend_path))
-    backup_path.unlink(missing_ok=True)
     bpy.ops.object.select_all(action="DESELECT")
     root = bpy.data.objects.get("AIRBUS_ROOT")
     if root:
         root.select_set(True)
         bpy.context.view_layer.objects.active = root
         _select_descendants(root)
+        _select_review_export_objects()
     else:
         bpy.ops.object.select_all(action="SELECT")
-    bpy.ops.export_scene.gltf(filepath=str(glb_path), export_format="GLB", export_extras=True, use_selection=True)
+    bpy.ops.export_scene.gltf(
+        filepath=str(glb_path),
+        export_format="GLB",
+        export_extras=True,
+        export_cameras=True,
+        export_lights=True,
+        use_selection=True,
+    )
     _assert_glb(glb_path)
+    center, radius = _scene_center_radius()
+    _add_source_like_lighting(center, radius, viewer_settings)
+    _add_approval_cameras(viewer_settings)
+    backup_path.unlink(missing_ok=True)
+    bpy.ops.wm.save_as_mainfile(filepath=str(blend_path))
+    backup_path.unlink(missing_ok=True)
 
     reimport = _reimport_validation(glb_path, expected_nodes)
     validation = _validate(before, reimport, assignments, texture_report)
@@ -191,6 +204,7 @@ def _render_previews(preview_dir: Path, viewer_settings: dict[str, object]) -> N
     center, radius = _scene_center_radius()
     _configure_source_parity_render_settings(viewer_settings)
     _add_source_like_lighting(center, radius, viewer_settings)
+    _add_approval_cameras(viewer_settings)
     _render_preview(
         preview_dir / "captain-daylight.png",
         Vector((-0.303763, -1.215466, 0.191386)),
@@ -198,6 +212,10 @@ def _render_previews(preview_dir: Path, viewer_settings: dict[str, object]) -> N
         50,
         hidden_semantic_parts={"COCKPIT_FORWARD_INTERIOR_SHELL_AND_SEATS", "COCKPIT_REAR_BULKHEAD_SEATS_AND_SIDEWALLS"},
     )
+    _render_camera_preview(preview_dir / "complete-interior-approval.png", "AIRBUS_A320_CAM_COMPLETE_INTERIOR_APPROVAL")
+    _render_camera_preview(preview_dir / "first-officer-approval.png", "AIRBUS_A320_CAM_FIRST_OFFICER_APPROVAL")
+    if bpy.data.objects.get("AIRBUS_A320_CAM_SKETCHFAB_VIEWER_PARITY"):
+        _render_camera_preview(preview_dir / "sketchfab-camera-parity.png", "AIRBUS_A320_CAM_SKETCHFAB_VIEWER_PARITY")
     _render_preview(
         preview_dir / "captain-display-check.png",
         Vector((-0.217057, -1.050967, 0.281386)),
@@ -241,6 +259,108 @@ def _render_preview(path: Path, location: Vector, target: Vector, lens: float, h
     bpy.data.objects.remove(fill, do_unlink=True)
 
 
+def _render_camera_preview(path: Path, camera_name: str) -> None:
+    scene = bpy.context.scene
+    camera = bpy.data.objects.get(camera_name)
+    if camera is None:
+        raise RuntimeError(f"approval preview camera missing: {camera_name}")
+    scene.camera = camera
+    scene.render.resolution_x = 1280
+    scene.render.resolution_y = 720
+    scene.render.filepath = str(path)
+    bpy.ops.render.render(write_still=True)
+
+
+def _add_approval_cameras(viewer_settings: dict[str, object]) -> None:
+    _remove_stale_review_cameras()
+    _add_between_seats_review_camera()
+    _add_review_camera(
+        "AIRBUS_A320_CAM_COMPLETE_INTERIOR_APPROVAL",
+        Vector((0.0, -0.86, 0.22)),
+        Vector((0.0, -0.48, 0.05)),
+        lens=20,
+        game_id="airbus.a320.camera.complete_interior_approval",
+        purpose="Owner approval camera showing the visible cockpit interior without hiding shell or seat chunks",
+    )
+    _add_review_camera(
+        "AIRBUS_A320_CAM_FIRST_OFFICER_APPROVAL",
+        Vector((0.0, -0.66, 0.18)),
+        Vector((0.0, -0.46, 0.10)),
+        lens=24,
+        game_id="airbus.a320.camera.first_officer_approval",
+        purpose="Owner approval camera approximating the Airbus First Officer inside-cockpit screenshot target",
+    )
+    camera_settings = viewer_settings.get("camera")
+    if isinstance(camera_settings, dict):
+        position = _vector_from_list(camera_settings.get("position"))
+        target = _vector_from_list(camera_settings.get("target"))
+        if position and target and (target - position).length > 0.001:
+            if (target - position).length < 0.2:
+                position = Vector((0.0, -0.66, 0.18))
+                target = Vector((0.0, -0.46, 0.10))
+            camera = _add_review_camera(
+                "AIRBUS_A320_CAM_SKETCHFAB_VIEWER_PARITY",
+                position,
+                target,
+                lens=35,
+                game_id="airbus.a320.camera.sketchfab_viewer_parity",
+                purpose="Camera reconstructed from the saved Sketchfab viewer settings for source post-processing parity",
+            )
+            fov = camera_settings.get("fov")
+            if isinstance(fov, (int, float)):
+                camera.data.angle = math.radians(float(fov))
+
+
+def _add_review_camera(name: str, location: Vector, target: Vector, lens: float, game_id: str, purpose: str) -> bpy.types.Object:
+    camera = bpy.data.objects.get(name)
+    if camera is None:
+        camera_data = bpy.data.cameras.new(name)
+        camera = bpy.data.objects.new(name, camera_data)
+        bpy.context.scene.collection.objects.link(camera)
+    camera.location = location
+    camera.rotation_euler = (target - location).to_track_quat("-Z", "Y").to_euler()
+    camera.data.lens = lens
+    camera.data.clip_start = 0.002
+    camera.data.clip_end = 1000
+    camera.data.display_size = 0.12
+    camera["game_id"] = game_id
+    camera["cameraPurpose"] = purpose
+    _parent_to_airbus_root(camera)
+    return camera
+
+
+def _remove_stale_review_cameras() -> None:
+    for name in ("AIRBUS_A320_CAM_FIRST_OFFICER_TARGET_REVIEW",):
+        camera = bpy.data.objects.get(name)
+        if camera:
+            bpy.data.objects.remove(camera, do_unlink=True)
+
+
+def _add_between_seats_review_camera() -> None:
+    camera = _add_review_camera(
+        "AIRBUS_A320_CAM_BETWEEN_SEATS_REVIEW",
+        Vector((0.0, -1.715466, 0.32)),
+        Vector((0.0, -0.456942, 0.11)),
+        lens=20,
+        game_id="airbus.a320.camera.between_seats_review",
+        purpose="Blender owner review camera between cockpit seats facing the front panel",
+    )
+    camera.data.angle = 1.186824
+    bpy.context.scene.camera = camera
+
+
+def _set_between_seats_review_visibility() -> None:
+    hidden_semantics = {"COCKPIT_FORWARD_INTERIOR_SHELL_AND_SEATS", "COCKPIT_REAR_BULKHEAD_SEATS_AND_SIDEWALLS"}
+    for obj in bpy.context.scene.objects:
+        if obj.type != "MESH" or obj.get("semanticPartName") not in hidden_semantics:
+            continue
+        obj.hide_set(True)
+        obj["reviewHiddenReason"] = (
+            "Compound interior/shell chunk blocks the between-seats owner review camera; "
+            "the staged GLB is exported before this viewport-only review hide."
+        )
+
+
 def _configure_source_parity_render_settings(viewer_settings: dict[str, object]) -> None:
     scene = bpy.context.scene
     try:
@@ -273,7 +393,10 @@ def _add_source_like_lighting(center: Vector, radius: float, viewer_settings: di
     world.color = tuple(float(value) for value in background[:3])
     for existing in [obj for obj in bpy.context.scene.objects if obj.name.startswith("AIRBUS_A320_SOURCE_PARITY_")]:
         bpy.data.objects.remove(existing, do_unlink=True)
-    for index, light in enumerate(viewer_settings.get("lights", []) if isinstance(viewer_settings.get("lights"), list) else [], start=1):
+    lights = _nested(viewer_settings, ["lighting", "lights"], [])
+    for index, light in enumerate(lights if isinstance(lights, list) else [], start=1):
+        if not isinstance(light, dict):
+            continue
         matrix = light.get("matrix", [])
         if len(matrix) == 16:
             location = Vector((float(matrix[12]), float(matrix[13]), float(matrix[14])))
@@ -287,6 +410,7 @@ def _add_source_like_lighting(center: Vector, radius: float, viewer_settings: di
         obj.data.color = tuple(float(value) for value in color[:3])
         obj.data.energy = float(light.get("intensity", 1.0)) * 2.2
         obj["source"] = "Sketchfab extracted directional light"
+        _parent_to_airbus_root(obj)
     # Keep a broad soft fill for Blender viewport parity; Sketchfab's Studio
     # environment also contributes indirect light that is not portable to glTF.
     bpy.ops.object.light_add(type="AREA", location=(center.x, center.y - radius * 0.45, center.z + radius * 0.85))
@@ -295,6 +419,16 @@ def _add_source_like_lighting(center: Vector, radius: float, viewer_settings: di
     fill.data.energy = float(_nested(viewer_settings, ["environment", "lightIntensity"], 3.0)) * 55
     fill.data.size = max(radius * 0.95, 2.0)
     fill["source"] = "Sketchfab Studio environment approximation"
+    _parent_to_airbus_root(fill)
+
+
+def _vector_from_list(value: object) -> Vector | None:
+    if not isinstance(value, list) or len(value) < 3:
+        return None
+    try:
+        return Vector((float(value[0]), float(value[1]), float(value[2])))
+    except (TypeError, ValueError):
+        return None
 
 
 def _first_supported_view_transform(candidates: tuple[str, ...]) -> str:
@@ -431,6 +565,24 @@ def _select_descendants(obj: bpy.types.Object) -> None:
         _select_descendants(child)
 
 
+def _select_review_export_objects() -> None:
+    for obj in bpy.context.scene.objects:
+        if obj.type == "CAMERA" and obj.name.startswith("AIRBUS_A320_CAM_"):
+            obj.select_set(True)
+        if obj.type == "LIGHT" and obj.name.startswith("AIRBUS_A320_SOURCE_PARITY_"):
+            obj.select_set(True)
+
+
+def _parent_to_airbus_root(obj: bpy.types.Object) -> None:
+    root = bpy.data.objects.get("AIRBUS_ROOT")
+    if not root or obj.parent == root:
+        return
+    world = obj.matrix_world.copy()
+    obj.parent = root
+    obj.matrix_parent_inverse = root.matrix_world.inverted()
+    obj.matrix_world = world
+
+
 def _set_input(bsdf: bpy.types.Node, name: str, value: object) -> None:
     if name in bsdf.inputs:
         bsdf.inputs[name].default_value = value
@@ -469,8 +621,8 @@ def _assert_glb(path: Path) -> None:
 
 
 def _reset_scene() -> None:
-    bpy.ops.object.select_all(action="SELECT")
-    bpy.ops.object.delete()
+    for obj in list(bpy.data.objects):
+        bpy.data.objects.remove(obj, do_unlink=True)
     for collection in (bpy.data.meshes, bpy.data.materials, bpy.data.images, bpy.data.cameras, bpy.data.lights):
         for item in list(collection):
             if item.users == 0:
