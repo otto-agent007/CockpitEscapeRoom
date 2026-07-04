@@ -4,9 +4,11 @@ export const personalization = {
   captainDisplayName: 'Pop T',
   homeBaseAirport: 'MEM',
   startingAircraft: 'McDonnell Douglas DC-9',
-  exactDc9Variant: 'TBD — confirm before final cockpit modeling',
+  // Confirmed production target (docs/GAME_DESIGN.md); DC-9-51 artifacts are historical/compat reference only.
+  exactDc9Variant: 'McDonnell Douglas DC-9-50',
   laterAircraft: 'Airbus',
-  exactAirbusModel: 'TBD — required before the Airbus First-Officer cockpit is modeled',
+  // Confirmed production target (docs/GAME_DESIGN.md).
+  exactAirbusModel: 'Airbus A320',
   airlineContext: 'Northwest-era Memphis hub operation',
   rewardVehicle: 'Red Tesla Model Y',
   rewardPlateIdeas: ['CAPT DAD', 'DC9 2 EV', 'MEM FLYR', 'MARS 09'],

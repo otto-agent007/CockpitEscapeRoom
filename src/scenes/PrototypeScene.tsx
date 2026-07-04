@@ -1,13 +1,61 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { OrbitControls as ThreeOrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import * as THREE from 'three'
 import { type GamePhase, type SwitchId } from '../game/state'
 
+// Cockpit shells produced by the asset pipeline and served from public/models.
+const AIRBUS_MODEL_URL = `${import.meta.env.BASE_URL}models/airbus-first-officer.glb`
+const AIRBUS_BACKDROP_URL = `${import.meta.env.BASE_URL}images/a320-cockpit-integration-proof.png`
+const DC9_MODEL_URL = `${import.meta.env.BASE_URL}models/dc9-cockpit.glb`
+
+// Provisional placement, tuned in-browser during visual approval — not final framing.
+const DC9_MODEL_TRANSFORM = { position: [0, -0.35, 0] as [number, number, number], scale: 1 }
+
+// Fetch and parse each cockpit GLB once per session, even across scene remounts.
+const cockpitModelCache = new Map<string, Promise<THREE.Group>>()
+
+function loadCockpitModel(url: string): Promise<THREE.Group> {
+  let promise = cockpitModelCache.get(url)
+  if (!promise) {
+    promise = new GLTFLoader().loadAsync(url).then((gltf) => gltf.scene)
+    cockpitModelCache.set(url, promise)
+  }
+  return promise
+}
+
+// Renders a real cockpit shell, falling back to greybox while it loads or if it fails.
+function CockpitModel({
+  url,
+  transform,
+  fallback,
+}: {
+  url: string
+  transform: { position: [number, number, number]; scale: number }
+  fallback: ReactNode
+}) {
+  const [scene, setScene] = useState<THREE.Group | null>(null)
+
+  useEffect(() => {
+    let active = true
+    loadCockpitModel(url)
+      .then((loaded) => {
+        if (active) setScene(loaded)
+      })
+      .catch((error) => {
+        console.error(`CockpitEscapeRoom: failed to load cockpit model ${url}`, error)
+      })
+    return () => {
+      active = false
+    }
+  }, [url])
+
+  if (!scene) return <>{fallback}</>
+  return <primitive object={scene} position={transform.position} scale={transform.scale} />
+}
+
 const CAPTAIN_SWITCH_IDS = ['battery', 'navigation', 'cabin'] as const
-const AIRBUS_MODEL_PATH = '/models/airbus-first-officer.glb'
-const AIRBUS_BACKDROP_PATH = '/images/a320-cockpit-integration-proof.png'
 const AIRBUS_REQUIRED_NODES = [
   'AIRBUS_ROOT',
   'AIRBUS_A320_STATIC',
@@ -107,7 +155,7 @@ function AirbusLoadingFallback({ reducedMotion }: { reducedMotion: boolean }) {
         <boxGeometry args={[1.7, 0.85, 0.11]} />
         <meshStandardMaterial color="#2b3a55" roughness={0.18} metalness={0.65} />
       </mesh>
-      <mesh ref={gauge} position={[-0.35, 0.6, 0.25]} rotation={[0, 0, 0]}>
+      <mesh ref={gauge} position={[-0.35, 0.6, 0.25]}>
         <ringGeometry args={[0.12, 0.18, 28]} />
         <meshStandardMaterial color="#152033" />
       </mesh>
@@ -121,7 +169,7 @@ function AirbusCockpitBackdrop() {
   useEffect(() => {
     let cancelled = false
     const loader = new THREE.TextureLoader()
-    loader.load(AIRBUS_BACKDROP_PATH, (loadedTexture) => {
+    loader.load(AIRBUS_BACKDROP_URL, (loadedTexture) => {
       if (cancelled) return
       loadedTexture.colorSpace = THREE.SRGBColorSpace
       loadedTexture.anisotropy = 8
@@ -152,7 +200,7 @@ function AirbusCockpit({ reducedMotion }: { reducedMotion: boolean }) {
     const loader = new GLTFLoader()
 
     loader.load(
-      AIRBUS_MODEL_PATH,
+      AIRBUS_MODEL_URL,
       (gltf) => {
         if (cancelled) return
         const loadedScene = gltf.scene
@@ -284,10 +332,16 @@ function CaptainCockpit({
       <color attach="background" args={['#0d1517']} />
       <ambientLight intensity={0.64} />
       <directionalLight position={[2.5, 3.8, 2.4]} intensity={2} castShadow />
-      <mesh receiveShadow>
-        <boxGeometry args={[3.4, 2.45, 0.35]} />
-        <meshStandardMaterial color="#3c5258" roughness={0.82} />
-      </mesh>
+      <CockpitModel
+        url={DC9_MODEL_URL}
+        transform={DC9_MODEL_TRANSFORM}
+        fallback={
+          <mesh receiveShadow>
+            <boxGeometry args={[3.4, 2.45, 0.35]} />
+            <meshStandardMaterial color="#3c5258" roughness={0.82} />
+          </mesh>
+        }
+      />
       {positions.map((position, index) => {
         const switchId = CAPTAIN_SWITCH_IDS[index]
         if (!switchId) return null

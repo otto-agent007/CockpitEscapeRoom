@@ -64,8 +64,7 @@ Use `npm run dev` and confirm:
 - The narrative is locked to `docs/GAME_DESIGN.md`; do not present the legacy reveal before the locker stage is complete.
 - The chosen production aircraft targets are **Airbus A320** for First-Officer Mode and **McDonnell Douglas DC-9-50** for Pop T Captain Mode.
 - The DC-9-50 and Airbus A320 flows must remain distinct and production-realistic in their own right.
-- Private, personalized noncommercial builds may include owner-supplied or privately licensed aircraft, airline, and vehicle assets with explicit scope and consent.
-- For any public or distributable release flow, only production aircraft, airline, or vehicle assets with an original-work or license record may be used.
+- This is a private, personal build that will not be distributed, so it may freely use owner-supplied aircraft, airline, and vehicle assets.
 - Use the official Blender MCP only for controlled scene inspection, cleanup, validation support, naming, pivots, metadata, preview renders, and export support.
 - Do not use Blender MCP for uncontrolled broad rewrites of approved scenes or to bypass the asset-report and validation trail.
 - Do not remove or rename the greybox label until visual approval milestones are passed.

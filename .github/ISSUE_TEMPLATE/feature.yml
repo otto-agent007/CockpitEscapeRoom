@@ -20,7 +20,7 @@ body:
     id: constraints
     attributes:
       label: Constraints
-      description: Realism, accessibility, privacy, licensing, performance, and scope boundaries.
+      description: Realism, accessibility, privacy, performance, and scope boundaries.
     validations:
       required: true
   - type: textarea

@@ -9,7 +9,7 @@ Use this for owner-approved Sketchfab source candidates when visual evidence fro
 
 ## Guardrails
 
-- Treat Sketchfab captures as visual/reference evidence, not new geometry or license approval.
+- Treat Sketchfab captures as visual/reference evidence, not new geometry.
 - Keep raw desktop screenshots in `.cache/screenshots/`.
 - Track only cropped, useful evidence under `preview-renders/cockpit-pipeline/<job-or-stage>/sketchfab-inspector/`.
 - Do not edit `docs/**`, `src/**`, `tests/**`, `package.json`, or `TEST_REPORT.md` from the Ubuntu asset branch.
