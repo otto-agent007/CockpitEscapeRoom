@@ -170,6 +170,32 @@ Pull the owner-approved `A320 Cockpit 2` source package into Blender for Agent 1
 
 Outcome: `approval-required`. The source imports cleanly into Blender and the captain-seat isolation preview confirms usable cockpit interior geometry exists. It should not be source-approved for Agent 2 cockpit assembly until owner review accepts this source and a follow-up Agent 1 pass classifies/cleans cockpit interior component candidates.
 
+## Browser Handoff: Airbus A320 Integration Proof
+
+### Purpose
+
+Promote the shaded Airbus A320 Cockpit 2 handoff into `public/models` and replace the First-Officer procedural greybox with a real cockpit asset while preserving the current visual-approval caveats.
+
+### Progress
+
+- [x] 2026-07-04 - Copied the shaded A320 GLB to `public/models/airbus-first-officer.glb`.
+- [x] 2026-07-04 - Added a browser-integration proof gate documenting remaining browser verification work.
+- [x] 2026-07-04 - Added an asset handoff report with runtime path, hash, size, contract nodes, and approval state.
+- [x] 2026-07-04 - Validated the runtime GLB, gate artifacts, and model directory.
+- [x] 2026-07-04 - Retired the old split-workspace ownership rules and integrated the A320 GLB in `src/scenes/PrototypeScene.tsx`.
+
+### Evidence
+
+- Runtime GLB SHA-256: `28f5ece69d9df63fa426b40bee25cf6b4739cb2df2f2a666cba0b9685fbe6cc7`.
+- GLB size: `39,869,908` bytes, below the 50 MiB review threshold.
+- Runtime path: `public/models/airbus-first-officer.glb`.
+- `npx gltf-transform validate public/models/airbus-first-officer.glb` - pass; no errors, warnings, infos, or hints.
+- `npm run assets:check` - pass.
+
+### Outcome
+
+Outcome: `browser-integration-proof`. The asset is available in the deployable model directory and the Airbus First-Officer scene now loads it in React. Full browser screenshot review and owner visual approval remain separate downstream gates.
+
 ## Outcome and handoff
 
 The foundation is in place for Agent 1 to begin sourcing against the unresolved-variant four-component vertical slice. Agent 1 should start with:
@@ -867,7 +893,7 @@ Run the first Agent 2 assembly pass for the owner-approved `A320 Cockpit 2` sour
 
 ### Codex workflow note
 
-The owner asked Codex to update itself before running Agent 2. This Ubuntu branch cannot edit root `AGENTS.md`, `docs/**`, or `TEST_REPORT.md` under the current ownership rules, so the durable workflow update is recorded here: when an imported source is already visually assembled, Agent 2 should still run as the contract/cleanup stage. Its work is to remove approved non-cockpit blockers, create stable roots/groups, assign stable runtime names and metadata, export a neutral staged GLB, produce a runtime contract gate, and stop for assembly review before Agent 3.
+The owner asked Codex to update itself before running Agent 2. The old split-workspace ownership model is now retired; this historical note remains as evidence of why the guidance was first recorded here. When an imported source is already visually assembled, Agent 2 should still run as the contract/cleanup stage. Its work is to remove approved non-cockpit blockers, create stable roots/groups, assign stable runtime names and metadata, export a neutral staged GLB, produce a runtime contract gate, and stop for assembly review before Agent 3.
 
 ### Source approval consumed
 
@@ -917,3 +943,54 @@ Agent 2 produced a neutral A320 cockpit assembly handoff under `AIRBUS_ROOT`. Th
 ### Remaining delta
 
 Outcome: `approval-required`. Owner review is required before treating this Agent 2 handoff as assembly-approved for Agent 3. Individual control pivots remain unverified, display content is still static source geometry, materials are not optimized, and the staged GLB is not a deployable `public/models/**` asset.
+
+## Airbus A320 Browser Integration Proof: 2026-07-04
+
+### Goal
+
+Move the First-Officer onboarding scene out of the procedural greybox presentation and into an Airbus A320 cockpit integration proof while keeping the native HTML puzzle path accessible and preserving Model Y spoiler protection.
+
+### Context
+
+The owner retired the old split-machine ownership rules and approved doing repository, browser, and Blender handoff work from this computer. The shaded A320 Cockpit 2 handoff already had runtime and material gate evidence, but it was not yet promoted to `public/models/**` or wired into the React scene.
+
+### Bounded action decision
+
+Promoted the shaded A320 cockpit GLB to `public/models/airbus-first-officer.glb`, added a browser integration gate/report, updated the First-Officer scene to load and verify the A320 GLB contract, and displayed the source-review cockpit render as a temporary browser cockpit backdrop. Direct GLB rendering is intentionally hidden for this proof because the current GLB camera/mesh split still exposes exterior-like fragments from runtime viewpoints.
+
+### Files changed
+
+- `src/scenes/PrototypeScene.tsx`
+- `e2e/smoke.spec.ts`
+- `public/models/airbus-first-officer.glb`
+- `public/images/a320-cockpit-integration-proof.png`
+- `public/models/README.md`
+- `LICENSES/ASSET_MANIFEST.md`
+- `art-source/cockpit-pipeline/gates/a320-cockpit-2-browser-integration-proof.json`
+- `asset-reports/cockpit-pipeline/a320-cockpit-2-browser-integration-proof.md`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-integration-375.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-integration-768.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-integration-1440.png`
+- Ownership guidance in `AGENTS.md`, `docs/WORKSTREAM_OWNERSHIP.md`, `docs/ASSET_PIPELINE.md`, `docs/CODEX_WORKFLOW.md`, `tools/blender/AGENTS.md`, and related pipeline wording.
+
+### Validation evidence
+
+- `npx gltf-transform validate public/models/airbus-first-officer.glb` - pass, no errors, warnings, infos, or hints.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate browser-integration art-source/cockpit-pipeline/gates/a320-cockpit-2-browser-integration-proof.json` - pass.
+- `npm run lint` - pass.
+- `npm run typecheck` - pass.
+- `npm run build` - pass.
+- `npm run test:e2e` - pass, including the A320 GLB integration proof.
+- `npm run assets:check` - pass with the existing DC-9 validator info rows.
+- `git ls-files public/models/airbus-first-officer.glb public/images/a320-cockpit-integration-proof.png` - pass after review repair; both referenced runtime assets are tracked in the patch.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass after review repair; 3 Chromium smoke tests passed, including the A320 GLB 200-response check.
+- `npm run check` - pass after review repair; lint, typecheck, 9 Vitest tests, and production build completed.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/a320-cockpit-2-assembly/manifests/assembly-complete.json` - pass after broader worktree stabilization; report hashes verified.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/a320-cockpit-2-shading/manifests/shading-complete.json` - pass after broader worktree stabilization; shaded `.blend`, report, and assembly input hashes verified.
+- `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` - pass after broader worktree stabilization; 8 tests.
+- `npm run pipeline:evals` - pass after broader worktree stabilization; 6/6 guardrail eval fixtures.
+- Browser screenshots reviewed at 375, 768, and 1440 px.
+
+### Remaining delta
+
+Outcome: `integration-proof`. Owner visual approval is still required before calling this final production Airbus A320 cockpit art. A later Blender cleanup pass should make direct GLB cockpit framing production-ready so the temporary source-review cockpit backdrop can be removed.

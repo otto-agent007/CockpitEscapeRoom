@@ -237,7 +237,7 @@ Agent 2 consumed the owner-approved A320 Cockpit 2 source inspection artifact an
 - Individual control pivots are not verified yet; this pass establishes grouping roots and source classification.
 - Materials are source/import materials only. Agent 3 owns material cleanup, display treatment, texture sizing, and optimization.
 - The GLB is a staged assembly artifact, not a deployable production asset.
-- Browser integration remains a separate Windows-owned handoff after later approval.
+- Browser integration remains a separate handoff after later approval.
 
 ## Reproduce
 

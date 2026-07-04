@@ -6,7 +6,7 @@ Expected production files:
 
 ```text
 dc9-cockpit.glb
-airbus-bonus.glb
+airbus-first-officer.glb
 model-y-reward.glb
 ```
 

@@ -54,6 +54,26 @@ async function seedGameState(page: Page, state: GameState): Promise<void> {
   await page.reload()
 }
 
+test('Airbus cockpit integration proof loads the A320 GLB', async ({ page }) => {
+  const consoleErrors: string[] = []
+  page.on('console', (message) => {
+    if (message.type() === 'error') consoleErrors.push(message.text())
+  })
+
+  await page.goto('/')
+  const modelResponse = page.waitForResponse(
+    (response) => response.url().includes('/models/airbus-first-officer.glb') && response.status() === 200,
+    { timeout: 20_000 },
+  )
+
+  await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
+  await modelResponse
+
+  await expect(page.getByText('A320 COCKPIT INTEGRATION PROOF')).toBeVisible()
+  await expect(page.locator('canvas')).toBeVisible()
+  expect(consoleErrors).toEqual([])
+})
+
 test('Airbus onboarding, locker reveal, and captain completion unlock reward', async ({ page }) => {
   await page.goto('/?skip3d=1')
 

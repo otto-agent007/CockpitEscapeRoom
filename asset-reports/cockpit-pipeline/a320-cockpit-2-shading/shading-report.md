@@ -3,7 +3,7 @@
 ## Branch And Stage
 
 - Branch: `codex/asset-workflow-health-rehearsal`
-- Commit: `bf269e3aba1bbab00004cba4f3a34a59225adabe`
+- Commit: `5e6b8c02298e5119150f6f0db6f1059dedca4dfd`
 - Assembly job: `a320-cockpit-2-assembly`
 - Shading job: `a320-cockpit-2-shading`
 - Stage: `shading_complete`
@@ -15,7 +15,9 @@
 
 Agent 3 consumed the owner-approved A320 Agent 2 assembly and applied a source-parity material pass. The pass preserves the downloaded Sketchfab material texture links and UV layout, then records semantic material roles for later optimization. It does not write to `public/models/**`, does not modify browser/runtime code, does not join meshes, and does not run destructive GLB optimization.
 
-This revision also consumes the extracted Sketchfab viewer settings to improve Blender review parity: Studio background color, three directional light colors/intensities/transforms, ambient occlusion/reflection render settings where Blender exposes them, and restrained display emission. These look-development settings are recorded as preview evidence and are not a shaded-approval or public-model promotion.
+This revision also consumes the extracted Sketchfab viewer settings to improve Blender review parity: Studio background color, the nested `lighting.lights` directional light colors/intensities/transforms, ambient occlusion/reflection render settings where Blender exposes them, the saved Sketchfab camera, and restrained display emission. These look-development settings are recorded as preview evidence and are not a shaded-approval or public-model promotion.
+
+The final shaded blend keeps the compound cockpit shell, seats, and sidewall chunks visible. The older captain comparison previews still hide those chunks for historical camera comparison only; the new owner approval cameras and saved `.blend` do not hide them, because this asset is intended to render from inside the cockpit.
 
 ## Reference Evidence Used
 
@@ -37,7 +39,7 @@ This revision also consumes the extracted Sketchfab viewer settings to improve B
 
 - `a320_control_dark_plastic`: `46` objects
 - `a320_dark_panel_plastic`: `1` objects
-- `a320_display_glass`: `42` objects
+- `a320_display_glass`: `40` objects
 - `a320_preserve_source_pbr`: `23` objects
 - `a320_soft_trim_fabric`: `15` objects
 
@@ -57,6 +59,9 @@ This revision also consumes the extracted Sketchfab viewer settings to improve B
 - Validation report: `/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/validation-report.json`
 - Preview directory: `/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/cockpit-pipeline/a320-cockpit-2-shading`
 - Sketchfab comparison contact sheet: `/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-source-parity-contact-sheet.png`
+- Complete interior approval render: `/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/cockpit-pipeline/a320-cockpit-2-shading/complete-interior-approval.png`
+- First Officer approval render: `/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/cockpit-pipeline/a320-cockpit-2-shading/first-officer-approval.png`
+- Sketchfab camera parity render: `/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-camera-parity.png`
 
 ## Validation Results
 
@@ -73,8 +78,9 @@ This revision also consumes the extracted Sketchfab viewer settings to improve B
 ## Known Limitations
 
 - This is a material/optimization handoff for a prebuilt A320 cockpit source, not final browser integration.
+- Some source mesh chunks remain compound parts with broad semantic labels; they are preserved for visual completeness and will need finer splitting only where downstream interactions require independent pivots.
 - Individual interactive control pivots remain unverified from Agent 2 and are not changed in this pass.
-- Display treatment is restrained preview material work; live avionics UI and accessible HTML mirrors remain downstream Windows/browser work.
+- Display treatment is restrained preview material work; live avionics UI and accessible HTML mirrors remain downstream browser work.
 - Human review is required before shaded approval or public model promotion.
 
 ## Reproduce

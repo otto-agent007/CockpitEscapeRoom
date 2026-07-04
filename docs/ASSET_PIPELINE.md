@@ -23,7 +23,7 @@ Asset work moves through explicit gates:
 2. **Sourcing:** discover or generate candidates, including Tripo proxies, with selected and rejected options documented.
 3. **Assembly:** import approved candidates into Blender, repair pivots, assign stable names, preserve hierarchy, and publish a runtime contract checklist.
 4. **Materials and Optimization:** apply materials, bake textures where useful, record material counts and texture sizes, and optimize only when runtime contracts still pass.
-5. **Windows/browser integration:** load the approved GLB in React, verify node names and `game_id` metadata, test HTML-accessible equivalents, capture viewport screenshots, and rerun relevant app checks.
+5. **Browser integration:** load the approved GLB in React, verify node names and `game_id` metadata, test HTML-accessible equivalents, capture viewport screenshots, and rerun relevant app checks.
 
 No gate may approve its own work. Completion means evidence is ready for the next gate; approval requires the recorded owner or receiving-workstream decision.
 
@@ -121,15 +121,11 @@ The GLB contract remains stable names, preserved hierarchy, correct pivots, loca
 
 Model Y spoiler protection still applies: no Model Y asset, thumbnail, loading copy, menu entry, early achievement, or hint may reveal the reward before Pop T Captain Mode is complete.
 
-## Ownership and branch boundaries
+## Workspace boundaries
 
-Keep Windows and Ubuntu work on separate branches. Do not place Windows and Ubuntu work on the same branch at the same time.
+The former Windows/Ubuntu path ownership split is retired. Browser and asset work may happen in the same workspace when the milestone requires it.
 
-- Ubuntu owns `art-source/**`, `tools/blender/**`, `public/models/**`, `asset-reports/**`, and `preview-renders/**`.
-- Windows owns `src/**`, `tests/**`, `e2e/**`, `.github/**`, `package.json`, `AGENTS.md`, and `TEST_REPORT.md`.
-- Cross-boundary changes require a separate owning-branch follow-up, PR comment, or review discussion.
-
-Docs may describe the contract across both sides, but implementation commits must respect the path ownership model in `docs/WORKSTREAM_OWNERSHIP.md`.
+Generated deployable GLBs still belong under `public/models/**`, editable Blender sources and staged pipeline outputs stay under `art-source/**`, and browser integration stays in `src/**`/`e2e/**`. Keep the asset contract, source/license manifest, reports, app code, screenshots, and `TEST_REPORT.md` consistent in the same change.
 
 ## Execution loop
 

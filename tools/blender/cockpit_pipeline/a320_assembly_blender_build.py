@@ -15,7 +15,9 @@ EXTERIOR_OR_CONFIRMED_BLOCKER_NAMES = {
     "Object_7.001",
     "Object_83",
     "Object_92",
+    "Object_128.001",
     "Object_129",
+    "Object_130",
     "Object_131",
 }
 
@@ -118,7 +120,7 @@ def main() -> None:
         "rootObject": root.name,
         "groups": {key: group.name for key, group in groups.items()},
         "deletedExteriorOrConfirmedBlockerObjects": deleted,
-        "preservedInteriorSizedObjects": sorted(["Object_55", "Object_56"]),
+        "preservedInteriorSizedObjects": sorted(["Object_55", "Object_56", "Object_67"]),
         "meshReports": mesh_reports,
         "runtimeNodeNames": sorted(obj.name for obj in bpy.context.scene.objects),
         "pivotNotes": [

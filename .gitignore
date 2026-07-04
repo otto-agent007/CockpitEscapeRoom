@@ -8,6 +8,9 @@ test-results/
 *.blend1
 *.blend2
 *.autosave
+__pycache__/
 .env
 .env.*
 !.env.example
+.cursor/
+tools/blender/blender_mcp_addon.py

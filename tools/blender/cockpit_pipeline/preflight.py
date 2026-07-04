@@ -17,7 +17,7 @@ class PreflightError(RuntimeError):
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Check Ubuntu cockpit pipeline prerequisites.")
+    parser = argparse.ArgumentParser(description="Check cockpit pipeline prerequisites.")
     parser.add_argument("--allow-dirty", action="store_true", help="Report dirty status without failing.")
     args = parser.parse_args(argv)
 

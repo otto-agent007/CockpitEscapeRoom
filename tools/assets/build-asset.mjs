@@ -11,7 +11,7 @@ const assets = {
   },
   airbus: {
     blend: 'art-source/blender/airbus_master.blend',
-    output: 'public/models/airbus-bonus.glb',
+    output: 'public/models/airbus-first-officer.glb',
     root: 'AIRBUS_ROOT',
   },
   tesla: {

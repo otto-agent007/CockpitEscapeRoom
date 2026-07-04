@@ -3,7 +3,7 @@
 ## Branch And Stage
 
 - Branch: `codex/asset-workflow-health-rehearsal`
-- Commit: `4fa1fdb622e49ef806a02c89aa6731a5dfb113bd`
+- Commit: `5e6b8c02298e5119150f6f0db6f1059dedca4dfd`
 - Source job: `a320-prebuilt-parts-source-discovery`
 - Assembly job: `a320-cockpit-2-assembly`
 - Stage: `assembly_complete`
@@ -46,8 +46,8 @@ Agent 2 consumed the owner-approved A320 Cockpit 2 source inspection artifact an
 ## Validation Results
 
 - Status: `pass`
-- Object count: `621`
-- Mesh count: `127`
+- Object count: `619`
+- Mesh count: `125`
 - Material count: `13`
 - Reimport status: `pass`
 - Source inputs immutable: `True`
@@ -57,7 +57,7 @@ Agent 2 consumed the owner-approved A320 Cockpit 2 source inspection artifact an
 - Individual control pivots are not verified yet; this pass establishes grouping roots and source classification.
 - Materials are source/import materials only. Agent 3 owns material cleanup, display treatment, texture sizing, and optimization.
 - The GLB is a staged assembly artifact, not a deployable production asset.
-- Browser integration remains a separate Windows-owned handoff after later approval.
+- Browser integration remains a separate handoff after later approval.
 
 ## Reproduce
 

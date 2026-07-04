@@ -312,7 +312,7 @@ Each component uses a runtime parent pivot empty recorded in layout JSON. Source
 
 ## Diff Review
 
-Changes are limited to Ubuntu-owned pipeline, assembly output, reports, and preview paths.
+Changes are limited to pipeline, assembly output, reports, and preview paths.
 
 ## Reproduce
 

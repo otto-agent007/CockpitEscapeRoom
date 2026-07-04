@@ -26,7 +26,7 @@ Use approved local source inputs to create the four-component DC-9 vertical-slic
 ## Done When
 
 - An assembly-approved stage manifest is written.
-- A runtime contract checklist is written for Windows/browser integration.
+- A runtime contract checklist is written for browser integration.
 - The GLB reimports and preserves stable names, pivots, hierarchy, and metadata.
 - The manifest declares hashes for every output file.
 - The state machine confirms `source-approved -> assembly-approved`.
