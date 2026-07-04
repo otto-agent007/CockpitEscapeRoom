@@ -70,3 +70,13 @@ Update this file with actual evidence after every milestone. Do not replace fail
   - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/opening-1440.png`
   - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/opening-768.png`
   - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/opening-375.png`
+
+## 2026-07-04 First-officer opening image evidence
+
+- Promoted owner-provided screenshot `/home/user1/Pictures/Screenshots/F0-view.png` to `public/images/a320-fo-view.png` for the opening hero image.
+- `npm run check` - pass after switching the opening hero image and tuning the crop toward the FO/right-seat station.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 3 Chromium smoke tests passed.
+- Playwright screenshots refreshed and reviewed at 1440, 768, and 375 px:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/opening-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/opening-768.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/opening-375.png`

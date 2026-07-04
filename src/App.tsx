@@ -45,7 +45,7 @@ export default function App() {
       <main className="briefing-shell">
         <section className="briefing-hero" aria-labelledby="game-title">
           <div className="briefing-visual" aria-hidden="true">
-            <img src={`${import.meta.env.BASE_URL}images/a320-cockpit-integration-proof.png`} alt="" />
+            <img src={`${import.meta.env.BASE_URL}images/a320-fo-view.png`} alt="" />
             <div className="briefing-visual__label">A320 first-officer station</div>
           </div>
 
