@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { Hud } from './components/Hud'
+import { gameCopy } from './game/config'
 import { clearGameState } from './game/storage'
 import { useGame } from './game/useGame'
 
@@ -33,7 +34,7 @@ export default function App() {
   const skipPrototypeScene = shouldSkipPrototypeScene()
 
   const restart = () => {
-    const confirmed = window.confirm('Restart CockpitEscapeRoom and clear saved progress?')
+    const confirmed = window.confirm(`Restart ${gameCopy.title} and clear saved progress?`)
     if (!confirmed) return
     clearGameState()
     dispatch({ type: 'RESET' })
@@ -49,8 +50,8 @@ export default function App() {
           </div>
 
           <div className="briefing-panel">
-            <p className="briefing-route">Gate A320 · Right seat onboarding</p>
-            <h1 id="game-title">Airbus A320 First-Officer Onboarding</h1>
+            <p className="briefing-route">Airbus A320 · First-Officer onboarding</p>
+            <h1 id="game-title">{gameCopy.title}</h1>
             <p className="lede">
               Take the right seat, scan the panel, and match each cockpit label to the control it belongs to.
             </p>

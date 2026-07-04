@@ -61,3 +61,12 @@ Update this file with actual evidence after every milestone. Do not replace fail
   - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/opening-1440.png`
   - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/opening-768.png`
   - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/opening-375.png`
+
+## 2026-07-04 Player-facing title rename evidence
+
+- `npm run check` - pass after changing the player-facing game title to `The Captain's Key`.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 3 Chromium smoke tests passed after updating the opening heading expectation.
+- Playwright screenshots refreshed and reviewed at 1440, 768, and 375 px with the new title:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/opening-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/opening-768.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/opening-375.png`
