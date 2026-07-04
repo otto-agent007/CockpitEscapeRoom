@@ -123,7 +123,7 @@ export const dc9LegacyFlow = {
 } as const
 
 export const gameCopy = {
-  title: 'Cockpit Escape Room',
+  title: "The Captain's Key",
   subtitle: 'First-Officer onboarding in Airbus, then the DC-9 legacy reveal.',
   premise:
     'The game is a personalized tribute. Start in a modern Airbus coaching loop, discover the locker story, then unlock Pop T Captain Mode in the DC-9.',
