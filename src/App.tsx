@@ -1,6 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { Hud } from './components/Hud'
-import { gameCopy, personalization, PROJECT_NAME } from './game/config'
 import { clearGameState } from './game/storage'
 import { useGame } from './game/useGame'
 
@@ -43,30 +42,38 @@ export default function App() {
   if (state.phase === 'briefing') {
     return (
       <main className="briefing-shell">
-        <section className="briefing-card" aria-labelledby="game-title">
-          <span className="eyebrow">{PROJECT_NAME} flow update</span>
-          <h1 id="game-title">{gameCopy.title}</h1>
-          <p className="lede">{gameCopy.subtitle}</p>
-          <p>{gameCopy.premise}</p>
+        <section className="briefing-hero" aria-labelledby="game-title">
+          <div className="briefing-visual" aria-hidden="true">
+            <img src={`${import.meta.env.BASE_URL}images/a320-cockpit-integration-proof.png`} alt="" />
+            <div className="briefing-visual__label">A320 first-officer station</div>
+          </div>
 
-          <button type="button" className="primary-button primary-button--large" onClick={() => dispatch({ type: 'START' })}>
-            Begin First-Officer onboarding
-          </button>
+          <div className="briefing-panel">
+            <p className="briefing-route">Gate A320 · Right seat onboarding</p>
+            <h1 id="game-title">Airbus A320 First-Officer Onboarding</h1>
+            <p className="lede">
+              Take the right seat, scan the panel, and match each cockpit label to the control it belongs to.
+            </p>
 
-          <dl className="briefing-facts">
-            <div>
-              <dt>Intro cockpit</dt>
-              <dd>Airbus A320 First-Officer</dd>
-            </div>
-            <div>
-              <dt>Reward vehicle</dt>
-              <dd>{personalization.rewardVehicle}</dd>
-            </div>
-            <div>
-              <dt>Home aircraft</dt>
-              <dd>{personalization.startingAircraft}</dd>
-            </div>
-          </dl>
+            <ol className="briefing-checklist" aria-label="Opening tasks">
+              <li>
+                <span>1</span>
+                Identify five A320 control areas.
+              </li>
+              <li>
+                <span>2</span>
+                Enter the ATP hour check.
+              </li>
+              <li>
+                <span>3</span>
+                Unlock the next sealed instruction.
+              </li>
+            </ol>
+
+            <button type="button" className="primary-button primary-button--large" onClick={() => dispatch({ type: 'START' })}>
+              Begin First-Officer onboarding
+            </button>
+          </div>
         </section>
       </main>
     )

@@ -77,7 +77,7 @@ test('Airbus cockpit integration proof loads the A320 GLB', async ({ page }) => 
 test('Airbus onboarding, locker reveal, and captain completion unlock reward', async ({ page }) => {
   await page.goto('/?skip3d=1')
 
-  await expect(page.getByRole('heading', { name: 'Cockpit Escape Room' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Airbus A320 First-Officer Onboarding' })).toBeVisible()
   await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
 
   await page.getByRole('combobox', { name: /Select card for Sidestick/i }).selectOption('SIDESTICK')

@@ -52,3 +52,12 @@ Update this file with actual evidence after every milestone. Do not replace fail
 - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/a320-cockpit-2-shading/manifests/shading-complete.json` - pass.
 - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate browser-integration art-source/cockpit-pipeline/gates/a320-cockpit-2-browser-integration-proof.json` - pass.
 - `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 3 Chromium smoke tests passed, including the A320 GLB 200-response proof.
+
+## 2026-07-04 Opening page refinement evidence
+
+- `npm run check` - pass after replacing the generic whole-game briefing with a spoiler-safe A320 First-Officer opening screen.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 3 Chromium smoke tests passed after updating the opening heading expectation.
+- Playwright screenshots captured and reviewed at 1440, 768, and 375 px:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/opening-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/opening-768.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/opening-375.png`
