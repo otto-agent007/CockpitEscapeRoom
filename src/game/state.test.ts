@@ -19,6 +19,28 @@ describe('gameReducer', () => {
     expect(state.completedPuzzles).toEqual([])
   })
 
+  it('moves an Airbus card between targets during retry', () => {
+    let state = gameReducer(createInitialState(), { type: 'START' })
+    state = gameReducer(state, { type: 'ASSIGN_AIRBUS_CARD', control: 'sidestick', card: 'RADIO' })
+    state = gameReducer(state, { type: 'ASSIGN_AIRBUS_CARD', control: 'radio', card: 'RADIO' })
+
+    expect(state.airbusAssignments.sidestick).toBeNull()
+    expect(state.airbusAssignments.radio).toBe('RADIO')
+    expect(state.phase).toBe('airbus')
+  })
+
+  it('accepts Airbus decoy drops without grading early', () => {
+    let state = gameReducer(createInitialState(), { type: 'START' })
+    state = gameReducer(state, { type: 'ASSIGN_AIRBUS_CARD', control: 'sidestick', card: 'RADIO' })
+    state = gameReducer(state, { type: 'ASSIGN_AIRBUS_DECOY_CARD', decoy: 'sideConsole', card: 'CLOCK' })
+
+    expect(state.airbusAssignments.sidestick).toBe('RADIO')
+    expect(state.airbusDecoyAssignments.sideConsole).toBe('CLOCK')
+    expect(state.phase).toBe('airbus')
+    expect(state.completedPuzzles).toEqual([])
+    expect(state.statusMessage).toContain('cards left')
+  })
+
   it('enters locker flow only after all Airbus tasks are correct', () => {
     let state = gameReducer(createInitialState(), { type: 'START' })
     for (const control of firstOfficerFlow.controlIds) {
@@ -28,6 +50,7 @@ describe('gameReducer', () => {
         card: firstOfficerFlow.controlMatch[control],
       })
     }
+    state = gameReducer(state, { type: 'ASSIGN_AIRBUS_DECOY_CARD', decoy: 'sideConsole', card: 'CLOCK' })
     state = gameReducer(state, { type: 'SET_AIRBUS_CLOCK_ANSWER', value: '1500' })
     state = gameReducer(state, { type: 'SUBMIT_AIRBUS_CLOCK' })
 
@@ -45,6 +68,7 @@ describe('gameReducer', () => {
         card: firstOfficerFlow.controlMatch[control],
       })
     }
+    state = gameReducer(state, { type: 'ASSIGN_AIRBUS_DECOY_CARD', decoy: 'sideConsole', card: 'CLOCK' })
     state = gameReducer(state, { type: 'SET_AIRBUS_CLOCK_ANSWER', value: '1500' })
     state = gameReducer(state, { type: 'SUBMIT_AIRBUS_CLOCK' })
 
@@ -73,6 +97,7 @@ describe('gameReducer', () => {
         card: firstOfficerFlow.controlMatch[control],
       })
     }
+    state = gameReducer(state, { type: 'ASSIGN_AIRBUS_DECOY_CARD', decoy: 'sideConsole', card: 'CLOCK' })
     state = gameReducer(state, { type: 'SET_AIRBUS_CLOCK_ANSWER', value: '1500' })
     state = gameReducer(state, { type: 'SUBMIT_AIRBUS_CLOCK' })
     for (const objectId of lockerFlow.requiredInteractionIds) {

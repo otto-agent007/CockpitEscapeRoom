@@ -1,7 +1,7 @@
 {
   "gate": "browser-integration",
   "artifactId": "a320-cockpit-2-playable-proof-001",
-  "createdAt": "2026-07-06T07:02:05Z",
+  "createdAt": "2026-07-06T12:15:00Z",
   "assetPath": "public/models/airbus-first-officer.glb",
   "documentedRuntimeContract": "art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json",
   "browserSceneLoaded": true,
@@ -26,7 +26,14 @@
     "npm run test:e2e -- e2e/smoke.spec.ts",
     "npm run assets:check",
     "BLENDER_BIN=/home/user1/.local/bin/blender npm run asset:airbus",
-    "Playwright screenshot pass at 375, 768, and 1440 px"
+    "Playwright direct-GLB screenshot pass at 375, 768, and 1440 px",
+    "Playwright canvas visibility check confirmed opacity 1 with no console errors",
+    "Airbus smoke test clicks Verify and asserts the real locker transition",
+    "Airbus smoke test verifies drag-enter hotspot highlighting and direct card drop",
+    "Playwright hotspot-highlight screenshot captured at 1440 px",
+    "Airbus hotspot geometry retuned so the sidestick outline sits on the sidestick itself",
+    "Airbus decoy objects accept card placement and correctness is judged only after all six cards are placed",
+    "Playwright decoy-highlight screenshot captured at 1440 px"
   ],
   "remainingBlockers": [
     "Owner visual approval is still required before this playable proof is treated as production A320 cockpit art.",

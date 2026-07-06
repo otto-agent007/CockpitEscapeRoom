@@ -1060,3 +1060,206 @@ Use the owner-cleaned shaded Blender file as the current Airbus source of truth 
 ### Remaining delta
 
 Outcome: `playable-proof`. Owner visual approval is still required before treating this as final production A320 cockpit art. Individual control pivots and live display treatments remain future Airbus interaction work.
+
+## Airbus A320 First-Officer Playable Repair: 2026-07-06
+
+### Goal
+
+Repair the deployed First-Officer opening so it starts from a readable A320 right-seat cockpit composition and uses label cards placed on cockpit targets instead of sidebar dropdowns.
+
+### Context
+
+A fresh local browser reproduction showed the previous direct-GLB playable proof opened to a dark exterior/briefcase-like shape and rendered the matcher as `<select>` controls in the sidebar. The prior source-review cockpit image at `public/images/a320-fo-view.png` still provides a readable FO-seat backing while the direct GLB camera/source path awaits a later Blender repair.
+
+### Bounded action decision
+
+Use an Airbus-specific full-screen training overlay: card tray at the top, cockpit target buttons over the A320 view, compact bottom dock for status/ATP/verify/hint/restart, and click/keyboard/drag placement paths. Preserve the existing `airbusAssignments` save shape and allow a placed card to move between targets during retry.
+
+### Files changed
+
+- `plans/0003-a320-first-officer-playable-repair.md`
+- `src/App.tsx`
+- `src/components/Hud.tsx`
+- `src/game/state.ts`
+- `src/game/state.test.ts`
+- `src/styles.css`
+- `e2e/smoke.spec.ts`
+- `TEST_REPORT.md`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-repair-375.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-repair-768.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-repair-1440.png`
+
+### Validation evidence
+
+- `npm run test -- src/game/state.test.ts` - pass; 7 reducer tests.
+- `npm run lint` - pass.
+- `npm run typecheck` - pass.
+- `npm run test` - pass; 2 test files and 10 tests.
+- `npm run build` - pass.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 3 Chromium smoke tests.
+- `npm run assets:check` - pass; A320 has no errors, warnings, infos, or hints, with existing DC-9 validator info rows still present.
+- `npm run check` - pass.
+- Playwright fallback browser QA passed for pointer drag placement, keyboard-only placement, wrong-card retry, reduced-motion mode, and `?skip3d=1` completion with no console errors.
+- Browser screenshots captured and reviewed at 375, 768, and 1440 px:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-repair-375.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-repair-768.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-repair-1440.png`
+
+### Remaining delta
+
+Outcome: `playable-repair`. The player-facing Airbus phase is now card/target based and readable. The direct GLB camera/source path still needs a future Blender repair before the static source-review cockpit backing can be removed and before owner final A320 art approval.
+
+## Airbus A320 Direct-GLB Camera Repair: 2026-07-06
+
+### Goal
+
+Complete the playable repair by making the Airbus gameplay phase render the deployable A320 GLB directly from the exported First-Officer camera while preserving the card/target puzzle.
+
+### Context
+
+The Blender source camera and reimported GLB camera rendered a readable cockpit, but the live browser showed the cockpit from a fallback orbit-like view once the static backing was removed. The root cause was runtime timing: Airbus `OrbitControls` mounted before the exported camera was applied and could push the camera back toward the fallback view.
+
+### Bounded action decision
+
+Keep the owner-cleaned shaded source and camera transform unchanged, export through the normal `npm run asset:airbus` path, make the Airbus canvas visible at opacity 1, and mount Airbus OrbitControls only after `CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW` has been applied.
+
+### Files changed
+
+- `src/scenes/PrototypeScene.tsx`
+- `src/styles.css`
+- `tools/blender/validate_scene.py`
+- `e2e/smoke.spec.ts`
+- `public/models/airbus-first-officer.glb`
+- `art-source/cockpit-pipeline/gates/a320-cockpit-2-browser-integration-proof.json`
+- `asset-reports/cockpit-pipeline/a320-cockpit-2-browser-integration-proof.md`
+- `plans/0003-a320-first-officer-playable-repair.md`
+- `TEST_REPORT.md`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-direct-glb-375.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-direct-glb-768.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-direct-glb-1440.png`
+
+### Validation evidence
+
+- `/home/user1/.local/bin/blender --version` - Blender 5.1.2.
+- `BLENDER_BIN=/home/user1/.local/bin/blender npm run asset:airbus` - pass; exported `public/models/airbus-first-officer.glb`.
+- `npx gltf-transform validate public/models/airbus-first-officer.glb` - pass; no errors, warnings, infos, or hints.
+- `.cache/assets/airbus/validation.json` - pass; 147 existing proof-stage warnings remain for unapplied/unverified candidate meshes, and no `CAM_AIRBUS_*` camera metadata warnings remain.
+- `npm run test -- src/game/state.test.ts` - pass; 7 reducer tests.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 3 Chromium smoke tests, including real Verify-to-locker transition.
+- Playwright direct-GLB screenshot pass captured 375, 768, and 1440 px with canvas opacity 1 and no console errors:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-direct-glb-375.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-direct-glb-768.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-direct-glb-1440.png`
+
+### Remaining delta
+
+Outcome: `direct-glb-playable-repair`. The Airbus gameplay phase no longer depends on the static source-review cockpit image. Owner visual approval is still required before treating this as final A320 production cockpit art, and individual control pivots plus live display treatments remain future work.
+
+## Airbus A320 Wide Runtime Camera: 2026-07-06
+
+### Goal
+
+Make the Airbus First-Officer gameplay camera feel as large and wide as possible in the browser while preserving the direct GLB rendering path.
+
+### Context
+
+Owner review of the direct-GLB repair found the cockpit view too small/tight. The exported camera transform remains valid, but its source FOV is narrow for the card/target gameplay surface.
+
+### Bounded action decision
+
+Keep the source `.blend` and deployable GLB unchanged. Override only the runtime Airbus gameplay camera FOV to `68` degrees after applying `CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW`, then retune mobile target spacing so the wider view does not create target overlap.
+
+### Files changed
+
+- `src/scenes/PrototypeScene.tsx`
+- `src/styles.css`
+- `art-source/cockpit-pipeline/EXEC_PLAN.md`
+- `asset-reports/cockpit-pipeline/a320-cockpit-2-browser-integration-proof.md`
+- `plans/0003-a320-first-officer-playable-repair.md`
+- `TEST_REPORT.md`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-direct-glb-375.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-direct-glb-768.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-direct-glb-1440.png`
+
+### Validation evidence
+
+- Playwright screenshot pass captured 375, 768, and 1440 px with canvas opacity 1 and no console errors.
+- 1440 px view now shows the FO side, pedestal, main panel, overhead/glareshield context, and sidestick in one wide frame.
+- 375 px and 768 px views were reviewed after mobile target spacing updates; no blocked controls or incoherent target overlap observed.
+
+### Remaining delta
+
+Outcome: `wide-runtime-camera`. This is a runtime gameplay framing adjustment only. Owner visual approval is still required before final A320 production-art approval.
+
+## Airbus A320 Top Tray Simplification: 2026-07-06
+
+### Goal
+
+Make the First-Officer card tray cleaner and higher on the screen by removing the visible “Place each cockpit label” heading and the secondary `Ready` / `Decoy` card text.
+
+### Bounded action decision
+
+Keep the section heading as screen-reader-only text for accessibility, show the visible tray as label-only cards, retain placed-card target feedback, and tighten top padding/card height so cards sit closer to the viewport top.
+
+### Validation evidence
+
+- Playwright screenshot pass captured 375, 768, and 1440 px with canvas opacity 1, no console errors, no visible `Place each cockpit label` heading, and `CLOCK` card text reduced to `CLOCK`.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 3 Chromium tests.
+- `npm run lint` - pass.
+- `npm run test -- src/game/state.test.ts` - pass; 7 reducer tests.
+
+### Remaining delta
+
+Outcome: `top-tray-simplified`. Owner visual approval remains required before final A320 production-art approval.
+
+## Airbus A320 Direct Cockpit Hotspots: 2026-07-06
+
+### Goal
+
+Let players drag each Airbus label card directly onto the corresponding cockpit part instead of dropping onto visible placeholder cards.
+
+### Context
+
+The prior top-tray pass removed extra card text and the visible section heading, but the cockpit targets still rendered as labeled placeholder boxes. Owner feedback requested direct part targeting with an outline highlight around the part, using the sidestick as the key example.
+
+### Bounded action decision
+
+Keep the existing `airbusAssignments` state and accessible target buttons. Make the target buttons transparent cockpit hotspots, add drag-hover state for outline highlighting, and preserve the click/keyboard fallback through the same named controls.
+
+### Files changed
+
+- `src/components/Hud.tsx`
+- `src/game/config.ts`
+- `src/game/state.ts`
+- `src/game/storage.ts`
+- `src/game/state.test.ts`
+- `src/styles.css`
+- `e2e/smoke.spec.ts`
+- `art-source/cockpit-pipeline/EXEC_PLAN.md`
+- `asset-reports/cockpit-pipeline/a320-cockpit-2-browser-integration-proof.md`
+- `plans/0003-a320-first-officer-playable-repair.md`
+- `TEST_REPORT.md`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-direct-glb-375.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-direct-glb-768.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-direct-glb-1440.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-hotspot-highlight-1440.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-decoy-highlight-1440.png`
+
+### Validation evidence
+
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 4 Chromium tests, including hidden pre-drag hotspots, hotspot drag-enter highlight, decoy placement, and direct drop.
+- `npm run lint` - pass.
+- `npm run test -- src/game/state.test.ts` - pass; 8 reducer tests.
+- `npm run check` - pass; lint, typecheck, 11 Vitest tests, and production build completed.
+- `git diff --check` - pass.
+- Playwright direct-GLB screenshot pass captured desktop/tablet widths 768 and 1440 px with canvas opacity 1, no console errors, no visible cockpit placeholder text, and no visible `Place each cockpit label` heading.
+- Hotspot alignment was retuned after owner feedback so the sidestick hover outline sits on the sidestick itself, thrust/radio no longer appear swapped, and the altitude hotspot sits on the rendered glare-shield/FCU strip.
+- Narrow portrait view now uses a 92 degree Airbus runtime FOV so the right-side sidestick is visible before the hotspot highlight is shown.
+- Final owner feedback changed the rule again: valid objects and decoy objects both accept dropped cards, no object is highlighted before an active card drag-over, and judging waits until all six cards are placed.
+- Sidestick and decoy hotspot highlights captured after GLB load:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-hotspot-highlight-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-decoy-highlight-1440.png`
+
+### Remaining delta
+
+Outcome: `direct-cockpit-hotspots-with-decoys`. The direct part-placement interaction is implemented for the browser proof, decoy cockpit objects accept cards, and the board is judged only after all six cards are placed. Owner visual approval remains required before final A320 production-art approval, and future work should replace approximate HTML hotspots with mesh/pivot-backed control regions when the cockpit interaction contract is promoted.

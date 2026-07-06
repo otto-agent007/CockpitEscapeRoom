@@ -3,16 +3,18 @@ import {
   firstOfficerFlow,
   lockerFlow,
   type FirstOfficerControl,
+  type FirstOfficerDecoy,
   type LockerInteraction,
 } from './config'
 
-export const GAME_SCHEMA_VERSION = 2 as const
+export const GAME_SCHEMA_VERSION = 3 as const
 export const SWITCH_ORDER = dc9LegacyFlow.checklistOrder
 export const PUZZLE_IDS = ['firstOfficer', 'locker', 'captain'] as const
 export type GamePhase = 'briefing' | 'airbus' | 'locker' | 'captain' | 'reward' | 'mars'
 export type GameAction =
   | { type: 'START' }
   | { type: 'ASSIGN_AIRBUS_CARD'; control: FirstOfficerControl; card: string }
+  | { type: 'ASSIGN_AIRBUS_DECOY_CARD'; decoy: FirstOfficerDecoy; card: string }
   | { type: 'SET_AIRBUS_CLOCK_ANSWER'; value: string }
   | { type: 'SUBMIT_AIRBUS_CLOCK' }
   | { type: 'COMPLETE_LOCKER_OBJECT'; objectId: LockerInteraction; response?: string }
@@ -31,6 +33,10 @@ export type AirbusAssignments = {
   [K in FirstOfficerControl]: string | null
 }
 
+export type AirbusDecoyAssignments = {
+  [K in FirstOfficerDecoy]: string | null
+}
+
 interface LockerPayload {
   completed: LockerInteraction[]
   hatRevealed: boolean
@@ -40,6 +46,7 @@ export interface GameState {
   schemaVersion: typeof GAME_SCHEMA_VERSION
   phase: GamePhase
   airbusAssignments: AirbusAssignments
+  airbusDecoyAssignments: AirbusDecoyAssignments
   airbusClockAnswer: string
   lockerCompleted: LockerInteraction[]
   lockerHatRevealed: boolean
@@ -83,19 +90,50 @@ function createEmptyAssignments(): AirbusAssignments {
   }
 }
 
-function controlsComplete(assignments: AirbusAssignments): boolean {
-  return firstOfficerFlow.controlIds.every((id) => assignments[id] !== null)
+function createEmptyDecoyAssignments(): AirbusDecoyAssignments {
+  return {
+    leftPanelKnobs: null,
+    rightDisplay: null,
+    sideConsole: null,
+    windshieldLights: null,
+  }
 }
 
 function allControlsCorrect(assignments: AirbusAssignments): boolean {
   return firstOfficerFlow.controlIds.every((id) => assignments[id] === firstOfficerFlow.controlMatch[id])
 }
 
-function controlAnswerFeedback(placements: AirbusAssignments): string {
-  const assigned = Object.entries(placements).filter(([, value]) => Boolean(value))
-  if (assigned.length === 0) return 'Match each label card to its cockpit object.'
-  if (!controlsComplete(placements)) return `Good start. ${firstOfficerFlow.controlIds.length - assigned.length} cards left.`
-  if (allControlsCorrect(placements)) return `${firstOfficerFlow.firstCompleteBanner}.`
+function countPlacedAirbusCards(assignments: AirbusAssignments, decoyAssignments: AirbusDecoyAssignments): number {
+  return [...Object.values(assignments), ...Object.values(decoyAssignments)].filter(Boolean).length
+}
+
+function allCardsPlaced(assignments: AirbusAssignments, decoyAssignments: AirbusDecoyAssignments): boolean {
+  return countPlacedAirbusCards(assignments, decoyAssignments) === firstOfficerFlow.controlCards.length
+}
+
+function removeCardFromAirbusTargets(
+  assignments: AirbusAssignments,
+  decoyAssignments: AirbusDecoyAssignments,
+  card: string,
+): { assignments: AirbusAssignments; decoyAssignments: AirbusDecoyAssignments } {
+  const nextAssignments = { ...assignments }
+  const nextDecoyAssignments = { ...decoyAssignments }
+  for (const control of firstOfficerFlow.controlIds) {
+    if (nextAssignments[control] === card) nextAssignments[control] = null
+  }
+  for (const decoy of firstOfficerFlow.decoyIds) {
+    if (nextDecoyAssignments[decoy] === card) nextDecoyAssignments[decoy] = null
+  }
+  return { assignments: nextAssignments, decoyAssignments: nextDecoyAssignments }
+}
+
+function controlAnswerFeedback(assignments: AirbusAssignments, decoyAssignments: AirbusDecoyAssignments): string {
+  const placed = countPlacedAirbusCards(assignments, decoyAssignments)
+  if (placed === 0) return 'Match each label card to a cockpit object.'
+  if (!allCardsPlaced(assignments, decoyAssignments)) {
+    return `Card placed. ${firstOfficerFlow.controlCards.length - placed} card${firstOfficerFlow.controlCards.length - placed === 1 ? '' : 's'} left.`
+  }
+  if (allControlsCorrect(assignments)) return `${firstOfficerFlow.firstCompleteBanner}.`
   return 'One or more labels are incorrect. Retry those cards without losing locker progress.'
 }
 
@@ -116,8 +154,8 @@ function lockerInteractionComplete(current: LockerInteraction[], objectId: Locke
 
 function hintFor(state: GameState): string {
   if (state.phase === 'airbus') {
-    if (!controlsComplete(state.airbusAssignments)) {
-      return 'Match the label cards to each control first, then use the ATP clock challenge.'
+    if (!allCardsPlaced(state.airbusAssignments, state.airbusDecoyAssignments)) {
+      return 'Place every label card on a cockpit object first, then the check can judge the full board.'
     }
     if (!allControlsCorrect(state.airbusAssignments)) {
       return 'Some control labels are off. Correct order and names are all that matters.'
@@ -147,6 +185,7 @@ export function createInitialState(): GameState {
     schemaVersion: GAME_SCHEMA_VERSION,
     phase: 'briefing',
     airbusAssignments: createEmptyAssignments(),
+    airbusDecoyAssignments: createEmptyDecoyAssignments(),
     airbusClockAnswer: '',
     lockerCompleted: [],
     lockerHatRevealed: false,
@@ -185,26 +224,35 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         }
       }
 
-      const usedBy = Object.entries(state.airbusAssignments).find(
-        ([control, assignedCard]) => control !== action.control && assignedCard === action.card,
-      )
-      if (usedBy) {
-        return {
-          ...state,
-          statusMessage: `${action.card} is already used on another control. Use one label per control.`,
-        }
-      }
-
+      const cleared = removeCardFromAirbusTargets(state.airbusAssignments, state.airbusDecoyAssignments, action.card)
       const nextAssignments = {
-        ...state.airbusAssignments,
+        ...cleared.assignments,
         [action.control]: action.card,
       }
       return {
         ...state,
         airbusAssignments: nextAssignments,
-        statusMessage: allControlsCorrect(nextAssignments)
+        airbusDecoyAssignments: cleared.decoyAssignments,
+        statusMessage: allCardsPlaced(nextAssignments, cleared.decoyAssignments) && allControlsCorrect(nextAssignments)
           ? `${firstOfficerFlow.firstCompleteBanner}. Now enter the ATP time on the clock.`
-          : controlAnswerFeedback(nextAssignments),
+          : controlAnswerFeedback(nextAssignments, cleared.decoyAssignments),
+      }
+    }
+
+    case 'ASSIGN_AIRBUS_DECOY_CARD': {
+      if (state.phase !== 'airbus') return state
+      const cleared = removeCardFromAirbusTargets(state.airbusAssignments, state.airbusDecoyAssignments, action.card)
+      const nextDecoyAssignments = {
+        ...cleared.decoyAssignments,
+        [action.decoy]: action.card,
+      }
+      return {
+        ...state,
+        airbusAssignments: cleared.assignments,
+        airbusDecoyAssignments: nextDecoyAssignments,
+        statusMessage: allCardsPlaced(cleared.assignments, nextDecoyAssignments) && allControlsCorrect(cleared.assignments)
+          ? `${firstOfficerFlow.firstCompleteBanner}. Now enter the ATP time on the clock.`
+          : controlAnswerFeedback(cleared.assignments, nextDecoyAssignments),
       }
     }
 
@@ -217,10 +265,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'SUBMIT_AIRBUS_CLOCK': {
       if (state.phase !== 'airbus') return state
-      if (!controlsComplete(state.airbusAssignments)) {
+      if (!allCardsPlaced(state.airbusAssignments, state.airbusDecoyAssignments)) {
         return {
           ...state,
-          statusMessage: `Finish matching the control labels before the clock challenge.`,
+          statusMessage: `Place every label card on a cockpit object before the clock challenge.`,
         }
       }
       if (!allControlsCorrect(state.airbusAssignments)) {
