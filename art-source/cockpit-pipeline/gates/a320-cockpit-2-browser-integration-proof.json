@@ -1,7 +1,7 @@
 {
   "gate": "browser-integration",
-  "artifactId": "a320-cockpit-2-browser-integration-proof-001",
-  "createdAt": "2026-07-04T01:11:48Z",
+  "artifactId": "a320-cockpit-2-playable-proof-001",
+  "createdAt": "2026-07-06T07:02:05Z",
   "assetPath": "public/models/airbus-first-officer.glb",
   "documentedRuntimeContract": "art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json",
   "browserSceneLoaded": true,
@@ -13,7 +13,7 @@
     768,
     1440
   ],
-  "modelYSpoilerProtectionChecked": true,
+  "spoilerProtectionChecked": true,
   "commandsRun": [
     "python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate runtime-contract art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json",
     "python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate material-optimization art-source/cockpit-pipeline/gates/a320-cockpit-2-material-optimization.json",
@@ -21,13 +21,15 @@
     "npx gltf-transform validate public/models/airbus-first-officer.glb",
     "npm run typecheck",
     "npm run lint",
+    "npm run test",
     "npm run build",
-    "npm run test:e2e",
+    "npm run test:e2e -- e2e/smoke.spec.ts",
     "npm run assets:check",
+    "BLENDER_BIN=/home/user1/.local/bin/blender npm run asset:airbus",
     "Playwright screenshot pass at 375, 768, and 1440 px"
   ],
   "remainingBlockers": [
-    "Owner visual approval is still required before this integration proof is treated as production A320 cockpit art.",
-    "Future Blender cleanup should make the direct GLB cockpit framing production-ready instead of relying on the temporary source-review cockpit backdrop."
+    "Owner visual approval is still required before this playable proof is treated as production A320 cockpit art.",
+    "Individual control pivots and live display treatments remain future Airbus interaction work."
   ]
 }

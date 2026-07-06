@@ -13,7 +13,7 @@
     768,
     1440
   ],
-  "modelYSpoilerProtectionChecked": true,
+  "spoilerProtectionChecked": true,
   "commandsRun": [
     "npm run check",
     "npm run assets:check"

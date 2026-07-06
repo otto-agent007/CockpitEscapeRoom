@@ -21,12 +21,12 @@ Update this file with actual evidence after every milestone. Do not replace fail
 | `npm ci` | Install locked dependencies from a portable registry | Passed after normalizing 447 lockfile `resolved` URLs from the internal package gateway to `https://registry.npmjs.org/`; 396 packages installed, 0 vulnerabilities | Pass | Keep lockfile URLs portable |
 | `npm run check` | Lint, typecheck, tests, and build pass | Passed after agent gate validation upgrade; lint, typecheck, 9 tests, and production build completed | Pass | Rerun after code changes |
 | `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` | Pipeline schemas, stage contracts, gate examples, and workflow eval runner validate | Passed after agent gate validation upgrade; 7 tests | Pass | Rerun after pipeline contract changes |
-| `npm run pipeline:evals` | Deterministic guardrail evals catch known agent workflow failures | Passed; 6/6 eval fixtures covered Tripo proxy promotion, missing Agent 0 authority, optimization contract breaks, aircraft mixing, and Model Y spoiler leak | Pass | Add fixtures for new agent failure modes |
+| `npm run pipeline:evals` | Deterministic guardrail evals catch known agent workflow failures | Passed; 6/6 eval fixtures covered Tripo proxy promotion, missing Agent 0 authority, optimization contract breaks, aircraft mixing, and spoiler-leak protection | Pass | Add fixtures for new agent failure modes |
 | `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate ...` | Structured gate examples validate for reference authority, runtime contract, material optimization, and browser integration | Passed for all four checked-in example artifacts | Pass | Real milestone gates must validate their own artifact paths |
 | `npm run references:validate` | Reference manifest covers checked-in images and verifies recorded hashes | Passed for 24 references | Pass | Rerun after reference-manifest edits |
-| 375 / 768 / 1440 px visual check | No clipping or blocked controls | Captured and reviewed A320 browser integration proof screenshots at 375, 768, and 1440 px | Pass | Owner visual approval still required before production art approval |
+| 375 / 768 / 1440 px visual check | No clipping or blocked controls | Captured and reviewed A320 direct-GLB playable proof screenshots at 375, 768, and 1440 px | Pass | Owner visual approval still required before production art approval |
 | DC-9 realism review | Captain view reads as model-correct DC-9 | In-progress against greybox placeholders | In progress | Requires Blender milestone and owner approval |
-| Airbus realism review | Correct model-specific cockpit | A320 Cockpit 2 integration proof now loads from `public/models/airbus-first-officer.glb` and shows source-review cockpit imagery in the browser; owner visual approval still pending | In progress | Owner review and direct-GLB cockpit framing cleanup before production approval |
+| Airbus realism review | Correct model-specific cockpit | A320 Cockpit 2 playable proof now loads `public/models/airbus-first-officer.glb` directly and opens from the exported First-Officer seat camera; owner visual approval still pending | In progress | Owner review, individual control pivots, and display treatment before production approval |
 
 ## 2026-07-04 Review repair evidence
 
@@ -80,3 +80,22 @@ Update this file with actual evidence after every milestone. Do not replace fail
   - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/opening-1440.png`
   - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/opening-768.png`
   - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/opening-375.png`
+
+## 2026-07-06 Airbus direct-GLB playable proof evidence
+
+- `BLENDER_BIN=/home/user1/.local/bin/blender npm run asset:airbus` - pass; exported the owner-cleaned shaded A320 source to `public/models/airbus-first-officer.glb`.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate runtime-contract art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate material-optimization art-source/cockpit-pipeline/gates/a320-cockpit-2-material-optimization.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate browser-integration art-source/cockpit-pipeline/gates/a320-cockpit-2-browser-integration-proof.json` - pass.
+- `python3 -m unittest tools.blender.cockpit_pipeline.tests.test_pipeline_contracts` - pass; browser integration schema example still validates after renaming the gate field to `spoilerProtectionChecked`.
+- `npx gltf-transform validate public/models/airbus-first-officer.glb` - pass; no errors, warnings, infos, or hints.
+- `npm run lint` - pass.
+- `npm run typecheck` - pass.
+- `npm run test` - pass; 2 test files and 9 tests.
+- `npm run build` - pass.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 3 Chromium smoke tests including the A320 playable proof GLB check.
+- `npm run assets:check` - pass; A320 has no errors, warnings, infos, or hints, with existing DC-9 validator info rows still present.
+- Playwright screenshots refreshed and reviewed at 1440, 768, and 375 px with the real GLB visible from the exported First-Officer seat camera:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-playable-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-playable-768.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-playable-375.png`

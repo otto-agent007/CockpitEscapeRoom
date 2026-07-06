@@ -15,7 +15,7 @@
     "gameIdsVerified",
     "htmlEquivalentsVerified",
     "viewportWidthsChecked",
-    "modelYSpoilerProtectionChecked",
+    "spoilerProtectionChecked",
     "commandsRun",
     "remainingBlockers"
   ],
@@ -34,7 +34,7 @@
       "minItems": 1,
       "items": { "type": "integer", "minimum": 1 }
     },
-    "modelYSpoilerProtectionChecked": { "type": "boolean" },
+    "spoilerProtectionChecked": { "type": "boolean" },
     "commandsRun": {
       "type": "array",
       "minItems": 1,

@@ -196,6 +196,32 @@ Promote the shaded Airbus A320 Cockpit 2 handoff into `public/models` and replac
 
 Outcome: `browser-integration-proof`. The asset is available in the deployable model directory and the Airbus First-Officer scene now loads it in React. Full browser screenshot review and owner visual approval remain separate downstream gates.
 
+## Playable Proof: Airbus A320 First Officer Camera And Direct GLB
+
+### Purpose
+
+Promote the owner-cleaned Airbus A320 shaded source from screenshot-backed browser proof to a direct-GLB playable proof framed from the saved First Officer seat view.
+
+### Progress
+
+- [x] 2026-07-06 - Preserved `AIRBUS_ROOT` and removed empty duplicate root placeholders that had no mesh descendants.
+- [x] 2026-07-06 - Added `CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW` and `CAM_AIRBUS_FIRST_OFFICER_APPROVAL` under `AIRBUS_ROOT`, preserving the owner-selected viewport transform.
+- [x] 2026-07-06 - Pointed `npm run asset:airbus` at the canonical cleaned A320 shaded `.blend`.
+- [x] 2026-07-06 - Exported the cleaned A320 GLB through `.cache/assets/airbus`, copied it to `public/models/airbus-first-officer.glb`, and kept the staged shaded GLB in sync.
+- [x] 2026-07-06 - Updated the React scene to render the real A320 GLB directly from the exported First Officer camera with restrained seated controls.
+
+### Evidence
+
+- `BLENDER_BIN=/home/user1/.local/bin/blender npm run asset:airbus` - pass; validation passed with existing imported-source warnings and generated `.cache/assets/airbus/previews/cam_airbus_first_officer_approval.png`.
+- Runtime/staged GLB SHA-256: `033438f0674423356a64e1b2d9f9430072e65790670ab5cdbbcd62c61b9eedff`.
+- Runtime/staged GLB size: `35,098,268` bytes.
+- Blender source after MCP cleanup: `82` objects, including `69` meshes, `10` empties, `1` light, and `2` cameras.
+- `npx gltf-transform validate` on the generated raw GLB reported no errors, warnings, infos, or hints.
+
+### Outcome
+
+Outcome: `playable-proof-in-progress`. The direct GLB and camera path are in place. Remaining work is the browser screenshot pass at 375, 768, and 1440 px, app checks, gate validation, and owner visual approval before final Airbus art approval.
+
 ## Outcome and handoff
 
 The foundation is in place for Agent 1 to begin sourcing against the unresolved-variant four-component vertical slice. Agent 1 should start with:
@@ -678,7 +704,7 @@ Added validators, schemas, eval fixtures, docs, and manifest records only. No Bl
 
 - Added `validate-gate` CLI support for Agent 0 reference authority, Agent 2 runtime contract, Agent 3 material/optimization, and Windows/browser integration artifacts.
 - Added example JSON gate artifacts under `art-source/cockpit-pipeline/gates/examples/`.
-- Added deterministic eval fixtures and `npm run pipeline:evals` for Tripo proxy handling, missing Agent 0 authority, runtime contract preservation, Airbus/DC-9 detail separation, and Model Y spoiler protection.
+- Added deterministic eval fixtures and `npm run pipeline:evals` for Tripo proxy handling, missing Agent 0 authority, runtime contract preservation, Airbus/DC-9 detail separation, and spoiler-leak protection.
 - Updated GLB export reporting so asset builds record contract-sensitive export settings, including `export_extras: true`, selected object count, and `game_id` nodes.
 - Strengthened reference validation to scan every checked-in reference image and verify recorded hashes.
 - Added A320 reference-folder manifest records and removed stale manifest entries for images no longer checked in.
@@ -948,7 +974,7 @@ Outcome: `approval-required`. Owner review is required before treating this Agen
 
 ### Goal
 
-Move the First-Officer onboarding scene out of the procedural greybox presentation and into an Airbus A320 cockpit integration proof while keeping the native HTML puzzle path accessible and preserving Model Y spoiler protection.
+Move the First-Officer onboarding scene out of the procedural greybox presentation and into an Airbus A320 cockpit integration proof while keeping the native HTML puzzle path accessible.
 
 ### Context
 
@@ -994,3 +1020,43 @@ Promoted the shaded A320 cockpit GLB to `public/models/airbus-first-officer.glb`
 ### Remaining delta
 
 Outcome: `integration-proof`. Owner visual approval is still required before calling this final production Airbus A320 cockpit art. A later Blender cleanup pass should make direct GLB cockpit framing production-ready so the temporary source-review cockpit backdrop can be removed.
+
+## Airbus A320 Playable Proof: 2026-07-06
+
+### Goal
+
+Promote the owner-cleaned shaded A320 cockpit into a direct runtime GLB proof that opens from the saved First-Officer seat view.
+
+### Context
+
+The active Blender file was saved at `art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend` after the owner removed unused aircraft parts. The prior browser integration proof used a static cockpit image as a temporary backdrop; this pass removes that workaround and uses the actual exported GLB in the React Three Fiber scene.
+
+### Bounded action decision
+
+Use the owner-cleaned shaded Blender file as the current Airbus source of truth for this proof, preserve the canonical `AIRBUS_ROOT`, add exported First-Officer gameplay and approval cameras, rebuild the deployable GLB, and wire the browser camera to `CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW`.
+
+### Files changed
+
+- `art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend`
+- `art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.glb`
+- `public/models/airbus-first-officer.glb`
+- `src/scenes/PrototypeScene.tsx`
+- `tools/assets/build-asset.mjs`
+- `e2e/smoke.spec.ts`
+- `art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json`
+- `art-source/cockpit-pipeline/gates/a320-cockpit-2-material-optimization.json`
+- `art-source/cockpit-pipeline/gates/a320-cockpit-2-browser-integration-proof.json`
+- `asset-reports/cockpit-pipeline/a320-cockpit-2-browser-integration-proof.md`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-playable-375.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-playable-768.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-playable-1440.png`
+
+### Validation evidence
+
+- `BLENDER_BIN=/home/user1/.local/bin/blender npm run asset:airbus` - pass; exported `public/models/airbus-first-officer.glb` and approval render `.cache/assets/airbus/previews/cam_airbus_first_officer_approval.png`.
+- `npx gltf-transform validate public/models/airbus-first-officer.glb` - pass; no errors, warnings, infos, or hints.
+- Browser screenshots captured and reviewed at 375, 768, and 1440 px with the direct GLB visible from the First-Officer seat camera.
+
+### Remaining delta
+
+Outcome: `playable-proof`. Owner visual approval is still required before treating this as final production A320 cockpit art. Individual control pivots and live display treatments remain future Airbus interaction work.
