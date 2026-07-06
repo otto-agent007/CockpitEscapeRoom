@@ -54,7 +54,7 @@ async function seedGameState(page: Page, state: GameState): Promise<void> {
   await page.reload()
 }
 
-test('Airbus cockpit integration proof loads the A320 GLB', async ({ page }) => {
+test('Airbus playable proof loads the A320 GLB', async ({ page }) => {
   const consoleErrors: string[] = []
   page.on('console', (message) => {
     if (message.type() === 'error') consoleErrors.push(message.text())
@@ -69,7 +69,7 @@ test('Airbus cockpit integration proof loads the A320 GLB', async ({ page }) => 
   await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
   await modelResponse
 
-  await expect(page.getByText('A320 COCKPIT INTEGRATION PROOF')).toBeVisible()
+  await expect(page.getByText('A320 PLAYABLE PROOF')).toBeVisible()
   await expect(page.locator('canvas')).toBeVisible()
   expect(consoleErrors).toEqual([])
 })

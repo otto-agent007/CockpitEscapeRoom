@@ -1,9 +1,9 @@
 {
   "gate": "runtime-contract",
   "artifactId": "a320-cockpit-2-runtime-contract-001",
-  "createdAt": "2026-07-03T04:23:02Z",
+  "createdAt": "2026-07-06T07:02:05Z",
   "sceneGroup": "Airbus A320 First-Officer cockpit",
-  "assetPath": "/mnt/2TBHDD/CockpitEscapeRoom/art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/a320-cockpit-2-assembly.glb",
+  "assetPath": "public/models/airbus-first-officer.glb",
   "rootObject": "AIRBUS_ROOT",
   "runtimeNodes": [
     {
@@ -54,14 +54,29 @@
       "pivotVerified": true,
       "localAxis": "WORLD",
       "htmlEquivalent": "Interior scan locator between the cockpit seats; no direct HTML control."
+    },
+    {
+      "name": "CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW",
+      "gameId": "airbus.first_officer.game_view",
+      "pivotVerified": true,
+      "localAxis": "WORLD",
+      "htmlEquivalent": "Gameplay start camera; cockpit interaction remains mirrored through the First-Officer HTML controls."
+    },
+    {
+      "name": "CAM_AIRBUS_FIRST_OFFICER_APPROVAL",
+      "gameId": "airbus.first_officer.approval_camera",
+      "pivotVerified": true,
+      "localAxis": "WORLD",
+      "htmlEquivalent": "Owner approval camera matching the First-Officer gameplay view; no direct HTML control."
     }
   ],
   "customPropertiesPreserved": true,
   "reimportValidation": "pass",
-  "scaleAndCameraAssumptions": "Source model is kept in imported Blender scale. Captain-seat and dashboard locators are inspection references, not final gameplay cameras.",
+  "scaleAndCameraAssumptions": "Source model is kept in imported Blender scale. The browser starts from CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW and allows only restrained seated look movement.",
   "knownReferenceDeviations": [
     "Prebuilt Sketchfab source still needs model-correct A320 reference review before production promotion.",
     "Individual control pivots are not verified; only grouping roots and camera locators are contract-stable in this pass.",
-    "Display content is dark/static source geometry; live display materials and interaction belong to later stages."
+    "Display content is dark/static source geometry; live display materials and interaction belong to later stages.",
+    "This playable proof uses the owner-cleaned canonical shaded blend rather than a fully scripted A320 rebuild."
   ]
 }

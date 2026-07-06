@@ -10,7 +10,7 @@ const assets = {
     root: 'DC9_ROOT',
   },
   airbus: {
-    blend: 'art-source/blender/airbus_master.blend',
+    blend: 'art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend',
     output: 'public/models/airbus-first-officer.glb',
     root: 'AIRBUS_ROOT',
   },
