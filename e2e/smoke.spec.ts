@@ -3,6 +3,16 @@ import { dc9LegacyFlow, lockerFlow } from '../src/game/config'
 import { createInitialState, type GameState } from '../src/game/state'
 import { STORAGE_KEY } from '../src/game/storage'
 
+async function placeAirbusCard(page: Page, card: string, targetName: string): Promise<void> {
+  await page.getByRole('button', { name: new RegExp(`^${card}\\b`) }).click()
+  await page.getByRole('button', { name: `${targetName} target` }).click()
+}
+
+async function placeAirbusDecoyCard(page: Page, card: string, decoyName: string): Promise<void> {
+  await page.getByRole('button', { name: new RegExp(`^${card}\\b`) }).click()
+  await page.getByRole('button', { name: `${decoyName} decoy` }).click()
+}
+
 function createLockerState(): GameState {
   return {
     ...createInitialState(),
@@ -71,6 +81,9 @@ test('Airbus playable proof loads the A320 GLB', async ({ page }) => {
 
   await expect(page.getByText('A320 PLAYABLE PROOF')).toBeVisible()
   await expect(page.locator('canvas')).toBeVisible()
+  await expect(page.getByRole('button', { name: /^SIDESTICK\b/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Sidestick target' })).toBeVisible()
+  await expect(page.getByRole('combobox')).toHaveCount(0)
   expect(consoleErrors).toEqual([])
 })
 
@@ -80,17 +93,17 @@ test('Airbus onboarding, locker reveal, and captain completion unlock reward', a
   await expect(page.getByRole('heading', { name: "The Captain's Key" })).toBeVisible()
   await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
 
-  await page.getByRole('combobox', { name: /Select card for Sidestick/i }).selectOption('SIDESTICK')
-  await page.getByRole('combobox', { name: /Select card for Thrust levers/i }).selectOption('THRUST')
-  await page.getByRole('combobox', { name: /Select card for Gear lever/i }).selectOption('GEAR')
-  await page.getByRole('combobox', { name: /Select card for Radio panel/i }).selectOption('RADIO')
-  await page.getByRole('combobox', { name: /Select card for Altitude area/i }).selectOption('ALTITUDE')
+  await placeAirbusCard(page, 'SIDESTICK', 'Sidestick')
+  await placeAirbusCard(page, 'THRUST', 'Thrust levers')
+  await placeAirbusCard(page, 'GEAR', 'Gear lever')
+  await placeAirbusCard(page, 'RADIO', 'Radio panel')
+  await placeAirbusCard(page, 'ALTITUDE', 'Altitude area')
+  await placeAirbusDecoyCard(page, 'CLOCK', 'Side console switches')
 
   await page.getByRole('textbox', { name: 'ATP answer' }).fill('1500')
-  await expect(page.getByRole('button', { name: 'Verify First-Officer challenge' })).toBeEnabled()
+  await expect(page.getByRole('button', { name: 'Verify' })).toBeEnabled()
+  await page.getByRole('button', { name: 'Verify' }).click()
 
-  // Unit tests cover the reducer submit transition; the smoke test resumes from saved progress.
-  await seedGameState(page, createLockerState())
   await expect(page.getByRole('heading', { name: 'Locker reveal sequence' })).toBeVisible()
   await expect(page.getByRole('textbox', { name: 'Right-seat hours' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Confirm watch answer' })).toBeVisible()
@@ -105,11 +118,52 @@ test('Airbus onboarding, locker reveal, and captain completion unlock reward', a
   await expect(page.getByText(/red Tesla Model Y is unlocked/i)).toBeVisible()
 })
 
+test('Airbus cards drag onto cockpit parts with hotspot highlighting', async ({ page }) => {
+  await page.goto('/?skip3d=1')
+  await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
+
+  const sidestickCard = page.getByRole('button', { name: /^SIDESTICK\b/ })
+  const sidestickTarget = page.getByRole('button', { name: 'Sidestick target' })
+  const dataTransfer = await page.evaluateHandle(() => new DataTransfer())
+
+  await expect(sidestickTarget).toHaveCSS('opacity', '0')
+  await sidestickCard.click()
+  await expect(sidestickTarget).toHaveCSS('opacity', '0')
+  await sidestickCard.dispatchEvent('dragstart', { dataTransfer })
+  await sidestickTarget.dispatchEvent('dragenter', { dataTransfer })
+  await expect(sidestickTarget).toHaveClass(/is-drag-over/)
+  await expect(sidestickTarget).toHaveCSS('opacity', '1')
+  await sidestickTarget.dispatchEvent('drop', { dataTransfer })
+
+  await expect(sidestickTarget).toHaveClass(/has-card/)
+  await expect(sidestickTarget).not.toHaveClass(/is-correct/)
+  await expect(sidestickTarget).toHaveCSS('opacity', '0')
+  await expect(sidestickCard).toContainText('Sidestick')
+
+  const thrustCard = page.getByRole('button', { name: /^THRUST\b/ })
+  const decoyTarget = page.getByRole('button', { name: 'Side console switches decoy' })
+  const decoyDataTransfer = await page.evaluateHandle(() => new DataTransfer())
+
+  await expect(decoyTarget).toHaveCSS('opacity', '0')
+  await thrustCard.dispatchEvent('dragstart', { dataTransfer: decoyDataTransfer })
+  await decoyTarget.dispatchEvent('dragenter', { dataTransfer: decoyDataTransfer })
+  await expect(decoyTarget).toHaveClass(/is-drag-over/)
+  await expect(decoyTarget).toHaveCSS('opacity', '1')
+  await decoyTarget.dispatchEvent('drop', { dataTransfer: decoyDataTransfer })
+
+  await expect(decoyTarget).toHaveClass(/has-card/)
+  await expect(decoyTarget).toHaveCSS('opacity', '0')
+  await expect(thrustCard).toContainText('Side console switches')
+  await expect(page.getByText('2/6')).toBeVisible()
+})
+
 test('saved progress persists during Airbus phase', async ({ page }) => {
   await page.goto('/?skip3d=1')
   await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
-  await page.getByRole('combobox', { name: /Select card for Sidestick/i }).selectOption('RADIO')
+  await placeAirbusCard(page, 'RADIO', 'Sidestick')
   await page.reload()
 
-  await expect(page.getByRole('combobox', { name: /Select card for Sidestick/i })).toHaveValue('RADIO')
+  await expect(page.getByRole('button', { name: 'Sidestick target' })).toHaveClass(/has-card/)
+  await expect(page.getByRole('button', { name: 'Sidestick target' })).not.toHaveClass(/is-wrong/)
+  await expect(page.getByRole('button', { name: /^RADIO\b/ })).toContainText('Sidestick')
 })

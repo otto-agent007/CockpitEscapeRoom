@@ -81,7 +81,7 @@ export default function App() {
   }
 
   return (
-    <main className="game-shell">
+    <main className={`game-shell${state.phase === 'airbus' ? ' airbus-shell' : ''}`}>
       {skipPrototypeScene ? (
         <div className="scene scene--loading">3D scene skipped. Use the mirrored controls below.</div>
       ) : (

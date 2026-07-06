@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { dc9LegacyFlow, firstOfficerFlow, gameCopy, lockerFlow, type FirstOfficerControl, type LockerInteraction } from '../game/config'
+import { useMemo, useState, type DragEvent } from 'react'
+import { dc9LegacyFlow, firstOfficerFlow, gameCopy, lockerFlow, type FirstOfficerControl, type FirstOfficerDecoy, type LockerInteraction } from '../game/config'
 import { SWITCH_ORDER, gameProgress, type GameAction, type GameState, type SwitchId } from '../game/state'
 
 interface HudProps {
@@ -16,22 +16,251 @@ const switchLabels: Record<SwitchId, string> = {
 
 const lockerItems: ReadonlyArray<LockerInteraction> = [...lockerFlow.requiredInteractionIds]
 
+const airbusTargetMeta: Record<FirstOfficerControl, { x: number; y: number; label: string }> = {
+  sidestick: { x: 72, y: 79, label: 'Sidestick' },
+  thrust: { x: 25.5, y: 86, label: 'Thrust levers' },
+  gear: { x: 39.5, y: 57, label: 'Landing gear lever' },
+  radio: { x: 40, y: 83, label: 'Radio panel' },
+  altitude: { x: 38, y: 25, label: 'Altitude area' },
+}
+
+const airbusDecoyTargets = [
+  { id: 'leftPanelKnobs', className: 'left-panel-knobs', x: 12, y: 55, label: firstOfficerFlow.decoyLabels.leftPanelKnobs },
+  { id: 'rightDisplay', className: 'right-display', x: 56, y: 63, label: firstOfficerFlow.decoyLabels.rightDisplay },
+  { id: 'sideConsole', className: 'side-console', x: 89, y: 53, label: firstOfficerFlow.decoyLabels.sideConsole },
+  { id: 'windshieldLights', className: 'windshield-lights', x: 34, y: 9, label: firstOfficerFlow.decoyLabels.windshieldLights },
+] satisfies ReadonlyArray<{ id: FirstOfficerDecoy; className: string; x: number; y: number; label: string }>
+
+type AirbusTargetId = FirstOfficerControl | (typeof airbusDecoyTargets)[number]['id']
+
 export function Hud({ state, dispatch, onRestart }: HudProps) {
   const [airbusClockInput, setAirbusClockInput] = useState(state.airbusClockAnswer)
+  const [selectedAirbusCard, setSelectedAirbusCard] = useState<string | null>(null)
+  const [draggingAirbusCard, setDraggingAirbusCard] = useState<string | null>(null)
+  const [activeAirbusTarget, setActiveAirbusTarget] = useState<AirbusTargetId | null>(null)
   const [watchInput, setWatchInput] = useState('')
   const [baseballInput, setBaseballInput] = useState('')
   const [checklistInput, setChecklistInput] = useState('')
   const selectedRoutes = new Set(state.routeSelections)
+  const assignedTargetByCard = useMemo(() => {
+    const assignments = new Map<string, string>()
+    for (const control of firstOfficerFlow.controlIds) {
+      const card = state.airbusAssignments[control]
+      if (card) assignments.set(card, firstOfficerFlow.controlLabels[control])
+    }
+    for (const decoy of firstOfficerFlow.decoyIds) {
+      const card = state.airbusDecoyAssignments[decoy]
+      if (card) assignments.set(card, firstOfficerFlow.decoyLabels[decoy])
+    }
+    return assignments
+  }, [state.airbusAssignments, state.airbusDecoyAssignments])
 
   const isComplete = (id: FirstOfficerControl) => state.airbusAssignments[id] === firstOfficerFlow.controlMatch[id]
+  const placedAirbusCards = [
+    ...Object.values(state.airbusAssignments),
+    ...Object.values(state.airbusDecoyAssignments),
+  ].filter(Boolean).length
+  const canGradeAirbusCards = placedAirbusCards === firstOfficerFlow.controlCards.length
+
+  const placeAirbusCard = (control: FirstOfficerControl, card: string) => {
+    dispatch({ type: 'ASSIGN_AIRBUS_CARD', control, card })
+    setSelectedAirbusCard(null)
+    setDraggingAirbusCard(null)
+    setActiveAirbusTarget(null)
+  }
+
+  const placeAirbusDecoyCard = (decoy: FirstOfficerDecoy, card: string) => {
+    dispatch({ type: 'ASSIGN_AIRBUS_DECOY_CARD', decoy, card })
+    setSelectedAirbusCard(null)
+    setDraggingAirbusCard(null)
+    setActiveAirbusTarget(null)
+  }
+
+  if (state.phase === 'airbus') {
+    return (
+      <section className="airbus-training" aria-labelledby="airbus-heading">
+        <div className="airbus-topbar">
+          <div>
+            <p className="eyebrow">Airbus First-Officer Mode</p>
+            <h2 id="airbus-heading" className="sr-only">Airbus cockpit label placement</h2>
+          </div>
+          <div className="airbus-progress" aria-label={`${placedAirbusCards} of ${firstOfficerFlow.controlCards.length} cards placed`}>
+            <span>{gameProgress(state)}% complete</span>
+            <strong>{placedAirbusCards}/{firstOfficerFlow.controlCards.length}</strong>
+          </div>
+        </div>
+
+        <div className="airbus-card-tray" aria-label="Draggable label cards">
+          {firstOfficerFlow.controlCards.map((card) => {
+            const assignedTarget = assignedTargetByCard.get(card)
+            const selected = selectedAirbusCard === card
+
+            return (
+              <button
+                key={card}
+                type="button"
+                className={`airbus-card${selected ? ' is-selected' : ''}${assignedTarget ? ' is-placed' : ''}`}
+                draggable
+                aria-pressed={selected}
+                onClick={() => setSelectedAirbusCard(selected ? null : card)}
+                onDragStart={(event) => {
+                  event.dataTransfer.effectAllowed = 'move'
+                  event.dataTransfer.setData('text/plain', card)
+                  setSelectedAirbusCard(card)
+                  setDraggingAirbusCard(card)
+                }}
+                onDragEnd={() => {
+                  setDraggingAirbusCard(null)
+                  setActiveAirbusTarget(null)
+                }}
+              >
+                <strong>{card}</strong>
+                {assignedTarget && <span>{assignedTarget}</span>}
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="airbus-target-layer" aria-label="Cockpit placement targets">
+          {firstOfficerFlow.controlIds.map((control) => {
+            const assignedCard = state.airbusAssignments[control]
+            const complete = canGradeAirbusCards && isComplete(control)
+            const wrong = canGradeAirbusCards && Boolean(assignedCard) && !complete
+            const dragging = Boolean(draggingAirbusCard)
+            const active = activeAirbusTarget === control
+
+            return (
+              <button
+                key={control}
+                type="button"
+                className={`airbus-target airbus-target--${control}${assignedCard ? ' has-card' : ''}${complete ? ' is-correct' : ''}${wrong ? ' is-wrong' : ''}${dragging ? ' is-dragging-card' : ''}${active ? ' is-drag-over' : ''}`}
+                style={{ left: `${airbusTargetMeta[control].x}%`, top: `${airbusTargetMeta[control].y}%` }}
+                aria-label={`${firstOfficerFlow.controlLabels[control]} target`}
+                onClick={() => {
+                  if (selectedAirbusCard) {
+                    placeAirbusCard(control, selectedAirbusCard)
+                    return
+                  }
+                  if (assignedCard) setSelectedAirbusCard(assignedCard)
+                }}
+                onDragEnter={(event) => {
+                  event.preventDefault()
+                  setActiveAirbusTarget(control)
+                }}
+                onDragOver={(event) => {
+                  event.preventDefault()
+                  event.dataTransfer.dropEffect = 'move'
+                  setActiveAirbusTarget(control)
+                }}
+                onDragLeave={(event) => {
+                  const nextTarget = event.relatedTarget
+                  if (nextTarget instanceof Node && event.currentTarget.contains(nextTarget)) return
+                  setActiveAirbusTarget((current) => (current === control ? null : current))
+                }}
+                onDrop={(event: DragEvent<HTMLButtonElement>) => {
+                  event.preventDefault()
+                  const card = event.dataTransfer.getData('text/plain')
+                  if (card) placeAirbusCard(control, card)
+                  else setActiveAirbusTarget(null)
+                }}
+              >
+                <span className="sr-only">
+                  {`${airbusTargetMeta[control].label} drop area. ${
+                    assignedCard ? `Current card: ${assignedCard}.` : 'No card placed.'
+                  }`}
+                </span>
+              </button>
+            )
+          })}
+          {airbusDecoyTargets.map((decoy) => {
+            const assignedCard = state.airbusDecoyAssignments[decoy.id]
+            const dragging = Boolean(draggingAirbusCard)
+            const active = activeAirbusTarget === decoy.id
+
+            return (
+              <button
+                key={decoy.id}
+                type="button"
+                className={`airbus-target airbus-target--decoy airbus-target--${decoy.className}${assignedCard ? ' has-card' : ''}${dragging ? ' is-dragging-card' : ''}${active ? ' is-drag-over' : ''}`}
+                style={{ left: `${decoy.x}%`, top: `${decoy.y}%` }}
+                aria-label={`${decoy.label} decoy`}
+                onClick={() => {
+                  if (selectedAirbusCard) placeAirbusDecoyCard(decoy.id, selectedAirbusCard)
+                }}
+                onDragEnter={(event) => {
+                  event.preventDefault()
+                  setActiveAirbusTarget(decoy.id)
+                }}
+                onDragOver={(event) => {
+                  event.preventDefault()
+                  event.dataTransfer.dropEffect = 'move'
+                  setActiveAirbusTarget(decoy.id)
+                }}
+                onDragLeave={(event) => {
+                  const nextTarget = event.relatedTarget
+                  if (nextTarget instanceof Node && event.currentTarget.contains(nextTarget)) return
+                  setActiveAirbusTarget((current) => (current === decoy.id ? null : current))
+                }}
+                onDrop={(event: DragEvent<HTMLButtonElement>) => {
+                  event.preventDefault()
+                  const card = event.dataTransfer.getData('text/plain')
+                  if (card) placeAirbusDecoyCard(decoy.id, card)
+                  else setActiveAirbusTarget(null)
+                }}
+              >
+                <span className="sr-only">
+                  {`${decoy.label}. Decoy drop area. ${
+                    assignedCard ? `Current card: ${assignedCard}.` : 'No card placed.'
+                  }`}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="airbus-dock" aria-label="First-Officer status and clock challenge">
+          <div className="status airbus-status" aria-live="polite" aria-atomic="true">
+            {state.statusMessage}
+          </div>
+
+          <label className="airbus-clock">
+            <span>{firstOfficerFlow.clockQuestion}</span>
+            <input
+              type="text"
+              value={airbusClockInput}
+              onChange={(event) => {
+                setAirbusClockInput(event.target.value)
+                dispatch({ type: 'SET_AIRBUS_CLOCK_ANSWER', value: event.target.value })
+              }}
+              inputMode="numeric"
+              aria-label="ATP answer"
+              placeholder="1500"
+            />
+          </label>
+
+          <button
+            type="button"
+            className="primary-button"
+            onClick={() => dispatch({ type: 'SUBMIT_AIRBUS_CLOCK' })}
+          >
+            Verify
+          </button>
+          <button type="button" className="secondary-button airbus-dock-button" onClick={() => dispatch({ type: 'USE_HINT' })}>
+            Hint
+          </button>
+          <button type="button" className="text-button airbus-restart" onClick={onRestart}>
+            Restart
+          </button>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <aside className="hud" aria-label="Game controls">
       <div className="hud__topline">
         <span className="eyebrow">
-          {state.phase === 'airbus'
-            ? 'Airbus First-Officer Mode'
-            : state.phase === 'locker'
+          {state.phase === 'locker'
               ? 'Locker reveal'
               : state.phase === 'captain'
                 ? 'Pop T Captain Mode'
@@ -47,67 +276,6 @@ export function Hud({ state, dispatch, onRestart }: HudProps) {
       <div className="status" aria-live="polite" aria-atomic="true">
         {state.statusMessage}
       </div>
-
-      {state.phase === 'airbus' && (
-        <section aria-labelledby="airbus-heading">
-          <h2 id="airbus-heading">Airbus First-Officer onboarding</h2>
-          <p>Match each label card to the correct control in a drag-and-drop style interaction.</p>
-          {firstOfficerFlow.controlIds.map((control) => (
-            <div key={control} style={{ marginBottom: '0.75rem' }}>
-              <label>
-                <span>
-                  {firstOfficerFlow.controlLabels[control]} ({firstOfficerFlow.controlMatch[control]})
-                </span>
-                <select
-                  aria-label={`Select card for ${firstOfficerFlow.controlLabels[control]}`}
-                  value={state.airbusAssignments[control] ?? ''}
-                  onChange={(event) =>
-                    dispatch({ type: 'ASSIGN_AIRBUS_CARD', control, card: event.target.value === '' ? '' : event.target.value })
-                  }
-                >
-                  <option value="">Pick card…</option>
-                  {firstOfficerFlow.controlCards.map((card) => (
-                    <option key={card} value={card}>
-                      {card}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <span style={{ fontSize: '0.9rem' }}>
-                {state.airbusAssignments[control]
-                  ? isComplete(control)
-                    ? 'Correct.'
-                    : 'Checking…'
-                  : 'Unmatched'}
-              </span>
-              <p>{state.airbusAssignments[control] ? firstOfficerFlow.controlHints[control] : ''}</p>
-            </div>
-          ))}
-
-          <p className="primary-note">{firstOfficerFlow.clockQuestion}</p>
-          <label>
-            <span>ATP answer</span>
-            <input
-              type="text"
-              value={airbusClockInput}
-              onChange={(event) => {
-                setAirbusClockInput(event.target.value)
-                dispatch({ type: 'SET_AIRBUS_CLOCK_ANSWER', value: event.target.value })
-              }}
-              inputMode="numeric"
-              aria-label="ATP answer"
-            />
-          </label>
-          <button
-            type="button"
-            className="primary-button"
-            onClick={() => dispatch({ type: 'SUBMIT_AIRBUS_CLOCK' })}
-          >
-            Verify First-Officer challenge
-          </button>
-          <p>Correctly complete all matches and submit to unlock the locker.</p>
-        </section>
-      )}
 
       {state.phase === 'locker' && (
         <section aria-labelledby="locker-heading">
@@ -216,7 +384,7 @@ export function Hud({ state, dispatch, onRestart }: HudProps) {
         </section>
       )}
 
-      {(state.phase === 'airbus' || state.phase === 'locker') && (
+      {state.phase === 'locker' && (
         <button type="button" className="secondary-button" onClick={() => dispatch({ type: 'USE_HINT' })}>
           Request progressive hint
         </button>

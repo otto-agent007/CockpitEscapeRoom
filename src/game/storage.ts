@@ -1,5 +1,5 @@
 import { createInitialState, type GamePhase, type GameState, type PuzzleId, type SwitchId } from './state'
-import { type FirstOfficerControl, type LockerInteraction } from './config'
+import { type FirstOfficerControl, type FirstOfficerDecoy, type LockerInteraction } from './config'
 import { firstOfficerFlow, lockerFlow } from './config'
 
 export const STORAGE_KEY = 'cockpit-escape-room:game-state:v1'
@@ -32,6 +32,18 @@ function isSafeAssignments(value: unknown): value is Record<FirstOfficerControl,
       const raw = candidate[control]
       return raw === null || typeof raw === 'string'
     }) && controls.every((control) => Object.prototype.hasOwnProperty.call(candidate, control))
+  )
+}
+
+function isSafeDecoyAssignments(value: unknown): value is Record<FirstOfficerDecoy, string | null> {
+  if (!value || typeof value !== 'object') return false
+  const candidate = value as Record<string, unknown>
+  const decoys = [...firstOfficerFlow.decoyIds]
+  return (
+    decoys.every((decoy) => {
+      const raw = candidate[decoy]
+      return raw === null || typeof raw === 'string'
+    }) && decoys.every((decoy) => Object.prototype.hasOwnProperty.call(candidate, decoy))
   )
 }
 
@@ -69,9 +81,10 @@ function isGameState(value: unknown): value is GameState {
   if (!value || typeof value !== 'object') return false
   const candidate = value as Partial<GameState>
   return (
-    candidate.schemaVersion === 2 &&
+    candidate.schemaVersion === 3 &&
     isSafePhase(candidate.phase) &&
     isSafeAssignments(candidate.airbusAssignments) &&
+    isSafeDecoyAssignments(candidate.airbusDecoyAssignments) &&
     typeof candidate.airbusClockAnswer === 'string' &&
     isSafeLockerCompleted(candidate.lockerCompleted) &&
     typeof candidate.lockerHatRevealed === 'boolean' &&

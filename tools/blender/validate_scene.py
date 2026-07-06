@@ -43,6 +43,7 @@ if not approval_cameras:
     add_error("Add at least one approval camera whose name contains APPROVAL.")
 
 seen_game_ids: dict[str, str] = {}
+contract_objects = []
 interactive_objects = []
 
 for obj in bpy.data.objects:
@@ -55,16 +56,20 @@ for obj in bpy.data.objects:
 
     game_id = obj.get("game_id")
     interaction = obj.get("interaction")
-    if game_id or interaction or (obj.type != "EMPTY" and "INTERACTIVE" in obj.name):
-        interactive_objects.append(obj.name)
+    is_interactive_candidate = obj.type != "EMPTY" and "INTERACTIVE" in obj.name
+    is_metadata_only_contract = obj.type == "CAMERA" or "LOC_" in obj.name
+    if game_id or interaction or is_interactive_candidate:
+        contract_objects.append(obj.name)
         if not game_id:
             add_error(f"{obj.name}: interactive object is missing custom property game_id")
         elif game_id in seen_game_ids:
             add_error(f"Duplicate game_id {game_id!r}: {seen_game_ids[game_id]} and {obj.name}")
         else:
             seen_game_ids[game_id] = obj.name
-        if not interaction:
+        if not interaction and not is_metadata_only_contract:
             add_warning(f"{obj.name}: interactive object is missing custom property interaction")
+        if interaction or is_interactive_candidate:
+            interactive_objects.append(obj.name)
 
     if obj.type == "MESH":
         if not obj.data.materials:
@@ -83,6 +88,8 @@ report = {
     "blenderVersion": bpy.app.version_string,
     "rootObject": ROOT_NAME,
     "approvalCameras": approval_cameras,
+    "contractObjectCount": len(contract_objects),
+    "contractObjects": sorted(contract_objects),
     "interactiveObjectCount": len(interactive_objects),
     "interactiveObjects": sorted(interactive_objects),
     "errors": errors,

@@ -56,6 +56,8 @@ function CockpitModel({
 
 const CAPTAIN_SWITCH_IDS = ['battery', 'navigation', 'cabin'] as const
 const AIRBUS_GAME_CAMERA = 'CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW'
+const AIRBUS_WIDE_GAME_FOV = 68
+const AIRBUS_NARROW_GAME_FOV = 92
 const AIRBUS_REQUIRED_NODES = [
   'AIRBUS_ROOT',
   'AIRBUS_A320_STATIC',
@@ -83,14 +85,14 @@ interface LoadedAirbusScene {
   camera: THREE.Camera | null
 }
 
-function applyCameraTransform(runtimeCamera: THREE.Camera, sourceCamera: THREE.Camera) {
+function applyCameraTransform(runtimeCamera: THREE.Camera, sourceCamera: THREE.Camera, fovOverride?: number) {
   sourceCamera.getWorldPosition(runtimeCamera.position)
   sourceCamera.getWorldQuaternion(runtimeCamera.quaternion)
   runtimeCamera.scale.copy(sourceCamera.scale)
   runtimeCamera.updateMatrix()
   runtimeCamera.updateMatrixWorld(true)
   if (runtimeCamera instanceof THREE.PerspectiveCamera && sourceCamera instanceof THREE.PerspectiveCamera) {
-    runtimeCamera.fov = sourceCamera.fov
+    runtimeCamera.fov = fovOverride ?? sourceCamera.fov
     runtimeCamera.near = Math.max(0.01, sourceCamera.near)
     runtimeCamera.far = sourceCamera.far
     runtimeCamera.updateProjectionMatrix()
@@ -200,7 +202,7 @@ function AirbusCockpit({
   reducedMotion: boolean
   onCameraReady: () => void
 }) {
-  const { camera } = useThree()
+  const { camera, size } = useThree()
   const [loaded, setLoaded] = useState<LoadedAirbusScene | null>(null)
   const [loadFailed, setLoadFailed] = useState(false)
 
@@ -250,9 +252,9 @@ function AirbusCockpit({
   useEffect(() => {
     if (!loaded?.camera) return
     loaded.scene.updateMatrixWorld(true)
-    applyCameraTransform(camera, loaded.camera)
+    applyCameraTransform(camera, loaded.camera, size.width < 620 ? AIRBUS_NARROW_GAME_FOV : AIRBUS_WIDE_GAME_FOV)
     onCameraReady()
-  }, [camera, loaded, onCameraReady])
+  }, [camera, loaded, onCameraReady, size.width])
 
   return (
     <>
@@ -418,8 +420,10 @@ export function PrototypeScene({
   onLockerHat,
 }: PrototypeSceneProps) {
   const onInteractiveHover = useInteractiveCursor()
+  const [airbusCameraReady, setAirbusCameraReady] = useState(false)
   const [airbusCameraRevision, setAirbusCameraRevision] = useState(0)
   const markAirbusCameraReady = useCallback(() => {
+    setAirbusCameraReady(true)
     setAirbusCameraRevision((revision) => revision + 1)
   }, [])
 
@@ -455,7 +459,9 @@ export function PrototypeScene({
           </mesh>
         )}
 
-        <LimitedOrbitControls phase={phase} airbusCameraRevision={airbusCameraRevision} />
+        {(phase !== 'airbus' || airbusCameraReady) && (
+          <LimitedOrbitControls phase={phase} airbusCameraRevision={airbusCameraRevision} />
+        )}
       </Canvas>
       <div className="prototype-badge">
         {phase === 'airbus'

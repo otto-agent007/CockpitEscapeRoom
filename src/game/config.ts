@@ -16,6 +16,7 @@ export const personalization = {
 
 export const firstOfficerFlow = {
   controlIds: ['sidestick', 'thrust', 'gear', 'radio', 'altitude'] as const,
+  decoyIds: ['leftPanelKnobs', 'rightDisplay', 'sideConsole', 'windshieldLights'] as const,
   controlCards: ['SIDESTICK', 'THRUST', 'GEAR', 'RADIO', 'ALTITUDE', 'CLOCK'] as const,
   controlMatch: {
     sidestick: 'SIDESTICK',
@@ -30,6 +31,12 @@ export const firstOfficerFlow = {
     gear: 'Gear lever',
     radio: 'Radio panel',
     altitude: 'Altitude area',
+  } as const,
+  decoyLabels: {
+    leftPanelKnobs: 'Left panel knobs',
+    rightDisplay: 'Right display screen',
+    sideConsole: 'Side console switches',
+    windshieldLights: 'Windshield light switches',
   } as const,
   controlHints: {
     sidestick: 'Nice. That’s the sidestick.',
@@ -142,5 +149,6 @@ export const gameCopy = {
 } as const
 
 export type FirstOfficerControl = (typeof firstOfficerFlow.controlIds)[number]
+export type FirstOfficerDecoy = (typeof firstOfficerFlow.decoyIds)[number]
 export type LockerInteraction = (typeof lockerFlow.requiredInteractionIds)[number]
 export type LegacyRouteOption = (typeof dc9LegacyFlow.routePuzzleOptions)[number]
