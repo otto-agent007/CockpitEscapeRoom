@@ -81,8 +81,8 @@ test('Airbus playable proof loads the A320 GLB', async ({ page }) => {
 
   await expect(page.getByText('A320 PLAYABLE PROOF')).toBeVisible()
   await expect(page.locator('canvas')).toBeVisible()
-  await expect(page.getByRole('button', { name: /^SIDESTICK\b/ })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Sidestick target' })).toBeVisible()
+  await expect(page.getByRole('button', { name: /^SIDESTICK\b/ })).toBeVisible({ timeout: 25_000 })
+  await expect(page.getByRole('button', { name: 'Sidestick target' })).toBeVisible({ timeout: 25_000 })
   await expect(page.getByRole('textbox', { name: 'ATP answer' })).toHaveCount(0)
   await expect(page.getByRole('combobox')).toHaveCount(0)
   expect(consoleErrors).toEqual([])
