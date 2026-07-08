@@ -198,3 +198,70 @@ Update this file with actual evidence after every milestone. Do not replace fail
 - Playwright ready-gated screenshot pass captured desktop/tablet widths 1440 and 768 px with early state card count 0, ATP count 0, settled canvas opacity 1, no console errors, no ATP question before board completion, and the A320 cockpit visible behind the cards:
   - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-ready-gated-1440.png`
   - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-ready-gated-768.png`
+
+## 2026-07-07 Vercel cockpit preview loading evidence
+
+- Diagnosed protected preview `dpl_HQmr9mCGDGRbyAgRrTiGTzdCx619`; Vercel build was Ready and produced the expected Vite app shell and JS chunk.
+- `npx vercel curl /models/airbus-first-officer.glb --deployment https://cockpit-escape-room-oo8parvv2-ottoagent007-gmailcoms-projects.vercel.app -- --head` showed the deployed Airbus runtime GLB was only 133 bytes, matching the Git LFS pointer instead of the 35,098,268-byte cockpit model.
+- `git cat-file -s HEAD:public/models/airbus-first-officer.glb` returned 133 and `git show HEAD:public/models/airbus-first-officer.glb` showed the `version https://git-lfs.github.com/spec/v1` pointer for SHA-256 `033438f0674423356a64e1b2d9f9430072e65790670ab5cdbbcd62c61b9eedff`.
+- Updated `.gitattributes` so deployable `public/models/*.glb` files are normal Git blobs while source/staged `.glb` files remain under LFS.
+- Staged tree check confirmed `public/models/airbus-first-officer.glb` is now a 35,098,268-byte plain Git blob whose first bytes are `glTF`.
+- `git diff --check` - pass.
+- `npx gltf-transform validate public/models/airbus-first-officer.glb` - pass; no errors, warnings, infos, or hints.
+- `npm run assets:check` - pass; A320 has no errors, warnings, infos, or hints, with existing DC-9 validator info rows still present.
+- `npm run build` - pass.
+- Pushed commit `c1c5981` and Vercel built preview `dpl_2DuN1koZ8WxSPHzVvbqefTYxYa65` from commit `c1c5981`.
+- `npx vercel curl /models/airbus-first-officer.glb --deployment https://cockpit-escape-room-2ig7xn4kg-ottoagent007-gmailcoms-projects.vercel.app -- --head` - pass; deployed GLB now returns `content-type: model/gltf-binary` and `content-length: 35098268`.
+
+## 2026-07-08 Airbus production-readiness browser lighting proof
+
+- Added `plans/0004-a320-cockpit-production-readiness.md` for the A320 browser-proof checkpoint.
+- Tuned `src/scenes/PrototypeScene.tsx` so the A320 runtime uses a named `AirbusRuntimeLighting` rig with ambient, hemisphere, directional, and point fills.
+- Kept the exported `CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW` camera path and retained constrained FO OrbitControls with no pan, no Airbus zoom, a fixed look distance, and explicit polar/azimuth limits.
+- Switched Canvas shadows to `percentage`, removing the repeated deprecated `PCFSoftShadowMap` warning from new captures; the remaining browser warning is the pre-existing Three `Clock` deprecation.
+- No generated GLBs were edited or regenerated for this checkpoint.
+- Baseline browser screenshots captured at 1440, 768, and 375 px:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-before-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-before-768.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-before-375.png`
+- Post-change browser screenshots captured at 1440, 768, and 375 px with no app console errors and no pre-drag hotspot outlines:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-lighting-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-lighting-768.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-lighting-375.png`
+- Browser plugin tools were not available in this session, so Playwright was used for browser evidence.
+- A direct mouse-drag orbit screenshot attempt was discarded because the Playwright page closed during the action; orbit behavior is covered by code review of `LimitedOrbitControls` constraints and the GLB/canvas smoke path.
+- `npm run lint` - pass.
+- `npm run typecheck` - pass.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 4 Chromium tests cover the A320 GLB load, hidden initial ATP, hotspot drag-enter highlight, decoy placement, Verify-to-locker transition, and reload persistence.
+- `npm run check` - pass; lint, typecheck, 13 Vitest tests, and production build completed.
+- `npm run assets:check` - pass; A320 GLB has no errors, warnings, infos, or hints, with existing DC-9 informational rows still present.
+- `git diff --check` - pass.
+- Remaining limitation: owner visual approval is still required before removing `A320 PLAYABLE PROOF` or treating this as final production Airbus cockpit art.
+
+## 2026-07-08 Airbus FO-view likeness correction
+
+- Owner clarified that the production cockpit should keep the wide gameplay composition from `airbus-production-lighting-1440.png`; `public/images/a320-fo-view.png` is the visual likeness reference for material/render treatment, not a tighter camera-framing target.
+- Rechecked the live Sketchfab model page for `A320 Cockpit 2`; the public page still identifies the same downloadable CC Attribution source model, but the detailed render stack remains better captured in the repo's extracted parity files.
+- Reused the earlier A320 Sketchfab parity evidence: Studio-style lighting, three directional lights, matcap/reflection contribution, SSAO, SSR/TAA reference behavior, sharpen, vignette, and grain were recorded in `asset-reports/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-viewer-settings.json` and related shading reports.
+- Added an Airbus-only dependency-free post-process path in `src/scenes/PrototypeScene.tsx` with Three example passes: `EffectComposer`, `RenderPass`, `SSAOPass`, `ShaderPass`, and `OutputPass`.
+- The custom final shader applies subtle sharpen, subdued vignette, and tiny static grain. It is intentionally static so reduced-motion behavior is not affected.
+- Restored the wide runtime camera constants to `68` degrees for desktop/tablet and `92` degrees for narrow portrait.
+- Tested a runtime material/environment parity direction and backed it out because it over-brightened the panel and drifted farther from the dark blue-gray FO-view reference. The remaining visual delta should be handled in a Blender/source material pass, not by broad runtime material mutation.
+- No `.blend` source, generated GLB, runtime node names, pivots, hierarchy, or `game_id` metadata changed in this checkpoint.
+- Wide post-process screenshots captured at 1440, 768, and 375 px with no app console errors and no pre-drag hotspot outlines:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-wide-sketchfab-post-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-wide-sketchfab-post-768.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-wide-sketchfab-post-375.png`
+- Final current-state material-parity screenshots recaptured at 1440, 768, and 375 px with no app console errors:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-material-parity-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-material-parity-768.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-material-parity-375.png`
+- 1920x1080 comparison capture against the `FO-view.png` reference size:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-sketchfab-post-1920.png`
+- Browser plugin tools were not available in this session, so Playwright was used for browser evidence.
+- Console notes: captures still show the pre-existing Three `Clock` deprecation warning and occasional WebGL `ReadPixels` performance warnings from screenshots; no app errors were observed.
+- `npm run lint` - pass.
+- `npm run typecheck` - pass.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 4 Chromium tests.
+- `npm run check` - pass; lint, typecheck, 13 Vitest tests, and production build completed.
+- `npm run assets:check` - pass; A320 GLB has no errors, warnings, infos, or hints, with existing DC-9 informational rows still present.
