@@ -83,6 +83,7 @@ test('Airbus playable proof loads the A320 GLB', async ({ page }) => {
   await expect(page.locator('canvas')).toBeVisible()
   await expect(page.getByRole('button', { name: /^SIDESTICK\b/ })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Sidestick target' })).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'ATP answer' })).toHaveCount(0)
   await expect(page.getByRole('combobox')).toHaveCount(0)
   expect(consoleErrors).toEqual([])
 })
@@ -92,6 +93,8 @@ test('Airbus onboarding, locker reveal, and captain completion unlock reward', a
 
   await expect(page.getByRole('heading', { name: "The Captain's Key" })).toBeVisible()
   await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
+  await expect(page.getByRole('textbox', { name: 'ATP answer' })).toHaveCount(0)
+  await expect(page.getByText('How many flight hours are needed for a standard ATP certificate?')).toHaveCount(0)
 
   await placeAirbusCard(page, 'SIDESTICK', 'Sidestick')
   await placeAirbusCard(page, 'THRUST', 'Thrust levers')
@@ -100,7 +103,11 @@ test('Airbus onboarding, locker reveal, and captain completion unlock reward', a
   await placeAirbusCard(page, 'ALTITUDE', 'Altitude area')
   await placeAirbusDecoyCard(page, 'CLOCK', 'Side console switches')
 
-  await page.getByRole('textbox', { name: 'ATP answer' }).fill('1500')
+  const atpAnswer = page.getByRole('textbox', { name: 'ATP answer' })
+  await expect(atpAnswer).toBeVisible()
+  await expect(atpAnswer).toHaveValue('')
+  await expect(atpAnswer).not.toHaveAttribute('placeholder', '1500')
+  await atpAnswer.fill('1500')
   await expect(page.getByRole('button', { name: 'Verify' })).toBeEnabled()
   await page.getByRole('button', { name: 'Verify' }).click()
 
@@ -155,6 +162,16 @@ test('Airbus cards drag onto cockpit parts with hotspot highlighting', async ({ 
   await expect(decoyTarget).toHaveCSS('opacity', '0')
   await expect(thrustCard).toContainText('Side console switches')
   await expect(page.getByText('2/6')).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'ATP answer' })).toHaveCount(0)
+
+  await placeAirbusCard(page, 'GEAR', 'Gear lever')
+  await placeAirbusCard(page, 'RADIO', 'Radio panel')
+  await placeAirbusCard(page, 'ALTITUDE', 'Altitude area')
+  await placeAirbusDecoyCard(page, 'CLOCK', 'Windshield light switches')
+
+  await expect(page.getByText('6/6')).toBeVisible()
+  await expect(page.getByText('One or more labels are incorrect')).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'ATP answer' })).toHaveCount(0)
 })
 
 test('saved progress persists during Airbus phase', async ({ page }) => {

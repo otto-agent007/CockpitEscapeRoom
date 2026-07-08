@@ -121,3 +121,20 @@ Browser QA must cover correct placement, wrong placement and retry, repeated wro
 ## Outcome and handoff
 
 The Airbus First-Officer phase now opens on a readable direct A320 GLB cockpit composition with top-tray label cards and direct cockpit-part drop hotspots. The old dropdown sidebar is removed from the Airbus matcher, the static source-review cockpit backing is no longer used during gameplay, and the smoke test covers hidden pre-drag hotspots, drag-hover highlighting, accepted decoy placement, and the real Verify-to-locker transition. The visible hover outlines have been retuned to sit on the rendered cockpit parts, including the sidestick. Owner visual approval, individual control pivots, mesh-backed target regions, and live display treatments remain future Airbus production-art work.
+
+## 2026-07-07 addendum: ready gate and ATP deferral
+
+- Added a scene-ready gate so normal 3D Airbus gameplay hides the card tray, hotspots, dock controls, and ATP question until `CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW` has been applied; `?skip3d=1` remains immediately interactive for the mirrored HTML path.
+- Deferred the ATP question until all six cards are placed and the five real cockpit labels are correct.
+- Removed the `1500` placeholder and cleared stale Airbus clock answers from saved progress so the ATP field starts blank.
+- Removed the temporary browser-only display reflection after owner review; the FO-side display now comes only from the GLB render.
+- Validation passed:
+  - `npm run test -- src/game/state.test.ts src/game/storage.test.ts`
+  - `npm run lint`
+  - `npm run typecheck`
+  - `npm run test:e2e -- e2e/smoke.spec.ts`
+  - `npm run check`
+  - `git diff --check`
+- Screenshot evidence:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-ready-gated-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-ready-gated-768.png`

@@ -25,6 +25,14 @@ describe('game storage', () => {
     expect(loadGameState(storage)).toEqual(state)
   })
 
+  it('clears stale Airbus clock answers when loading saved progress', () => {
+    const storage = createMemoryStorage()
+    const state: GameState = { ...createInitialState(), phase: 'airbus', airbusClockAnswer: '1500' }
+    saveGameState(state, storage)
+
+    expect(loadGameState(storage)).toEqual({ ...state, airbusClockAnswer: '' })
+  })
+
   it('recovers safely from corrupt saved data', () => {
     const storage = createMemoryStorage({ [STORAGE_KEY]: '{not-json' })
     expect(loadGameState(storage)).toEqual(createInitialState())

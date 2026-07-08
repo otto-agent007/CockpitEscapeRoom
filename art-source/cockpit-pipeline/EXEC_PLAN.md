@@ -1263,3 +1263,51 @@ Keep the existing `airbusAssignments` state and accessible target buttons. Make 
 ### Remaining delta
 
 Outcome: `direct-cockpit-hotspots-with-decoys`. The direct part-placement interaction is implemented for the browser proof, decoy cockpit objects accept cards, and the board is judged only after all six cards are placed. Owner visual approval remains required before final A320 production-art approval, and future work should replace approximate HTML hotspots with mesh/pivot-backed control regions when the cockpit interaction contract is promoted.
+
+## Airbus A320 Ready Gate And ATP Clock Deferral: 2026-07-07
+
+### Goal
+
+Stop the Airbus phase from exposing gameplay controls before the A320 cockpit is camera-ready, and keep the ATP flight-hours answer blank and hidden until the drag/drop board is complete.
+
+### Context
+
+Owner feedback reported the black briefcase-like view had returned and the `How many flight hours` question showed an answer at the bottom. Local browser reproduction confirmed the ATP field was rendered immediately and the `1500` placeholder looked like a pre-filled answer.
+
+### Bounded action decision
+
+Gate the Airbus HUD on the exported GLB camera-ready callback in normal 3D mode, keep `?skip3d=1` immediately interactive for the HTML fallback path, hide ATP until all six cards are placed with the five real controls correct, and clear stale Airbus clock answers from saved progress. Do not edit the GLB or Blender source for this pass.
+
+### Files changed
+
+- `src/App.tsx`
+- `src/components/Hud.tsx`
+- `src/game/state.ts`
+- `src/game/storage.ts`
+- `src/game/state.test.ts`
+- `src/game/storage.test.ts`
+- `src/scenes/PrototypeScene.tsx`
+- `src/styles.css`
+- `e2e/smoke.spec.ts`
+- `TEST_REPORT.md`
+- `plans/0003-a320-first-officer-playable-repair.md`
+- `asset-reports/cockpit-pipeline/a320-cockpit-2-browser-integration-proof.md`
+- `art-source/cockpit-pipeline/gates/a320-cockpit-2-browser-integration-proof.json`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-ready-gated-1440.png`
+- `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-ready-gated-768.png`
+
+### Validation evidence
+
+- `npm run test -- src/game/state.test.ts src/game/storage.test.ts` - pass; 13 focused reducer/storage tests.
+- `npm run lint` - pass.
+- `npm run typecheck` - pass.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 4 Chromium tests cover hidden initial ATP, blank ATP reveal, wrong full-board ATP hiding, real Verify-to-locker transition, and reload persistence.
+- `npm run check` - pass; lint, typecheck, 13 Vitest tests, and production build completed.
+- `git diff --check` - pass.
+- Playwright ready-gated screenshot pass captured 1440 and 768 px with early state card count 0, ATP count 0, settled canvas opacity 1, no console errors, no ATP question before board completion, and the A320 cockpit visible behind the cards:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-ready-gated-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-ready-gated-768.png`
+
+### Remaining delta
+
+Outcome: `ready-gated-atp-deferral`. The player no longer sees cards or the ATP question before the A320 cockpit is ready, and the ATP answer starts blank. Owner visual approval remains required before final A320 production-art approval, and future work should handle display readability with proper cockpit materials when the cockpit art is promoted.

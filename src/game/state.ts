@@ -220,6 +220,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             ...state.airbusAssignments,
             [action.control]: null,
           },
+          airbusClockAnswer: '',
           statusMessage: 'Card removed from control. Reassign a matching card.',
         }
       }
@@ -233,6 +234,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         airbusAssignments: nextAssignments,
         airbusDecoyAssignments: cleared.decoyAssignments,
+        airbusClockAnswer: '',
         statusMessage: allCardsPlaced(nextAssignments, cleared.decoyAssignments) && allControlsCorrect(nextAssignments)
           ? `${firstOfficerFlow.firstCompleteBanner}. Now enter the ATP time on the clock.`
           : controlAnswerFeedback(nextAssignments, cleared.decoyAssignments),
@@ -250,6 +252,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         airbusAssignments: cleared.assignments,
         airbusDecoyAssignments: nextDecoyAssignments,
+        airbusClockAnswer: '',
         statusMessage: allCardsPlaced(cleared.assignments, nextDecoyAssignments) && allControlsCorrect(cleared.assignments)
           ? `${firstOfficerFlow.firstCompleteBanner}. Now enter the ATP time on the clock.`
           : controlAnswerFeedback(cleared.assignments, nextDecoyAssignments),

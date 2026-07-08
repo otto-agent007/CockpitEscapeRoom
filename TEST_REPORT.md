@@ -182,3 +182,19 @@ Update this file with actual evidence after every milestone. Do not replace fail
   - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-direct-glb-768.png`
   - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-direct-glb-375.png`
 - `npm run check` - pass; lint, typecheck, 10 Vitest tests, and production build completed.
+
+## 2026-07-07 Airbus ready gate and ATP deferral evidence
+
+- Hid the Airbus card tray, cockpit hotspots, dock controls, and ATP question until the A320 GLB camera-ready callback fires; the early load state now shows only cockpit loading text.
+- Deferred the ATP flight-hours question until all six cards are placed and the five real cockpit controls are correct.
+- Removed the `1500` placeholder and added stale-save cleanup so Airbus saves reload with a blank ATP answer.
+- Removed the temporary browser-only display reflection after owner review; the FO-side display now comes only from the GLB render.
+- `npm run test -- src/game/state.test.ts src/game/storage.test.ts` - pass; 13 focused reducer/storage tests.
+- `npm run lint` - pass.
+- `npm run typecheck` - pass.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 4 Chromium tests cover hidden initial ATP, blank ATP reveal, wrong full-board ATP hiding, real Verify-to-locker transition, and reload persistence.
+- `npm run check` - pass; lint, typecheck, 13 Vitest tests, and production build completed.
+- `git diff --check` - pass.
+- Playwright ready-gated screenshot pass captured desktop/tablet widths 1440 and 768 px with early state card count 0, ATP count 0, settled canvas opacity 1, no console errors, no ATP question before board completion, and the A320 cockpit visible behind the cards:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-ready-gated-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-ready-gated-768.png`
