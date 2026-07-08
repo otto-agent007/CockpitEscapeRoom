@@ -80,3 +80,60 @@ This is a deployable GLB playable proof, not final visual approval.
 ## Approval State
 
 This handoff is approved only for playable proof. Owner visual approval is still required before calling it final production Airbus cockpit art or removing proof/approval caveats.
+
+## 2026-07-08 Production-Readiness Browser Lighting Checkpoint
+
+- Added `plans/0004-a320-cockpit-production-readiness.md` for the browser-first production-readiness pass.
+- Updated `src/scenes/PrototypeScene.tsx` to use a named A320 runtime lighting rig with ambient, hemisphere, directional, and point-light fills.
+- Kept `CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW` as the camera source and retained constrained FO OrbitControls with pan disabled, Airbus zoom disabled, fixed look distance, and explicit polar/azimuth limits.
+- Switched Canvas shadows to `percentage` so new browser captures no longer repeat the deprecated `PCFSoftShadowMap` warning.
+- No `.blend` source, generated GLB, runtime node names, pivots, hierarchy, or `game_id` metadata changed in this checkpoint.
+- Baseline evidence before lighting changes:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-before-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-before-768.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-before-375.png`
+- Post-change evidence after lighting changes:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-lighting-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-lighting-768.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-lighting-375.png`
+- Browser QA used Playwright because Browser plugin tools were not available in this session. Captures had no app console errors and no pre-drag hotspot outlines; the remaining browser warning is the pre-existing Three `Clock` deprecation.
+- Validation:
+  - `npm run lint` - pass.
+  - `npm run typecheck` - pass.
+  - `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 4 Chromium tests.
+  - `npm run check` - pass; lint, typecheck, 13 Vitest tests, and production build completed.
+  - `npm run assets:check` - pass; A320 GLB had no errors, warnings, infos, or hints, and existing DC-9 informational rows remain.
+  - `git diff --check` - pass.
+- Remaining limitation: owner visual approval is still required before upgrading the A320 beyond playable proof. Blender source-lighting, individual control pivots, and final display treatments remain future production-art work.
+
+## 2026-07-08 FO-View Likeness Correction
+
+- Owner clarified that `public/images/a320-fo-view.png` is the visual likeness reference for render/material treatment, not the desired runtime crop. The runtime should keep the wide cockpit composition represented by `airbus-production-lighting-1440.png`.
+- Restored the wide gameplay camera constants in `src/scenes/PrototypeScene.tsx`: `68` degree desktop/tablet FOV and `92` degree narrow portrait FOV.
+- Rechecked the live Sketchfab model page for `A320 Cockpit 2`; the public page still identifies the same downloadable CC Attribution source model, but it does not expose the render stack as directly as the cached viewer extraction.
+- Used the recorded Sketchfab render-parity evidence from the A320 shading pass:
+  - Studio-style directional lighting and environment reference,
+  - matcap/reflection contribution,
+  - SSAO enabled,
+  - SSR/TAA recorded as viewer behavior,
+  - sharpen, vignette, and grain recorded as final-render post-processing.
+- Added Airbus-only runtime post-processing with Three's built-in example passes and no new production dependency. The browser approximation includes SSAO, subtle sharpen, subdued vignette, and tiny static grain.
+- Tested a runtime material/environment parity direction and backed it out because it over-brightened the panel and made the cockpit less like the dark blue-gray FO-view reference. The next meaningful likeness pass should tune Blender/source materials and environment lighting from the cached Sketchfab settings instead of mutating every material at runtime.
+- No `.blend` source, generated GLB, runtime node names, pivots, hierarchy, or `game_id` metadata changed in this checkpoint.
+- Wide gameplay evidence after post-processing:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-wide-sketchfab-post-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-wide-sketchfab-post-768.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-wide-sketchfab-post-375.png`
+- Final current-state evidence after backing out the runtime material override:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-material-parity-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-material-parity-768.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-material-parity-375.png`
+- 1920 reference-size evidence:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-sketchfab-post-1920.png`
+- Browser QA used Playwright because Browser plugin tools were not available in this session. Captures had no app console errors and no pre-drag hotspot outlines; remaining console output is limited to the pre-existing Three `Clock` deprecation and screenshot-time WebGL `ReadPixels` performance warnings.
+- Validation:
+  - `npm run lint` - pass.
+  - `npm run typecheck` - pass.
+  - `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 4 Chromium tests.
+  - `npm run check` - pass; lint, typecheck, 13 Vitest tests, and production build completed.
+  - `npm run assets:check` - pass; A320 GLB had no errors, warnings, infos, or hints, and existing DC-9 informational rows remain.

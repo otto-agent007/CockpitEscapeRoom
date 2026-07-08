@@ -1,6 +1,11 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { OrbitControls as ThreeOrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js'
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js'
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js'
+import { SSAOPass } from 'three/addons/postprocessing/SSAOPass.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import * as THREE from 'three'
 import { type GamePhase, type SwitchId } from '../game/state'
@@ -58,6 +63,61 @@ const CAPTAIN_SWITCH_IDS = ['battery', 'navigation', 'cabin'] as const
 const AIRBUS_GAME_CAMERA = 'CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW'
 const AIRBUS_WIDE_GAME_FOV = 68
 const AIRBUS_NARROW_GAME_FOV = 92
+const AIRBUS_ORBIT_LOOK_DISTANCE = 0.86
+const AIRBUS_ORBIT_POLAR_LIMIT = 0.2
+const AIRBUS_ORBIT_AZIMUTH_LIMIT = 0.28
+const AIRBUS_SKETCHFAB_POSTPROCESS_SHADER = {
+  name: 'AirbusSketchfabPostProcess',
+  uniforms: {
+    tDiffuse: { value: null },
+    resolution: { value: new THREE.Vector2(1, 1) },
+    sharpen: { value: 0.14 },
+    vignetteAmount: { value: 0.16 },
+    vignetteHardness: { value: 0.72 },
+    grainAmount: { value: 0.002 },
+  },
+  vertexShader: /* glsl */ `
+    varying vec2 vUv;
+
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: /* glsl */ `
+    uniform sampler2D tDiffuse;
+    uniform vec2 resolution;
+    uniform float sharpen;
+    uniform float vignetteAmount;
+    uniform float vignetteHardness;
+    uniform float grainAmount;
+    varying vec2 vUv;
+
+    float random(vec2 value) {
+      return fract(sin(dot(value, vec2(12.9898, 78.233))) * 43758.5453123);
+    }
+
+    void main() {
+      vec2 texel = 1.0 / resolution;
+      vec4 color = texture2D(tDiffuse, vUv);
+      vec3 neighborAverage =
+        texture2D(tDiffuse, vUv + vec2(texel.x, 0.0)).rgb +
+        texture2D(tDiffuse, vUv - vec2(texel.x, 0.0)).rgb +
+        texture2D(tDiffuse, vUv + vec2(0.0, texel.y)).rgb +
+        texture2D(tDiffuse, vUv - vec2(0.0, texel.y)).rgb;
+      neighborAverage *= 0.25;
+
+      vec3 sharpened = color.rgb + (color.rgb - neighborAverage) * sharpen;
+      float distanceFromCenter = distance(vUv, vec2(0.5));
+      float vignette = 1.0 - smoothstep(vignetteHardness * 0.42, 0.82, distanceFromCenter);
+      float grain = (random(vUv * resolution) - 0.5) * grainAmount;
+
+      color.rgb = mix(sharpened, sharpened * vignette, vignetteAmount);
+      color.rgb += grain;
+      gl_FragColor = vec4(color.rgb, color.a);
+    }
+  `,
+}
 const AIRBUS_REQUIRED_NODES = [
   'AIRBUS_ROOT',
   'AIRBUS_A320_STATIC',
@@ -115,19 +175,22 @@ function LimitedOrbitControls({
     const isAirbus = phase === 'airbus'
     controls.enablePan = false
     controls.enableZoom = !isAirbus
+    controls.enableRotate = true
+    controls.screenSpacePanning = false
     if (isAirbus) {
       const target = new THREE.Vector3()
       camera.getWorldDirection(target)
-      target.multiplyScalar(0.82).add(camera.position)
+      target.multiplyScalar(AIRBUS_ORBIT_LOOK_DISTANCE).add(camera.position)
       controls.target.copy(target)
       const offset = camera.position.clone().sub(target)
       const spherical = new THREE.Spherical().setFromVector3(offset)
-      controls.minDistance = 0.82
-      controls.maxDistance = 0.82
-      controls.minPolarAngle = Math.max(0.01, spherical.phi - 0.16)
-      controls.maxPolarAngle = Math.min(Math.PI - 0.01, spherical.phi + 0.16)
-      controls.minAzimuthAngle = spherical.theta - 0.22
-      controls.maxAzimuthAngle = spherical.theta + 0.22
+      controls.minDistance = AIRBUS_ORBIT_LOOK_DISTANCE
+      controls.maxDistance = AIRBUS_ORBIT_LOOK_DISTANCE
+      controls.minPolarAngle = Math.max(0.01, spherical.phi - AIRBUS_ORBIT_POLAR_LIMIT)
+      controls.maxPolarAngle = Math.min(Math.PI - 0.01, spherical.phi + AIRBUS_ORBIT_POLAR_LIMIT)
+      controls.minAzimuthAngle = spherical.theta - AIRBUS_ORBIT_AZIMUTH_LIMIT
+      controls.maxAzimuthAngle = spherical.theta + AIRBUS_ORBIT_AZIMUTH_LIMIT
+      controls.rotateSpeed = 0.45
     } else {
       controls.minDistance = 4.2
       controls.maxDistance = 7.2
@@ -148,6 +211,68 @@ function LimitedOrbitControls({
 
   useFrame(() => controlsRef.current?.update())
   return null
+}
+
+function AirbusSketchfabPostProcessing() {
+  const { camera, gl, scene, size } = useThree()
+  const composerRef = useRef<EffectComposer | null>(null)
+  const sketchfabPassRef = useRef<ShaderPass | null>(null)
+
+  useEffect(() => {
+    const composer = new EffectComposer(gl)
+    const renderPass = new RenderPass(scene, camera)
+    const ssaoPass = new SSAOPass(scene, camera, size.width, size.height, 16)
+    ssaoPass.kernelRadius = 4
+    ssaoPass.minDistance = 0.004
+    ssaoPass.maxDistance = 0.13
+
+    const sketchfabPass = new ShaderPass(AIRBUS_SKETCHFAB_POSTPROCESS_SHADER)
+    const outputPass = new OutputPass()
+    composer.addPass(renderPass)
+    composer.addPass(ssaoPass)
+    composer.addPass(sketchfabPass)
+    composer.addPass(outputPass)
+
+    composerRef.current = composer
+    sketchfabPassRef.current = sketchfabPass
+
+    return () => {
+      composerRef.current = null
+      sketchfabPassRef.current = null
+      composer.dispose()
+      ssaoPass.dispose()
+      sketchfabPass.dispose()
+      outputPass.dispose()
+    }
+  }, [camera, gl, scene, size.height, size.width])
+
+  useEffect(() => {
+    const composer = composerRef.current
+    const sketchfabPass = sketchfabPassRef.current
+    if (!composer || !sketchfabPass) return
+    composer.setSize(size.width, size.height)
+    sketchfabPass.uniforms.resolution?.value.set(size.width * gl.getPixelRatio(), size.height * gl.getPixelRatio())
+  }, [gl, size.height, size.width])
+
+  useFrame((_, delta) => {
+    composerRef.current?.render(delta)
+  }, 1)
+
+  return null
+}
+
+function AirbusRuntimeLighting() {
+  return (
+    <>
+      <ambientLight intensity={1.18} />
+      <hemisphereLight args={['#dcebf2', '#243436', 0.58]} />
+      <directionalLight position={[0.35, 3.4, 2.8]} intensity={1.65} color="#f4f8ff" />
+      <directionalLight position={[-2.8, 1.7, 1.2]} intensity={0.48} color="#9fc6d9" />
+      <pointLight position={[0.15, 1.05, 0.8]} intensity={1.28} distance={5.2} color="#dff6ff" />
+      <pointLight position={[-1.85, 0.52, 1.05]} intensity={0.88} distance={3.7} color="#e7fff3" />
+      <pointLight position={[1.65, 0.48, 0.88]} intensity={0.74} distance={3.4} color="#d8ecff" />
+    </>
+  )
 }
 
 function useInteractiveCursor() {
@@ -259,10 +384,8 @@ function AirbusCockpit({
 
   return (
     <>
-      <color attach="background" args={['#11191b']} />
-      <ambientLight intensity={0.82} />
-      <directionalLight position={[2.8, 5.2, 4.4]} intensity={2.2} castShadow />
-      <pointLight position={[-2.4, 1.7, 2.2]} intensity={0.8} color="#b8d9ff" />
+      <color attach="background" args={['#172123']} />
+      <AirbusRuntimeLighting />
       {loaded && !loadFailed ? (
         <primitive object={loaded.scene} />
       ) : (
@@ -435,7 +558,7 @@ export function PrototypeScene({
       <Canvas
         camera={{ position: [0, 0.25, 5.6], fov: 42 }}
         dpr={[1, 1.5]}
-        shadows
+        shadows="percentage"
         fallback={<div className="canvas-fallback">WebGL is unavailable. Use the mirrored HTML controls.</div>}
       >
         {phase === 'airbus' && <AirbusCockpit reducedMotion={reducedMotion} onCameraReady={markAirbusCameraReady} />}
@@ -462,6 +585,7 @@ export function PrototypeScene({
           </mesh>
         )}
 
+        {phase === 'airbus' && airbusCameraReady && <AirbusSketchfabPostProcessing />}
         {(phase !== 'airbus' || airbusCameraReady) && (
           <LimitedOrbitControls phase={phase} airbusCameraRevision={airbusCameraRevision} />
         )}
