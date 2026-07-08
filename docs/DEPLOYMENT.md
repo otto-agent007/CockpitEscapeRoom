@@ -35,6 +35,8 @@ Every pull request should receive a preview deployment. Use that URL for owner v
 
 `.vercelignore` excludes Blender sources, caches, test reports, and source asset files. Production GLBs belong in `public/models` only after local validation.
 
+Deployable runtime GLBs under `public/models` must be committed as normal Git blobs, not Git LFS pointers. Vercel serves static files from the checked-out build tree; if a runtime GLB is only an LFS pointer, the preview serves the tiny pointer file and the browser cockpit loader fails.
+
 ## Environment variables
 
 The game currently needs none. Do not add analytics or external APIs by default. `BLENDER_BIN` is a local development variable and must not be configured in Vercel.

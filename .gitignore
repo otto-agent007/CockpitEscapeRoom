@@ -14,3 +14,4 @@ __pycache__/
 !.env.example
 .cursor/
 tools/blender/blender_mcp_addon.py
+.vercel

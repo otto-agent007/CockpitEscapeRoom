@@ -198,3 +198,15 @@ Update this file with actual evidence after every milestone. Do not replace fail
 - Playwright ready-gated screenshot pass captured desktop/tablet widths 1440 and 768 px with early state card count 0, ATP count 0, settled canvas opacity 1, no console errors, no ATP question before board completion, and the A320 cockpit visible behind the cards:
   - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-ready-gated-1440.png`
   - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-ready-gated-768.png`
+
+## 2026-07-07 Vercel cockpit preview loading evidence
+
+- Diagnosed protected preview `dpl_HQmr9mCGDGRbyAgRrTiGTzdCx619`; Vercel build was Ready and produced the expected Vite app shell and JS chunk.
+- `npx vercel curl /models/airbus-first-officer.glb --deployment https://cockpit-escape-room-oo8parvv2-ottoagent007-gmailcoms-projects.vercel.app -- --head` showed the deployed Airbus runtime GLB was only 133 bytes, matching the Git LFS pointer instead of the 35,098,268-byte cockpit model.
+- `git cat-file -s HEAD:public/models/airbus-first-officer.glb` returned 133 and `git show HEAD:public/models/airbus-first-officer.glb` showed the `version https://git-lfs.github.com/spec/v1` pointer for SHA-256 `033438f0674423356a64e1b2d9f9430072e65790670ab5cdbbcd62c61b9eedff`.
+- Updated `.gitattributes` so deployable `public/models/*.glb` files are normal Git blobs while source/staged `.glb` files remain under LFS.
+- Staged tree check confirmed `public/models/airbus-first-officer.glb` is now a 35,098,268-byte plain Git blob whose first bytes are `glTF`.
+- `git diff --check` - pass.
+- `npx gltf-transform validate public/models/airbus-first-officer.glb` - pass; no errors, warnings, infos, or hints.
+- `npm run assets:check` - pass; A320 has no errors, warnings, infos, or hints, with existing DC-9 validator info rows still present.
+- `npm run build` - pass.
