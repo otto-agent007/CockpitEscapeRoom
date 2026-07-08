@@ -210,3 +210,5 @@ Update this file with actual evidence after every milestone. Do not replace fail
 - `npx gltf-transform validate public/models/airbus-first-officer.glb` - pass; no errors, warnings, infos, or hints.
 - `npm run assets:check` - pass; A320 has no errors, warnings, infos, or hints, with existing DC-9 validator info rows still present.
 - `npm run build` - pass.
+- Pushed commit `c1c5981` and Vercel built preview `dpl_2DuN1koZ8WxSPHzVvbqefTYxYa65` from commit `c1c5981`.
+- `npx vercel curl /models/airbus-first-officer.glb --deployment https://cockpit-escape-room-2ig7xn4kg-ottoagent007-gmailcoms-projects.vercel.app -- --head` - pass; deployed GLB now returns `content-type: model/gltf-binary` and `content-length: 35098268`.
