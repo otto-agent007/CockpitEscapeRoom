@@ -74,6 +74,7 @@ interface PrototypeSceneProps {
   lockerHatRevealed: boolean
   captainRewardUnlocked: boolean
   reducedMotion: boolean
+  onAirbusReady: () => void
   onSwitch: (switchId: SwitchId) => void
   onMars: () => void
   onLockerHat: () => void
@@ -415,6 +416,7 @@ export function PrototypeScene({
   lockerHatRevealed,
   captainRewardUnlocked,
   reducedMotion,
+  onAirbusReady,
   onSwitch,
   onMars,
   onLockerHat,
@@ -425,7 +427,8 @@ export function PrototypeScene({
   const markAirbusCameraReady = useCallback(() => {
     setAirbusCameraReady(true)
     setAirbusCameraRevision((revision) => revision + 1)
-  }, [])
+    onAirbusReady()
+  }, [onAirbusReady])
 
   return (
     <div className="scene" aria-label="Interactive 3D scene">

@@ -106,7 +106,9 @@ export function loadGameState(storage: Pick<Storage, 'getItem' | 'removeItem'> =
     const raw = storage.getItem(STORAGE_KEY)
     if (!raw) return createInitialState()
     const parsed: unknown = JSON.parse(raw)
-    if (isGameState(parsed)) return parsed
+    if (isGameState(parsed)) {
+      return parsed.phase === 'airbus' ? { ...parsed, airbusClockAnswer: '' } : parsed
+    }
     storage.removeItem(STORAGE_KEY)
   } catch {
     storage.removeItem(STORAGE_KEY)

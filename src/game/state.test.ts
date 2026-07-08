@@ -41,6 +41,29 @@ describe('gameReducer', () => {
     expect(state.statusMessage).toContain('cards left')
   })
 
+  it('requires a fresh blank-to-filled clock answer after the Airbus board is correct', () => {
+    let state = gameReducer(createInitialState(), { type: 'START' })
+    for (const control of firstOfficerFlow.controlIds) {
+      state = gameReducer(state, {
+        type: 'ASSIGN_AIRBUS_CARD',
+        control,
+        card: firstOfficerFlow.controlMatch[control],
+      })
+    }
+    state = gameReducer(state, { type: 'ASSIGN_AIRBUS_DECOY_CARD', decoy: 'sideConsole', card: 'CLOCK' })
+
+    expect(state.airbusClockAnswer).toBe('')
+
+    state = gameReducer(state, { type: 'SUBMIT_AIRBUS_CLOCK' })
+    expect(state.phase).toBe('airbus')
+    expect(state.statusMessage).toContain('Clock answer is not yet recognized')
+
+    state = gameReducer(state, { type: 'SET_AIRBUS_CLOCK_ANSWER', value: '1500' })
+    state = gameReducer(state, { type: 'ASSIGN_AIRBUS_CARD', control: 'sidestick', card: 'RADIO' })
+    expect(state.airbusClockAnswer).toBe('')
+    expect(state.phase).toBe('airbus')
+  })
+
   it('enters locker flow only after all Airbus tasks are correct', () => {
     let state = gameReducer(createInitialState(), { type: 'START' })
     for (const control of firstOfficerFlow.controlIds) {

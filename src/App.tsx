@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { Hud } from './components/Hud'
 import { gameCopy } from './game/config'
 import { clearGameState } from './game/storage'
@@ -32,11 +32,16 @@ export default function App() {
   const { state, dispatch } = useGame()
   const reducedMotion = useReducedMotion()
   const skipPrototypeScene = shouldSkipPrototypeScene()
+  const [airbusSceneReady, setAirbusSceneReady] = useState(false)
+  const markAirbusSceneReady = useCallback(() => {
+    setAirbusSceneReady(true)
+  }, [])
 
   const restart = () => {
     const confirmed = window.confirm(`Restart ${gameCopy.title} and clear saved progress?`)
     if (!confirmed) return
     clearGameState()
+    setAirbusSceneReady(false)
     dispatch({ type: 'RESET' })
   }
 
@@ -92,13 +97,19 @@ export default function App() {
             lockerHatRevealed={state.lockerHatRevealed}
             captainRewardUnlocked={state.captainRewardUnlocked}
             reducedMotion={reducedMotion}
+            onAirbusReady={markAirbusSceneReady}
             onSwitch={(switchId) => dispatch({ type: 'ACTIVATE_SWITCH', switchId })}
             onMars={() => dispatch({ type: 'UNLOCK_MARS' })}
             onLockerHat={() => dispatch({ type: 'REVEAL_CAPTAIN_HAT' })}
           />
         </Suspense>
       )}
-      <Hud state={state} dispatch={dispatch} onRestart={restart} />
+      <Hud
+        state={state}
+        dispatch={dispatch}
+        onRestart={restart}
+        airbusSceneReady={skipPrototypeScene || airbusSceneReady}
+      />
     </main>
   )
 }

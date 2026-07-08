@@ -6,6 +6,7 @@ interface HudProps {
   state: GameState
   dispatch: React.Dispatch<GameAction>
   onRestart: () => void
+  airbusSceneReady: boolean
 }
 
 const switchLabels: Record<SwitchId, string> = {
@@ -33,8 +34,7 @@ const airbusDecoyTargets = [
 
 type AirbusTargetId = FirstOfficerControl | (typeof airbusDecoyTargets)[number]['id']
 
-export function Hud({ state, dispatch, onRestart }: HudProps) {
-  const [airbusClockInput, setAirbusClockInput] = useState(state.airbusClockAnswer)
+export function Hud({ state, dispatch, onRestart, airbusSceneReady }: HudProps) {
   const [selectedAirbusCard, setSelectedAirbusCard] = useState<string | null>(null)
   const [draggingAirbusCard, setDraggingAirbusCard] = useState<string | null>(null)
   const [activeAirbusTarget, setActiveAirbusTarget] = useState<AirbusTargetId | null>(null)
@@ -61,6 +61,9 @@ export function Hud({ state, dispatch, onRestart }: HudProps) {
     ...Object.values(state.airbusDecoyAssignments),
   ].filter(Boolean).length
   const canGradeAirbusCards = placedAirbusCards === firstOfficerFlow.controlCards.length
+  const airbusBoardComplete =
+    canGradeAirbusCards &&
+    firstOfficerFlow.controlIds.every((control) => state.airbusAssignments[control] === firstOfficerFlow.controlMatch[control])
 
   const placeAirbusCard = (control: FirstOfficerControl, card: string) => {
     dispatch({ type: 'ASSIGN_AIRBUS_CARD', control, card })
@@ -77,6 +80,15 @@ export function Hud({ state, dispatch, onRestart }: HudProps) {
   }
 
   if (state.phase === 'airbus') {
+    if (!airbusSceneReady) {
+      return (
+        <section className="airbus-training airbus-training--loading" aria-labelledby="airbus-heading">
+          <h2 id="airbus-heading" className="sr-only">Airbus cockpit loading</h2>
+          <p className="sr-only" aria-live="polite">Loading the Airbus cockpit.</p>
+        </section>
+      )
+    }
+
     return (
       <section className="airbus-training" aria-labelledby="airbus-heading">
         <div className="airbus-topbar">
@@ -218,33 +230,38 @@ export function Hud({ state, dispatch, onRestart }: HudProps) {
           })}
         </div>
 
-        <div className="airbus-dock" aria-label="First-Officer status and clock challenge">
+        <div
+          className={`airbus-dock${airbusBoardComplete ? ' airbus-dock--clock' : ' airbus-dock--cards'}`}
+          aria-label="First-Officer status and controls"
+        >
           <div className="status airbus-status" aria-live="polite" aria-atomic="true">
             {state.statusMessage}
           </div>
 
-          <label className="airbus-clock">
-            <span>{firstOfficerFlow.clockQuestion}</span>
-            <input
-              type="text"
-              value={airbusClockInput}
-              onChange={(event) => {
-                setAirbusClockInput(event.target.value)
-                dispatch({ type: 'SET_AIRBUS_CLOCK_ANSWER', value: event.target.value })
-              }}
-              inputMode="numeric"
-              aria-label="ATP answer"
-              placeholder="1500"
-            />
-          </label>
+          {airbusBoardComplete && (
+            <>
+              <label className="airbus-clock">
+                <span>{firstOfficerFlow.clockQuestion}</span>
+                <input
+                  type="text"
+                  value={state.airbusClockAnswer}
+                  onChange={(event) => {
+                    dispatch({ type: 'SET_AIRBUS_CLOCK_ANSWER', value: event.target.value })
+                  }}
+                  inputMode="numeric"
+                  aria-label="ATP answer"
+                />
+              </label>
 
-          <button
-            type="button"
-            className="primary-button"
-            onClick={() => dispatch({ type: 'SUBMIT_AIRBUS_CLOCK' })}
-          >
-            Verify
-          </button>
+              <button
+                type="button"
+                className="primary-button"
+                onClick={() => dispatch({ type: 'SUBMIT_AIRBUS_CLOCK' })}
+              >
+                Verify
+              </button>
+            </>
+          )}
           <button type="button" className="secondary-button airbus-dock-button" onClick={() => dispatch({ type: 'USE_HINT' })}>
             Hint
           </button>

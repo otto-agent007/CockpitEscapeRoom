@@ -364,6 +364,7 @@ p {
   top: auto;
   bottom: 1rem;
   left: 1rem;
+  z-index: 2;
 }
 
 .scene {
@@ -668,6 +669,14 @@ p {
   pointer-events: auto;
 }
 
+.airbus-dock--cards {
+  grid-template-columns: minmax(18rem, 1fr) auto auto;
+}
+
+.airbus-dock--clock {
+  grid-template-columns: minmax(15rem, 1fr) minmax(16rem, 0.9fr) auto auto auto;
+}
+
 .airbus-status {
   min-height: auto;
   margin: 0;
@@ -843,6 +852,14 @@ progress {
   }
 
   .airbus-dock {
+    grid-template-columns: minmax(0, 1fr) minmax(13rem, 0.8fr) auto auto;
+  }
+
+  .airbus-dock--cards {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+
+  .airbus-dock--clock {
     grid-template-columns: minmax(0, 1fr) minmax(13rem, 0.8fr) auto auto;
   }
 

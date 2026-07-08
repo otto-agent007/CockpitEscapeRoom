@@ -33,10 +33,14 @@
     "Playwright hotspot-highlight screenshot captured at 1440 px",
     "Airbus hotspot geometry retuned so the sidestick outline sits on the sidestick itself",
     "Airbus decoy objects accept card placement and correctness is judged only after all six cards are placed",
-    "Playwright decoy-highlight screenshot captured at 1440 px"
+    "Playwright decoy-highlight screenshot captured at 1440 px",
+    "Airbus HUD controls are hidden until the A320 GLB camera-ready callback fires",
+    "Airbus ATP clock challenge stays hidden until the full board is correct and starts with a blank input",
+    "Airbus stale saved clock answers are cleared when loading Airbus progress",
+    "Playwright ready-gated screenshot pass at 768 and 1440 px"
   ],
   "remainingBlockers": [
     "Owner visual approval is still required before this playable proof is treated as production A320 cockpit art.",
-    "Individual control pivots and live display treatments remain future Airbus interaction work."
+    "Individual control pivots and production display materials remain future Airbus interaction work."
   ]
 }

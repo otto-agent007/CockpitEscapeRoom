@@ -38,6 +38,9 @@ This is a deployable GLB playable proof, not final visual approval.
 - The label cards now drop directly onto transparent HTML hotspots aligned to cockpit parts; drag hover outlines the active part, and the same target buttons preserve click/keyboard access.
 - Hotspot geometry was retuned after owner review so the sidestick outline sits on the sidestick itself, thrust/radio targets align to their rendered cockpit areas, and narrow portrait view uses a wider runtime FOV to keep the sidestick visible.
 - Decoy cockpit objects are also valid drop slots. Hotspots remain visually hidden until a card is dragged over them, and the game judges correctness only after all six cards are placed.
+- The Airbus card tray, cockpit hotspots, dock controls, and ATP clock challenge are hidden until the A320 GLB camera-ready callback fires in normal 3D mode; `?skip3d=1` remains immediately interactive for the mirrored HTML path.
+- The ATP clock challenge appears only after all six cards are placed with the five real cockpit controls correct. The input starts blank, has no `1500` placeholder, and stale saved Airbus clock answers are cleared on load.
+- The temporary browser-only display reflection was removed after owner review; the FO-side display now comes only from the GLB render.
 - The scene badge reads `A320 PLAYABLE PROOF` until owner visual approval upgrades the asset.
 - Browser screenshots were captured and reviewed at 375, 768, and 1440 px after restoring visible direct GLB rendering.
 
@@ -53,6 +56,9 @@ This is a deployable GLB playable proof, not final visual approval.
   - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-hotspot-highlight-1440.png`
 - Decoy hotspot highlight proof captured after GLB load:
   - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-decoy-highlight-1440.png`
+- Ready-gated proof captured after GLB load with the ATP challenge still hidden:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-ready-gated-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-ready-gated-768.png`
 
 ## Validation
 
@@ -64,9 +70,10 @@ This is a deployable GLB playable proof, not final visual approval.
 - `npx gltf-transform validate public/models/airbus-first-officer.glb` - pass; no errors, warnings, infos, or hints.
 - `npm run lint` - pass.
 - `npm run typecheck` - pass.
-- `npm run test` - pass; 2 test files and 11 tests.
+- `npm run test` - pass; 2 test files and 13 tests.
 - `npm run build` - pass.
-- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 4 Chromium tests including the A320 GLB integration proof, hidden pre-drag hotspots, hotspot drag-enter highlight, decoy placement, real Verify-to-locker transition, and reload persistence.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 4 Chromium tests including the A320 GLB integration proof, hidden initial ATP, blank ATP reveal, wrong full-board ATP hiding, hotspot drag-enter highlight, decoy placement, real Verify-to-locker transition, and reload persistence.
+- `npm run check` - pass; lint, typecheck, 13 Vitest tests, and production build completed.
 - `git diff --check` - pass.
 - `npm run assets:check` - pass; checked `public/models/airbus-first-officer.glb` and existing `public/models/dc9-cockpit.glb`.
 
