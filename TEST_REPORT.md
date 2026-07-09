@@ -4,14 +4,14 @@ Update this file with actual evidence after every milestone. Do not replace fail
 
 | Check | Expected | Actual | Status | Follow-up |
 |---|---|---|---|---|
-| `npm run lint` | No lint errors | Passed inside `npm run check` after direct cockpit hotspot repair | Pass | Rerun after every code change |
-| `npm run typecheck` | No Typecheck errors | Passed inside `npm run check` after direct cockpit hotspot repair | Pass | Rerun after every code change |
-| `npm run test` | Reducer and persistence tests pass | 11 tests passed after adding decoy assignment coverage | Pass | Add focused tests per puzzle |
-| `npm run build` | Vite production build succeeds | Passed inside `npm run check` after direct cockpit hotspot repair | Pass | Track runtime bundle and asset budgets |
-| `npm run test:e2e` | Captain/locker/airbus loop, A320 GLB proof, hotspot highlighting, decoy placement, Verify transition, and reload path pass in Chromium | Passed 4 Chromium tests after adding direct cockpit hotspot and decoy placement coverage | Pass | Keep browser tests current with each milestone |
+| `npm run lint` | No lint errors | Passed standalone and inside `npm run check` after A320 five-card feedback simplification | Pass | Rerun after every code change |
+| `npm run typecheck` | No Typecheck errors | Passed standalone and inside `npm run check` after A320 five-card feedback simplification | Pass | Rerun after every code change |
+| `npm run test` | Reducer and persistence tests pass | 16 Vitest tests passed after removing the Airbus clock card while retaining the ATP gate | Pass | Add focused tests per puzzle |
+| `npm run build` | Vite production build succeeds | Passed inside `npm run check` after A320 five-card feedback simplification | Pass | Track runtime bundle and asset budgets |
+| `npm run test:e2e` | Captain/locker/airbus loop, A320 GLB proof, immediate feedback, no clock card, ATP gate, and reload path pass in Chromium | Passed 4 Chromium tests after restoring ATP question behind five correct labels | Pass | Keep browser tests current with each milestone |
 | `npm run assets:check` | No invalid production GLBs | Passed for `public/models/airbus-first-officer.glb` and `public/models/dc9-cockpit.glb`; dc9 still has existing validator info rows for unused texcoords and empty nodes | Pass with warnings | Must validate every committed GLB |
-| `npx gltf-transform validate public/models/airbus-first-officer.glb` | A320 cockpit GLB has no glTF validation errors | Passed with no errors, warnings, infos, or hints after direct-GLB camera repair export | Pass | Rerun after every A320 GLB update |
-| `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate browser-integration art-source/cockpit-pipeline/gates/a320-cockpit-2-browser-integration-proof.json` | Browser integration gate artifact is structurally valid | Passed after updating the gate for direct cockpit hotspot evidence | Pass | Rerun after browser evidence changes |
+| `npx gltf-transform validate public/models/airbus-first-officer.glb` | A320 cockpit GLB has no glTF validation errors | Passed with no errors, warnings, infos, or hints after approval-candidate export | Pass | Rerun after every A320 GLB update |
+| `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate browser-integration art-source/cockpit-pipeline/gates/a320-cockpit-2-browser-integration-proof.json` | Browser integration gate artifact is structurally valid | Passed after updating the gate for production-candidate screenshots at 375, 768, 1440, and 1920 px | Pass | Rerun after browser evidence changes |
 | `npm run references:validate` | Reference manifest is structurally valid | Passed for 24 references; wrote `.cache/references/manifest-validation.json` | Pass | Rerun after reference-manifest edits |
 | `npm run references:download` | Download only entries with explicit direct image URLs and record hashes | Passed; downloaded 4 Commons images and skipped the link-only Simulation Daily source | Pass | Use `--force` only after reviewing changed local files |
 | `npm run references:contact-sheet` | Generate labeled DC-9-51 contact sheet | Passed; wrote `art-source/references/dc9-51/contact-sheets/dc9-51-contact-sheet.svg` | Pass | Inspect after new visual sources |
@@ -19,14 +19,14 @@ Update this file with actual evidence after every milestone. Do not replace fail
 | `npm run references:check` | Offline aggregate check validates manifest, artifacts, Blender scene, and preview render | Passed after recursive manifest validation; rendered `.cache/references/dc9_reference_overview.png` with Blender 5.1.2 | Pass with warnings | Rerun before reference-pack PR |
 | `BLENDER_BIN=/home/user1/.local/bin/blender blender --background --python tools/blender/setup_dc9_reference_scene.py` | Create/update reference scene without touching `dc9_master.blend` | Passed with Blender 5.1.2; saved `art-source/blender/dc9_reference_scene.blend`; warning only: `Material.use_nodes` deprecation for Blender 6.0 | Pass | Track Blender API deprecation before Blender 6 |
 | `npm ci` | Install locked dependencies from a portable registry | Passed after normalizing 447 lockfile `resolved` URLs from the internal package gateway to `https://registry.npmjs.org/`; 396 packages installed, 0 vulnerabilities | Pass | Keep lockfile URLs portable |
-| `npm run check` | Lint, typecheck, tests, and build pass | Passed after agent gate validation upgrade; lint, typecheck, 9 tests, and production build completed | Pass | Rerun after code changes |
+| `npm run check` | Lint, typecheck, tests, and build pass | Passed after A320 five-card feedback simplification; lint, typecheck, 16 tests, and production build completed | Pass | Rerun after code changes |
 | `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` | Pipeline schemas, stage contracts, gate examples, and workflow eval runner validate | Passed after agent gate validation upgrade; 7 tests | Pass | Rerun after pipeline contract changes |
 | `npm run pipeline:evals` | Deterministic guardrail evals catch known agent workflow failures | Passed; 6/6 eval fixtures covered Tripo proxy promotion, missing Agent 0 authority, optimization contract breaks, aircraft mixing, and spoiler-leak protection | Pass | Add fixtures for new agent failure modes |
 | `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate ...` | Structured gate examples validate for reference authority, runtime contract, material optimization, and browser integration | Passed for all four checked-in example artifacts | Pass | Real milestone gates must validate their own artifact paths |
 | `npm run references:validate` | Reference manifest covers checked-in images and verifies recorded hashes | Passed for 24 references | Pass | Rerun after reference-manifest edits |
-| 375 / 768 / 1440 px visual check | No clipping or blocked controls | Captured and reviewed direct-GLB A320 First-Officer screenshots at 375, 768, and 1440 px with canvas opacity 1 and no console errors | Pass | Owner visual approval still required before production art approval |
+| 768 / 1440 px visual check | No clipping or blocked controls on the active desktop/tablet target | Captured A320 five-card feedback ATP screenshots at 768 and 1440 px plus wrong-placement 1440 px with no console or page errors; mobile mode explicitly deferred by owner request | Pass | Mobile cockpit UI polish is a later pass |
 | DC-9 realism review | Captain view reads as model-correct DC-9 | In-progress against greybox placeholders | In progress | Requires Blender milestone and owner approval |
-| Airbus realism review | Correct model-specific cockpit | A320 Cockpit 2 playable proof now loads `public/models/airbus-first-officer.glb` directly and opens from the exported First-Officer seat camera; owner visual approval still pending | In progress | Owner review, individual control pivots, and display treatment before production approval |
+| Airbus realism review | Correct model-specific cockpit | A320 Cockpit 2 browser proof now applies a runtime FO/right-seat camera lock and controlled app lighting because the exported game camera was centered and imported GLB lights overexposed the scene; owner visual approval still pending | In progress | Owner review before removing proof label or calling final production art |
 
 ## 2026-07-04 Review repair evidence
 
@@ -265,3 +265,99 @@ Update this file with actual evidence after every milestone. Do not replace fail
 - `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 4 Chromium tests.
 - `npm run check` - pass; lint, typecheck, 13 Vitest tests, and production build completed.
 - `npm run assets:check` - pass; A320 GLB has no errors, warnings, infos, or hints, with existing DC-9 informational rows still present.
+
+## 2026-07-08 A320 production-ready approval candidate
+
+- Owner rejected this A320 Cockpit 2 shading pass on 2026-07-08. The tracked `a320-cockpit-2-shading` build, job, stage input, asset report, and preview-render artifacts were removed from the working tree so they are not mistaken for approval evidence.
+- Added `plans/0005-a320-cockpit-production-ready-candidate.md` for the owner-reviewable A320 production-candidate milestone.
+- Updated `tools/blender/cockpit_pipeline/a320_shading_job.py` and `tools/blender/cockpit_pipeline/a320_shading_blender_apply.py` so the A320 shading pass consumes `asset-reports/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-material-parity-summary.json` as a formal input.
+- The regenerated source material pass preserves source texture links and UVs, maps cached Sketchfab material-channel values into portable Principled BSDF roughness/metallic/base/emissive settings, and records matcap/reflection contribution as material metadata.
+- Updated `tools/blender/validate_scene.py` so imported visual candidates without runtime `interaction` metadata are reported as `candidateNotes`; real warnings now focus on imported scale and no-UV source limitations.
+- First `npm run test:e2e -- e2e/smoke.spec.ts` attempt failed because the regenerated GLB lacked `CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW`, leaving the Airbus card tray gated behind cockpit loading. The Blender shading script now recreates and validates that runtime camera before export.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli run-a320-shading-job` - pass after runtime-camera repair.
+- `BLENDER_BIN=/home/user1/.local/bin/blender npm run asset:airbus` - pass; exported `public/models/airbus-first-officer.glb`.
+- `public/models/airbus-first-officer.glb` - 39,871,920 bytes; SHA-256 `97deb0f7f2dc9fba3e9b046b621c6afe35a2dda4d6752f6a48eb8b073206fcc2`.
+- `.cache/assets/airbus/asset-report.json` - pass; Blender 5.1.2, 144 selected export objects, 140 `game_id` nodes, 129 imported-source warnings, 131 visual-candidate notes, and approval cameras `AIRBUS_A320_CAM_COMPLETE_INTERIOR_APPROVAL` plus `AIRBUS_A320_CAM_FIRST_OFFICER_APPROVAL`.
+- `art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/validation-report.json` - pass; runtime node names, `game_id` metadata, UV layers, source texture links, approved assembly immutability, and reimport validation all passed.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/a320-cockpit-2-assembly/manifests/assembly-complete.json` - pass after refreshing the runtime-contract artifact hash.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate runtime-contract art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate material-optimization art-source/cockpit-pipeline/gates/a320-cockpit-2-material-optimization.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate browser-integration art-source/cockpit-pipeline/gates/a320-cockpit-2-browser-integration-proof.json` - pass.
+- `npx gltf-transform validate public/models/airbus-first-officer.glb` - pass; no errors, warnings, infos, or hints.
+- `npm run assets:check` - pass; A320 GLB had no errors, warnings, infos, or hints, and existing DC-9 informational rows remain.
+- `npm run lint` - pass.
+- `npm run typecheck` - pass.
+- `npm run test` - pass; 13 Vitest tests.
+- `npm run pipeline:evals` - pass; 6/6 eval fixtures.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass after runtime-camera repair; 4 Chromium tests.
+- `npm run check` - pass; lint, typecheck, 13 Vitest tests, and production build completed.
+- Superseded Blender/source approval renders and Playwright production-candidate screenshots were removed after owner rejection.
+- Remaining limitation: this is an owner-reviewable approval candidate, not final visual approval. Keep `A320 PLAYABLE PROOF` until owner approval is recorded.
+- Remaining limitation: imported source meshes still have documented unapplied-scale/no-UV warnings and visual-candidate metadata notes; direct 3D control pivots are not promoted in this pass because browser hotspots remain the supported accessible interaction path.
+
+## 2026-07-08 A320 five-card feedback simplification
+
+- Added `plans/0006-a320-five-card-feedback-simplification.md` for the Airbus gameplay/UI simplification.
+- Removed the active `CLOCK` card from Airbus First-Officer onboarding.
+- Restored the ATP answer input and Verify button after owner correction; they appear only after all five labels are correct.
+- The active Airbus flow now uses five visible label cards: `SIDESTICK`, `THRUST`, `GEAR`, `RADIO`, and `ALTITUDE`.
+- Visible placement boxes now show immediate feedback: green for correct labels and red for wrong labels. Wrong labels remain recoverable by selecting or dragging another card.
+- Completing all five labels now reveals the ATP question; entering `1500` advances to the locker and records `firstOfficer` completion.
+- Kept legacy clock and decoy state fields for saved-game compatibility. A stale Airbus ATP answer is cleared on load so the question is answered fresh.
+- Moved the Airbus status/instructions dock to the lower-right and reduced its desktop/tablet footprint.
+- Owner clarified during implementation to forget mobile mode. Mobile cockpit UI polish is deferred and is not a pass/fail criterion for this checkpoint.
+- `npm run test -- src/game/state.test.ts src/game/storage.test.ts` - pass; 16 focused reducer/storage tests.
+- `npm run typecheck` - pass.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 4 Chromium tests cover no `CLOCK` card, ATP hidden until labels are correct, immediate red/green placement feedback, recovery, ATP submission, locker transition, GLB load, and reload persistence.
+- `npm run lint` - pass.
+- `npm run test` - pass; 16 Vitest tests.
+- `npm run check` - pass; lint, typecheck, 16 Vitest tests, and production build completed.
+- Superseded five-card screenshots were removed from the working tree at owner request. Use `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-production-wide-sketchfab-post-1440.png` as the visual pickup baseline until a replacement proof is captured.
+
+## 2026-07-08 A320 rejected-artifact cleanup and dock repair
+
+- Deleted the rejected `a320-cockpit-2-shading` tracked artifact families from the working tree: shaded build outputs, shading job manifest/approval, shading input recipes, shading asset reports, and shading preview renders.
+- Removed untracked bad browser evidence captures from the latest pass while keeping `airbus-production-wide-sketchfab-post-1440.png` as the owner-selected pickup baseline.
+- Tightened the Airbus instructions dock so it stays as a compact lower-right panel instead of spanning the bottom of the viewport.
+- Verified the active Airbus UI renders exactly five cards and no `CLOCK` card.
+- `npm run test -- src/game/state.test.ts src/game/storage.test.ts` - pass; 16 focused reducer/storage tests.
+- `npm run typecheck` - pass.
+- `npm run lint` - pass.
+- `git diff --check` - pass.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 4 Chromium tests.
+- Local-only Playwright proof: `.cache/screenshots/a320-right-dock-no-clock-1440.png`; viewport 1440 x 900, dock box `x=1081.6 y=716.3 width=336 height=161.3`, no console errors, cards `SIDESTICK`, `THRUST`, `GEAR`, `RADIO`, `ALTITUDE`, and `CLOCK` count 0.
+
+## 2026-07-08 A320 FO-seat camera and color repair
+
+- Confirmed the owner-reported dev server failure in `.cache/screenshots/current-a320-dev-before-fix-1440.png`: centered between-seat camera, nearly black/white cockpit, five cards, no `CLOCK` card, and compact lower-right dock.
+- Root cause for the wrong viewpoint: exported `CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW` is centered at `x=0`. `src/scenes/PrototypeScene.tsx` now applies a runtime FO/right-seat offset and inward yaw before locking the Airbus look controls.
+- Root cause for the washed render: the GLB imports high-intensity `Sun` directional lights, which were stacked with app lighting. Runtime now disables imported GLB lights and uses controlled Airbus scene lights.
+- Browser proof after repair: `.cache/screenshots/a320-fo-seat-color-final-1440.png`; FO/right-seat biased view, colored A320 panels/controls, five cards, no `CLOCK` card, projected target layer, and compact lower-right dock.
+- Responsive evidence: `.cache/screenshots/a320-fo-seat-color-final-768.png` and `.cache/screenshots/a320-fo-seat-color-final-375.png`; both showed five cards, no `CLOCK` card, projected target layer, and no page console errors.
+- Blender cleanup boundary: no live Blender add-on listener was available on `127.0.0.1:9876`; only the `blender-mcp` wrapper process was running. Background inspection of `art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/a320-cockpit-2-assembly.blend` found one scene, one collection, zero cameras, and no suspicious temp/default objects to delete.
+- `npm run typecheck` - pass.
+- `npm run lint` - pass.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 4 Chromium tests.
+
+## 2026-07-08 A320 saved FO camera recovery
+
+- Looked back through memory, git history, and PRs after the owner flagged that the Blender view should not require reconstructing the camera.
+- Memory and PR #31 confirmed the intended workflow: open `art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend` and use its saved `CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW`.
+- Recovered the old shaded `.blend` LFS object from commit `d23ad95` into `.cache/blender-history/a320-cockpit-2-shaded-d23ad95.blend`.
+- Background Blender inspection of that recovered file found active `CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW`: location `(0.167669, -0.695658, 0.140411)`, Euler rotation `(1.367064, 0, 0.282213)`, lens `50`, and camera angle `0.691111`.
+- Blender MCP live scene was switched to that recovered file and exact saved camera with material preview and overlays off.
+- Updated `tools/blender/cockpit_pipeline/a320_shading_blender_apply.py` so future shaded exports write the recovered saved FO camera transform instead of the centerline camera.
+- Updated `src/scenes/PrototypeScene.tsx` so the temporary FO offset/yaw repair only applies when the loaded legacy GLB camera is still centered. Future regenerated GLBs with the saved FO camera will not be double-offset.
+- `python3 -m py_compile tools/blender/cockpit_pipeline/a320_shading_blender_apply.py` - pass.
+- `npm run typecheck` - pass.
+- `npm run lint` - pass.
+- Live browser verification on the PR working tree: Vite at `http://127.0.0.1:4187/`, Playwright 1440 x 900 capture `.cache/screenshots/current-a320-fo-mode-live-1440.png`; FO/right-seat biased colored cockpit view, projected target layer, five cards, no `CLOCK` card, and no page console errors. The screenshot remains local cache, not committed preview evidence.
+- PR validation batch before commit:
+  - `git diff --check` - pass.
+  - `python3 -m py_compile tools/blender/cockpit_pipeline/a320_shading_blender_apply.py tools/blender/cockpit_pipeline/a320_shading_job.py tools/blender/validate_scene.py` - pass.
+  - `npm run test -- src/game/state.test.ts src/game/storage.test.ts` - pass; 16 focused reducer/storage tests.
+  - `npm run assets:check` - pass; A320 reports no glTF errors/warnings/infos/hints, and DC-9 retains existing informational unused texcoord/empty-node rows.
+  - `npm run pipeline:evals` - pass; 6/6 eval fixtures.
+  - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate ...` - pass for runtime contract, material optimization, and browser integration artifacts.
+  - `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 4 Chromium tests.
+  - `npm run check` - pass; lint, typecheck, 16 Vitest tests, and production build completed.

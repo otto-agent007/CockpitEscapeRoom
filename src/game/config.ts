@@ -17,7 +17,7 @@ export const personalization = {
 export const firstOfficerFlow = {
   controlIds: ['sidestick', 'thrust', 'gear', 'radio', 'altitude'] as const,
   decoyIds: ['leftPanelKnobs', 'rightDisplay', 'sideConsole', 'windshieldLights'] as const,
-  controlCards: ['SIDESTICK', 'THRUST', 'GEAR', 'RADIO', 'ALTITUDE', 'CLOCK'] as const,
+  controlCards: ['SIDESTICK', 'THRUST', 'GEAR', 'RADIO', 'ALTITUDE'] as const,
   controlMatch: {
     sidestick: 'SIDESTICK',
     thrust: 'THRUST',

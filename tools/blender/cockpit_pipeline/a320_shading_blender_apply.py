@@ -18,6 +18,7 @@ def main() -> None:
     parser.add_argument("--node-report", required=True)
     parser.add_argument("--recipes", required=True)
     parser.add_argument("--viewer-settings")
+    parser.add_argument("--material-parity-summary")
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--preview-dir", required=True)
     args = parser.parse_args(_args_after_double_dash())
@@ -26,6 +27,7 @@ def main() -> None:
     node_report = json.loads(Path(args.node_report).read_text(encoding="utf-8"))
     recipes = json.loads(Path(args.recipes).read_text(encoding="utf-8"))
     viewer_settings = json.loads(Path(args.viewer_settings).read_text(encoding="utf-8")) if args.viewer_settings else {}
+    material_parity = json.loads(Path(args.material_parity_summary).read_text(encoding="utf-8")) if args.material_parity_summary else {}
     output_dir = Path(args.output_dir)
     preview_dir = Path(args.preview_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -34,10 +36,12 @@ def main() -> None:
     _reset_scene()
     bpy.ops.import_scene.gltf(filepath=str(assembly_glb))
     expected_nodes = _expected_runtime_nodes(node_report)
+    _add_approval_cameras(viewer_settings)
     before = _snapshot(expected_nodes)
 
     recipe_index = {recipe["recipeId"]: recipe for recipe in recipes["recipes"]}
-    assignments = _apply_material_annotation(recipe_index)
+    source_materials = _source_material_index(material_parity)
+    assignments = _apply_material_annotation(recipe_index, source_materials)
     texture_report = _write_texture_inventory(output_dir / "texture-inventory-report.json")
     _write_assignment_report(assignments, output_dir / "material-assignment-report.json")
 
@@ -82,25 +86,27 @@ def _expected_runtime_nodes(node_report: dict[str, object]) -> list[str]:
     names = {node_report["rootObject"]}
     names.update(node_report["groups"].values())
     names.update(item["runtimeNodeName"] for item in node_report["meshReports"])
-    names.update(["AIRBUS_A320_LOC_CAPTAIN_EYE", "AIRBUS_A320_LOC_DASHBOARD_FOCUS"])
+    names.update(["AIRBUS_A320_LOC_CAPTAIN_EYE", "AIRBUS_A320_LOC_DASHBOARD_FOCUS", "CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW"])
     return sorted(names)
 
 
-def _apply_material_annotation(recipes: dict[str, dict[str, object]]) -> list[dict[str, object]]:
+def _apply_material_annotation(recipes: dict[str, dict[str, object]], source_materials: dict[str, dict[str, object]]) -> list[dict[str, object]]:
     assignments = []
     fallback_materials: dict[str, bpy.types.Material] = {}
     for obj in sorted((item for item in bpy.context.scene.objects if item.type == "MESH"), key=lambda item: item.name):
         role = _classify_role(obj)
         old_materials = [slot.material.name for slot in obj.material_slots if slot.material]
         if not obj.material_slots:
-            obj.data.materials.append(_fallback_material(fallback_materials, recipes[role]))
+            obj.data.materials.append(_fallback_material(fallback_materials, recipes[role], source_materials))
         for slot in obj.material_slots:
             if slot.material:
-                _configure_material(slot.material, recipes[role])
+                _configure_material(slot.material, recipes[role], source_materials)
             else:
-                slot.material = _fallback_material(fallback_materials, recipes[role])
+                slot.material = _fallback_material(fallback_materials, recipes[role], source_materials)
         obj["semanticMaterialRole"] = recipes[role]["semanticMaterialRole"]
         obj["materialRecipeId"] = role
+        parity_records = [_source_material_summary(name, source_materials) for name in old_materials]
+        parity_records = [record for record in parity_records if record]
         assignments.append({
             "runtimeNodeName": obj.name,
             "assemblyCategory": obj.get("assemblyCategory", "unknown"),
@@ -110,6 +116,7 @@ def _apply_material_annotation(recipes: dict[str, dict[str, object]]) -> list[di
             "semanticMaterialRole": recipes[role]["semanticMaterialRole"],
             "preservedExistingMaterialSlots": bool(old_materials),
             "sourceTextureLinksPreserved": _has_base_color_texture_link(obj),
+            "sourceMaterialParity": parity_records,
         })
     return assignments
 
@@ -134,7 +141,7 @@ def _classify_role(obj: bpy.types.Object) -> str:
     return "a320_preserve_source_pbr"
 
 
-def _configure_material(material: bpy.types.Material, recipe: dict[str, object]) -> None:
+def _configure_material(material: bpy.types.Material, recipe: dict[str, object], source_materials: dict[str, dict[str, object]]) -> None:
     material["materialRecipeId"] = recipe["recipeId"]
     material["semanticMaterialRole"] = recipe["semanticMaterialRole"]
     material.use_nodes = True
@@ -142,25 +149,104 @@ def _configure_material(material: bpy.types.Material, recipe: dict[str, object])
     bsdf = nodes.get("Principled BSDF")
     if not bsdf:
         return
+    source_material = _source_material_for(material.name, source_materials)
+    source_color = _channel_color(source_material, ("AlbedoPBR", "DiffuseColor"))
     if not _input_has_link(bsdf, "Base Color"):
-        material.diffuse_color = tuple(recipe["baseColor"])
-        _set_input(bsdf, "Base Color", tuple(recipe["baseColor"]))
+        base_color = tuple(source_color or recipe["baseColor"])
+        material.diffuse_color = base_color
+        _set_input(bsdf, "Base Color", base_color)
     # Keep the downloaded Sketchfab color/UV texture network intact. Agent 3
-    # only records semantic roles and makes light-touch scalar PBR adjustments.
-    _set_input(bsdf, "Metallic", recipe["metallic"])
-    _set_input(bsdf, "Roughness", recipe["roughness"])
+    # only records semantic roles and makes light-touch scalar PBR adjustments
+    # from portable material-channel values.
+    metallic = _channel_factor(source_material, "MetalnessPBR", recipe["metallic"])
+    roughness = _channel_factor(source_material, "RoughnessPBR", recipe["roughness"])
+    reflection = float(source_material.get("reflection", 0.0)) if source_material else 0.0
+    matcap_factor = _channel_factor(source_material, "Matcap", 0.0)
+    if matcap_factor > 0 or reflection > 0:
+        material["sketchfabMatcapReference"] = round(matcap_factor, 4)
+        material["sketchfabReflectionReference"] = round(reflection, 4)
+        roughness = max(0.08, min(0.92, float(roughness) - reflection * 0.12))
+    _set_input(bsdf, "Metallic", metallic)
+    _set_input(bsdf, "Roughness", roughness)
+    if source_material:
+        material["sketchfabSourceMaterial"] = source_material["name"]
+        material["sketchfabPortableChannelSource"] = True
     if recipe["recipeId"] == "a320_display_glass":
-        _set_input(bsdf, "Emission Color", (0.035, 0.18, 0.16, 1.0))
-        _set_input(bsdf, "Emission Strength", 0.18)
+        emit_color = _channel_color(source_material, ("EmitColor",)) or (0.035, 0.18, 0.16, 1.0)
+        emit_factor = _channel_factor(source_material, "EmitColor", 0.0)
+        _set_input(bsdf, "Emission Color", tuple(emit_color))
+        _set_input(bsdf, "Emission Strength", max(0.16, min(0.3, float(emit_factor) + 0.18)))
 
 
-def _fallback_material(cache: dict[str, bpy.types.Material], recipe: dict[str, object]) -> bpy.types.Material:
+def _fallback_material(cache: dict[str, bpy.types.Material], recipe: dict[str, object], source_materials: dict[str, dict[str, object]]) -> bpy.types.Material:
     recipe_id = recipe["recipeId"]
     if recipe_id not in cache:
         material = bpy.data.materials.new(recipe_id)
-        _configure_material(material, recipe)
+        _configure_material(material, recipe, source_materials)
         cache[recipe_id] = material
     return cache[recipe_id]
+
+
+def _source_material_index(material_parity: dict[str, object]) -> dict[str, dict[str, object]]:
+    index: dict[str, dict[str, object]] = {}
+    for material in material_parity.get("materials", []):
+        if not isinstance(material, dict) or not material.get("name"):
+            continue
+        name = str(material["name"])
+        index[name.upper()] = material
+        index[name.replace(".", "_").upper()] = material
+    return index
+
+
+def _source_material_for(material_name: str, source_materials: dict[str, dict[str, object]]) -> dict[str, object]:
+    candidates = [
+        material_name,
+        material_name.split(".")[0],
+        material_name.replace(".", "_"),
+    ]
+    for candidate in candidates:
+        match = source_materials.get(candidate.upper())
+        if match:
+            return match
+    return {}
+
+
+def _source_material_summary(material_name: str, source_materials: dict[str, dict[str, object]]) -> dict[str, object]:
+    material = _source_material_for(material_name, source_materials)
+    if not material:
+        return {}
+    return {
+        "name": material.get("name"),
+        "reflection": material.get("reflection", 0),
+        "metallic": _channel_factor(material, "MetalnessPBR", 0),
+        "roughness": _channel_factor(material, "RoughnessPBR", 0),
+        "matcap": _channel_factor(material, "Matcap", 0),
+        "emission": _channel_factor(material, "EmitColor", 0),
+    }
+
+
+def _enabled_channel(material: dict[str, object], channel_name: str) -> dict[str, object]:
+    for channel in material.get("enabledChannels", []):
+        if isinstance(channel, dict) and channel.get("channel") == channel_name:
+            return channel
+    return {}
+
+
+def _channel_factor(material: dict[str, object], channel_name: str, default: object) -> float:
+    channel = _enabled_channel(material, channel_name)
+    value = channel.get("factor", default)
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return float(default)
+
+
+def _channel_color(material: dict[str, object], channel_names: tuple[str, ...]) -> tuple[float, float, float, float] | None:
+    for channel_name in channel_names:
+        color = _enabled_channel(material, channel_name).get("color")
+        if isinstance(color, list) and len(color) >= 3:
+            return (float(color[0]), float(color[1]), float(color[2]), 1.0)
+    return None
 
 
 def _write_assignment_report(assignments: list[dict[str, object]], path: Path) -> None:
@@ -274,6 +360,12 @@ def _render_camera_preview(path: Path, camera_name: str) -> None:
 def _add_approval_cameras(viewer_settings: dict[str, object]) -> None:
     _remove_stale_review_cameras()
     _add_between_seats_review_camera()
+    game_camera = _add_first_officer_game_camera(
+        "CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW",
+        game_id="airbus.a320.camera.first_officer_game_view",
+        purpose="Runtime First-Officer gameplay camera consumed by the React Three Fiber scene",
+    )
+    game_camera["source"] = "Recovered from d23ad95 saved shaded blend"
     _add_review_camera(
         "AIRBUS_A320_CAM_COMPLETE_INTERIOR_APPROVAL",
         Vector((0.0, -0.86, 0.22)),
@@ -282,11 +374,8 @@ def _add_approval_cameras(viewer_settings: dict[str, object]) -> None:
         game_id="airbus.a320.camera.complete_interior_approval",
         purpose="Owner approval camera showing the visible cockpit interior without hiding shell or seat chunks",
     )
-    _add_review_camera(
+    _add_first_officer_game_camera(
         "AIRBUS_A320_CAM_FIRST_OFFICER_APPROVAL",
-        Vector((0.0, -0.66, 0.18)),
-        Vector((0.0, -0.46, 0.10)),
-        lens=24,
         game_id="airbus.a320.camera.first_officer_approval",
         purpose="Owner approval camera approximating the Airbus First Officer inside-cockpit screenshot target",
     )
@@ -309,6 +398,27 @@ def _add_approval_cameras(viewer_settings: dict[str, object]) -> None:
             fov = camera_settings.get("fov")
             if isinstance(fov, (int, float)):
                 camera.data.angle = math.radians(float(fov))
+
+
+def _add_first_officer_game_camera(name: str, game_id: str, purpose: str) -> bpy.types.Object:
+    camera = bpy.data.objects.get(name)
+    if camera is None:
+        camera_data = bpy.data.cameras.new(name)
+        camera = bpy.data.objects.new(name, camera_data)
+        bpy.context.scene.collection.objects.link(camera)
+    camera.location = (0.153815, -0.647877, 0.130133)
+    camera.rotation_euler = (1.367064, 0.0, 0.282213)
+    camera.data.lens = 50
+    camera.data.angle = 0.691111
+    camera.data.clip_start = 0.002
+    camera.data.clip_end = 1000
+    camera.data.display_size = 0.12
+    camera["game_id"] = game_id
+    camera["cameraPurpose"] = purpose
+    camera["fo_eye_forward_adjustment_m"] = 0.0508
+    camera["fo_eye_forward_adjustment_reason"] = "Move FO eye point 2 inches forward so orbiting back does not render from inside the seat."
+    _parent_to_airbus_root(camera)
+    return camera
 
 
 def _add_review_camera(name: str, location: Vector, target: Vector, lens: float, game_id: str, purpose: str) -> bpy.types.Object:

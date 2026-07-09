@@ -3,6 +3,7 @@ import { Hud } from './components/Hud'
 import { gameCopy } from './game/config'
 import { clearGameState } from './game/storage'
 import { useGame } from './game/useGame'
+import type { AirbusHotspotScreenPositions } from './scenes/PrototypeScene'
 
 const PrototypeScene = lazy(async () => {
   const module = await import('./scenes/PrototypeScene')
@@ -33,8 +34,12 @@ export default function App() {
   const reducedMotion = useReducedMotion()
   const skipPrototypeScene = shouldSkipPrototypeScene()
   const [airbusSceneReady, setAirbusSceneReady] = useState(false)
+  const [airbusHotspots, setAirbusHotspots] = useState<AirbusHotspotScreenPositions>({})
   const markAirbusSceneReady = useCallback(() => {
     setAirbusSceneReady(true)
+  }, [])
+  const updateAirbusHotspots = useCallback((positions: AirbusHotspotScreenPositions) => {
+    setAirbusHotspots(positions)
   }, [])
 
   const restart = () => {
@@ -42,6 +47,7 @@ export default function App() {
     if (!confirmed) return
     clearGameState()
     setAirbusSceneReady(false)
+    setAirbusHotspots({})
     dispatch({ type: 'RESET' })
   }
 
@@ -68,7 +74,7 @@ export default function App() {
               </li>
               <li>
                 <span>2</span>
-                Enter the ATP hour check.
+                Answer the ATP question.
               </li>
               <li>
                 <span>3</span>
@@ -98,6 +104,7 @@ export default function App() {
             captainRewardUnlocked={state.captainRewardUnlocked}
             reducedMotion={reducedMotion}
             onAirbusReady={markAirbusSceneReady}
+            onAirbusHotspotsChange={updateAirbusHotspots}
             onSwitch={(switchId) => dispatch({ type: 'ACTIVATE_SWITCH', switchId })}
             onMars={() => dispatch({ type: 'UNLOCK_MARS' })}
             onLockerHat={() => dispatch({ type: 'REVEAL_CAPTAIN_HAT' })}
@@ -109,6 +116,7 @@ export default function App() {
         dispatch={dispatch}
         onRestart={restart}
         airbusSceneReady={skipPrototypeScene || airbusSceneReady}
+        airbusHotspots={skipPrototypeScene ? {} : airbusHotspots}
       />
     </main>
   )

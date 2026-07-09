@@ -103,12 +103,12 @@ function allControlsCorrect(assignments: AirbusAssignments): boolean {
   return firstOfficerFlow.controlIds.every((id) => assignments[id] === firstOfficerFlow.controlMatch[id])
 }
 
-function countPlacedAirbusCards(assignments: AirbusAssignments, decoyAssignments: AirbusDecoyAssignments): number {
-  return [...Object.values(assignments), ...Object.values(decoyAssignments)].filter(Boolean).length
+function countPlacedAirbusCards(assignments: AirbusAssignments): number {
+  return Object.values(assignments).filter(Boolean).length
 }
 
-function allCardsPlaced(assignments: AirbusAssignments, decoyAssignments: AirbusDecoyAssignments): boolean {
-  return countPlacedAirbusCards(assignments, decoyAssignments) === firstOfficerFlow.controlCards.length
+function allControlsAssigned(assignments: AirbusAssignments): boolean {
+  return countPlacedAirbusCards(assignments) === firstOfficerFlow.controlCards.length
 }
 
 function removeCardFromAirbusTargets(
@@ -127,14 +127,24 @@ function removeCardFromAirbusTargets(
   return { assignments: nextAssignments, decoyAssignments: nextDecoyAssignments }
 }
 
-function controlAnswerFeedback(assignments: AirbusAssignments, decoyAssignments: AirbusDecoyAssignments): string {
-  const placed = countPlacedAirbusCards(assignments, decoyAssignments)
+function controlAnswerFeedback(assignments: AirbusAssignments): string {
+  const placed = countPlacedAirbusCards(assignments)
   if (placed === 0) return 'Match each label card to a cockpit object.'
-  if (!allCardsPlaced(assignments, decoyAssignments)) {
-    return `Card placed. ${firstOfficerFlow.controlCards.length - placed} card${firstOfficerFlow.controlCards.length - placed === 1 ? '' : 's'} left.`
+
+  const wrongControl = firstOfficerFlow.controlIds.find((control) => {
+    const card = assignments[control]
+    return card !== null && card !== firstOfficerFlow.controlMatch[control]
+  })
+  if (wrongControl) {
+    return `Red means ${firstOfficerFlow.controlLabels[wrongControl]} has the wrong label. Try another card there.`
   }
-  if (allControlsCorrect(assignments)) return `${firstOfficerFlow.firstCompleteBanner}.`
-  return 'One or more labels are incorrect. Retry those cards without losing locker progress.'
+
+  const remaining = firstOfficerFlow.controlCards.length - placed
+  if (remaining > 0) {
+    return `Green means correct. ${remaining} label${remaining === 1 ? '' : 's'} left.`
+  }
+
+  return 'All five labels are correct. Answer the ATP question to unlock the locker.'
 }
 
 function isLockerAnswerCorrect(objectId: LockerInteraction, response: string): boolean {
@@ -154,13 +164,13 @@ function lockerInteractionComplete(current: LockerInteraction[], objectId: Locke
 
 function hintFor(state: GameState): string {
   if (state.phase === 'airbus') {
-    if (!allCardsPlaced(state.airbusAssignments, state.airbusDecoyAssignments)) {
-      return 'Place every label card on a cockpit object first, then the check can judge the full board.'
+    if (!allControlsAssigned(state.airbusAssignments)) {
+      return 'Green boxes are correct. Red boxes need a different label. Place the remaining cards on the visible boxes.'
     }
     if (!allControlsCorrect(state.airbusAssignments)) {
-      return 'Some control labels are off. Correct order and names are all that matters.'
+      return 'Fix the red box by selecting that card again and placing a better match.'
     }
-    return `Great fit. Try ${firstOfficerFlow.clockQuestion}`
+    return `All five labels are correct. Try ${firstOfficerFlow.clockQuestion}`
   }
 
   if (state.phase === 'locker') {
@@ -197,7 +207,7 @@ export function createInitialState(): GameState {
     captainRewardUnlocked: false,
     marsUnlocked: false,
     statusMessage:
-      'Start in Airbus First-Officer Mode. Complete labels, then clock, then move to the locker.',
+      'Start in Airbus First-Officer Mode. Complete the labels, then move to the locker.',
   }
 }
 
@@ -208,7 +218,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         phase: 'airbus',
-        statusMessage: 'Match the Airbus labels to the right controls.',
+        statusMessage: 'Match the Airbus labels to the right cockpit boxes.',
       }
 
     case 'ASSIGN_AIRBUS_CARD': {
@@ -230,14 +240,17 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...cleared.assignments,
         [action.control]: action.card,
       }
+      const feedback = controlAnswerFeedback(nextAssignments)
       return {
         ...state,
         airbusAssignments: nextAssignments,
         airbusDecoyAssignments: cleared.decoyAssignments,
         airbusClockAnswer: '',
-        statusMessage: allCardsPlaced(nextAssignments, cleared.decoyAssignments) && allControlsCorrect(nextAssignments)
-          ? `${firstOfficerFlow.firstCompleteBanner}. Now enter the ATP time on the clock.`
-          : controlAnswerFeedback(nextAssignments, cleared.decoyAssignments),
+        statusMessage: action.card === firstOfficerFlow.controlMatch[action.control] &&
+          !feedback.startsWith('Red means') &&
+          !allControlsCorrect(nextAssignments)
+          ? firstOfficerFlow.controlHints[action.control]
+          : feedback,
       }
     }
 
@@ -253,9 +266,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         airbusAssignments: cleared.assignments,
         airbusDecoyAssignments: nextDecoyAssignments,
         airbusClockAnswer: '',
-        statusMessage: allCardsPlaced(cleared.assignments, nextDecoyAssignments) && allControlsCorrect(cleared.assignments)
-          ? `${firstOfficerFlow.firstCompleteBanner}. Now enter the ATP time on the clock.`
-          : controlAnswerFeedback(cleared.assignments, nextDecoyAssignments),
+        statusMessage: 'That area is not part of this five-label check. Use one of the visible cockpit boxes.',
       }
     }
 
@@ -268,29 +279,29 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'SUBMIT_AIRBUS_CLOCK': {
       if (state.phase !== 'airbus') return state
-      if (!allCardsPlaced(state.airbusAssignments, state.airbusDecoyAssignments)) {
+      if (!allControlsAssigned(state.airbusAssignments)) {
         return {
           ...state,
-          statusMessage: `Place every label card on a cockpit object before the clock challenge.`,
+          statusMessage: 'Place each label on the visible cockpit boxes.',
         }
       }
       if (!allControlsCorrect(state.airbusAssignments)) {
         return {
           ...state,
-          statusMessage: `Keep retrying the labels until they are all correct, then submit 1500.`,
+          statusMessage: 'Fix the red label boxes before moving on.',
         }
       }
       if (normalize(state.airbusClockAnswer) !== normalize(firstOfficerFlow.clockAnswer)) {
         return {
           ...state,
-          statusMessage: 'Clock answer is not yet recognized. Keep the family clue in mind.',
+          statusMessage: 'ATP answer is not yet recognized. Try the standard hour milestone.',
         }
       }
       return {
         ...state,
         phase: 'locker',
         completedPuzzles: unique([...state.completedPuzzles, 'firstOfficer']),
-        statusMessage: `${firstOfficerFlow.firstCompleteBanner}. ${firstOfficerFlow.lockerAccessText}`,
+        statusMessage: `${firstOfficerFlow.clockFeedback} ${firstOfficerFlow.firstCompleteBanner}. ${firstOfficerFlow.lockerAccessText}`,
       }
     }
 

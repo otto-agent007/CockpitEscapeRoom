@@ -8,11 +8,6 @@ async function placeAirbusCard(page: Page, card: string, targetName: string): Pr
   await page.getByRole('button', { name: `${targetName} target` }).click()
 }
 
-async function placeAirbusDecoyCard(page: Page, card: string, decoyName: string): Promise<void> {
-  await page.getByRole('button', { name: new RegExp(`^${card}\\b`) }).click()
-  await page.getByRole('button', { name: `${decoyName} decoy` }).click()
-}
-
 function createLockerState(): GameState {
   return {
     ...createInitialState(),
@@ -24,7 +19,6 @@ function createLockerState(): GameState {
       radio: 'RADIO',
       altitude: 'ALTITUDE',
     },
-    airbusClockAnswer: '1500',
     completedPuzzles: ['firstOfficer'],
     statusMessage: 'FIRST-OFFICER MODE COMPLETE. Locker access granted.',
   }
@@ -82,8 +76,13 @@ test('Airbus playable proof loads the A320 GLB', async ({ page }) => {
   await expect(page.getByText('A320 PLAYABLE PROOF')).toBeVisible()
   await expect(page.locator('canvas')).toBeVisible()
   await expect(page.getByRole('button', { name: /^SIDESTICK\b/ })).toBeVisible({ timeout: 25_000 })
-  await expect(page.getByRole('button', { name: 'Sidestick target' })).toBeVisible({ timeout: 25_000 })
+  const sidestickTarget = page.getByRole('button', { name: 'Sidestick target' })
+  await expect(sidestickTarget).toBeVisible({ timeout: 25_000 })
+  await expect(page.locator('.airbus-target-layer')).toHaveClass(/airbus-target-layer--projected/, { timeout: 25_000 })
+  await expect(sidestickTarget).toHaveAttribute('style', /px/)
+  await expect(page.getByRole('button', { name: /^CLOCK\b/ })).toHaveCount(0)
   await expect(page.getByRole('textbox', { name: 'ATP answer' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Verify' })).toHaveCount(0)
   await expect(page.getByRole('combobox')).toHaveCount(0)
   expect(consoleErrors).toEqual([])
 })
@@ -95,13 +94,13 @@ test('Airbus onboarding, locker reveal, and captain completion unlock reward', a
   await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
   await expect(page.getByRole('textbox', { name: 'ATP answer' })).toHaveCount(0)
   await expect(page.getByText('How many flight hours are needed for a standard ATP certificate?')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: /^CLOCK\b/ })).toHaveCount(0)
 
   await placeAirbusCard(page, 'SIDESTICK', 'Sidestick')
   await placeAirbusCard(page, 'THRUST', 'Thrust levers')
   await placeAirbusCard(page, 'GEAR', 'Gear lever')
   await placeAirbusCard(page, 'RADIO', 'Radio panel')
   await placeAirbusCard(page, 'ALTITUDE', 'Altitude area')
-  await placeAirbusDecoyCard(page, 'CLOCK', 'Side console switches')
 
   const atpAnswer = page.getByRole('textbox', { name: 'ATP answer' })
   await expect(atpAnswer).toBeVisible()
@@ -125,7 +124,7 @@ test('Airbus onboarding, locker reveal, and captain completion unlock reward', a
   await expect(page.getByText(/red Tesla Model Y is unlocked/i)).toBeVisible()
 })
 
-test('Airbus cards drag onto cockpit parts with hotspot highlighting', async ({ page }) => {
+test('Airbus cards show immediate placement feedback and recover', async ({ page }) => {
   await page.goto('/?skip3d=1')
   await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
 
@@ -133,9 +132,9 @@ test('Airbus cards drag onto cockpit parts with hotspot highlighting', async ({ 
   const sidestickTarget = page.getByRole('button', { name: 'Sidestick target' })
   const dataTransfer = await page.evaluateHandle(() => new DataTransfer())
 
-  await expect(sidestickTarget).toHaveCSS('opacity', '0')
+  await expect(sidestickTarget).toHaveCSS('opacity', '1')
   await sidestickCard.click()
-  await expect(sidestickTarget).toHaveCSS('opacity', '0')
+  await expect(sidestickTarget).toHaveCSS('opacity', '1')
   await sidestickCard.dispatchEvent('dragstart', { dataTransfer })
   await sidestickTarget.dispatchEvent('dragenter', { dataTransfer })
   await expect(sidestickTarget).toHaveClass(/is-drag-over/)
@@ -143,35 +142,32 @@ test('Airbus cards drag onto cockpit parts with hotspot highlighting', async ({ 
   await sidestickTarget.dispatchEvent('drop', { dataTransfer })
 
   await expect(sidestickTarget).toHaveClass(/has-card/)
-  await expect(sidestickTarget).not.toHaveClass(/is-correct/)
-  await expect(sidestickTarget).toHaveCSS('opacity', '0')
+  await expect(sidestickTarget).toHaveClass(/is-correct/)
   await expect(sidestickCard).toContainText('Sidestick')
 
-  const thrustCard = page.getByRole('button', { name: /^THRUST\b/ })
-  const decoyTarget = page.getByRole('button', { name: 'Side console switches decoy' })
-  const decoyDataTransfer = await page.evaluateHandle(() => new DataTransfer())
-
-  await expect(decoyTarget).toHaveCSS('opacity', '0')
-  await thrustCard.dispatchEvent('dragstart', { dataTransfer: decoyDataTransfer })
-  await decoyTarget.dispatchEvent('dragenter', { dataTransfer: decoyDataTransfer })
-  await expect(decoyTarget).toHaveClass(/is-drag-over/)
-  await expect(decoyTarget).toHaveCSS('opacity', '1')
-  await decoyTarget.dispatchEvent('drop', { dataTransfer: decoyDataTransfer })
-
-  await expect(decoyTarget).toHaveClass(/has-card/)
-  await expect(decoyTarget).toHaveCSS('opacity', '0')
-  await expect(thrustCard).toContainText('Side console switches')
-  await expect(page.getByText('2/6')).toBeVisible()
+  const radioCard = page.getByRole('button', { name: /^RADIO\b/ })
+  const radioTarget = page.getByRole('button', { name: 'Radio panel target' })
+  await radioCard.click()
+  await sidestickTarget.click()
+  await expect(sidestickTarget).toHaveClass(/is-wrong/)
+  await expect(page.getByText(/Red means Sidestick/)).toBeVisible()
+  await radioCard.click()
+  await radioTarget.click()
+  await expect(sidestickTarget).not.toHaveClass(/has-card/)
+  await expect(radioTarget).toHaveClass(/is-correct/)
+  await expect(page.getByText('1/5')).toBeVisible()
   await expect(page.getByRole('textbox', { name: 'ATP answer' })).toHaveCount(0)
 
+  await placeAirbusCard(page, 'SIDESTICK', 'Sidestick')
   await placeAirbusCard(page, 'GEAR', 'Gear lever')
-  await placeAirbusCard(page, 'RADIO', 'Radio panel')
   await placeAirbusCard(page, 'ALTITUDE', 'Altitude area')
-  await placeAirbusDecoyCard(page, 'CLOCK', 'Windshield light switches')
-
-  await expect(page.getByText('6/6')).toBeVisible()
-  await expect(page.getByText('One or more labels are incorrect')).toBeVisible()
-  await expect(page.getByRole('textbox', { name: 'ATP answer' })).toHaveCount(0)
+  await expect(page.getByText('4/5')).toBeVisible()
+  await placeAirbusCard(page, 'THRUST', 'Thrust levers')
+  await expect(page.getByRole('textbox', { name: 'ATP answer' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Locker reveal sequence' })).toHaveCount(0)
+  await page.getByRole('textbox', { name: 'ATP answer' }).fill('1500')
+  await page.getByRole('button', { name: 'Verify' }).click()
+  await expect(page.getByRole('heading', { name: 'Locker reveal sequence' })).toBeVisible()
 })
 
 test('saved progress persists during Airbus phase', async ({ page }) => {
@@ -181,6 +177,6 @@ test('saved progress persists during Airbus phase', async ({ page }) => {
   await page.reload()
 
   await expect(page.getByRole('button', { name: 'Sidestick target' })).toHaveClass(/has-card/)
-  await expect(page.getByRole('button', { name: 'Sidestick target' })).not.toHaveClass(/is-wrong/)
+  await expect(page.getByRole('button', { name: 'Sidestick target' })).toHaveClass(/is-wrong/)
   await expect(page.getByRole('button', { name: /^RADIO\b/ })).toContainText('Sidestick')
 })
