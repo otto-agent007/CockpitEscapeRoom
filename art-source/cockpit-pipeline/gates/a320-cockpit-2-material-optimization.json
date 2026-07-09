@@ -1,18 +1,18 @@
 {
   "gate": "material-optimization",
   "artifactId": "a320-cockpit-2-material-optimization-001",
-  "createdAt": "2026-07-06T07:02:05Z",
+  "createdAt": "2026-07-08T05:16:12Z",
   "assetPath": "art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.glb",
-  "materialCount": 16,
+  "materialCount": 12,
   "textureReports": [
     {
-      "path": "m0mat_baseColor",
-      "width": 2048,
-      "height": 2048,
+      "path": "Viewer Node",
+      "width": 256,
+      "height": 256,
       "usage": "preserved imported source texture"
     },
     {
-      "path": "m1mat_001_baseColor",
+      "path": "m0mat_003_baseColor",
       "width": 1024,
       "height": 1024,
       "usage": "preserved imported source texture"
@@ -27,12 +27,6 @@
       "path": "m0mat_005_baseColor",
       "width": 2048,
       "height": 2048,
-      "usage": "preserved imported source texture"
-    },
-    {
-      "path": "m0mat_003_baseColor",
-      "width": 1024,
-      "height": 1024,
       "usage": "preserved imported source texture"
     },
     {
@@ -52,10 +46,34 @@
       "width": 1024,
       "height": 1024,
       "usage": "preserved imported source texture"
+    },
+    {
+      "path": "m0mat_009_baseColor",
+      "width": 2048,
+      "height": 2048,
+      "usage": "preserved imported source texture"
+    },
+    {
+      "path": "m0mat_baseColor",
+      "width": 2048,
+      "height": 2048,
+      "usage": "preserved imported source texture"
+    },
+    {
+      "path": "m1mat_001_baseColor",
+      "width": 1024,
+      "height": 1024,
+      "usage": "preserved imported source texture"
+    },
+    {
+      "path": "m1mat_baseColor",
+      "width": 1024,
+      "height": 1024,
+      "usage": "preserved imported source texture"
     }
   ],
-  "glbSizeBytes": 35098268,
-  "optimizationDecision": "Preservation-first A320 playable proof pass. Owner-cleaned cockpit geometry, source texture node links, UVs, mesh hierarchy, exported cameras, and runtime metadata are preserved; no mesh joining, decimation, UV rebake, or destructive GLB optimization.",
+  "glbSizeBytes": 39871916,
+  "optimizationDecision": "Preservation-first A320 source-parity pass. Source texture node links, UVs, mesh hierarchy, and runtime metadata are preserved; no mesh joining, decimation, UV rebake, or destructive GLB optimization.",
   "destructiveOptimizationUsed": false,
   "runtimeContractPreserved": true,
   "reimportValidation": "pass"

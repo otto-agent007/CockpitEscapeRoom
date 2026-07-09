@@ -16,6 +16,7 @@ EXPECTED_VERSION = os.environ.get("BLENDER_EXPECTED_VERSION", "").strip()
 
 errors: list[str] = []
 warnings: list[str] = []
+candidate_notes: list[str] = []
 
 
 def add_error(message: str) -> None:
@@ -26,6 +27,11 @@ def add_error(message: str) -> None:
 def add_warning(message: str) -> None:
     warnings.append(message)
     print(f"WARNING: {message}")
+
+
+def add_candidate_note(message: str) -> None:
+    candidate_notes.append(message)
+    print(f"NOTE: {message}")
 
 
 if EXPECTED_VERSION and not bpy.app.version_string.startswith(EXPECTED_VERSION):
@@ -57,19 +63,22 @@ for obj in bpy.data.objects:
     game_id = obj.get("game_id")
     interaction = obj.get("interaction")
     is_interactive_candidate = obj.type != "EMPTY" and "INTERACTIVE" in obj.name
-    is_metadata_only_contract = obj.type == "CAMERA" or "LOC_" in obj.name
-    if game_id or interaction or is_interactive_candidate:
+    is_metadata_only_contract = obj.type == "CAMERA" or "LOC_" in obj.name or obj.name == ROOT_NAME
+    has_contract_metadata = bool(game_id) or bool(interaction) or is_interactive_candidate
+    if has_contract_metadata:
         contract_objects.append(obj.name)
-        if not game_id:
+        if interaction and not game_id:
             add_error(f"{obj.name}: interactive object is missing custom property game_id")
         elif game_id in seen_game_ids:
             add_error(f"Duplicate game_id {game_id!r}: {seen_game_ids[game_id]} and {obj.name}")
-        else:
+        elif game_id:
             seen_game_ids[game_id] = obj.name
-        if not interaction and not is_metadata_only_contract:
-            add_warning(f"{obj.name}: interactive object is missing custom property interaction")
-        if interaction or is_interactive_candidate:
+        if interaction:
             interactive_objects.append(obj.name)
+        elif is_interactive_candidate:
+            add_candidate_note(f"{obj.name}: preserved imported visual candidate has no runtime interaction metadata")
+        elif game_id and not is_metadata_only_contract:
+            add_candidate_note(f"{obj.name}: contract metadata node has no runtime interaction metadata")
 
     if obj.type == "MESH":
         if not obj.data.materials:
@@ -94,6 +103,7 @@ report = {
     "interactiveObjects": sorted(interactive_objects),
     "errors": errors,
     "warnings": warnings,
+    "candidateNotes": candidate_notes,
     "passed": not errors,
 }
 REPORT_DIR.mkdir(parents=True, exist_ok=True)

@@ -42,8 +42,8 @@
     },
     {
       "path": "art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json",
-      "sha256": "9d4e1ab7e296d67c39ad297055b93b0baee8ac5e2821c2583ca5f19aeaf071fb",
-      "bytes": 2762
+      "sha256": "44a514f76219888498d8bd661cbd5744e9773f6b5c006999ed2751c0068f0c30",
+      "bytes": 3952
     },
     {
       "path": "asset-reports/cockpit-pipeline/a320-cockpit-2-assembly/assembly-report.md",

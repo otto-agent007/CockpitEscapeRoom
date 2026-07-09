@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { firstOfficerFlow } from './config'
 import { createInitialState, type GameState } from './state'
 import { loadGameState, saveGameState, STORAGE_KEY } from './storage'
 
@@ -31,6 +32,28 @@ describe('game storage', () => {
     saveGameState(state, storage)
 
     expect(loadGameState(storage)).toEqual({ ...state, airbusClockAnswer: '' })
+  })
+
+  it('keeps completed Airbus label saves at the ATP question with a blank answer', () => {
+    const storage = createMemoryStorage()
+    const state: GameState = {
+      ...createInitialState(),
+      phase: 'airbus',
+      airbusAssignments: {
+        sidestick: firstOfficerFlow.controlMatch.sidestick,
+        thrust: firstOfficerFlow.controlMatch.thrust,
+        gear: firstOfficerFlow.controlMatch.gear,
+        radio: firstOfficerFlow.controlMatch.radio,
+        altitude: firstOfficerFlow.controlMatch.altitude,
+      },
+      airbusClockAnswer: '1500',
+    }
+    saveGameState(state, storage)
+
+    expect(loadGameState(storage)).toEqual({
+      ...state,
+      airbusClockAnswer: '',
+    })
   })
 
   it('recovers safely from corrupt saved data', () => {

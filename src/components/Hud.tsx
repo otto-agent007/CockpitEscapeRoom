@@ -1,12 +1,14 @@
 import { useMemo, useState, type DragEvent } from 'react'
-import { dc9LegacyFlow, firstOfficerFlow, gameCopy, lockerFlow, type FirstOfficerControl, type FirstOfficerDecoy, type LockerInteraction } from '../game/config'
+import { dc9LegacyFlow, firstOfficerFlow, gameCopy, lockerFlow, type FirstOfficerControl, type LockerInteraction } from '../game/config'
 import { SWITCH_ORDER, gameProgress, type GameAction, type GameState, type SwitchId } from '../game/state'
+import type { AirbusHotspotScreenPositions } from '../scenes/PrototypeScene'
 
 interface HudProps {
   state: GameState
   dispatch: React.Dispatch<GameAction>
   onRestart: () => void
   airbusSceneReady: boolean
+  airbusHotspots: AirbusHotspotScreenPositions
 }
 
 const switchLabels: Record<SwitchId, string> = {
@@ -25,19 +27,10 @@ const airbusTargetMeta: Record<FirstOfficerControl, { x: number; y: number; labe
   altitude: { x: 38, y: 25, label: 'Altitude area' },
 }
 
-const airbusDecoyTargets = [
-  { id: 'leftPanelKnobs', className: 'left-panel-knobs', x: 12, y: 55, label: firstOfficerFlow.decoyLabels.leftPanelKnobs },
-  { id: 'rightDisplay', className: 'right-display', x: 56, y: 63, label: firstOfficerFlow.decoyLabels.rightDisplay },
-  { id: 'sideConsole', className: 'side-console', x: 89, y: 53, label: firstOfficerFlow.decoyLabels.sideConsole },
-  { id: 'windshieldLights', className: 'windshield-lights', x: 34, y: 9, label: firstOfficerFlow.decoyLabels.windshieldLights },
-] satisfies ReadonlyArray<{ id: FirstOfficerDecoy; className: string; x: number; y: number; label: string }>
-
-type AirbusTargetId = FirstOfficerControl | (typeof airbusDecoyTargets)[number]['id']
-
-export function Hud({ state, dispatch, onRestart, airbusSceneReady }: HudProps) {
+export function Hud({ state, dispatch, onRestart, airbusSceneReady, airbusHotspots }: HudProps) {
   const [selectedAirbusCard, setSelectedAirbusCard] = useState<string | null>(null)
   const [draggingAirbusCard, setDraggingAirbusCard] = useState<string | null>(null)
-  const [activeAirbusTarget, setActiveAirbusTarget] = useState<AirbusTargetId | null>(null)
+  const [activeAirbusTarget, setActiveAirbusTarget] = useState<FirstOfficerControl | null>(null)
   const [watchInput, setWatchInput] = useState('')
   const [baseballInput, setBaseballInput] = useState('')
   const [checklistInput, setChecklistInput] = useState('')
@@ -48,32 +41,15 @@ export function Hud({ state, dispatch, onRestart, airbusSceneReady }: HudProps) 
       const card = state.airbusAssignments[control]
       if (card) assignments.set(card, firstOfficerFlow.controlLabels[control])
     }
-    for (const decoy of firstOfficerFlow.decoyIds) {
-      const card = state.airbusDecoyAssignments[decoy]
-      if (card) assignments.set(card, firstOfficerFlow.decoyLabels[decoy])
-    }
     return assignments
-  }, [state.airbusAssignments, state.airbusDecoyAssignments])
+  }, [state.airbusAssignments])
 
   const isComplete = (id: FirstOfficerControl) => state.airbusAssignments[id] === firstOfficerFlow.controlMatch[id]
-  const placedAirbusCards = [
-    ...Object.values(state.airbusAssignments),
-    ...Object.values(state.airbusDecoyAssignments),
-  ].filter(Boolean).length
-  const canGradeAirbusCards = placedAirbusCards === firstOfficerFlow.controlCards.length
-  const airbusBoardComplete =
-    canGradeAirbusCards &&
-    firstOfficerFlow.controlIds.every((control) => state.airbusAssignments[control] === firstOfficerFlow.controlMatch[control])
+  const placedAirbusCards = Object.values(state.airbusAssignments).filter(Boolean).length
+  const airbusLabelsComplete = firstOfficerFlow.controlIds.every((control) => state.airbusAssignments[control] === firstOfficerFlow.controlMatch[control])
 
   const placeAirbusCard = (control: FirstOfficerControl, card: string) => {
     dispatch({ type: 'ASSIGN_AIRBUS_CARD', control, card })
-    setSelectedAirbusCard(null)
-    setDraggingAirbusCard(null)
-    setActiveAirbusTarget(null)
-  }
-
-  const placeAirbusDecoyCard = (decoy: FirstOfficerDecoy, card: string) => {
-    dispatch({ type: 'ASSIGN_AIRBUS_DECOY_CARD', decoy, card })
     setSelectedAirbusCard(null)
     setDraggingAirbusCard(null)
     setActiveAirbusTarget(null)
@@ -133,20 +109,28 @@ export function Hud({ state, dispatch, onRestart, airbusSceneReady }: HudProps) 
           })}
         </div>
 
-        <div className="airbus-target-layer" aria-label="Cockpit placement targets">
+        <div
+          className={`airbus-target-layer${Object.keys(airbusHotspots).length > 0 ? ' airbus-target-layer--projected' : ''}`}
+          aria-label="Cockpit placement targets"
+        >
           {firstOfficerFlow.controlIds.map((control) => {
             const assignedCard = state.airbusAssignments[control]
-            const complete = canGradeAirbusCards && isComplete(control)
-            const wrong = canGradeAirbusCards && Boolean(assignedCard) && !complete
+            const complete = isComplete(control)
+            const wrong = Boolean(assignedCard) && !complete
             const dragging = Boolean(draggingAirbusCard)
             const active = activeAirbusTarget === control
+            const projectedTarget = airbusHotspots[control]
+            const hasProjectedTarget = Boolean(projectedTarget)
+            const targetStyle = projectedTarget
+              ? { left: `${projectedTarget.x}px`, top: `${projectedTarget.y}px` }
+              : { left: `${airbusTargetMeta[control].x}%`, top: `${airbusTargetMeta[control].y}%` }
 
             return (
               <button
                 key={control}
                 type="button"
-                className={`airbus-target airbus-target--${control}${assignedCard ? ' has-card' : ''}${complete ? ' is-correct' : ''}${wrong ? ' is-wrong' : ''}${dragging ? ' is-dragging-card' : ''}${active ? ' is-drag-over' : ''}`}
-                style={{ left: `${airbusTargetMeta[control].x}%`, top: `${airbusTargetMeta[control].y}%` }}
+                className={`airbus-target airbus-target--${control}${hasProjectedTarget ? ' is-projected' : ''}${assignedCard ? ' has-card' : ''}${complete ? ' is-correct' : ''}${wrong ? ' is-wrong' : ''}${dragging ? ' is-dragging-card' : ''}${active ? ' is-drag-over' : ''}`}
+                style={targetStyle}
                 aria-label={`${firstOfficerFlow.controlLabels[control]} target`}
                 onClick={() => {
                   if (selectedAirbusCard) {
@@ -181,66 +165,23 @@ export function Hud({ state, dispatch, onRestart, airbusSceneReady }: HudProps) 
                     assignedCard ? `Current card: ${assignedCard}.` : 'No card placed.'
                   }`}
                 </span>
-              </button>
-            )
-          })}
-          {airbusDecoyTargets.map((decoy) => {
-            const assignedCard = state.airbusDecoyAssignments[decoy.id]
-            const dragging = Boolean(draggingAirbusCard)
-            const active = activeAirbusTarget === decoy.id
-
-            return (
-              <button
-                key={decoy.id}
-                type="button"
-                className={`airbus-target airbus-target--decoy airbus-target--${decoy.className}${assignedCard ? ' has-card' : ''}${dragging ? ' is-dragging-card' : ''}${active ? ' is-drag-over' : ''}`}
-                style={{ left: `${decoy.x}%`, top: `${decoy.y}%` }}
-                aria-label={`${decoy.label} decoy`}
-                onClick={() => {
-                  if (selectedAirbusCard) placeAirbusDecoyCard(decoy.id, selectedAirbusCard)
-                }}
-                onDragEnter={(event) => {
-                  event.preventDefault()
-                  setActiveAirbusTarget(decoy.id)
-                }}
-                onDragOver={(event) => {
-                  event.preventDefault()
-                  event.dataTransfer.dropEffect = 'move'
-                  setActiveAirbusTarget(decoy.id)
-                }}
-                onDragLeave={(event) => {
-                  const nextTarget = event.relatedTarget
-                  if (nextTarget instanceof Node && event.currentTarget.contains(nextTarget)) return
-                  setActiveAirbusTarget((current) => (current === decoy.id ? null : current))
-                }}
-                onDrop={(event: DragEvent<HTMLButtonElement>) => {
-                  event.preventDefault()
-                  const card = event.dataTransfer.getData('text/plain')
-                  if (card) placeAirbusDecoyCard(decoy.id, card)
-                  else setActiveAirbusTarget(null)
-                }}
-              >
-                <span className="sr-only">
-                  {`${decoy.label}. Decoy drop area. ${
-                    assignedCard ? `Current card: ${assignedCard}.` : 'No card placed.'
-                  }`}
-                </span>
+                {assignedCard && <span className="airbus-target-card" aria-hidden="true">{assignedCard}</span>}
               </button>
             )
           })}
         </div>
 
         <div
-          className={`airbus-dock${airbusBoardComplete ? ' airbus-dock--clock' : ' airbus-dock--cards'}`}
+          className={`airbus-dock${airbusLabelsComplete ? ' airbus-dock--atp' : ''}`}
           aria-label="First-Officer status and controls"
         >
           <div className="status airbus-status" aria-live="polite" aria-atomic="true">
             {state.statusMessage}
           </div>
 
-          {airbusBoardComplete && (
+          {airbusLabelsComplete && (
             <>
-              <label className="airbus-clock">
+              <label className="airbus-atp">
                 <span>{firstOfficerFlow.clockQuestion}</span>
                 <input
                   type="text"
@@ -252,16 +193,16 @@ export function Hud({ state, dispatch, onRestart, airbusSceneReady }: HudProps) 
                   aria-label="ATP answer"
                 />
               </label>
-
               <button
                 type="button"
-                className="primary-button"
+                className="primary-button airbus-dock-button"
                 onClick={() => dispatch({ type: 'SUBMIT_AIRBUS_CLOCK' })}
               >
                 Verify
               </button>
             </>
           )}
+
           <button type="button" className="secondary-button airbus-dock-button" onClick={() => dispatch({ type: 'USE_HINT' })}>
             Hint
           </button>

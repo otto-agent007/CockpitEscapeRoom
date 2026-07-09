@@ -1,5 +1,5 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { OrbitControls as ThreeOrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js'
@@ -8,6 +8,7 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js'
 import { SSAOPass } from 'three/addons/postprocessing/SSAOPass.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import * as THREE from 'three'
+import { type FirstOfficerControl } from '../game/config'
 import { type GamePhase, type SwitchId } from '../game/state'
 
 // Cockpit shells produced by the asset pipeline and served from public/models.
@@ -63,9 +64,18 @@ const CAPTAIN_SWITCH_IDS = ['battery', 'navigation', 'cabin'] as const
 const AIRBUS_GAME_CAMERA = 'CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW'
 const AIRBUS_WIDE_GAME_FOV = 68
 const AIRBUS_NARROW_GAME_FOV = 92
-const AIRBUS_ORBIT_LOOK_DISTANCE = 0.86
-const AIRBUS_ORBIT_POLAR_LIMIT = 0.2
-const AIRBUS_ORBIT_AZIMUTH_LIMIT = 0.28
+const AIRBUS_FO_SEAT_OFFSET = new THREE.Vector3(0.18, 0.015, 0)
+const AIRBUS_FO_SEAT_YAW = 0.24
+const AIRBUS_LOOK_YAW_LIMIT = 0.34
+const AIRBUS_LOOK_PITCH_LIMIT = 0.22
+const AIRBUS_LOOK_POINTER_SPEED = 0.0021
+const AIRBUS_HOTSPOT_ANCHORS: Record<FirstOfficerControl, THREE.Vector3> = {
+  sidestick: new THREE.Vector3(0.138, 0.039, 0.501),
+  thrust: new THREE.Vector3(-0.033, 0.019, 0.509),
+  gear: new THREE.Vector3(0.021, 0.077, 0.486),
+  radio: new THREE.Vector3(-0.006, 0.019, 0.509),
+  altitude: new THREE.Vector3(0, 0.147, 0.458),
+}
 const AIRBUS_SKETCHFAB_POSTPROCESS_SHADER = {
   name: 'AirbusSketchfabPostProcess',
   uniforms: {
@@ -75,6 +85,7 @@ const AIRBUS_SKETCHFAB_POSTPROCESS_SHADER = {
     vignetteAmount: { value: 0.16 },
     vignetteHardness: { value: 0.72 },
     grainAmount: { value: 0.002 },
+    sceneBrightness: { value: 0.9 },
   },
   vertexShader: /* glsl */ `
     varying vec2 vUv;
@@ -91,6 +102,7 @@ const AIRBUS_SKETCHFAB_POSTPROCESS_SHADER = {
     uniform float vignetteAmount;
     uniform float vignetteHardness;
     uniform float grainAmount;
+    uniform float sceneBrightness;
     varying vec2 vUv;
 
     float random(vec2 value) {
@@ -114,6 +126,7 @@ const AIRBUS_SKETCHFAB_POSTPROCESS_SHADER = {
 
       color.rgb = mix(sharpened, sharpened * vignette, vignetteAmount);
       color.rgb += grain;
+      color.rgb *= sceneBrightness;
       gl_FragColor = vec4(color.rgb, color.a);
     }
   `,
@@ -128,6 +141,8 @@ const AIRBUS_REQUIRED_NODES = [
   AIRBUS_GAME_CAMERA,
 ] as const
 
+export type AirbusHotspotScreenPositions = Partial<Record<FirstOfficerControl, { x: number; y: number; visible: boolean }>>
+
 interface PrototypeSceneProps {
   phase: Exclude<GamePhase, 'briefing'>
   activeSwitches: SwitchId[]
@@ -135,6 +150,7 @@ interface PrototypeSceneProps {
   captainRewardUnlocked: boolean
   reducedMotion: boolean
   onAirbusReady: () => void
+  onAirbusHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
   onSwitch: (switchId: SwitchId) => void
   onMars: () => void
   onLockerHat: () => void
@@ -144,6 +160,23 @@ type HoverHandler = (hovering: boolean) => void
 interface LoadedAirbusScene {
   scene: THREE.Group
   camera: THREE.Camera | null
+}
+
+function projectAirbusHotspots(camera: THREE.Camera, size: { width: number; height: number }): AirbusHotspotScreenPositions {
+  const positions: AirbusHotspotScreenPositions = {}
+
+  for (const [control, anchor] of Object.entries(AIRBUS_HOTSPOT_ANCHORS) as [FirstOfficerControl, THREE.Vector3][]) {
+    const projected = anchor.clone().project(camera)
+    const x = (projected.x * 0.5 + 0.5) * size.width
+    const y = (-projected.y * 0.5 + 0.5) * size.height
+    positions[control] = {
+      x: Math.round(x),
+      y: Math.round(y),
+      visible: projected.z >= -1 && projected.z <= 1 && x >= -80 && x <= size.width + 80 && y >= -80 && y <= size.height + 80,
+    }
+  }
+
+  return positions
 }
 
 function applyCameraTransform(runtimeCamera: THREE.Camera, sourceCamera: THREE.Camera, fovOverride?: number) {
@@ -160,11 +193,26 @@ function applyCameraTransform(runtimeCamera: THREE.Camera, sourceCamera: THREE.C
   }
 }
 
+function applyAirbusGameplayCameraTransform(runtimeCamera: THREE.Camera, sourceCamera: THREE.Camera, fovOverride?: number) {
+  applyCameraTransform(runtimeCamera, sourceCamera, fovOverride)
+  const needsCenteredCameraRepair = Math.abs(runtimeCamera.position.x) < 0.05
+  if (needsCenteredCameraRepair) {
+    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(runtimeCamera.quaternion)
+    const up = new THREE.Vector3(0, 1, 0).applyQuaternion(runtimeCamera.quaternion)
+    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(runtimeCamera.quaternion)
+    runtimeCamera.position
+      .addScaledVector(right, AIRBUS_FO_SEAT_OFFSET.x)
+      .addScaledVector(up, AIRBUS_FO_SEAT_OFFSET.y)
+      .addScaledVector(forward, AIRBUS_FO_SEAT_OFFSET.z)
+    const foSeatYaw = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), AIRBUS_FO_SEAT_YAW)
+    runtimeCamera.quaternion.multiply(foSeatYaw)
+  }
+  runtimeCamera.updateMatrixWorld(true)
+}
+
 function LimitedOrbitControls({
-  phase,
   airbusCameraRevision,
 }: {
-  phase: PrototypeSceneProps['phase']
   airbusCameraRevision: number
 }) {
   const { camera, gl } = useThree()
@@ -172,33 +220,16 @@ function LimitedOrbitControls({
 
   useEffect(() => {
     const controls = new ThreeOrbitControls(camera, gl.domElement)
-    const isAirbus = phase === 'airbus'
     controls.enablePan = false
-    controls.enableZoom = !isAirbus
+    controls.enableZoom = true
     controls.enableRotate = true
     controls.screenSpacePanning = false
-    if (isAirbus) {
-      const target = new THREE.Vector3()
-      camera.getWorldDirection(target)
-      target.multiplyScalar(AIRBUS_ORBIT_LOOK_DISTANCE).add(camera.position)
-      controls.target.copy(target)
-      const offset = camera.position.clone().sub(target)
-      const spherical = new THREE.Spherical().setFromVector3(offset)
-      controls.minDistance = AIRBUS_ORBIT_LOOK_DISTANCE
-      controls.maxDistance = AIRBUS_ORBIT_LOOK_DISTANCE
-      controls.minPolarAngle = Math.max(0.01, spherical.phi - AIRBUS_ORBIT_POLAR_LIMIT)
-      controls.maxPolarAngle = Math.min(Math.PI - 0.01, spherical.phi + AIRBUS_ORBIT_POLAR_LIMIT)
-      controls.minAzimuthAngle = spherical.theta - AIRBUS_ORBIT_AZIMUTH_LIMIT
-      controls.maxAzimuthAngle = spherical.theta + AIRBUS_ORBIT_AZIMUTH_LIMIT
-      controls.rotateSpeed = 0.45
-    } else {
-      controls.minDistance = 4.2
-      controls.maxDistance = 7.2
-      controls.minPolarAngle = Math.PI / 2.5
-      controls.maxPolarAngle = Math.PI / 1.75
-      controls.minAzimuthAngle = -0.42
-      controls.maxAzimuthAngle = 0.42
-    }
+    controls.minDistance = 4.2
+    controls.maxDistance = 7.2
+    controls.minPolarAngle = Math.PI / 2.5
+    controls.maxPolarAngle = Math.PI / 1.75
+    controls.minAzimuthAngle = -0.42
+    controls.maxAzimuthAngle = 0.42
     controls.enableDamping = true
     controls.dampingFactor = 0.08
     controlsRef.current = controls
@@ -207,9 +238,146 @@ function LimitedOrbitControls({
       controlsRef.current = null
       controls.dispose()
     }
-  }, [airbusCameraRevision, camera, gl, phase])
+  }, [airbusCameraRevision, camera, gl])
 
   useFrame(() => controlsRef.current?.update())
+  return null
+}
+
+function AirbusSeatLookControls({
+  airbusCameraRevision,
+  onHotspotsChange,
+}: {
+  airbusCameraRevision: number
+  onHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
+}) {
+  const { camera, gl, size } = useThree()
+  const basePositionRef = useRef(new THREE.Vector3())
+  const baseQuaternionRef = useRef(new THREE.Quaternion())
+  const yawRef = useRef(0)
+  const pitchRef = useRef(0)
+  const draggingRef = useRef(false)
+  const lastPointerRef = useRef({ x: 0, y: 0 })
+  const lastHotspotPayloadRef = useRef('')
+
+  const applyLook = useCallback(() => {
+    const yawQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yawRef.current)
+    const pitchQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), pitchRef.current)
+    camera.position.copy(basePositionRef.current)
+    camera.quaternion.copy(baseQuaternionRef.current).multiply(yawQuaternion).multiply(pitchQuaternion)
+    camera.updateMatrixWorld(true)
+    if (onHotspotsChange) {
+      const positions = projectAirbusHotspots(camera, size)
+      const payload = JSON.stringify(positions)
+      if (payload !== lastHotspotPayloadRef.current) {
+        lastHotspotPayloadRef.current = payload
+        onHotspotsChange(positions)
+      }
+    }
+  }, [camera, onHotspotsChange, size])
+
+  useEffect(() => {
+    basePositionRef.current.copy(camera.position)
+    baseQuaternionRef.current.copy(camera.quaternion)
+    yawRef.current = 0
+    pitchRef.current = 0
+    applyLook()
+  }, [airbusCameraRevision, applyLook, camera])
+
+  useEffect(() => {
+    const canvas = gl.domElement
+
+    const stopDrag = () => {
+      draggingRef.current = false
+    }
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.button !== 0) return
+      draggingRef.current = true
+      lastPointerRef.current = { x: event.clientX, y: event.clientY }
+      canvas.setPointerCapture(event.pointerId)
+    }
+
+    const onPointerMove = (event: PointerEvent) => {
+      if (!draggingRef.current) return
+      const deltaX = event.clientX - lastPointerRef.current.x
+      const deltaY = event.clientY - lastPointerRef.current.y
+      lastPointerRef.current = { x: event.clientX, y: event.clientY }
+      yawRef.current = THREE.MathUtils.clamp(
+        yawRef.current - deltaX * AIRBUS_LOOK_POINTER_SPEED,
+        -AIRBUS_LOOK_YAW_LIMIT,
+        AIRBUS_LOOK_YAW_LIMIT,
+      )
+      pitchRef.current = THREE.MathUtils.clamp(
+        pitchRef.current - deltaY * AIRBUS_LOOK_POINTER_SPEED,
+        -AIRBUS_LOOK_PITCH_LIMIT,
+        AIRBUS_LOOK_PITCH_LIMIT,
+      )
+      applyLook()
+    }
+
+    canvas.addEventListener('pointerdown', onPointerDown)
+    canvas.addEventListener('pointermove', onPointerMove)
+    canvas.addEventListener('pointerup', stopDrag)
+    canvas.addEventListener('pointercancel', stopDrag)
+
+    return () => {
+      draggingRef.current = false
+      canvas.removeEventListener('pointerdown', onPointerDown)
+      canvas.removeEventListener('pointermove', onPointerMove)
+      canvas.removeEventListener('pointerup', stopDrag)
+      canvas.removeEventListener('pointercancel', stopDrag)
+    }
+  }, [applyLook, gl])
+
+  useFrame(() => applyLook())
+
+  return null
+}
+
+function AirbusHotspotProjector({
+  onHotspotsChange,
+}: {
+  onHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
+}) {
+  const { camera, size } = useThree()
+  const lastPayloadRef = useRef('')
+
+  const publishHotspots = useCallback(() => {
+    if (!onHotspotsChange) return
+    const positions: AirbusHotspotScreenPositions = {}
+
+    for (const [control, anchor] of Object.entries(AIRBUS_HOTSPOT_ANCHORS) as [FirstOfficerControl, THREE.Vector3][]) {
+      const projected = anchor.clone().project(camera)
+      const x = (projected.x * 0.5 + 0.5) * size.width
+      const y = (-projected.y * 0.5 + 0.5) * size.height
+      positions[control] = {
+        x: Math.round(x),
+        y: Math.round(y),
+        visible: projected.z >= -1 && projected.z <= 1 && x >= -80 && x <= size.width + 80 && y >= -80 && y <= size.height + 80,
+      }
+    }
+
+    const payload = JSON.stringify(positions)
+    if (payload === lastPayloadRef.current) return
+    lastPayloadRef.current = payload
+    onHotspotsChange(positions)
+  }, [camera, onHotspotsChange, size.height, size.width])
+
+  useEffect(() => {
+    let animationFrame = window.requestAnimationFrame(function publish() {
+      publishHotspots()
+      animationFrame = window.requestAnimationFrame(publish)
+    })
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame)
+      onHotspotsChange?.({})
+    }
+  }, [onHotspotsChange, publishHotspots])
+
+  useFrame(() => publishHotspots())
+
   return null
 }
 
@@ -264,13 +432,13 @@ function AirbusSketchfabPostProcessing() {
 function AirbusRuntimeLighting() {
   return (
     <>
-      <ambientLight intensity={1.18} />
-      <hemisphereLight args={['#dcebf2', '#243436', 0.58]} />
-      <directionalLight position={[0.35, 3.4, 2.8]} intensity={1.65} color="#f4f8ff" />
-      <directionalLight position={[-2.8, 1.7, 1.2]} intensity={0.48} color="#9fc6d9" />
-      <pointLight position={[0.15, 1.05, 0.8]} intensity={1.28} distance={5.2} color="#dff6ff" />
-      <pointLight position={[-1.85, 0.52, 1.05]} intensity={0.88} distance={3.7} color="#e7fff3" />
-      <pointLight position={[1.65, 0.48, 0.88]} intensity={0.74} distance={3.4} color="#d8ecff" />
+      <ambientLight intensity={0.68} />
+      <hemisphereLight args={['#dcebf2', '#243436', 0.38]} />
+      <directionalLight position={[0.35, 3.4, 2.8]} intensity={0.92} color="#f4f8ff" />
+      <directionalLight position={[-2.8, 1.7, 1.2]} intensity={0.34} color="#9fc6d9" />
+      <pointLight position={[0.15, 1.05, 0.8]} intensity={0.58} distance={5.2} color="#dff6ff" />
+      <pointLight position={[-1.85, 0.52, 1.05]} intensity={0.36} distance={3.7} color="#e7fff3" />
+      <pointLight position={[1.65, 0.48, 0.88]} intensity={0.28} distance={3.4} color="#d8ecff" />
     </>
   )
 }
@@ -324,9 +492,11 @@ function AirbusLoadingFallback({ reducedMotion }: { reducedMotion: boolean }) {
 function AirbusCockpit({
   reducedMotion,
   onCameraReady,
+  onAirbusHotspotsChange,
 }: {
   reducedMotion: boolean
   onCameraReady: () => void
+  onAirbusHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
 }) {
   const { camera, size } = useThree()
   const [loaded, setLoaded] = useState<LoadedAirbusScene | null>(null)
@@ -348,6 +518,11 @@ function AirbusCockpit({
         }
 
         loadedScene.traverse((object) => {
+          if (object instanceof THREE.Light) {
+            object.visible = false
+            object.intensity = 0
+            return
+          }
           if (object instanceof THREE.Mesh) {
             object.castShadow = true
             object.receiveShadow = true
@@ -358,6 +533,7 @@ function AirbusCockpit({
             }
           }
         })
+        loadedScene.userData.airbusRuntimeMaterialToneApplied = true
 
         loadedScene.updateMatrixWorld(true)
         setLoaded({ scene: loadedScene, camera: loadedScene.getObjectByName(AIRBUS_GAME_CAMERA) as THREE.Camera | null })
@@ -375,19 +551,25 @@ function AirbusCockpit({
     }
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!loaded?.camera) return
     loaded.scene.updateMatrixWorld(true)
-    applyCameraTransform(camera, loaded.camera, size.width < 620 ? AIRBUS_NARROW_GAME_FOV : AIRBUS_WIDE_GAME_FOV)
+    applyAirbusGameplayCameraTransform(camera, loaded.camera, size.width < 900 ? AIRBUS_NARROW_GAME_FOV : AIRBUS_WIDE_GAME_FOV)
+    onAirbusHotspotsChange?.(projectAirbusHotspots(camera, size))
     onCameraReady()
-  }, [camera, loaded, onCameraReady, size.width])
+  }, [camera, loaded, onAirbusHotspotsChange, onCameraReady, size])
 
   return (
     <>
       <color attach="background" args={['#172123']} />
       <AirbusRuntimeLighting />
       {loaded && !loadFailed ? (
-        <primitive object={loaded.scene} />
+        <>
+          <primitive object={loaded.scene} />
+          <AirbusSeatLookControls airbusCameraRevision={size.width} onHotspotsChange={onAirbusHotspotsChange} />
+          <AirbusHotspotProjector onHotspotsChange={onAirbusHotspotsChange} />
+          <AirbusSketchfabPostProcessing />
+        </>
       ) : (
         <AirbusLoadingFallback reducedMotion={reducedMotion} />
       )}
@@ -540,18 +722,12 @@ export function PrototypeScene({
   captainRewardUnlocked,
   reducedMotion,
   onAirbusReady,
+  onAirbusHotspotsChange,
   onSwitch,
   onMars,
   onLockerHat,
 }: PrototypeSceneProps) {
   const onInteractiveHover = useInteractiveCursor()
-  const [airbusCameraReady, setAirbusCameraReady] = useState(false)
-  const [airbusCameraRevision, setAirbusCameraRevision] = useState(0)
-  const markAirbusCameraReady = useCallback(() => {
-    setAirbusCameraReady(true)
-    setAirbusCameraRevision((revision) => revision + 1)
-    onAirbusReady()
-  }, [onAirbusReady])
 
   return (
     <div className="scene" aria-label="Interactive 3D scene">
@@ -561,7 +737,13 @@ export function PrototypeScene({
         shadows="percentage"
         fallback={<div className="canvas-fallback">WebGL is unavailable. Use the mirrored HTML controls.</div>}
       >
-        {phase === 'airbus' && <AirbusCockpit reducedMotion={reducedMotion} onCameraReady={markAirbusCameraReady} />}
+        {phase === 'airbus' && (
+          <AirbusCockpit
+            reducedMotion={reducedMotion}
+            onCameraReady={onAirbusReady}
+            onAirbusHotspotsChange={onAirbusHotspotsChange}
+          />
+        )}
         {phase === 'locker' && (
           <LockerCocoon
             hatRevealed={lockerHatRevealed}
@@ -585,9 +767,8 @@ export function PrototypeScene({
           </mesh>
         )}
 
-        {phase === 'airbus' && airbusCameraReady && <AirbusSketchfabPostProcessing />}
-        {(phase !== 'airbus' || airbusCameraReady) && (
-          <LimitedOrbitControls phase={phase} airbusCameraRevision={airbusCameraRevision} />
+        {phase !== 'airbus' && (
+          <LimitedOrbitControls airbusCameraRevision={0} />
         )}
       </Canvas>
       <div className="prototype-badge">
