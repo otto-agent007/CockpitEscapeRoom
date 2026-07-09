@@ -13,16 +13,16 @@ This is a deployable GLB playable proof, not final visual approval.
 - Runtime contract: `art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json`
 - Material/optimization gate: `art-source/cockpit-pipeline/gates/a320-cockpit-2-material-optimization.json`
 - Browser handoff gate: `art-source/cockpit-pipeline/gates/a320-cockpit-2-browser-integration-proof.json`
-- SHA-256: `97deb0f7f2dc9fba3e9b046b621c6afe35a2dda4d6752f6a48eb8b073206fcc2`
+- SHA-256: `c94ada9dbfe7bdfb29d3a75071120a1823c6963a0de2b6d3f815900974d9ac8b`
 
 ## Contract Summary
 
 - Scene group: Airbus A320 First-Officer cockpit
 - Root object: `AIRBUS_ROOT`
 - Required stable nodes include `AIRBUS_A320_STATIC`, `AIRBUS_A320_DISPLAY_CANDIDATES`, `AIRBUS_A320_INTERACTIVE_CANDIDATES`, `AIRBUS_A320_LOC_CAPTAIN_EYE`, `AIRBUS_A320_LOC_DASHBOARD_FOCUS`, and `CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW`.
-- GLB size: 39,871,920 bytes, below the 50 MiB review threshold.
-- Material count: 12 in the deployable GLB.
-- Texture count: 10 in the deployable GLB; the source texture inventory remains preserved by the shading report.
+- GLB size: 39,849,104 bytes, below the 50 MiB review threshold.
+- Material count: 11 in the deployable GLB.
+- Texture count: 11 in the deployable GLB; the source texture inventory remains preserved by the shading report.
 - Destructive optimization used: false
 - Reimport validation: pass
 
@@ -80,6 +80,56 @@ This is a deployable GLB playable proof, not final visual approval.
 ## Approval State
 
 This handoff is approved only for playable proof. Owner visual approval is still required before calling it final production Airbus cockpit art or removing proof/approval caveats.
+
+## 2026-07-09 Production-Ready Approval Candidate
+
+- Added deterministic loose-fragment cleanup to the A320 shading pipeline instead of relying on the ignored recovered cache `.blend`.
+- Quarantined only four reviewed generic zoom-out fragments in `A320_QUARANTINE_LOOSE_PARTS_REVIEW` and excluded them from export:
+  - `AIRBUS_A320_STATIC_119_OBJECT_93_001`
+  - `AIRBUS_A320_STATIC_120_OBJECT_94`
+  - `AIRBUS_A320_STATIC_121_OBJECT_95`
+  - `AIRBUS_A320_STATIC_122_OBJECT_96_001`
+- Preserved named cockpit geometry, seat, side-console, display, panel, hierarchy, UVs, `game_id` metadata, and the First-Officer gameplay camera contract.
+- Regenerated the canonical shaded source and deployable runtime asset through the pipeline:
+  - Shaded blend: `art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend`
+  - Shaded GLB: `art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.glb`
+  - Runtime GLB: `public/models/airbus-first-officer.glb`
+  - Runtime/staged SHA-256: `c94ada9dbfe7bdfb29d3a75071120a1823c6963a0de2b6d3f815900974d9ac8b`
+  - Runtime GLB size: `39,849,104` bytes.
+- Shading validation passed with runtime node names preserved, `game_id` metadata preserved, UV layers preserved, approved assembly inputs immutable, and dimension drift `0.0`.
+- `.cache/assets/airbus/asset-report.json` - pass; Blender 5.1.2, 140 selected export objects, and 139 `game_id` nodes.
+- `.cache/assets/airbus/validation.json` - pass; 121 imported-source warnings and 127 visual-candidate notes remain documented.
+- `strings public/models/airbus-first-officer.glb` quarantine check - pass; no quarantined `OBJECT_93` through `OBJECT_96` runtime names found in the deployable GLB.
+- Approval renders refreshed:
+  - `.cache/assets/airbus/previews/airbus_a320_cam_complete_interior_approval.png`
+  - `.cache/assets/airbus/previews/airbus_a320_cam_first_officer_approval.png`
+  - `.cache/assets/airbus/previews/cam_airbus_first_officer_approval.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-shading/complete-interior-approval.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-shading/first-officer-approval.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-source-parity-contact-sheet.png`
+- Browser screenshots captured from the real GLB load path at `http://127.0.0.1:5173/`; each capture had 5 targets, zero `CLOCK` cards, visible canvas, and no console or page errors:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-shading/browser-375-airbus-fo.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-shading/browser-768-airbus-fo.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-shading/browser-1440-airbus-fo.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-shading/browser-1920-airbus-fo.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-shading/browser-768-airbus-fo-reduced-motion.png`
+- Validation:
+  - `python3 -m py_compile tools/blender/cockpit_pipeline/a320_shading_blender_apply.py tools/blender/cockpit_pipeline/a320_shading_job.py` - pass.
+  - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli run-a320-shading-job` - pass.
+  - `BLENDER_BIN=/home/user1/.local/bin/blender npm run asset:airbus` - pass.
+  - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/a320-cockpit-2-shading/manifests/shading-complete.json` - pass.
+  - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate runtime-contract art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json` - pass.
+  - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate material-optimization art-source/cockpit-pipeline/gates/a320-cockpit-2-material-optimization.json` - pass.
+  - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate browser-integration art-source/cockpit-pipeline/gates/a320-cockpit-2-browser-integration-proof.json` - pass.
+  - `npx gltf-transform validate public/models/airbus-first-officer.glb` - pass; no errors, warnings, infos, or hints.
+  - `npm run assets:check` - pass; A320 GLB has no errors, warnings, infos, or hints, and existing DC-9 informational rows remain.
+  - `npm run pipeline:evals` - pass; 6/6 eval fixtures.
+  - `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 4 Chromium tests.
+  - `npm run check` - pass; lint, typecheck, 16 Vitest tests, and production build completed.
+- Remaining approval limitations:
+  - Owner visual approval is still required before removing `A320 PLAYABLE PROOF` or calling this final production Airbus cockpit art.
+  - Imported source meshes retain documented unapplied-scale and visual-candidate metadata notes.
+  - Individual imported control pivots are not promoted to direct 3D gameplay controls in this pass; accessible browser hotspots remain the supported interaction path.
 
 ## 2026-07-08 Production-Ready Approval Candidate
 

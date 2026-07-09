@@ -10,6 +10,13 @@ from mathutils import Vector
 
 
 RUNTIME_METADATA_KEYS = ["game_id", "scene_group", "target_aircraft", "assemblyStage", "source_candidate_id", "assemblyCategory"]
+LOOSE_PART_QUARANTINE_COLLECTION = "A320_QUARANTINE_LOOSE_PARTS_REVIEW"
+LOOSE_PART_SOURCE_NODES = {
+    "Object_93.001": "Tiny generic source fragment above the rear zoom-out view; not a named A320 cockpit component.",
+    "Object_94": "Small generic source fragment adjacent to Object_93.001; not a named A320 cockpit component.",
+    "Object_95": "Tiny generic source fragment below the rear zoom-out view; not a named A320 cockpit component.",
+    "Object_96.001": "Small generic source fragment adjacent to Object_95; not a named A320 cockpit component.",
+}
 
 
 def main() -> None:
@@ -35,7 +42,8 @@ def main() -> None:
 
     _reset_scene()
     bpy.ops.import_scene.gltf(filepath=str(assembly_glb))
-    expected_nodes = _expected_runtime_nodes(node_report)
+    cleanup_report = _quarantine_loose_zoom_out_fragments(output_dir / "loose-part-review-report.json")
+    expected_nodes = _expected_runtime_nodes(node_report, exclude=set(cleanup_report["quarantinedNames"]))
     _add_approval_cameras(viewer_settings)
     before = _snapshot(expected_nodes)
 
@@ -58,6 +66,7 @@ def main() -> None:
         bpy.context.view_layer.objects.active = root
         _select_descendants(root)
         _select_review_export_objects()
+        _deselect_quarantined_export_objects(cleanup_report["quarantinedNames"])
     else:
         bpy.ops.object.select_all(action="SELECT")
     bpy.ops.export_scene.gltf(
@@ -77,17 +86,69 @@ def main() -> None:
     backup_path.unlink(missing_ok=True)
 
     reimport = _reimport_validation(glb_path, expected_nodes)
-    validation = _validate(before, reimport, assignments, texture_report)
+    validation = _validate(before, reimport, assignments, texture_report, cleanup_report)
     (output_dir / "validation-report.json").write_text(json.dumps(validation, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"status": validation["status"], "glb": glb_path.as_posix()}, indent=2))
 
 
-def _expected_runtime_nodes(node_report: dict[str, object]) -> list[str]:
+def _expected_runtime_nodes(node_report: dict[str, object], exclude: set[str] | None = None) -> list[str]:
+    exclude = exclude or set()
     names = {node_report["rootObject"]}
     names.update(node_report["groups"].values())
     names.update(item["runtimeNodeName"] for item in node_report["meshReports"])
     names.update(["AIRBUS_A320_LOC_CAPTAIN_EYE", "AIRBUS_A320_LOC_DASHBOARD_FOCUS", "CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW"])
-    return sorted(names)
+    return sorted(name for name in names if name not in exclude)
+
+
+def _quarantine_loose_zoom_out_fragments(report_path: Path) -> dict[str, object]:
+    quarantine = bpy.data.collections.get(LOOSE_PART_QUARANTINE_COLLECTION)
+    if quarantine is None:
+        quarantine = bpy.data.collections.new(LOOSE_PART_QUARANTINE_COLLECTION)
+        bpy.context.scene.collection.children.link(quarantine)
+    quarantine.hide_viewport = True
+    quarantine.hide_render = True
+
+    reviewed: list[dict[str, object]] = []
+    quarantined_names: list[str] = []
+    for obj in sorted((item for item in bpy.context.scene.objects if item.type == "MESH"), key=lambda item: item.name):
+        source_node = str(obj.get("sourceNodeName", ""))
+        semantic_part = str(obj.get("semanticPartName", ""))
+        decision = "preserve"
+        reason = "Named or semantically classified A320 cockpit geometry."
+        if source_node in LOOSE_PART_SOURCE_NODES and semantic_part.startswith("OBJECT_9"):
+            decision = "quarantine"
+            reason = LOOSE_PART_SOURCE_NODES[source_node]
+            if quarantine.name not in [collection.name for collection in obj.users_collection]:
+                quarantine.objects.link(obj)
+            obj.hide_viewport = True
+            obj.hide_render = True
+            obj["cleanup_status"] = "quarantined_loose_zoom_out_fragment"
+            obj["cleanup_reason"] = reason
+            quarantined_names.append(obj.name)
+        reviewed.append({
+            "name": obj.name,
+            "sourceNodeName": source_node,
+            "semanticPartName": semantic_part,
+            "decision": decision,
+            "reason": reason,
+            "bounds": _object_bounds(obj),
+            "vertexCount": len(obj.data.vertices),
+        })
+
+    report = {
+        "schema": "cockpit-pipeline/a320-loose-part-review-v1",
+        "policy": (
+            "Conservative A320 zoom-out cleanup. Only generic source fragments with "
+            "known sourceNodeName values are hidden and excluded from export; named cockpit "
+            "seat, side-console, display, panel, and control geometry is preserved."
+        ),
+        "quarantineCollection": LOOSE_PART_QUARANTINE_COLLECTION,
+        "quarantinedNames": quarantined_names,
+        "reviewedCount": len(reviewed),
+        "reviewedObjects": reviewed,
+    }
+    report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    return report
 
 
 def _apply_material_annotation(recipes: dict[str, dict[str, object]], source_materials: dict[str, dict[str, object]]) -> list[dict[str, object]]:
@@ -588,7 +649,7 @@ def _snapshot(expected_nodes: list[str]) -> dict[str, object]:
     return {
         "runtimeNodeNames": sorted(name for name in expected_nodes if bpy.data.objects.get(name)),
         "runtimeMetadata": {name: _metadata_for(bpy.data.objects.get(name)) for name in expected_nodes if bpy.data.objects.get(name)},
-        "uvLayerCounts": {obj.name: len(obj.data.uv_layers) for obj in bpy.context.scene.objects if obj.type == "MESH"},
+        "uvLayerCounts": {obj.name: len(obj.data.uv_layers) for obj in bpy.context.scene.objects if obj.type == "MESH" and not obj.hide_render},
         "dimensions": _scene_dimensions(),
         "materialCount": len(bpy.data.materials),
         "sourceTextureLinkCount": _source_texture_link_count(),
@@ -601,7 +662,13 @@ def _metadata_for(obj: bpy.types.Object | None) -> dict[str, object]:
     return {key: obj[key] for key in RUNTIME_METADATA_KEYS if key in obj}
 
 
-def _validate(before: dict[str, object], reimport: dict[str, object], assignments: list[dict[str, object]], texture_report: dict[str, object]) -> dict[str, object]:
+def _validate(
+    before: dict[str, object],
+    reimport: dict[str, object],
+    assignments: list[dict[str, object]],
+    texture_report: dict[str, object],
+    cleanup_report: dict[str, object],
+) -> dict[str, object]:
     before_names = set(before["runtimeNodeNames"])
     after_names = set(reimport["runtimeNodeNames"])
     missing_nodes = sorted(before_names - after_names)
@@ -626,6 +693,11 @@ def _validate(before: dict[str, object], reimport: dict[str, object], assignment
         "destructiveOptimizationUsed": False,
         "sourceTextureLinkCount": before["sourceTextureLinkCount"],
         "sourceTextureLinksPreserved": before["sourceTextureLinkCount"] > 0,
+        "loosePartCleanup": {
+            "quarantineCollection": cleanup_report["quarantineCollection"],
+            "quarantinedCount": len(cleanup_report["quarantinedNames"]),
+            "quarantinedNames": cleanup_report["quarantinedNames"],
+        },
         "reimportValidation": reimport,
     }
 
@@ -646,7 +718,7 @@ def _reimport_validation(glb_path: Path, expected_nodes: list[str]) -> dict[str,
 
 
 def _scene_dimensions() -> dict[str, float]:
-    meshes = [obj for obj in bpy.context.scene.objects if obj.type == "MESH"]
+    meshes = [obj for obj in bpy.context.scene.objects if obj.type == "MESH" and not obj.hide_render]
     if not meshes:
         return {"x": 0.0, "y": 0.0, "z": 0.0, "center": [0.0, 0.0, 0.0]}
     points = [obj.matrix_world @ Vector(corner) for obj in meshes for corner in obj.bound_box]
@@ -658,7 +730,7 @@ def _scene_dimensions() -> dict[str, float]:
 
 
 def _scene_center_radius() -> tuple[Vector, float]:
-    meshes = [obj for obj in bpy.context.scene.objects if obj.type == "MESH"]
+    meshes = [obj for obj in bpy.context.scene.objects if obj.type == "MESH" and not obj.hide_render]
     if not meshes:
         return Vector((0.0, 0.0, 0.0)), 1.0
     points = [obj.matrix_world @ Vector(corner) for obj in meshes for corner in obj.bound_box]
@@ -667,6 +739,18 @@ def _scene_center_radius() -> tuple[Vector, float]:
     center = (mins + maxs) * 0.5
     radius = max((maxs - mins).length * 0.5, 1.0)
     return center, radius
+
+
+def _object_bounds(obj: bpy.types.Object) -> dict[str, object]:
+    points = [obj.matrix_world @ Vector(corner) for corner in obj.bound_box]
+    mins = Vector((min(point.x for point in points), min(point.y for point in points), min(point.z for point in points)))
+    maxs = Vector((max(point.x for point in points), max(point.y for point in points), max(point.z for point in points)))
+    center = (mins + maxs) * 0.5
+    size = maxs - mins
+    return {
+        "center": [round(value, 6) for value in center],
+        "size": [round(value, 6) for value in size],
+    }
 
 
 def _select_descendants(obj: bpy.types.Object) -> None:
@@ -681,6 +765,13 @@ def _select_review_export_objects() -> None:
             obj.select_set(True)
         if obj.type == "LIGHT" and obj.name.startswith("AIRBUS_A320_SOURCE_PARITY_"):
             obj.select_set(True)
+
+
+def _deselect_quarantined_export_objects(names: list[str]) -> None:
+    for name in names:
+        obj = bpy.data.objects.get(name)
+        if obj:
+            obj.select_set(False)
 
 
 def _parent_to_airbus_root(obj: bpy.types.Object) -> None:

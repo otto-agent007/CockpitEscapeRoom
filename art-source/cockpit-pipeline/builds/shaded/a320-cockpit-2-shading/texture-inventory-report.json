@@ -1,0 +1,96 @@
+{
+  "schema": "cockpit-pipeline/texture-inventory-v1",
+  "textureCount": 11,
+  "sourceTexturesPreserved": true,
+  "textures": [
+    {
+      "name": "Viewer Node",
+      "path": "Viewer Node",
+      "width": 256,
+      "height": 256,
+      "packed": false,
+      "usage": "preserved imported source texture"
+    },
+    {
+      "name": "m0mat_003_baseColor",
+      "path": "m0mat_003_baseColor",
+      "width": 1024,
+      "height": 1024,
+      "packed": true,
+      "usage": "preserved imported source texture"
+    },
+    {
+      "name": "m0mat_004_baseColor",
+      "path": "m0mat_004_baseColor",
+      "width": 2048,
+      "height": 2048,
+      "packed": true,
+      "usage": "preserved imported source texture"
+    },
+    {
+      "name": "m0mat_005_baseColor",
+      "path": "m0mat_005_baseColor",
+      "width": 2048,
+      "height": 2048,
+      "packed": true,
+      "usage": "preserved imported source texture"
+    },
+    {
+      "name": "m0mat_006_baseColor",
+      "path": "m0mat_006_baseColor",
+      "width": 512,
+      "height": 512,
+      "packed": true,
+      "usage": "preserved imported source texture"
+    },
+    {
+      "name": "m0mat_007_baseColor",
+      "path": "m0mat_007_baseColor",
+      "width": 512,
+      "height": 512,
+      "packed": true,
+      "usage": "preserved imported source texture"
+    },
+    {
+      "name": "m0mat_008_baseColor",
+      "path": "m0mat_008_baseColor",
+      "width": 1024,
+      "height": 1024,
+      "packed": true,
+      "usage": "preserved imported source texture"
+    },
+    {
+      "name": "m0mat_009_baseColor",
+      "path": "m0mat_009_baseColor",
+      "width": 2048,
+      "height": 2048,
+      "packed": true,
+      "usage": "preserved imported source texture"
+    },
+    {
+      "name": "m0mat_baseColor",
+      "path": "m0mat_baseColor",
+      "width": 2048,
+      "height": 2048,
+      "packed": true,
+      "usage": "preserved imported source texture"
+    },
+    {
+      "name": "m1mat_001_baseColor",
+      "path": "m1mat_001_baseColor",
+      "width": 1024,
+      "height": 1024,
+      "packed": true,
+      "usage": "preserved imported source texture"
+    },
+    {
+      "name": "m1mat_baseColor",
+      "path": "m1mat_baseColor",
+      "width": 1024,
+      "height": 1024,
+      "packed": true,
+      "usage": "preserved imported source texture"
+    }
+  ],
+  "optimizationDecision": "No texture rebake or downscale in this pass; Sketchfab inspector UV checker showed useful UV layout to preserve."
+}

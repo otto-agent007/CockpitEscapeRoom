@@ -43,16 +43,22 @@ def run_a320_shading_job(assembly_job_id: str = ASSEMBLY_JOB_ID, shading_job_id:
     before_hashes = _approved_hashes(root, approval)
 
     recipes = _material_recipes()
+    recipes["referenceEvidence"] = [
+        item for item in recipes["referenceEvidence"]
+        if (root / item).is_file()
+    ]
     recipe_path.write_text(json.dumps(recipes, indent=2) + "\n", encoding="utf-8")
 
     assembly_glb = root / _artifact(approval, "a320-cockpit-2-assembly.glb")["path"]
     node_report_path = root / _artifact(approval, "node-pivot-report.json")["path"]
+    optional_inputs = [path for path in (viewer_settings_path, material_parity_path) if path.exists()]
+
     _run_blender_a320_shading(
         assembly_glb,
         node_report_path,
         recipe_path,
-        viewer_settings_path,
-        material_parity_path,
+        viewer_settings_path if viewer_settings_path.exists() else None,
+        material_parity_path if material_parity_path.exists() else None,
         output_dir,
         preview_dir,
     )
@@ -73,8 +79,20 @@ def run_a320_shading_job(assembly_job_id: str = ASSEMBLY_JOB_ID, shading_job_id:
     gate = _write_material_gate(gate_path, output_dir, validation)
     validate_json_file(gate_path, "material_optimization.schema.json")
     contact_sheet = _write_contact_sheet(root, preview_dir)
-    _write_shading_report(report_path, approval, recipe_path, output_dir, preview_dir, contact_sheet, validation, _git_commit(root))
+    _write_shading_report(report_path, approval, recipe_path, output_dir, preview_dir, contact_sheet, validation, _git_branch(root), _git_commit(root))
 
+    preview_outputs = [
+        preview_dir / name
+        for name in [
+            "captain-daylight.png",
+            "captain-display-check.png",
+            "captain-pullback-review.png",
+            "complete-interior-approval.png",
+            "first-officer-approval.png",
+            "sketchfab-camera-parity.png",
+        ]
+        if (preview_dir / name).is_file()
+    ]
     manifest = _write_manifest(
         root=root,
         manifest_dir=manifest_dir,
@@ -82,28 +100,21 @@ def run_a320_shading_job(assembly_job_id: str = ASSEMBLY_JOB_ID, shading_job_id:
         inputs=[
             approval_path,
             manifest_path,
-            viewer_settings_path,
-            material_parity_path,
+            *optional_inputs,
             *(root / item["path"] for item in approval["approvedArtifacts"]),
         ],
         outputs=[
             recipe_path,
             output_dir / "a320-cockpit-2-shaded.blend",
             output_dir / "a320-cockpit-2-shaded.glb",
+            output_dir / "loose-part-review-report.json",
             output_dir / "material-assignment-report.json",
             output_dir / "texture-inventory-report.json",
             output_dir / "validation-report.json",
             gate_path,
             report_path,
             contact_sheet,
-            *(preview_dir / name for name in [
-                "captain-daylight.png",
-                "captain-display-check.png",
-                "captain-pullback-review.png",
-                "complete-interior-approval.png",
-                "first-officer-approval.png",
-                "sketchfab-camera-parity.png",
-            ]),
+            *preview_outputs,
         ],
     )
     validate_json_file(manifest, "stage_manifest.schema.json")
@@ -203,8 +214,8 @@ def _run_blender_a320_shading(
     assembly_glb: Path,
     node_report_path: Path,
     recipe_path: Path,
-    viewer_settings_path: Path,
-    material_parity_path: Path,
+    viewer_settings_path: Path | None,
+    material_parity_path: Path | None,
     output_dir: Path,
     preview_dir: Path,
 ) -> None:
@@ -226,15 +237,15 @@ def _run_blender_a320_shading(
         str(node_report_path),
         "--recipes",
         str(recipe_path),
-        "--viewer-settings",
-        str(viewer_settings_path),
-        "--material-parity-summary",
-        str(material_parity_path),
         "--output-dir",
         str(output_dir),
         "--preview-dir",
         str(preview_dir),
     ]
+    if viewer_settings_path is not None:
+        command.extend(["--viewer-settings", str(viewer_settings_path)])
+    if material_parity_path is not None:
+        command.extend(["--material-parity-summary", str(material_parity_path)])
     result = subprocess.run(command, check=False, text=True, capture_output=True)
     if result.returncode != 0 or "Traceback" in result.stdout or "Traceback" in result.stderr:
         detail = result.stderr.strip() or result.stdout.strip()
@@ -280,6 +291,7 @@ def _write_contact_sheet(root: Path, preview_dir: Path) -> Path:
         ("First Officer approval", preview_dir / "first-officer-approval.png"),
         ("Sketchfab camera parity", preview_dir / "sketchfab-camera-parity.png"),
     ]
+    entries = [(label, image) for label, image in entries if image.is_file()]
     convert = shutil.which("convert")
     if not convert:
         raise RuntimeError("ImageMagick convert is required to build the PNG contact sheet")
@@ -334,15 +346,23 @@ def _write_manifest(root: Path, manifest_dir: Path, shading_job_id: str, inputs:
     return manifest_path
 
 
-def _write_shading_report(path: Path, approval: dict[str, object], recipe_path: Path, output_dir: Path, preview_dir: Path, contact_sheet: Path, validation: dict[str, object], commit: str) -> None:
+def _write_shading_report(path: Path, approval: dict[str, object], recipe_path: Path, output_dir: Path, preview_dir: Path, contact_sheet: Path, validation: dict[str, object], branch: str, commit: str) -> None:
     assignment_report = json.loads((output_dir / "material-assignment-report.json").read_text(encoding="utf-8"))
     texture_report = json.loads((output_dir / "texture-inventory-report.json").read_text(encoding="utf-8"))
+    cleanup_report = json.loads((output_dir / "loose-part-review-report.json").read_text(encoding="utf-8"))
+    recipes = json.loads(recipe_path.read_text(encoding="utf-8"))
+    reference_lines = "\n".join(f"- `{item}`" for item in recipes.get("referenceEvidence", [])) or "- None"
     role_lines = "\n".join(f"- `{recipe}`: `{count}` objects" for recipe, count in sorted(assignment_report["countsByRecipe"].items()))
+    cleanup_lines = "\n".join(f"- `{name}`" for name in cleanup_report["quarantinedNames"]) or "- None"
+    sketchfab_parity_line = ""
+    sketchfab_parity_path = preview_dir / "sketchfab-camera-parity.png"
+    if sketchfab_parity_path.is_file():
+        sketchfab_parity_line = f"- Sketchfab camera parity render: `{sketchfab_parity_path}`\n"
     text = f"""# Airbus A320 Cockpit 2 Shading Report
 
 ## Branch And Stage
 
-- Branch: `codex/asset-workflow-health-rehearsal`
+- Branch: `{branch}`
 - Commit: `{commit}`
 - Assembly job: `{approval["jobId"]}`
 - Shading job: `{SHADING_JOB_ID}`
@@ -353,23 +373,17 @@ def _write_shading_report(path: Path, approval: dict[str, object], recipe_path: 
 
 ## Bounded Action
 
-Agent 3 consumed the owner-approved A320 Agent 2 assembly and applied a source-parity material pass. The pass preserves the downloaded Sketchfab material texture links and UV layout, consumes the cached Sketchfab material-channel summary for portable PBR scalar values, then records semantic material roles for later optimization. It does not write to `public/models/**`, does not modify browser/runtime code, does not join meshes, and does not run destructive GLB optimization.
+Agent 3 consumed the owner-approved A320 Agent 2 assembly and applied a source-parity material pass. The pass preserves the downloaded Sketchfab material texture links and UV layout, maps portable PBR scalar values when cached material-channel summaries are present, then records semantic material roles for later optimization. It does not write to `public/models/**`, does not modify browser/runtime code, does not join meshes, and does not run destructive GLB optimization.
 
-This revision also consumes the extracted Sketchfab viewer settings to improve Blender review parity: Studio background color, the nested `lighting.lights` directional light colors/intensities/transforms, ambient occlusion/reflection render settings where Blender exposes them, the saved Sketchfab camera, matcap/reflection evidence recorded as material metadata, and restrained display emission. These look-development settings are recorded as preview evidence and are not a shaded-approval or public-model promotion.
+When extracted Sketchfab viewer settings are present, this revision also consumes them to improve Blender review parity: Studio background color, directional light colors/intensities/transforms, ambient occlusion/reflection render settings where Blender exposes them, the saved Sketchfab camera, matcap/reflection evidence recorded as material metadata, and restrained display emission. This run records only the available source inspector reference renders and generated approval previews as evidence.
 
 The final shaded blend keeps the compound cockpit shell, seats, and sidewall chunks visible. The older captain comparison previews still hide those chunks for historical camera comparison only; the new owner approval cameras and saved `.blend` do not hide them, because this asset is intended to render from inside the cockpit.
 
+This pass also performs a conservative zoom-out cleanup before export. It quarantines only high-confidence generic source fragments into `A320_QUARANTINE_LOOSE_PARTS_REVIEW`, keeps them hidden in the saved `.blend` for auditability, and excludes them from the deployable GLB. Seat, side-console, display, panel, and named cockpit geometry is preserved.
+
 ## Reference Evidence Used
 
-- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/no-post-processing.png`
-- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/base-color.png`
-- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/matcap.png`
-- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/wireframe.png`
-- `preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/uv-checker.png`
-- `preview-renders/cockpit-pipeline/a320-prebuilt-parts-source-discovery/a320-cockpit-2-import-captain-seat-view.png`
-- `asset-reports/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-viewer-settings.json`
-- `asset-reports/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-environment-assets.json`
-- `asset-reports/cockpit-pipeline/a320-cockpit-2-shading/sketchfab-material-parity-summary.json`
+{reference_lines}
 
 ## Material Recipes
 
@@ -386,18 +400,26 @@ The final shaded blend keeps the compound cockpit shell, seats, and sidewall chu
 - Source texture links preserved: `{validation["sourceTextureLinksPreserved"]}`
 - Source texture link count: `{validation["sourceTextureLinkCount"]}`
 
+## Loose-Part Cleanup
+
+- Cleanup report: `{output_dir / "loose-part-review-report.json"}`
+- Quarantined object count: `{len(cleanup_report["quarantinedNames"])}`
+- Quarantined objects:
+{cleanup_lines}
+
 ## Generated Files
 
 - Shaded blend: `{output_dir / "a320-cockpit-2-shaded.blend"}`
 - Shaded GLB: `{output_dir / "a320-cockpit-2-shaded.glb"}`
 - Material assignment report: `{output_dir / "material-assignment-report.json"}`
+- Loose-part review report: `{output_dir / "loose-part-review-report.json"}`
 - Texture inventory report: `{output_dir / "texture-inventory-report.json"}`
 - Validation report: `{output_dir / "validation-report.json"}`
 - Preview directory: `{preview_dir}`
 - Sketchfab comparison contact sheet: `{contact_sheet}`
 - Complete interior approval render: `{preview_dir / "complete-interior-approval.png"}`
 - First Officer approval render: `{preview_dir / "first-officer-approval.png"}`
-- Sketchfab camera parity render: `{preview_dir / "sketchfab-camera-parity.png"}`
+{sketchfab_parity_line.rstrip()}
 
 ## Validation Results
 
@@ -406,6 +428,7 @@ The final shaded blend keeps the compound cockpit shell, seats, and sidewall chu
 - `game_id` metadata preserved: `{validation["gameIdMetadataPreserved"]}`
 - UV layers preserved: `{validation["uvLayersPreserved"]}`
 - Source texture links preserved: `{validation["sourceTextureLinksPreserved"]}`
+- Loose fragments quarantined: `{len(cleanup_report["quarantinedNames"])}`
 - Reimport status: `{validation["reimportValidation"]["status"]}`
 - Dimension drift max meters: `{validation["dimensionDriftMax"]}`
 - Approved assembly inputs immutable: `{validation["approvedAssemblyInputsImmutable"]}`
@@ -434,6 +457,11 @@ def _now() -> str:
 
 def _git_commit(root: Path) -> str:
     result = subprocess.run(["git", "-C", str(root), "rev-parse", "HEAD"], check=False, text=True, capture_output=True)
+    return result.stdout.strip() if result.returncode == 0 else "unknown"
+
+
+def _git_branch(root: Path) -> str:
+    result = subprocess.run(["git", "-C", str(root), "rev-parse", "--abbrev-ref", "HEAD"], check=False, text=True, capture_output=True)
     return result.stdout.strip() if result.returncode == 0 else "unknown"
 
 
