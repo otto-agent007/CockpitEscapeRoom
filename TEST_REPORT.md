@@ -1,5 +1,33 @@
 # Test report
 
+## 2026-07-10 Airbus loading and desktop viewer controls
+
+- **Production approval:** The owner approved the current Airbus A320 First-Officer experience for production on 2026-07-10. The `A320 PLAYABLE PROOF` badge is removed; older approval-candidate limitations later in this report are retained as dated history and are superseded by this decision.
+- Fairness/readability follow-up: centered and tightened the Airbus feedback dock, increased primary dock/question text to 16.8 px, moved Help and Fullscreen to the lower-right corner, removed the visible reset button, removed the Airbus Hint button, and added concise function descriptions to all five cards. The `R` keyboard reset remains available.
+- Dock density follow-up: lowered the normal feedback dock to a 14 px bottom inset and placed Restart beside the status message, removing the mostly empty second row. The Airline Transport Pilot state still expands upward to fit its full question and answer form.
+- Replaced answer-revealing target names with neutral accessibility-only drop-zone identifiers and faint, unlabeled silhouettes for the visible placement targets. Wrong placements give one generic retry message without naming the correct control.
+- Silhouette follow-up: the placement layer now uses distinct low-detail outlines for the sidestick grip, paired thrust levers, gear handle, radio faceplate, and altitude display. No numbered target chip is rendered visually; focus/drag-over strengthens the glow without revealing text.
+- Airline Transport Pilot input accepts `1500`, `1,500`, `1500 hour`, and `1500 hours`; the question explicitly requests hours and the celebration action now reads `Continue`.
+- Workstation Brave screenshots at 1440 confirm readable card descriptions, a centered dock, neutral wrong feedback, and no visible target answer labels. DOM measurements confirm exact centering at 1280/1440/1920.
+- `npm run check` passed with 21 Vitest tests after the fairness pass.
+- Follow-up polish: added clean runtime art for briefing/loading/fallback, placed Help and Fullscreen in the lower-right corner, retained exact keyboard camera reset, added native Enter submission, and added a confetti qualification dialog with explicit locker continuation.
+- Removed `AirbusLoadingFallback` greybox geometry. The shell loader now has a 600 ms minimum, waits for two framed render cycles, and resets on initial entry, retry, and full-game Restart.
+- Workstation Brave rendered the real GLB and proved camera reset from a moved 76 degree view back to the approved transform and 68 degree FOV exactly.
+- Browser evidence confirms the loader reappears after Restart, the compact dock remains centered while Help and Fullscreen occupy the lower-right corner, the opening uses the game-ready cockpit, and the celebration is visually correct at 1440 px.
+- Focused browser tests passed for normal Enter qualification-to-locker flow, failed-load retry/fallback, Help focus/layout, and reduced-motion celebration reload.
+- `npm run check` passed with 17 Vitest tests; assets, glTF, three A320 gates, pipeline evals (6/6), and `git diff --check` passed.
+- Regression repair: removed the speculative pre-render WebGL context probe and permanent canvas-fallback latch after the owner reported the cockpit no longer worked correctly. The actual loaded and framed A320 scene is again the sole ready-state authority.
+- Added one A320 loader using `public/images/a320-fo-view.png`, real GLB byte/progress reporting, and a first-rendered-frame readiness gate.
+- Added recoverable `Retry 3D` and static-image accessible fallback paths for GLB/network failures.
+- Added phase-aware viewer help, full-shell fullscreen, reset, typing-target shortcut suppression, seated A320 zoom clamped to 50-76 degrees, and continuous target projection.
+- `npm run check` passed: lint, typecheck, 16 Vitest tests, and production build.
+- Focused Playwright failure/retry/fallback and help/focus coverage passed: 2 tests.
+- `npm run assets:check`, glTF validation, all three A320 gate validations, `npm run pipeline:evals` (6/6), and `git diff --check` passed; existing informational UV/empty-node rows remain.
+- Loader evidence: `/tmp/a320-loading-1440-playwright.png` at 1440x900.
+- Limitation: local full-GLB Playwright workers ended before reporting results for zoom/full-render capture. Agent-browser cannot render WebGL here. Those checks are not claimed as passing.
+- Owner gate closed on 2026-07-10 after desktop browser review. The approved production baseline retains the documented imported-source limitations outside the five gameplay targets.
+- Promotion validation: `npm run check`, `npm run assets:check`, glTF validation, all three A320 gates, and pipeline evals (6/6) passed. The real-GLB smoke passed in the first run; the three state-flow smoke tests passed together after updating stale non-leaking card assertions. The focused viewer-help layout/focus test passed after aligning it with the approved lower-right controls.
+
 Update this file with actual evidence after every milestone. Do not replace failures with optimistic prose.
 
 | Check | Expected | Actual | Status | Follow-up |

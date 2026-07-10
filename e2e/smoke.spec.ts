@@ -4,8 +4,15 @@ import { createInitialState, type GameState } from '../src/game/state'
 import { STORAGE_KEY } from '../src/game/storage'
 
 async function placeAirbusCard(page: Page, card: string, targetName: string): Promise<void> {
+  const dropZoneByTarget: Record<string, string> = {
+    Sidestick: 'Cockpit drop zone 1',
+    'Thrust levers': 'Cockpit drop zone 2',
+    'Gear lever': 'Cockpit drop zone 3',
+    'Radio panel': 'Cockpit drop zone 4',
+    'Altitude area': 'Cockpit drop zone 5',
+  }
   await page.getByRole('button', { name: new RegExp(`^${card}\\b`) }).click()
-  await page.getByRole('button', { name: `${targetName} target` }).click()
+  await page.getByRole('button', { name: dropZoneByTarget[targetName] }).click()
 }
 
 function createLockerState(): GameState {
@@ -58,7 +65,7 @@ async function seedGameState(page: Page, state: GameState): Promise<void> {
   await page.reload()
 }
 
-test('Airbus playable proof loads the A320 GLB', async ({ page }) => {
+test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
   test.setTimeout(75_000)
   const consoleErrors: string[] = []
   page.on('console', (message) => {
@@ -74,10 +81,10 @@ test('Airbus playable proof loads the A320 GLB', async ({ page }) => {
   await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
   await modelResponse
 
-  await expect(page.getByText('A320 PLAYABLE PROOF')).toBeVisible()
+  await expect(page.locator('.prototype-badge')).toHaveCount(0)
   await expect(page.locator('canvas')).toBeVisible()
   await expect(page.getByRole('button', { name: /^SIDESTICK\b/ })).toBeVisible({ timeout: 25_000 })
-  const sidestickTarget = page.getByRole('button', { name: 'Sidestick target' })
+  const sidestickTarget = page.getByRole('button', { name: 'Cockpit drop zone 1' })
   await expect(sidestickTarget).toBeVisible({ timeout: 25_000 })
   await expect(page.locator('.airbus-target-layer')).toHaveClass(/airbus-target-layer--projected/, { timeout: 25_000 })
   await expect(sidestickTarget).toHaveAttribute('style', /px/)
@@ -85,7 +92,7 @@ test('Airbus playable proof loads the A320 GLB', async ({ page }) => {
   await sidestickCard.dispatchEvent('click')
   await expect(sidestickCard).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.airbus-target-layer')).toHaveClass(/airbus-target-layer--mesh-picking/)
-  await expect(page.locator('.airbus-target-keyboard-label:visible')).toHaveCount(5)
+  await expect(page.locator('.airbus-target-silhouette:visible')).toHaveCount(5)
   await page.evaluate(() => {
     const canvas = document.querySelector('canvas')
     const target = document.querySelector<HTMLElement>('[data-airbus-target="sidestick"]')
@@ -103,7 +110,7 @@ test('Airbus playable proof loads the A320 GLB', async ({ page }) => {
   await expect(sidestickTarget).toHaveClass(/is-correct/)
 
   await expect(page.getByRole('button', { name: /^CLOCK\b/ })).toHaveCount(0)
-  await expect(page.getByRole('textbox', { name: 'ATP answer' })).toHaveCount(0)
+  await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Verify' })).toHaveCount(0)
   await expect(page.getByRole('combobox')).toHaveCount(0)
   expect(consoleErrors).toEqual([])
@@ -114,12 +121,19 @@ test('Airbus onboarding, locker reveal, and captain completion unlock reward', a
 
   await expect(page.getByRole('heading', { name: "The Captain's Key" })).toBeVisible()
   await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
-  await expect(page.getByRole('textbox', { name: 'ATP answer' })).toHaveCount(0)
-  await expect(page.getByText('How many flight hours are needed for a standard ATP certificate?')).toHaveCount(0)
+  await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toHaveCount(0)
+  await expect(page.getByText(/minimum total flight time required/)).toHaveCount(0)
   await expect(page.getByRole('button', { name: /^CLOCK\b/ })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Hint' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: /^SIDESTICK\b/ })).toContainText('Used to guide the aircraft.')
+  await expect(page.getByRole('button', { name: /^THRUST\b/ })).toContainText('Controls engine power.')
+  await expect(page.getByRole('button', { name: /^GEAR\b/ })).toContainText('Controls landing gear position.')
+  await expect(page.getByRole('button', { name: /^RADIO\b/ })).toContainText('Used for communication.')
+  await expect(page.getByRole('button', { name: /^ALTITUDE\b/ })).toContainText('Shows how high the aircraft is.')
+  await expect(page.getByRole('button', { name: /Cockpit drop zone/ })).toHaveCount(5)
 
   const sidestickCard = page.getByRole('button', { name: /^SIDESTICK\b/ })
-  const sidestickTarget = page.getByRole('button', { name: 'Sidestick target' })
+  const sidestickTarget = page.getByRole('button', { name: 'Cockpit drop zone 1' })
   await sidestickCard.focus()
   await page.keyboard.press('Enter')
   await sidestickTarget.focus()
@@ -130,13 +144,17 @@ test('Airbus onboarding, locker reveal, and captain completion unlock reward', a
   await placeAirbusCard(page, 'RADIO', 'Radio panel')
   await placeAirbusCard(page, 'ALTITUDE', 'Altitude area')
 
-  const atpAnswer = page.getByRole('textbox', { name: 'ATP answer' })
+  const atpAnswer = page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })
   await expect(atpAnswer).toBeVisible()
   await expect(atpAnswer).toHaveValue('')
   await expect(atpAnswer).not.toHaveAttribute('placeholder', '1500')
-  await atpAnswer.fill('1500')
-  await expect(page.getByRole('button', { name: 'Verify' })).toBeEnabled()
-  await page.getByRole('button', { name: 'Verify' }).click()
+  await expect(page.getByText(/total flight time \(hours\) required/)).toBeVisible()
+  await atpAnswer.fill('1500 hours')
+  await atpAnswer.press('Enter')
+  const qualification = page.getByRole('dialog', { name: 'Airline Transport Pilot milestone recognized' })
+  await expect(qualification).toBeVisible()
+  await expect(qualification.getByRole('button', { name: 'Continue' })).toBeFocused()
+  await qualification.getByRole('button', { name: 'Continue' }).click()
 
   await expect(page.getByRole('heading', { name: 'Locker reveal sequence' })).toBeVisible()
   await expect(page.getByRole('textbox', { name: 'Right-seat hours' })).toBeVisible()
@@ -157,7 +175,7 @@ test('Airbus cards show immediate placement feedback and recover', async ({ page
   await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
 
   const sidestickCard = page.getByRole('button', { name: /^SIDESTICK\b/ })
-  const sidestickTarget = page.getByRole('button', { name: 'Sidestick target' })
+  const sidestickTarget = page.getByRole('button', { name: 'Cockpit drop zone 1' })
   const dataTransfer = await page.evaluateHandle(() => new DataTransfer())
 
   await expect(sidestickTarget).toHaveCSS('opacity', '1')
@@ -171,30 +189,33 @@ test('Airbus cards show immediate placement feedback and recover', async ({ page
 
   await expect(sidestickTarget).toHaveClass(/has-card/)
   await expect(sidestickTarget).toHaveClass(/is-correct/)
-  await expect(sidestickCard).toContainText('Sidestick')
+  await expect(sidestickCard).toContainText('Placed')
 
   const radioCard = page.getByRole('button', { name: /^RADIO\b/ })
-  const radioTarget = page.getByRole('button', { name: 'Radio panel target' })
+  const radioTarget = page.getByRole('button', { name: 'Cockpit drop zone 4' })
   await radioCard.click()
   await sidestickTarget.click()
   await expect(sidestickTarget).toHaveClass(/is-wrong/)
-  await expect(page.getByText(/Red means Sidestick/)).toBeVisible()
+  await expect(page.getByText('That card does not match this cockpit control. Try it somewhere else.')).toBeVisible()
+  await expect(radioCard).toContainText('Placed')
+  await expect(radioCard).not.toContainText('Sidestick')
   await radioCard.click()
   await radioTarget.click()
   await expect(sidestickTarget).not.toHaveClass(/has-card/)
   await expect(radioTarget).toHaveClass(/is-correct/)
   await expect(page.getByText('1/5')).toBeVisible()
-  await expect(page.getByRole('textbox', { name: 'ATP answer' })).toHaveCount(0)
+  await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toHaveCount(0)
 
   await placeAirbusCard(page, 'SIDESTICK', 'Sidestick')
   await placeAirbusCard(page, 'GEAR', 'Gear lever')
   await placeAirbusCard(page, 'ALTITUDE', 'Altitude area')
   await expect(page.getByText('4/5')).toBeVisible()
   await placeAirbusCard(page, 'THRUST', 'Thrust levers')
-  await expect(page.getByRole('textbox', { name: 'ATP answer' })).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Locker reveal sequence' })).toHaveCount(0)
-  await page.getByRole('textbox', { name: 'ATP answer' }).fill('1500')
+  await page.getByRole('textbox', { name: 'Airline Transport Pilot answer' }).fill('1500')
   await page.getByRole('button', { name: 'Verify' }).click()
+  await page.getByRole('button', { name: 'Continue' }).click()
   await expect(page.getByRole('heading', { name: 'Locker reveal sequence' })).toBeVisible()
 })
 
@@ -204,7 +225,7 @@ test('saved progress persists during Airbus phase', async ({ page }) => {
   await placeAirbusCard(page, 'RADIO', 'Sidestick')
   await page.reload()
 
-  await expect(page.getByRole('button', { name: 'Sidestick target' })).toHaveClass(/has-card/)
-  await expect(page.getByRole('button', { name: 'Sidestick target' })).toHaveClass(/is-wrong/)
-  await expect(page.getByRole('button', { name: /^RADIO\b/ })).toContainText('Sidestick')
+  await expect(page.getByRole('button', { name: 'Cockpit drop zone 1' })).toHaveClass(/has-card/)
+  await expect(page.getByRole('button', { name: 'Cockpit drop zone 1' })).toHaveClass(/is-wrong/)
+  await expect(page.getByRole('button', { name: /^RADIO\b/ })).toContainText('Placed')
 })

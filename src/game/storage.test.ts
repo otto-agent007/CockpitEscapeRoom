@@ -34,7 +34,7 @@ describe('game storage', () => {
     expect(loadGameState(storage)).toEqual({ ...state, airbusClockAnswer: '' })
   })
 
-  it('keeps completed Airbus label saves at the ATP question with a blank answer', () => {
+  it('keeps completed Airbus label saves at the Airline Transport Pilot question with a blank answer', () => {
     const storage = createMemoryStorage()
     const state: GameState = {
       ...createInitialState(),
@@ -54,6 +54,19 @@ describe('game storage', () => {
       ...state,
       airbusClockAnswer: '',
     })
+  })
+
+  it('resumes the First-Officer celebration after reload', () => {
+    const storage = createMemoryStorage()
+    const state: GameState = {
+      ...createInitialState(),
+      phase: 'airbus',
+      completedPuzzles: ['firstOfficer'],
+      airbusClockAnswer: '1500',
+    }
+    saveGameState(state, storage)
+
+    expect(loadGameState(storage)).toEqual({ ...state, airbusClockAnswer: '' })
   })
 
   it('recovers safely from corrupt saved data', () => {

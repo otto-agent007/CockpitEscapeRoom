@@ -1,4 +1,26 @@
-# Airbus A320 Cockpit 2 Playable Proof And Approval-Candidate Handoff
+# Airbus A320 Cockpit 2 Production Handoff
+
+## 2026-07-10 owner production approval
+
+- The owner approved the current Airbus A320 First-Officer cockpit, right-seat camera, loading experience, and five-target interaction for production.
+- The runtime no longer renders `A320 PLAYABLE PROOF` in Airbus mode.
+- The current GLB, camera transform, and `game_id` contracts are unchanged by promotion.
+- Dated approval-candidate sections below remain as historical validation records; their open owner-gate language is superseded by this approval.
+
+## 2026-07-10 loading and viewer-control candidate
+
+- Airbus card descriptions explain function while all five projected target overlays use faint, unlabeled instrument silhouettes; neutral numbered identifiers remain accessibility-only.
+- The centered, compact Airbus dock and lower-right Help/Fullscreen controls were visually checked against the real GLB at desktop width; target projection and underlying `game_id` contracts are unchanged. The visible circular reset control was removed while the `R` shortcut remains.
+- The briefing, loader, and accessible fallback now use `public/images/a320-game-ready-fo.png`, a clean 1920x1080 capture of the approved runtime canvas.
+- The in-canvas greybox loader was removed. The shell loader is reset on every entry/retry/restart, remains for at least 600 ms and two framed render cycles, and was visually verified after Restart.
+- Help and Fullscreen sit in the lower-right corner. The visible reset button was removed; the `R` shortcut returns the moved/zoomed camera and projected targets to the approved 68 degree FO view.
+- The Airline Transport Pilot answer is a native form submission and successful qualification displays an accessible, reduced-motion-safe celebration before explicit locker continuation.
+- Regression repair removed the speculative WebGL capability probe and permanent fallback latch; the real A320 loaded frame remains the readiness authority.
+- One shell loader now reports real GLB byte progress and waits for the framed scene's first rendered frame before exposing gameplay.
+- Network, GLB, or WebGL failure offers retry or a static-image accessible fallback with the same five HTML targets.
+- Desktop controls add phase-aware help, full-shell fullscreen, reset, and seated A320 FOV zoom clamped to 50-76 degrees. Target projection continues every frame.
+- Deterministic checks pass: app check, assets, glTF, runtime/material/browser gates, pipeline evals, and diff whitespace.
+- Promotion is complete following explicit owner approval on 2026-07-10.
 
 ## Bounded Action
 

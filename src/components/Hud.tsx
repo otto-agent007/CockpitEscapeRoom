@@ -22,12 +22,12 @@ const switchLabels: Record<SwitchId, string> = {
 
 const lockerItems: ReadonlyArray<LockerInteraction> = [...lockerFlow.requiredInteractionIds]
 
-const airbusTargetMeta: Record<FirstOfficerControl, { x: number; y: number; label: string }> = {
-  sidestick: { x: 72, y: 79, label: 'Sidestick' },
-  thrust: { x: 25.5, y: 86, label: 'Thrust levers' },
-  gear: { x: 39.5, y: 57, label: 'Landing gear lever' },
-  radio: { x: 40, y: 83, label: 'Radio panel' },
-  altitude: { x: 38, y: 25, label: 'Altitude area' },
+const airbusTargetMeta: Record<FirstOfficerControl, { x: number; y: number }> = {
+  sidestick: { x: 72, y: 79 },
+  thrust: { x: 25.5, y: 86 },
+  gear: { x: 39.5, y: 57 },
+  radio: { x: 40, y: 83 },
+  altitude: { x: 38, y: 25 },
 }
 
 export function Hud({
@@ -46,14 +46,7 @@ export function Hud({
   const [baseballInput, setBaseballInput] = useState('')
   const [checklistInput, setChecklistInput] = useState('')
   const selectedRoutes = new Set(state.routeSelections)
-  const assignedTargetByCard = useMemo(() => {
-    const assignments = new Map<string, string>()
-    for (const control of firstOfficerFlow.controlIds) {
-      const card = state.airbusAssignments[control]
-      if (card) assignments.set(card, firstOfficerFlow.controlLabels[control])
-    }
-    return assignments
-  }, [state.airbusAssignments])
+  const assignedCards = useMemo(() => new Set(Object.values(state.airbusAssignments).filter(Boolean)), [state.airbusAssignments])
 
   const isComplete = (id: FirstOfficerControl) => state.airbusAssignments[id] === firstOfficerFlow.controlMatch[id]
   const placedAirbusCards = Object.values(state.airbusAssignments).filter(Boolean).length
@@ -91,14 +84,15 @@ export function Hud({
 
         <div className="airbus-card-tray" aria-label="Draggable label cards">
           {firstOfficerFlow.controlCards.map((card) => {
-            const assignedTarget = assignedTargetByCard.get(card)
+            const control = firstOfficerFlow.controlIds.find((controlId) => firstOfficerFlow.controlMatch[controlId] === card)
+            const assigned = assignedCards.has(card)
             const selected = selectedAirbusCard === card
 
             return (
               <button
                 key={card}
                 type="button"
-                className={`airbus-card${selected ? ' is-selected' : ''}${assignedTarget ? ' is-placed' : ''}`}
+                className={`airbus-card${selected ? ' is-selected' : ''}${assigned ? ' is-placed' : ''}`}
                 draggable
                 aria-pressed={selected}
                 onClick={() => onSelectedAirbusCardChange(selected ? null : card)}
@@ -114,7 +108,8 @@ export function Hud({
                 }}
               >
                 <strong>{card}</strong>
-                {assignedTarget && <span>{assignedTarget}</span>}
+                <span className="airbus-card-description">{control ? firstOfficerFlow.controlDescriptions[control] : ''}</span>
+                {assigned && <span className="airbus-card-placement">Placed</span>}
               </button>
             )
           })}
@@ -124,7 +119,7 @@ export function Hud({
           className={`airbus-target-layer${Object.keys(airbusHotspots).length > 0 ? ' airbus-target-layer--projected' : ''}${airbusMeshPickingEnabled ? ' airbus-target-layer--mesh-picking' : ' airbus-target-layer--fallback'}${selectedAirbusCard || draggingAirbusCard ? ' is-placing-card' : ''}`}
           aria-label="Cockpit placement targets"
         >
-          {firstOfficerFlow.controlIds.map((control) => {
+          {firstOfficerFlow.controlIds.map((control, index) => {
             const assignedCard = state.airbusAssignments[control]
             const complete = isComplete(control)
             const wrong = Boolean(assignedCard) && !complete
@@ -132,6 +127,7 @@ export function Hud({
             const active = activeAirbusTarget === control
             const projectedTarget = airbusHotspots[control]
             const hasProjectedTarget = Boolean(projectedTarget?.visible)
+            const dropZoneLabel = `Cockpit drop zone ${index + 1}`
             const targetStyle = projectedTarget
               ? {
                   left: `${projectedTarget.x}px`,
@@ -148,7 +144,7 @@ export function Hud({
                 data-airbus-target={control}
                 data-anchor-x={projectedTarget?.x}
                 data-anchor-y={projectedTarget?.y}
-                aria-label={`${firstOfficerFlow.controlLabels[control]} target`}
+                aria-label={dropZoneLabel}
                 onClick={() => {
                   if (selectedAirbusCard) {
                     placeAirbusCard(control, selectedAirbusCard)
@@ -178,13 +174,11 @@ export function Hud({
                 }}
               >
                 <span className="sr-only">
-                  {`${airbusTargetMeta[control].label} drop area. ${
+                  {`${dropZoneLabel}. ${
                     assignedCard ? `Current card: ${assignedCard}.` : 'No card placed.'
                   }`}
                 </span>
-                <span className="airbus-target-keyboard-label" aria-hidden="true">
-                  Place on {airbusTargetMeta[control].label}
-                </span>
+                <span className="airbus-target-silhouette" aria-hidden="true" />
                 {assignedCard && <span className="airbus-target-card" aria-hidden="true">{assignedCard}</span>}
               </button>
             )
@@ -199,8 +193,14 @@ export function Hud({
             {state.statusMessage}
           </div>
 
-          {airbusLabelsComplete && (
-            <>
+          {airbusLabelsComplete && !state.completedPuzzles.includes('firstOfficer') && (
+            <form
+              className="airbus-qualification-form"
+              onSubmit={(event) => {
+                event.preventDefault()
+                dispatch({ type: 'SUBMIT_AIRBUS_CLOCK' })
+              }}
+            >
               <label className="airbus-atp">
                 <span>{firstOfficerFlow.clockQuestion}</span>
                 <input
@@ -209,23 +209,19 @@ export function Hud({
                   onChange={(event) => {
                     dispatch({ type: 'SET_AIRBUS_CLOCK_ANSWER', value: event.target.value })
                   }}
-                  inputMode="numeric"
-                  aria-label="ATP answer"
+                  inputMode="text"
+                  aria-label="Airline Transport Pilot answer"
                 />
               </label>
               <button
-                type="button"
+                type="submit"
                 className="primary-button airbus-dock-button"
-                onClick={() => dispatch({ type: 'SUBMIT_AIRBUS_CLOCK' })}
               >
                 Verify
               </button>
-            </>
+            </form>
           )}
 
-          <button type="button" className="secondary-button airbus-dock-button" onClick={() => dispatch({ type: 'USE_HINT' })}>
-            Hint
-          </button>
           <button type="button" className="text-button airbus-restart" onClick={onRestart}>
             Restart
           </button>

@@ -13,6 +13,7 @@ function enterLockerFromAirbus(): GameState {
   }
   state = gameReducer(state, { type: 'SET_AIRBUS_CLOCK_ANSWER', value: firstOfficerFlow.clockAnswer })
   state = gameReducer(state, { type: 'SUBMIT_AIRBUS_CLOCK' })
+  state = gameReducer(state, { type: 'CONTINUE_TO_LOCKER' })
   return state
 }
 
@@ -43,7 +44,7 @@ describe('gameReducer', () => {
     expect(state.phase).toBe('airbus')
     expect(state.airbusAssignments.sidestick).toBe('RADIO')
     expect(state.completedPuzzles).toEqual([])
-    expect(state.statusMessage).toContain('Red means Sidestick')
+    expect(state.statusMessage).toBe('That card does not match this cockpit control. Try it somewhere else.')
   })
 
   it('moves an Airbus card between targets during retry', () => {
@@ -85,28 +86,45 @@ describe('gameReducer', () => {
     expect(state.phase).toBe('airbus')
   })
 
-  it('shows the ATP question after all Airbus labels are correct', () => {
+  it('shows the Airline Transport Pilot question after all Airbus labels are correct', () => {
     const state = completeAirbusLabels()
 
     expect(state.phase).toBe('airbus')
     expect(state.completedPuzzles).toEqual([])
-    expect(state.statusMessage).toContain('ATP question')
+    expect(state.statusMessage).toContain('Airline Transport Pilot question')
   })
 
-  it('enters locker flow only after labels and ATP answer are correct', () => {
+  it('celebrates qualification before the player continues to the locker', () => {
     let state = completeAirbusLabels()
 
     state = gameReducer(state, { type: 'SUBMIT_AIRBUS_CLOCK' })
     expect(state.phase).toBe('airbus')
-    expect(state.statusMessage).toContain('ATP answer is not yet recognized')
+    expect(state.statusMessage).toContain('Airline Transport Pilot answer is not yet recognized')
 
     state = gameReducer(state, { type: 'SET_AIRBUS_CLOCK_ANSWER', value: firstOfficerFlow.clockAnswer })
     state = gameReducer(state, { type: 'SUBMIT_AIRBUS_CLOCK' })
 
-    expect(state.phase).toBe('locker')
+    expect(state.phase).toBe('airbus')
     expect(state.completedPuzzles).toEqual(['firstOfficer'])
+    expect(state.statusMessage).toContain('milestone recognized')
+
+    state = gameReducer(state, { type: 'CONTINUE_TO_LOCKER' })
+
+    expect(state.phase).toBe('locker')
     expect(state.statusMessage).toContain('Locker access granted')
   })
+
+  it.each(['1500', '1,500', '1500 hour', '1500 hours'])(
+    'accepts the friendly flight-hour answer %s',
+    (answer) => {
+      let state = completeAirbusLabels()
+      state = gameReducer(state, { type: 'SET_AIRBUS_CLOCK_ANSWER', value: answer })
+      state = gameReducer(state, { type: 'SUBMIT_AIRBUS_CLOCK' })
+
+      expect(state.phase).toBe('airbus')
+      expect(state.completedPuzzles).toContain('firstOfficer')
+    },
+  )
 
   it('reveals captain mode only after locker requirements are complete', () => {
     let state = enterLockerFromAirbus()
