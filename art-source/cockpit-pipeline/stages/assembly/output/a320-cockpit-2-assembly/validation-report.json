@@ -1,19 +1,32 @@
 {
   "status": "pass",
   "rootObject": "AIRBUS_ROOT",
-  "meshCount": 125,
-  "objectCount": 619,
-  "materialCount": 13,
-  "runtimeNodeCount": 619,
+  "meshCount": 135,
+  "objectCount": 634,
+  "materialCount": 14,
+  "runtimeNodeCount": 634,
   "duplicateRuntimeNodeNames": [],
   "groupMetadataFailures": [],
   "meshReportCount": 125,
-  "pivotVerifiedCount": 0,
+  "labelTargetCount": 5,
+  "labelTargetPivotVerifiedCount": 5,
+  "labelTargetCoordinateExportVerifiedCount": 5,
+  "labelTargetVisualVerifiedCount": 5,
+  "labelTargetVisualAlignmentStatuses": [
+    "verified_browser_1440_768"
+  ],
+  "pivotVerifiedCount": 5,
+  "visualAlignmentValidation": {
+    "status": "verified",
+    "notes": "GLB export/reimport validation proves node and metadata survival only. Browser screenshots and measured cue/control rectangles are required for visual alignment."
+  },
   "reimportValidation": {
     "status": "pass",
     "rootFound": true,
-    "objectCount": 135,
-    "meshCount": 125
+    "objectCount": 150,
+    "meshCount": 135,
+    "missingTargetNodes": [],
+    "targetMetadataFailures": []
   },
   "sourceInputsImmutable": true
 }

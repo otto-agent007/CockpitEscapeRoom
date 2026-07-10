@@ -222,6 +222,46 @@ Promote the owner-cleaned Airbus A320 shaded source from screenshot-backed brows
 
 Outcome: `playable-proof-in-progress`. The direct GLB and camera path are in place. Remaining work is the browser screenshot pass at 375, 768, and 1440 px, app checks, gate validation, and owner visual approval before final Airbus art approval.
 
+## Production-Ready Candidate: Airbus A320 Loose-Fragment Cleanup
+
+### Purpose
+
+Regenerate the canonical shaded A320 source and deployable runtime GLB from the approved assembly pipeline, while making the zoom-out loose-fragment cleanup deterministic and reviewable.
+
+### Progress
+
+- [x] 2026-07-09 - Added source-node-specific quarantine logic to the A320 shading script.
+- [x] 2026-07-09 - Regenerated `art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend` and `.glb`.
+- [x] 2026-07-09 - Exported `public/models/airbus-first-officer.glb` through `BLENDER_BIN=/home/user1/.local/bin/blender npm run asset:airbus`.
+- [x] 2026-07-09 - Captured browser screenshots at 375, 768, 1440, 1920, and reduced-motion 768 px.
+
+### Evidence
+
+- Runtime/staged GLB SHA-256: `c94ada9dbfe7bdfb29d3a75071120a1823c6963a0de2b6d3f815900974d9ac8b`.
+- Runtime/staged GLB size: `39,849,104` bytes.
+- Loose-part report: `art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/loose-part-review-report.json`.
+- Quarantined generic fragments:
+  - `AIRBUS_A320_STATIC_119_OBJECT_93_001`
+  - `AIRBUS_A320_STATIC_120_OBJECT_94`
+  - `AIRBUS_A320_STATIC_121_OBJECT_95`
+  - `AIRBUS_A320_STATIC_122_OBJECT_96_001`
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli run-a320-shading-job` - pass.
+- `BLENDER_BIN=/home/user1/.local/bin/blender npm run asset:airbus` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/a320-cockpit-2-shading/manifests/shading-complete.json` - pass.
+- `npx gltf-transform validate public/models/airbus-first-officer.glb` - pass; no errors, warnings, infos, or hints.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 4 Chromium tests.
+- `npm run check` - pass; lint, typecheck, 16 Vitest tests, and production build completed.
+- Browser evidence:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-shading/browser-375-airbus-fo.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-shading/browser-768-airbus-fo.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-shading/browser-1440-airbus-fo.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-shading/browser-1920-airbus-fo.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-shading/browser-768-airbus-fo-reduced-motion.png`
+
+### Outcome
+
+Outcome: `owner-reviewable-approval-candidate`. Owner visual approval is still required before removing `A320 PLAYABLE PROOF` or calling the Airbus cockpit final production art. Imported control pivots are not promoted to direct 3D gameplay controls in this pass.
+
 ## Outcome and handoff
 
 The foundation is in place for Agent 1 to begin sourcing against the unresolved-variant four-component vertical slice. Agent 1 should start with:

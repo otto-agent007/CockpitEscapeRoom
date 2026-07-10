@@ -2,8 +2,8 @@
 
 ## Branch And Stage
 
-- Branch: `codex/asset-workflow-health-rehearsal`
-- Commit: `5e6b8c02298e5119150f6f0db6f1059dedca4dfd`
+- Branch: `agent/a320-production-ready-candidate`
+- Commit: `f4bda58c00da05d39df27ceb7ecfeb5ff7a10bd5`
 - Source job: `a320-prebuilt-parts-source-discovery`
 - Assembly job: `a320-cockpit-2-assembly`
 - Stage: `assembly_complete`
@@ -33,6 +33,7 @@ Agent 2 consumed the owner-approved A320 Cockpit 2 source inspection artifact an
 - Created `AIRBUS_ROOT` and stable Airbus grouping nodes for static geometry, display candidates, interactive candidates, locators, colliders, and puzzle props.
 - Renamed imported mesh nodes with stable, semantic `AIRBUS_A320_*` prefixes such as seat, sidewall, floor, pedestal, and display-panel roles while preserving original generic Sketchfab source node names in custom properties.
 - Added basic `game_id` metadata to root, groups, locators, and classified meshes.
+- Added five export-verified First-Officer pivot, collider, and cue-proxy contracts for sidestick, thrust, gear, radio, and altitude. Export survival is recorded separately from visual alignment.
 - Exported a neutral GLB with `export_extras=True`.
 
 ## Sketchfab 360 Interior Evidence
@@ -46,15 +47,20 @@ Agent 2 consumed the owner-approved A320 Cockpit 2 source inspection artifact an
 ## Validation Results
 
 - Status: `pass`
-- Object count: `619`
-- Mesh count: `125`
-- Material count: `13`
+- Object count: `634`
+- Mesh count: `135`
+- Material count: `14`
 - Reimport status: `pass`
 - Source inputs immutable: `True`
+- Label targets: `5`
+- Verified label target pivots: `5`
+- Export-verified target coordinates: `5`
+- Visually verified targets: `5`
+- Visual alignment status: `verified`
 
 ## Known Limitations
 
-- Individual control pivots are not verified yet; this pass establishes grouping roots and source classification.
+- Five browser-facing First-Officer target node contracts survive GLB reimport and are visually verified at the 1440 px and 768 px approval viewports. Imported source mesh controls outside that player-facing set remain deferred.
 - Materials are source/import materials only. Agent 3 owns material cleanup, display treatment, texture sizing, and optimization.
 - The GLB is a staged assembly artifact, not a deployable production asset.
 - Browser integration remains a separate handoff after later approval.

@@ -4,83 +4,216 @@
   "sourceJobId": "a320-prebuilt-parts-source-discovery",
   "stage": "assembly-approved",
   "approved": true,
-  "approvedBy": "owner prompt 2026-07-01",
-  "approvedAt": "2026-07-01T04:50:14Z",
+  "approvedBy": "owner request 2026-07-09 Finish And Freeze A320 Chapter",
+  "approvedAt": "2026-07-10T02:03:20Z",
   "assemblyManifest": "art-source/cockpit-pipeline/jobs/a320-cockpit-2-assembly/manifests/assembly-complete.json",
   "sourceVariant": "prebuilt-free-open-leads",
   "targetVariant": "Airbus A320",
   "variantScope": "target-confirmed",
-  "notes": "Owner approved repair to preserve the full A320 cockpit interior candidate, including previously over-culled seat/interior source objects and semantic runtime naming. Sketchfab 360 interior screenshots are recorded as reference evidence. Approval does not promote this GLB to public/models and does not authorize destructive optimization.",
+  "notes": "Owner requested completion of the A320 approval candidate. Approval covers the regenerated assembly plus five pivot, collider, and cue-proxy contracts whose projected browser alignment was inspected at 1440 and 768 pixels. Final owner visual approval is still required before removing A320 PLAYABLE PROOF.",
   "approvedComponentIds": [
     "a320-prebuilt-sketchfab-a320-cockpit-2"
   ],
   "approvedArtifacts": [
     {
       "path": "art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/a320-cockpit-2-assembly.blend",
-      "sha256": "3e91f7d5764eee1ecc80e80d12d92b8a41e898c654dce8147a157ae2cd7736e3",
-      "bytes": 24241181
+      "sha256": "d6a5b869d35e684bfde619fec05dc40b772d593a3e93cc8e3330eefd67e39ae8",
+      "bytes": 24237050
     },
     {
       "path": "art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/a320-cockpit-2-assembly.glb",
-      "sha256": "ad23727f2fb49fefb8078ab0f5a00d739e605ceff7e0bff3d144acb0f9d5c3fa",
-      "bytes": 39760588
+      "sha256": "435ec66260561267a2aefbdf8dbd3a10ea0e69904a7125d2aa8420668cb9f49b",
+      "bytes": 39785356
     },
     {
       "path": "art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/node-pivot-report.json",
-      "sha256": "e7da1b329449bcbf73a4750238cd22f2088b6958bf5492b0baf2043c3f5b6106",
-      "bytes": 84953
+      "sha256": "a5ff6775651ce3141420d0d7ee86894126d8faac031c322a41b7e6c5869d0627",
+      "bytes": 93079
     },
     {
       "path": "art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/validation-report.json",
-      "sha256": "9c71cf80688f48faf527772d1945194cc8607120150cfbeb8996f9e869fbbc26",
-      "bytes": 419
+      "sha256": "e403f9604334c1b940abcd2e2fc8bb07c5db02877f652d4e7384057b6a7c5945",
+      "bytes": 954
     },
     {
       "path": "art-source/cockpit-pipeline/stages/assembly/output/a320-cockpit-2-assembly/runtime-contract-summary.json",
-      "sha256": "f9a2cb17440d21d7c89f1ed94f29d7eb4385bc93b3b27bd502277cc05c6ddf07",
-      "bytes": 2007
+      "sha256": "0a90c42010217e6a3d3b7047e4f8919c2c8c0bb2801a8841651faaf27d44aabb",
+      "bytes": 7915
     },
     {
       "path": "art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json",
-      "sha256": "44a514f76219888498d8bd661cbd5744e9773f6b5c006999ed2751c0068f0c30",
-      "bytes": 3952
+      "sha256": "51a1b89d7a58ed477fec38b6f4de4d941aded7eec8b1f9a2caa7c0f8cb45cfa5",
+      "bytes": 9171
     },
     {
       "path": "asset-reports/cockpit-pipeline/a320-cockpit-2-assembly/assembly-report.md",
-      "sha256": "fe2c9fa8e09a8f7d1e2a322a63c5cd9267fcd8cf4fcd3f161f71fb2b2e71389d",
-      "bytes": 3905
+      "sha256": "0d4524ef5358a8507770964d5d488de639567b79bbd892f6cc6d7a547ec91876",
+      "bytes": 4386
     },
     {
       "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/captain-seat-view.png",
-      "sha256": "7531d5a1236b7366fa2c639f7b1785cebe8734ff874cc50dd47d698ff1789e5a",
+      "sha256": "5d3eaefa36b60c89b5fb57eff7a2c4a5da5037ba8966c8802af5b1b11a20b962",
       "bytes": 1163191
     },
     {
       "path": "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/dashboard-screens-view.png",
-      "sha256": "1c430c3385362d359258f26d7cfe91076268827b2aca39fd7343234fdd29a62e",
+      "sha256": "817bae76196b2b9a233fdc27900a4e8ef68e7e46aef2a5be665f6a356827c1f0",
       "bytes": 954858
     }
   ],
   "validationSummary": {
     "status": "pass",
-    "objectCount": 619,
-    "meshCount": 125,
-    "materialCount": 13,
-    "reimportValidation": {
-      "status": "pass",
-      "rootFound": true,
-      "objectCount": 135,
-      "meshCount": 125
-    },
-    "sourceInputsImmutable": true,
-    "duplicateRuntimeNodeNames": [],
-    "metadataFailures": null,
-    "pivotVerifiedCount": 0,
-    "preservedInteriorSizedObjects": [
-      "Object_55",
-      "Object_56",
-      "Object_67"
-    ],
-    "interiorRepair": "Preserved and semantically named Object_55/Object_56/Object_67 as cockpit interior compounds. Confirmed exterior fragments Object_128.001 and Object_130 are excluded from the assembly; staged GLB and shaded approval renders preserve the visible cockpit interior."
+    "totalObjects": null,
+    "labelTargetCount": 5,
+    "labelTargetPivotVerifiedCount": 5,
+    "labelTargetCoordinateExportVerifiedCount": 5,
+    "labelTargetVisualVerifiedCount": 5,
+    "visualAlignmentStatus": "verified_browser_1440_768",
+    "pivotVerifiedCount": 5,
+    "deferredInteractiveCandidateCount": null,
+    "targetNodes": null,
+    "rejectedPriorLabelTargetReportsReason": "Historical coordinates below are retained only to document the rejected flat-plane experiment; the approved artifact hashes and regenerated node-pivot-report.json are authoritative for the recovery assembly.",
+    "rejectedPriorLabelTargetReports": [
+      {
+        "controlId": "sidestick",
+        "label": "Sidestick",
+        "gameId": "airbus.a320.target.sidestick",
+        "pivotNodeName": "AIRBUS_A320_TARGET_SIDESTICK_PIVOT",
+        "colliderNodeName": "AIRBUS_A320_TARGET_SIDESTICK_HITBOX",
+        "location": [
+          0.138,
+          -0.501,
+          0.039
+        ],
+        "runtimeLocation": [
+          0.138,
+          0.039,
+          0.501
+        ],
+        "size": [
+          0.16,
+          0.12,
+          0.22
+        ],
+        "rotationAxis": "LOCAL_X",
+        "restAngle": 0.0,
+        "activeAngle": 0.08,
+        "pivotVerified": true,
+        "htmlEquivalent": "Sidestick target button in the Airbus placement layer.",
+        "notes": "Runtime pivot proxy and invisible hitbox; source visual geometry remains unmodified."
+      },
+      {
+        "controlId": "thrust",
+        "label": "Thrust levers",
+        "gameId": "airbus.a320.target.thrust",
+        "pivotNodeName": "AIRBUS_A320_TARGET_THRUST_PIVOT",
+        "colliderNodeName": "AIRBUS_A320_TARGET_THRUST_HITBOX",
+        "location": [
+          -0.033,
+          -0.509,
+          0.019
+        ],
+        "runtimeLocation": [
+          -0.033,
+          0.019,
+          0.509
+        ],
+        "size": [
+          0.07,
+          0.08,
+          0.08
+        ],
+        "rotationAxis": "LOCAL_X",
+        "restAngle": 0.0,
+        "activeAngle": 0.06,
+        "pivotVerified": true,
+        "htmlEquivalent": "Thrust levers target button in the Airbus placement layer.",
+        "notes": "Runtime pivot proxy and invisible hitbox; source visual geometry remains unmodified."
+      },
+      {
+        "controlId": "gear",
+        "label": "Landing gear lever",
+        "gameId": "airbus.a320.target.gear",
+        "pivotNodeName": "AIRBUS_A320_TARGET_GEAR_PIVOT",
+        "colliderNodeName": "AIRBUS_A320_TARGET_GEAR_HITBOX",
+        "location": [
+          0.021,
+          -0.486,
+          0.077
+        ],
+        "runtimeLocation": [
+          0.021,
+          0.077,
+          0.486
+        ],
+        "size": [
+          0.07,
+          0.08,
+          0.16
+        ],
+        "rotationAxis": "LOCAL_X",
+        "restAngle": 0.0,
+        "activeAngle": 0.07,
+        "pivotVerified": true,
+        "htmlEquivalent": "Landing gear lever target button in the Airbus placement layer.",
+        "notes": "Runtime pivot proxy and invisible hitbox; source visual geometry remains unmodified."
+      },
+      {
+        "controlId": "radio",
+        "label": "Radio panel",
+        "gameId": "airbus.a320.target.radio",
+        "pivotNodeName": "AIRBUS_A320_TARGET_RADIO_PIVOT",
+        "colliderNodeName": "AIRBUS_A320_TARGET_RADIO_HITBOX",
+        "location": [
+          -0.006,
+          -0.509,
+          0.019
+        ],
+        "runtimeLocation": [
+          -0.006,
+          0.019,
+          0.509
+        ],
+        "size": [
+          0.07,
+          0.08,
+          0.08
+        ],
+        "rotationAxis": "LOCAL_X",
+        "restAngle": 0.0,
+        "activeAngle": 0.06,
+        "pivotVerified": true,
+        "htmlEquivalent": "Radio panel target button in the Airbus placement layer.",
+        "notes": "Runtime pivot proxy and invisible hitbox; source visual geometry remains unmodified."
+      },
+      {
+        "controlId": "altitude",
+        "label": "Altitude area",
+        "gameId": "airbus.a320.target.altitude",
+        "pivotNodeName": "AIRBUS_A320_TARGET_ALTITUDE_PIVOT",
+        "colliderNodeName": "AIRBUS_A320_TARGET_ALTITUDE_HITBOX",
+        "location": [
+          0.0,
+          -0.458,
+          0.147
+        ],
+        "runtimeLocation": [
+          0.0,
+          0.147,
+          0.458
+        ],
+        "size": [
+          0.36,
+          0.055,
+          0.065
+        ],
+        "rotationAxis": "LOCAL_X",
+        "restAngle": 0.0,
+        "activeAngle": 0.045,
+        "pivotVerified": true,
+        "htmlEquivalent": "Altitude area target button in the Airbus placement layer.",
+        "notes": "Runtime pivot proxy and invisible hitbox; source visual geometry remains unmodified."
+      }
+    ]
   }
 }

@@ -35,6 +35,9 @@
           "name": { "type": "string", "minLength": 1 },
           "gameId": { "type": "string", "minLength": 1 },
           "pivotVerified": { "type": "boolean" },
+          "pivotExportVerified": { "type": "boolean" },
+          "nodeRole": { "type": "string", "enum": ["pivot", "collider", "cue"] },
+          "visualAlignmentStatus": { "type": "string", "minLength": 1 },
           "localAxis": { "type": "string", "minLength": 1 },
           "htmlEquivalent": { "type": "string", "minLength": 1 }
         }
@@ -42,6 +45,15 @@
     },
     "customPropertiesPreserved": { "type": "boolean" },
     "reimportValidation": { "type": "string", "enum": ["pass", "blocked", "fail"] },
+    "visualAlignmentValidation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evidence"],
+      "properties": {
+        "status": { "type": "string", "enum": ["not-verified", "verified", "blocked"] },
+        "evidence": { "type": "string", "minLength": 1 }
+      }
+    },
     "scaleAndCameraAssumptions": { "type": "string", "minLength": 1 },
     "knownReferenceDeviations": {
       "type": "array",

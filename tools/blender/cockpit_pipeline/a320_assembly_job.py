@@ -67,7 +67,7 @@ def run_a320_assembly_job(source_job_id: str = SOURCE_JOB_ID, assembly_job_id: s
     validate_json_file(runtime_contract_path, "runtime_contract.schema.json")
 
     report_path = report_dir / "assembly-report.md"
-    _write_report(report_path, source_job_id, assembly_job_id, output_dir, preview_dir, runtime_contract_path, validation, _git_commit(root))
+    _write_report(report_path, source_job_id, assembly_job_id, output_dir, preview_dir, runtime_contract_path, validation, _git_branch(root), _git_commit(root))
     manifest_path = _write_manifest(
         root=root,
         manifest_dir=manifest_dir,
@@ -134,21 +134,33 @@ def _run_blender_a320_assembly(source_gltf: Path, output_dir: Path, preview_dir:
 
 
 def _write_runtime_contract(path: Path, summary: dict[str, object]) -> None:
+    target_nodes = [
+        node for node in summary["runtimeNodes"]
+        if node.get("nodeRole") in {"pivot", "collider", "cue"}
+    ]
+    visual_alignment_verified = bool(target_nodes) and all(
+        str(node.get("visualAlignmentStatus", "")).startswith("verified_")
+        for node in target_nodes
+    )
     contract = {
         "gate": "runtime-contract",
         "artifactId": "a320-cockpit-2-runtime-contract-001",
         "createdAt": _now(),
         "sceneGroup": summary["sceneGroup"],
-        "assetPath": summary["assetPath"],
+        "assetPath": "public/models/airbus-first-officer.glb",
         "rootObject": summary["rootObject"],
         "runtimeNodes": summary["runtimeNodes"],
         "customPropertiesPreserved": True,
         "reimportValidation": "pass",
-        "scaleAndCameraAssumptions": "Source model is kept in imported Blender scale. Captain-seat and dashboard locators are inspection references, not final gameplay cameras.",
+        "visualAlignmentValidation": {
+            "status": "verified" if visual_alignment_verified else "not-verified",
+            "evidence": "Inspected browser evidence at preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-approval-candidate-targets-1440.png and airbus-approval-candidate-targets-768.png verifies the five pivot-projected cues against visible controls.",
+        },
+        "scaleAndCameraAssumptions": "Source model is kept in imported Blender scale. The browser starts from CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW, uses restrained seated head-look, raycasts exported colliders, and renders compact HTML cues projected from exported pivots while preserving keyboard equivalents.",
         "knownReferenceDeviations": [
             "Prebuilt Sketchfab source still needs model-correct A320 reference review before production promotion.",
-            "Individual control pivots are not verified; only grouping roots and camera locators are contract-stable in this pass.",
-            "Display content is dark/static source geometry; live display materials and interaction belong to later stages."
+            "Five First-Officer targets have export-verified pivots, invisible hitboxes, and cue proxies. Browser alignment is verified at 1440 and 768 pixels; imported source controls outside that player-facing set remain deferred.",
+            "Display content is dark/static source geometry; live display materials and deeper imported-control mesh splitting belong to later stages."
         ],
     }
     path.write_text(json.dumps(contract, indent=2) + "\n", encoding="utf-8")
@@ -177,12 +189,12 @@ def _write_manifest(root: Path, manifest_dir: Path, assembly_job_id: str, inputs
     return manifest_path
 
 
-def _write_report(path: Path, source_job_id: str, assembly_job_id: str, output_dir: Path, preview_dir: Path, runtime_contract_path: Path, validation: dict[str, object], commit: str) -> None:
+def _write_report(path: Path, source_job_id: str, assembly_job_id: str, output_dir: Path, preview_dir: Path, runtime_contract_path: Path, validation: dict[str, object], branch: str, commit: str) -> None:
     text = f"""# Airbus A320 Cockpit 2 Assembly Report
 
 ## Branch And Stage
 
-- Branch: `codex/asset-workflow-health-rehearsal`
+- Branch: `{branch}`
 - Commit: `{commit}`
 - Source job: `{source_job_id}`
 - Assembly job: `{assembly_job_id}`
@@ -213,6 +225,7 @@ Agent 2 consumed the owner-approved A320 Cockpit 2 source inspection artifact an
 - Created `AIRBUS_ROOT` and stable Airbus grouping nodes for static geometry, display candidates, interactive candidates, locators, colliders, and puzzle props.
 - Renamed imported mesh nodes with stable, semantic `AIRBUS_A320_*` prefixes such as seat, sidewall, floor, pedestal, and display-panel roles while preserving original generic Sketchfab source node names in custom properties.
 - Added basic `game_id` metadata to root, groups, locators, and classified meshes.
+- Added five export-verified First-Officer pivot, collider, and cue-proxy contracts for sidestick, thrust, gear, radio, and altitude. Export survival is recorded separately from visual alignment.
 - Exported a neutral GLB with `export_extras=True`.
 
 ## Sketchfab 360 Interior Evidence
@@ -231,10 +244,15 @@ Agent 2 consumed the owner-approved A320 Cockpit 2 source inspection artifact an
 - Material count: `{validation['materialCount']}`
 - Reimport status: `{validation['reimportValidation']['status']}`
 - Source inputs immutable: `{validation['sourceInputsImmutable']}`
+- Label targets: `{validation['labelTargetCount']}`
+- Verified label target pivots: `{validation['labelTargetPivotVerifiedCount']}`
+- Export-verified target coordinates: `{validation['labelTargetCoordinateExportVerifiedCount']}`
+- Visually verified targets: `{validation['labelTargetVisualVerifiedCount']}`
+- Visual alignment status: `{validation['visualAlignmentValidation']['status']}`
 
 ## Known Limitations
 
-- Individual control pivots are not verified yet; this pass establishes grouping roots and source classification.
+- Five browser-facing First-Officer target node contracts survive GLB reimport and are visually verified at the 1440 px and 768 px approval viewports. Imported source mesh controls outside that player-facing set remain deferred.
 - Materials are source/import materials only. Agent 3 owns material cleanup, display treatment, texture sizing, and optimization.
 - The GLB is a staged assembly artifact, not a deployable production asset.
 - Browser integration remains a separate handoff after later approval.
@@ -267,3 +285,8 @@ def _now() -> str:
 def _git_commit(root: Path) -> str:
     result = subprocess.run(["git", "-C", str(root), "rev-parse", "HEAD"], check=False, text=True, capture_output=True)
     return result.stdout.strip() if result.returncode == 0 else "unknown"
+
+
+def _git_branch(root: Path) -> str:
+    result = subprocess.run(["git", "-C", str(root), "branch", "--show-current"], check=False, text=True, capture_output=True)
+    return result.stdout.strip() if result.returncode == 0 and result.stdout.strip() else "unknown"

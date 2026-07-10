@@ -9,6 +9,9 @@ interface HudProps {
   onRestart: () => void
   airbusSceneReady: boolean
   airbusHotspots: AirbusHotspotScreenPositions
+  airbusMeshPickingEnabled: boolean
+  selectedAirbusCard: string | null
+  onSelectedAirbusCardChange: (card: string | null) => void
 }
 
 const switchLabels: Record<SwitchId, string> = {
@@ -27,8 +30,16 @@ const airbusTargetMeta: Record<FirstOfficerControl, { x: number; y: number; labe
   altitude: { x: 38, y: 25, label: 'Altitude area' },
 }
 
-export function Hud({ state, dispatch, onRestart, airbusSceneReady, airbusHotspots }: HudProps) {
-  const [selectedAirbusCard, setSelectedAirbusCard] = useState<string | null>(null)
+export function Hud({
+  state,
+  dispatch,
+  onRestart,
+  airbusSceneReady,
+  airbusHotspots,
+  airbusMeshPickingEnabled,
+  selectedAirbusCard,
+  onSelectedAirbusCardChange,
+}: HudProps) {
   const [draggingAirbusCard, setDraggingAirbusCard] = useState<string | null>(null)
   const [activeAirbusTarget, setActiveAirbusTarget] = useState<FirstOfficerControl | null>(null)
   const [watchInput, setWatchInput] = useState('')
@@ -50,7 +61,7 @@ export function Hud({ state, dispatch, onRestart, airbusSceneReady, airbusHotspo
 
   const placeAirbusCard = (control: FirstOfficerControl, card: string) => {
     dispatch({ type: 'ASSIGN_AIRBUS_CARD', control, card })
-    setSelectedAirbusCard(null)
+    onSelectedAirbusCardChange(null)
     setDraggingAirbusCard(null)
     setActiveAirbusTarget(null)
   }
@@ -90,11 +101,11 @@ export function Hud({ state, dispatch, onRestart, airbusSceneReady, airbusHotspo
                 className={`airbus-card${selected ? ' is-selected' : ''}${assignedTarget ? ' is-placed' : ''}`}
                 draggable
                 aria-pressed={selected}
-                onClick={() => setSelectedAirbusCard(selected ? null : card)}
+                onClick={() => onSelectedAirbusCardChange(selected ? null : card)}
                 onDragStart={(event) => {
                   event.dataTransfer.effectAllowed = 'move'
                   event.dataTransfer.setData('text/plain', card)
-                  setSelectedAirbusCard(card)
+                  onSelectedAirbusCardChange(card)
                   setDraggingAirbusCard(card)
                 }}
                 onDragEnd={() => {
@@ -110,7 +121,7 @@ export function Hud({ state, dispatch, onRestart, airbusSceneReady, airbusHotspo
         </div>
 
         <div
-          className={`airbus-target-layer${Object.keys(airbusHotspots).length > 0 ? ' airbus-target-layer--projected' : ''}`}
+          className={`airbus-target-layer${Object.keys(airbusHotspots).length > 0 ? ' airbus-target-layer--projected' : ''}${airbusMeshPickingEnabled ? ' airbus-target-layer--mesh-picking' : ' airbus-target-layer--fallback'}${selectedAirbusCard || draggingAirbusCard ? ' is-placing-card' : ''}`}
           aria-label="Cockpit placement targets"
         >
           {firstOfficerFlow.controlIds.map((control) => {
@@ -120,24 +131,30 @@ export function Hud({ state, dispatch, onRestart, airbusSceneReady, airbusHotspo
             const dragging = Boolean(draggingAirbusCard)
             const active = activeAirbusTarget === control
             const projectedTarget = airbusHotspots[control]
-            const hasProjectedTarget = Boolean(projectedTarget)
+            const hasProjectedTarget = Boolean(projectedTarget?.visible)
             const targetStyle = projectedTarget
-              ? { left: `${projectedTarget.x}px`, top: `${projectedTarget.y}px` }
+              ? {
+                  left: `${projectedTarget.x}px`,
+                  top: `${projectedTarget.y}px`,
+                }
               : { left: `${airbusTargetMeta[control].x}%`, top: `${airbusTargetMeta[control].y}%` }
 
             return (
               <button
                 key={control}
                 type="button"
-                className={`airbus-target airbus-target--${control}${hasProjectedTarget ? ' is-projected' : ''}${assignedCard ? ' has-card' : ''}${complete ? ' is-correct' : ''}${wrong ? ' is-wrong' : ''}${dragging ? ' is-dragging-card' : ''}${active ? ' is-drag-over' : ''}`}
+                className={`airbus-target-control airbus-target-control--${control}${hasProjectedTarget ? ' is-projected' : ''}${assignedCard ? ' has-card' : ''}${complete ? ' is-correct' : ''}${wrong ? ' is-wrong' : ''}${dragging ? ' is-dragging-card' : ''}${active ? ' is-drag-over' : ''}`}
                 style={targetStyle}
+                data-airbus-target={control}
+                data-anchor-x={projectedTarget?.x}
+                data-anchor-y={projectedTarget?.y}
                 aria-label={`${firstOfficerFlow.controlLabels[control]} target`}
                 onClick={() => {
                   if (selectedAirbusCard) {
                     placeAirbusCard(control, selectedAirbusCard)
                     return
                   }
-                  if (assignedCard) setSelectedAirbusCard(assignedCard)
+                  if (assignedCard) onSelectedAirbusCardChange(assignedCard)
                 }}
                 onDragEnter={(event) => {
                   event.preventDefault()
@@ -164,6 +181,9 @@ export function Hud({ state, dispatch, onRestart, airbusSceneReady, airbusHotspo
                   {`${airbusTargetMeta[control].label} drop area. ${
                     assignedCard ? `Current card: ${assignedCard}.` : 'No card placed.'
                   }`}
+                </span>
+                <span className="airbus-target-keyboard-label" aria-hidden="true">
+                  Place on {airbusTargetMeta[control].label}
                 </span>
                 {assignedCard && <span className="airbus-target-card" aria-hidden="true">{assignedCard}</span>}
               </button>
