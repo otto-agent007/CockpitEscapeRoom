@@ -99,6 +99,7 @@ Repeat implementation, focused validation, browser inspection, and diff review f
 - Lowered-dock browser proof at 1440x900: normal state measured 416x114 px with a 14 px bottom inset and Restart aligned beside status; qualification state expanded to 480x286 px with the full question visible. No failed requests were observed. Screenshots: `/tmp/a320-dock-compact-lowered-1440.png` and `/tmp/a320-dock-expanded-atp-1440.png`.
 - Silhouette browser proof at 1440x900: five unlabeled target shapes rendered at 35-70 px, no visible numbered chip remained, the sidestick placement completed correctly, and no failed requests were observed. Screenshot: `/tmp/a320-instrument-silhouettes-1440.png`.
 - Production-promotion validation: `npm run check`, `npm run assets:check`, glTF validation, the runtime/material/browser A320 gates, and pipeline evals (6/6) passed. The real-GLB smoke passed; the three state-flow smoke tests and focused viewer-help layout/focus test passed after stale assertions were updated to the final non-leaking/lower-right UI contract.
+- CI browser-smoke repair: all six lightweight tests passed, while two long-running real-GLB interaction tests exhausted the GitHub runner. CI now uses one worker and one bounded production smoke for GLB delivery, first-frame readiness, approved camera state, projected targets, and console health; local runs remain parallel and workstation-browser evidence retains seated zoom/reset proof.
 
 ## Outcome and handoff
 

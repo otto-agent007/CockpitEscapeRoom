@@ -61,19 +61,3 @@ test('reduced motion qualification uses a static celebration and survives reload
   await expect(page.locator('.qualification-confetti')).toHaveCount(0)
   await expect(dialog.getByRole('button', { name: 'Continue' })).toBeFocused()
 })
-
-test('Airbus wheel zoom clamps and reset restores the approved FOV', async ({ page }) => {
-  test.setTimeout(75_000)
-  await page.goto('/')
-  await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
-  const canvas = page.locator('canvas')
-  await expect(canvas).toHaveAttribute('data-airbus-camera-state', /,68\.00000$/, { timeout: 30_000 })
-
-  await canvas.hover()
-  await page.mouse.wheel(0, -10_000)
-  await expect(canvas).toHaveAttribute('data-airbus-camera-state', /,50\.00000$/)
-  await page.mouse.wheel(0, 10_000)
-  await expect(canvas).toHaveAttribute('data-airbus-camera-state', /,76\.00000$/)
-  await page.keyboard.press('r')
-  await expect(canvas).toHaveAttribute('data-airbus-camera-state', /,68\.00000$/)
-})

@@ -27,6 +27,7 @@
 - Limitation: local full-GLB Playwright workers ended before reporting results for zoom/full-render capture. Agent-browser cannot render WebGL here. Those checks are not claimed as passing.
 - Owner gate closed on 2026-07-10 after desktop browser review. The approved production baseline retains the documented imported-source limitations outside the five gameplay targets.
 - Promotion validation: `npm run check`, `npm run assets:check`, glTF validation, all three A320 gates, and pipeline evals (6/6) passed. The real-GLB smoke passed in the first run; the three state-flow smoke tests passed together after updating stale non-leaking card assertions. The focused viewer-help layout/focus test passed after aligning it with the approved lower-right controls.
+- CI browser-smoke repair: two long-running 38 MiB real-GLB interaction tests exhausted the GitHub runner and stalled Chromium input/locator operations while all six lightweight flows passed. CI now uses one Playwright worker and one bounded production smoke covering GLB delivery, first-frame readiness, the approved 68 degree camera, projected targets, and console health. Placement, persistence, and progression remain covered in the lightweight browser flows; seated zoom/reset retains workstation-browser evidence.
 
 Update this file with actual evidence after every milestone. Do not replace failures with optimistic prose.
 

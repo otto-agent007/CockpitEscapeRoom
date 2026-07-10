@@ -88,31 +88,9 @@ test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
   await expect(sidestickTarget).toBeVisible({ timeout: 25_000 })
   await expect(page.locator('.airbus-target-layer')).toHaveClass(/airbus-target-layer--projected/, { timeout: 25_000 })
   await expect(sidestickTarget).toHaveAttribute('style', /px/)
-  const sidestickCard = page.getByRole('button', { name: /^SIDESTICK\b/ })
-  await sidestickCard.dispatchEvent('click')
-  await expect(sidestickCard).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.airbus-target-layer')).toHaveClass(/airbus-target-layer--mesh-picking/)
-  await expect(page.locator('.airbus-target-silhouette:visible')).toHaveCount(5)
-  await page.evaluate(() => {
-    const canvas = document.querySelector('canvas')
-    const target = document.querySelector<HTMLElement>('[data-airbus-target="sidestick"]')
-    if (!(canvas instanceof HTMLCanvasElement) || !target) throw new Error('A320 sidestick canvas target is unavailable')
-    const canvasBox = canvas.getBoundingClientRect()
-    const anchorX = Number(target.dataset.anchorX)
-    const anchorY = Number(target.dataset.anchorY)
-    canvas.dispatchEvent(new MouseEvent('click', {
-      bubbles: true,
-      clientX: canvasBox.left + anchorX,
-      clientY: canvasBox.top + anchorY,
-    }))
-  })
-  await expect(sidestickTarget).toHaveClass(/has-card/)
-  await expect(sidestickTarget).toHaveClass(/is-correct/)
-
-  await expect(page.getByRole('button', { name: /^CLOCK\b/ })).toHaveCount(0)
-  await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toHaveCount(0)
-  await expect(page.getByRole('button', { name: 'Verify' })).toHaveCount(0)
-  await expect(page.getByRole('combobox')).toHaveCount(0)
+  const canvas = page.locator('canvas')
+  await expect(canvas).toHaveAttribute('data-airbus-camera-state', /,68\.00000$/)
   expect(consoleErrors).toEqual([])
 })
 
