@@ -437,8 +437,8 @@ This pass also performs a conservative zoom-out cleanup before export. It quaran
 ## Known Limitations
 
 - This is a material/optimization handoff for a prebuilt A320 cockpit source, not final browser integration.
-- Some source mesh chunks remain compound parts with broad semantic labels; they are preserved for visual completeness and will need finer splitting only where downstream interactions require independent pivots.
-- Individual interactive control pivots remain unverified from Agent 2 and are not changed in this pass.
+- Five First-Officer pivot, collider, and cue-proxy contracts survive shaded export/reimport. That coordinate check does not by itself verify browser visual alignment; imported source mesh chunks outside that player-facing set remain compound parts with broad semantic labels.
+- Finer imported-source mesh splitting remains deferred until downstream interactions require independent visible control pivots.
 - Display treatment is restrained preview material work; live avionics UI and accessible HTML mirrors remain downstream browser work.
 - Human review is required before shaded approval or public model promotion.
 

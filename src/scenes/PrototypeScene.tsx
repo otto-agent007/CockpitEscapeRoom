@@ -1,14 +1,9 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { OrbitControls as ThreeOrbitControls } from 'three/addons/controls/OrbitControls.js'
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'
-import { OutputPass } from 'three/addons/postprocessing/OutputPass.js'
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js'
-import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js'
-import { SSAOPass } from 'three/addons/postprocessing/SSAOPass.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import * as THREE from 'three'
-import { type FirstOfficerControl } from '../game/config'
+import { firstOfficerFlow, type FirstOfficerControl } from '../game/config'
 import { type GamePhase, type SwitchId } from '../game/state'
 
 // Cockpit shells produced by the asset pipeline and served from public/models.
@@ -64,72 +59,37 @@ const CAPTAIN_SWITCH_IDS = ['battery', 'navigation', 'cabin'] as const
 const AIRBUS_GAME_CAMERA = 'CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW'
 const AIRBUS_WIDE_GAME_FOV = 68
 const AIRBUS_NARROW_GAME_FOV = 92
-const AIRBUS_FO_SEAT_OFFSET = new THREE.Vector3(0.18, 0.015, 0)
-const AIRBUS_FO_SEAT_YAW = 0.24
+const AIRBUS_FO_EYE_POSITION = new THREE.Vector3(0.153815, 0.130133, 0.647877)
+const AIRBUS_FO_EYE_QUATERNION = new THREE.Quaternion(-0.100679, 0.13991, 0.014302, 0.984929)
 const AIRBUS_LOOK_YAW_LIMIT = 0.34
 const AIRBUS_LOOK_PITCH_LIMIT = 0.22
 const AIRBUS_LOOK_POINTER_SPEED = 0.0021
-const AIRBUS_HOTSPOT_ANCHORS: Record<FirstOfficerControl, THREE.Vector3> = {
-  sidestick: new THREE.Vector3(0.138, 0.039, 0.501),
-  thrust: new THREE.Vector3(-0.033, 0.019, 0.509),
-  gear: new THREE.Vector3(0.021, 0.077, 0.486),
-  radio: new THREE.Vector3(-0.006, 0.019, 0.509),
-  altitude: new THREE.Vector3(0, 0.147, 0.458),
-}
-const AIRBUS_SKETCHFAB_POSTPROCESS_SHADER = {
-  name: 'AirbusSketchfabPostProcess',
-  uniforms: {
-    tDiffuse: { value: null },
-    resolution: { value: new THREE.Vector2(1, 1) },
-    sharpen: { value: 0.14 },
-    vignetteAmount: { value: 0.16 },
-    vignetteHardness: { value: 0.72 },
-    grainAmount: { value: 0.002 },
-    sceneBrightness: { value: 0.9 },
+const AIRBUS_TARGET_NODES: Record<FirstOfficerControl, { pivot: string; hitbox: string; cue: string }> = {
+  sidestick: {
+    pivot: 'AIRBUS_A320_TARGET_SIDESTICK_PIVOT',
+    hitbox: 'AIRBUS_A320_TARGET_SIDESTICK_HITBOX',
+    cue: 'AIRBUS_A320_TARGET_SIDESTICK_CUE',
   },
-  vertexShader: /* glsl */ `
-    varying vec2 vUv;
-
-    void main() {
-      vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-  `,
-  fragmentShader: /* glsl */ `
-    uniform sampler2D tDiffuse;
-    uniform vec2 resolution;
-    uniform float sharpen;
-    uniform float vignetteAmount;
-    uniform float vignetteHardness;
-    uniform float grainAmount;
-    uniform float sceneBrightness;
-    varying vec2 vUv;
-
-    float random(vec2 value) {
-      return fract(sin(dot(value, vec2(12.9898, 78.233))) * 43758.5453123);
-    }
-
-    void main() {
-      vec2 texel = 1.0 / resolution;
-      vec4 color = texture2D(tDiffuse, vUv);
-      vec3 neighborAverage =
-        texture2D(tDiffuse, vUv + vec2(texel.x, 0.0)).rgb +
-        texture2D(tDiffuse, vUv - vec2(texel.x, 0.0)).rgb +
-        texture2D(tDiffuse, vUv + vec2(0.0, texel.y)).rgb +
-        texture2D(tDiffuse, vUv - vec2(0.0, texel.y)).rgb;
-      neighborAverage *= 0.25;
-
-      vec3 sharpened = color.rgb + (color.rgb - neighborAverage) * sharpen;
-      float distanceFromCenter = distance(vUv, vec2(0.5));
-      float vignette = 1.0 - smoothstep(vignetteHardness * 0.42, 0.82, distanceFromCenter);
-      float grain = (random(vUv * resolution) - 0.5) * grainAmount;
-
-      color.rgb = mix(sharpened, sharpened * vignette, vignetteAmount);
-      color.rgb += grain;
-      color.rgb *= sceneBrightness;
-      gl_FragColor = vec4(color.rgb, color.a);
-    }
-  `,
+  thrust: {
+    pivot: 'AIRBUS_A320_TARGET_THRUST_PIVOT',
+    hitbox: 'AIRBUS_A320_TARGET_THRUST_HITBOX',
+    cue: 'AIRBUS_A320_TARGET_THRUST_CUE',
+  },
+  gear: {
+    pivot: 'AIRBUS_A320_TARGET_GEAR_PIVOT',
+    hitbox: 'AIRBUS_A320_TARGET_GEAR_HITBOX',
+    cue: 'AIRBUS_A320_TARGET_GEAR_CUE',
+  },
+  radio: {
+    pivot: 'AIRBUS_A320_TARGET_RADIO_PIVOT',
+    hitbox: 'AIRBUS_A320_TARGET_RADIO_HITBOX',
+    cue: 'AIRBUS_A320_TARGET_RADIO_CUE',
+  },
+  altitude: {
+    pivot: 'AIRBUS_A320_TARGET_ALTITUDE_PIVOT',
+    hitbox: 'AIRBUS_A320_TARGET_ALTITUDE_HITBOX',
+    cue: 'AIRBUS_A320_TARGET_ALTITUDE_CUE',
+  },
 }
 const AIRBUS_REQUIRED_NODES = [
   'AIRBUS_ROOT',
@@ -138,6 +98,21 @@ const AIRBUS_REQUIRED_NODES = [
   'AIRBUS_A320_INTERACTIVE_CANDIDATES',
   'AIRBUS_A320_LOC_CAPTAIN_EYE',
   'AIRBUS_A320_LOC_DASHBOARD_FOCUS',
+  'AIRBUS_A320_TARGET_SIDESTICK_PIVOT',
+  'AIRBUS_A320_TARGET_SIDESTICK_HITBOX',
+  'AIRBUS_A320_TARGET_THRUST_PIVOT',
+  'AIRBUS_A320_TARGET_THRUST_HITBOX',
+  'AIRBUS_A320_TARGET_GEAR_PIVOT',
+  'AIRBUS_A320_TARGET_GEAR_HITBOX',
+  'AIRBUS_A320_TARGET_RADIO_PIVOT',
+  'AIRBUS_A320_TARGET_RADIO_HITBOX',
+  'AIRBUS_A320_TARGET_ALTITUDE_PIVOT',
+  'AIRBUS_A320_TARGET_ALTITUDE_HITBOX',
+  'AIRBUS_A320_TARGET_SIDESTICK_CUE',
+  'AIRBUS_A320_TARGET_THRUST_CUE',
+  'AIRBUS_A320_TARGET_GEAR_CUE',
+  'AIRBUS_A320_TARGET_RADIO_CUE',
+  'AIRBUS_A320_TARGET_ALTITUDE_CUE',
   AIRBUS_GAME_CAMERA,
 ] as const
 
@@ -149,8 +124,10 @@ interface PrototypeSceneProps {
   lockerHatRevealed: boolean
   captainRewardUnlocked: boolean
   reducedMotion: boolean
+  selectedAirbusCard: string | null
   onAirbusReady: () => void
   onAirbusHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
+  onAirbusTarget: (control: FirstOfficerControl) => void
   onSwitch: (switchId: SwitchId) => void
   onMars: () => void
   onLockerHat: () => void
@@ -160,52 +137,44 @@ type HoverHandler = (hovering: boolean) => void
 interface LoadedAirbusScene {
   scene: THREE.Group
   camera: THREE.Camera | null
+  targetPivots: Partial<Record<FirstOfficerControl, THREE.Object3D>>
 }
 
-function projectAirbusHotspots(camera: THREE.Camera, size: { width: number; height: number }): AirbusHotspotScreenPositions {
+function projectAirbusHotspots(
+  camera: THREE.Camera,
+  size: { width: number; height: number },
+  targetPivots: Partial<Record<FirstOfficerControl, THREE.Object3D>>,
+): AirbusHotspotScreenPositions {
   const positions: AirbusHotspotScreenPositions = {}
+  const worldPosition = new THREE.Vector3()
 
-  for (const [control, anchor] of Object.entries(AIRBUS_HOTSPOT_ANCHORS) as [FirstOfficerControl, THREE.Vector3][]) {
-    const projected = anchor.clone().project(camera)
+  for (const control of firstOfficerFlow.controlIds) {
+    const pivot = targetPivots[control]
+    if (!pivot) continue
+    pivot.getWorldPosition(worldPosition)
+    const projected = worldPosition.clone().project(camera)
     const x = (projected.x * 0.5 + 0.5) * size.width
     const y = (-projected.y * 0.5 + 0.5) * size.height
     positions[control] = {
       x: Math.round(x),
       y: Math.round(y),
-      visible: projected.z >= -1 && projected.z <= 1 && x >= -80 && x <= size.width + 80 && y >= -80 && y <= size.height + 80,
+      visible: projected.z >= -1 && projected.z <= 1 && x >= -48 && x <= size.width + 48 && y >= -48 && y <= size.height + 48,
     }
   }
 
   return positions
 }
 
-function applyCameraTransform(runtimeCamera: THREE.Camera, sourceCamera: THREE.Camera, fovOverride?: number) {
-  sourceCamera.getWorldPosition(runtimeCamera.position)
-  sourceCamera.getWorldQuaternion(runtimeCamera.quaternion)
-  runtimeCamera.scale.copy(sourceCamera.scale)
+function applyAirbusGameplayCameraTransform(runtimeCamera: THREE.Camera, sourceCamera: THREE.Camera, fovOverride?: number) {
+  runtimeCamera.position.copy(AIRBUS_FO_EYE_POSITION)
+  runtimeCamera.quaternion.copy(AIRBUS_FO_EYE_QUATERNION)
+  runtimeCamera.scale.set(1, 1, 1)
   runtimeCamera.updateMatrix()
-  runtimeCamera.updateMatrixWorld(true)
   if (runtimeCamera instanceof THREE.PerspectiveCamera && sourceCamera instanceof THREE.PerspectiveCamera) {
     runtimeCamera.fov = fovOverride ?? sourceCamera.fov
     runtimeCamera.near = Math.max(0.01, sourceCamera.near)
     runtimeCamera.far = sourceCamera.far
     runtimeCamera.updateProjectionMatrix()
-  }
-}
-
-function applyAirbusGameplayCameraTransform(runtimeCamera: THREE.Camera, sourceCamera: THREE.Camera, fovOverride?: number) {
-  applyCameraTransform(runtimeCamera, sourceCamera, fovOverride)
-  const needsCenteredCameraRepair = Math.abs(runtimeCamera.position.x) < 0.05
-  if (needsCenteredCameraRepair) {
-    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(runtimeCamera.quaternion)
-    const up = new THREE.Vector3(0, 1, 0).applyQuaternion(runtimeCamera.quaternion)
-    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(runtimeCamera.quaternion)
-    runtimeCamera.position
-      .addScaledVector(right, AIRBUS_FO_SEAT_OFFSET.x)
-      .addScaledVector(up, AIRBUS_FO_SEAT_OFFSET.y)
-      .addScaledVector(forward, AIRBUS_FO_SEAT_OFFSET.z)
-    const foSeatYaw = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), AIRBUS_FO_SEAT_YAW)
-    runtimeCamera.quaternion.multiply(foSeatYaw)
   }
   runtimeCamera.updateMatrixWorld(true)
 }
@@ -246,10 +215,8 @@ function LimitedOrbitControls({
 
 function AirbusSeatLookControls({
   airbusCameraRevision,
-  onHotspotsChange,
 }: {
   airbusCameraRevision: number
-  onHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
 }) {
   const { camera, gl, size } = useThree()
   const basePositionRef = useRef(new THREE.Vector3())
@@ -258,47 +225,72 @@ function AirbusSeatLookControls({
   const pitchRef = useRef(0)
   const draggingRef = useRef(false)
   const lastPointerRef = useRef({ x: 0, y: 0 })
-  const lastHotspotPayloadRef = useRef('')
-
-  const applyLook = useCallback(() => {
-    const yawQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yawRef.current)
-    const pitchQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), pitchRef.current)
-    camera.position.copy(basePositionRef.current)
-    camera.quaternion.copy(baseQuaternionRef.current).multiply(yawQuaternion).multiply(pitchQuaternion)
-    camera.updateMatrixWorld(true)
-    if (onHotspotsChange) {
-      const positions = projectAirbusHotspots(camera, size)
-      const payload = JSON.stringify(positions)
-      if (payload !== lastHotspotPayloadRef.current) {
-        lastHotspotPayloadRef.current = payload
-        onHotspotsChange(positions)
-      }
-    }
-  }, [camera, onHotspotsChange, size])
+  const cameraDirtyRef = useRef(true)
+  const runtimeCameraRef = useRef(camera)
+  const canvasRef = useRef(gl.domElement)
 
   useEffect(() => {
-    basePositionRef.current.copy(camera.position)
-    baseQuaternionRef.current.copy(camera.quaternion)
+    runtimeCameraRef.current = camera
+    canvasRef.current = gl.domElement
+    cameraDirtyRef.current = true
+  }, [camera, gl])
+
+  useFrame(() => {
+    if (!cameraDirtyRef.current) return
+    const runtimeCamera = runtimeCameraRef.current
+    const yawQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yawRef.current)
+    const pitchQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), pitchRef.current)
+    runtimeCamera.position.copy(basePositionRef.current)
+    runtimeCamera.quaternion.copy(baseQuaternionRef.current).multiply(yawQuaternion).multiply(pitchQuaternion)
+    if (runtimeCamera instanceof THREE.PerspectiveCamera) {
+      const fov = size.width < 900 ? AIRBUS_NARROW_GAME_FOV : AIRBUS_WIDE_GAME_FOV
+      if (runtimeCamera.fov !== fov) {
+        runtimeCamera.fov = fov
+        runtimeCamera.updateProjectionMatrix()
+      }
+    }
+    runtimeCamera.updateMatrix()
+    runtimeCamera.updateMatrixWorld(true)
+    runtimeCamera.matrixWorldInverse.copy(runtimeCamera.matrixWorld).invert()
+    canvasRef.current.dataset.airbusCameraState = [
+      runtimeCamera.position.x,
+      runtimeCamera.position.y,
+      runtimeCamera.position.z,
+      runtimeCamera.quaternion.x,
+      runtimeCamera.quaternion.y,
+      runtimeCamera.quaternion.z,
+      runtimeCamera.quaternion.w,
+      runtimeCamera instanceof THREE.PerspectiveCamera ? runtimeCamera.fov : 0,
+    ].map((value) => value.toFixed(5)).join(',')
+    cameraDirtyRef.current = false
+  })
+
+  useEffect(() => {
+    basePositionRef.current.copy(AIRBUS_FO_EYE_POSITION)
+    baseQuaternionRef.current.copy(AIRBUS_FO_EYE_QUATERNION)
     yawRef.current = 0
     pitchRef.current = 0
-    applyLook()
-  }, [airbusCameraRevision, applyLook, camera])
+    cameraDirtyRef.current = true
+  }, [airbusCameraRevision])
 
   useEffect(() => {
     const canvas = gl.domElement
-
     const stopDrag = () => {
       draggingRef.current = false
     }
 
-    const onPointerDown = (event: PointerEvent) => {
+    const onLookStart = (event: PointerEvent) => {
       if (event.button !== 0) return
       draggingRef.current = true
       lastPointerRef.current = { x: event.clientX, y: event.clientY }
-      canvas.setPointerCapture(event.pointerId)
+      try {
+        canvas.setPointerCapture(event.pointerId)
+      } catch {
+        // Synthetic accessibility/test events may not own an active browser pointer.
+      }
     }
 
-    const onPointerMove = (event: PointerEvent) => {
+    const onLookMove = (event: PointerEvent) => {
       if (!draggingRef.current) return
       const deltaX = event.clientX - lastPointerRef.current.x
       const deltaY = event.clientY - lastPointerRef.current.y
@@ -313,118 +305,181 @@ function AirbusSeatLookControls({
         -AIRBUS_LOOK_PITCH_LIMIT,
         AIRBUS_LOOK_PITCH_LIMIT,
       )
-      applyLook()
+      cameraDirtyRef.current = true
     }
 
-    canvas.addEventListener('pointerdown', onPointerDown)
-    canvas.addEventListener('pointermove', onPointerMove)
+    canvas.addEventListener('pointerdown', onLookStart)
+    canvas.addEventListener('pointermove', onLookMove)
     canvas.addEventListener('pointerup', stopDrag)
     canvas.addEventListener('pointercancel', stopDrag)
 
     return () => {
       draggingRef.current = false
-      canvas.removeEventListener('pointerdown', onPointerDown)
-      canvas.removeEventListener('pointermove', onPointerMove)
+      canvas.removeEventListener('pointerdown', onLookStart)
+      canvas.removeEventListener('pointermove', onLookMove)
       canvas.removeEventListener('pointerup', stopDrag)
       canvas.removeEventListener('pointercancel', stopDrag)
     }
-  }, [applyLook, gl])
-
-  useFrame(() => applyLook())
+  }, [gl])
 
   return null
 }
 
 function AirbusHotspotProjector({
+  targetPivots,
   onHotspotsChange,
 }: {
+  targetPivots: Partial<Record<FirstOfficerControl, THREE.Object3D>>
   onHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
 }) {
   const { camera, size } = useThree()
   const lastPayloadRef = useRef('')
 
-  const publishHotspots = useCallback(() => {
+  useFrame(() => {
     if (!onHotspotsChange) return
-    const positions: AirbusHotspotScreenPositions = {}
-
-    for (const [control, anchor] of Object.entries(AIRBUS_HOTSPOT_ANCHORS) as [FirstOfficerControl, THREE.Vector3][]) {
-      const projected = anchor.clone().project(camera)
-      const x = (projected.x * 0.5 + 0.5) * size.width
-      const y = (-projected.y * 0.5 + 0.5) * size.height
-      positions[control] = {
-        x: Math.round(x),
-        y: Math.round(y),
-        visible: projected.z >= -1 && projected.z <= 1 && x >= -80 && x <= size.width + 80 && y >= -80 && y <= size.height + 80,
-      }
-    }
-
+    const positions = projectAirbusHotspots(camera, size, targetPivots)
     const payload = JSON.stringify(positions)
     if (payload === lastPayloadRef.current) return
     lastPayloadRef.current = payload
     onHotspotsChange(positions)
-  }, [camera, onHotspotsChange, size.height, size.width])
+  })
 
-  useEffect(() => {
-    let animationFrame = window.requestAnimationFrame(function publish() {
-      publishHotspots()
-      animationFrame = window.requestAnimationFrame(publish)
-    })
-
-    return () => {
-      window.cancelAnimationFrame(animationFrame)
-      onHotspotsChange?.({})
-    }
-  }, [onHotspotsChange, publishHotspots])
-
-  useFrame(() => publishHotspots())
-
+  useEffect(() => () => onHotspotsChange?.({}), [onHotspotsChange])
   return null
 }
 
-function AirbusSketchfabPostProcessing() {
-  const { camera, gl, scene, size } = useThree()
-  const composerRef = useRef<EffectComposer | null>(null)
-  const sketchfabPassRef = useRef<ShaderPass | null>(null)
+function isFirstOfficerControl(value: unknown): value is FirstOfficerControl {
+  return typeof value === 'string' && (firstOfficerFlow.controlIds as readonly string[]).includes(value)
+}
 
-  useEffect(() => {
-    const composer = new EffectComposer(gl)
-    const renderPass = new RenderPass(scene, camera)
-    const ssaoPass = new SSAOPass(scene, camera, size.width, size.height, 16)
-    ssaoPass.kernelRadius = 4
-    ssaoPass.minDistance = 0.004
-    ssaoPass.maxDistance = 0.13
-
-    const sketchfabPass = new ShaderPass(AIRBUS_SKETCHFAB_POSTPROCESS_SHADER)
-    const outputPass = new OutputPass()
-    composer.addPass(renderPass)
-    composer.addPass(ssaoPass)
-    composer.addPass(sketchfabPass)
-    composer.addPass(outputPass)
-
-    composerRef.current = composer
-    sketchfabPassRef.current = sketchfabPass
-
-    return () => {
-      composerRef.current = null
-      sketchfabPassRef.current = null
-      composer.dispose()
-      ssaoPass.dispose()
-      sketchfabPass.dispose()
-      outputPass.dispose()
+function airbusControlForObject(object: THREE.Object3D): FirstOfficerControl | null {
+  let current: THREE.Object3D | null = object
+  while (current) {
+    if (current.userData.interaction === 'label_target' && isFirstOfficerControl(current.userData.control_id)) {
+      return current.userData.control_id
     }
-  }, [camera, gl, scene, size.height, size.width])
+    current = current.parent
+  }
+  return null
+}
+
+function configureAirbusProxyMaterial(object: THREE.Object3D) {
+  if (!(object instanceof THREE.Mesh) || (object.userData.colliderOnly !== true && object.userData.cueOnly !== true)) return
+  if (object.userData.airbusColliderMaterialConfigured === true) return
+  object.castShadow = false
+  object.receiveShadow = false
+  object.visible = false
+  const invisibleColliderMaterial = new THREE.MeshBasicMaterial({
+    transparent: true,
+    opacity: 0,
+    depthWrite: false,
+    depthTest: false,
+    colorWrite: false,
+  })
+  object.material = Array.isArray(object.material)
+    ? object.material.map(() => invisibleColliderMaterial.clone())
+    : invisibleColliderMaterial
+  object.userData.airbusColliderMaterialConfigured = true
+}
+
+function findAirbusTargetColliders(scene: THREE.Object3D): THREE.Mesh[] {
+  const colliders: THREE.Mesh[] = []
+  scene.traverse((object) => {
+    configureAirbusProxyMaterial(object)
+    if (object instanceof THREE.Mesh && object.userData.colliderOnly === true && airbusControlForObject(object)) {
+      colliders.push(object)
+    }
+  })
+  return colliders
+}
+
+function AirbusTargetRaycaster({
+  scene,
+  selectedAirbusCard,
+  onTarget,
+  onHoverInteractive,
+}: {
+  scene: THREE.Group
+  selectedAirbusCard: string | null
+  onTarget: (control: FirstOfficerControl) => void
+  onHoverInteractive: HoverHandler
+}) {
+  const { camera, gl } = useThree()
+  const raycasterRef = useRef(new THREE.Raycaster())
+  const pointerRef = useRef(new THREE.Vector2())
+  const hoveringRef = useRef(false)
+  const colliders = useMemo(() => findAirbusTargetColliders(scene), [scene])
+
+  const pickControl = useCallback((event: MouseEvent | PointerEvent | DragEvent): FirstOfficerControl | null => {
+    const bounds = gl.domElement.getBoundingClientRect()
+    scene.updateMatrixWorld(true)
+
+    pointerRef.current.set(
+      ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
+      -((event.clientY - bounds.top) / bounds.height) * 2 + 1,
+    )
+    raycasterRef.current.setFromCamera(pointerRef.current, camera)
+    const hit = raycasterRef.current.intersectObjects(colliders, false)[0]
+    return hit ? airbusControlForObject(hit.object) : null
+  }, [camera, colliders, gl, scene])
 
   useEffect(() => {
-    const composer = composerRef.current
-    const sketchfabPass = sketchfabPassRef.current
-    if (!composer || !sketchfabPass) return
-    composer.setSize(size.width, size.height)
-    sketchfabPass.uniforms.resolution?.value.set(size.width * gl.getPixelRatio(), size.height * gl.getPixelRatio())
-  }, [gl, size.height, size.width])
+    const canvas = gl.domElement
 
-  useFrame((_, delta) => {
-    composerRef.current?.render(delta)
-  }, 1)
+    const setHovering = (hovering: boolean) => {
+      if (hoveringRef.current === hovering) return
+      hoveringRef.current = hovering
+      onHoverInteractive(hovering)
+    }
+
+    const onPointerMove = (event: PointerEvent) => {
+      const control = selectedAirbusCard ? pickControl(event) : null
+      setHovering(Boolean(control))
+    }
+
+    const onClick = (event: MouseEvent) => {
+      if (!selectedAirbusCard) return
+      const control = pickControl(event)
+      if (!control) return
+      event.preventDefault()
+      event.stopPropagation()
+      onTarget(control)
+    }
+
+    const onDragOver = (event: DragEvent) => {
+      if (!selectedAirbusCard) return
+      const control = pickControl(event)
+      setHovering(Boolean(control))
+      if (control) event.preventDefault()
+    }
+
+    const onDrop = (event: DragEvent) => {
+      if (!selectedAirbusCard) return
+      const control = pickControl(event)
+      setHovering(false)
+      if (!control) return
+      event.preventDefault()
+      onTarget(control)
+    }
+
+    const onPointerLeave = () => {
+      setHovering(false)
+    }
+
+    canvas.addEventListener('pointermove', onPointerMove)
+    canvas.addEventListener('click', onClick)
+    canvas.addEventListener('dragover', onDragOver)
+    canvas.addEventListener('drop', onDrop)
+    canvas.addEventListener('pointerleave', onPointerLeave)
+    return () => {
+      canvas.removeEventListener('pointermove', onPointerMove)
+      canvas.removeEventListener('click', onClick)
+      canvas.removeEventListener('dragover', onDragOver)
+      canvas.removeEventListener('drop', onDrop)
+      canvas.removeEventListener('pointerleave', onPointerLeave)
+      setHovering(false)
+    }
+  }, [gl, onHoverInteractive, onTarget, pickControl, selectedAirbusCard])
 
   return null
 }
@@ -491,12 +546,18 @@ function AirbusLoadingFallback({ reducedMotion }: { reducedMotion: boolean }) {
 
 function AirbusCockpit({
   reducedMotion,
+  selectedAirbusCard,
   onCameraReady,
   onAirbusHotspotsChange,
+  onAirbusTarget,
+  onHoverInteractive,
 }: {
   reducedMotion: boolean
+  selectedAirbusCard: string | null
   onCameraReady: () => void
   onAirbusHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
+  onAirbusTarget: (control: FirstOfficerControl) => void
+  onHoverInteractive: HoverHandler
 }) {
   const { camera, size } = useThree()
   const [loaded, setLoaded] = useState<LoadedAirbusScene | null>(null)
@@ -523,20 +584,34 @@ function AirbusCockpit({
             object.intensity = 0
             return
           }
+          object.visible = true
+          configureAirbusProxyMaterial(object)
           if (object instanceof THREE.Mesh) {
+            object.frustumCulled = false
             object.castShadow = true
             object.receiveShadow = true
-            const materials = Array.isArray(object.material) ? object.material : [object.material]
-            for (const material of materials) {
-              material.side = THREE.DoubleSide
-              material.needsUpdate = true
+            if (object.userData.colliderOnly !== true && object.userData.cueOnly !== true) {
+              const materials = Array.isArray(object.material) ? object.material : [object.material]
+              for (const material of materials) {
+                material.side = THREE.DoubleSide
+                material.needsUpdate = true
+              }
             }
           }
         })
         loadedScene.userData.airbusRuntimeMaterialToneApplied = true
 
         loadedScene.updateMatrixWorld(true)
-        setLoaded({ scene: loadedScene, camera: loadedScene.getObjectByName(AIRBUS_GAME_CAMERA) as THREE.Camera | null })
+        const targetPivots: Partial<Record<FirstOfficerControl, THREE.Object3D>> = {}
+        for (const control of firstOfficerFlow.controlIds) {
+          const pivot = loadedScene.getObjectByName(AIRBUS_TARGET_NODES[control].pivot)
+          if (pivot) targetPivots[control] = pivot
+        }
+        setLoaded({
+          scene: loadedScene,
+          camera: loadedScene.getObjectByName(AIRBUS_GAME_CAMERA) as THREE.Camera | null,
+          targetPivots,
+        })
       },
       undefined,
       (error) => {
@@ -555,9 +630,9 @@ function AirbusCockpit({
     if (!loaded?.camera) return
     loaded.scene.updateMatrixWorld(true)
     applyAirbusGameplayCameraTransform(camera, loaded.camera, size.width < 900 ? AIRBUS_NARROW_GAME_FOV : AIRBUS_WIDE_GAME_FOV)
-    onAirbusHotspotsChange?.(projectAirbusHotspots(camera, size))
+    onAirbusHotspotsChange?.(projectAirbusHotspots(camera, { width: size.width, height: size.height }, loaded.targetPivots))
     onCameraReady()
-  }, [camera, loaded, onAirbusHotspotsChange, onCameraReady, size])
+  }, [camera, loaded, onAirbusHotspotsChange, onCameraReady, size.height, size.width])
 
   return (
     <>
@@ -566,9 +641,14 @@ function AirbusCockpit({
       {loaded && !loadFailed ? (
         <>
           <primitive object={loaded.scene} />
-          <AirbusSeatLookControls airbusCameraRevision={size.width} onHotspotsChange={onAirbusHotspotsChange} />
-          <AirbusHotspotProjector onHotspotsChange={onAirbusHotspotsChange} />
-          <AirbusSketchfabPostProcessing />
+          <AirbusSeatLookControls airbusCameraRevision={size.width} />
+          <AirbusHotspotProjector targetPivots={loaded.targetPivots} onHotspotsChange={onAirbusHotspotsChange} />
+          <AirbusTargetRaycaster
+            scene={loaded.scene}
+            selectedAirbusCard={selectedAirbusCard}
+            onTarget={onAirbusTarget}
+            onHoverInteractive={onHoverInteractive}
+          />
         </>
       ) : (
         <AirbusLoadingFallback reducedMotion={reducedMotion} />
@@ -721,8 +801,10 @@ export function PrototypeScene({
   lockerHatRevealed,
   captainRewardUnlocked,
   reducedMotion,
+  selectedAirbusCard,
   onAirbusReady,
   onAirbusHotspotsChange,
+  onAirbusTarget,
   onSwitch,
   onMars,
   onLockerHat,
@@ -740,8 +822,11 @@ export function PrototypeScene({
         {phase === 'airbus' && (
           <AirbusCockpit
             reducedMotion={reducedMotion}
+            selectedAirbusCard={selectedAirbusCard}
             onCameraReady={onAirbusReady}
             onAirbusHotspotsChange={onAirbusHotspotsChange}
+            onAirbusTarget={onAirbusTarget}
+            onHoverInteractive={onInteractiveHover}
           />
         )}
         {phase === 'locker' && (

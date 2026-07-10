@@ -538,144 +538,150 @@ p {
   inset: 0;
 }
 
-.airbus-target {
+.airbus-target-control {
   position: absolute;
-  display: grid;
-  place-items: center;
-  width: 10rem;
-  height: 7rem;
+  z-index: 1;
+  display: inline-grid;
+  width: 1px;
+  height: 1px;
   transform: translate(-50%, -50%);
-  border: 2px solid rgba(154, 219, 223, 0.58);
-  border-radius: 0.42rem;
-  padding: 0.35rem;
-  background: rgba(11, 27, 30, 0.16);
-  box-shadow:
-    0 0 0 1px rgba(230, 252, 248, 0.12) inset,
-    0 0.55rem 1.4rem rgba(0, 0, 0, 0.14);
+  border: 0;
+  padding: 0;
+  background: transparent;
   color: #ecfbf4;
-  cursor: crosshair;
-  opacity: 1;
-  pointer-events: auto;
-  transition:
-    opacity 120ms ease,
-    border-color 120ms ease,
-    box-shadow 120ms ease,
-    background 120ms ease;
-}
-
-.airbus-target.is-projected {
-  background: rgba(11, 27, 30, 0.1);
-}
-
-.airbus-target::before {
-  position: absolute;
-  inset: -0.38rem;
-  border: 1px solid rgba(117, 214, 220, 0.2);
-  border-radius: 0.62rem;
-  content: "";
   pointer-events: none;
   transition:
-    border-color 120ms ease,
-    box-shadow 120ms ease;
+    filter 120ms ease,
+    transform 120ms ease;
 }
 
-.airbus-target--sidestick {
-  width: clamp(4.2rem, 6vw, 5.8rem);
-  height: clamp(7.8rem, 17vh, 11rem);
-  border-radius: 2rem 2rem 1rem 1rem;
-}
-
-.airbus-target--thrust {
-  width: clamp(8rem, 14vw, 13rem);
-  height: clamp(5.8rem, 13vh, 8.6rem);
-  border-radius: 1rem;
-}
-
-.airbus-target--gear {
-  width: clamp(3.6rem, 4.5vw, 4.4rem);
-  height: clamp(6.6rem, 14vh, 8.4rem);
-  border-radius: 0.85rem;
-}
-
-.airbus-target--radio {
-  width: clamp(8rem, 13vw, 12.5rem);
-  height: clamp(5.3rem, 10vh, 7.2rem);
-  border-radius: 0.75rem;
-}
-
-.airbus-target--altitude {
-  width: clamp(12rem, 21vw, 22rem);
-  height: clamp(2.8rem, 5.5vh, 4.3rem);
-  border-radius: 0.65rem;
-}
-
-.airbus-target:focus-visible {
-  border-color: rgba(125, 230, 238, 0.98);
-  background: rgba(42, 181, 193, 0.12);
-  box-shadow:
-    0 0 0 1px rgba(233, 252, 248, 0.2) inset,
-    0 0 1.8rem rgba(69, 205, 219, 0.38);
-}
-
-.airbus-target:focus-visible::before {
-  border-color: rgba(155, 237, 240, 0.72);
-}
-
-.airbus-target.is-drag-over {
-  border-color: rgba(125, 230, 238, 0.98);
-  background: rgba(55, 207, 218, 0.14);
-  box-shadow:
-    0 0 0 1px rgba(233, 252, 248, 0.18) inset,
-    0 0 2rem rgba(69, 205, 219, 0.45),
-    0 0.9rem 2rem rgba(0, 0, 0, 0.28);
-}
-
-.airbus-target.is-drag-over::before {
-  border-color: rgba(155, 237, 240, 0.72);
-  box-shadow: 0 0 1.6rem rgba(69, 205, 219, 0.28);
-}
-
-.airbus-target.is-correct {
-  border-color: rgba(133, 232, 151, 0.98);
-  background: rgba(38, 150, 75, 0.2);
-  box-shadow:
-    0 0 0 1px rgba(234, 255, 238, 0.22) inset,
-    0 0 1.8rem rgba(85, 222, 120, 0.36),
-    0 0.75rem 1.8rem rgba(0, 0, 0, 0.22);
-}
-
-.airbus-target.is-correct::before {
-  border-color: rgba(165, 240, 176, 0.72);
-}
-
-.airbus-target.is-wrong {
-  border-color: rgba(255, 119, 112, 0.98);
-  background: rgba(150, 38, 38, 0.22);
-  box-shadow:
-    0 0 0 1px rgba(255, 235, 232, 0.18) inset,
-    0 0 1.8rem rgba(235, 82, 76, 0.38),
-    0 0.75rem 1.8rem rgba(0, 0, 0, 0.22);
-}
-
-.airbus-target.is-wrong::before {
-  border-color: rgba(255, 155, 149, 0.72);
+.airbus-target-layer--mesh-picking .airbus-target-control.has-card,
+.airbus-target-control:focus-visible,
+.airbus-target-layer--fallback .airbus-target-control {
+  pointer-events: auto;
 }
 
 .airbus-target-card {
   display: inline-grid;
   place-items: center;
-  min-width: 4.7rem;
-  max-width: 100%;
-  border-radius: 0.35rem;
-  padding: 0.25rem 0.38rem;
-  background: rgba(5, 12, 13, 0.72);
+  min-width: 3.7rem;
+  max-width: 9rem;
+  border: 1px solid rgba(105, 229, 235, 0.72);
+  border-radius: 999px;
+  padding: 0.28rem 0.52rem;
+  background: rgba(5, 18, 20, 0.9);
+  box-shadow: 0 0.35rem 1.1rem rgba(0, 0, 0, 0.42);
   color: #f2fbf5;
-  font-size: 0.72rem;
+  font-size: 0.66rem;
   font-weight: 850;
   letter-spacing: 0.04em;
   line-height: 1.1;
   overflow-wrap: anywhere;
   text-align: center;
+}
+
+.airbus-target-control.has-card {
+  width: auto;
+  height: auto;
+  cursor: pointer;
+}
+
+.airbus-target-control.is-correct .airbus-target-card {
+  border-color: rgba(133, 232, 151, 0.94);
+  background: rgba(18, 77, 42, 0.92);
+}
+
+.airbus-target-control.is-wrong .airbus-target-card {
+  border-color: rgba(255, 126, 112, 0.98);
+  background: rgba(115, 29, 25, 0.94);
+  animation: airbus-wrong-chip 520ms ease-out 2;
+}
+
+.airbus-target-keyboard-label {
+  display: none;
+}
+
+.airbus-target-layer.is-placing-card .airbus-target-control.is-projected:not(.has-card) {
+  width: auto;
+  height: auto;
+}
+
+.airbus-target-layer.is-placing-card
+  .airbus-target-control.is-projected:not(.has-card)
+  .airbus-target-keyboard-label {
+  display: inline-grid;
+  min-width: max-content;
+  transform: translateY(-1.45rem);
+  border: 1px solid rgba(105, 229, 235, 0.68);
+  border-radius: 999px;
+  padding: 0.22rem 0.42rem;
+  background: rgba(5, 18, 20, 0.86);
+  box-shadow: 0 0.3rem 0.8rem rgba(0, 0, 0, 0.36);
+  color: #e9fbf5;
+  font-size: 0.61rem;
+  font-weight: 800;
+  letter-spacing: 0.025em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.airbus-target-layer.is-placing-card .airbus-target-control.is-projected:not(.has-card)::before {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.72rem;
+  height: 0.72rem;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(165, 247, 249, 0.94);
+  border-radius: 999px;
+  background: rgba(45, 202, 211, 0.3);
+  box-shadow: 0 0 0 0.28rem rgba(62, 216, 225, 0.12), 0 0 1rem rgba(96, 238, 242, 0.5);
+  content: "";
+}
+
+.airbus-target-control:focus-visible {
+  z-index: 2;
+  width: auto;
+  height: auto;
+  min-width: 9rem;
+  border: 2px solid rgba(125, 230, 238, 0.98);
+  border-radius: 0.5rem;
+  padding: 0.55rem 0.65rem;
+  background: rgba(5, 18, 20, 0.95);
+  box-shadow: 0 0 1.8rem rgba(69, 205, 219, 0.42);
+  outline: none;
+}
+
+.airbus-target-control:focus-visible .airbus-target-keyboard-label {
+  display: inline;
+}
+
+.airbus-target-layer--fallback .airbus-target-control {
+  width: clamp(7rem, 13vw, 11rem);
+  height: clamp(3.5rem, 8vh, 5rem);
+  border: 2px solid rgba(154, 219, 223, 0.72);
+  border-radius: 0.55rem;
+  padding: 0.45rem;
+  background: rgba(11, 27, 30, 0.48);
+}
+
+.airbus-target-layer--fallback .airbus-target-keyboard-label {
+  display: inline;
+}
+
+@keyframes airbus-wrong-chip {
+  0% {
+    filter: brightness(1);
+    transform: scale(1);
+  }
+  45% {
+    filter: brightness(1.55);
+    transform: scale(1.08);
+  }
+  100% {
+    filter: brightness(1);
+    transform: scale(1);
+  }
 }
 
 .airbus-dock {

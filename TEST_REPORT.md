@@ -8,9 +8,9 @@ Update this file with actual evidence after every milestone. Do not replace fail
 | `npm run typecheck` | No Typecheck errors | Passed standalone and inside `npm run check` after A320 five-card feedback simplification | Pass | Rerun after every code change |
 | `npm run test` | Reducer and persistence tests pass | 16 Vitest tests passed after removing the Airbus clock card while retaining the ATP gate | Pass | Add focused tests per puzzle |
 | `npm run build` | Vite production build succeeds | Passed inside `npm run check` after A320 five-card feedback simplification | Pass | Track runtime bundle and asset budgets |
-| `npm run test:e2e` | Captain/locker/airbus loop, A320 GLB proof, immediate feedback, no clock card, ATP gate, and reload path pass in Chromium | Passed 4 Chromium tests after restoring ATP question behind five correct labels | Pass | Keep browser tests current with each milestone |
-| `npm run assets:check` | No invalid production GLBs | Passed for `public/models/airbus-first-officer.glb` and `public/models/dc9-cockpit.glb`; dc9 still has existing validator info rows for unused texcoords and empty nodes | Pass with warnings | Must validate every committed GLB |
-| `npx gltf-transform validate public/models/airbus-first-officer.glb` | A320 cockpit GLB has no glTF validation errors | Passed with no errors, warnings, infos, or hints after approval-candidate export | Pass | Rerun after every A320 GLB update |
+| `npm run test:e2e` | Captain/locker/airbus loop, A320 GLB proof, immediate feedback, no clock card, ATP gate, and reload path pass in Chromium | Passed 4 Chromium tests after adding GLB-backed First-Officer target pivots and native keyboard placement proof | Pass | Keep browser tests current with each milestone |
+| `npm run assets:check` | No invalid production GLBs | Passed for `public/models/airbus-first-officer.glb` and `public/models/dc9-cockpit.glb`; validator output has informational unused UV/empty-node rows only | Pass with info | Must validate every committed GLB |
+| `npx gltf-transform validate public/models/airbus-first-officer.glb` | A320 cockpit GLB has no glTF validation errors | Passed with no errors or warnings; five informational unused `TEXCOORD_0` rows remain for target meshes | Pass with info | Rerun after every A320 GLB update |
 | `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate browser-integration art-source/cockpit-pipeline/gates/a320-cockpit-2-browser-integration-proof.json` | Browser integration gate artifact is structurally valid | Passed after updating the gate for production-candidate screenshots at 375, 768, 1440, and 1920 px | Pass | Rerun after browser evidence changes |
 | `npm run references:validate` | Reference manifest is structurally valid | Passed for 24 references; wrote `.cache/references/manifest-validation.json` | Pass | Rerun after reference-manifest edits |
 | `npm run references:download` | Download only entries with explicit direct image URLs and record hashes | Passed; downloaded 4 Commons images and skipped the link-only Simulation Daily source | Pass | Use `--force` only after reviewing changed local files |
@@ -19,7 +19,7 @@ Update this file with actual evidence after every milestone. Do not replace fail
 | `npm run references:check` | Offline aggregate check validates manifest, artifacts, Blender scene, and preview render | Passed after recursive manifest validation; rendered `.cache/references/dc9_reference_overview.png` with Blender 5.1.2 | Pass with warnings | Rerun before reference-pack PR |
 | `BLENDER_BIN=/home/user1/.local/bin/blender blender --background --python tools/blender/setup_dc9_reference_scene.py` | Create/update reference scene without touching `dc9_master.blend` | Passed with Blender 5.1.2; saved `art-source/blender/dc9_reference_scene.blend`; warning only: `Material.use_nodes` deprecation for Blender 6.0 | Pass | Track Blender API deprecation before Blender 6 |
 | `npm ci` | Install locked dependencies from a portable registry | Passed after normalizing 447 lockfile `resolved` URLs from the internal package gateway to `https://registry.npmjs.org/`; 396 packages installed, 0 vulnerabilities | Pass | Keep lockfile URLs portable |
-| `npm run check` | Lint, typecheck, tests, and build pass | Passed after A320 five-card feedback simplification; lint, typecheck, 16 tests, and production build completed | Pass | Rerun after code changes |
+| `npm run check` | Lint, typecheck, tests, and build pass | Passed after A320 pivot-backed target pass; lint, typecheck, 16 tests, and production build completed | Pass | Rerun after code changes |
 | `python3 -m unittest discover tools/blender/cockpit_pipeline/tests` | Pipeline schemas, stage contracts, gate examples, and workflow eval runner validate | Passed after agent gate validation upgrade; 7 tests | Pass | Rerun after pipeline contract changes |
 | `npm run pipeline:evals` | Deterministic guardrail evals catch known agent workflow failures | Passed; 6/6 eval fixtures covered Tripo proxy promotion, missing Agent 0 authority, optimization contract breaks, aircraft mixing, and spoiler-leak protection | Pass | Add fixtures for new agent failure modes |
 | `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate ...` | Structured gate examples validate for reference authority, runtime contract, material optimization, and browser integration | Passed for all four checked-in example artifacts | Pass | Real milestone gates must validate their own artifact paths |
@@ -27,6 +27,66 @@ Update this file with actual evidence after every milestone. Do not replace fail
 | 768 / 1440 px visual check | No clipping or blocked controls on the active desktop/tablet target | Captured A320 five-card feedback ATP screenshots at 768 and 1440 px plus wrong-placement 1440 px with no console or page errors; mobile mode explicitly deferred by owner request | Pass | Mobile cockpit UI polish is a later pass |
 | DC-9 realism review | Captain view reads as model-correct DC-9 | In-progress against greybox placeholders | In progress | Requires Blender milestone and owner approval |
 | Airbus realism review | Correct model-specific cockpit | A320 Cockpit 2 browser proof now applies a runtime FO/right-seat camera lock and controlled app lighting because the exported game camera was centered and imported GLB lights overexposed the scene; owner visual approval still pending | In progress | Owner review before removing proof label or calling final production art |
+
+## 2026-07-09 Airbus pivot-backed First-Officer target evidence
+
+- Final approval-candidate captures were inspected at the approval-blocking 1440 and 768 px widths. The initial and target-visible pairs show the real shaded GLB and all five compact target pins aligned to their intended cockpit controls.
+- Supporting checks captured a 375 px sanity view and 768 px reduced-motion view. The 375 px result is informative only, per owner scope.
+- Browser evidence:
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-approval-candidate-initial-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-approval-candidate-targets-1440.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-approval-candidate-initial-768.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-approval-candidate-targets-768.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-approval-candidate-sanity-375.png`
+  - `preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-approval-candidate-reduced-motion-768.png`
+- The installed `agent-browser` CLI verified the live Vite app with software-WebGL flags. No application errors were observed; the console retains the known Three `Clock` deprecation warning.
+
+- Added five deterministic A320 First-Officer target pivots and invisible hitboxes:
+  - `AIRBUS_A320_TARGET_SIDESTICK_PIVOT` / `AIRBUS_A320_TARGET_SIDESTICK_HITBOX`
+  - `AIRBUS_A320_TARGET_THRUST_PIVOT` / `AIRBUS_A320_TARGET_THRUST_HITBOX`
+  - `AIRBUS_A320_TARGET_GEAR_PIVOT` / `AIRBUS_A320_TARGET_GEAR_HITBOX`
+  - `AIRBUS_A320_TARGET_RADIO_PIVOT` / `AIRBUS_A320_TARGET_RADIO_HITBOX`
+  - `AIRBUS_A320_TARGET_ALTITUDE_PIVOT` / `AIRBUS_A320_TARGET_ALTITUDE_HITBOX`
+- Assembly validation - pass; status `pass`, 5 label targets, 5 pivot-verified label targets, 5 total pivot-verified targets.
+- Runtime target coordinate correction - pass; the assembly report records both Blender-space locations and intended runtime locations after Blender-to-glTF axis conversion.
+- `python3 -m py_compile tools/blender/cockpit_pipeline/a320_assembly_blender_build.py tools/blender/cockpit_pipeline/a320_assembly_job.py tools/blender/cockpit_pipeline/a320_shading_blender_apply.py tools/blender/cockpit_pipeline/a320_shading_job.py` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.preflight` - pass; Blender 5.1.2, Node v26.3.0.
+- `BLENDER_BIN=/home/user1/.local/bin/blender python3 -m tools.blender.cockpit_pipeline.pipeline_cli run-a320-assembly-job` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/a320-cockpit-2-assembly/manifests/assembly-complete.json` - pass.
+- `BLENDER_BIN=/home/user1/.local/bin/blender python3 -m tools.blender.cockpit_pipeline.pipeline_cli run-a320-shading-job` - pass.
+- `BLENDER_BIN=/home/user1/.local/bin/blender npm run asset:airbus` - pass; regenerated `public/models/airbus-first-officer.glb`.
+- Runtime GLB SHA-256: `d40d50006091230a2a04372cf57ee4ee7f0bfa3bce4bc01ebda05259ca9e482b`; size `39,875,220` bytes.
+- `.cache/assets/airbus/asset-report.json` - pass; validation passed with 121 warnings and 127 candidate notes from preserved imported-source limitations; export contract has 149 `game_id` nodes and 150 selected objects.
+- Shading validation - pass; runtime node names and `game_id` metadata preserved, missing runtime nodes `[]`, material count `12`.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate runtime-contract art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate material-optimization art-source/cockpit-pipeline/gates/a320-cockpit-2-material-optimization.json` - pass.
+- `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate browser-integration art-source/cockpit-pipeline/gates/a320-cockpit-2-browser-integration-proof.json` - pass.
+- `npx gltf-transform validate public/models/airbus-first-officer.glb` - pass; no errors or warnings, with five informational `UNUSED_OBJECT` rows for target mesh `TEXCOORD_0`.
+- `npm run assets:check` - pass; A320 and DC-9 GLBs have no errors or warnings, with informational unused UV/empty-node rows.
+- `npm run pipeline:evals` - pass; 6/6 eval fixtures.
+- `npm run typecheck` - pass.
+- `npm run lint` - pass.
+- `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 4 Chromium tests. The A320 proof verifies GLB-backed projected target mode, then completes card placement through the native keyboard equivalent.
+- `npm run check` - pass; lint, typecheck, 16 Vitest tests, and production build completed.
+- `git diff --check` - pass.
+- Remaining limitation: owner visual approval is still required before removing `A320 PLAYABLE PROOF`; imported source mesh controls outside the five player-facing label targets remain deferred.
+
+## 2026-07-09 Airbus desktop visual correction after owner feedback
+
+Superseded experiment: the contained reference-image backing described below was rejected and removed. The final approval candidate renders the regenerated shaded GLB directly and uses asset-backed projected pins.
+
+- Owner feedback identified the A320 desktop view as visually failed: the sidestick was cut off and the five target boxes were not aligned to the visible controls.
+- Repaired the player-facing desktop composition to use the contained `public/images/a320-fo-view.png` backing at 96vw so the full sidestick and center pedestal remain visible at 1440x900.
+- Kept `public/models/airbus-first-officer.glb` loaded for runtime contract and target collider proof, but hid non-collider GLB meshes in this temporary visual repair because the direct GLB-only render remained too dark for owner-facing target placement.
+- Playwright desktop screenshot captured and inspected: `/tmp/a320-desktop-fixed.png`.
+- Final measured target boxes at 1440x900:
+  - sidestick `x=1267 y=536 w=86 h=153`
+  - thrust `x=252 y=622 w=202 h=117`
+  - gear `x=594 y=419 w=65 h=126`
+  - radio `x=525 y=680 w=187 h=90`
+  - altitude `x=295 y=173 w=302 h=50`
+- `npm run typecheck` - pass during repair loop.
+- Remaining limitation: this is a desktop visual correction, not final direct GLB-only visual approval.
 
 ## 2026-07-09 Airbus production-ready approval candidate evidence
 

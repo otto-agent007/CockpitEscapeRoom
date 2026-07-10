@@ -9,7 +9,29 @@ import bpy
 from mathutils import Vector
 
 
-RUNTIME_METADATA_KEYS = ["game_id", "scene_group", "target_aircraft", "assemblyStage", "source_candidate_id", "assemblyCategory"]
+RUNTIME_METADATA_KEYS = [
+    "game_id",
+    "scene_group",
+    "target_aircraft",
+    "assemblyStage",
+    "source_candidate_id",
+    "assemblyCategory",
+    "control_id",
+    "interaction",
+    "puzzle_id",
+    "rotation_axis",
+    "rest_angle",
+    "active_angle",
+    "pivotVerified",
+    "pivotExportVerified",
+    "colliderOnly",
+    "cueOnly",
+    "cue_shape",
+    "visual_alignment_status",
+    "coordinate_source",
+    "target_game_id",
+    "htmlEquivalent",
+]
 LOOSE_PART_QUARANTINE_COLLECTION = "A320_QUARANTINE_LOOSE_PARTS_REVIEW"
 LOOSE_PART_SOURCE_NODES = {
     "Object_93.001": "Tiny generic source fragment above the rear zoom-out view; not a named A320 cockpit component.",
@@ -50,6 +72,7 @@ def main() -> None:
     recipe_index = {recipe["recipeId"]: recipe for recipe in recipes["recipes"]}
     source_materials = _source_material_index(material_parity)
     assignments = _apply_material_annotation(recipe_index, source_materials)
+    _make_label_target_proxies_invisible()
     texture_report = _write_texture_inventory(output_dir / "texture-inventory-report.json")
     _write_assignment_report(assignments, output_dir / "material-assignment-report.json")
 
@@ -96,6 +119,17 @@ def _expected_runtime_nodes(node_report: dict[str, object], exclude: set[str] | 
     names = {node_report["rootObject"]}
     names.update(node_report["groups"].values())
     names.update(item["runtimeNodeName"] for item in node_report["meshReports"])
+    for report in node_report.get("labelTargetReports", []):
+        if isinstance(report, dict):
+            pivot = report.get("pivotNodeName")
+            collider = report.get("colliderNodeName")
+            cue = report.get("cueNodeName")
+            if isinstance(pivot, str):
+                names.add(pivot)
+            if isinstance(collider, str):
+                names.add(collider)
+            if isinstance(cue, str):
+                names.add(cue)
     names.update(["AIRBUS_A320_LOC_CAPTAIN_EYE", "AIRBUS_A320_LOC_DASHBOARD_FOCUS", "CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW"])
     return sorted(name for name in names if name not in exclude)
 
@@ -180,6 +214,30 @@ def _apply_material_annotation(recipes: dict[str, dict[str, object]], source_mat
             "sourceMaterialParity": parity_records,
         })
     return assignments
+
+
+def _make_label_target_proxies_invisible() -> None:
+    for obj in bpy.context.scene.objects:
+        if obj.type != "MESH" or (obj.get("colliderOnly") is not True and obj.get("cueOnly") is not True):
+            continue
+        if not obj.material_slots:
+            obj.data.materials.append(bpy.data.materials.new("AIRBUS_A320_INVISIBLE_TARGET_COLLIDER"))
+        for slot in obj.material_slots:
+            material = slot.material
+            if not material:
+                continue
+            material.diffuse_color = (0.0, 0.8, 1.0, 0.0)
+            material.use_nodes = True
+            material.blend_method = "BLEND"
+            if hasattr(material, "use_screen_refraction"):
+                material.use_screen_refraction = False
+            bsdf = material.node_tree.nodes.get("Principled BSDF")
+            if not bsdf:
+                continue
+            if "Alpha" in bsdf.inputs:
+                bsdf.inputs["Alpha"].default_value = 0.0
+            if "Base Color" in bsdf.inputs:
+                bsdf.inputs["Base Color"].default_value = (0.0, 0.8, 1.0, 0.0)
 
 
 def _classify_role(obj: bpy.types.Object) -> str:

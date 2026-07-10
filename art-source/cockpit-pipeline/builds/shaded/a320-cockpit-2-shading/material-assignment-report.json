@@ -1,10 +1,10 @@
 {
   "schema": "cockpit-pipeline/material-assignment-report-v1",
-  "assignmentCount": 125,
+  "assignmentCount": 135,
   "countsByRecipe": {
     "a320_display_glass": 40,
     "a320_control_dark_plastic": 46,
-    "a320_preserve_source_pbr": 23,
+    "a320_preserve_source_pbr": 33,
     "a320_soft_trim_fabric": 15,
     "a320_dark_panel_plastic": 1
   },
@@ -1627,6 +1627,136 @@
       "sourceNodeName": "Object_96.001",
       "oldMaterials": [
         "m0mat_015"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": false,
+      "sourceMaterialParity": []
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_TARGET_ALTITUDE_CUE",
+      "assemblyCategory": "unknown",
+      "sourceNodeName": "AIRBUS_A320_TARGET_ALTITUDE_CUE",
+      "oldMaterials": [
+        "AIRBUS_A320_INVISIBLE_TARGET_COLLIDER"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": false,
+      "sourceMaterialParity": []
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_TARGET_ALTITUDE_HITBOX",
+      "assemblyCategory": "unknown",
+      "sourceNodeName": "AIRBUS_A320_TARGET_ALTITUDE_HITBOX",
+      "oldMaterials": [
+        "AIRBUS_A320_INVISIBLE_TARGET_COLLIDER"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": false,
+      "sourceMaterialParity": []
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_TARGET_GEAR_CUE",
+      "assemblyCategory": "unknown",
+      "sourceNodeName": "AIRBUS_A320_TARGET_GEAR_CUE",
+      "oldMaterials": [
+        "AIRBUS_A320_INVISIBLE_TARGET_COLLIDER"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": false,
+      "sourceMaterialParity": []
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_TARGET_GEAR_HITBOX",
+      "assemblyCategory": "unknown",
+      "sourceNodeName": "AIRBUS_A320_TARGET_GEAR_HITBOX",
+      "oldMaterials": [
+        "AIRBUS_A320_INVISIBLE_TARGET_COLLIDER"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": false,
+      "sourceMaterialParity": []
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_TARGET_RADIO_CUE",
+      "assemblyCategory": "unknown",
+      "sourceNodeName": "AIRBUS_A320_TARGET_RADIO_CUE",
+      "oldMaterials": [
+        "AIRBUS_A320_INVISIBLE_TARGET_COLLIDER"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": false,
+      "sourceMaterialParity": []
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_TARGET_RADIO_HITBOX",
+      "assemblyCategory": "unknown",
+      "sourceNodeName": "AIRBUS_A320_TARGET_RADIO_HITBOX",
+      "oldMaterials": [
+        "AIRBUS_A320_INVISIBLE_TARGET_COLLIDER"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": false,
+      "sourceMaterialParity": []
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_TARGET_SIDESTICK_CUE",
+      "assemblyCategory": "unknown",
+      "sourceNodeName": "AIRBUS_A320_TARGET_SIDESTICK_CUE",
+      "oldMaterials": [
+        "AIRBUS_A320_INVISIBLE_TARGET_COLLIDER"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": false,
+      "sourceMaterialParity": []
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_TARGET_SIDESTICK_HITBOX",
+      "assemblyCategory": "unknown",
+      "sourceNodeName": "AIRBUS_A320_TARGET_SIDESTICK_HITBOX",
+      "oldMaterials": [
+        "AIRBUS_A320_INVISIBLE_TARGET_COLLIDER"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": false,
+      "sourceMaterialParity": []
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_TARGET_THRUST_CUE",
+      "assemblyCategory": "unknown",
+      "sourceNodeName": "AIRBUS_A320_TARGET_THRUST_CUE",
+      "oldMaterials": [
+        "AIRBUS_A320_INVISIBLE_TARGET_COLLIDER"
+      ],
+      "newMaterialRecipe": "a320_preserve_source_pbr",
+      "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",
+      "preservedExistingMaterialSlots": true,
+      "sourceTextureLinksPreserved": false,
+      "sourceMaterialParity": []
+    },
+    {
+      "runtimeNodeName": "AIRBUS_A320_TARGET_THRUST_HITBOX",
+      "assemblyCategory": "unknown",
+      "sourceNodeName": "AIRBUS_A320_TARGET_THRUST_HITBOX",
+      "oldMaterials": [
+        "AIRBUS_A320_INVISIBLE_TARGET_COLLIDER"
       ],
       "newMaterialRecipe": "a320_preserve_source_pbr",
       "semanticMaterialRole": "preserve imported Sketchfab PBR material and UVs",

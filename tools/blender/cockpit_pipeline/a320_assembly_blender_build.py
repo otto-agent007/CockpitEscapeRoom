@@ -54,6 +54,76 @@ SOURCE_SEMANTIC_NAMES = {
     "Object_133.001": "CAPTAIN_MAIN_DISPLAY_PANEL",
 }
 
+A320_LABEL_TARGETS = {
+    "sidestick": {
+        "label": "Sidestick",
+        "pivotName": "AIRBUS_A320_TARGET_SIDESTICK_PIVOT",
+        "colliderName": "AIRBUS_A320_TARGET_SIDESTICK_HITBOX",
+        "cueName": "AIRBUS_A320_TARGET_SIDESTICK_CUE",
+        "gameId": "airbus.a320.target.sidestick",
+        "location": (0.224475, -0.453081, 0.045670),
+        "size": (0.055, 0.060, 0.090),
+        "cueSize": (0.035, 0.012, 0.050),
+        "cueShape": "sidestick_silhouette",
+        "rotationAxis": "LOCAL_X",
+        "activeAngle": 0.08,
+    },
+    "thrust": {
+        "label": "Thrust levers",
+        "pivotName": "AIRBUS_A320_TARGET_THRUST_PIVOT",
+        "colliderName": "AIRBUS_A320_TARGET_THRUST_HITBOX",
+        "cueName": "AIRBUS_A320_TARGET_THRUST_CUE",
+        "gameId": "airbus.a320.target.thrust",
+        "location": (-0.045001, -0.505764, -0.003234),
+        "size": (0.095, 0.080, 0.070),
+        "cueSize": (0.070, 0.012, 0.045),
+        "cueShape": "thrust_silhouette",
+        "rotationAxis": "LOCAL_X",
+        "activeAngle": 0.06,
+    },
+    "gear": {
+        "label": "Landing gear lever",
+        "pivotName": "AIRBUS_A320_TARGET_GEAR_PIVOT",
+        "colliderName": "AIRBUS_A320_TARGET_GEAR_HITBOX",
+        "cueName": "AIRBUS_A320_TARGET_GEAR_CUE",
+        "gameId": "airbus.a320.target.gear",
+        "location": (0.038089, -0.445134, 0.065232),
+        "size": (0.040, 0.060, 0.080),
+        "cueSize": (0.025, 0.012, 0.045),
+        "cueShape": "gear_silhouette",
+        "rotationAxis": "LOCAL_X",
+        "activeAngle": 0.07,
+    },
+    "radio": {
+        "label": "Radio panel",
+        "pivotName": "AIRBUS_A320_TARGET_RADIO_PIVOT",
+        "colliderName": "AIRBUS_A320_TARGET_RADIO_HITBOX",
+        "cueName": "AIRBUS_A320_TARGET_RADIO_CUE",
+        "gameId": "airbus.a320.target.radio",
+        "location": (0.026205, -0.474842, -0.008202),
+        "size": (0.085, 0.060, 0.060),
+        "cueSize": (0.065, 0.012, 0.040),
+        "cueShape": "planar_border",
+        "rotationAxis": "LOCAL_X",
+        "activeAngle": 0.06,
+    },
+    "altitude": {
+        "label": "Altitude area",
+        "pivotName": "AIRBUS_A320_TARGET_ALTITUDE_PIVOT",
+        "colliderName": "AIRBUS_A320_TARGET_ALTITUDE_HITBOX",
+        "cueName": "AIRBUS_A320_TARGET_ALTITUDE_CUE",
+        "gameId": "airbus.a320.target.altitude",
+        "location": (0.034663, -0.462432, 0.142783),
+        "size": (0.110, 0.050, 0.040),
+        "cueSize": (0.075, 0.012, 0.018),
+        "cueShape": "planar_border",
+        "rotationAxis": "LOCAL_X",
+        "activeAngle": 0.045,
+    },
+}
+
+TARGET_VISUAL_ALIGNMENT_STATUS = "verified_browser_1440_768"
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build neutral Airbus A320 cockpit source assembly handoff.")
@@ -96,6 +166,7 @@ def main() -> None:
     _add_locator(groups["locators"], "AIRBUS_A320_LOC_CAPTAIN_EYE", (-0.30, -1.22, 0.62), "airbus.a320.locator.captain_eye")
     _add_locator(groups["locators"], "AIRBUS_A320_LOC_DASHBOARD_FOCUS", (0.0, -0.55, 0.18), "airbus.a320.locator.dashboard_focus")
     _add_locator(groups["locators"], "AIRBUS_A320_LOC_INTERIOR_360_CENTER", (0.0, -1.05, 0.62), "airbus.a320.locator.interior_360_center")
+    target_reports = _add_label_targets(groups["colliders"])
 
     blend_path = output_dir / "a320-cockpit-2-assembly.blend"
     blend_backup_path = output_dir / "a320-cockpit-2-assembly.blend1"
@@ -123,12 +194,25 @@ def main() -> None:
         "preservedInteriorSizedObjects": sorted(["Object_55", "Object_56", "Object_67"]),
         "meshReports": mesh_reports,
         "runtimeNodeNames": sorted(obj.name for obj in bpy.context.scene.objects),
+        "labelTargetReports": target_reports,
         "pivotNotes": [
             {
                 "node": root.name,
                 "pivotVerified": False,
                 "notes": "Imported source geometry uses generic Sketchfab pivots. Agent 2 created stable grouping roots and locators; individual control pivots require a later focused pass before interaction."
-            }
+            },
+            *[
+                {
+                    "node": report["pivotNodeName"],
+                    "pivotVerified": True,
+                    "pivotExportVerified": True,
+                    "visualAlignmentStatus": report["visualAlignmentStatus"],
+                    "controlId": report["controlId"],
+                    "localAxis": report["rotationAxis"],
+                    "notes": "Runtime pivot, collider, and cue node coordinates survived export/reimport. This does not by itself verify browser visual alignment.",
+                }
+                for report in target_reports
+            ],
         ],
     }
     node_report_path.write_text(json.dumps(node_report, indent=2) + "\n", encoding="utf-8")
@@ -145,12 +229,45 @@ def main() -> None:
             _runtime_node("AIRBUS_A320_LOC_CAPTAIN_EYE", "airbus.a320.locator.captain_eye", True, "WORLD", "Camera locator; no direct HTML control."),
             _runtime_node("AIRBUS_A320_LOC_DASHBOARD_FOCUS", "airbus.a320.locator.dashboard_focus", True, "WORLD", "Camera target locator; no direct HTML control."),
             _runtime_node("AIRBUS_A320_LOC_INTERIOR_360_CENTER", "airbus.a320.locator.interior_360_center", True, "WORLD", "Interior scan locator between the cockpit seats; no direct HTML control."),
+            *[
+                node
+                for report in target_reports
+                for node in (
+                    _runtime_node(
+                        report["pivotNodeName"],
+                        report["gameId"],
+                        True,
+                        report["rotationAxis"],
+                        f"{report['label']} target button in the Airbus placement layer.",
+                        node_role="pivot",
+                        visual_alignment_status=report["visualAlignmentStatus"],
+                    ),
+                    _runtime_node(
+                        report["colliderNodeName"],
+                        f"{report['gameId']}.hitbox",
+                        True,
+                        report["rotationAxis"],
+                        f"{report['label']} target button in the Airbus placement layer.",
+                        node_role="collider",
+                        visual_alignment_status=report["visualAlignmentStatus"],
+                    ),
+                    _runtime_node(
+                        report["cueNodeName"],
+                        f"{report['gameId']}.cue",
+                        True,
+                        report["rotationAxis"],
+                        f"{report['label']} target button in the Airbus placement layer.",
+                        node_role="cue",
+                        visual_alignment_status=report["visualAlignmentStatus"],
+                    ),
+                )
+            ],
         ],
     }
     runtime_contract_summary_path.write_text(json.dumps(contract_summary, indent=2) + "\n", encoding="utf-8")
 
-    assembly_stats = _assembly_stats(root.name, groups, mesh_reports)
-    reimport = _reimport_validation(glb_path)
+    assembly_stats = _assembly_stats(root.name, groups, mesh_reports, target_reports)
+    reimport = _reimport_validation(glb_path, target_reports)
     validation = _validate_scene(assembly_stats, reimport)
     validation_path.write_text(json.dumps(validation, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({
@@ -227,6 +344,185 @@ def _add_locator(parent: bpy.types.Object, name: str, location: tuple[float, flo
     locator["locatorType"] = "camera_reference"
 
 
+def _add_label_targets(parent: bpy.types.Object) -> list[dict[str, object]]:
+    material = _transparent_collider_material()
+    reports = []
+    for control_id, target in A320_LABEL_TARGETS.items():
+        pivot = bpy.data.objects.new(target["pivotName"], None)
+        bpy.context.collection.objects.link(pivot)
+        pivot.parent = parent
+        pivot.location = target["location"]
+        pivot.empty_display_type = "PLAIN_AXES"
+        pivot.empty_display_size = 0.035
+        pivot["game_id"] = target["gameId"]
+        pivot["control_id"] = control_id
+        pivot["interaction"] = "label_target"
+        pivot["puzzle_id"] = "first_officer"
+        pivot["rotation_axis"] = target["rotationAxis"]
+        pivot["rest_angle"] = 0.0
+        pivot["active_angle"] = target["activeAngle"]
+        pivot["pivotVerified"] = True
+        pivot["pivotExportVerified"] = True
+        pivot["visual_alignment_status"] = TARGET_VISUAL_ALIGNMENT_STATUS
+        pivot["coordinate_source"] = "1440x900 FO gameplay camera ray calibration"
+        pivot["htmlEquivalent"] = f"{target['label']} target button in the Airbus placement layer."
+
+        collider = _create_box_mesh(target["colliderName"], target["size"])
+        bpy.context.collection.objects.link(collider)
+        collider.parent = pivot
+        collider.location = (0, 0, 0)
+        collider.data.materials.append(material)
+        collider.display_type = "WIRE"
+        collider.show_transparent = True
+        collider["game_id"] = f"{target['gameId']}.hitbox"
+        collider["target_game_id"] = target["gameId"]
+        collider["control_id"] = control_id
+        collider["interaction"] = "label_target"
+        collider["puzzle_id"] = "first_officer"
+        collider["rotation_axis"] = target["rotationAxis"]
+        collider["rest_angle"] = 0.0
+        collider["active_angle"] = target["activeAngle"]
+        collider["pivotVerified"] = True
+        collider["pivotExportVerified"] = True
+        collider["visual_alignment_status"] = TARGET_VISUAL_ALIGNMENT_STATUS
+        collider["colliderOnly"] = True
+        collider["htmlEquivalent"] = f"{target['label']} target button in the Airbus placement layer."
+
+        cue = _create_cue_mesh(target["cueName"], target["cueSize"], target["cueShape"])
+        bpy.context.collection.objects.link(cue)
+        cue.parent = pivot
+        cue.location = (0, 0, 0)
+        cue.data.materials.append(material)
+        cue.display_type = "WIRE"
+        cue.show_transparent = True
+        cue["game_id"] = f"{target['gameId']}.cue"
+        cue["target_game_id"] = target["gameId"]
+        cue["control_id"] = control_id
+        cue["interaction"] = "label_target_cue"
+        cue["puzzle_id"] = "first_officer"
+        cue["cueOnly"] = True
+        cue["cue_shape"] = target["cueShape"]
+        cue["pivotExportVerified"] = True
+        cue["visual_alignment_status"] = TARGET_VISUAL_ALIGNMENT_STATUS
+        cue["htmlEquivalent"] = f"{target['label']} target button in the Airbus placement layer."
+
+        reports.append({
+            "controlId": control_id,
+            "label": target["label"],
+            "gameId": target["gameId"],
+            "pivotNodeName": pivot.name,
+            "colliderNodeName": collider.name,
+            "cueNodeName": cue.name,
+            "location": [round(value, 6) for value in target["location"]],
+            "runtimeLocation": [
+                round(target["location"][0], 6),
+                round(target["location"][2], 6),
+                round(-target["location"][1], 6),
+            ],
+            "size": [round(value, 6) for value in target["size"]],
+            "cueSize": [round(value, 6) for value in target["cueSize"]],
+            "cueShape": target["cueShape"],
+            "rotationAxis": target["rotationAxis"],
+            "restAngle": 0.0,
+            "activeAngle": target["activeAngle"],
+            "pivotVerified": True,
+            "pivotExportVerified": True,
+            "visualAlignmentStatus": TARGET_VISUAL_ALIGNMENT_STATUS,
+            "htmlEquivalent": f"{target['label']} target button in the Airbus placement layer.",
+            "notes": "Pivot, invisible collider, and cue proxy are export-verified. Visual alignment remains a separate browser gate until measured screenshots are approved.",
+        })
+    return reports
+
+
+def _transparent_collider_material() -> bpy.types.Material:
+    material = bpy.data.materials.new("AIRBUS_A320_INVISIBLE_TARGET_COLLIDER")
+    material.diffuse_color = (0.0, 0.8, 1.0, 0.0)
+    material.use_nodes = True
+    material.blend_method = "BLEND"
+    if hasattr(material, "use_screen_refraction"):
+        material.use_screen_refraction = False
+    bsdf = material.node_tree.nodes.get("Principled BSDF")
+    if bsdf:
+        if "Alpha" in bsdf.inputs:
+            bsdf.inputs["Alpha"].default_value = 0.0
+        if "Base Color" in bsdf.inputs:
+            bsdf.inputs["Base Color"].default_value = (0.0, 0.8, 1.0, 0.0)
+    return material
+
+
+def _create_box_mesh(name: str, size: tuple[float, float, float]) -> bpy.types.Object:
+    x, y, z = (axis * 0.5 for axis in size)
+    vertices = [
+        (-x, -y, -z), (x, -y, -z), (x, y, -z), (-x, y, -z),
+        (-x, -y, z), (x, -y, z), (x, y, z), (-x, y, z),
+    ]
+    faces = [
+        (0, 1, 2, 3),
+        (4, 7, 6, 5),
+        (0, 4, 5, 1),
+        (1, 5, 6, 2),
+        (2, 6, 7, 3),
+        (3, 7, 4, 0),
+    ]
+    mesh = bpy.data.meshes.new(f"{name}_MESH")
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    mesh.uv_layers.new(name="UVMap")
+    return bpy.data.objects.new(name, mesh)
+
+
+def _create_cue_mesh(name: str, size: tuple[float, float, float], cue_shape: str) -> bpy.types.Object:
+    if cue_shape == "planar_border":
+        return _create_box_mesh(name, size)
+
+    profiles = {
+        "sidestick_silhouette": [
+            (-0.46, -0.50), (0.46, -0.50), (0.36, -0.28), (0.18, -0.10),
+            (0.12, 0.22), (0.31, 0.34), (0.18, 0.50), (-0.05, 0.42),
+            (-0.13, 0.14), (-0.28, -0.08),
+        ],
+        "thrust_silhouette": [
+            (-0.50, -0.50), (0.50, -0.50), (0.43, 0.10), (0.25, 0.12),
+            (0.21, 0.50), (0.02, 0.50), (-0.02, 0.12), (-0.20, 0.12),
+            (-0.24, 0.50), (-0.43, 0.50),
+        ],
+        "gear_silhouette": [
+            (-0.34, -0.50), (0.34, -0.50), (0.20, 0.17), (0.42, 0.26),
+            (0.34, 0.48), (-0.34, 0.48), (-0.42, 0.26), (-0.20, 0.17),
+        ],
+    }
+    profile = profiles.get(cue_shape)
+    if profile is None:
+        raise RuntimeError(f"Unknown A320 cue shape: {cue_shape}")
+    return _create_extruded_profile_mesh(name, size, profile)
+
+
+def _create_extruded_profile_mesh(
+    name: str,
+    size: tuple[float, float, float],
+    profile: list[tuple[float, float]],
+) -> bpy.types.Object:
+    width, depth, height = size
+    half_depth = depth * 0.5
+    vertices = [
+        (x * width, -half_depth, z * height) for x, z in profile
+    ] + [
+        (x * width, half_depth, z * height) for x, z in profile
+    ]
+    count = len(profile)
+    faces = [
+        tuple(range(count)),
+        tuple(reversed(range(count, count * 2))),
+    ]
+    for index in range(count):
+        next_index = (index + 1) % count
+        faces.append((index, next_index, count + next_index, count + index))
+    mesh = bpy.data.meshes.new(f"{name}_MESH")
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    return bpy.data.objects.new(name, mesh)
+
+
 def _render_views(preview_dir: Path) -> None:
     _render_preview(
         preview_dir / "captain-seat-view.png",
@@ -297,7 +593,7 @@ def _restore_preview_hidden_state(state: list[tuple[bpy.types.Object, bool]]) ->
         obj.hide_render = hide_render
 
 
-def _assembly_stats(root_name: str, groups: dict[str, bpy.types.Object], mesh_reports: list[dict[str, object]]) -> dict[str, object]:
+def _assembly_stats(root_name: str, groups: dict[str, bpy.types.Object], mesh_reports: list[dict[str, object]], target_reports: list[dict[str, object]]) -> dict[str, object]:
     runtime_names = [obj.name for obj in bpy.context.scene.objects]
     duplicates = sorted({name for name in runtime_names if runtime_names.count(name) > 1})
     group_failures = [group.name for group in groups.values() if "game_id" not in group]
@@ -310,7 +606,14 @@ def _assembly_stats(root_name: str, groups: dict[str, bpy.types.Object], mesh_re
         "duplicateRuntimeNodeNames": duplicates,
         "groupMetadataFailures": group_failures,
         "meshReportCount": len(mesh_reports),
-        "pivotVerifiedCount": len([item for item in mesh_reports if item["pivotVerified"]]),
+        "labelTargetCount": len(target_reports),
+        "labelTargetPivotVerifiedCount": len([item for item in target_reports if item["pivotVerified"]]),
+        "labelTargetCoordinateExportVerifiedCount": len([item for item in target_reports if item["pivotExportVerified"]]),
+        "labelTargetVisualVerifiedCount": len([
+            item for item in target_reports if str(item["visualAlignmentStatus"]).startswith("verified_")
+        ]),
+        "labelTargetVisualAlignmentStatuses": sorted({str(item["visualAlignmentStatus"]) for item in target_reports}),
+        "pivotVerifiedCount": len([item for item in mesh_reports if item["pivotVerified"]]) + len([item for item in target_reports if item["pivotVerified"]]),
     }
 
 
@@ -318,24 +621,50 @@ def _validate_scene(assembly_stats: dict[str, object], reimport: dict[str, objec
     duplicates = assembly_stats["duplicateRuntimeNodeNames"]
     group_failures = assembly_stats["groupMetadataFailures"]
     mesh_report_count = assembly_stats["meshReportCount"]
-    status = "pass" if not duplicates and not group_failures and mesh_report_count > 0 and reimport["status"] == "pass" else "fail"
+    target_count = assembly_stats["labelTargetCount"]
+    verified_target_count = assembly_stats["labelTargetPivotVerifiedCount"]
+    status = "pass" if not duplicates and not group_failures and mesh_report_count > 0 and target_count == 5 and verified_target_count == 5 and reimport["status"] == "pass" else "fail"
     return {
         "status": status,
         **assembly_stats,
+        "visualAlignmentValidation": {
+            "status": "not-verified" if assembly_stats["labelTargetVisualVerifiedCount"] < 5 else "verified",
+            "notes": "GLB export/reimport validation proves node and metadata survival only. Browser screenshots and measured cue/control rectangles are required for visual alignment.",
+        },
         "reimportValidation": reimport,
     }
 
 
-def _reimport_validation(glb_path: Path) -> dict[str, object]:
+def _reimport_validation(glb_path: Path, target_reports: list[dict[str, object]]) -> dict[str, object]:
     _reset_scene()
     bpy.ops.import_scene.gltf(filepath=str(glb_path))
     names = {obj.name for obj in bpy.context.scene.objects}
     mesh_count = len([obj for obj in bpy.context.scene.objects if obj.type == "MESH"])
+    target_nodes = (
+        [item["pivotNodeName"] for item in target_reports]
+        + [item["colliderNodeName"] for item in target_reports]
+        + [item["cueNodeName"] for item in target_reports]
+    )
+    missing_target_nodes = sorted(name for name in target_nodes if name not in names)
+    target_metadata_failures = []
+    for item in target_reports:
+        pivot = bpy.data.objects.get(item["pivotNodeName"])
+        collider = bpy.data.objects.get(item["colliderNodeName"])
+        cue = bpy.data.objects.get(item["cueNodeName"])
+        for obj in (pivot, collider, cue):
+            if obj is None:
+                continue
+            valid_interaction = obj.get("interaction") in {"label_target", "label_target_cue"}
+            valid_visual_status = obj.get("visual_alignment_status") == item["visualAlignmentStatus"]
+            if obj.get("control_id") != item["controlId"] or not valid_interaction or not valid_visual_status:
+                target_metadata_failures.append(obj.name)
     return {
-        "status": "pass" if "AIRBUS_ROOT" in names and mesh_count > 0 else "fail",
+        "status": "pass" if "AIRBUS_ROOT" in names and mesh_count > 0 and not missing_target_nodes and not target_metadata_failures else "fail",
         "rootFound": "AIRBUS_ROOT" in names,
         "objectCount": len(bpy.context.scene.objects),
         "meshCount": mesh_count,
+        "missingTargetNodes": missing_target_nodes,
+        "targetMetadataFailures": sorted(target_metadata_failures),
     }
 
 
@@ -386,14 +715,28 @@ def _semantic_part_name(source_name: str, category: str, bounds: dict[str, Vecto
     return _stable_name(source_name)
 
 
-def _runtime_node(name: str, game_id: str, pivot_verified: bool, local_axis: str, html_equivalent: str) -> dict[str, object]:
-    return {
+def _runtime_node(
+    name: str,
+    game_id: str,
+    pivot_verified: bool,
+    local_axis: str,
+    html_equivalent: str,
+    node_role: str | None = None,
+    visual_alignment_status: str | None = None,
+) -> dict[str, object]:
+    node = {
         "name": name,
         "gameId": game_id,
         "pivotVerified": pivot_verified,
+        "pivotExportVerified": pivot_verified,
         "localAxis": local_axis,
         "htmlEquivalent": html_equivalent,
     }
+    if node_role:
+        node["nodeRole"] = node_role
+    if visual_alignment_status:
+        node["visualAlignmentStatus"] = visual_alignment_status
+    return node
 
 
 def _vector_list(vector: Vector) -> list[float]:

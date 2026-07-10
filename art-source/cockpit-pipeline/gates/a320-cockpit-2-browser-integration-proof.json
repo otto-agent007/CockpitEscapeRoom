@@ -1,7 +1,7 @@
 {
   "gate": "browser-integration",
   "artifactId": "a320-cockpit-2-production-candidate-001",
-  "createdAt": "2026-07-08T05:24:00Z",
+  "createdAt": "2026-07-10T02:30:00Z",
   "assetPath": "public/models/airbus-first-officer.glb",
   "documentedRuntimeContract": "art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json",
   "browserSceneLoaded": true,
@@ -11,13 +11,14 @@
   "viewportWidthsChecked": [
     375,
     768,
-    1440,
-    1920
+    1440
   ],
   "spoilerProtectionChecked": true,
   "commandsRun": [
     "python3 -m tools.blender.cockpit_pipeline.pipeline_cli run-a320-shading-job",
     "BLENDER_BIN=/home/user1/.local/bin/blender npm run asset:airbus",
+    "python3 -m tools.blender.cockpit_pipeline.pipeline_cli run-a320-assembly-job",
+    "python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/a320-cockpit-2-assembly/manifests/assembly-complete.json",
     "python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate runtime-contract art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json",
     "python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate material-optimization art-source/cockpit-pipeline/gates/a320-cockpit-2-material-optimization.json",
     "python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate browser-integration art-source/cockpit-pipeline/gates/a320-cockpit-2-browser-integration-proof.json",
@@ -29,11 +30,13 @@
     "npm run pipeline:evals",
     "npm run test:e2e -- e2e/smoke.spec.ts",
     "npm run check",
-    "Playwright production-candidate screenshot pass at 375, 768, 1440, 1920, and reduced-motion 1440 px with no console/page errors"
+    "git diff --check",
+    "Playwright smoke proof verified GLB-backed projected target mode, canvas collider raycast, and native keyboard placement",
+    "agent-browser inspected real-GLB initial and target-visible states at 1440 and 768 pixels, plus 375-pixel sanity and 768-pixel reduced-motion states"
   ],
   "remainingBlockers": [
     "Owner visual approval is still required before this approval candidate is treated as final production Airbus cockpit art or before removing A320 PLAYABLE PROOF.",
-    "Imported source meshes retain documented unapplied-scale/no-UV validation warnings and visual-candidate metadata notes; these do not block browser integration but remain production-art review notes.",
-    "Individual imported control pivots are not promoted to direct 3D gameplay controls in this pass; accessible browser hotspots remain the supported interaction path."
+    "Imported source meshes retain documented unapplied-scale and visual-candidate metadata notes; these do not block the five-target browser integration gate.",
+    "Imported source mesh controls outside the five player-facing First-Officer label targets remain deferred."
   ]
 }

@@ -2,8 +2,8 @@
 
 ## Branch And Stage
 
-- Branch: `agent/a320-cockpit-production-lighting`
-- Commit: `9cc4d186522ceafca94def7a131f2acc6a39d3fc`
+- Branch: `agent/a320-production-ready-candidate`
+- Commit: `f4bda58c00da05d39df27ceb7ecfeb5ff7a10bd5`
 - Assembly job: `a320-cockpit-2-assembly`
 - Shading job: `a320-cockpit-2-shading`
 - Stage: `shading_complete`
@@ -38,7 +38,7 @@ This pass also performs a conservative zoom-out cleanup before export. It quaran
 - `a320_control_dark_plastic`: `46` objects
 - `a320_dark_panel_plastic`: `1` objects
 - `a320_display_glass`: `40` objects
-- `a320_preserve_source_pbr`: `23` objects
+- `a320_preserve_source_pbr`: `33` objects
 - `a320_soft_trim_fabric`: `15` objects
 
 ## Texture Inventory
@@ -88,8 +88,8 @@ This pass also performs a conservative zoom-out cleanup before export. It quaran
 ## Known Limitations
 
 - This is a material/optimization handoff for a prebuilt A320 cockpit source, not final browser integration.
-- Some source mesh chunks remain compound parts with broad semantic labels; they are preserved for visual completeness and will need finer splitting only where downstream interactions require independent pivots.
-- Individual interactive control pivots remain unverified from Agent 2 and are not changed in this pass.
+- Five First-Officer pivot, collider, and cue-proxy contracts survive shaded export/reimport. That coordinate check does not by itself verify browser visual alignment; imported source mesh chunks outside that player-facing set remain compound parts with broad semantic labels.
+- Finer imported-source mesh splitting remains deferred until downstream interactions require independent visible control pivots.
 - Display treatment is restrained preview material work; live avionics UI and accessible HTML mirrors remain downstream browser work.
 - Human review is required before shaded approval or public model promotion.
 

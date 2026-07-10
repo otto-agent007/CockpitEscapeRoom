@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { Hud } from './components/Hud'
-import { gameCopy } from './game/config'
+import { gameCopy, type FirstOfficerControl } from './game/config'
 import { clearGameState } from './game/storage'
 import { useGame } from './game/useGame'
 import type { AirbusHotspotScreenPositions } from './scenes/PrototypeScene'
@@ -35,12 +35,22 @@ export default function App() {
   const skipPrototypeScene = shouldSkipPrototypeScene()
   const [airbusSceneReady, setAirbusSceneReady] = useState(false)
   const [airbusHotspots, setAirbusHotspots] = useState<AirbusHotspotScreenPositions>({})
+  const [selectedAirbusCard, setSelectedAirbusCard] = useState<string | null>(null)
   const markAirbusSceneReady = useCallback(() => {
     setAirbusSceneReady(true)
   }, [])
   const updateAirbusHotspots = useCallback((positions: AirbusHotspotScreenPositions) => {
-    setAirbusHotspots(positions)
+    setAirbusHotspots((current) => {
+      if (Object.keys(positions).length === 0 && Object.keys(current).length > 0) return current
+      return positions
+    })
   }, [])
+  const activeSelectedAirbusCard = state.phase === 'airbus' ? selectedAirbusCard : null
+  const placeSelectedAirbusCard = useCallback((control: FirstOfficerControl) => {
+    if (!activeSelectedAirbusCard) return
+    dispatch({ type: 'ASSIGN_AIRBUS_CARD', control, card: activeSelectedAirbusCard })
+    setSelectedAirbusCard(null)
+  }, [activeSelectedAirbusCard, dispatch])
 
   const restart = () => {
     const confirmed = window.confirm(`Restart ${gameCopy.title} and clear saved progress?`)
@@ -48,6 +58,7 @@ export default function App() {
     clearGameState()
     setAirbusSceneReady(false)
     setAirbusHotspots({})
+    setSelectedAirbusCard(null)
     dispatch({ type: 'RESET' })
   }
 
@@ -103,8 +114,10 @@ export default function App() {
             lockerHatRevealed={state.lockerHatRevealed}
             captainRewardUnlocked={state.captainRewardUnlocked}
             reducedMotion={reducedMotion}
+            selectedAirbusCard={activeSelectedAirbusCard}
             onAirbusReady={markAirbusSceneReady}
             onAirbusHotspotsChange={updateAirbusHotspots}
+            onAirbusTarget={placeSelectedAirbusCard}
             onSwitch={(switchId) => dispatch({ type: 'ACTIVATE_SWITCH', switchId })}
             onMars={() => dispatch({ type: 'UNLOCK_MARS' })}
             onLockerHat={() => dispatch({ type: 'REVEAL_CAPTAIN_HAT' })}
@@ -117,6 +130,9 @@ export default function App() {
         onRestart={restart}
         airbusSceneReady={skipPrototypeScene || airbusSceneReady}
         airbusHotspots={skipPrototypeScene ? {} : airbusHotspots}
+        airbusMeshPickingEnabled={!skipPrototypeScene}
+        selectedAirbusCard={activeSelectedAirbusCard}
+        onSelectedAirbusCardChange={setSelectedAirbusCard}
       />
     </main>
   )

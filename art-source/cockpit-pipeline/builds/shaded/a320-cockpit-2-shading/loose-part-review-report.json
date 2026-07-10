@@ -8,7 +8,7 @@
     "AIRBUS_A320_STATIC_121_OBJECT_95",
     "AIRBUS_A320_STATIC_122_OBJECT_96_001"
   ],
-  "reviewedCount": 125,
+  "reviewedCount": 135,
   "reviewedObjects": [
     {
       "name": "AIRBUS_A320_DISPLAYS_002_RIGHT_FORWARD_PANEL_SURFACE",
@@ -2509,6 +2509,206 @@
         ]
       },
       "vertexCount": 269
+    },
+    {
+      "name": "AIRBUS_A320_TARGET_ALTITUDE_CUE",
+      "sourceNodeName": "",
+      "semanticPartName": "",
+      "decision": "preserve",
+      "reason": "Named or semantically classified A320 cockpit geometry.",
+      "bounds": {
+        "center": [
+          0.034663,
+          -0.462432,
+          0.142783
+        ],
+        "size": [
+          0.075,
+          0.012,
+          0.018
+        ]
+      },
+      "vertexCount": 24
+    },
+    {
+      "name": "AIRBUS_A320_TARGET_ALTITUDE_HITBOX",
+      "sourceNodeName": "",
+      "semanticPartName": "",
+      "decision": "preserve",
+      "reason": "Named or semantically classified A320 cockpit geometry.",
+      "bounds": {
+        "center": [
+          0.034663,
+          -0.462432,
+          0.142783
+        ],
+        "size": [
+          0.11,
+          0.05,
+          0.04
+        ]
+      },
+      "vertexCount": 24
+    },
+    {
+      "name": "AIRBUS_A320_TARGET_GEAR_CUE",
+      "sourceNodeName": "",
+      "semanticPartName": "",
+      "decision": "preserve",
+      "reason": "Named or semantically classified A320 cockpit geometry.",
+      "bounds": {
+        "center": [
+          0.038089,
+          -0.445134,
+          0.064782
+        ],
+        "size": [
+          0.021,
+          0.012,
+          0.0441
+        ]
+      },
+      "vertexCount": 48
+    },
+    {
+      "name": "AIRBUS_A320_TARGET_GEAR_HITBOX",
+      "sourceNodeName": "",
+      "semanticPartName": "",
+      "decision": "preserve",
+      "reason": "Named or semantically classified A320 cockpit geometry.",
+      "bounds": {
+        "center": [
+          0.038089,
+          -0.445134,
+          0.065232
+        ],
+        "size": [
+          0.04,
+          0.06,
+          0.08
+        ]
+      },
+      "vertexCount": 24
+    },
+    {
+      "name": "AIRBUS_A320_TARGET_RADIO_CUE",
+      "sourceNodeName": "",
+      "semanticPartName": "",
+      "decision": "preserve",
+      "reason": "Named or semantically classified A320 cockpit geometry.",
+      "bounds": {
+        "center": [
+          0.026205,
+          -0.474842,
+          -0.008202
+        ],
+        "size": [
+          0.065,
+          0.012,
+          0.04
+        ]
+      },
+      "vertexCount": 24
+    },
+    {
+      "name": "AIRBUS_A320_TARGET_RADIO_HITBOX",
+      "sourceNodeName": "",
+      "semanticPartName": "",
+      "decision": "preserve",
+      "reason": "Named or semantically classified A320 cockpit geometry.",
+      "bounds": {
+        "center": [
+          0.026205,
+          -0.474842,
+          -0.008202
+        ],
+        "size": [
+          0.085,
+          0.06,
+          0.06
+        ]
+      },
+      "vertexCount": 24
+    },
+    {
+      "name": "AIRBUS_A320_TARGET_SIDESTICK_CUE",
+      "sourceNodeName": "",
+      "semanticPartName": "",
+      "decision": "preserve",
+      "reason": "Named or semantically classified A320 cockpit geometry.",
+      "bounds": {
+        "center": [
+          0.224475,
+          -0.453081,
+          0.04567
+        ],
+        "size": [
+          0.0322,
+          0.012,
+          0.05
+        ]
+      },
+      "vertexCount": 60
+    },
+    {
+      "name": "AIRBUS_A320_TARGET_SIDESTICK_HITBOX",
+      "sourceNodeName": "",
+      "semanticPartName": "",
+      "decision": "preserve",
+      "reason": "Named or semantically classified A320 cockpit geometry.",
+      "bounds": {
+        "center": [
+          0.224475,
+          -0.453081,
+          0.04567
+        ],
+        "size": [
+          0.055,
+          0.06,
+          0.09
+        ]
+      },
+      "vertexCount": 24
+    },
+    {
+      "name": "AIRBUS_A320_TARGET_THRUST_CUE",
+      "sourceNodeName": "",
+      "semanticPartName": "",
+      "decision": "preserve",
+      "reason": "Named or semantically classified A320 cockpit geometry.",
+      "bounds": {
+        "center": [
+          -0.045001,
+          -0.505764,
+          -0.003234
+        ],
+        "size": [
+          0.07,
+          0.012,
+          0.045
+        ]
+      },
+      "vertexCount": 60
+    },
+    {
+      "name": "AIRBUS_A320_TARGET_THRUST_HITBOX",
+      "sourceNodeName": "",
+      "semanticPartName": "",
+      "decision": "preserve",
+      "reason": "Named or semantically classified A320 cockpit geometry.",
+      "bounds": {
+        "center": [
+          -0.045001,
+          -0.505764,
+          -0.003234
+        ],
+        "size": [
+          0.095,
+          0.08,
+          0.07
+        ]
+      },
+      "vertexCount": 24
     }
   ]
 }
