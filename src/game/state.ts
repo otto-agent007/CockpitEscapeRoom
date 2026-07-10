@@ -17,6 +17,7 @@ export type GameAction =
   | { type: 'ASSIGN_AIRBUS_DECOY_CARD'; decoy: FirstOfficerDecoy; card: string }
   | { type: 'SET_AIRBUS_CLOCK_ANSWER'; value: string }
   | { type: 'SUBMIT_AIRBUS_CLOCK' }
+  | { type: 'CONTINUE_TO_LOCKER' }
   | { type: 'COMPLETE_LOCKER_OBJECT'; objectId: LockerInteraction; response?: string }
   | { type: 'REVEAL_CAPTAIN_HAT' }
   | { type: 'ACTIVATE_SWITCH'; switchId: SwitchId }
@@ -136,7 +137,7 @@ function controlAnswerFeedback(assignments: AirbusAssignments): string {
     return card !== null && card !== firstOfficerFlow.controlMatch[control]
   })
   if (wrongControl) {
-    return `Red means ${firstOfficerFlow.controlLabels[wrongControl]} has the wrong label. Try another card there.`
+    return 'That card does not match this cockpit control. Try it somewhere else.'
   }
 
   const remaining = firstOfficerFlow.controlCards.length - placed
@@ -144,7 +145,12 @@ function controlAnswerFeedback(assignments: AirbusAssignments): string {
     return `Green means correct. ${remaining} label${remaining === 1 ? '' : 's'} left.`
   }
 
-  return 'All five labels are correct. Answer the ATP question to unlock the locker.'
+  return 'All five labels are correct. Answer the Airline Transport Pilot question to qualify.'
+}
+
+function isAirlineTransportPilotAnswerCorrect(value: string): boolean {
+  const normalized = normalize(value)
+  return firstOfficerFlow.clockAnswers.some((answer) => normalize(answer) === normalized)
 }
 
 function isLockerAnswerCorrect(objectId: LockerInteraction, response: string): boolean {
@@ -241,14 +247,17 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         [action.control]: action.card,
       }
       const feedback = controlAnswerFeedback(nextAssignments)
+      const correctPlacement = action.card === firstOfficerFlow.controlMatch[action.control]
+      const hasWrongPlacement = firstOfficerFlow.controlIds.some((control) => {
+        const card = nextAssignments[control]
+        return card !== null && card !== firstOfficerFlow.controlMatch[control]
+      })
       return {
         ...state,
         airbusAssignments: nextAssignments,
         airbusDecoyAssignments: cleared.decoyAssignments,
         airbusClockAnswer: '',
-        statusMessage: action.card === firstOfficerFlow.controlMatch[action.control] &&
-          !feedback.startsWith('Red means') &&
-          !allControlsCorrect(nextAssignments)
+        statusMessage: correctPlacement && !hasWrongPlacement && !allControlsCorrect(nextAssignments)
           ? firstOfficerFlow.controlHints[action.control]
           : feedback,
       }
@@ -291,19 +300,26 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           statusMessage: 'Fix the red label boxes before moving on.',
         }
       }
-      if (normalize(state.airbusClockAnswer) !== normalize(firstOfficerFlow.clockAnswer)) {
+      if (!isAirlineTransportPilotAnswerCorrect(state.airbusClockAnswer)) {
         return {
           ...state,
-          statusMessage: 'ATP answer is not yet recognized. Try the standard hour milestone.',
+          statusMessage: 'That Airline Transport Pilot answer is not yet recognized. Try the standard hour milestone.',
         }
       }
       return {
         ...state,
-        phase: 'locker',
         completedPuzzles: unique([...state.completedPuzzles, 'firstOfficer']),
-        statusMessage: `${firstOfficerFlow.clockFeedback} ${firstOfficerFlow.firstCompleteBanner}. ${firstOfficerFlow.lockerAccessText}`,
+        statusMessage: `${firstOfficerFlow.clockFeedback} ${firstOfficerFlow.knowledgeLoggedText}`,
       }
     }
+
+    case 'CONTINUE_TO_LOCKER':
+      if (state.phase !== 'airbus' || !state.completedPuzzles.includes('firstOfficer')) return state
+      return {
+        ...state,
+        phase: 'locker',
+        statusMessage: `${firstOfficerFlow.firstCompleteBanner}. ${firstOfficerFlow.lockerAccessText}`,
+      }
 
     case 'COMPLETE_LOCKER_OBJECT': {
       if (state.phase !== 'locker') return state

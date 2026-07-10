@@ -34,6 +34,10 @@ Wrong answers must never erase completed progress or force a restart.
 
 First-Officer Mode teaches the family the language of the cockpit in a fun, game-like way. Use a modern A320 cockpit, clear labels, safe retry behavior, progressive hints, and accessible HTML equivalents for required 3D interactions.
 
+It should feel like the family entering Dad’s cockpit and learning the language of his career. The welcome is: **“Welcome aboard, First Officer. Complete your cockpit familiarization and crew qualification.”** The current production-v1 interaction uses five tactile training cards—sidestick, thrust levers, gear lever, radio panel, and altitude area—with immediate explanations, green confirmation, and clue-based retries. Primary Flight Display familiarization and a direct cockpit-clock interaction remain future candidates rather than additions to the current five-card milestone.
+
+After all five labels are correct, ask: **“What is the minimum total flight time (hours) required to qualify for a standard Airline Transport Pilot certificate?”** Accept `1500`, `1,500`, `1500 hour`, and `1500 hours`. The earned response is **“Airline Transport Pilot milestone recognized. First-Officer knowledge logged.”**
+
 Do not foreshadow Pop T Captain Mode, the DC-9-50, the Model Y, or Flight Mode during this section.
 
 ## Locker Room / Captain’s Locker Scene
@@ -41,6 +45,8 @@ Do not foreshadow Pop T Captain Mode, the DC-9-50, the Model Y, or Flight Mode d
 The locker room is the emotional hinge of the game. It should be quieter, warmer, and more intimate than the Airbus A320 cockpit. The player inspects personal objects, memory clues, and a final captain’s hat reveal before Pop T Captain Mode unlocks.
 
 The locker should feel like a place, not a quiz menu. Use a mix of click-to-learn moments, short prompts, and one final promotion trigger.
+
+The emotional idea is: **“Before you can sit in the captain’s seat, understand the captain.”** Personal objects include a baseball memory connected to Anthony Muñoz, a pilot-watch clue connected to jet lag, airline wings and second-in-command experience, investing wisdom, and the final shadowed captain’s hat reveal. These expanded object concepts are creative direction for the dedicated locker milestone and do not change the current Airbus scope.
 
 ## Pop T Captain Mode — DC-9-50
 
@@ -73,6 +79,8 @@ Reward sequence:
 6. The Model Y enters a short **Flight Mode** transformation.
 7. The final pose is hover-ready or launch-ready while remaining clearly recognizable as the red Model Y.
 
+An Optimus 3 ceremonial escort is a future reward-scene concept only. If pursued, it appears after legacy authorization and must never transform the vehicle, reveal the Model Y early, or displace the Model Y as the hero reward.
+
 Flight Mode visual language:
 
 - recognizable red Model Y base form
@@ -90,7 +98,7 @@ The Father’s Day message should happen after the Model Y reveal and Flight Mod
 
 Suggested placeholder:
 
-> Happy Father’s Day, Pop T. This whole cockpit was built around the lessons you gave us: stay calm, scan carefully, trust your crew, and enjoy the ride. We love you, and your next chapter is cleared for departure.
+> Happy Father’s Day, Pop T. From the baseball field to the captain’s seat, from the DC-9 to the Airbus, you showed us how preparation, calm judgment, teamwork, and leadership can carry a family anywhere. This game was built from the lessons you gave us. Your crew loves you.
 
 ## Mars Easter egg
 
@@ -146,7 +154,7 @@ Essential gameplay must not exist only inside WebGL. Use HTML overlays for instr
 
 ## Approval gates
 
-1. Airbus A320 First-Officer cockpit interaction proof
+1. Airbus A320 First-Officer cockpit interaction proof — **approved for production by the owner on 2026-07-10**
 2. Locker room reveal proof
 3. DC-9-50 captain-view proof
 4. First Pop T Captain puzzle

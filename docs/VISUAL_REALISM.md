@@ -25,6 +25,8 @@ The owner must answer “yes” to: **Does this feel unmistakably like the DC-9 
 
 ## Airbus approval criteria
 
+**Status:** The current Airbus A320 First-Officer cockpit, right-seat camera, and five-target browser presentation were approved by the owner for production on 2026-07-10. Future changes must preserve that approved baseline or reopen the visual gate with new comparison evidence.
+
 Do not model the production Airbus cockpit until the exact model is confirmed. The blockout must demonstrate model-specific:
 
 - Side-stick and seat relationship.

@@ -32,6 +32,13 @@ export const firstOfficerFlow = {
     radio: 'Radio panel',
     altitude: 'Altitude area',
   } as const,
+  controlDescriptions: {
+    sidestick: 'Used to guide the aircraft.',
+    thrust: 'Controls engine power.',
+    gear: 'Controls landing gear position.',
+    radio: 'Used for communication.',
+    altitude: 'Shows how high the aircraft is.',
+  } as const,
   decoyLabels: {
     leftPanelKnobs: 'Left panel knobs',
     rightDisplay: 'Right display screen',
@@ -45,9 +52,12 @@ export const firstOfficerFlow = {
     radio: 'Right. That’s the radio panel.',
     altitude: 'Correct. That’s where altitude is read.',
   } as const,
-  clockQuestion: 'How many flight hours are needed for a standard ATP certificate?',
+  clockQuestion:
+    'What is the minimum total flight time (hours) required to qualify for a standard Airline Transport Pilot certificate?',
   clockAnswer: '1500',
-  clockFeedback: 'ATP milestone recognized: 1500.',
+  clockAnswers: ['1500', '1500hour', '1500hours'] as const,
+  clockFeedback: 'Airline Transport Pilot milestone recognized.',
+  knowledgeLoggedText: 'First-Officer knowledge logged.',
   firstCompleteBanner: 'FIRST-OFFICER MODE COMPLETE',
   lockerAccessText: 'Locker access granted.',
 } as const
