@@ -81,4 +81,55 @@ describe('game storage', () => {
     })
     expect(loadGameState(storage)).toEqual(createInitialState())
   })
+
+  it('migrates an in-progress schema-v3 locker without erasing First-Officer progress', () => {
+    const legacy = {
+      ...createInitialState(),
+      schemaVersion: 3,
+      phase: 'locker',
+      lockerCompleted: ['watch', 'nameplate'],
+      completedPuzzles: ['firstOfficer'],
+    }
+    delete (legacy as Partial<GameState>).lockerAttempts
+    const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(legacy) })
+
+    const migrated = loadGameState(storage)
+    expect(migrated.schemaVersion).toBe(5)
+    expect(migrated.lockerCompleted).toEqual(['watch'])
+    expect(migrated.lockerAttempts).toEqual({ watch: 0, baseball: 0 })
+    expect(migrated.lockerIntroCompleted).toBe(true)
+    expect(migrated.completedPuzzles).toEqual(['firstOfficer'])
+  })
+
+  it('migrates a schema-v4 locker as an already-seen intro without losing progress', () => {
+    const legacy = {
+      ...createInitialState(),
+      schemaVersion: 4,
+      phase: 'locker',
+      lockerCompleted: ['watch'],
+      completedPuzzles: ['firstOfficer'],
+    }
+    delete (legacy as Partial<GameState>).lockerIntroCompleted
+    const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(legacy) })
+
+    const migrated = loadGameState(storage)
+    expect(migrated.schemaVersion).toBe(5)
+    expect(migrated.lockerIntroCompleted).toBe(true)
+    expect(migrated.lockerCompleted).toEqual(['watch'])
+    expect(migrated.completedPuzzles).toEqual(['firstOfficer'])
+  })
+
+  it('preserves a schema-v3 unlocked hat as completed new locker memories', () => {
+    const legacy = {
+      ...createInitialState(),
+      schemaVersion: 3,
+      phase: 'locker',
+      lockerCompleted: ['watch', 'baseball', 'nameplate', 'routeStrip', 'checklist'],
+      lockerHatRevealed: true,
+    }
+    delete (legacy as Partial<GameState>).lockerAttempts
+    const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(legacy) })
+
+    expect(loadGameState(storage).lockerCompleted).toEqual(['watch', 'baseball', 'wings', 'chargingBull'])
+  })
 })

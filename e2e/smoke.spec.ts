@@ -27,6 +27,7 @@ function createLockerState(): GameState {
       altitude: 'ALTITUDE',
     },
     completedPuzzles: ['firstOfficer'],
+    lockerIntroCompleted: true,
     statusMessage: 'FIRST-OFFICER MODE COMPLETE. Locker access granted.',
   }
 }
@@ -35,7 +36,7 @@ function createCaptainState(): GameState {
   return {
     ...createLockerState(),
     phase: 'captain',
-    lockerCompleted: [...lockerFlow.requiredInteractionIds],
+    lockerCompleted: [...lockerFlow.memoryIds],
     lockerHatRevealed: true,
     captainModeUnlocked: true,
     completedPuzzles: ['firstOfficer', 'locker'],
@@ -133,10 +134,11 @@ test('Airbus onboarding, locker reveal, and captain completion unlock reward', a
   await expect(qualification).toBeVisible()
   await expect(qualification.getByRole('button', { name: 'Continue' })).toBeFocused()
   await qualification.getByRole('button', { name: 'Continue' }).click()
+  await page.getByRole('button', { name: 'Skip cinematic' }).click()
 
-  await expect(page.getByRole('heading', { name: 'Locker reveal sequence' })).toBeVisible()
-  await expect(page.getByRole('textbox', { name: 'Right-seat hours' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Confirm watch answer' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: "Before the captain's seat" })).toBeVisible()
+  await page.getByRole('button', { name: 'Inspect watch' }).click()
+  await expect(page.getByRole('button', { name: 'Jet lag' })).toBeVisible()
 
   await seedGameState(page, createCaptainState())
   await expect(page.getByRole('heading', { name: 'POP T CAPTAIN MODE' })).toBeVisible()
@@ -190,11 +192,12 @@ test('Airbus cards show immediate placement feedback and recover', async ({ page
   await expect(page.getByText('4/5')).toBeVisible()
   await placeAirbusCard(page, 'THRUST', 'Thrust levers')
   await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Locker reveal sequence' })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: "Before the captain's seat" })).toHaveCount(0)
   await page.getByRole('textbox', { name: 'Airline Transport Pilot answer' }).fill('1500')
   await page.getByRole('button', { name: 'Verify' }).click()
   await page.getByRole('button', { name: 'Continue' }).click()
-  await expect(page.getByRole('heading', { name: 'Locker reveal sequence' })).toBeVisible()
+  await page.getByRole('button', { name: 'Skip cinematic' }).click()
+  await expect(page.getByRole('heading', { name: "Before the captain's seat" })).toBeVisible()
 })
 
 test('saved progress persists during Airbus phase', async ({ page }) => {

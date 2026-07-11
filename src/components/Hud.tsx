@@ -1,7 +1,8 @@
 import { useMemo, useState, type DragEvent } from 'react'
-import { dc9LegacyFlow, firstOfficerFlow, gameCopy, lockerFlow, type FirstOfficerControl, type LockerInteraction } from '../game/config'
+import { dc9LegacyFlow, firstOfficerFlow, gameCopy, type FirstOfficerControl, type LockerMemoryId } from '../game/config'
 import { SWITCH_ORDER, gameProgress, type GameAction, type GameState, type SwitchId } from '../game/state'
 import type { AirbusHotspotScreenPositions } from '../scenes/PrototypeScene'
+import { LockerHud } from './LockerHud'
 
 interface HudProps {
   state: GameState
@@ -12,6 +13,8 @@ interface HudProps {
   airbusMeshPickingEnabled: boolean
   selectedAirbusCard: string | null
   onSelectedAirbusCardChange: (card: string | null) => void
+  selectedLockerMemory: LockerMemoryId | null
+  onSelectedLockerMemoryChange: (memory: LockerMemoryId | null) => void
 }
 
 const switchLabels: Record<SwitchId, string> = {
@@ -19,8 +22,6 @@ const switchLabels: Record<SwitchId, string> = {
   navigation: 'Navigation',
   cabin: 'Cabin circuit',
 }
-
-const lockerItems: ReadonlyArray<LockerInteraction> = [...lockerFlow.requiredInteractionIds]
 
 const airbusTargetMeta: Record<FirstOfficerControl, { x: number; y: number }> = {
   sidestick: { x: 72, y: 79 },
@@ -39,12 +40,11 @@ export function Hud({
   airbusMeshPickingEnabled,
   selectedAirbusCard,
   onSelectedAirbusCardChange,
+  selectedLockerMemory,
+  onSelectedLockerMemoryChange,
 }: HudProps) {
   const [draggingAirbusCard, setDraggingAirbusCard] = useState<string | null>(null)
   const [activeAirbusTarget, setActiveAirbusTarget] = useState<FirstOfficerControl | null>(null)
-  const [watchInput, setWatchInput] = useState('')
-  const [baseballInput, setBaseballInput] = useState('')
-  const [checklistInput, setChecklistInput] = useState('')
   const selectedRoutes = new Set(state.routeSelections)
   const assignedCards = useMemo(() => new Set(Object.values(state.airbusAssignments).filter(Boolean)), [state.airbusAssignments])
 
@@ -230,13 +230,23 @@ export function Hud({
     )
   }
 
+  if (state.phase === 'locker') {
+    return (
+      <LockerHud
+        state={state}
+        dispatch={dispatch}
+        selectedMemory={selectedLockerMemory}
+        onSelectedMemoryChange={onSelectedLockerMemoryChange}
+        onRestart={onRestart}
+      />
+    )
+  }
+
   return (
     <aside className="hud" aria-label="Game controls">
       <div className="hud__topline">
         <span className="eyebrow">
-          {state.phase === 'locker'
-              ? 'Locker reveal'
-              : state.phase === 'captain'
+          {state.phase === 'captain'
                 ? 'Pop T Captain Mode'
                 : state.phase === 'reward'
                   ? 'Hangar access'
@@ -250,119 +260,6 @@ export function Hud({
       <div className="status" aria-live="polite" aria-atomic="true">
         {state.statusMessage}
       </div>
-
-      {state.phase === 'locker' && (
-        <section aria-labelledby="locker-heading">
-          <h2 id="locker-heading">Locker reveal sequence</h2>
-          <p>Inspect each object. A hidden reward reveal waits for all locker moments to complete.</p>
-
-          <div>
-            <label>
-              <span>{lockerFlow.interactions.watch.label}</span>
-              <input
-                type="text"
-                value={watchInput}
-                onChange={(event) => setWatchInput(event.target.value)}
-                placeholder="Right-seat hours"
-                aria-label="Right-seat hours"
-              />
-            </label>
-            <button
-              type="button"
-              className="secondary-button"
-              aria-label="Confirm watch answer"
-              aria-disabled={state.lockerCompleted.includes('watch')}
-              onClick={() => {
-                if (state.lockerCompleted.includes('watch')) return
-                dispatch({ type: 'COMPLETE_LOCKER_OBJECT', objectId: 'watch', response: watchInput })
-              }}
-            >
-              Confirm
-            </button>
-          </div>
-
-          <div>
-            <label>
-              <span>{lockerFlow.interactions.baseball.label}</span>
-              <input
-                type="text"
-                value={baseballInput}
-                onChange={(event) => setBaseballInput(event.target.value)}
-                placeholder="Name"
-                aria-label="Name"
-              />
-            </label>
-            <button
-              type="button"
-              className="secondary-button"
-              aria-label="Confirm baseball answer"
-              aria-disabled={state.lockerCompleted.includes('baseball')}
-              onClick={() => {
-                if (state.lockerCompleted.includes('baseball')) return
-                dispatch({ type: 'COMPLETE_LOCKER_OBJECT', objectId: 'baseball', response: baseballInput })
-              }}
-            >
-              Confirm
-            </button>
-          </div>
-
-          {lockerItems
-            .filter((item) => item !== 'watch' && item !== 'baseball')
-            .map((item) => (
-              <button
-                key={item}
-                type="button"
-                className="secondary-button"
-                aria-label={`Inspect ${lockerFlow.interactions[item].label}`}
-                aria-disabled={state.lockerCompleted.includes(item)}
-                onClick={() => {
-                  if (state.lockerCompleted.includes(item)) return
-                  const payload: { type: 'COMPLETE_LOCKER_OBJECT'; objectId: LockerInteraction; response?: string } = {
-                    type: 'COMPLETE_LOCKER_OBJECT',
-                    objectId: item,
-                  }
-                  if (item === 'checklist') {
-                    payload.response = checklistInput
-                  }
-                  dispatch(payload)
-                }}
-              >
-                {state.lockerCompleted.includes(item)
-                  ? `${lockerFlow.interactions[item].label} complete`
-                  : `Inspect ${lockerFlow.interactions[item].label}`}
-              </button>
-            ))}
-
-          <label>
-            <span>{lockerFlow.interactions.checklist.label}</span>
-            <input
-              type="text"
-              value={checklistInput}
-              onChange={(event) => setChecklistInput(event.target.value)}
-              placeholder="Power,Lights,Route,Crew,Release"
-              aria-label="Power,Lights,Route,Crew,Release"
-            />
-          </label>
-
-          <p>{lockerFlow.hatText.hiddenText}</p>
-
-          <button
-            type="button"
-            className="primary-button"
-            disabled={!state.lockerHatRevealed}
-            aria-label="Complete captain hat reveal"
-            onClick={() => dispatch({ type: 'REVEAL_CAPTAIN_HAT' })}
-          >
-            {state.lockerHatRevealed ? 'Touch the captain’s hat' : 'Complete locker inspection first'}
-          </button>
-        </section>
-      )}
-
-      {state.phase === 'locker' && (
-        <button type="button" className="secondary-button" onClick={() => dispatch({ type: 'USE_HINT' })}>
-          Request progressive hint
-        </button>
-      )}
 
       {state.phase === 'captain' && (
         <section aria-labelledby="captain-heading">

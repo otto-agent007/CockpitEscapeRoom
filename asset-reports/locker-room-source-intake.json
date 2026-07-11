@@ -1,0 +1,22 @@
+{
+  "asset": "locker",
+  "sourceCandidates": [
+    {
+      "package": "game-locker",
+      "archive": ".cache/cockpit-pipeline/sources/locker-room/game-locker/game_locker.zip",
+      "scene": ".cache/cockpit-pipeline/sources/locker-room/game-locker/extracted/optimized/scene.gltf",
+      "container": "LOCKER_ENV_GAME_LOCKER",
+      "importedObjectCount": 4,
+      "meshObjectCount": 1
+    },
+    {
+      "package": "locker-room-bench",
+      "archive": ".cache/cockpit-pipeline/sources/locker-room/locker-room-bench/locker_room_bench.zip",
+      "scene": ".cache/cockpit-pipeline/sources/locker-room/locker-room-bench/extracted/optimized/scene.gltf",
+      "container": "LOCKER_ENV_BENCH",
+      "importedObjectCount": 24,
+      "meshObjectCount": 10
+    }
+  ],
+  "note": "Original environment archives are preserved under .cache/cockpit-pipeline/sources/locker-room. Imported environment meshes remain under stable roots; owner-supplied watch and hat intake is recorded separately in asset-reports/locker-room-prop-intake.json."
+}

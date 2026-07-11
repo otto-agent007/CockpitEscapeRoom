@@ -1,0 +1,25 @@
+{
+  "gate": "reference-authority",
+  "artifactId": "agent0-dc9-web-reference-authority",
+  "createdAt": "2026-07-10T00:00:00Z",
+  "sceneGroup": "DC-9 Pop T Captain cockpit",
+  "targetAircraftOrObject": "McDonnell Douglas DC-9-50 flight deck",
+  "targetVariantStatus": "Confirmed production target is the DC-9-50 Pop T Captain cockpit. Existing DC-9-51 and DC-9-40 references may support compatibility checks only when their variant limits remain explicit.",
+  "sourceCandidateType": "real-aircraft-reference",
+  "sourceIdentity": "License-screened real DC-9 cockpit photos, the existing FlightGear DC-9-32 extractable source package, and low-authority downloadable DC-9 exterior models that may support shell blocking only.",
+  "allowedUsage": [
+    "Agent 1 web source discovery for DC-9-50 cockpit references and candidate source packages",
+    "license and attribution screening before any local download",
+    "ranking real-photo, category-index, extractable-3d, and proxy-model leads by cockpit section and variant fit",
+    "source manifest proposals for owner review before production modeling"
+  ],
+  "forbiddenUsage": [
+    "treating non-DC-9-50 references as exact geometry authority",
+    "using simulator, add-on, or generic downloadable models as production geometry authority",
+    "starting Agent 2 assembly from web leads or unapproved source candidates",
+    "mixing Airbus, Model Y, or Mars details into the DC-9 scene group"
+  ],
+  "variantCompatibility": "DC-9-50 is the target. DC-9-51, DC-9-40, and DC-9-32 sources may inform shared analog layout, material family, yoke family, or shell relationships only when labeled as compatibility sources. MD-80 family material remains derivative-family and non-authoritative for DC-9 geometry.",
+  "ownerApprovalStatus": "approved-for-next-stage",
+  "nextAllowedStage": "agent1-sourcing"
+}

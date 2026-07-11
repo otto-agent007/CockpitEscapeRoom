@@ -6,6 +6,7 @@
 art-source/blender/dc9_master.blend
 art-source/blender/airbus_master.blend
 art-source/blender/tesla_reward.blend
+art-source/blender/locker_room_master.blend
 ```
 
 ## Root objects
@@ -14,6 +15,7 @@ art-source/blender/tesla_reward.blend
 DC9_ROOT
 AIRBUS_ROOT
 TESLA_ROOT
+LOCKER_ROOT
 ```
 
 ## Recommended hierarchy
@@ -29,6 +31,31 @@ DC9_ROOT
 ```
 
 Use equivalent prefixes for Airbus and vehicle assets.
+
+The current locker hierarchy uses:
+
+```text
+LOCKER_ROOT
+├── LOCKER_STATIC
+│   ├── LOCKER_ENV_GAME_LOCKER
+│   ├── LOCKER_ENV_BENCH
+│   └── LOCKER_ENV_MEMORY_SHELF
+└── LOCKER_INTERACTIVE
+    ├── LOCKER_PROP_WATCH                       game_id = locker.memory.watch
+    │   ├── LOCKER_PROP_WATCH_MESH
+    │   └── LOCKER_HITBOX_WATCH
+    ├── LOCKER_PROP_WINGS                       game_id = locker.memory.wings
+    │   ├── LOCKER_PROP_WINGS_MESH
+    │   └── LOCKER_HITBOX_WINGS
+    ├── LOCKER_PROP_CHARGING_BULL               game_id = locker.memory.chargingBull
+    │   ├── LOCKER_PROP_CHARGING_BULL_MESH
+    │   └── LOCKER_HITBOX_CHARGING_BULL
+    └── LOCKER_PROP_CAPTAINS_HAT                game_id = locker.promotion.hat
+        ├── LOCKER_PROP_CAPTAINS_HAT_MESH
+        └── LOCKER_HITBOX_CAPTAINS_HAT
+```
+
+The Wings, Charging Bull, and hat nodes and colliders are exported at all times. Runtime availability is reducer-controlled: unauthored or locked keepsakes render as unreadable silhouettes and do not activate. The watch is the only authored first interaction at this checkpoint.
 
 ## Naming
 

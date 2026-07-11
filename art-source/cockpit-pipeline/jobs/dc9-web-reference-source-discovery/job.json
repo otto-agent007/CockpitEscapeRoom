@@ -1,0 +1,64 @@
+{
+  "jobId": "dc9-web-reference-source-discovery",
+  "title": "DC-9-50 web reference and source discovery",
+  "stage": "sourcing_complete",
+  "aircraft": "dc9",
+  "sourceVariant": "mixed-web-reference-leads",
+  "targetVariant": "DC-9-50",
+  "variantScope": "target-confirmed",
+  "sourceRepository": {
+    "url": "art-source/cockpit-pipeline/source-discovery-seeds/dc9-web-reference-source-discovery.seed.json",
+    "resolvedRevision": "web-search-2026-07-10"
+  },
+  "requestedComponents": [
+    {
+      "componentId": "dc9-ref-captain-shell-main-panel-001",
+      "label": "captain-eye cockpit shell and main-panel silhouette",
+      "quantity": 1,
+      "acceptanceNotes": "Prioritize real DC-9 cockpit references with clear captain-eye framing. Nearby DC-9 variants may only support labeled compatibility checks."
+    },
+    {
+      "componentId": "dc9-ref-yoke-pair-placement-001",
+      "label": "captain and first-officer yoke family and placement",
+      "quantity": 1,
+      "acceptanceNotes": "Find real-photo and extractable source candidates that clarify yoke shape, spacing, placard area, and column hierarchy."
+    },
+    {
+      "componentId": "dc9-ref-pedestal-throttle-001",
+      "label": "pedestal and throttle quadrant relationships",
+      "quantity": 1,
+      "acceptanceNotes": "Record whether each source supports only placement, only buildable levers, or broader pedestal grouping."
+    },
+    {
+      "componentId": "dc9-ref-gauge-density-001",
+      "label": "main panel gauge density and analog depth",
+      "quantity": 1,
+      "acceptanceNotes": "Prioritize sources that clearly show round-gauge density, bezel depth, and center-panel relationships."
+    },
+    {
+      "componentId": "dc9-ref-overhead-density-001",
+      "label": "overhead panel density and location",
+      "quantity": 1,
+      "acceptanceNotes": "Record whether the source supports exact overhead geometry, density-only guidance, or presentation-only mood."
+    },
+    {
+      "componentId": "dc9-ref-windshield-sidewall-001",
+      "label": "windshield and sidewall framing from the captain view",
+      "quantity": 1,
+      "acceptanceNotes": "Prioritize wide real-aircraft cockpit photos that preserve window post, wiper, and sidewall relationships."
+    }
+  ],
+  "stageDirectories": {
+    "sourceInput": "art-source/cockpit-pipeline/stages/source/input",
+    "sourceOutput": "art-source/cockpit-pipeline/stages/source/output",
+    "assemblyInput": "art-source/cockpit-pipeline/stages/assembly/input",
+    "assemblyOutput": "art-source/cockpit-pipeline/stages/assembly/output",
+    "shadingInput": "art-source/cockpit-pipeline/stages/shading/input",
+    "shadingOutput": "art-source/cockpit-pipeline/stages/shading/output"
+  },
+  "cachePolicy": {
+    "environmentVariable": "COCKPIT_PIPELINE_CACHE",
+    "defaultRelativePath": ".cache/cockpit-pipeline",
+    "gitPolicy": "outside-git"
+  }
+}

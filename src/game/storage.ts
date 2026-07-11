@@ -1,5 +1,5 @@
 import { createInitialState, type GamePhase, type GameState, type PuzzleId, type SwitchId } from './state'
-import { type FirstOfficerControl, type FirstOfficerDecoy, type LockerInteraction } from './config'
+import { type FirstOfficerControl, type FirstOfficerDecoy, type LockerMemoryId, type LockerQuestionId } from './config'
 import { firstOfficerFlow, lockerFlow } from './config'
 
 export const STORAGE_KEY = 'cockpit-escape-room:game-state:v1'
@@ -63,14 +63,20 @@ function isSafePuzzleIds(value: unknown): value is PuzzleId[] {
   )
 }
 
-function isSafeLockerCompleted(value: unknown): value is LockerInteraction[] {
+function isSafeLockerCompleted(value: unknown): value is LockerMemoryId[] {
   return (
     Array.isArray(value) &&
-    value.every((entry): entry is LockerInteraction =>
-      (lockerFlow.requiredInteractionIds as readonly string[]).includes(entry),
+    value.every((entry): entry is LockerMemoryId =>
+      (lockerFlow.memoryIds as readonly string[]).includes(entry),
     ) &&
     hasNoDuplicates(value)
   )
+}
+
+function isSafeLockerAttempts(value: unknown): value is Record<LockerQuestionId, number> {
+  if (!value || typeof value !== 'object') return false
+  const candidate = value as Record<string, unknown>
+  return isSafeNonNegativeInteger(candidate.watch) && isSafeNonNegativeInteger(candidate.baseball)
 }
 
 function isSafeNonNegativeInteger(value: unknown): value is number {
@@ -81,12 +87,14 @@ function isGameState(value: unknown): value is GameState {
   if (!value || typeof value !== 'object') return false
   const candidate = value as Partial<GameState>
   return (
-    candidate.schemaVersion === 3 &&
+    candidate.schemaVersion === 5 &&
     isSafePhase(candidate.phase) &&
     isSafeAssignments(candidate.airbusAssignments) &&
     isSafeDecoyAssignments(candidate.airbusDecoyAssignments) &&
     typeof candidate.airbusClockAnswer === 'string' &&
     isSafeLockerCompleted(candidate.lockerCompleted) &&
+    isSafeLockerAttempts(candidate.lockerAttempts) &&
+    typeof candidate.lockerIntroCompleted === 'boolean' &&
     typeof candidate.lockerHatRevealed === 'boolean' &&
     typeof candidate.captainModeUnlocked === 'boolean' &&
     isSafeSwitchSequence(candidate.switchSequence) &&
@@ -101,13 +109,57 @@ function isGameState(value: unknown): value is GameState {
   )
 }
 
+function hasReachedLocker(phase: unknown): boolean {
+  return phase === 'locker' || phase === 'captain' || phase === 'reward' || phase === 'mars'
+}
+
+function migrateV4(value: unknown): GameState | null {
+  if (!value || typeof value !== 'object') return null
+  const candidate = value as Record<string, unknown>
+  if (candidate.schemaVersion !== 4) return null
+
+  const migrated = {
+    ...candidate,
+    schemaVersion: 5,
+    lockerIntroCompleted: hasReachedLocker(candidate.phase),
+  }
+  return isGameState(migrated) ? migrated : null
+}
+
+function migrateV3(value: unknown): GameState | null {
+  if (!value || typeof value !== 'object') return null
+  const candidate = value as Record<string, unknown>
+  if (candidate.schemaVersion !== 3 || !Array.isArray(candidate.lockerCompleted)) return null
+
+  const legacyCompleted = candidate.lockerCompleted.filter((entry): entry is string => typeof entry === 'string')
+  const completedPuzzles = Array.isArray(candidate.completedPuzzles)
+    ? candidate.completedPuzzles.filter((entry): entry is string => typeof entry === 'string')
+    : []
+  const laterPhase = candidate.phase === 'captain' || candidate.phase === 'reward' || candidate.phase === 'mars'
+  const preserveFullLocker = candidate.lockerHatRevealed === true || completedPuzzles.includes('locker') || laterPhase
+  const lockerCompleted: LockerMemoryId[] = preserveFullLocker
+    ? [...lockerFlow.memoryIds]
+    : lockerFlow.memoryIds.filter((id) => id === 'watch' || id === 'baseball').filter((id) => legacyCompleted.includes(id))
+
+  const migrated = {
+    ...candidate,
+    schemaVersion: 5,
+    lockerCompleted,
+    lockerAttempts: { watch: 0, baseball: 0 },
+    lockerIntroCompleted: hasReachedLocker(candidate.phase),
+    lockerHatRevealed: preserveFullLocker,
+  }
+  return isGameState(migrated) ? migrated : null
+}
+
 export function loadGameState(storage: Pick<Storage, 'getItem' | 'removeItem'> = window.localStorage): GameState {
   try {
     const raw = storage.getItem(STORAGE_KEY)
     if (!raw) return createInitialState()
     const parsed: unknown = JSON.parse(raw)
-    if (isGameState(parsed)) {
-      return parsed.phase === 'airbus' ? { ...parsed, airbusClockAnswer: '' } : parsed
+    const state = isGameState(parsed) ? parsed : migrateV4(parsed) ?? migrateV3(parsed)
+    if (state) {
+      return state.phase === 'airbus' ? { ...state, airbusClockAnswer: '' } : state
     }
     storage.removeItem(STORAGE_KEY)
   } catch {

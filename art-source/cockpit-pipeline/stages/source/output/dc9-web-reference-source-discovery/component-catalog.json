@@ -1,0 +1,177 @@
+{
+  "jobId": "dc9-web-reference-source-discovery",
+  "stage": "sourcing_complete",
+  "sceneGroup": "DC-9 Pop T Captain cockpit",
+  "sourceVariant": "mixed-web-reference-leads",
+  "targetVariant": "DC-9-50",
+  "variantScope": "target-confirmed",
+  "referenceAuthority": "art-source/cockpit-pipeline/gates/agent0-dc9-web-reference-authority.json",
+  "downloadedFiles": [],
+  "candidates": [
+    {
+      "candidateId": "dc9-web-commons-dc9-cockpits-category",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Cockpits_of_Douglas_DC-9",
+      "sourceFamily": "license-screened-photo-index",
+      "authorityRank": "primary-index",
+      "sourceVariant": "mixed DC-9 cockpit photo index",
+      "targetVariant": "DC-9-50",
+      "variantScope": "target-confirmed",
+      "coverage": [
+        "captain-eye cockpit candidates",
+        "wide shell and windshield views",
+        "panel density candidates",
+        "compatibility photo triage"
+      ],
+      "confidence": "high",
+      "selectionStatus": "selected-source-index",
+      "limitations": [
+        "Index only; each file requires per-page license and variant review.",
+        "Category mixes multiple DC-9 variants and non-target operators."
+      ],
+      "downstreamWarningForAgent2": "Do not treat category membership as source approval or geometry authority."
+    },
+    {
+      "candidateId": "dc9-web-n775nc-dc9-51-cockpit-photo",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:McDonnell_Douglas_DC-9-51_cockpit_(2586378690).jpg",
+      "sourceFamily": "real-aircraft-photo-candidate",
+      "authorityRank": "high-compatibility-photo",
+      "sourceVariant": "Northwest DC-9-51 N775NC cockpit photo",
+      "targetVariant": "DC-9-50",
+      "variantScope": "same_family",
+      "coverage": [
+        "captain-eye shell silhouette",
+        "gauge density",
+        "yoke placement",
+        "windshield framing",
+        "glareshield relationship"
+      ],
+      "confidence": "high",
+      "selectionStatus": "selected-compatibility-authority",
+      "licenseLead": "CC BY-SA 2.0 on Commons page as of 2026-07-10",
+      "limitations": [
+        "DC-9-51, not DC-9-50.",
+        "Single wide photo does not resolve close pedestal, overhead, or sidewall details."
+      ],
+      "downstreamWarningForAgent2": "Strong captain-view compatibility reference, but not exact DC-9-50 authority."
+    },
+    {
+      "candidateId": "dc9-web-northwest-dc9-40-cockpit-photo",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:DC-9_Cockpit.jpg",
+      "sourceFamily": "real-aircraft-photo-candidate",
+      "authorityRank": "secondary-compatibility-photo",
+      "sourceVariant": "Northwest DC-9-40 cockpit photo",
+      "targetVariant": "DC-9-50",
+      "variantScope": "same_family",
+      "coverage": [
+        "analog panel density",
+        "material and wear family",
+        "yoke family",
+        "shared cockpit proportions"
+      ],
+      "confidence": "medium",
+      "selectionStatus": "selected-compatibility-authority",
+      "licenseLead": "CC BY-SA 3.0 or CC BY 2.5 available on Commons page as of 2026-07-10",
+      "limitations": [
+        "DC-9-40, not DC-9-50.",
+        "Useful as Northwest family comparison only."
+      ],
+      "downstreamWarningForAgent2": "Use for family comparison and material cues only, not exact DC-9-50 geometry."
+    },
+    {
+      "candidateId": "dc9-web-sas-dc9-cockpit-photo",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:SAS_DC-9,_Interior,_cockpit.jpg",
+      "sourceFamily": "real-aircraft-photo-candidate",
+      "authorityRank": "secondary-compatibility-photo",
+      "sourceVariant": "SAS DC-9 cockpit photo",
+      "targetVariant": "DC-9-50",
+      "variantScope": "same_family",
+      "coverage": [
+        "wide analog cockpit layout",
+        "overhead density clues",
+        "panel depth and framing"
+      ],
+      "confidence": "medium",
+      "selectionStatus": "selected-for-gap-coverage-review",
+      "licenseLead": "Public domain on Commons page as of 2026-07-10",
+      "limitations": [
+        "Older SAS aircraft and unconfirmed exact variant fit to the target.",
+        "Operator and era mismatch versus Northwest DC-9-50."
+      ],
+      "downstreamWarningForAgent2": "Can help fill missing layout gaps, but target-family and operator mismatch must stay explicit."
+    },
+    {
+      "candidateId": "dc9-web-flightgear-dc9-32-source-package",
+      "sourceUrl": "https://github.com/FGMEMBERS-NONGPL/DC-9-32",
+      "sourceFamily": "extractable-3d-source",
+      "authorityRank": "buildable-compatibility-source",
+      "sourceVariant": "FlightGear DC-9-32 source package",
+      "targetVariant": "DC-9-50",
+      "variantScope": "nearby_variant",
+      "coverage": [
+        "yoke assemblies",
+        "throttle quadrant",
+        "gauge packages",
+        "switch cluster candidates"
+      ],
+      "confidence": "high",
+      "selectionStatus": "selected-buildable-candidate",
+      "licenseLead": "CC BY-NC-SA 4.0 on GitHub repository page as of 2026-07-10",
+      "limitations": [
+        "DC-9-32, not DC-9-50.",
+        "Strong buildability, weaker target authority.",
+        "Repository files must be treated as data only; no script execution."
+      ],
+      "downstreamWarningForAgent2": "Best current buildable cockpit-part source, but every use must preserve DC-9-32 provenance and compatibility limits."
+    },
+    {
+      "candidateId": "dc9-web-sketchfab-dc9-50-lowpoly-shell",
+      "sourceUrl": "https://sketchfab.com/3d-models/mcdonnell-douglas-dc-9-50-21ba9bf27c3a464aa1e6d54f0b9d9f60",
+      "sourceFamily": "downloadable-3d-proxy",
+      "authorityRank": "target-variant-shell-proxy",
+      "sourceVariant": "Sketchfab DC-9-50 exterior low-poly model",
+      "targetVariant": "DC-9-50",
+      "variantScope": "presentation_only",
+      "coverage": [
+        "target variant naming",
+        "coarse exterior shell proportions only"
+      ],
+      "confidence": "low",
+      "selectionStatus": "selected-proxy-only",
+      "licenseLead": "CC BY-NC-SA on Sketchfab page as of 2026-07-10",
+      "limitations": [
+        "Exterior model only.",
+        "2.6k triangles is too sparse for cockpit authority.",
+        "No interior or cockpit proof."
+      ],
+      "downstreamWarningForAgent2": "Do not use for cockpit geometry. At most, consider later as a shell/proxy lead with separate approval."
+    },
+    {
+      "candidateId": "dc9-web-sketchfab-generic-dc9-1883",
+      "sourceUrl": "https://sketchfab.com/3d-models/mcdonnell-douglas-dc-9-6eda1534ecc44f30b936b14c3a899716",
+      "sourceFamily": "downloadable-3d-proxy",
+      "authorityRank": "rejected",
+      "sourceVariant": "Generic downloadable DC-9 exterior model",
+      "targetVariant": "DC-9-50",
+      "variantScope": "rejected",
+      "coverage": [
+        "generic exterior only"
+      ],
+      "confidence": "low",
+      "selectionStatus": "rejected-for-cockpit-authority",
+      "licenseLead": "CC BY on Sketchfab page as of 2026-07-10",
+      "limitations": [
+        "Generic exterior model with no cockpit evidence.",
+        "Description does not establish target-variant fidelity.",
+        "Not aligned with the cockpit-first sourcing goal."
+      ],
+      "downstreamWarningForAgent2": "Rejected. Do not use for this cockpit milestone."
+    }
+  ],
+  "missingCoverage": [
+    "Exact DC-9-50 or Northwest DC-9-50 overhead close-up with compatible license.",
+    "Exact DC-9-50 or Northwest DC-9-50 pedestal and throttle close-up with compatible license.",
+    "High-confidence first-officer-side cockpit view for symmetry and sidewall validation.",
+    "Close yoke or placard detail from the DC-9-50 target family."
+  ],
+  "nextAction": "Prioritize manifesting and screening additional real DC-9-50 cockpit photos from the Commons DC-9 cockpit category, while keeping the existing FlightGear DC-9-32 package as the top buildable part-source candidate."
+}

@@ -4,10 +4,12 @@ import {
   lockerFlow,
   type FirstOfficerControl,
   type FirstOfficerDecoy,
-  type LockerInteraction,
+  type LockerInspectionId,
+  type LockerMemoryId,
+  type LockerQuestionId,
 } from './config'
 
-export const GAME_SCHEMA_VERSION = 3 as const
+export const GAME_SCHEMA_VERSION = 5 as const
 export const SWITCH_ORDER = dc9LegacyFlow.checklistOrder
 export const PUZZLE_IDS = ['firstOfficer', 'locker', 'captain'] as const
 export type GamePhase = 'briefing' | 'airbus' | 'locker' | 'captain' | 'reward' | 'mars'
@@ -18,8 +20,12 @@ export type GameAction =
   | { type: 'SET_AIRBUS_CLOCK_ANSWER'; value: string }
   | { type: 'SUBMIT_AIRBUS_CLOCK' }
   | { type: 'CONTINUE_TO_LOCKER' }
-  | { type: 'COMPLETE_LOCKER_OBJECT'; objectId: LockerInteraction; response?: string }
-  | { type: 'REVEAL_CAPTAIN_HAT' }
+  | { type: 'COMPLETE_LOCKER_INTRO' }
+  | { type: 'SUBMIT_LOCKER_ANSWER'; memoryId: LockerQuestionId; response: string }
+  | { type: 'INSPECT_LOCKER_MEMORY'; memoryId: LockerInspectionId }
+  | { type: 'USE_LOCKER_HINT'; memoryId?: LockerQuestionId }
+  | { type: 'CLAIM_CAPTAIN_HAT' }
+  | { type: 'CONTINUE_TO_CAPTAIN' }
   | { type: 'ACTIVATE_SWITCH'; switchId: SwitchId }
   | { type: 'TOGGLE_ROUTE'; code: string }
   | { type: 'SUBMIT_ROUTE' }
@@ -39,9 +45,11 @@ export type AirbusDecoyAssignments = {
 }
 
 interface LockerPayload {
-  completed: LockerInteraction[]
+  completed: LockerMemoryId[]
   hatRevealed: boolean
 }
+
+export type LockerAttempts = Record<LockerQuestionId, number>
 
 export interface GameState {
   schemaVersion: typeof GAME_SCHEMA_VERSION
@@ -49,7 +57,9 @@ export interface GameState {
   airbusAssignments: AirbusAssignments
   airbusDecoyAssignments: AirbusDecoyAssignments
   airbusClockAnswer: string
-  lockerCompleted: LockerInteraction[]
+  lockerCompleted: LockerMemoryId[]
+  lockerAttempts: LockerAttempts
+  lockerIntroCompleted: boolean
   lockerHatRevealed: boolean
   captainModeUnlocked: boolean
   switchSequence: SwitchId[]
@@ -65,8 +75,8 @@ function normalize(value: unknown): string {
   return typeof value === 'string'
     ? value
         .normalize('NFD')
-        .replace(/[^a-z0-9]+/g, '')
         .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '')
     : ''
 }
 
@@ -153,19 +163,28 @@ function isAirlineTransportPilotAnswerCorrect(value: string): boolean {
   return firstOfficerFlow.clockAnswers.some((answer) => normalize(answer) === normalized)
 }
 
-function isLockerAnswerCorrect(objectId: LockerInteraction, response: string): boolean {
-  const answer = lockerFlow.interactions[objectId]?.answer
-  if (!answer) return true
-  return normalize(response) === normalize(answer)
+function isLockerAnswerCorrect(memoryId: LockerQuestionId, response: string): boolean {
+  const normalized = normalize(response)
+  return lockerFlow.memories[memoryId].acceptedAnswers.some((answer) => normalize(answer) === normalized)
 }
 
-function lockerInteractionComplete(current: LockerInteraction[], objectId: LockerInteraction): LockerPayload {
-  const completed = [...unique([...current, objectId])].sort()
-  const requirementMet = lockerFlow.requiredInteractionIds.every((id) => completed.includes(id))
+function lockerInteractionComplete(current: LockerMemoryId[], memoryId: LockerMemoryId): LockerPayload {
+  const completed = lockerFlow.memoryIds.filter((id) => current.includes(id) || id === memoryId)
+  const requirementMet = lockerFlow.memoryIds.every((id) => completed.includes(id))
   return {
     completed,
     hatRevealed: requirementMet ? true : false,
   }
+}
+
+export function isLockerMemoryAvailable(
+  state: Pick<GameState, 'lockerCompleted' | 'lockerIntroCompleted'>,
+  memoryId: LockerMemoryId,
+): boolean {
+  if (!state.lockerIntroCompleted) return false
+  if (state.lockerCompleted.includes(memoryId)) return true
+  const nextMemory = lockerFlow.authoredSequence.find((id) => !state.lockerCompleted.includes(id))
+  return nextMemory === memoryId
 }
 
 function hintFor(state: GameState): string {
@@ -180,7 +199,11 @@ function hintFor(state: GameState): string {
   }
 
   if (state.phase === 'locker') {
-    return 'Locker tasks are memory clues. Complete each item to unlock the hat reveal.'
+    if (!state.lockerIntroCompleted) return 'Let the locker room come into view.'
+    if (state.lockerHatRevealed) return 'The upper cubby is open. Claim the captain’s hat.'
+    const available = lockerFlow.memoryIds.filter((id) => isLockerMemoryAvailable(state, id) && !state.lockerCompleted.includes(id))
+    if (available.length === 0) return lockerFlow.firstMemoryCompleteText
+    return `Look for ${available.map((id) => lockerFlow.memories[id].label).join(', ')}.`
   }
 
   if (state.phase === 'captain') {
@@ -191,8 +214,8 @@ function hintFor(state: GameState): string {
   return 'No hint is needed now.'
 }
 
-function isSafeLockerState(items: readonly LockerInteraction[]): boolean {
-  const known = new Set(lockerFlow.requiredInteractionIds)
+function isSafeLockerState(items: readonly LockerMemoryId[]): boolean {
+  const known = new Set(lockerFlow.memoryIds)
   return unique(items).length === items.length && items.every((id) => known.has(id))
 }
 
@@ -204,6 +227,8 @@ export function createInitialState(): GameState {
     airbusDecoyAssignments: createEmptyDecoyAssignments(),
     airbusClockAnswer: '',
     lockerCompleted: [],
+    lockerAttempts: { watch: 0, baseball: 0 },
+    lockerIntroCompleted: false,
     lockerHatRevealed: false,
     captainModeUnlocked: false,
     switchSequence: [],
@@ -318,52 +343,105 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         phase: 'locker',
+        lockerIntroCompleted: false,
         statusMessage: `${firstOfficerFlow.firstCompleteBanner}. ${firstOfficerFlow.lockerAccessText}`,
       }
 
-    case 'COMPLETE_LOCKER_OBJECT': {
+    case 'COMPLETE_LOCKER_INTRO':
+      if (state.phase !== 'locker' || state.lockerIntroCompleted) return state
+      return {
+        ...state,
+        lockerIntroCompleted: true,
+        statusMessage: lockerFlow.openingInstruction,
+      }
+
+    case 'SUBMIT_LOCKER_ANSWER': {
       if (state.phase !== 'locker') return state
-      if (state.lockerCompleted.includes(action.objectId)) {
+      if (!isLockerMemoryAvailable(state, action.memoryId)) return state
+      if (state.lockerCompleted.includes(action.memoryId)) {
         return {
           ...state,
-          statusMessage: 'That locker item is already complete.',
+          statusMessage: `${lockerFlow.memories[action.memoryId].label} is already part of the memory sequence.`,
         }
       }
 
-      const isCorrect = isLockerAnswerCorrect(action.objectId, action.response ?? '')
+      const isCorrect = isLockerAnswerCorrect(action.memoryId, action.response)
       if (!isCorrect) {
+        const attempts = state.lockerAttempts[action.memoryId] + 1
         return {
           ...state,
-          statusMessage: lockerFlow.interactions[action.objectId]?.feedback ?? 'Try this memory clue again.',
+          lockerAttempts: { ...state.lockerAttempts, [action.memoryId]: attempts },
+          statusMessage: attempts >= 2
+            ? lockerFlow.memories[action.memoryId].strongerHint
+            : lockerFlow.memories[action.memoryId].retry,
         }
       }
 
-      const payload = lockerInteractionComplete(state.lockerCompleted, action.objectId)
-      const feedback =
-        lockerFlow.interactions[action.objectId]?.feedback ?? 'Locker detail logged. Continue the inspection.'
+      const payload = lockerInteractionComplete(state.lockerCompleted, action.memoryId)
+      const feedback = lockerFlow.memories[action.memoryId].feedback
       if (!payload.hatRevealed) {
         return {
           ...state,
           lockerCompleted: payload.completed,
           statusMessage: feedback,
         }
-        }
+      }
       return {
         ...state,
         lockerCompleted: payload.completed,
         lockerHatRevealed: true,
-        statusMessage: `${feedback} ${lockerFlow.interactions[action.objectId]?.trigger} ${lockerFlow.hatText.unlockText}`,
+        statusMessage: `${feedback} ${lockerFlow.hatText.revealText}`,
       }
     }
 
-    case 'REVEAL_CAPTAIN_HAT':
+    case 'INSPECT_LOCKER_MEMORY': {
+      if (state.phase !== 'locker') return state
+      if (!isLockerMemoryAvailable(state, action.memoryId)) return state
+      if (state.lockerCompleted.includes(action.memoryId)) {
+        return { ...state, statusMessage: lockerFlow.memories[action.memoryId].story }
+      }
+      const payload = lockerInteractionComplete(state.lockerCompleted, action.memoryId)
+      const feedback = lockerFlow.memories[action.memoryId].feedback
+      return {
+        ...state,
+        lockerCompleted: payload.completed,
+        lockerHatRevealed: payload.hatRevealed,
+        statusMessage: payload.hatRevealed ? `${feedback} ${lockerFlow.hatText.revealText}` : feedback,
+      }
+    }
+
+    case 'USE_LOCKER_HINT': {
+      if (state.phase !== 'locker') return state
+      if (!state.lockerIntroCompleted) return state
+      if (action.memoryId && !state.lockerCompleted.includes(action.memoryId)) {
+        return {
+          ...state,
+          hintsUsed: state.hintsUsed + 1,
+          statusMessage: lockerFlow.memories[action.memoryId].strongerHint,
+        }
+      }
+      return {
+        ...state,
+        hintsUsed: state.hintsUsed + 1,
+        statusMessage: hintFor(state),
+      }
+    }
+
+    case 'CLAIM_CAPTAIN_HAT':
       if (state.phase !== 'locker' || !state.lockerHatRevealed) return state
       return {
         ...state,
-        phase: 'captain',
         captainModeUnlocked: true,
         completedPuzzles: unique([...state.completedPuzzles, 'locker']),
         statusMessage: `${lockerFlow.hatText.foundText} ${lockerFlow.hatText.promotionText} ${lockerFlow.hatText.captainModeText}`,
+      }
+
+    case 'CONTINUE_TO_CAPTAIN':
+      if (state.phase !== 'locker' || !state.captainModeUnlocked) return state
+      return {
+        ...state,
+        phase: 'captain',
+        statusMessage: `${lockerFlow.hatText.captainModeText}. Legacy checklist ready.`,
       }
 
     case 'ACTIVATE_SWITCH': {
@@ -474,6 +552,6 @@ export function gameProgress(state: GameState): number {
   return Math.round(Math.max(0, Math.min(1, ratio)) * 100)
 }
 
-export function isLockerActionValid(items: LockerInteraction[]): boolean {
+export function isLockerActionValid(items: LockerMemoryId[]): boolean {
   return isSafeLockerState(items)
 }
