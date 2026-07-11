@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { dc9LegacyFlow, firstOfficerFlow, lockerFlow } from './config'
+import { dc9LegacyFlow, firstOfficerFlow } from './config'
 import { createInitialState, gameReducer, type GameState } from './state'
 
-function enterLockerFromAirbus(): GameState {
+function enterLockerFromAirbus(completeIntro = true): GameState {
   let state = gameReducer(createInitialState(), { type: 'START' })
   for (const control of firstOfficerFlow.controlIds) {
     state = gameReducer(state, {
@@ -14,6 +14,7 @@ function enterLockerFromAirbus(): GameState {
   state = gameReducer(state, { type: 'SET_AIRBUS_CLOCK_ANSWER', value: firstOfficerFlow.clockAnswer })
   state = gameReducer(state, { type: 'SUBMIT_AIRBUS_CLOCK' })
   state = gameReducer(state, { type: 'CONTINUE_TO_LOCKER' })
+  if (completeIntro) state = gameReducer(state, { type: 'COMPLETE_LOCKER_INTRO' })
   return state
 }
 
@@ -112,6 +113,11 @@ describe('gameReducer', () => {
 
     expect(state.phase).toBe('locker')
     expect(state.statusMessage).toContain('Locker access granted')
+    expect(state.lockerIntroCompleted).toBe(false)
+
+    state = gameReducer(state, { type: 'COMPLETE_LOCKER_INTRO' })
+    expect(state.lockerIntroCompleted).toBe(true)
+    expect(state.statusMessage).toBe('Begin with the pilot watch.')
   })
 
   it.each(['1500', '1,500', '1500 hour', '1500 hours'])(
@@ -126,35 +132,57 @@ describe('gameReducer', () => {
     },
   )
 
-  it('reveals captain mode only after locker requirements are complete', () => {
-    let state = enterLockerFromAirbus()
+  it('blocks locker memories until the intro settles, then unlocks only the watch', () => {
+    let state = enterLockerFromAirbus(false)
+    const beforeIntro = state
 
-    for (const objectId of lockerFlow.requiredInteractionIds) {
-      state = gameReducer(state, {
-        type: 'COMPLETE_LOCKER_OBJECT',
-        objectId,
-        response: lockerFlow.interactions[objectId]?.answer || 'ok',
-      })
-    }
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'watch', response: 'Jet lag' })
+    expect(state).toEqual(beforeIntro)
 
-    expect(state.phase).toBe('locker')
-    expect(state.lockerHatRevealed).toBe(true)
+    state = gameReducer(state, { type: 'COMPLETE_LOCKER_INTRO' })
+    const beforeOutOfOrderAttempt = state
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'baseball', response: 'Muñoz' })
+    state = gameReducer(state, { type: 'INSPECT_LOCKER_MEMORY', memoryId: 'wings' })
+    expect(state).toEqual(beforeOutOfOrderAttempt)
 
-    state = gameReducer(state, { type: 'REVEAL_CAPTAIN_HAT' })
-    expect(state.phase).toBe('captain')
-    expect(state.completedPuzzles).toContain('locker')
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'watch', response: 'Jet lag' })
+    expect(state.lockerCompleted).toEqual(['watch'])
+    expect(state.lockerHatRevealed).toBe(false)
+    expect(state.captainModeUnlocked).toBe(false)
+    expect(state.statusMessage).toContain('manage jet lag')
+  })
+
+  it('keeps completed memories while repeated wrong answers advance a fair clue', () => {
+    let state: GameState = { ...enterLockerFromAirbus(), lockerCompleted: ['wings'] }
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'watch', response: 'Brain fog' })
+    expect(state.lockerCompleted).toEqual(['wings'])
+    expect(state.statusMessage).toContain('crossing several time zones')
+
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'watch', response: 'Motion sickness' })
+    expect(state.lockerCompleted).toEqual(['wings'])
+    expect(state.lockerAttempts.watch).toBe(2)
+    expect(state.statusMessage).toContain('body clock falling out of sync')
+  })
+
+  it.each(['jet lag', 'Jet Lag', 'JET-LAG'])('accepts watch answer %s', (answer) => {
+    const state = gameReducer(enterLockerFromAirbus(), { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'watch', response: answer })
+    expect(state.lockerCompleted).toContain('watch')
+  })
+
+  it.each(['Anthony Muñoz', 'Anthony Munoz', 'Muñoz', 'Munoz'])('keeps the future baseball answer %s locked for asset intake', (answer) => {
+    const before = enterLockerFromAirbus()
+    const state = gameReducer(before, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'baseball', response: answer })
+    expect(state).toEqual(before)
   })
 
   it('preserves captain progress and only completes reward after legacy sequence', () => {
-    let state = enterLockerFromAirbus()
-    for (const objectId of lockerFlow.requiredInteractionIds) {
-      state = gameReducer(state, {
-        type: 'COMPLETE_LOCKER_OBJECT',
-        objectId,
-        response: lockerFlow.interactions[objectId]?.answer || 'ok',
-      })
+    let state: GameState = {
+      ...enterLockerFromAirbus(),
+      lockerCompleted: ['watch', 'baseball', 'wings', 'chargingBull'],
+      lockerHatRevealed: true,
     }
-    state = gameReducer(state, { type: 'REVEAL_CAPTAIN_HAT' })
+    state = gameReducer(state, { type: 'CLAIM_CAPTAIN_HAT' })
+    state = gameReducer(state, { type: 'CONTINUE_TO_CAPTAIN' })
 
     for (const switchId of dc9LegacyFlow.checklistOrder) {
       state = gameReducer(state, { type: 'ACTIVATE_SWITCH', switchId })

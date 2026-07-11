@@ -41,6 +41,7 @@ Blender asset commands require `BLENDER_BIN` and source `.blend` files:
 npm run asset:dc9
 npm run asset:airbus
 npm run asset:tesla
+npm run asset:locker
 ```
 
 ## Plan requirements

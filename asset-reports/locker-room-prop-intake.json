@@ -1,0 +1,456 @@
+{
+  "asset": "locker",
+  "sceneGroup": "locker room scene",
+  "blenderVersion": "5.1.2",
+  "masterPath": "art-source/blender/locker_room_master.blend",
+  "masterSha256": "7c0b71e55f066d7c1b824e898614dddaad05c363d7d902a88114f933f545c0fb",
+  "sourcePolicy": "Original owner-supplied Tripo GLBs preserved untouched; edited copies pass through Blender before runtime export.",
+  "sourceAuthority": "Owner-supplied Tripo candidates from /mnt/2TBHDD/Downloads; no third-party aircraft reference authority is inferred from these personal props.",
+  "optimizationDecision": "Static single-mesh props were decimated only after stable contract parents were established; the 4K watch and hat textures were staged at 1K, while the Bull and Wings retained their native 1K textures.",
+  "props": [
+    {
+      "asset": "pilot-watch",
+      "sourceCreator": "Tripo AI owner-supplied candidate",
+      "sourceGenerator": "Tripo",
+      "downloadSourcePath": "/mnt/2TBHDD/Downloads/gold wristwatch 3d model.glb",
+      "sourcePath": ".cache/cockpit-pipeline/sources/locker-room/pilot-watch/original/gold wristwatch 3d model.glb",
+      "sourceFileSize": 16669724,
+      "sourceSha256": "cb904e609a02f7a6d1a25fb1e4b8d69147c48912f34e375b1369aba927960c91",
+      "sourceBounds": {
+        "minimum": [
+          -0.258514,
+          -0.489838,
+          -0.235382
+        ],
+        "maximum": [
+          0.258514,
+          0.489868,
+          0.235825
+        ],
+        "size": [
+          0.517029,
+          0.979706,
+          0.471207
+        ]
+      },
+      "sourceObjectCount": 1,
+      "meshObjectCount": 1,
+      "materialCount": 1,
+      "sourceTriangleCount": 488677,
+      "optimizedTriangleCount": 71999,
+      "triangleReductionPercent": 85.27,
+      "textures": [
+        {
+          "name": "TEX_LOCKER_WATCH_BASECOLOR_01",
+          "sourceDimensions": [
+            4096,
+            4096
+          ],
+          "stagedDimensions": [
+            1024,
+            1024
+          ],
+          "packed": true
+        },
+        {
+          "name": "TEX_LOCKER_WATCH_NORMAL_02",
+          "sourceDimensions": [
+            4096,
+            4096
+          ],
+          "stagedDimensions": [
+            1024,
+            1024
+          ],
+          "packed": true
+        },
+        {
+          "name": "TEX_LOCKER_WATCH_METALLIC_ROUGHNESS_03",
+          "sourceDimensions": [
+            4096,
+            4096
+          ],
+          "stagedDimensions": [
+            1024,
+            1024
+          ],
+          "packed": true
+        }
+      ],
+      "stableContract": {
+        "node": "LOCKER_PROP_WATCH",
+        "meshNodes": [
+          "LOCKER_PROP_WATCH_MESH"
+        ],
+        "colliderNodes": [
+          "LOCKER_HITBOX_WATCH"
+        ],
+        "gameId": "locker.memory.watch",
+        "interaction": "question",
+        "pivot": "centered object-space origin",
+        "placement": [
+          0.42,
+          -0.48,
+          0.55
+        ],
+        "scaleApplied": 0.55,
+        "rotationZDegreesApplied": -45.0
+      },
+      "stagedBounds": {
+        "minimum": [
+          -0.273594,
+          -0.1794,
+          -0.129592
+        ],
+        "maximum": [
+          0.182291,
+          0.278896,
+          0.129592
+        ],
+        "size": [
+          0.455884,
+          0.458296,
+          0.259183
+        ]
+      },
+      "optimizedPath": ".cache/cockpit-pipeline/sources/locker-room/pilot-watch/optimized/pilot-watch.optimized.glb",
+      "optimizedFileSize": 4912208,
+      "optimizedSha256": "0f97c3d07c31c1efed322c3dcba4a1d26e396ce3702eedc9d5f8221ca3d8ad3f"
+    },
+    {
+      "asset": "pilot-wings",
+      "sourceCreator": "Tripo AI owner-supplied candidate",
+      "sourceGenerator": "Tripo",
+      "downloadSourcePath": "/mnt/2TBHDD/Downloads/gold+winged+emblem+3d+model.glb",
+      "sourcePath": ".cache/cockpit-pipeline/sources/locker-room/pilot-wings/original/gold+winged+emblem+3d+model.glb",
+      "sourceFileSize": 15408908,
+      "sourceSha256": "71b308c7a2f25a6014a29613bf3cd33bf4a3883969fb4bec7e9067cf8be80af0",
+      "sourceBounds": {
+        "minimum": [
+          -0.123421,
+          -0.490051,
+          -0.156448
+        ],
+        "maximum": [
+          0.123657,
+          0.490051,
+          0.156586
+        ],
+        "size": [
+          0.247078,
+          0.980103,
+          0.313034
+        ]
+      },
+      "sourceObjectCount": 1,
+      "meshObjectCount": 1,
+      "materialCount": 1,
+      "sourceTriangleCount": 492226,
+      "optimizedTriangleCount": 48000,
+      "triangleReductionPercent": 90.25,
+      "textures": [
+        {
+          "name": "TEX_LOCKER_WINGS_BASECOLOR_01",
+          "sourceDimensions": [
+            1024,
+            1024
+          ],
+          "stagedDimensions": [
+            1024,
+            1024
+          ],
+          "packed": true
+        },
+        {
+          "name": "TEX_LOCKER_WINGS_NORMAL_02",
+          "sourceDimensions": [
+            1024,
+            1024
+          ],
+          "stagedDimensions": [
+            1024,
+            1024
+          ],
+          "packed": true
+        },
+        {
+          "name": "TEX_LOCKER_WINGS_IMAGE_03",
+          "sourceDimensions": [
+            1024,
+            1024
+          ],
+          "stagedDimensions": [
+            1024,
+            1024
+          ],
+          "packed": true
+        }
+      ],
+      "stableContract": {
+        "node": "LOCKER_PROP_WINGS",
+        "meshNodes": [
+          "LOCKER_PROP_WINGS_MESH"
+        ],
+        "colliderNodes": [
+          "LOCKER_HITBOX_WINGS"
+        ],
+        "gameId": "locker.memory.wings",
+        "interaction": "inspect",
+        "pivot": "centered object-space origin",
+        "placement": [
+          0.42,
+          0.48,
+          1.34
+        ],
+        "scaleApplied": 0.6,
+        "rotationZDegreesApplied": -90.0
+      },
+      "stagedBounds": {
+        "minimum": [
+          -0.294129,
+          -0.074115,
+          -0.093914
+        ],
+        "maximum": [
+          0.294129,
+          0.074115,
+          0.093914
+        ],
+        "size": [
+          0.588257,
+          0.14823,
+          0.187828
+        ]
+      },
+      "optimizedPath": ".cache/cockpit-pipeline/sources/locker-room/pilot-wings/optimized/pilot-wings.optimized.glb",
+      "optimizedFileSize": 2586516,
+      "optimizedSha256": "c10df5bd40a793f199aba789480e5e64758ddd1642f7f88326ad73db52edf3b1"
+    },
+    {
+      "asset": "charging-bull",
+      "sourceCreator": "Tripo AI owner-supplied candidate",
+      "sourceGenerator": "Tripo",
+      "downloadSourcePath": "/mnt/2TBHDD/Downloads/bull+3d+model.glb",
+      "sourcePath": ".cache/cockpit-pipeline/sources/locker-room/charging-bull/original/bull+3d+model.glb",
+      "sourceFileSize": 15512712,
+      "sourceSha256": "2858838f5d753571c5c8702fb061bf4005dd6e32460ed9a745c422a7e46fb7c8",
+      "sourceBounds": {
+        "minimum": [
+          -0.490265,
+          -0.357483,
+          -0.39032
+        ],
+        "maximum": [
+          0.490082,
+          0.357391,
+          0.390045
+        ],
+        "size": [
+          0.980347,
+          0.714874,
+          0.780365
+        ]
+      },
+      "sourceObjectCount": 1,
+      "meshObjectCount": 1,
+      "materialCount": 1,
+      "sourceTriangleCount": 498476,
+      "optimizedTriangleCount": 59999,
+      "triangleReductionPercent": 87.96,
+      "textures": [
+        {
+          "name": "TEX_LOCKER_CHARGING_BULL_BASECOLOR_01",
+          "sourceDimensions": [
+            1024,
+            1024
+          ],
+          "stagedDimensions": [
+            1024,
+            1024
+          ],
+          "packed": true
+        },
+        {
+          "name": "TEX_LOCKER_CHARGING_BULL_NORMAL_02",
+          "sourceDimensions": [
+            1024,
+            1024
+          ],
+          "stagedDimensions": [
+            1024,
+            1024
+          ],
+          "packed": true
+        },
+        {
+          "name": "TEX_LOCKER_CHARGING_BULL_IMAGE_03",
+          "sourceDimensions": [
+            1024,
+            1024
+          ],
+          "stagedDimensions": [
+            1024,
+            1024
+          ],
+          "packed": true
+        }
+      ],
+      "stableContract": {
+        "node": "LOCKER_PROP_CHARGING_BULL",
+        "meshNodes": [
+          "LOCKER_PROP_CHARGING_BULL_MESH"
+        ],
+        "colliderNodes": [
+          "LOCKER_HITBOX_CHARGING_BULL"
+        ],
+        "gameId": "locker.memory.chargingBull",
+        "interaction": "inspect",
+        "pivot": "centered object-space origin",
+        "placement": [
+          0.42,
+          -0.06,
+          2.03
+        ],
+        "scaleApplied": 0.42,
+        "rotationZDegreesApplied": -45.0
+      },
+      "stagedBounds": {
+        "minimum": [
+          -0.145965,
+          -0.206438,
+          -0.163985
+        ],
+        "maximum": [
+          0.20911,
+          0.205228,
+          0.163985
+        ],
+        "size": [
+          0.355075,
+          0.411666,
+          0.327969
+        ]
+      },
+      "optimizedPath": ".cache/cockpit-pipeline/sources/locker-room/charging-bull/optimized/charging-bull.optimized.glb",
+      "optimizedFileSize": 2813712,
+      "optimizedSha256": "e9253cf03a68583abccd99e1277b0dbf7a604d2626c5a08385c010455aad2b79"
+    },
+    {
+      "asset": "captains-hat",
+      "sourceCreator": "Tripo AI owner-supplied candidate",
+      "sourceGenerator": "Tripo",
+      "downloadSourcePath": "/mnt/2TBHDD/Downloads/pilot cap 3d model.glb",
+      "sourcePath": ".cache/cockpit-pipeline/sources/locker-room/captains-hat/original/pilot cap 3d model.glb",
+      "sourceFileSize": 16868464,
+      "sourceSha256": "7ba8f765c94f6ee3caca2f132ae0954400c161a5ae60bf7e3eac95e9f7eed84e",
+      "sourceBounds": {
+        "minimum": [
+          -0.48996,
+          -0.476807,
+          -0.360718
+        ],
+        "maximum": [
+          0.490143,
+          0.476807,
+          0.360962
+        ],
+        "size": [
+          0.980103,
+          0.953613,
+          0.72168
+        ]
+      },
+      "sourceObjectCount": 1,
+      "meshObjectCount": 1,
+      "materialCount": 1,
+      "sourceTriangleCount": 488608,
+      "optimizedTriangleCount": 69999,
+      "triangleReductionPercent": 85.67,
+      "textures": [
+        {
+          "name": "TEX_LOCKER_CAPTAINS_HAT_BASECOLOR_01",
+          "sourceDimensions": [
+            4096,
+            4096
+          ],
+          "stagedDimensions": [
+            1024,
+            1024
+          ],
+          "packed": true
+        },
+        {
+          "name": "TEX_LOCKER_CAPTAINS_HAT_NORMAL_02",
+          "sourceDimensions": [
+            4096,
+            4096
+          ],
+          "stagedDimensions": [
+            1024,
+            1024
+          ],
+          "packed": true
+        },
+        {
+          "name": "TEX_LOCKER_CAPTAINS_HAT_METALLIC_ROUGHNESS_03",
+          "sourceDimensions": [
+            4096,
+            4096
+          ],
+          "stagedDimensions": [
+            1024,
+            1024
+          ],
+          "packed": true
+        }
+      ],
+      "stableContract": {
+        "node": "LOCKER_PROP_CAPTAINS_HAT",
+        "meshNodes": [
+          "LOCKER_PROP_CAPTAINS_HAT_MESH"
+        ],
+        "colliderNodes": [
+          "LOCKER_HITBOX_CAPTAINS_HAT"
+        ],
+        "gameId": "locker.promotion.hat",
+        "interaction": "claim",
+        "pivot": "centered object-space origin",
+        "placement": [
+          0.42,
+          -0.45,
+          2.92
+        ],
+        "scaleApplied": 0.46,
+        "rotationZDegreesApplied": -45.0
+      },
+      "stagedBounds": {
+        "minimum": [
+          -0.225646,
+          -0.205524,
+          -0.165963
+        ],
+        "maximum": [
+          0.205705,
+          0.225752,
+          0.165963
+        ],
+        "size": [
+          0.431351,
+          0.431277,
+          0.331925
+        ]
+      },
+      "optimizedPath": ".cache/cockpit-pipeline/sources/locker-room/captains-hat/optimized/captains-hat.optimized.glb",
+      "optimizedFileSize": 4090200,
+      "optimizedSha256": "f296c68dcf0894eb83baeb9586c573c3a5dc808965803aa1d37cf4b24ff734e9"
+    }
+  ],
+  "approvalPreviews": [
+    ".cache/assets/locker/previews/cam_locker_approval_hero.png",
+    ".cache/assets/locker/previews/cam_locker_approval_watch.png",
+    ".cache/assets/locker/previews/cam_locker_approval_wings.png",
+    ".cache/assets/locker/previews/cam_locker_approval_bull.png",
+    ".cache/assets/locker/previews/cam_locker_approval_hat.png"
+  ],
+  "status": "owner-review-candidate"
+}

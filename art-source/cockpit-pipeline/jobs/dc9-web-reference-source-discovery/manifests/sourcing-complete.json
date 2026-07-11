@@ -1,0 +1,49 @@
+{
+  "manifestId": "dc9-web-reference-source-discovery-sourcing-complete",
+  "jobId": "dc9-web-reference-source-discovery",
+  "stage": "sourcing_complete",
+  "createdAt": "2026-07-10T00:00:00Z",
+  "sourceVariant": "mixed-web-reference-leads",
+  "targetVariant": "DC-9-50",
+  "variantScope": "target-confirmed",
+  "artifactBasePath": "/mnt/2TBHDD/CockpitEscapeRoom",
+  "inputs": [
+    {
+      "path": "art-source/cockpit-pipeline/gates/agent0-dc9-web-reference-authority.json",
+      "sha256": "07eb2f892ed265fc2e9fe8b61dc05921239245a8b24d03aa5e62953be24a3355",
+      "bytes": 1852
+    },
+    {
+      "path": "art-source/cockpit-pipeline/source-discovery-seeds/dc9-web-reference-source-discovery.seed.json",
+      "sha256": "7100656acc06c86146602c9ebd20d81444897069f3aa1b4cd1c817b5f7cf6de0",
+      "bytes": 4312
+    }
+  ],
+  "outputs": [
+    {
+      "path": "art-source/cockpit-pipeline/jobs/dc9-web-reference-source-discovery/job.json",
+      "sha256": "00494183008ee2920c4223cdba76ef28da1590d8b7947aee35dd13fc8b594b6f",
+      "bytes": 2894
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-web-reference-source-discovery/component-catalog.json",
+      "sha256": "c517717878a6043ae803917a54ec2152f971ba333d83c3731e6ddf09177180f7",
+      "bytes": 7933
+    },
+    {
+      "path": "asset-reports/cockpit-pipeline/dc9-web-reference-source-discovery/source-candidate-ranking.md",
+      "sha256": "9b8cf0f18bf5dd7936ddb89621972a6c844de1bb1cd8e23e8e6df62d3f1f3caf",
+      "bytes": 3458
+    },
+    {
+      "path": "asset-reports/cockpit-pipeline/dc9-web-reference-source-discovery/source-job-report.md",
+      "sha256": "66fc8bc7d8340710d7f2a09635ef0e8e24378e6c4f7900a851686c8630166122",
+      "bytes": 2736
+    }
+  ],
+  "approval": {
+    "approved": false,
+    "approvedBy": "human-review-pending",
+    "notes": "Sourcing complete only. Human review is required before downloads, source approval, or Agent 2 assembly."
+  }
+}

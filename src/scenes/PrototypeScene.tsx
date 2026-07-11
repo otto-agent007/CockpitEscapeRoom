@@ -1,14 +1,15 @@
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { OrbitControls as ThreeOrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import * as THREE from 'three'
-import { firstOfficerFlow, type FirstOfficerControl } from '../game/config'
+import { firstOfficerFlow, type FirstOfficerControl, type LockerMemoryId } from '../game/config'
 import { type GamePhase, type SwitchId } from '../game/state'
 
 // Cockpit shells produced by the asset pipeline and served from public/models.
 const AIRBUS_MODEL_URL = `${import.meta.env.BASE_URL}models/airbus-first-officer.glb`
 const DC9_MODEL_URL = `${import.meta.env.BASE_URL}models/dc9-cockpit.glb`
+const LOCKER_MODEL_URL = `${import.meta.env.BASE_URL}models/locker-room.glb?v=tripo-locker-props-20260711`
 
 // Provisional placement, tuned in-browser during visual approval — not final framing.
 const DC9_MODEL_TRANSFORM = { position: [0, -0.35, 0] as [number, number, number], scale: 1 }
@@ -66,6 +67,13 @@ const AIRBUS_FO_EYE_QUATERNION = new THREE.Quaternion(-0.100679, 0.13991, 0.0143
 const AIRBUS_LOOK_YAW_LIMIT = 0.34
 const AIRBUS_LOOK_PITCH_LIMIT = 0.22
 const AIRBUS_LOOK_POINTER_SPEED = 0.0021
+const LOCKER_CAMERA_MOVE_SECONDS = 4.5
+const LOCKER_WATCH_POSITION = [0.31, -0.75, -0.21] as const
+export type LockerCameraCue = 'entry-wide' | 'watch-focus'
+const LOCKER_CAMERA_POSES: Record<LockerCameraCue, { position: [number, number, number]; target: [number, number, number]; fov: number }> = {
+  'entry-wide': { position: [0.25, 0.72, 7.6], target: [0, 0.18, 0], fov: 48 },
+  'watch-focus': { position: [0.12, -0.2, 3.92], target: [0.31, -0.75, -0.21], fov: 36 },
+}
 const AIRBUS_TARGET_NODES: Record<FirstOfficerControl, { pivot: string; hitbox: string; cue: string }> = {
   sidestick: {
     pivot: 'AIRBUS_A320_TARGET_SIDESTICK_PIVOT',
@@ -125,6 +133,8 @@ export type AirbusLoadState =
   | { status: 'error'; loadedBytes: number; totalBytes?: number; message: string }
   | { status: 'accessible-fallback'; loadedBytes: number; totalBytes?: number }
 
+export type LockerLoadState = { status: 'idle' | 'loading' | 'ready' | 'error' | 'accessible-fallback' }
+
 interface PrototypeSceneProps {
   phase: Exclude<GamePhase, 'briefing'>
   activeSwitches: SwitchId[]
@@ -132,12 +142,20 @@ interface PrototypeSceneProps {
   captainRewardUnlocked: boolean
   selectedAirbusCard: string | null
   airbusRetryToken: number
+  lockerRetryToken: number
+  lockerCameraCue: LockerCameraCue
+  lockerCameraImmediate: boolean
+  lockerControlsEnabled: boolean
+  availableLockerMemories: LockerMemoryId[]
   cameraResetRevision: number
   onAirbusLoadState: (state: AirbusLoadState) => void
+  onLockerLoadState: (state: LockerLoadState) => void
   onAirbusHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
   onAirbusTarget: (control: FirstOfficerControl) => void
+  onLockerCameraSettled: (cue: LockerCameraCue) => void
   onSwitch: (switchId: SwitchId) => void
   onMars: () => void
+  onLockerMemory: (memoryId: LockerMemoryId) => void
   onLockerHat: () => void
 }
 
@@ -224,6 +242,171 @@ function LimitedOrbitControls({
     controls.reset()
     controls.update()
   }, [airbusCameraRevision])
+
+  useFrame(() => controlsRef.current?.update())
+  return null
+}
+
+function lockerPoseVectors(cue: LockerCameraCue) {
+  const pose = LOCKER_CAMERA_POSES[cue]
+  return {
+    position: new THREE.Vector3(...pose.position),
+    target: new THREE.Vector3(...pose.target),
+    fov: pose.fov,
+  }
+}
+
+function lockerLookQuaternion(position: THREE.Vector3, target: THREE.Vector3): THREE.Quaternion {
+  const helper = new THREE.Object3D()
+  helper.position.copy(position)
+  helper.lookAt(target)
+  return helper.quaternion.clone()
+}
+
+function applyLockerCameraPose(camera: THREE.Camera, cue: LockerCameraCue) {
+  const pose = lockerPoseVectors(cue)
+  camera.position.copy(pose.position)
+  camera.quaternion.copy(lockerLookQuaternion(pose.position, pose.target))
+  if (camera instanceof THREE.PerspectiveCamera) {
+    camera.fov = pose.fov
+    camera.updateProjectionMatrix()
+  }
+  camera.updateMatrixWorld(true)
+}
+
+function LockerCameraDirector({
+  cue,
+  immediate,
+  onSettled,
+}: {
+  cue: LockerCameraCue
+  immediate: boolean
+  onSettled: (cue: LockerCameraCue) => void
+}) {
+  const { camera, gl, size } = useThree()
+  const runtimeCameraRef = useRef(camera)
+  const canvasRef = useRef(gl.domElement)
+  const sizeRef = useRef(size)
+  const onSettledRef = useRef(onSettled)
+  const animationRef = useRef<{
+    cue: LockerCameraCue
+    elapsed: number
+    fromPosition: THREE.Vector3
+    fromQuaternion: THREE.Quaternion
+    fromFov: number
+    toPosition: THREE.Vector3
+    toQuaternion: THREE.Quaternion
+    toFov: number
+    notified: boolean
+  } | null>(null)
+
+  useEffect(() => {
+    onSettledRef.current = onSettled
+  }, [onSettled])
+
+  useEffect(() => {
+    runtimeCameraRef.current = camera
+    canvasRef.current = gl.domElement
+    sizeRef.current = size
+  }, [camera, gl, size])
+
+  useEffect(() => {
+    const pose = lockerPoseVectors(cue)
+    const runtimeCamera = runtimeCameraRef.current
+    animationRef.current = {
+      cue,
+      elapsed: immediate ? LOCKER_CAMERA_MOVE_SECONDS : 0,
+      fromPosition: runtimeCamera.position.clone(),
+      fromQuaternion: runtimeCamera.quaternion.clone(),
+      fromFov: runtimeCamera instanceof THREE.PerspectiveCamera ? runtimeCamera.fov : pose.fov,
+      toPosition: pose.position,
+      toQuaternion: lockerLookQuaternion(pose.position, pose.target),
+      toFov: pose.fov,
+      notified: false,
+    }
+    canvasRef.current.dataset.lockerCameraCue = cue
+    canvasRef.current.dataset.lockerCameraState = 'moving'
+  }, [cue, immediate])
+
+  useFrame((_, delta) => {
+    const animation = animationRef.current
+    if (!animation || animation.notified) return
+    const runtimeCamera = runtimeCameraRef.current
+    const canvas = canvasRef.current
+    const canvasSize = sizeRef.current
+    animation.elapsed = Math.min(LOCKER_CAMERA_MOVE_SECONDS, animation.elapsed + delta)
+    const linearProgress = immediate ? 1 : animation.elapsed / LOCKER_CAMERA_MOVE_SECONDS
+    const progress = linearProgress < 0.5
+      ? 4 * linearProgress * linearProgress * linearProgress
+      : 1 - Math.pow(-2 * linearProgress + 2, 3) / 2
+
+    runtimeCamera.position.lerpVectors(animation.fromPosition, animation.toPosition, progress)
+    runtimeCamera.quaternion.slerpQuaternions(animation.fromQuaternion, animation.toQuaternion, progress)
+    if (runtimeCamera instanceof THREE.PerspectiveCamera) {
+      runtimeCamera.fov = THREE.MathUtils.lerp(animation.fromFov, animation.toFov, progress)
+      runtimeCamera.updateProjectionMatrix()
+    }
+    runtimeCamera.updateMatrixWorld(true)
+    const watchPosition = new THREE.Vector3(...LOCKER_WATCH_POSITION).project(runtimeCamera)
+    canvas.dataset.lockerWatchX = Math.round((watchPosition.x * 0.5 + 0.5) * canvasSize.width).toString()
+    canvas.dataset.lockerWatchY = Math.round((-watchPosition.y * 0.5 + 0.5) * canvasSize.height).toString()
+
+    if (linearProgress < 1) return
+    animation.notified = true
+    canvas.dataset.lockerCameraState = 'settled'
+    onSettledRef.current(animation.cue)
+  })
+
+  return null
+}
+
+function LockerOrbitControls({
+  enabled,
+  cue,
+  cameraResetRevision,
+}: {
+  enabled: boolean
+  cue: LockerCameraCue
+  cameraResetRevision: number
+}) {
+  const { camera, gl } = useThree()
+  const controlsRef = useRef<ThreeOrbitControls | null>(null)
+
+  useEffect(() => {
+    const controls = new ThreeOrbitControls(camera, gl.domElement)
+    controls.enablePan = false
+    controls.enableZoom = true
+    controls.enableRotate = true
+    controls.enableDamping = true
+    controls.dampingFactor = 0.08
+    controls.minDistance = 3.35
+    controls.maxDistance = 5.8
+    controls.minPolarAngle = Math.PI / 2.7
+    controls.maxPolarAngle = Math.PI / 1.65
+    controls.minAzimuthAngle = -0.48
+    controls.maxAzimuthAngle = 0.48
+    controlsRef.current = controls
+    return () => {
+      controlsRef.current = null
+      controls.dispose()
+    }
+  }, [camera, gl])
+
+  useEffect(() => {
+    const controls = controlsRef.current
+    if (!controls) return
+    controls.enabled = enabled
+    controls.target.copy(lockerPoseVectors(cue).target)
+    controls.update()
+  }, [cue, enabled])
+
+  useEffect(() => {
+    const controls = controlsRef.current
+    if (!controls || !enabled) return
+    applyLockerCameraPose(camera, cue)
+    controls.target.copy(lockerPoseVectors(cue).target)
+    controls.update()
+  }, [camera, cameraResetRevision, cue, enabled])
 
   useFrame(() => controlsRef.current?.update())
   return null
@@ -679,43 +862,322 @@ function AirbusCockpit({
   )
 }
 
-function LockerCocoon({ hatRevealed, onLockerHat, onHoverInteractive }: { hatRevealed: boolean; onLockerHat: () => void; onHoverInteractive: HoverHandler }) {
+const LOCKER_GAME_IDS: Record<string, LockerMemoryId> = {
+  'locker.memory.watch': 'watch',
+  'locker.memory.baseball': 'baseball',
+  'locker.memory.wings': 'wings',
+  'locker.memory.chargingBull': 'chargingBull',
+  'locker.memory.charging_bull': 'chargingBull',
+}
+
+function lockerGameId(object: THREE.Object3D): string | null {
+  let current: THREE.Object3D | null = object
+  while (current) {
+    if (typeof current.userData.game_id === 'string') return current.userData.game_id
+    current = current.parent
+  }
+  return null
+}
+
+type LockerPropMaterialSnapshot = {
+  color: THREE.Color
+  emissive: THREE.Color
+  emissiveIntensity: number
+  map: THREE.Texture | null
+  normalMap: THREE.Texture | null
+  roughnessMap: THREE.Texture | null
+  metalnessMap: THREE.Texture | null
+  aoMap: THREE.Texture | null
+  emissiveMap: THREE.Texture | null
+  bumpMap: THREE.Texture | null
+  displacementMap: THREE.Texture | null
+  metalness: number
+  roughness: number
+}
+
+const lockerPropMaterialSnapshots = new WeakMap<THREE.MeshStandardMaterial, LockerPropMaterialSnapshot>()
+
+function cloneLockerRuntimeMaterials(object: THREE.Object3D) {
+  if (!(object instanceof THREE.Mesh)) return
+  object.material = Array.isArray(object.material)
+    ? object.material.map((material) => material.clone())
+    : object.material.clone()
+}
+
+function configureLockerRuntimeMaterial(object: THREE.Object3D) {
+  if (!(object instanceof THREE.Mesh)) return
+  object.frustumCulled = false
+  object.castShadow = true
+  object.receiveShadow = true
+  const materials = Array.isArray(object.material) ? object.material : [object.material]
+  for (const material of materials) {
+    if (!(material instanceof THREE.MeshStandardMaterial)) continue
+    material.side = THREE.DoubleSide
+    if (object.name.includes('LOCKER_HITBOX') || material.name === 'MAT_LOCKER_INVISIBLE_HITBOX') {
+      material.transparent = true
+      material.opacity = 0
+      material.colorWrite = false
+      material.depthWrite = false
+      material.needsUpdate = true
+      continue
+    }
+    if (object.userData.source_package === 'locker-room-bench' || material.name.toLowerCase().includes('lambert')) {
+      material.color.multiplyScalar(1.18)
+      material.emissive = new THREE.Color('#201208')
+      material.emissiveIntensity = 0.05
+    } else if (material.name === 'MAT_LOCKER_ROOM_WARM_WALL') {
+      material.color = new THREE.Color('#33251f')
+      material.roughness = 0.9
+    } else if (material.name === 'MAT_LOCKER_ROOM_FLOOR') {
+      material.color = new THREE.Color('#4a3023')
+      material.roughness = 0.82
+    }
+    material.needsUpdate = true
+  }
+}
+
+function setLockerPropMaterialState(prop: THREE.Object3D, revealed: boolean) {
+  prop.visible = true
+  prop.traverse((object) => {
+    if (!(object instanceof THREE.Mesh)) return
+    const materials = Array.isArray(object.material) ? object.material : [object.material]
+    for (const material of materials) {
+      if (!(material instanceof THREE.MeshStandardMaterial)) continue
+      let snapshot = lockerPropMaterialSnapshots.get(material)
+      if (!snapshot) {
+        snapshot = {
+          color: material.color.clone(),
+          emissive: material.emissive.clone(),
+          emissiveIntensity: material.emissiveIntensity,
+          map: material.map,
+          normalMap: material.normalMap,
+          roughnessMap: material.roughnessMap,
+          metalnessMap: material.metalnessMap,
+          aoMap: material.aoMap,
+          emissiveMap: material.emissiveMap,
+          bumpMap: material.bumpMap,
+          displacementMap: material.displacementMap,
+          metalness: material.metalness,
+          roughness: material.roughness,
+        }
+        lockerPropMaterialSnapshots.set(material, snapshot)
+      }
+
+      if (revealed) {
+        material.color.copy(snapshot.color)
+        material.emissive.copy(snapshot.emissive)
+        material.emissiveIntensity = snapshot.emissiveIntensity
+        material.map = snapshot.map
+        material.normalMap = snapshot.normalMap
+        material.roughnessMap = snapshot.roughnessMap
+        material.metalnessMap = snapshot.metalnessMap
+        material.aoMap = snapshot.aoMap
+        material.emissiveMap = snapshot.emissiveMap
+        material.bumpMap = snapshot.bumpMap
+        material.displacementMap = snapshot.displacementMap
+        material.metalness = snapshot.metalness
+        material.roughness = snapshot.roughness
+      } else {
+        material.color.set('#010101')
+        material.emissive.set('#000000')
+        material.emissiveIntensity = 0
+        material.map = null
+        material.normalMap = null
+        material.roughnessMap = null
+        material.metalnessMap = null
+        material.aoMap = null
+        material.emissiveMap = null
+        material.bumpMap = null
+        material.displacementMap = null
+        material.metalness = 0
+        material.roughness = 1
+      }
+      material.needsUpdate = true
+    }
+  })
+}
+
+function LockerRoom({
+  hatRevealed,
+  retryToken,
+  interactionEnabled,
+  availableMemories,
+  onLoadState,
+  onLockerMemory,
+  onLockerHat,
+  onHoverInteractive,
+}: {
+  hatRevealed: boolean
+  retryToken: number
+  interactionEnabled: boolean
+  availableMemories: LockerMemoryId[]
+  onLoadState: (state: LockerLoadState) => void
+  onLockerMemory: (memoryId: LockerMemoryId) => void
+  onLockerHat: () => void
+  onHoverInteractive: HoverHandler
+}) {
+  const [scene, setScene] = useState<THREE.Group | null>(null)
+  const { gl } = useThree()
+  const canvasRef = useRef(gl.domElement)
+  const wingsRevealed = availableMemories.includes('wings')
+  const chargingBullRevealed = availableMemories.includes('chargingBull')
+
+  useEffect(() => {
+    canvasRef.current = gl.domElement
+  }, [gl])
+
+  useEffect(() => {
+    let active = true
+    onLoadState({ status: 'loading' })
+    if (retryToken > 0) cockpitModelCache.delete(LOCKER_MODEL_URL)
+    loadCockpitModel(LOCKER_MODEL_URL)
+      .then((loaded) => {
+        if (!active) return
+        const instance = loaded.clone(true)
+        instance.traverse(cloneLockerRuntimeMaterials)
+        instance.traverse(configureLockerRuntimeMaterial)
+        const watch = instance.getObjectByName('LOCKER_PROP_WATCH')
+        const wings = instance.getObjectByName('LOCKER_PROP_WINGS')
+        const chargingBull = instance.getObjectByName('LOCKER_PROP_CHARGING_BULL')
+        const hat = instance.getObjectByName('LOCKER_PROP_CAPTAINS_HAT')
+        if (!watch || !wings || !chargingBull || !hat) {
+          throw new Error('Locker GLB is missing a required watch, Wings, Charging Bull, or captain-hat contract node.')
+        }
+        instance.updateMatrixWorld(true)
+        const bounds = new THREE.Box3().setFromObject(instance)
+        const center = bounds.getCenter(new THREE.Vector3())
+        const size = bounds.getSize(new THREE.Vector3())
+        const scale = Math.min(0.82, 4.8 / Math.max(size.x, size.y))
+        instance.scale.setScalar(scale)
+        instance.position.set(-center.x * scale, -center.y * scale, -center.z * scale)
+        instance.position.y += 0.28
+        instance.updateMatrixWorld(true)
+        setScene(instance)
+        onLoadState({ status: 'ready' })
+      })
+      .catch((error) => {
+        cockpitModelCache.delete(LOCKER_MODEL_URL)
+        console.error('Failed to load captain locker asset.', error)
+        if (active) onLoadState({ status: 'error' })
+      })
+    return () => { active = false }
+  }, [onLoadState, retryToken])
+
+  useEffect(() => {
+    if (!scene) return
+    const hat = scene.getObjectByName('LOCKER_PROP_CAPTAINS_HAT')
+    const wings = scene.getObjectByName('LOCKER_PROP_WINGS')
+    const chargingBull = scene.getObjectByName('LOCKER_PROP_CHARGING_BULL')
+    const door = scene.getObjectByName('LOCKER_UPPER_CUBBY_DOOR')
+    const light = scene.getObjectByName('LOCKER_HAT_LIGHT')
+    if (hat) setLockerPropMaterialState(hat, hatRevealed)
+    if (wings) setLockerPropMaterialState(wings, wingsRevealed)
+    if (chargingBull) setLockerPropMaterialState(chargingBull, chargingBullRevealed)
+    if (door) door.rotation.x = hatRevealed ? -1.35 : 0
+    if (light instanceof THREE.Light) light.intensity = hatRevealed ? 7 : 0
+    canvasRef.current.dataset.lockerHatVisual = hatRevealed ? 'revealed' : 'silhouette'
+    canvasRef.current.dataset.lockerWingsVisual = wingsRevealed ? 'revealed' : 'silhouette'
+    canvasRef.current.dataset.lockerBullVisual = chargingBullRevealed ? 'revealed' : 'silhouette'
+  }, [chargingBullRevealed, hatRevealed, scene, wingsRevealed])
+
+  useEffect(() => {
+    if (!scene) return
+    const watch = scene.getObjectByName('LOCKER_PROP_WATCH')
+    const wings = scene.getObjectByName('LOCKER_PROP_WINGS')
+    const chargingBull = scene.getObjectByName('LOCKER_PROP_CHARGING_BULL')
+    const hat = scene.getObjectByName('LOCKER_PROP_CAPTAINS_HAT')
+    const canvas = canvasRef.current
+    canvas.dataset.lockerWatchNode = watch?.name ?? 'missing'
+    canvas.dataset.lockerWingsNode = wings?.name ?? 'missing'
+    canvas.dataset.lockerBullNode = chargingBull?.name ?? 'missing'
+    canvas.dataset.lockerHatNode = hat?.name ?? 'missing'
+    return () => {
+      delete canvas.dataset.lockerWatchNode
+      delete canvas.dataset.lockerWingsNode
+      delete canvas.dataset.lockerBullNode
+      delete canvas.dataset.lockerHatNode
+      delete canvas.dataset.lockerHatVisual
+      delete canvas.dataset.lockerWingsVisual
+      delete canvas.dataset.lockerBullVisual
+    }
+  }, [scene])
+
+  const activate = (object: THREE.Object3D) => {
+    if (!interactionEnabled) return
+    const gameId = lockerGameId(object)
+    if (!gameId) return
+    if (gameId === 'locker.promotion.hat') {
+      if (hatRevealed) onLockerHat()
+      return
+    }
+    const memoryId = LOCKER_GAME_IDS[gameId]
+    if (memoryId) onLockerMemory(memoryId)
+  }
+
+  const isInteractive = (object: THREE.Object3D) => {
+    if (!interactionEnabled) return false
+    const gameId = lockerGameId(object)
+    if (gameId === 'locker.promotion.hat') return hatRevealed
+    const memoryId = gameId ? LOCKER_GAME_IDS[gameId] : undefined
+    return Boolean(memoryId && availableMemories.includes(memoryId))
+  }
+
   return (
     <>
-      <color attach="background" args={['#211a19']} />
-      <ambientLight intensity={0.45} />
-      <pointLight position={[0.2, 1.75, 0.55]} intensity={1.35} color={hatRevealed ? '#f0a44d' : '#3a2a20'} />
-      <mesh position={[0, -0.15, 0]} castShadow>
-        <boxGeometry args={[3.55, 2.05, 0.24]} />
-        <meshStandardMaterial color="#57403e" roughness={0.78} metalness={0.2} />
-      </mesh>
-      <mesh position={[0.0, 0.08, -0.1]}>
-        <boxGeometry args={[1.2, 0.35, 0.22]} />
-        <meshStandardMaterial color="#b88d63" />
-      </mesh>
-      <mesh
-        position={[0, 0.46, 0.24]}
-        onClick={(event) => {
-          event.stopPropagation()
-          if (hatRevealed) onLockerHat()
-        }}
-        onPointerOver={() => {
-          onHoverInteractive(true)
-        }}
-        onPointerOut={() => {
-          onHoverInteractive(false)
-        }}
-        onPointerLeave={() => {
-          onHoverInteractive(false)
-        }}
-      >
-        <sphereGeometry args={[0.28, 24, 24]} />
-        <meshStandardMaterial
-          color={hatRevealed ? '#a8a09b' : '#1b1514'}
-          emissive={hatRevealed ? '#a26a2a' : '#000000'}
-        />
-      </mesh>
-      <mesh position={[0, 0.05, -0.52]} />
+      <color attach="background" args={['#000000']} />
+      <ambientLight intensity={0.82} color="#e8e3da" />
+      <hemisphereLight args={['#ffe1b0', '#211815', 0.58]} />
+      <directionalLight position={[3, 5, 4]} intensity={2.7} color="#ffd59a" castShadow />
+      <directionalLight position={[-3.2, 2.2, 3.1]} intensity={0.9} color="#c9ddff" />
+      <directionalLight position={[0, 2.8, 6]} intensity={1.2} color="#f3f5ff" />
+      <spotLight position={[0.48, 1.55, 1.1]} intensity={7.5} distance={5.5} angle={0.56} penumbra={0.86} color="#f2ad62" castShadow />
+      <pointLight position={[0.44, 0.34, 0.72]} intensity={hatRevealed ? 4.4 : 3.6} distance={3.8} color="#ef9d4d" />
+      <pointLight position={[-1.2, 0.5, 2.4]} intensity={0.75} distance={5} color="#ffe6bd" />
+      {scene ? (
+        <>
+          <primitive
+            object={scene}
+            onClick={(event: ThreeEvent<MouseEvent>) => {
+              if (!lockerGameId(event.object)) return
+              event.stopPropagation()
+              activate(event.object)
+            }}
+            onPointerOver={(event: ThreeEvent<PointerEvent>) => {
+              if (!isInteractive(event.object)) return
+              event.stopPropagation()
+              onHoverInteractive(true)
+            }}
+            onPointerOut={(event: ThreeEvent<PointerEvent>) => {
+              if (!lockerGameId(event.object)) return
+              event.stopPropagation()
+              onHoverInteractive(false)
+            }}
+          />
+          <group>
+            {([
+              ['baseball', 'locker.memory.baseball', [-0.58, -0.12, 0.7], [0.52, 0.48, 0.3]],
+            ] as const).filter(([memoryId]) => availableMemories.includes(memoryId)).map(([, gameId, position, scale]) => (
+              <mesh
+                key={gameId}
+                position={position}
+                scale={scale}
+                userData={{ game_id: gameId }}
+                onClick={(event) => { event.stopPropagation(); activate(event.object) }}
+                onPointerOver={(event) => { event.stopPropagation(); if (interactionEnabled) onHoverInteractive(true) }}
+                onPointerOut={() => onHoverInteractive(false)}
+              >
+                <boxGeometry />
+                <meshBasicMaterial transparent opacity={0} colorWrite={false} depthWrite={false} />
+              </mesh>
+            ))}
+          </group>
+        </>
+      ) : (
+        <mesh position={[0, 0, 0]}>
+          <boxGeometry args={[3.6, 3.8, 0.35]} />
+          <meshStandardMaterial color="#49514e" roughness={0.85} />
+        </mesh>
+      )}
     </>
   )
 }
@@ -824,12 +1286,20 @@ export function PrototypeScene({
   captainRewardUnlocked,
   selectedAirbusCard,
   airbusRetryToken,
+  lockerRetryToken,
+  lockerCameraCue,
+  lockerCameraImmediate,
+  lockerControlsEnabled,
+  availableLockerMemories,
   cameraResetRevision,
   onAirbusLoadState,
+  onLockerLoadState,
   onAirbusHotspotsChange,
   onAirbusTarget,
+  onLockerCameraSettled,
   onSwitch,
   onMars,
+  onLockerMemory,
   onLockerHat,
 }: PrototypeSceneProps) {
   const onInteractiveHover = useInteractiveCursor()
@@ -854,11 +1324,28 @@ export function PrototypeScene({
           />
         )}
         {phase === 'locker' && (
-          <LockerCocoon
-            hatRevealed={lockerHatRevealed}
-            onLockerHat={onLockerHat}
-            onHoverInteractive={onInteractiveHover}
-          />
+          <>
+            <LockerRoom
+              hatRevealed={lockerHatRevealed}
+              retryToken={lockerRetryToken}
+              interactionEnabled={lockerControlsEnabled}
+              availableMemories={availableLockerMemories}
+              onLoadState={onLockerLoadState}
+              onLockerMemory={onLockerMemory}
+              onLockerHat={onLockerHat}
+              onHoverInteractive={onInteractiveHover}
+            />
+            <LockerCameraDirector
+              cue={lockerCameraCue}
+              immediate={lockerCameraImmediate}
+              onSettled={onLockerCameraSettled}
+            />
+            <LockerOrbitControls
+              enabled={lockerControlsEnabled}
+              cue={lockerCameraCue}
+              cameraResetRevision={cameraResetRevision}
+            />
+          </>
         )}
         {(phase === 'captain' || phase === 'reward' || phase === 'mars') && (
           <CaptainCockpit
@@ -876,17 +1363,13 @@ export function PrototypeScene({
           </mesh>
         )}
 
-        {phase !== 'airbus' && (
+        {phase !== 'airbus' && phase !== 'locker' && (
           <LimitedOrbitControls airbusCameraRevision={cameraResetRevision} />
         )}
       </Canvas>
-      {phase !== 'airbus' && (
+      {phase !== 'airbus' && phase !== 'locker' && (
         <div className="prototype-badge">
-          {phase === 'locker'
-            ? 'LOCKER REVEAL SCENE'
-            : phase === 'captain'
-              ? 'GREYBOX — DC-9 CAPTAIN FLOW'
-              : 'HANGAR VIEW'}
+          {phase === 'captain' ? 'GREYBOX — DC-9 CAPTAIN FLOW' : 'HANGAR VIEW'}
         </div>
       )}
     </div>

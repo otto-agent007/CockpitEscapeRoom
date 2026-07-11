@@ -19,10 +19,15 @@ const assets = {
     output: 'public/models/model-y-reward.glb',
     root: 'TESLA_ROOT',
   },
+  locker: {
+    blend: 'art-source/blender/locker_room_master.blend',
+    output: 'public/models/locker-room.glb',
+    root: 'LOCKER_ROOT',
+  },
 }
 
 if (!assetName || !(assetName in assets)) {
-  console.error('Usage: node tools/assets/build-asset.mjs <dc9|airbus|tesla>')
+  console.error('Usage: node tools/assets/build-asset.mjs <dc9|airbus|tesla|locker>')
   process.exit(2)
 }
 

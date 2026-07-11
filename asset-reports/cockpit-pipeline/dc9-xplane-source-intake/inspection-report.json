@@ -1,0 +1,755 @@
+{
+  "packageDir": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32",
+  "acfPath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/DC9-32.acf",
+  "archive": {
+    "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/DC9-32.zip",
+    "fileSizeBytes": 137195620
+  },
+  "attachedObjects": [
+    {
+      "slot": 0,
+      "file": "DC9vc1.obj",
+      "exists": true,
+      "inspection": {
+        "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/DC9vc1.obj",
+        "fileSizeBytes": 1240069,
+        "textures": [
+          {
+            "name": "DC9vc1.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/DC9vc1.png",
+            "dimensions": {
+              "width": 2048,
+              "height": 2048
+            },
+            "exists": true
+          },
+          {
+            "name": "DC9vc1_LIT.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/DC9vc1_LIT.png",
+            "dimensions": {
+              "width": 2048,
+              "height": 2048
+            },
+            "exists": true
+          }
+        ],
+        "pointCounts": {
+          "vt": 13134,
+          "lights": 0,
+          "lines": 0,
+          "indices": 36792
+        },
+        "vtCountParsed": 13134,
+        "indexCountParsed": 36792,
+        "bounds": {
+          "min": {
+            "x": -0.348541,
+            "y": 0.828735,
+            "z": 2.425323
+          },
+          "max": {
+            "x": 0.350266,
+            "y": 1.433502,
+            "z": 3.549805
+          }
+        },
+        "dimensions": {
+          "x": 0.698807,
+          "y": 0.604767,
+          "z": 1.124482
+        },
+        "zeroSizeBounds": false
+      }
+    },
+    {
+      "slot": 1,
+      "file": "DC9vc2.obj",
+      "exists": true,
+      "inspection": {
+        "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/DC9vc2.obj",
+        "fileSizeBytes": 10665902,
+        "textures": [
+          {
+            "name": "DC9vc2.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/DC9vc2.png",
+            "dimensions": {
+              "width": 2048,
+              "height": 2048
+            },
+            "exists": true
+          },
+          {
+            "name": "DC9vc2_LIT.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/DC9vc2_LIT.png",
+            "dimensions": {
+              "width": 2048,
+              "height": 2048
+            },
+            "exists": true
+          }
+        ],
+        "pointCounts": {
+          "vt": 104846,
+          "lights": 0,
+          "lines": 0,
+          "indices": 371382
+        },
+        "vtCountParsed": 104846,
+        "indexCountParsed": 371382,
+        "bounds": {
+          "min": {
+            "x": -1.426254,
+            "y": -0.473572,
+            "z": 1.830429
+          },
+          "max": {
+            "x": 1.425934,
+            "y": 1.237976,
+            "z": 3.623566
+          }
+        },
+        "dimensions": {
+          "x": 2.852188,
+          "y": 1.711548,
+          "z": 1.7931369999999998
+        },
+        "zeroSizeBounds": false
+      }
+    },
+    {
+      "slot": 10,
+      "file": "Cartellini.obj",
+      "exists": true,
+      "inspection": {
+        "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/Cartellini.obj",
+        "fileSizeBytes": 10511,
+        "textures": [
+          {
+            "name": "Cartellini.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/Cartellini.png",
+            "dimensions": {
+              "width": 2048,
+              "height": 2048
+            },
+            "exists": true
+          }
+        ],
+        "pointCounts": {
+          "vt": 80,
+          "lights": 0,
+          "lines": 0,
+          "indices": 120
+        },
+        "vtCountParsed": 80,
+        "indexCountParsed": 120,
+        "bounds": {
+          "min": {
+            "x": -0.532379,
+            "y": 0.259277,
+            "z": 2.659088
+          },
+          "max": {
+            "x": -0.434784,
+            "y": 0.360458,
+            "z": 2.729935
+          }
+        },
+        "dimensions": {
+          "x": 0.09759500000000004,
+          "y": 0.10118100000000002,
+          "z": 0.07084699999999966
+        },
+        "zeroSizeBounds": false
+      }
+    },
+    {
+      "slot": 11,
+      "file": "Glass.obj",
+      "exists": true,
+      "inspection": {
+        "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/Glass.obj",
+        "fileSizeBytes": 14219,
+        "textures": [
+          {
+            "name": "Glass.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/Glass.png",
+            "dimensions": {
+              "width": 1024,
+              "height": 1024
+            },
+            "exists": true
+          }
+        ],
+        "pointCounts": {
+          "vt": 128,
+          "lights": 0,
+          "lines": 0,
+          "indices": 330
+        },
+        "vtCountParsed": 128,
+        "indexCountParsed": 330,
+        "bounds": {
+          "min": {
+            "x": -1.392685,
+            "y": 0.373245,
+            "z": 1.937943
+          },
+          "max": {
+            "x": 1.392365,
+            "y": 1.223328,
+            "z": 3.449234
+          }
+        },
+        "dimensions": {
+          "x": 2.78505,
+          "y": 0.8500829999999999,
+          "z": 1.5112910000000002
+        },
+        "zeroSizeBounds": false
+      }
+    },
+    {
+      "slot": 12,
+      "file": "nose gear.obj",
+      "exists": true,
+      "inspection": {
+        "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/nose gear.obj",
+        "fileSizeBytes": 1398224,
+        "textures": [
+          {
+            "name": "gear.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/gear.png",
+            "dimensions": {
+              "width": 1024,
+              "height": 1024
+            },
+            "exists": true
+          }
+        ],
+        "pointCounts": {
+          "vt": 13701,
+          "lights": 0,
+          "lines": 0,
+          "indices": 53616
+        },
+        "vtCountParsed": 13701,
+        "indexCountParsed": 53616,
+        "bounds": {
+          "min": {
+            "x": -0.372696,
+            "y": -3.051758,
+            "z": 1.753204
+          },
+          "max": {
+            "x": 0.373001,
+            "y": -1.202835,
+            "z": 2.582367
+          }
+        },
+        "dimensions": {
+          "x": 0.745697,
+          "y": 1.8489229999999999,
+          "z": 0.8291630000000001
+        },
+        "zeroSizeBounds": false
+      }
+    },
+    {
+      "slot": 13,
+      "file": "main gear.obj",
+      "exists": true,
+      "inspection": {
+        "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/main gear.obj",
+        "fileSizeBytes": 5589876,
+        "textures": [
+          {
+            "name": "gear.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/gear.png",
+            "dimensions": {
+              "width": 1024,
+              "height": 1024
+            },
+            "exists": true
+          }
+        ],
+        "pointCounts": {
+          "vt": 50844,
+          "lights": 0,
+          "lines": 0,
+          "indices": 233808
+        },
+        "vtCountParsed": 50844,
+        "indexCountParsed": 233808,
+        "bounds": {
+          "min": {
+            "x": -3.014603,
+            "y": -3.302444,
+            "z": 17.717407
+          },
+          "max": {
+            "x": 3.014603,
+            "y": -1.083908,
+            "z": 18.757339
+          }
+        },
+        "dimensions": {
+          "x": 6.029206,
+          "y": 2.218536,
+          "z": 1.0399320000000003
+        },
+        "zeroSizeBounds": false
+      }
+    },
+    {
+      "slot": 2,
+      "file": "DC9panel.obj",
+      "exists": true,
+      "inspection": {
+        "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/DC9panel.obj",
+        "fileSizeBytes": 2577254,
+        "textures": [
+          {
+            "name": "DC9panel.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/DC9panel.png",
+            "dimensions": {
+              "width": 4096,
+              "height": 4096
+            },
+            "exists": true
+          },
+          {
+            "name": "DC9panel_LIT.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/DC9panel_LIT.png",
+            "dimensions": {
+              "width": 4096,
+              "height": 4096
+            },
+            "exists": true
+          }
+        ],
+        "pointCounts": {
+          "vt": 26624,
+          "lights": 0,
+          "lines": 0,
+          "indices": 80466
+        },
+        "vtCountParsed": 26624,
+        "indexCountParsed": 80466,
+        "bounds": {
+          "min": {
+            "x": -1.570358,
+            "y": -0.473572,
+            "z": 1.75174
+          },
+          "max": {
+            "x": 1.570038,
+            "y": 1.46579,
+            "z": 3.623459
+          }
+        },
+        "dimensions": {
+          "x": 3.140396,
+          "y": 1.939362,
+          "z": 1.871719
+        },
+        "zeroSizeBounds": false
+      }
+    },
+    {
+      "slot": 3,
+      "file": "CB's.obj",
+      "exists": true,
+      "inspection": {
+        "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/CB's.obj",
+        "fileSizeBytes": 3786542,
+        "textures": [
+          {
+            "name": "CB's.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/CB's.png",
+            "dimensions": {
+              "width": 2048,
+              "height": 2048
+            },
+            "exists": true
+          },
+          {
+            "name": "CB's_LIT.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/CB's_LIT.png",
+            "dimensions": {
+              "width": 2048,
+              "height": 2048
+            },
+            "exists": true
+          }
+        ],
+        "pointCounts": {
+          "vt": 40546,
+          "lights": 0,
+          "lines": 0,
+          "indices": 98112
+        },
+        "vtCountParsed": 40546,
+        "indexCountParsed": 98112,
+        "bounds": {
+          "min": {
+            "x": -1.190521,
+            "y": 0.118591,
+            "z": 3.082504
+          },
+          "max": {
+            "x": 0.35025,
+            "y": 1.330933,
+            "z": 3.619095
+          }
+        },
+        "dimensions": {
+          "x": 1.540771,
+          "y": 1.212342,
+          "z": 0.536591
+        },
+        "zeroSizeBounds": false
+      }
+    },
+    {
+      "slot": 4,
+      "file": "fuselage.obj",
+      "exists": true,
+      "inspection": {
+        "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/fuselage.obj",
+        "fileSizeBytes": 1248017,
+        "textures": [
+          {
+            "name": "fuselage.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/fuselage.png",
+            "dimensions": {
+              "width": 2048,
+              "height": 2048
+            },
+            "exists": true
+          },
+          {
+            "name": "fuselage_LIT.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/fuselage_LIT.png",
+            "dimensions": {
+              "width": 2048,
+              "height": 2048
+            },
+            "exists": true
+          }
+        ],
+        "pointCounts": {
+          "vt": 12389,
+          "lights": 0,
+          "lines": 0,
+          "indices": 44610
+        },
+        "vtCountParsed": 12389,
+        "indexCountParsed": 44610,
+        "bounds": {
+          "min": {
+            "x": -1.65773,
+            "y": -1.796661,
+            "z": -0.016495
+          },
+          "max": {
+            "x": 1.654938,
+            "y": 1.802032,
+            "z": 32.580109
+          }
+        },
+        "dimensions": {
+          "x": 3.312668,
+          "y": 3.598693,
+          "z": 32.596604
+        },
+        "zeroSizeBounds": false
+      }
+    },
+    {
+      "slot": 5,
+      "file": "interior.obj",
+      "exists": true,
+      "inspection": {
+        "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/interior.obj",
+        "fileSizeBytes": 6015563,
+        "textures": [
+          {
+            "name": "Interior.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/Interior.png",
+            "dimensions": {
+              "width": 2048,
+              "height": 2048
+            },
+            "exists": true
+          },
+          {
+            "name": "Interior_LIT.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/Interior_LIT.png",
+            "dimensions": {
+              "width": 2048,
+              "height": 2048
+            },
+            "exists": true
+          }
+        ],
+        "pointCounts": {
+          "vt": 61986,
+          "lights": 0,
+          "lines": 0,
+          "indices": 172728
+        },
+        "vtCountParsed": 61986,
+        "indexCountParsed": 172728,
+        "bounds": {
+          "min": {
+            "x": -1.65448,
+            "y": -0.636826,
+            "z": 3.6026
+          },
+          "max": {
+            "x": 1.65416,
+            "y": 1.63089,
+            "z": 28.694656
+          }
+        },
+        "dimensions": {
+          "x": 3.30864,
+          "y": 2.267716,
+          "z": 25.092056
+        },
+        "zeroSizeBounds": false
+      }
+    },
+    {
+      "slot": 6,
+      "file": "wings.obj",
+      "exists": true,
+      "inspection": {
+        "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/wings.obj",
+        "fileSizeBytes": 1284551,
+        "textures": [
+          {
+            "name": "wings.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/wings.png",
+            "dimensions": {
+              "width": 2048,
+              "height": 2048
+            },
+            "exists": true
+          }
+        ],
+        "pointCounts": {
+          "vt": 12908,
+          "lights": 0,
+          "lines": 0,
+          "indices": 38742
+        },
+        "vtCountParsed": 12908,
+        "indexCountParsed": 38742,
+        "bounds": {
+          "min": {
+            "x": -14.183304,
+            "y": -1.81813,
+            "z": 14.016235
+          },
+          "max": {
+            "x": 14.183304,
+            "y": -0.608551,
+            "z": 22.476334
+          }
+        },
+        "dimensions": {
+          "x": 28.366608,
+          "y": 1.2095790000000002,
+          "z": 8.460099000000001
+        },
+        "zeroSizeBounds": false
+      }
+    },
+    {
+      "slot": 7,
+      "file": "fan.obj",
+      "exists": true,
+      "inspection": {
+        "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/fan.obj",
+        "fileSizeBytes": 452825,
+        "textures": [
+          {
+            "name": "wings.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/wings.png",
+            "dimensions": {
+              "width": 2048,
+              "height": 2048
+            },
+            "exists": true
+          }
+        ],
+        "pointCounts": {
+          "vt": 4534,
+          "lights": 0,
+          "lines": 0,
+          "indices": 15372
+        },
+        "vtCountParsed": 4534,
+        "indexCountParsed": 15372,
+        "bounds": {
+          "min": {
+            "x": -3.568756,
+            "y": -0.714371,
+            "z": 22.760208
+          },
+          "max": {
+            "x": 3.568756,
+            "y": 0.866837,
+            "z": 28.429184
+          }
+        },
+        "dimensions": {
+          "x": 7.137512,
+          "y": 1.581208,
+          "z": 5.668976000000001
+        },
+        "zeroSizeBounds": false
+      }
+    },
+    {
+      "slot": 8,
+      "file": "tail.obj",
+      "exists": true,
+      "inspection": {
+        "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/tail.obj",
+        "fileSizeBytes": 60620,
+        "textures": [
+          {
+            "name": "tail.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/tail.png",
+            "dimensions": {
+              "width": 512,
+              "height": 512
+            },
+            "exists": true
+          }
+        ],
+        "pointCounts": {
+          "vt": 630,
+          "lights": 0,
+          "lines": 0,
+          "indices": 2250
+        },
+        "vtCountParsed": 630,
+        "indexCountParsed": 2250,
+        "bounds": {
+          "min": {
+            "x": -0.237823,
+            "y": 1.134186,
+            "z": 26.424606
+          },
+          "max": {
+            "x": 0.237625,
+            "y": 5.600723,
+            "z": 35.182602
+          }
+        },
+        "dimensions": {
+          "x": 0.475448,
+          "y": 4.466537000000001,
+          "z": 8.757996000000002
+        },
+        "zeroSizeBounds": false
+      }
+    },
+    {
+      "slot": 9,
+      "file": "beacon lights.obj",
+      "exists": true,
+      "inspection": {
+        "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/beacon lights.obj",
+        "fileSizeBytes": 15052,
+        "textures": [
+          {
+            "name": "wings4.png",
+            "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/objects/wings4.png",
+            "dimensions": null,
+            "exists": false
+          }
+        ],
+        "pointCounts": {
+          "vt": 146,
+          "lights": 0,
+          "lines": 0,
+          "indices": 792
+        },
+        "vtCountParsed": 146,
+        "indexCountParsed": 792,
+        "bounds": {
+          "min": {
+            "x": -0.091705,
+            "y": -1.876236,
+            "z": 16.459
+          },
+          "max": {
+            "x": 0.091675,
+            "y": 1.881012,
+            "z": 19.245911
+          }
+        },
+        "dimensions": {
+          "x": 0.18338,
+          "y": 3.7572479999999997,
+          "z": 2.786911
+        },
+        "zeroSizeBounds": false
+      }
+    }
+  ],
+  "topLevelCockpit": {
+    "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/DC9-32_cockpit.obj",
+    "fileSizeBytes": 7045907,
+    "textures": [
+      {
+        "name": "DC9-32_cockpit.png",
+        "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/DC9-32_cockpit.png",
+        "dimensions": {
+          "width": 2048,
+          "height": 2048
+        },
+        "exists": true
+      },
+      {
+        "name": "DC9-32_cockpit_LIT.png",
+        "path": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/DC-9-30-xplane-unfinished/extracted/DC9-32/DC9-32_cockpit_LIT.png",
+        "dimensions": {
+          "width": 2048,
+          "height": 2048
+        },
+        "exists": true
+      }
+    ],
+    "pointCounts": {
+      "vt": 68510,
+      "lights": 0,
+      "lines": 0,
+      "indices": 223920
+    },
+    "vtCountParsed": 68510,
+    "indexCountParsed": 223920,
+    "bounds": {
+      "min": {
+        "x": -0.884796,
+        "y": -0.020203,
+        "z": 2.212936
+      },
+      "max": {
+        "x": 0.704575,
+        "y": 1.132462,
+        "z": 3.083099
+      }
+    },
+    "dimensions": {
+      "x": 1.5893709999999999,
+      "y": 1.152665,
+      "z": 0.8701629999999998
+    },
+    "zeroSizeBounds": false
+  }
+}

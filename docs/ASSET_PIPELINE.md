@@ -114,6 +114,7 @@ Production exports continue to use the repository asset commands:
 npm run asset:dc9
 npm run asset:airbus
 npm run asset:tesla
+npm run asset:locker
 npm run assets:check
 ```
 

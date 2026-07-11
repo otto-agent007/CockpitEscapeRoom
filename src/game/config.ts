@@ -63,59 +63,55 @@ export const firstOfficerFlow = {
 } as const
 
 export const lockerFlow = {
-  requiredInteractionIds: ['watch', 'baseball', 'nameplate', 'routeStrip', 'checklist'] as const,
-  interactions: {
+  memoryIds: ['watch', 'baseball', 'wings', 'chargingBull'] as const,
+  // The remaining order will be authored after the Tripo props are imported and reviewed.
+  authoredSequence: ['watch'] as const,
+  questionIds: ['watch', 'baseball'] as const,
+  inspectionIds: ['wings', 'chargingBull'] as const,
+  introText: 'Before you can sit in the captain’s seat, you must understand the Captain’s journey…',
+  openingInstruction: 'Begin with the pilot watch.',
+  firstMemoryCompleteText: 'The first memory is logged. The next keepsake remains in shadow.',
+  memories: {
     watch: {
-      label: 'Nice watch',
-      question: 'How many right-seat hours before captain upgrade?',
-      answer: '1000',
-      feedback: 'Experience recognized: 1000.',
-      hover: ['Something rests in the shadows.', 'Complete the locker inspection first.'],
-      reveal: 'Final locker item revealed.',
-      trigger: 'Clock and route clues point toward legacy access.',
+      label: 'Pilot watch',
+      eyebrow: 'Time and experience',
+      question:
+        'The Rolex GMT-Master was originally developed in 1954 in collaboration with Pan American World Airways to help commercial pilots combat ___ ___ on long-haul transatlantic flights',
+      choices: ['Brain fog', 'Motion sickness', 'Sleep deprivation', 'Jet lag'] as const,
+      acceptedAnswers: ['jet lag'] as const,
+      feedback: 'Correct: the GMT-Master helped pilots track time across zones and manage jet lag.',
+      retry: 'Not quite. Think about what happens after crossing several time zones.',
+      strongerHint: 'The answer describes the body clock falling out of sync after rapid travel.',
+      story: 'Long days, changing time zones, and the experience earned one flight at a time.',
     },
     baseball: {
       label: 'Baseball',
+      eyebrow: 'Before the captain wore wings',
       question:
         'Before the captain wore wings, he wore a glove. Which future Pro Football Hall of Famer from Chaffey High crossed paths with him?',
-      answer: 'Anthony Muñoz',
+      acceptedAnswers: ['Anthony Muñoz', 'Anthony Munoz', 'Muñoz', 'Munoz'] as const,
       feedback: 'Memory recognized: Anthony Muñoz.',
-      hover: ['Something rests in the shadows.', 'Complete the locker inspection first.'],
-      reveal: 'Route awareness logged.',
-      trigger: 'Captain memory thread is now stronger.',
+      retry: 'That name is not the one attached to this baseball memory. Try again.',
+      strongerHint: 'Think of the Hall of Fame offensive tackle whose first name is Anthony.',
+      story: 'Before airline wings, there was a glove, a field, and a remarkable Chaffey High connection.',
     },
-    nameplate: {
-      label: 'Pop T nameplate',
-      question: 'Tap to read the nameplate.',
-      answer: '',
-      feedback: 'Pop T recognized.',
-      hover: ['Something rests in the shadows.', 'Complete the locker inspection first.'],
-      reveal: 'Identity cue confirmed.',
-      trigger: 'Nameplate recognition complete.',
+    wings: {
+      label: 'Airline wings',
+      eyebrow: 'Second in command',
+      feedback: 'The wings remember preparation, teamwork, and earned responsibility.',
+      story: 'Every captain first learns how to support a crew, share judgment, and be ready when greater responsibility arrives.',
     },
-    routeStrip: {
-      label: 'Northwest-era route strip',
-      question: 'Inspect the route strip.',
-      answer: '',
-      feedback: 'Route awareness logged.',
-      hover: ['Something rests in the shadows.', 'Complete the locker inspection first.'],
-      reveal: 'The legacy route clue is now connected.',
-      trigger: 'Route memory is now active.',
-    },
-    checklist: {
-      label: 'Folded checklist card',
-      question: 'Arrange the ceremonial order: Power, Lights, Route, Crew, Release.',
-      answer: 'POWER,LIGHTS,ROUTE,CREW,RELEASE',
-      feedback: 'Checklist rhythm recognized.',
-      hover: ['Something rests in the shadows.', 'Complete the locker inspection first.'],
-      reveal: 'Checklist rhythm recognized.',
-      trigger: 'Locker rhythm sequence is complete.',
+    chargingBull: {
+      label: 'Charging Bull',
+      eyebrow: 'Patience and judgment',
+      feedback: 'Investment wisdom remembered.',
+      story: '[PERSONALIZE] Add Pop T’s exact investing advice here. The intended theme is patience, discipline, and thinking beyond the next headline.',
     },
   } as const,
   hatText: {
-    hiddenText: 'Something rests in the shadows.',
+    hiddenText: 'A dark silhouette waits on the upper shelf.',
+    revealText: 'Four memories align. The upper cubby opens.',
     foundText: 'Captain’s hat recognized.',
-    unlockText: 'Captain’s hat recognized.',
     promotionText: 'Promotion available.',
     captainModeText: 'POP T CAPTAIN MODE UNLOCKED',
     completeText: 'Locker scene complete.',
@@ -160,5 +156,7 @@ export const gameCopy = {
 
 export type FirstOfficerControl = (typeof firstOfficerFlow.controlIds)[number]
 export type FirstOfficerDecoy = (typeof firstOfficerFlow.decoyIds)[number]
-export type LockerInteraction = (typeof lockerFlow.requiredInteractionIds)[number]
+export type LockerMemoryId = (typeof lockerFlow.memoryIds)[number]
+export type LockerQuestionId = (typeof lockerFlow.questionIds)[number]
+export type LockerInspectionId = (typeof lockerFlow.inspectionIds)[number]
 export type LegacyRouteOption = (typeof dc9LegacyFlow.routePuzzleOptions)[number]

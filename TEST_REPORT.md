@@ -1,5 +1,100 @@
 # Test report
 
+## 2026-07-11 Locker black-backdrop, jet-lag question, Wings, and Charging Bull pass
+
+- Preserved the downloaded Wings and Charging Bull GLBs unchanged under `.cache/cockpit-pipeline/sources/locker-room/*/original/`; their SHA-256 values exactly match `/mnt/2TBHDD/Downloads`:
+  - Wings: `71b308c7a2f25a6014a29613bf3cd33bf4a3883969fb4bec7e9067cf8be80af0`.
+  - Charging Bull: `2858838f5d753571c5c8702fb061bf4005dd6e32460ed9a745c422a7e46fb7c8`.
+- Neutral Blender 5.1.2 source inspection found one mesh, one material, and three native 1024 maps per prop. The Wings were reduced from 492,226 triangles to 48,000 and turned -90 degrees to face the player. The Bull was reduced from 498,476 to 59,999 triangles, kept at a -45-degree presentation angle, and placed on a dedicated matte-metal shelf.
+- Added stable Blender-owned contracts and colliders: `LOCKER_PROP_WINGS` / `LOCKER_HITBOX_WINGS` / `locker.memory.wings`, and `LOCKER_PROP_CHARGING_BULL` / `LOCKER_HITBOX_CHARGING_BULL` / `locker.memory.chargingBull`.
+- Regenerated `art-source/blender/locker_room_master.blend` at 30,705,426 bytes, SHA-256 `7c0b71e55f066d7c1b824e898614dddaad05c363d7d902a88114f933f545c0fb`.
+- `BLENDER_BIN=/home/user1/.local/bin/blender npm run asset:locker` - pass. Five known imported-environment transform warnings remain; glTF validation reported no errors and the expected generated-tangent warnings for normal-mapped imports.
+- Generated `public/models/locker-room.glb` at 27,253,440 bytes, SHA-256 `3829754b92f9e06bf406fb7f2afce21336a3975ca422feb496e5cf88985cd69c`; the export report records 46 selected objects, four `game_id` parents, eight materials, and eighteen textures.
+- A fresh request to `/models/locker-room.glb?v=tripo-locker-props-20260711` returned the same 27,253,440 bytes and SHA-256 as the file on disk.
+- Runtime keeps the Wings, Bull, and hat as noninteractive textureless silhouettes until reducer state makes them available. The watch remains the only authored first interaction, and browser tests prove all four exported node names plus locked/revealed material states.
+- Changed the locker canvas and fallback scene to black, removed `LOCKER REVEAL SCENE`, removed the bottom Pilot watch card, and added the compact native `Inspect watch` control beside the exact instruction `Begin with the pilot watch.`
+- Replaced the watch prompt with the owner-provided Rolex GMT-Master/Pan Am question and immediate choices Brain fog, Motion sickness, Sleep deprivation, and Jet lag. Only Jet lag succeeds; the first and repeated wrong choices provide the time-zone and body-clock clues without erasing progress.
+- Focused reducer/storage tests initially exposed an uppercase-normalization bug in visible choice labels. Lowercasing now happens before punctuation removal, and `jet lag`, `Jet Lag`, and `JET-LAG` are all covered.
+- `npm run test -- src/game/state.test.ts src/game/storage.test.ts` - pass, 32/32.
+- `npm run typecheck` - pass.
+- `npm run test:e2e -- e2e/locker-room.spec.ts --workers=1` - pass, 5/5 in 1.2 minutes, including the real 27.25 MB GLB, watch collider, exact choices, progressive failure, keyboard focus, reload, reduced motion, retry, and accessible fallback.
+- `npm run check` - pass; lint, typecheck, 32 Vitest tests, and production build completed.
+- `npm run assets:check` - pass for all deployable GLBs; locker warnings are the documented generated-tangent rows plus informational unused UVs on the four colliders and shelf.
+- `npm run pipeline:evals` - pass, 6/6. `python3 -m py_compile tools/blender/render_source_candidate.py tools/blender/import_locker_room_props.py` and `git diff --check` - pass.
+- `npm run test:e2e -- --workers=1` - pass, 12/12 Chromium tests in 1.7 minutes, including both real Airbus and locker GLBs.
+- Actual browser evidence inspected at 1440, 768, and 375 px with a computed `rgb(0, 0, 0)` shell, four watch choices, no locker memory tray, no obsolete badge, no horizontal overflow, and no console errors:
+  - `.cache/assets/locker/browser/locker-black-props-1440.png`
+  - `.cache/assets/locker/browser/locker-watch-jet-lag-question-1440.png`
+  - `.cache/assets/locker/browser/locker-black-props-768.png`
+  - `.cache/assets/locker/browser/locker-black-props-375.png`
+- Remaining limitations: all four imported props remain owner-review candidates; baseball intake, the post-watch Wings/Bull sequence, exact Charging Bull personal story, Vercel preview, and owner visual approval remain open.
+
+## 2026-07-11 Locker watch and captain's-hat Tripo intake
+
+- Preserved the two Downloads sources unchanged under `.cache/cockpit-pipeline/sources/locker-room/*/original/`; SHA-256 values match the downloaded files exactly.
+- Added deterministic neutral candidate rendering and owner-master prop intake through `tools/blender/render_source_candidate.py` and `tools/blender/import_locker_room_props.py`.
+- Watch cleanup: 488,677 source triangles to 71,999 web triangles; three 4096 maps staged at 1024; stable `LOCKER_PROP_WATCH` / `LOCKER_HITBOX_WATCH` contract with `locker.memory.watch`.
+- Hat cleanup: 488,608 source triangles to 69,999 web triangles; three 4096 maps staged at 1024; stable `LOCKER_PROP_CAPTAINS_HAT` / `LOCKER_HITBOX_CAPTAINS_HAT` contract with `locker.promotion.hat`.
+- Replaced the temporary runtime hat geometry and runtime watch/hat hitboxes. The browser now raycasts the exported colliders, keeps the real hat visible with texture/normal maps removed in the locked state, and restores its authored material only after `lockerHatRevealed`.
+- `BLENDER_BIN=/home/user1/.local/bin/blender BLENDER_EXPECTED_VERSION=5.1 npm run asset:locker` - pass. Blender source validation retained five known imported-environment transform warnings; glTF validation reported no errors.
+- Generated `public/models/locker-room.glb` at 21,852,396 bytes with SHA-256 `eaa919f60faeb3bc4cdae5dbac969b961ac783d75d91c23cb7c462945feb4e59`; export report records 39 selected objects and two `game_id` nodes.
+- `npm run typecheck` and `npm run lint` - pass after wiring GLB-node checks, visible-mesh pointer events, and locked/revealed hat material state.
+- `npx playwright test e2e/locker-room.spec.ts` - all five cases passed across the focused run plus repaired real-GLB rerun. The first pass exposed only an insufficient post-reload wait for the larger GLB; the assertion timeout was raised without weakening the node/material/click checks.
+- `npm run assets:check` - pass for all deployable GLBs. Locker output has no errors; expected generated-tangent warnings remain for normal-mapped imports, with two informational unused-UV rows on the simple colliders.
+- `npm run check` - pass; lint, typecheck, 33 Vitest tests, and the production build completed.
+- `npm run test:e2e` - pass, 12/12 Chromium tests in 57.5 seconds, including both real Airbus/locker GLBs.
+- `python3 -m py_compile tools/blender/render_source_candidate.py tools/blender/import_locker_room_props.py`, `npm run pipeline:evals` (6/6), and `git diff --check` - pass.
+- Actual browser evidence inspected at 1440, 768, and 375 px with no console errors:
+  - `.cache/assets/locker/browser/locker-wide-real-props-1440.png`
+  - `.cache/assets/locker/browser/locker-watch-real-prop-1440.png`
+  - `.cache/assets/locker/browser/locker-watch-real-prop-768.png`
+  - `.cache/assets/locker/browser/locker-watch-real-prop-375.png`
+  - `.cache/assets/locker/browser/locker-hat-revealed-1440.png`
+- Checkpoint limitations, superseded by the current section above: the watch and hat were owner-review candidates; baseball, airline wings, and Charging Bull visuals were not yet imported; Vercel and owner approval remained open.
+
+## 2026-07-11 Epic Airbus-to-locker transition and watch-first gate
+
+- Replaced the immediate locker cut with a staged cinematic: 900 ms fade to black, pause, centered Captain's-journey sentence, asset-ready reveal, wide locker hold, and a 4.5-second cubic-eased move toward the lower watch area.
+- Added `lockerIntroCompleted` in schema v5. Fresh Airbus handoffs play the cinematic; v3/v4 and completed/resumed locker saves keep their progress and skip it. Replay does not alter progression.
+- Added visible Skip cinematic and Replay intro controls, Escape skip, modal focus trapping, watch focus restoration, reduced-motion short fades/immediate camera placement, and an accessible no-WebGL equivalent.
+- Reducer and both presentation paths now expose only the watch for a new locker sequence. Baseball, wings, Charging Bull, hat claiming, and Captain Mode continuation remain locked until Tripo intake and later sequence authoring.
+- At this checkpoint, added one warm practical light and the runtime placeholder `LOCKER_PROP_CAPTAINS_HAT_SILHOUETTE`; the later intake section above records its replacement by the real exported hat.
+- Preserved the unchanged environment GLB at 12,850,484 bytes and SHA-256 `c5e79ba07c9947bd859d05e1cd47ca004b6b84915ff32b2648149ed5512f17bd`.
+- `npm run check` - pass; lint, typecheck, 33 Vitest tests, and production build.
+- `npm run test:e2e` - pass; 12 Chromium tests in 1.1 minutes. Coverage includes the real Airbus/locker GLBs, exact intro copy, skip/replay, watch-only gating, wrong/repeated-wrong hints, schema persistence, directed camera state, projected 3D watch hitbox, reduced motion, keyboard focus, retry, and accessible fallback.
+- `npm run assets:check` - pass; no GLB errors. Existing generated-tangent warnings for the imported locker maps remain unchanged.
+- `npm run pipeline:evals` - pass, 6/6; `git diff --check` - pass.
+- Actual browser captures inspected with no console errors:
+  - `/tmp/locker-epic-title-1440.png`
+  - `/tmp/locker-wide-reveal-1440.png`
+  - `/tmp/locker-watch-focus-1440.png`
+  - `/tmp/locker-watch-focus-768.png`
+  - `/tmp/locker-title-reduced-375.png`
+  - `/tmp/locker-watch-focus-375.png`
+- Browser repair notes: the first hat silhouette was visibly oversized and floating, so it was scaled down and placed deeper on the upper shelf before evidence was recorded. Full parallel e2e initially exceeded the default 30-second timeout while both large GLBs loaded; the real locker test now uses the same 75-second budget as the Airbus test without reducing assertions.
+- Checkpoint limitation, superseded in part by the intake section above: watch/hat Tripo meshes had not yet been imported; the later keepsake order and Vercel/owner gate remain open.
+
+## 2026-07-10 Locker room Sketchfab environment import
+
+- Normalized owner-downloaded source archives under `.cache/cockpit-pipeline/sources/locker-room/**`.
+- Imported Game Locker and Locker room bench into `art-source/blender/locker_room_master.blend` through `tools/blender/create_locker_room_proxy.py`.
+- Preserved the original downloaded zips untouched and staged extracted/optimized glTF copies under cache.
+- Texture staging: six 2048x2048 textures in the Blender source; the bench maps were downscaled from 4096x4096 and the Game Locker normal map was re-encoded for Blender compatibility.
+- Runtime contract preserved through five React Three Fiber transparent hitboxes: `locker.memory.watch`, `locker.memory.baseball`, `locker.memory.wings`, `locker.memory.charging_bull`, and `locker.promotion.hat`.
+- Owner-adjusted Blender export - pass; produced `public/models/locker-room.glb` at 12,850,484 bytes with 30 source-hierarchy objects, 2 materials, six 2048 textures, and SHA-256 `c5e79ba07c9947bd859d05e1cd47ca004b6b84915ff32b2648149ed5512f17bd`. glTF validation reported no errors and expected generated-tangent warnings.
+- Removed the old visible proxy locker shell, shelves, cubby door, side lockers, and placeholder prop meshes from the source-present build. The downloaded Game Locker and bench are the visible scene assets; gameplay is preserved with invisible 3D hitboxes and HTML controls until the Tripo props arrive.
+- Fixed the downloaded bench orientation, kept its wood planks facing upward, preserved the Game Locker's imported texture maps, and added balanced neutral runtime lighting so the weathered blue-gray material remains readable.
+- `npm run assets:check` - pass; no GLB validation errors. Locker warnings are generated tangent-space rows from imported normal-mapped materials; existing informational unused-UV/empty-node output remains.
+- `npm run check` - pass; lint, typecheck, 32 Vitest tests, and production build.
+- `npx playwright test e2e/locker-room.spec.ts` - pass; 4 Chromium tests, including real GLB request and 3D canvas memory picking after the imported environment mesh.
+- `npm run test:e2e` - pass; 11 Chromium tests.
+- Visual evidence:
+  - `.cache/assets/locker/previews/cam_locker_approval_hero.png`
+  - `.cache/assets/locker/previews/cam_locker_approval_detail.png`
+  - `/home/user1/Pictures/Screenshots/Screenshot from 2026-07-10 21-55-29.png` (owner target)
+  - `/tmp/locker-reference-lit-browser-1440b.png` (actual browser proof)
+- Remaining limitations: personal memory props are represented by invisible hitboxes until the owner-supplied Tripo assets arrive; owner visual approval and Vercel preview are still required for the locker room gate.
+
 ## 2026-07-10 Airbus loading and desktop viewer controls
 
 - **Production approval:** The owner approved the current Airbus A320 First-Officer experience for production on 2026-07-10. The `A320 PLAYABLE PROOF` badge is removed; older approval-candidate limitations later in this report are retained as dated history and are superseded by this decision.
@@ -477,3 +572,37 @@ Superseded experiment: the contained reference-image backing described below was
   - `python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate ...` - pass for runtime contract, material optimization, and browser integration artifacts.
   - `npm run test:e2e -- e2e/smoke.spec.ts` - pass; 4 Chromium tests.
   - `npm run check` - pass; lint, typecheck, 16 Vitest tests, and production build completed.
+
+## 2026-07-10 - Locker room reveal proxy milestone
+
+Historical checkpoint; the 2026-07-11 transition and Tripo-intake sections above supersede its current-state limitations.
+
+### Delivered
+
+- Replaced the procedural locker sphere with a validated `LOCKER_ROOT` GLB, four stable memory contracts, and a gated captain's-hat contract.
+- Preserved the personalized 1,000-hour and Anthony Munoz questions with natural answer variants, safe repeated-wrong clues, and no progress loss.
+- Added Wings and Charging Bull inspection memories, an any-order four-memory gate, an upper-cubby reveal, and an explicit promotion continuation into Captain Mode.
+- Added schema-v4 persistence and a v3 migration that preserves First-Officer and completed later-phase progress.
+- Added keyboard/native HTML equivalents, live feedback, reduced-motion behavior, responsive locker UI, real 3D prop picking, and GLB retry/accessibility fallback.
+
+### Asset evidence
+
+- Blender 5.1.2; `npm run asset:locker` passed with 0 scene errors and 0 scene warnings.
+- `public/models/locker-room.glb`: 430,148 bytes, 51 selected objects, 5 `game_id` nodes, 8 materials, 0 textures, no destructive optimization.
+- Blender approval renders: `.cache/assets/locker/previews/cam_locker_approval_hero.png` and `cam_locker_approval_detail.png`.
+- Browser proof: `/tmp/locker-real-fixed3-1440.png`; generated proxy geometry remains visibly labeled as the locker reveal scene.
+
+### Validation
+
+- `npm run check` - pass: lint, typecheck, 32 Vitest tests, production build.
+- `npm run assets:check` - pass; informational unused UV/empty-node rows only.
+- `npm run pipeline:evals` - pass, 6/6.
+- `npm run test:e2e -- e2e/locker-room.spec.ts` - pass, 4/4 after loader-fallback coverage was added.
+- Full `npm run test:e2e` - pass, 11/11 including final locker failure/retry/fallback coverage.
+- `git diff --check` - pass.
+
+### Remaining delta
+
+- Import and clean the owner-supplied Tripo watch, baseball, wings, Charging Bull, and captain's hat while preserving the tested contract parents and identifiers.
+- Replace the explicit Charging Bull story placeholder with Pop T's exact investing advice.
+- Capture a Vercel preview and owner approval before removing the proxy label or advancing the visual gate. Refreshed local evidence is `/tmp/locker-proxy-1440.png`, `/tmp/locker-proxy-768.png`, and `/tmp/locker-proxy-375.png`.

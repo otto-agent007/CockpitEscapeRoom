@@ -1,0 +1,69 @@
+{
+  "seedId": "dc9-web-reference-source-discovery",
+  "title": "DC-9-50 web reference and source discovery seed",
+  "status": "web-leads-seeded-not-downloaded",
+  "aircraft": "dc9",
+  "sourceVariant": "mixed-web-reference-leads",
+  "targetVariant": "DC-9-50",
+  "variantScope": "confirmed-dc9-50-captain-cockpit-with-labeled-compatibility-sources-required",
+  "referenceAuthority": "art-source/cockpit-pipeline/gates/agent0-dc9-web-reference-authority.json",
+  "sceneGroup": "DC-9 Pop T Captain cockpit",
+  "webSearchDate": "2026-07-10",
+  "webSourceLeads": [
+    {
+      "leadId": "commons-dc9-cockpits-category",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Cockpits_of_Douglas_DC-9",
+      "sourceFamily": "license-screened-photo-index",
+      "authorityRank": "primary-index",
+      "intendedUse": "Find cockpit-section candidates with explicit license pages, variant labels, and usable viewpoints for DC-9 shell, yoke, pedestal, and overhead relationships.",
+      "downloadPolicy": "Inspect each file page, license, author, and variant metadata before adding any manifest entry or download.",
+      "limitations": "Category mixes DC-9 variants, operators, museum/training aircraft, and non-target viewpoints."
+    },
+    {
+      "leadId": "commons-n775nc-dc9-51-cockpit",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:McDonnell_Douglas_DC-9-51_cockpit_(2586378690).jpg",
+      "sourceFamily": "real-aircraft-photo-candidate",
+      "authorityRank": "high-compatibility-photo",
+      "intendedUse": "Captain-eye cockpit silhouette, gauge density, windshield framing, yoke placement, and panel material family reference near the DC-9-50 target.",
+      "downloadPolicy": "Already tracked in the repo reference pack; reuse as a compatibility reference, not exact DC-9-50 authority.",
+      "limitations": "DC-9-51, not DC-9-50. Single wide photo does not resolve pedestal, overhead, or sidewall details."
+    },
+    {
+      "leadId": "commons-northwest-dc9-40-cockpit",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:DC-9_Cockpit.jpg",
+      "sourceFamily": "real-aircraft-photo-candidate",
+      "authorityRank": "secondary-compatibility-photo",
+      "intendedUse": "Northwest analog cockpit color, density, and shared yoke/glareshield family checks.",
+      "downloadPolicy": "Already tracked in the repo reference pack; reuse as a labeled compatibility reference only.",
+      "limitations": "DC-9-40, not DC-9-50. Useful for family comparison, not exact geometry."
+    },
+    {
+      "leadId": "github-flightgear-dc9-32-source-package",
+      "sourceUrl": "https://github.com/FGMEMBERS-NONGPL/DC-9-32",
+      "sourceFamily": "extractable-3d-source",
+      "authorityRank": "buildable-compatibility-source",
+      "intendedUse": "Extractable 3D candidates for yokes, throttles, gauges, and switch clusters with inspectable object names and XML animation hints.",
+      "downloadPolicy": "Use only through the controlled cache/extraction workflow. Do not execute repository scripts, handlers, or add-ons.",
+      "limitations": "DC-9-32 source package, not DC-9-50. Strong for buildability, weak for exact target authority."
+    },
+    {
+      "leadId": "sketchfab-dc9-50-outpiston",
+      "sourceUrl": "https://sketchfab.com/3d-models/mcdonnell-douglas-dc-9-50-21ba9bf27c3a464aa1e6d54f0b9d9f60",
+      "sourceFamily": "downloadable-3d-proxy",
+      "authorityRank": "target-variant-shell-proxy",
+      "intendedUse": "Possible low-detail DC-9-50 shell/proportion proxy if a later proxy workflow is needed for coarse exterior or silhouette checks.",
+      "downloadPolicy": "Do not download or stage until a proxy-specific approval exists and license handling is recorded.",
+      "limitations": "Exterior model only, 2.6k triangles, no cockpit evidence, and noncommercial/share-alike license constraints."
+    }
+  ],
+  "requestedReferenceCoverage": [
+    "captain-eye cockpit shell and main-panel silhouette",
+    "captain and first-officer yoke family and placement",
+    "pedestal and throttle quadrant relationships",
+    "main panel gauge density and analog depth",
+    "overhead panel density and location",
+    "windshield and sidewall framing from the captain view"
+  ],
+  "stopAt": "sourcing_complete",
+  "requiresHumanApprovalBeforeAssembly": true
+}

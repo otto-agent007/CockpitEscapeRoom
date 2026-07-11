@@ -54,6 +54,7 @@ Assign stable names, pivots, and custom properties. This asset exists to prove e
 
 ```bash
 npm run asset:dc9
+npm run asset:locker
 ```
 
 The command:
@@ -101,6 +102,15 @@ Vercel should deploy optimized GLBs, textures, audio, and application code. It s
 ## 9. Tripo AI and Blender MCP support
 
 Tripo AI may generate rapid candidate or proxy meshes, but every output must be imported into Blender before runtime use. Assign stable names, check pivots and local axes, record material counts and texture sizes, optimize before GLB export, and document the result in `asset-reports/`.
+
+The current locker watch/Wings/Charging Bull/hat intake is reproducible after the preserved cache sources are present:
+
+```bash
+"$BLENDER_BIN" --background --disable-autoexec art-source/blender/locker_room_master.blend --python tools/blender/import_locker_room_props.py
+npm run asset:locker
+```
+
+`import_locker_room_props.py` extends the owner-adjusted master; it does not rerun the older environment proxy builder.
 
 The official Blender MCP may support scene inspection, controlled cleanup, validation, naming, pivot checks, metadata review, preview renders, and export support. Do not use it for uncontrolled broad rewrites of approved scenes or to bypass `validate_scene`, `render_preview`, `export_glb`, asset reports, or owner approval gates.
 

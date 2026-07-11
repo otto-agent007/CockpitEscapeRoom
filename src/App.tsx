@@ -1,19 +1,41 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Hud } from './components/Hud'
+import { LockerTransition, type LockerIntroStage } from './components/LockerTransition'
 import { QualificationCelebration } from './components/QualificationCelebration'
 import { SceneHelp } from './components/SceneHelp'
-import { gameCopy, type FirstOfficerControl } from './game/config'
+import { gameCopy, lockerFlow, type FirstOfficerControl, type LockerMemoryId } from './game/config'
+import { isLockerMemoryAvailable } from './game/state'
 import { clearGameState } from './game/storage'
 import { useGame } from './game/useGame'
-import type { AirbusHotspotScreenPositions, AirbusLoadState } from './scenes/PrototypeScene'
+import type { AirbusHotspotScreenPositions, AirbusLoadState, LockerCameraCue, LockerLoadState } from './scenes/PrototypeScene'
 
 const PrototypeScene = lazy(async () => {
   const module = await import('./scenes/PrototypeScene')
   return { default: module.PrototypeScene }
 })
 
+const LOCKER_INTRO_TIMINGS = {
+  fadeToBlack: 900,
+  blackPause: 600,
+  titleIn: 1_400,
+  titleHold: 2_800,
+  titleOut: 700,
+  revealLocker: 1_100,
+  wideHold: 800,
+} as const
+
+const REDUCED_LOCKER_INTRO_TIMINGS = {
+  fadeToBlack: 250,
+  blackPause: 200,
+  titleIn: 20,
+  titleHold: 1_500,
+  titleOut: 20,
+  revealLocker: 250,
+  wideHold: 0,
+} as const
+
 function useReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(false)
+  const [reduced, setReduced] = useState(() => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches)
 
   useEffect(() => {
     const query = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -74,14 +96,27 @@ export default function App() {
   const loaderStartedAtRef = useRef(0)
   const [airbusLoadState, setAirbusLoadState] = useState<AirbusLoadState>({ status: 'loading', loadedBytes: 0 })
   const [airbusRetryToken, setAirbusRetryToken] = useState(0)
+  const [lockerRetryToken, setLockerRetryToken] = useState(0)
+  const [lockerLoadState, setLockerLoadState] = useState<LockerLoadState>({ status: 'idle' })
   const [cameraResetRevision, setCameraResetRevision] = useState(0)
   const [helpOpen, setHelpOpen] = useState(false)
   const [showAirbusLoader, setShowAirbusLoader] = useState(true)
   const [airbusLoaderFading, setAirbusLoaderFading] = useState(false)
   const [airbusHotspots, setAirbusHotspots] = useState<AirbusHotspotScreenPositions>({})
   const [selectedAirbusCard, setSelectedAirbusCard] = useState<string | null>(null)
+  const [selectedLockerMemory, setSelectedLockerMemory] = useState<LockerMemoryId | null>(null)
+  const pendingLockerIntroOnLoad = state.phase === 'locker' && !state.lockerIntroCompleted
+  const [lockerIntroStage, setLockerIntroStage] = useState<LockerIntroStage>(pendingLockerIntroOnLoad ? 'black-pause' : 'idle')
+  const [lockerCameraCue, setLockerCameraCue] = useState<LockerCameraCue>(pendingLockerIntroOnLoad ? 'entry-wide' : 'watch-focus')
+  const [lockerCameraImmediate, setLockerCameraImmediate] = useState(pendingLockerIntroOnLoad && reducedMotion)
+  const [lockerIntroSkipRequested, setLockerIntroSkipRequested] = useState(false)
   const airbusSceneReady = airbusLoadState.status === 'ready' || airbusLoadState.status === 'accessible-fallback'
-  const viewerResetReady = state.phase !== 'airbus' || airbusSceneReady
+  const lockerIntroActive = lockerIntroStage !== 'idle'
+  const lockerIntroErrorVisible = lockerIntroStage === 'waiting-for-locker' && lockerLoadState.status === 'error'
+  const lockerSceneReady = skipPrototypeScene || lockerLoadState.status === 'ready' || lockerLoadState.status === 'accessible-fallback'
+  const lockerInteractionEnabled = state.phase === 'locker' && state.lockerIntroCompleted && !lockerIntroActive
+  const availableLockerMemories = lockerFlow.memoryIds.filter((memoryId) => isLockerMemoryAvailable(state, memoryId))
+  const viewerResetReady = !lockerIntroActive && (state.phase !== 'airbus' || airbusSceneReady)
 
   useEffect(() => {
     loaderStartedAtRef.current = performance.now()
@@ -97,6 +132,90 @@ export default function App() {
       window.clearTimeout(hideTimeout)
     }
   }, [airbusLoadState.status, reducedMotion])
+
+  useEffect(() => {
+    if (lockerIntroStage === 'idle' || lockerIntroStage === 'waiting-for-locker' || lockerIntroStage === 'focus-watch') return
+    const timings = reducedMotion ? REDUCED_LOCKER_INTRO_TIMINGS : LOCKER_INTRO_TIMINGS
+    let firstFrame = 0
+    let secondFrame = 0
+    let timeout = 0
+
+    if (lockerIntroStage === 'arming') {
+      firstFrame = requestAnimationFrame(() => {
+        secondFrame = requestAnimationFrame(() => setLockerIntroStage('fade-to-black'))
+      })
+    } else {
+      const advance = () => {
+        switch (lockerIntroStage) {
+          case 'fade-to-black':
+            if (state.phase === 'airbus') dispatch({ type: 'CONTINUE_TO_LOCKER' })
+            setLockerIntroStage('black-pause')
+            break
+          case 'black-pause':
+            setLockerIntroStage('title-in')
+            break
+          case 'title-in':
+            setLockerIntroStage('title-hold')
+            break
+          case 'title-hold':
+            setLockerIntroStage('title-out')
+            break
+          case 'title-out':
+            setLockerIntroStage('waiting-for-locker')
+            break
+          case 'reveal-locker':
+            setLockerIntroStage('wide-hold')
+            break
+          case 'wide-hold':
+            setLockerCameraCue('watch-focus')
+            setLockerIntroStage('focus-watch')
+            break
+          default:
+            break
+        }
+      }
+      const duration = {
+        'fade-to-black': timings.fadeToBlack,
+        'black-pause': timings.blackPause,
+        'title-in': timings.titleIn,
+        'title-hold': timings.titleHold,
+        'title-out': timings.titleOut,
+        'reveal-locker': timings.revealLocker,
+        'wide-hold': timings.wideHold,
+      }[lockerIntroStage]
+      timeout = window.setTimeout(advance, duration)
+    }
+
+    return () => {
+      cancelAnimationFrame(firstFrame)
+      cancelAnimationFrame(secondFrame)
+      window.clearTimeout(timeout)
+    }
+  }, [dispatch, lockerIntroStage, reducedMotion, state.phase])
+
+  useEffect(() => {
+    if (lockerIntroStage !== 'waiting-for-locker' || !lockerSceneReady) return
+    const timeout = window.setTimeout(() => {
+      if (lockerIntroSkipRequested) {
+        setLockerCameraCue('watch-focus')
+        setLockerIntroStage('focus-watch')
+        return
+      }
+      setLockerIntroStage('reveal-locker')
+    }, 0)
+    return () => window.clearTimeout(timeout)
+  }, [lockerIntroSkipRequested, lockerIntroStage, lockerSceneReady])
+
+  useEffect(() => {
+    const accessibleLockerScene = skipPrototypeScene || lockerLoadState.status === 'accessible-fallback'
+    if (lockerIntroStage !== 'focus-watch' || !accessibleLockerScene) return
+    const timeout = window.setTimeout(() => {
+      if (!state.lockerIntroCompleted) dispatch({ type: 'COMPLETE_LOCKER_INTRO' })
+      setLockerIntroStage('idle')
+      setLockerIntroSkipRequested(false)
+    }, 0)
+    return () => window.clearTimeout(timeout)
+  }, [dispatch, lockerIntroStage, lockerLoadState.status, skipPrototypeScene, state.lockerIntroCompleted])
 
   const beginAirbusLoading = useCallback(() => {
     loaderStartedAtRef.current = performance.now()
@@ -117,6 +236,31 @@ export default function App() {
     setSelectedAirbusCard(null)
   }, [activeSelectedAirbusCard, dispatch])
 
+  const beginLockerIntro = useCallback(() => {
+    setHelpOpen(false)
+    setSelectedLockerMemory(null)
+    setLockerIntroSkipRequested(false)
+    setLockerCameraCue('entry-wide')
+    setLockerCameraImmediate(reducedMotion)
+    setLockerIntroStage('arming')
+  }, [reducedMotion])
+
+  const skipLockerIntro = useCallback(() => {
+    setSelectedLockerMemory(null)
+    setLockerIntroSkipRequested(true)
+    setLockerCameraImmediate(true)
+    setLockerCameraCue('watch-focus')
+    if (state.phase === 'airbus') dispatch({ type: 'CONTINUE_TO_LOCKER' })
+    setLockerIntroStage(state.phase === 'locker' && lockerSceneReady ? 'focus-watch' : 'waiting-for-locker')
+  }, [dispatch, lockerSceneReady, state.phase])
+
+  const handleLockerCameraSettled = useCallback((cue: LockerCameraCue) => {
+    if (cue !== 'watch-focus' || lockerIntroStage !== 'focus-watch') return
+    if (!state.lockerIntroCompleted) dispatch({ type: 'COMPLETE_LOCKER_INTRO' })
+    setLockerIntroStage('idle')
+    setLockerIntroSkipRequested(false)
+  }, [dispatch, lockerIntroStage, state.lockerIntroCompleted])
+
   const restart = () => {
     const confirmed = window.confirm(`Restart ${gameCopy.title} and clear saved progress?`)
     if (!confirmed) return
@@ -124,6 +268,12 @@ export default function App() {
     beginAirbusLoading()
     setAirbusHotspots({})
     setSelectedAirbusCard(null)
+    setSelectedLockerMemory(null)
+    setLockerLoadState({ status: 'idle' })
+    setLockerIntroStage('idle')
+    setLockerCameraCue('watch-focus')
+    setLockerCameraImmediate(false)
+    setLockerIntroSkipRequested(false)
     dispatch({ type: 'RESET' })
   }
 
@@ -140,7 +290,10 @@ export default function App() {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (isTypingTarget(event.target)) return
-      if (event.key === 'Escape' && helpOpen) {
+      if (event.key === 'Escape' && lockerIntroActive) {
+        event.preventDefault()
+        skipLockerIntro()
+      } else if (event.key === 'Escape' && helpOpen) {
         event.preventDefault()
         closeHelp()
       } else if (event.key.toLowerCase() === 'f') {
@@ -153,7 +306,7 @@ export default function App() {
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [closeHelp, helpOpen, toggleFullscreen, viewerResetReady])
+  }, [closeHelp, helpOpen, lockerIntroActive, skipLockerIntro, toggleFullscreen, viewerResetReady])
 
   if (state.phase === 'briefing') {
     return (
@@ -203,9 +356,11 @@ export default function App() {
   }
 
   return (
-    <main ref={shellRef} className={`game-shell${state.phase === 'airbus' ? ' airbus-shell' : ''}`}>
-      {skipPrototypeScene || airbusLoadState.status === 'accessible-fallback' ? (
-        <div className="scene scene--accessible" aria-label="Static accessible cockpit view"><img src={`${import.meta.env.BASE_URL}images/a320-game-ready-fo.png`} alt="Game-ready Airbus A320 cockpit from the first-officer seat" /></div>
+    <main ref={shellRef} className={`game-shell${state.phase === 'airbus' ? ' airbus-shell' : ''}${state.phase === 'locker' ? ' locker-shell' : ''}`}>
+      {skipPrototypeScene || (state.phase === 'airbus' && airbusLoadState.status === 'accessible-fallback') || (state.phase === 'locker' && lockerLoadState.status === 'accessible-fallback') ? (
+        state.phase === 'locker'
+          ? <div className="scene scene--accessible scene--locker-accessible" aria-label="Static accessible captain's locker view"><div className="locker-accessible-mark">Captain's locker</div></div>
+          : <div className="scene scene--accessible" aria-label="Static accessible cockpit view"><img src={`${import.meta.env.BASE_URL}images/a320-game-ready-fo.png`} alt="Game-ready Airbus A320 cockpit from the first-officer seat" /></div>
       ) : (
         <Suspense fallback={null}>
           <PrototypeScene
@@ -215,26 +370,44 @@ export default function App() {
             captainRewardUnlocked={state.captainRewardUnlocked}
             selectedAirbusCard={activeSelectedAirbusCard}
             airbusRetryToken={airbusRetryToken}
+            lockerRetryToken={lockerRetryToken}
+            lockerCameraCue={lockerCameraCue}
+            lockerCameraImmediate={lockerCameraImmediate}
+            lockerControlsEnabled={lockerInteractionEnabled}
+            availableLockerMemories={availableLockerMemories}
             cameraResetRevision={cameraResetRevision}
             onAirbusLoadState={setAirbusLoadState}
+            onLockerLoadState={setLockerLoadState}
             onAirbusHotspotsChange={updateAirbusHotspots}
             onAirbusTarget={placeSelectedAirbusCard}
+            onLockerCameraSettled={handleLockerCameraSettled}
             onSwitch={(switchId) => dispatch({ type: 'ACTIVATE_SWITCH', switchId })}
             onMars={() => dispatch({ type: 'UNLOCK_MARS' })}
-            onLockerHat={() => dispatch({ type: 'REVEAL_CAPTAIN_HAT' })}
+            onLockerMemory={(memoryId) => {
+              if (!lockerInteractionEnabled || !availableLockerMemories.includes(memoryId)) return
+              setSelectedLockerMemory(memoryId)
+              if ((lockerFlow.inspectionIds as readonly string[]).includes(memoryId)) {
+                dispatch({ type: 'INSPECT_LOCKER_MEMORY', memoryId: memoryId as 'wings' | 'chargingBull' })
+              }
+            }}
+            onLockerHat={() => dispatch({ type: 'CLAIM_CAPTAIN_HAT' })}
           />
         </Suspense>
       )}
-      <Hud
-        state={state}
-        dispatch={dispatch}
-        onRestart={restart}
-        airbusSceneReady={skipPrototypeScene || airbusSceneReady}
-        airbusHotspots={skipPrototypeScene || airbusLoadState.status === 'accessible-fallback' ? {} : airbusHotspots}
-        airbusMeshPickingEnabled={!skipPrototypeScene && airbusLoadState.status !== 'accessible-fallback'}
-        selectedAirbusCard={activeSelectedAirbusCard}
-        onSelectedAirbusCardChange={setSelectedAirbusCard}
-      />
+      {!lockerIntroActive && (
+        <Hud
+          state={state}
+          dispatch={dispatch}
+          onRestart={restart}
+          airbusSceneReady={skipPrototypeScene || airbusSceneReady}
+          airbusHotspots={skipPrototypeScene || airbusLoadState.status === 'accessible-fallback' ? {} : airbusHotspots}
+          airbusMeshPickingEnabled={!skipPrototypeScene && airbusLoadState.status !== 'accessible-fallback'}
+          selectedAirbusCard={activeSelectedAirbusCard}
+          onSelectedAirbusCardChange={setSelectedAirbusCard}
+          selectedLockerMemory={selectedLockerMemory}
+          onSelectedLockerMemoryChange={setSelectedLockerMemory}
+        />
+      )}
       {state.phase === 'airbus' && !skipPrototypeScene && showAirbusLoader && airbusLoadState.status !== 'accessible-fallback' && (
         <AirbusLoader
           state={airbusLoadState}
@@ -243,16 +416,37 @@ export default function App() {
           onFallback={() => setAirbusLoadState({ status: 'accessible-fallback', loadedBytes: airbusLoadState.loadedBytes, totalBytes: airbusLoadState.totalBytes })}
         />
       )}
-      <div className="scene-tools">
-        <button ref={helpTriggerRef} type="button" className="scene-tool-button" aria-label="Open viewer help" aria-expanded={helpOpen} onClick={() => setHelpOpen((open) => !open)}>?</button>
-        <button type="button" className="scene-tool-button" aria-label="Toggle fullscreen" onClick={() => void toggleFullscreen()}>⛶</button>
-      </div>
-      {helpOpen && <button type="button" className="scene-help-dismiss" onClick={closeHelp} aria-label="Dismiss viewer help" tabIndex={-1} />}
-      <SceneHelp phase={state.phase} open={helpOpen} onClose={closeHelp} />
-      {state.phase === 'airbus' && state.completedPuzzles.includes('firstOfficer') && (
+      {state.phase === 'locker' && lockerLoadState.status === 'error' && (!lockerIntroActive || lockerIntroStage === 'waiting-for-locker') && (
+        <section className="locker-load-error" role="alert" aria-labelledby="locker-load-error-title">
+          <h2 id="locker-load-error-title">The 3D locker could not be opened.</h2>
+          <p>Your memory progress is safe.</p>
+          <button type="button" className="primary-button" onClick={() => setLockerRetryToken((token) => token + 1)}>Retry 3D</button>
+          <button type="button" className="secondary-button" onClick={() => setLockerLoadState({ status: 'accessible-fallback' })}>Continue with accessible controls</button>
+        </section>
+      )}
+      {!lockerIntroActive && (
+        <div className="scene-tools">
+          {state.phase === 'locker' && state.lockerIntroCompleted && (
+            <button type="button" className="scene-tool-button" aria-label="Replay locker intro" onClick={beginLockerIntro}>↻</button>
+          )}
+          <button ref={helpTriggerRef} type="button" className="scene-tool-button" aria-label="Open viewer help" aria-expanded={helpOpen} onClick={() => setHelpOpen((open) => !open)}>?</button>
+          <button type="button" className="scene-tool-button" aria-label="Toggle fullscreen" onClick={() => void toggleFullscreen()}>⛶</button>
+        </div>
+      )}
+      {!lockerIntroActive && helpOpen && <button type="button" className="scene-help-dismiss" onClick={closeHelp} aria-label="Dismiss viewer help" tabIndex={-1} />}
+      {!lockerIntroActive && <SceneHelp phase={state.phase} open={helpOpen} onClose={closeHelp} />}
+      {state.phase === 'airbus' && state.completedPuzzles.includes('firstOfficer') && !lockerIntroActive && (
         <QualificationCelebration
           reducedMotion={reducedMotion}
-          onContinue={() => dispatch({ type: 'CONTINUE_TO_LOCKER' })}
+          onContinue={beginLockerIntro}
+        />
+      )}
+      {lockerIntroActive && !lockerIntroErrorVisible && (
+        <LockerTransition
+          stage={lockerIntroStage}
+          text={lockerFlow.introText}
+          reducedMotion={reducedMotion}
+          onSkip={skipLockerIntro}
         />
       )}
     </main>
