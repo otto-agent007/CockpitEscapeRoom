@@ -1,5 +1,25 @@
 # Test report
 
+## 2026-07-12 Baseball seam, continuous camera, and Wings question pass
+
+- Baked the owner-selected baseball XYZ rotation `(-45°, 0°, 90°)` through Blender. The supplied 4K Tripo geometry/materials, `(0.64, -0.48, 1.34)` placement, `0.30` scale, stable root, and exported collider remain unchanged; both curved vertical seam bands now face the player like `/mnt/2TBHDD/Downloads/realistic-vector-baseball.jpg`.
+- Watch, Baseball, Bull, and Wings focus cues all report FOV `30.00` and camera-to-target distance `3.490`. The browser moves upward through the sequence without changing zoom; cards continue to open only after the relevant cue settles, and reduced motion snaps to the same final poses.
+- Baseball now presents “Before the captain wore wings, he wore a glove.” Charging Bull uses a separate semantic bold question block. Wings changed from automatic inspection to a required native free-text question accepting `1000`, `1,000`, `1000 hour(s)`, and comma variants, with wrong/repeated-wrong hints and no progress loss.
+- Schema remains version 5. Missing `lockerAttempts.wings` values normalize to zero for older saves, while already completed Wings/hat saves remain complete. The inspection-completion action and 3D bypass were removed.
+- Wings exports `locker.memory.wings` / `question`. Current master: 50,237,876 bytes, SHA-256 `648a63df7a95de0cda11cf2c2ba2dcb988b621ab6ab04388f3ae460d0fc63f42`. Current GLB: 44,288,740 bytes, SHA-256 `cf212389e0d04aa34a528cbc2af07e59b4acc9d4e98e386f725c78da43279c5c`.
+- Actual-browser evidence: `.cache/assets/locker/browser/locker-seam-flow-{watch,baseball-card,baseball-clean,bull-question,wings-question}-1440.png` and `locker-seam-flow-wings-{question,card}-{768,375}.png`. A no-cache response matched disk with `model/gltf-binary`; no console/page errors or horizontal overflow occurred. The 1440 Wings card clears the lower-right actions, and tests enforce non-overlap.
+- Validation passed: `python3 -m py_compile tools/blender/import_locker_room_props.py`; `npm run asset:locker`; `npm run assets:check`; `npm run pipeline:evals` (6/6); `npm run check` (42/42 unit tests plus production build); focused accessible and real-GLB Playwright; full `npm run test:e2e` (12/12); and `git diff --check`.
+- The real-GLB test now has a 240-second ceiling because the expanded four-memory path takes approximately 2.9 minutes on this 44 MB scene. Assertions were expanded, not relaxed. Visual acceptance remains exclusively with the owner.
+
+## 2026-07-12 Locker centering and darker-lighting pass
+
+- Moved the Blender-owned watch, Wings, and captain's hat roots from x=`0.42` to x=`0.56`; their colliders move with the stable roots. Baseball, Charging Bull, and both shelves were intentionally left unchanged.
+- Updated affected Blender approval cameras plus the runtime watch/Wings focus targets. Reduced only locker-scene and approval-render lighting by approximately 12–15 percent; prop PBR materials and texture maps were not modified.
+- Rebuilt via `npm run asset:locker`. Master: 50,238,219 bytes, SHA-256 `c284dce0a75f380270ffbd3bed38c009bdd7adb97794a269f6309daf5ef071c4`. GLB: 44,288,680 bytes, SHA-256 `96cf42d665fd41c3ecf4e384318251e42c1e99577eac5c1e7ebf93861c46a4d5`.
+- Actual-browser proof: `.cache/assets/locker/browser/locker-centering-watch-1440.png` and `.cache/assets/locker/browser/locker-centering-overview-{1440,768,375}.png`. The real watch/Wings/hat nodes loaded, focus cues settled, a no-cache HTTP response matched the on-disk GLB bytes/hash, and no console/page errors or horizontal overflow were recorded.
+- Validation passed: `python3 -m py_compile tools/blender/import_locker_room_props.py`; `npm run assets:check`; `npm run pipeline:evals` (6/6); `npm run check` (35/35 unit tests and production build); focused locker Playwright (5/5); full `npm run test:e2e` (12/12); and `git diff --check`.
+- This is defect-screened comparison evidence, not agent visual approval. Final centering and darkness remain at the locker-room owner approval gate.
+
 ## 2026-07-11 Locker black-backdrop, jet-lag question, Wings, and Charging Bull pass
 
 - Preserved the downloaded Wings and Charging Bull GLBs unchanged under `.cache/cockpit-pipeline/sources/locker-room/*/original/`; their SHA-256 values exactly match `/mnt/2TBHDD/Downloads`:
@@ -606,3 +626,79 @@ Historical checkpoint; the 2026-07-11 transition and Tripo-intake sections above
 - Import and clean the owner-supplied Tripo watch, baseball, wings, Charging Bull, and captain's hat while preserving the tested contract parents and identifiers.
 - Replace the explicit Charging Bull story placeholder with Pop T's exact investing advice.
 - Capture a Vercel preview and owner approval before removing the proxy label or advancing the visual gate. Refreshed local evidence is `/tmp/locker-proxy-1440.png`, `/tmp/locker-proxy-768.png`, and `/tmp/locker-proxy-375.png`.
+
+## 2026-07-11 Locker Bull-to-Wings reveal
+
+- Blender 5.1.2 rebuilt `art-source/blender/locker_room_master.blend` and `public/models/locker-room.glb` through `npm run asset:locker`.
+- The Charging Bull now occupies the middle position on `LOCKER_ENV_MEMORY_SHELF`; the Wings occupy the upper position. Stable node names, colliders, and `game_id` values are unchanged.
+- Correct Watch completion automatically logs/reveals the Bull and settles `bull-focus`; `Continue to airline wings` logs/reveals the Wings and settles `wings-focus`.
+- Removed the passive next-memory and hidden-hat sentences. The Watch dialog title is `Rolex GMT-Master`; Bull and Wings use owner-supplied copy.
+- GLB: 27,253,492 bytes; SHA-256 `03d13d9e596ad77b7ca540f19a4826316d7467bdd7fe4d978bf48e71abcbf757`. Cache-busted browser bytes matched disk exactly.
+- Pass: 33/33 focused state/storage tests, 5/5 focused locker Chromium tests, `npm run check`, 12/12 full Chromium tests, `npm run assets:check`, 6/6 pipeline evals, and `git diff --check`.
+- Visual proof inspected at 1440, 768, and 375 widths: `.cache/assets/locker/browser/locker-bull-focus-1440.png` and `locker-wings-focus-{1440,768,375}.png`.
+- Browser console had no application errors. Observed warnings were the existing Three.js Clock deprecation and screenshot-time WebGL `ReadPixels` stalls.
+- Remaining gate: Vercel preview and owner visual approval.
+- Baseball candidate intake: preserved from `/mnt/2TBHDD/Downloads/baseball+3d+model.glb` at SHA-256 `75dda2bf01c8c8863820ec25750ef2f1b15940ccfeb1b1c56d8d0b548d5ab19e`. The Tripo source has one 1,971,968-triangle mesh and three 1024 textures; it is not runtime-ready.
+
+## 2026-07-11 Baseball memory import and playable reveal
+
+- Imported the preserved baseball source through Blender 5.1.2 with stable nodes `LOCKER_PROP_BASEBALL`, `LOCKER_PROP_BASEBALL_MESH`, and `LOCKER_HITBOX_BASEBALL`; the source SHA-256 is `75dda2bf01c8c8863820ec25750ef2f1b15940ccfeb1b1c56d8d0b548d5ab19e`.
+- Updated the ordered locker loop to watch → baseball question → Charging Bull → Wings → captain's hat while preserving schema version 5, local saves, wrong-answer retries, accented/unaccented Anthony Muñoz answers, keyboard/native controls, reduced motion, and fallback mode.
+- `npm run asset:locker` - pass; `npm run assets:check` - pass; `npm run pipeline:evals` - pass (6/6); `npm run check` - pass; `npm run test:e2e -- e2e/locker-room.spec.ts` - pass (5/5); `git diff --check` - pass.
+- Runtime GLB: 31,326,884 bytes; SHA-256 `ea8c3795e3ad0bc90556a056672a539f6431044ccbe66bd70636f50512184338`. Browser response bytes matched disk, canvas exposed `LOCKER_PROP_BASEBALL`, and Playwright reported no application console errors.
+- Blender approval render: `.cache/assets/locker/previews/cam_locker_approval_baseball.png`. Actual-browser captures inspected at 1440, 768, and 375 widths: `/tmp/baseball-locker-1440.png`, `/tmp/baseball-locker-768.png`, `/tmp/baseball-locker-375.png`. The revealed screenshot shows the baseball on the lower shelf left of the watch with the accessible question open.
+- The importer target is 48,000 triangles, but Blender's decimator produced 113,634 for this candidate; it remains an owner-review optimization delta. The candidate has a visibly speckled surface in the approval render and browser capture.
+- `agent-browser` was attempted but Chrome could not launch due the host sandbox restriction (`No usable sandbox`); repository Playwright was used as fallback. No commit or deployment was made. Remaining gate: owner visual approval.
+
+## 2026-07-11 Locker layout revision
+
+- Moved the baseball to `(0.05, -0.48, 1.34)` on a dedicated shelf above the watch, Charging Bull to `(0.42, 0.48, 2.03)` on the higher shelf, and Wings to `(0.42, -0.06, 2.55)`.
+- Regenerated the master and GLB through Blender/`npm run asset:locker`. Final GLB: 29,539,664 bytes; SHA-256 `7afc3778aca9e1518d7285379a8f70a334969b4a51e76c816f95b065a40efb4e`.
+- Inspected updated Blender renders and actual-browser captures at 1440/768/375. Browser bytes matched disk, `LOCKER_PROP_BASEBALL` remained present and revealed, and no console errors were reported.
+- The current baseball remains a temporary owner-review candidate; a future baseball download can replace its source while preserving the stable contract.
+
+## 2026-07-11 Baseball source replacement
+
+- Preserved the previous baseball source and staged the new download at `.cache/cockpit-pipeline/sources/locker/baseball/original/baseball+3d+model-20260711.glb`.
+- New source hash: `1fb4a5ae2ced1e9500b4730127da3febdc03787af886a314756e8a61e8de06cd`; source size 16,385,168 bytes; runtime baseball reduced to 20,492 triangles with 1024px staged textures.
+- Regenerated runtime GLB: 25,025,584 bytes; SHA-256 `23a8b567e1f511842a71a1d2b8d5a92e2d2a9b0e572021801de26a7f16d12911`.
+- Browser evidence: runtime bytes matched disk, `LOCKER_PROP_BASEBALL` was present and revealed, and no application console errors were reported. The new baseball is visibly seated on the requested shelf.
+## 2026-07-11 Locker baseball/Bull visual and question repair
+
+- Moved the baseball and shelf to the right locker bay at `(0.64, -0.48, 1.34)` / `(0.64, -0.48, 1.17)`, tightened the opening watch macro camera, and reduced the desktop status card to 20rem.
+- Anthony Muñoz is now a four-choice question with Orlando Pace, Johnathan Ogden, and Art Shell. Charging Bull now follows baseball as a required multiple-choice gate: Warren Buffett, Benjamin Franklin, Albert Einstein (correct), and John D. Rockefeller.
+- New baseball material treatment keeps only the base-color texture, enables smooth shading, and removes the candidate normal/roughness/metallic links. Remaining grain is intrinsic to the base-color image and is recorded as owner-review art limitation.
+- Blender master and deployable GLB were regenerated without manual GLB edits. Final GLB: 23,834,824 bytes, SHA-256 `3678d8c797d9fe7cf65a8b91bcac0023a653c085df66009b574a9e7825f539e4`.
+- `npm run assets:check` passed; `npm run pipeline:evals` passed 6/6; `npm run check` passed; `npx playwright test e2e/locker-room.spec.ts` passed 5/5; `git diff --check` passed.
+- Actual-browser Playwright evidence at 1440, 768, and 375 px: `/tmp/baseball-locker-1440.png`, `/tmp/baseball-locker-768.png`, `/tmp/baseball-locker-375.png`. Runtime bytes matched disk, real baseball node was present/revealed, and no console errors were reported.
+
+## 2026-07-11 Locker prop grain repair
+
+- Research identified high-frequency normal/roughness/base-color maps as the primary grain source; glTF materials for baseball, Bull, and Wings now use controlled solid matte materials in Blender and the runtime defensively disables their maps.
+- The baseball scan also had perforated micro-geometry, so Blender replaces only its runtime candidate mesh with a smooth centered sphere under the same stable node and collider contract. The original source GLB remains untouched.
+- Browser evidence after the repair: `/tmp/baseball-locker-1440.png`, `/tmp/baseball-locker-768.png`, `/tmp/baseball-locker-375.png`; all three props render cleanly, runtime bytes match disk, and no console errors were reported.
+- Final deployable GLB: 20,723,224 bytes, SHA-256 `108d988705a7924a042959a7c5bae3ea31a0bc5e63830d935aadc55c6451bd23`; source baseball remains preserved separately from the 2,208-triangle smooth review proxy.
+
+## 2026-07-11 Corrective locker prop visual pass
+
+- Rejected the owner-disapproved generic white baseball and flat materials. Rebuilt the baseball with clean leather plus two red curved seams, voxel-cleaned the Bull into a bronze silhouette, and retained Wings detail with a stylized gold atlas.
+- Actual-browser evidence at 1440/768/375 shows no white UV blocks, no scan speckle on Bull, readable red baseball seams, crisp gold Wings, matching GLB response bytes, and no console errors.
+- Final GLB: 26,594,784 bytes, SHA-256 `893ae4dcd628ab43af1d3f9a9b50f5fcfefc1d3669ef7dfefee7510683089010`.
+- Updated and validated `.agents/skills/blender-visual-repair/SKILL.md` with scan-noise classification, identity-preservation, UV-atlas browser-gate, unlit/emissive warnings, recognizable-feature reconstruction, and shared-decimator scope guardrails. Updated and validated `.agents/skills/blender-browser-visual-gate/SKILL.md` so accepted GLB changes also require a new manual runtime cache version.
+- Validation: `npm run assets:check` passed; `npm run pipeline:evals` passed 6/6; `npm run check` passed with 35 unit tests; focused locker Playwright passed 5/5; full `npm run test:e2e` passed 12/12; skill validation and `git diff --check` passed. `agent-browser` remains unavailable on this host because Chrome reports no usable sandbox; repository Playwright was used.
+- No-cache browser verification matched 26,594,784 runtime bytes to disk, found the real `LOCKER_PROP_BASEBALL` node in its revealed state, and reported no application console errors. The export contains 52 selected objects, five `game_id` nodes, ten materials, and thirteen textures.
+- Full-diff review caught and repaired a shared decimator regression before handoff: Wings now exports at 48,000 triangles, while the watch and hat retain their source-constrained post-decimation detail instead of the rejected over-reduced result. The baseball approval camera now centers the moved right-side shelf.
+
+## 2026-07-12 Locker complete-4K Tripo source rebuild
+
+- Added `TripoAssetLessons.md` and linked it from the README, asset pipeline, Blender pipeline, and source-intake skill. The durable rule is complete 4K material-wired PBR at source intake; runtime texture resolution remains a per-prop browser decision.
+- Preserved and hash-verified the new owner downloads: baseball `e77bd1ef4f85705edb2f6ff5bfc5d91d17f5243c9cd77d9c147b204b58617725`, Bull `a5ca94020d9a0de950666d7e8ab8da1eff861a42f48bfb06e29a6f83dcd3d1f1`, and Wings `27d2a4731419d1f7a44873b7aeb69869d6d33f23dc82f32657268db9fa85b36b`. Each source has 4096 BaseColor, Normal, and metallic-roughness maps.
+- Removed the rejected procedural baseball, voxel-remeshed Bull, stylized Wings atlas, and runtime map-stripping path. The three props now use the newly downloaded geometry and authored PBR, decimated to about 72k triangles and staged at 2048 for owner comparison. Watch/hat retain 1024 runtime staging; this is not treated as a universal budget.
+- `npm run asset:locker` passed source preparation, immutable hash/PBR-role/4K gates, Blender validation, six approval renders, GLB export, and glTF validation. Five existing environment transform warnings and generated tangent-space warnings remain informational.
+- Final Blender master: 50,238,312 bytes, SHA-256 `4356961f63439241d1c9ea0bde8f244361203a67db68629580886f7311a2cdaf`. Final GLB: 44,288,684 bytes, SHA-256 `3b5d365274bb6e65b939e6bee4467e6be7d5a4111f5aace92dcc240b99518753`; a no-cache HTTP fetch matched both GLB bytes and hash.
+- Repeated-build review found and fixed stale importer datablocks that caused `.001` name drift and inflated the master to 74.7 MiB. Prop-scoped orphan cleanup restored stable names and a 50.2 MiB master; two consecutive full `asset:locker` runs produced the identical deployable GLB hash.
+- `npm run assets:check` passed the new independent five-prop/material-role/4K source gate and all deployable GLB validators. `npm run pipeline:evals` passed 6/6. `npm run check` passed lint, types, 35/35 unit tests, and production build.
+- The first full Playwright run passed 11/12 but exposed real parallel GPU/decoder contention between the 44 MiB locker and 38 MiB Airbus GLBs. The unchanged failing real-locker test passed alone with one worker. Playwright is now fixed at one worker locally and in CI; the complete `npm run test:e2e` rerun passed 12/12 in 2.2 minutes without weakening assertions.
+- Reduced the desktop status box from 20rem to 18rem after geometry evidence found a remaining 16px tray overlap. Playwright now asserts no status/tray intersection at 1440 and no horizontal overflow at 1440, 768, or 375; the final 12/12 run passed those assertions.
+- Actual-browser evidence: `.cache/assets/locker/browser/locker-4k-{baseball,bull,wings}-focus-{with-card,clean}-1440.png` and `.cache/assets/locker/browser/locker-4k-overview-{1440,768,375}.png`. All three focus cues settled, real exported nodes were present/revealed, and no console errors were recorded.
+- `blender-source-intake`, `blender-visual-repair`, and `blender-browser-visual-gate` skill validation passed. No commit or deployment was made. Visual acceptance remains exclusively with the owner.

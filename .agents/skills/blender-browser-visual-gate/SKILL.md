@@ -17,6 +17,8 @@ Before editing, prove what is actually happening:
 4. Fetch the runtime GLB with `cache: no-store` and compare its byte length to disk.
 5. Capture a screenshot from the actual app, not only Blender.
 
+If the runtime model URL uses a manual version query, bump it when the accepted GLB changes. A no-cache evidence fetch proves the bytes exist, but it does not prove a returning player's cached URL will refresh.
+
 If the owner says "I don't see it," assume the screenshot is the source of truth.
 
 ## Screenshot minimums

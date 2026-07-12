@@ -32,6 +32,8 @@ Open the local URL printed by Vite.
 - Game state and persistence logic in `src/game/`
 - 3D scenes and interaction entry points in `src/scenes/`
 - Blender and asset pipeline under `tools/blender/`, `art-source/`, `public/models/`, and `asset-reports/`
+- Durable Tripo source-quality and visual-repair guidance in [`TripoAssetLessons.md`](TripoAssetLessons.md)
+- Locker memory props follow the ordered reveal: watch, baseball question, Charging Bull, Wings, then captain's hat.
 
 ## Verify it
 

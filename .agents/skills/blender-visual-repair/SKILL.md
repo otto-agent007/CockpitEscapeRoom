@@ -39,6 +39,18 @@ Do not bundle orientation, lighting, material, camera, and UI changes into one b
 - Invisible hitboxes fail after visual layout changes: either enlarge hitboxes around visible source regions or update test clicks after proving a real click works.
 - Screenshot looks raw: add a simple room stage, wall/floor, and balanced fill light; avoid big flat bright planes that overpower the asset.
 
+## Scan-noise and retexture guardrails
+
+- Classify visible grain before editing: base-color noise, normal/roughness noise, or scanned micro-geometry. Disable one layer at a time and capture the same browser view after each test.
+- Preserve object identity. Do not replace a recognizable textured prop with a generic primitive or flat color unless the owner explicitly accepts a stylized replacement and its defining details are rebuilt.
+- Treat AI-edited UV atlases as untrusted until mapped on the real mesh. Reject any variant that shifts UV islands, creates rectangular color blocks, or changes seam/detail placement.
+- Prefer deterministic pixel-preserving cleanup when exact UV coordinates matter. Generated textures may guide palette and finish, but the browser-mapped result is authoritative.
+- Do not use unlit materials blindly. They can expose pale atlas filler that standard lighting previously masked. Compare standard and unlit renders on the actual mesh.
+- Apply emissive lift only when a valid color map exists. Emissive on an untextured material can wash bronze, leather, or painted surfaces toward white.
+- If texture cleanup cannot remove grain, inspect geometry before increasing blur. Use controlled remesh/rebuild only for the affected prop, preserve the original source, and rebuild recognizable features such as baseball seams.
+- A cleaner screenshot is not sufficient if the prop becomes less recognizable. Judge both surface quality and object identity at the owner-visible camera.
+- Keep repair-specific optimization local to the affected prop. Never change a shared decimation ratio to solve one noisy scan without comparing triangle counts and browser appearance for every other asset that uses the helper.
+
 ## Validation floor
 
 For a focused repair, run at minimum:

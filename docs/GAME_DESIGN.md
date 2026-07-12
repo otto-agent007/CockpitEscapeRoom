@@ -48,6 +48,8 @@ The locker should feel like a place, not a quiz menu. Use a mix of click-to-lear
 
 The emotional idea is: **“Before you can sit in the captain’s seat, understand the captain.”** Personal objects include a baseball memory connected to Anthony Muñoz, a pilot-watch clue connected to jet lag, airline wings and second-in-command experience, investing wisdom, and the final shadowed captain’s hat reveal. These expanded object concepts are creative direction for the dedicated locker milestone and do not change the current Airbus scope.
 
+The playable sequence is watch → baseball → Charging Bull → airline wings → captain's hat. The Wings memory asks: **“In U.S. airline operations, what is the minimum amount of second-in-command experience commonly associated with qualifying to serve as captain?”** Accept friendly forms of `1000 hours`; wrong answers preserve prior memories and advance to a stronger hint.
+
 ## Pop T Captain Mode — DC-9-50
 
 The DC-9-50 is the earned legacy cockpit. It should feel older, denser, more analog, and more personal than the Airbus A320.

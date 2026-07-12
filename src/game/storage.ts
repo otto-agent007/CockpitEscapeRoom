@@ -76,7 +76,23 @@ function isSafeLockerCompleted(value: unknown): value is LockerMemoryId[] {
 function isSafeLockerAttempts(value: unknown): value is Record<LockerQuestionId, number> {
   if (!value || typeof value !== 'object') return false
   const candidate = value as Record<string, unknown>
-  return isSafeNonNegativeInteger(candidate.watch) && isSafeNonNegativeInteger(candidate.baseball)
+  return (
+    isSafeNonNegativeInteger(candidate.watch) &&
+    isSafeNonNegativeInteger(candidate.baseball) &&
+    isSafeNonNegativeInteger(candidate.chargingBull) &&
+    isSafeNonNegativeInteger(candidate.wings)
+  )
+}
+
+function normalizeLockerAttempts(value: unknown): Record<LockerQuestionId, number> | null {
+  if (!value || typeof value !== 'object') return null
+  const candidate = value as Record<string, unknown>
+  const watch = isSafeNonNegativeInteger(candidate.watch) ? candidate.watch : null
+  const baseball = isSafeNonNegativeInteger(candidate.baseball) ? candidate.baseball : null
+  if (watch === null || baseball === null) return null
+  const chargingBull = isSafeNonNegativeInteger(candidate.chargingBull) ? candidate.chargingBull : 0
+  const wings = isSafeNonNegativeInteger(candidate.wings) ? candidate.wings : 0
+  return { watch, baseball, chargingBull, wings }
 }
 
 function isSafeNonNegativeInteger(value: unknown): value is number {
@@ -121,6 +137,7 @@ function migrateV4(value: unknown): GameState | null {
   const migrated = {
     ...candidate,
     schemaVersion: 5,
+    lockerAttempts: normalizeLockerAttempts(candidate.lockerAttempts) ?? { watch: 0, baseball: 0, chargingBull: 0, wings: 0 },
     lockerIntroCompleted: hasReachedLocker(candidate.phase),
   }
   return isGameState(migrated) ? migrated : null
@@ -145,7 +162,7 @@ function migrateV3(value: unknown): GameState | null {
     ...candidate,
     schemaVersion: 5,
     lockerCompleted,
-    lockerAttempts: { watch: 0, baseball: 0 },
+    lockerAttempts: { watch: 0, baseball: 0, chargingBull: 0, wings: 0 },
     lockerIntroCompleted: hasReachedLocker(candidate.phase),
     lockerHatRevealed: preserveFullLocker,
   }
@@ -157,7 +174,13 @@ export function loadGameState(storage: Pick<Storage, 'getItem' | 'removeItem'> =
     const raw = storage.getItem(STORAGE_KEY)
     if (!raw) return createInitialState()
     const parsed: unknown = JSON.parse(raw)
-    const state = isGameState(parsed) ? parsed : migrateV4(parsed) ?? migrateV3(parsed)
+    const normalized = parsed && typeof parsed === 'object' && (parsed as Record<string, unknown>).schemaVersion === 5
+      ? normalizeLockerAttempts((parsed as Record<string, unknown>).lockerAttempts)
+      : null
+    const normalizedParsed = normalized
+      ? { ...(parsed as Record<string, unknown>), lockerAttempts: normalized }
+      : parsed
+    const state = isGameState(normalizedParsed) ? normalizedParsed : migrateV4(normalizedParsed) ?? migrateV3(normalizedParsed)
     if (state) {
       return state.phase === 'airbus' ? { ...state, airbusClockAnswer: '' } : state
     }

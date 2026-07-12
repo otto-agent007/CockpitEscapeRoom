@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { dc9LegacyFlow, firstOfficerFlow } from './config'
-import { createInitialState, gameReducer, type GameState } from './state'
+import { createInitialState, gameReducer, isLockerMemoryAvailable, type GameState } from './state'
 
 function enterLockerFromAirbus(completeIntro = true): GameState {
   let state = gameReducer(createInitialState(), { type: 'START' })
@@ -142,14 +142,37 @@ describe('gameReducer', () => {
     state = gameReducer(state, { type: 'COMPLETE_LOCKER_INTRO' })
     const beforeOutOfOrderAttempt = state
     state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'baseball', response: 'Muñoz' })
-    state = gameReducer(state, { type: 'INSPECT_LOCKER_MEMORY', memoryId: 'wings' })
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'wings', response: '1000 hours' })
     expect(state).toEqual(beforeOutOfOrderAttempt)
 
     state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'watch', response: 'Jet lag' })
     expect(state.lockerCompleted).toEqual(['watch'])
+    expect(isLockerMemoryAvailable(state, 'baseball')).toBe(true)
+    expect(isLockerMemoryAvailable(state, 'chargingBull')).toBe(false)
     expect(state.lockerHatRevealed).toBe(false)
     expect(state.captainModeUnlocked).toBe(false)
     expect(state.statusMessage).toContain('manage jet lag')
+  })
+
+  it('advances through the baseball, Bull, and Wings sequence without allowing out-of-order actions', () => {
+    let state = enterLockerFromAirbus()
+    const beforeOutOfOrderAdvance = state
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'wings', response: '1000 hours' })
+    expect(state).toEqual(beforeOutOfOrderAdvance)
+
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'watch', response: 'Jet lag' })
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'baseball', response: 'Anthony Munoz' })
+    expect(state.lockerCompleted).toEqual(['watch', 'baseball'])
+    expect(isLockerMemoryAvailable(state, 'chargingBull')).toBe(true)
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'chargingBull', response: 'Albert Einstein' })
+    expect(state.lockerCompleted).toEqual(['watch', 'baseball', 'chargingBull'])
+    expect(isLockerMemoryAvailable(state, 'wings')).toBe(true)
+
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'wings', response: '1000 hours' })
+    expect(state.lockerCompleted).toEqual(['watch', 'baseball', 'chargingBull', 'wings'])
+    expect(state.lockerHatRevealed).toBe(true)
+    expect(isLockerMemoryAvailable(state, 'wings')).toBe(true)
+    expect(gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'wings', response: '1000' }).lockerCompleted).toEqual(state.lockerCompleted)
   })
 
   it('keeps completed memories while repeated wrong answers advance a fair clue', () => {
@@ -169,10 +192,49 @@ describe('gameReducer', () => {
     expect(state.lockerCompleted).toContain('watch')
   })
 
-  it.each(['Anthony Muñoz', 'Anthony Munoz', 'Muñoz', 'Munoz'])('keeps the future baseball answer %s locked for asset intake', (answer) => {
-    const before = enterLockerFromAirbus()
-    const state = gameReducer(before, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'baseball', response: answer })
-    expect(state).toEqual(before)
+  it.each(['Anthony Muñoz', 'Anthony Munoz', 'Muñoz', 'Munoz'])('accepts baseball answer %s after the watch', (answer) => {
+    let state = gameReducer(enterLockerFromAirbus(), { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'watch', response: 'Jet lag' })
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'baseball', response: answer })
+    expect(state.lockerCompleted).toEqual(['watch', 'baseball'])
+  })
+
+  it('keeps the baseball milestone while repeated Bull misses reveal the progressive clue', () => {
+    let state = gameReducer(enterLockerFromAirbus(), { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'watch', response: 'Jet lag' })
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'baseball', response: 'Anthony Muñoz' })
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'chargingBull', response: 'Warren Buffett' })
+    expect(state.lockerCompleted).toEqual(['watch', 'baseball'])
+    expect(state.statusMessage).toContain('physicist often associated')
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'chargingBull', response: 'Benjamin Franklin' })
+    expect(state.lockerCompleted).toEqual(['watch', 'baseball'])
+    expect(state.lockerAttempts.chargingBull).toBe(2)
+    expect(state.statusMessage).toContain('correct choice is the physicist')
+  })
+
+  it.each(['1000', '1,000', '1000 hour', '1000 hours', '1,000 hours'])(
+    'accepts Wings experience answer %s after the Bull',
+    (answer) => {
+      let state = gameReducer(enterLockerFromAirbus(), { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'watch', response: 'Jet lag' })
+      state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'baseball', response: 'Anthony Muñoz' })
+      state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'chargingBull', response: 'Albert Einstein' })
+      state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'wings', response: answer })
+
+      expect(state.lockerCompleted).toEqual(['watch', 'baseball', 'chargingBull', 'wings'])
+      expect(state.lockerHatRevealed).toBe(true)
+    },
+  )
+
+  it('preserves prior memories while repeated Wings misses reveal the progressive clue', () => {
+    let state = gameReducer(enterLockerFromAirbus(), { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'watch', response: 'Jet lag' })
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'baseball', response: 'Anthony Muñoz' })
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'chargingBull', response: 'Albert Einstein' })
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'wings', response: '500 hours' })
+    expect(state.lockerCompleted).toEqual(['watch', 'baseball', 'chargingBull'])
+    expect(state.statusMessage).toContain('Part 121 experience milestone')
+
+    state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'wings', response: '1500 hours' })
+    expect(state.lockerCompleted).toEqual(['watch', 'baseball', 'chargingBull'])
+    expect(state.lockerAttempts.wings).toBe(2)
+    expect(state.statusMessage).toContain('one thousand hours')
   })
 
   it('preserves captain progress and only completes reward after legacy sequence', () => {

@@ -60,6 +60,8 @@ Do not mix Airbus and DC-9 aircraft-specific details. The Airbus cockpit must re
 
 Tripo outputs are candidates or proxies until inspected, cleaned, optimized, and approved.
 
+For owner-supplied Tripo props, follow [`../TripoAssetLessons.md`](../TripoAssetLessons.md). New runtime candidates must contain a complete 4096×4096 BaseColor, Normal, and metallic-roughness source set. This is an intake requirement; deployable texture resolution remains a per-prop browser decision.
+
 Before any Tripo-generated asset reaches runtime use:
 
 1. Import it into the relevant Blender master or staging file.
@@ -117,6 +119,8 @@ npm run asset:tesla
 npm run asset:locker
 npm run assets:check
 ```
+
+`npm run asset:locker` also runs the deterministic locker prop importer before validation/export. It preserves configured downloads, verifies immutable source hashes, and rejects Tripo candidates that fail the 4K source gate.
 
 The GLB contract remains stable names, preserved hierarchy, correct pivots, local axes, animations, materials, and exported custom properties. React integration should consume only documented asset contracts and must provide native HTML or equivalent accessible controls for required 3D interactions.
 

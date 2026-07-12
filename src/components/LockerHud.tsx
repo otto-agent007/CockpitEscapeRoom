@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { lockerFlow, type LockerMemoryId, type LockerQuestionId } from '../game/config'
 import { isLockerMemoryAvailable, type GameAction, type GameState } from '../game/state'
 
@@ -15,15 +15,15 @@ function isQuestion(memoryId: LockerMemoryId): memoryId is LockerQuestionId {
 }
 
 export function LockerHud({ state, dispatch, selectedMemory, onSelectedMemoryChange, onRestart }: LockerHudProps) {
-  const [answers, setAnswers] = useState<Record<LockerQuestionId, string>>({ watch: '', baseball: '' })
   const closeRef = useRef<HTMLButtonElement>(null)
   const watchLinkRef = useRef<HTMLButtonElement>(null)
+  const [textResponse, setTextResponse] = useState('')
   const completed = new Set(state.lockerCompleted)
   const visibleMemories = lockerFlow.memoryIds.filter((memoryId) => isLockerMemoryAvailable(state, memoryId))
   const trayMemories = visibleMemories.filter((memoryId) => memoryId !== 'watch')
   const watchAvailable = visibleMemories.includes('watch')
   const selectedMemoryComplete = selectedMemory ? completed.has(selectedMemory) : false
-  const authoredSequenceComplete = lockerFlow.authoredSequence.every((memoryId) => completed.has(memoryId))
+  const selectedMemoryConfig = selectedMemory ? lockerFlow.memories[selectedMemory] : null
 
   useEffect(() => {
     if (selectedMemory) closeRef.current?.focus()
@@ -35,8 +35,19 @@ export function LockerHud({ state, dispatch, selectedMemory, onSelectedMemoryCha
 
   const inspect = (memoryId: LockerMemoryId) => {
     if (!isLockerMemoryAvailable(state, memoryId)) return
+    setTextResponse('')
     onSelectedMemoryChange(memoryId)
-    if (!isQuestion(memoryId)) dispatch({ type: 'INSPECT_LOCKER_MEMORY', memoryId })
+  }
+
+  const closeMemory = () => {
+    setTextResponse('')
+    onSelectedMemoryChange(null)
+  }
+
+  const submitTextAnswer = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!selectedMemory || !isQuestion(selectedMemory) || !textResponse.trim()) return
+    dispatch({ type: 'SUBMIT_LOCKER_ANSWER', memoryId: selectedMemory, response: textResponse })
   }
 
   return (
@@ -83,10 +94,6 @@ export function LockerHud({ state, dispatch, selectedMemory, onSelectedMemoryCha
         </nav>
       )}
 
-      {authoredSequenceComplete && !state.lockerHatRevealed && (
-        <p className="locker-next-memory" role="status" aria-live="polite">{lockerFlow.firstMemoryCompleteText}</p>
-      )}
-
       <div className="locker-actions">
         <button type="button" className="secondary-button" onClick={() => dispatch({ type: 'USE_LOCKER_HINT', memoryId: selectedMemory && isQuestion(selectedMemory) ? selectedMemory : undefined })}>
           Request a hint
@@ -94,23 +101,27 @@ export function LockerHud({ state, dispatch, selectedMemory, onSelectedMemoryCha
         <button type="button" className="text-button" onClick={onRestart}>Restart</button>
       </div>
 
-      {selectedMemory && isLockerMemoryAvailable(state, selectedMemory) && (
-        <section className="locker-story-card" role="dialog" aria-modal="false" aria-labelledby="locker-story-title">
-          <button ref={closeRef} type="button" className="locker-story-close" aria-label="Close memory" onClick={() => onSelectedMemoryChange(null)}>×</button>
-          <p className="eyebrow">{lockerFlow.memories[selectedMemory].eyebrow}</p>
-          <h2 id="locker-story-title">{lockerFlow.memories[selectedMemory].label}</h2>
-          <p>{lockerFlow.memories[selectedMemory].story}</p>
+      {selectedMemory && selectedMemoryConfig && isLockerMemoryAvailable(state, selectedMemory) && (
+        <section className={`locker-story-card${selectedMemory === 'wings' ? ' locker-story-card--wings' : ''}`} role="dialog" aria-modal="false" aria-labelledby="locker-story-title">
+          <button ref={closeRef} type="button" className="locker-story-close" aria-label="Close memory" onClick={closeMemory}>×</button>
+          <p className="eyebrow">{selectedMemoryConfig.eyebrow}</p>
+          <h2 id="locker-story-title">{selectedMemoryConfig.storyTitle}</h2>
+          <p>{selectedMemoryConfig.story}</p>
           {isQuestion(selectedMemory) && !completed.has(selectedMemory) ? (
-            selectedMemory === 'watch' ? (
-              <fieldset className="locker-choice-fieldset">
-                <legend>{lockerFlow.memories.watch.question}</legend>
+            selectedMemoryConfig.answerMode === 'choice' ? (
+              <fieldset className={`locker-choice-fieldset${'emphasizeQuestion' in selectedMemoryConfig && selectedMemoryConfig.emphasizeQuestion ? ' locker-choice-fieldset--emphasized' : ''}`}>
+                <legend className="locker-question-block">
+                  {'emphasizeQuestion' in selectedMemoryConfig && selectedMemoryConfig.emphasizeQuestion
+                    ? <strong>{selectedMemoryConfig.question}</strong>
+                    : selectedMemoryConfig.question}
+                </legend>
                 <div className="locker-choice-grid">
-                  {lockerFlow.memories.watch.choices.map((choice) => (
+                  {selectedMemoryConfig.choices.map((choice) => (
                     <button
                       key={choice}
                       type="button"
                       className="locker-choice-button"
-                      onClick={() => dispatch({ type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'watch', response: choice })}
+                      onClick={() => dispatch({ type: 'SUBMIT_LOCKER_ANSWER', memoryId: selectedMemory, response: choice })}
                     >
                       {choice}
                     </button>
@@ -118,39 +129,37 @@ export function LockerHud({ state, dispatch, selectedMemory, onSelectedMemoryCha
                 </div>
               </fieldset>
             ) : (
-              <form onSubmit={(event) => {
-                event.preventDefault()
-                dispatch({ type: 'SUBMIT_LOCKER_ANSWER', memoryId: selectedMemory, response: answers[selectedMemory] })
-              }}>
-                <label>
-                  <span>{lockerFlow.memories[selectedMemory].question}</span>
+              <form className="locker-answer-form" onSubmit={submitTextAnswer}>
+                <fieldset className="locker-choice-fieldset">
+                  <legend className="locker-question-block">{selectedMemoryConfig.question}</legend>
+                  <label htmlFor="locker-text-answer">{selectedMemoryConfig.inputLabel}</label>
                   <input
-                    value={answers[selectedMemory]}
-                    onChange={(event) => setAnswers((current) => ({ ...current, [selectedMemory]: event.target.value }))}
-                    aria-label={`${lockerFlow.memories[selectedMemory].label} answer`}
+                    id="locker-text-answer"
+                    name="locker-text-answer"
+                    type="text"
                     autoComplete="off"
+                    value={textResponse}
+                    placeholder={selectedMemoryConfig.inputPlaceholder}
+                    onChange={(event) => setTextResponse(event.target.value)}
                   />
-                </label>
-                <button type="submit" className="primary-button">Confirm memory</button>
+                  <button type="submit" className="primary-button" disabled={!textResponse.trim()}>Submit answer</button>
+                </fieldset>
               </form>
             )
-          ) : (
-            <p className="locker-story-complete">{completed.has(selectedMemory) ? lockerFlow.memories[selectedMemory].feedback : 'Inspect this memory to continue.'}</p>
-          )}
+          ) : isQuestion(selectedMemory) ? (
+            <p className="locker-story-complete">{selectedMemoryConfig.feedback}</p>
+          ) : null}
         </section>
       )}
 
-      <div className={`locker-hat-callout${state.lockerHatRevealed ? ' is-revealed' : ''}`}>
-        <span>{state.lockerHatRevealed ? lockerFlow.hatText.revealText : lockerFlow.hatText.hiddenText}</span>
-        <button
-          type="button"
-          className="primary-button"
-          disabled={!state.lockerHatRevealed || state.captainModeUnlocked}
-          onClick={() => dispatch({ type: 'CLAIM_CAPTAIN_HAT' })}
-        >
-          {state.captainModeUnlocked ? 'Captain’s hat claimed' : 'Claim the captain’s hat'}
-        </button>
-      </div>
+      {state.lockerHatRevealed && (
+        <div className="locker-hat-callout is-revealed">
+          <span>{lockerFlow.hatText.revealText}</span>
+          <button type="button" className="primary-button" disabled={state.captainModeUnlocked} onClick={() => dispatch({ type: 'CLAIM_CAPTAIN_HAT' })}>
+            {state.captainModeUnlocked ? 'Captain’s hat claimed' : 'Claim the captain’s hat'}
+          </button>
+        </div>
+      )}
 
       {state.captainModeUnlocked && (
         <section className="locker-promotion" role="dialog" aria-modal="true" aria-labelledby="locker-promotion-title">

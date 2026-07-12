@@ -5,7 +5,11 @@ const localChromium = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
-  workers: process.env.CI ? 1 : undefined,
+  // The suite exercises the 38 MiB Airbus and 44 MiB locker GLBs. Parallel
+  // browser processes contend for GPU/decoder memory and can starve a valid
+  // second model load, so keep the real-asset boundary deterministic locally
+  // as well as in CI.
+  workers: 1,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? 'github' : 'list',
