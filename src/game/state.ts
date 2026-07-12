@@ -4,7 +4,6 @@ import {
   lockerFlow,
   type FirstOfficerControl,
   type FirstOfficerDecoy,
-  type LockerInspectionId,
   type LockerMemoryId,
   type LockerQuestionId,
 } from './config'
@@ -22,7 +21,6 @@ export type GameAction =
   | { type: 'CONTINUE_TO_LOCKER' }
   | { type: 'COMPLETE_LOCKER_INTRO' }
   | { type: 'SUBMIT_LOCKER_ANSWER'; memoryId: LockerQuestionId; response: string }
-  | { type: 'INSPECT_LOCKER_MEMORY'; memoryId: LockerInspectionId }
   | { type: 'USE_LOCKER_HINT'; memoryId?: LockerQuestionId }
   | { type: 'CLAIM_CAPTAIN_HAT' }
   | { type: 'CONTINUE_TO_CAPTAIN' }
@@ -169,7 +167,7 @@ function isLockerAnswerCorrect(memoryId: LockerQuestionId, response: string): bo
 }
 
 function lockerInteractionComplete(current: LockerMemoryId[], memoryId: LockerMemoryId): LockerPayload {
-  const completed = lockerFlow.memoryIds.filter((id) => current.includes(id) || id === memoryId)
+  const completed = lockerFlow.authoredSequence.filter((id) => current.includes(id) || id === memoryId)
   const requirementMet = lockerFlow.memoryIds.every((id) => completed.includes(id))
   return {
     completed,
@@ -183,8 +181,11 @@ export function isLockerMemoryAvailable(
 ): boolean {
   if (!state.lockerIntroCompleted) return false
   if (state.lockerCompleted.includes(memoryId)) return true
-  const nextMemory = lockerFlow.authoredSequence.find((id) => !state.lockerCompleted.includes(id))
-  return nextMemory === memoryId
+  if (memoryId === 'watch') return true
+  if (memoryId === 'baseball') return state.lockerCompleted.includes('watch')
+  if (memoryId === 'chargingBull') return state.lockerCompleted.includes('baseball')
+  if (memoryId === 'wings') return state.lockerCompleted.includes('chargingBull')
+  return false
 }
 
 function hintFor(state: GameState): string {
@@ -202,7 +203,10 @@ function hintFor(state: GameState): string {
     if (!state.lockerIntroCompleted) return 'Let the locker room come into view.'
     if (state.lockerHatRevealed) return 'The upper cubby is open. Claim the captain’s hat.'
     const available = lockerFlow.memoryIds.filter((id) => isLockerMemoryAvailable(state, id) && !state.lockerCompleted.includes(id))
-    if (available.length === 0) return lockerFlow.firstMemoryCompleteText
+    if (state.lockerCompleted.includes('wings')) return 'The airline wings are logged. One locker memory remains.'
+    if (state.lockerCompleted.includes('chargingBull')) return 'The Charging Bull is logged. Continue to the airline wings.'
+    if (state.lockerCompleted.includes('baseball')) return 'The baseball memory is logged. Look for the Charging Bull.'
+    if (available.length === 0) return lockerFlow.openingInstruction
     return `Look for ${available.map((id) => lockerFlow.memories[id].label).join(', ')}.`
   }
 
@@ -227,7 +231,7 @@ export function createInitialState(): GameState {
     airbusDecoyAssignments: createEmptyDecoyAssignments(),
     airbusClockAnswer: '',
     lockerCompleted: [],
-    lockerAttempts: { watch: 0, baseball: 0 },
+    lockerAttempts: { watch: 0, baseball: 0, chargingBull: 0, wings: 0 },
     lockerIntroCompleted: false,
     lockerHatRevealed: false,
     captainModeUnlocked: false,
@@ -391,22 +395,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         lockerCompleted: payload.completed,
         lockerHatRevealed: true,
         statusMessage: `${feedback} ${lockerFlow.hatText.revealText}`,
-      }
-    }
-
-    case 'INSPECT_LOCKER_MEMORY': {
-      if (state.phase !== 'locker') return state
-      if (!isLockerMemoryAvailable(state, action.memoryId)) return state
-      if (state.lockerCompleted.includes(action.memoryId)) {
-        return { ...state, statusMessage: lockerFlow.memories[action.memoryId].story }
-      }
-      const payload = lockerInteractionComplete(state.lockerCompleted, action.memoryId)
-      const feedback = lockerFlow.memories[action.memoryId].feedback
-      return {
-        ...state,
-        lockerCompleted: payload.completed,
-        lockerHatRevealed: payload.hatRevealed,
-        statusMessage: payload.hatRevealed ? `${feedback} ${lockerFlow.hatText.revealText}` : feedback,
       }
     }
 

@@ -1431,7 +1431,10 @@ progress {
   position: absolute;
   left: clamp(1rem, 2.4vw, 2rem);
   bottom: 4.8rem;
-  width: min(31rem, calc(100vw - 2rem));
+  width: min(18rem, calc(100vw - 2rem));
+  padding: 0.55rem 0.7rem;
+  font-size: 0.88rem;
+  line-height: 1.35;
   min-height: 0;
   margin: 0;
   border-color: rgba(225, 190, 121, 0.24);
@@ -1513,20 +1516,6 @@ progress {
   pointer-events: auto;
 }
 
-.locker-next-memory {
-  position: absolute;
-  left: 50%;
-  bottom: 7rem;
-  width: min(31rem, calc(100vw - 2rem));
-  margin: 0;
-  color: #d7c7aa;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.05rem;
-  line-height: 1.45;
-  text-align: center;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.85);
-}
-
 .locker-story-card,
 .locker-promotion {
   position: absolute;
@@ -1551,6 +1540,10 @@ progress {
   font-weight: 500;
 }
 
+.locker-story-card--wings {
+  width: min(34rem, calc(100vw - 2rem));
+}
+
 .locker-story-card p {
   color: #d0c7b7;
   line-height: 1.6;
@@ -1573,6 +1566,20 @@ progress {
 .locker-choice-fieldset legend {
   color: #f3ead9;
   line-height: 1.5;
+}
+
+.locker-question-block {
+  display: block;
+  width: 100%;
+  padding: 0;
+}
+
+.locker-choice-fieldset--emphasized .locker-question-block {
+  font-weight: 700;
+}
+
+.locker-answer-form .primary-button {
+  justify-self: start;
 }
 
 .locker-choice-grid {
@@ -1751,8 +1758,7 @@ progress {
   .locker-watch-link,
   .locker-actions,
   .locker-hat-callout,
-  .locker-story-card,
-  .locker-next-memory {
+  .locker-story-card {
     position: relative;
     inset: auto;
     width: 100%;
@@ -1766,8 +1772,6 @@ progress {
   .locker-actions { display: flex; width: 100%; margin-top: 0.8rem; }
   .locker-story-card { max-height: none; margin-top: 1rem; }
   .locker-hat-callout { justify-content: space-between; margin-top: 0.8rem; border-radius: 0.65rem; }
-  .locker-next-memory { margin-top: 0.8rem; }
-
   .airbus-card-tray {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }

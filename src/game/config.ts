@@ -63,18 +63,17 @@ export const firstOfficerFlow = {
 } as const
 
 export const lockerFlow = {
-  memoryIds: ['watch', 'baseball', 'wings', 'chargingBull'] as const,
-  // The remaining order will be authored after the Tripo props are imported and reviewed.
-  authoredSequence: ['watch'] as const,
-  questionIds: ['watch', 'baseball'] as const,
-  inspectionIds: ['wings', 'chargingBull'] as const,
+  memoryIds: ['watch', 'baseball', 'chargingBull', 'wings'] as const,
+  authoredSequence: ['watch', 'baseball', 'chargingBull', 'wings'] as const,
+  questionIds: ['watch', 'baseball', 'chargingBull', 'wings'] as const,
   introText: 'Before you can sit in the captain’s seat, you must understand the Captain’s journey…',
   openingInstruction: 'Begin with the pilot watch.',
-  firstMemoryCompleteText: 'The first memory is logged. The next keepsake remains in shadow.',
   memories: {
     watch: {
       label: 'Pilot watch',
+      storyTitle: 'Rolex GMT-Master',
       eyebrow: 'Time and experience',
+      answerMode: 'choice',
       question:
         'The Rolex GMT-Master was originally developed in 1954 in collaboration with Pan American World Airways to help commercial pilots combat ___ ___ on long-haul transatlantic flights',
       choices: ['Brain fog', 'Motion sickness', 'Sleep deprivation', 'Jet lag'] as const,
@@ -86,30 +85,51 @@ export const lockerFlow = {
     },
     baseball: {
       label: 'Baseball',
+      storyTitle: 'Baseball',
       eyebrow: 'Before the captain wore wings',
-      question:
-        'Before the captain wore wings, he wore a glove. Which future Pro Football Hall of Famer from Chaffey High crossed paths with him?',
+      answerMode: 'choice',
+      question: 'Which future Pro Football Hall of Famer from Chaffey High crossed paths with him?',
+      choices: ['Anthony Muñoz', 'Orlando Pace', 'Johnathan Ogden', 'Art Shell'] as const,
       acceptedAnswers: ['Anthony Muñoz', 'Anthony Munoz', 'Muñoz', 'Munoz'] as const,
       feedback: 'Memory recognized: Anthony Muñoz.',
       retry: 'That name is not the one attached to this baseball memory. Try again.',
       strongerHint: 'Think of the Hall of Fame offensive tackle whose first name is Anthony.',
-      story: 'Before airline wings, there was a glove, a field, and a remarkable Chaffey High connection.',
+      story: 'Before the captain wore wings, he wore a glove.',
     },
     wings: {
       label: 'Airline wings',
+      storyTitle: 'Aviation Traditions: “Breaking the Wings”',
       eyebrow: 'Second in command',
-      feedback: 'The wings remember preparation, teamwork, and earned responsibility.',
-      story: 'Every captain first learns how to support a crew, share judgment, and be ready when greater responsibility arrives.',
+      answerMode: 'text',
+      question:
+        'In U.S. airline operations, what is the minimum amount of second-in-command experience commonly associated with qualifying to serve as captain?',
+      acceptedAnswers: ['1000', '1000 hour', '1000 hours'] as const,
+      feedback: 'Correct: 1,000 hours. The wings remember preparation, teamwork, and earned responsibility.',
+      retry: 'Not quite. Think of the Part 121 experience milestone commonly associated with a captain upgrade.',
+      strongerHint: 'The milestone is one thousand hours.',
+      inputLabel: 'Answer in hours',
+      inputPlaceholder: 'e.g. 1000 hours',
+      story:
+        'With this deep history came powerful superstitions. One of the most famous military traditions is the “Breaking of the Wings.” Upon graduating from flight school, a new pilot receives their very first pair of wings but is told never to wear them. Instead, they deliberately break the badge into two halves. The pilot keeps one half, and the other is given to a loved one or best friend for good luck. Superstition dictates that the two halves must never be reunited while the pilot is alive, otherwise, it invites bad luck.',
     },
     chargingBull: {
       label: 'Charging Bull',
+      storyTitle: 'Charging Bull',
       eyebrow: 'Patience and judgment',
+      answerMode: 'choice',
+      emphasizeQuestion: true,
+      question:
+        "Which historical figure is most commonly credited with saying, 'Compound interest is the eighth wonder of the world. He who understands it, earns it... he who doesn't... pays it'?",
+      choices: ['Warren Buffett', 'Benjamin Franklin', 'Albert Einstein', 'John D. Rockefeller'] as const,
+      acceptedAnswers: ['Albert Einstein'] as const,
       feedback: 'Investment wisdom remembered.',
-      story: '[PERSONALIZE] Add Pop T’s exact investing advice here. The intended theme is patience, discipline, and thinking beyond the next headline.',
+      retry: 'Not quite. Think of the physicist often associated with this quote.',
+      strongerHint: 'The correct choice is the physicist, not the investors or Founding Father.',
+      story:
+        "The most iconic representation of a bull market is the famous Charging Bull statue located in New York City's Financial District. Designed by artist Arturo Di Modica, this bronze landmark symbolizes financial optimism, aggressive market growth, and economic prosperity.",
     },
   } as const,
   hatText: {
-    hiddenText: 'A dark silhouette waits on the upper shelf.',
     revealText: 'Four memories align. The upper cubby opens.',
     foundText: 'Captain’s hat recognized.',
     promotionText: 'Promotion available.',
@@ -158,5 +178,4 @@ export type FirstOfficerControl = (typeof firstOfficerFlow.controlIds)[number]
 export type FirstOfficerDecoy = (typeof firstOfficerFlow.decoyIds)[number]
 export type LockerMemoryId = (typeof lockerFlow.memoryIds)[number]
 export type LockerQuestionId = (typeof lockerFlow.questionIds)[number]
-export type LockerInspectionId = (typeof lockerFlow.inspectionIds)[number]
 export type LegacyRouteOption = (typeof dc9LegacyFlow.routePuzzleOptions)[number]

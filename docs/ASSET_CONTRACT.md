@@ -44,18 +44,21 @@ LOCKER_ROOT
     ├── LOCKER_PROP_WATCH                       game_id = locker.memory.watch
     │   ├── LOCKER_PROP_WATCH_MESH
     │   └── LOCKER_HITBOX_WATCH
-    ├── LOCKER_PROP_WINGS                       game_id = locker.memory.wings
-    │   ├── LOCKER_PROP_WINGS_MESH
-    │   └── LOCKER_HITBOX_WINGS
+    ├── LOCKER_PROP_BASEBALL                    game_id = locker.memory.baseball
+    │   ├── LOCKER_PROP_BASEBALL_MESH
+    │   └── LOCKER_HITBOX_BASEBALL
     ├── LOCKER_PROP_CHARGING_BULL               game_id = locker.memory.chargingBull
     │   ├── LOCKER_PROP_CHARGING_BULL_MESH
     │   └── LOCKER_HITBOX_CHARGING_BULL
+    ├── LOCKER_PROP_WINGS                       game_id = locker.memory.wings
+    │   ├── LOCKER_PROP_WINGS_MESH
+    │   └── LOCKER_HITBOX_WINGS
     └── LOCKER_PROP_CAPTAINS_HAT                game_id = locker.promotion.hat
         ├── LOCKER_PROP_CAPTAINS_HAT_MESH
         └── LOCKER_HITBOX_CAPTAINS_HAT
 ```
 
-The Wings, Charging Bull, and hat nodes and colliders are exported at all times. Runtime availability is reducer-controlled: unauthored or locked keepsakes render as unreadable silhouettes and do not activate. The watch is the only authored first interaction at this checkpoint.
+The baseball, Charging Bull, Wings, and hat nodes and colliders are exported at all times. Runtime availability is reducer-controlled: locked keepsakes render as unreadable silhouettes and do not activate. The watch is followed by the baseball question, then the Charging Bull question, then the Wings question. The Wings node exports `interaction = question`; correct completion of all four questions reveals the hat.
 
 ## Naming
 

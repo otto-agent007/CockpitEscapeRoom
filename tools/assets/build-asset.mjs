@@ -23,6 +23,7 @@ const assets = {
     blend: 'art-source/blender/locker_room_master.blend',
     output: 'public/models/locker-room.glb',
     root: 'LOCKER_ROOT',
+    prepare: 'tools/blender/import_locker_room_props.py',
   },
 }
 
@@ -65,6 +66,14 @@ function run(command, args, label) {
   })
   if (result.error) throw result.error
   if (result.status !== 0) process.exit(result.status ?? 1)
+}
+
+if (config.prepare) {
+  run(
+    blender,
+    ['--background', '--disable-autoexec', config.blend, '--python', config.prepare],
+    'prepare source assets',
+  )
 }
 
 run(blender, ['--background', config.blend, '--python', 'tools/blender/validate_scene.py'], 'validate scene')

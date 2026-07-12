@@ -7,6 +7,8 @@ description: Import, normalize, inspect, and stage downloaded Blender, glTF, DAE
 
 Use this before a downloaded or generated 3D source asset reaches `public/models`.
 
+For CockpitEscapeRoom Tripo props, read `TripoAssetLessons.md` before intake. Enforce its complete, material-wired 4K source-map requirement while treating runtime texture resolution as a separate browser-tested decision.
+
 ## Non-negotiable order
 
 1. Preserve the original archive untouched under `.cache/cockpit-pipeline/sources/<scene>/<asset>/`.

@@ -9,7 +9,7 @@ import { type GamePhase, type SwitchId } from '../game/state'
 // Cockpit shells produced by the asset pipeline and served from public/models.
 const AIRBUS_MODEL_URL = `${import.meta.env.BASE_URL}models/airbus-first-officer.glb`
 const DC9_MODEL_URL = `${import.meta.env.BASE_URL}models/dc9-cockpit.glb`
-const LOCKER_MODEL_URL = `${import.meta.env.BASE_URL}models/locker-room.glb?v=tripo-locker-props-20260711`
+const LOCKER_MODEL_URL = `${import.meta.env.BASE_URL}models/locker-room.glb?v=locker-seams-cf212389`
 
 // Provisional placement, tuned in-browser during visual approval — not final framing.
 const DC9_MODEL_TRANSFORM = { position: [0, -0.35, 0] as [number, number, number], scale: 1 }
@@ -68,11 +68,35 @@ const AIRBUS_LOOK_YAW_LIMIT = 0.34
 const AIRBUS_LOOK_PITCH_LIMIT = 0.22
 const AIRBUS_LOOK_POINTER_SPEED = 0.0021
 const LOCKER_CAMERA_MOVE_SECONDS = 4.5
-const LOCKER_WATCH_POSITION = [0.31, -0.75, -0.21] as const
-export type LockerCameraCue = 'entry-wide' | 'watch-focus'
-const LOCKER_CAMERA_POSES: Record<LockerCameraCue, { position: [number, number, number]; target: [number, number, number]; fov: number }> = {
-  'entry-wide': { position: [0.25, 0.72, 7.6], target: [0, 0.18, 0], fov: 48 },
-  'watch-focus': { position: [0.12, -0.2, 3.92], target: [0.31, -0.75, -0.21], fov: 36 },
+const LOCKER_MEMORY_CAMERA_MOVE_SECONDS = 1.8
+const LOCKER_CLOSE_FOCUS_FOV = 30
+const LOCKER_CLOSE_FOCUS_OFFSET = [-0.27, 0.37, 3.46] as const
+const LOCKER_WATCH_POSITION = [0.42, -0.75, -0.21] as const
+const LOCKER_BASEBALL_POSITION = [0.54, -0.48, 0.58] as const
+const LOCKER_BULL_POSITION = [0.31, 0.04, 1.44] as const
+const LOCKER_WINGS_POSITION = [0.42, 0.73, 0.73] as const
+export type LockerCameraCue = 'entry-wide' | 'watch-focus' | 'baseball-focus' | 'bull-focus' | 'wings-focus'
+type LockerCameraPose = { position: [number, number, number]; target: [number, number, number]; fov: number; duration: number }
+
+function lockerCloseFocusPose(target: readonly [number, number, number], duration: number): LockerCameraPose {
+  return {
+    position: [
+      target[0] + LOCKER_CLOSE_FOCUS_OFFSET[0],
+      target[1] + LOCKER_CLOSE_FOCUS_OFFSET[1],
+      target[2] + LOCKER_CLOSE_FOCUS_OFFSET[2],
+    ],
+    target: [...target],
+    fov: LOCKER_CLOSE_FOCUS_FOV,
+    duration,
+  }
+}
+
+const LOCKER_CAMERA_POSES: Record<LockerCameraCue, LockerCameraPose> = {
+  'entry-wide': { position: [0.25, 0.72, 7.6], target: [0, 0.18, 0], fov: 48, duration: LOCKER_CAMERA_MOVE_SECONDS },
+  'watch-focus': lockerCloseFocusPose(LOCKER_WATCH_POSITION, LOCKER_CAMERA_MOVE_SECONDS),
+  'baseball-focus': lockerCloseFocusPose(LOCKER_BASEBALL_POSITION, LOCKER_MEMORY_CAMERA_MOVE_SECONDS),
+  'bull-focus': lockerCloseFocusPose(LOCKER_BULL_POSITION, LOCKER_MEMORY_CAMERA_MOVE_SECONDS),
+  'wings-focus': lockerCloseFocusPose(LOCKER_WINGS_POSITION, LOCKER_MEMORY_CAMERA_MOVE_SECONDS),
 }
 const AIRBUS_TARGET_NODES: Record<FirstOfficerControl, { pivot: string; hitbox: string; cue: string }> = {
   sidestick: {
@@ -253,6 +277,7 @@ function lockerPoseVectors(cue: LockerCameraCue) {
     position: new THREE.Vector3(...pose.position),
     target: new THREE.Vector3(...pose.target),
     fov: pose.fov,
+    duration: pose.duration,
   }
 }
 
@@ -291,6 +316,7 @@ function LockerCameraDirector({
   const animationRef = useRef<{
     cue: LockerCameraCue
     elapsed: number
+    duration: number
     fromPosition: THREE.Vector3
     fromQuaternion: THREE.Quaternion
     fromFov: number
@@ -315,7 +341,8 @@ function LockerCameraDirector({
     const runtimeCamera = runtimeCameraRef.current
     animationRef.current = {
       cue,
-      elapsed: immediate ? LOCKER_CAMERA_MOVE_SECONDS : 0,
+      elapsed: immediate ? pose.duration : 0,
+      duration: pose.duration,
       fromPosition: runtimeCamera.position.clone(),
       fromQuaternion: runtimeCamera.quaternion.clone(),
       fromFov: runtimeCamera instanceof THREE.PerspectiveCamera ? runtimeCamera.fov : pose.fov,
@@ -326,6 +353,8 @@ function LockerCameraDirector({
     }
     canvasRef.current.dataset.lockerCameraCue = cue
     canvasRef.current.dataset.lockerCameraState = 'moving'
+    canvasRef.current.dataset.lockerCameraFov = pose.fov.toFixed(2)
+    canvasRef.current.dataset.lockerCameraDistance = pose.position.distanceTo(pose.target).toFixed(3)
   }, [cue, immediate])
 
   useFrame((_, delta) => {
@@ -334,8 +363,8 @@ function LockerCameraDirector({
     const runtimeCamera = runtimeCameraRef.current
     const canvas = canvasRef.current
     const canvasSize = sizeRef.current
-    animation.elapsed = Math.min(LOCKER_CAMERA_MOVE_SECONDS, animation.elapsed + delta)
-    const linearProgress = immediate ? 1 : animation.elapsed / LOCKER_CAMERA_MOVE_SECONDS
+    animation.elapsed = Math.min(animation.duration, animation.elapsed + delta)
+    const linearProgress = immediate ? 1 : animation.elapsed / animation.duration
     const progress = linearProgress < 0.5
       ? 4 * linearProgress * linearProgress * linearProgress
       : 1 - Math.pow(-2 * linearProgress + 2, 3) / 2
@@ -909,8 +938,8 @@ function configureLockerRuntimeMaterial(object: THREE.Object3D) {
   object.frustumCulled = false
   object.castShadow = true
   object.receiveShadow = true
-  const materials = Array.isArray(object.material) ? object.material : [object.material]
-  for (const material of materials) {
+  const configuredMaterials = Array.isArray(object.material) ? object.material : [object.material]
+  for (const material of configuredMaterials) {
     if (!(material instanceof THREE.MeshStandardMaterial)) continue
     material.side = THREE.DoubleSide
     if (object.name.includes('LOCKER_HITBOX') || material.name === 'MAT_LOCKER_INVISIBLE_HITBOX') {
@@ -1019,6 +1048,7 @@ function LockerRoom({
   const [scene, setScene] = useState<THREE.Group | null>(null)
   const { gl } = useThree()
   const canvasRef = useRef(gl.domElement)
+  const baseballRevealed = availableMemories.includes('baseball')
   const wingsRevealed = availableMemories.includes('wings')
   const chargingBullRevealed = availableMemories.includes('chargingBull')
 
@@ -1037,11 +1067,12 @@ function LockerRoom({
         instance.traverse(cloneLockerRuntimeMaterials)
         instance.traverse(configureLockerRuntimeMaterial)
         const watch = instance.getObjectByName('LOCKER_PROP_WATCH')
+        const baseball = instance.getObjectByName('LOCKER_PROP_BASEBALL')
         const wings = instance.getObjectByName('LOCKER_PROP_WINGS')
         const chargingBull = instance.getObjectByName('LOCKER_PROP_CHARGING_BULL')
         const hat = instance.getObjectByName('LOCKER_PROP_CAPTAINS_HAT')
-        if (!watch || !wings || !chargingBull || !hat) {
-          throw new Error('Locker GLB is missing a required watch, Wings, Charging Bull, or captain-hat contract node.')
+        if (!watch || !baseball || !wings || !chargingBull || !hat) {
+          throw new Error('Locker GLB is missing a required watch, baseball, Wings, Charging Bull, or captain-hat contract node.')
         }
         instance.updateMatrixWorld(true)
         const bounds = new THREE.Box3().setFromObject(instance)
@@ -1066,37 +1097,44 @@ function LockerRoom({
   useEffect(() => {
     if (!scene) return
     const hat = scene.getObjectByName('LOCKER_PROP_CAPTAINS_HAT')
+    const baseball = scene.getObjectByName('LOCKER_PROP_BASEBALL')
     const wings = scene.getObjectByName('LOCKER_PROP_WINGS')
     const chargingBull = scene.getObjectByName('LOCKER_PROP_CHARGING_BULL')
     const door = scene.getObjectByName('LOCKER_UPPER_CUBBY_DOOR')
     const light = scene.getObjectByName('LOCKER_HAT_LIGHT')
     if (hat) setLockerPropMaterialState(hat, hatRevealed)
+    if (baseball) setLockerPropMaterialState(baseball, baseballRevealed)
     if (wings) setLockerPropMaterialState(wings, wingsRevealed)
     if (chargingBull) setLockerPropMaterialState(chargingBull, chargingBullRevealed)
     if (door) door.rotation.x = hatRevealed ? -1.35 : 0
     if (light instanceof THREE.Light) light.intensity = hatRevealed ? 7 : 0
     canvasRef.current.dataset.lockerHatVisual = hatRevealed ? 'revealed' : 'silhouette'
+    canvasRef.current.dataset.lockerBaseballVisual = baseballRevealed ? 'revealed' : 'silhouette'
     canvasRef.current.dataset.lockerWingsVisual = wingsRevealed ? 'revealed' : 'silhouette'
     canvasRef.current.dataset.lockerBullVisual = chargingBullRevealed ? 'revealed' : 'silhouette'
-  }, [chargingBullRevealed, hatRevealed, scene, wingsRevealed])
+  }, [baseballRevealed, chargingBullRevealed, hatRevealed, scene, wingsRevealed])
 
   useEffect(() => {
     if (!scene) return
     const watch = scene.getObjectByName('LOCKER_PROP_WATCH')
+    const baseball = scene.getObjectByName('LOCKER_PROP_BASEBALL')
     const wings = scene.getObjectByName('LOCKER_PROP_WINGS')
     const chargingBull = scene.getObjectByName('LOCKER_PROP_CHARGING_BULL')
     const hat = scene.getObjectByName('LOCKER_PROP_CAPTAINS_HAT')
     const canvas = canvasRef.current
     canvas.dataset.lockerWatchNode = watch?.name ?? 'missing'
+    canvas.dataset.lockerBaseballNode = baseball?.name ?? 'missing'
     canvas.dataset.lockerWingsNode = wings?.name ?? 'missing'
     canvas.dataset.lockerBullNode = chargingBull?.name ?? 'missing'
     canvas.dataset.lockerHatNode = hat?.name ?? 'missing'
     return () => {
       delete canvas.dataset.lockerWatchNode
+      delete canvas.dataset.lockerBaseballNode
       delete canvas.dataset.lockerWingsNode
       delete canvas.dataset.lockerBullNode
       delete canvas.dataset.lockerHatNode
       delete canvas.dataset.lockerHatVisual
+      delete canvas.dataset.lockerBaseballVisual
       delete canvas.dataset.lockerWingsVisual
       delete canvas.dataset.lockerBullVisual
     }
@@ -1125,14 +1163,14 @@ function LockerRoom({
   return (
     <>
       <color attach="background" args={['#000000']} />
-      <ambientLight intensity={0.82} color="#e8e3da" />
-      <hemisphereLight args={['#ffe1b0', '#211815', 0.58]} />
-      <directionalLight position={[3, 5, 4]} intensity={2.7} color="#ffd59a" castShadow />
-      <directionalLight position={[-3.2, 2.2, 3.1]} intensity={0.9} color="#c9ddff" />
-      <directionalLight position={[0, 2.8, 6]} intensity={1.2} color="#f3f5ff" />
-      <spotLight position={[0.48, 1.55, 1.1]} intensity={7.5} distance={5.5} angle={0.56} penumbra={0.86} color="#f2ad62" castShadow />
-      <pointLight position={[0.44, 0.34, 0.72]} intensity={hatRevealed ? 4.4 : 3.6} distance={3.8} color="#ef9d4d" />
-      <pointLight position={[-1.2, 0.5, 2.4]} intensity={0.75} distance={5} color="#ffe6bd" />
+      <ambientLight intensity={0.71} color="#e8e3da" />
+      <hemisphereLight args={['#ffe1b0', '#211815', 0.5]} />
+      <directionalLight position={[3, 5, 4]} intensity={2.35} color="#ffd59a" castShadow />
+      <directionalLight position={[-3.2, 2.2, 3.1]} intensity={0.78} color="#c9ddff" />
+      <directionalLight position={[0, 2.8, 6]} intensity={1.04} color="#f3f5ff" />
+      <spotLight position={[0.48, 1.55, 1.1]} intensity={6.5} distance={5.5} angle={0.56} penumbra={0.86} color="#f2ad62" castShadow />
+      <pointLight position={[0.44, 0.34, 0.72]} intensity={hatRevealed ? 3.8 : 3.1} distance={3.8} color="#ef9d4d" />
+      <pointLight position={[-1.2, 0.5, 2.4]} intensity={0.65} distance={5} color="#ffe6bd" />
       {scene ? (
         <>
           <primitive
@@ -1153,24 +1191,6 @@ function LockerRoom({
               onHoverInteractive(false)
             }}
           />
-          <group>
-            {([
-              ['baseball', 'locker.memory.baseball', [-0.58, -0.12, 0.7], [0.52, 0.48, 0.3]],
-            ] as const).filter(([memoryId]) => availableMemories.includes(memoryId)).map(([, gameId, position, scale]) => (
-              <mesh
-                key={gameId}
-                position={position}
-                scale={scale}
-                userData={{ game_id: gameId }}
-                onClick={(event) => { event.stopPropagation(); activate(event.object) }}
-                onPointerOver={(event) => { event.stopPropagation(); if (interactionEnabled) onHoverInteractive(true) }}
-                onPointerOut={() => onHoverInteractive(false)}
-              >
-                <boxGeometry />
-                <meshBasicMaterial transparent opacity={0} colorWrite={false} depthWrite={false} />
-              </mesh>
-            ))}
-          </group>
         </>
       ) : (
         <mesh position={[0, 0, 0]}>

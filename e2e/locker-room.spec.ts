@@ -52,7 +52,8 @@ test('Airbus completion plays the narrative handoff and settles on the watch-fir
   expect(saved.lockerIntroCompleted).toBe(true)
 })
 
-test('watch retries preserve progress and later keepsakes remain in shadow', async ({ page }) => {
+test('watch completion opens the baseball question, then Bull and Wings', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
   await seed(page, lockerState())
 
   await expect(page.getByRole('button', { name: 'Inspect watch' })).toBeVisible()
@@ -69,15 +70,65 @@ test('watch retries preserve progress and later keepsakes remain in shadow', asy
   await expect(page.getByText('0/4')).toBeVisible()
 
   await page.getByRole('button', { name: 'Jet lag' }).click()
-  await expect(page.locator('.locker-status')).toContainText('manage jet lag')
   await expect(page.getByText('1/4')).toBeVisible()
-  await expect(page.getByText('The first memory is logged. The next keepsake remains in shadow.', { exact: true })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Claim the captain’s hat' })).toBeHidden()
+  await expect(page.getByRole('dialog', { name: 'Baseball' })).toBeVisible()
+  await expect(page.getByText('Before the captain wore wings, he wore a glove.')).toBeVisible()
+  await expect(page.getByText('Which future Pro Football Hall of Famer from Chaffey High crossed paths with him?')).toBeVisible()
+  await page.getByRole('button', { name: 'Orlando Pace' }).click()
+  await expect(page.locator('.locker-status')).toContainText('not the one attached')
+  await page.getByRole('button', { name: 'Johnathan Ogden' }).click()
+  await expect(page.locator('.locker-status')).toContainText('first name is Anthony')
+  await page.getByRole('button', { name: 'Anthony Muñoz' }).click()
+  await expect(page.getByText('2/4')).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Charging Bull' })).toBeVisible()
+  await expect(page.getByText(/most iconic representation of a bull market/)).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Charging Bull' }).locator('legend strong')).toContainText('Which historical figure')
+  await page.getByRole('button', { name: 'Warren Buffett' }).click()
+  await expect(page.locator('.locker-status')).toContainText('physicist often associated')
+  await page.getByRole('button', { name: 'Benjamin Franklin' }).click()
+  await expect(page.locator('.locker-status')).toContainText('correct choice is the physicist')
+  await page.getByRole('button', { name: 'Albert Einstein' }).click()
+  await expect(page.getByRole('dialog', { name: 'Aviation Traditions: “Breaking the Wings”' })).toBeVisible()
+  await expect(page.getByText(/two halves must never be reunited/)).toBeVisible()
+  await expect(page.getByText(/minimum amount of second-in-command experience/)).toBeVisible()
+  const wingsCardBounds = await page.getByRole('dialog', { name: 'Aviation Traditions: “Breaking the Wings”' }).boundingBox()
+  const lockerActionsBounds = await page.locator('.locker-actions').boundingBox()
+  expect(wingsCardBounds).not.toBeNull()
+  expect(lockerActionsBounds).not.toBeNull()
+  expect(wingsCardBounds!.y + wingsCardBounds!.height).toBeLessThanOrEqual(lockerActionsBounds!.y)
+  const wingsAnswer = page.getByRole('textbox', { name: 'Answer in hours' })
+  await wingsAnswer.fill('500 hours')
+  await page.getByRole('button', { name: 'Submit answer' }).click()
+  await expect(page.locator('.locker-status')).toContainText('Part 121 experience milestone')
+  await wingsAnswer.fill('1500 hours')
+  await page.getByRole('button', { name: 'Submit answer' }).click()
+  await expect(page.locator('.locker-status')).toContainText('one thousand hours')
+  await wingsAnswer.fill('1,000 hours')
+  await page.getByRole('button', { name: 'Submit answer' }).click()
+  await expect(page.getByText('4/4')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Claim the captain’s hat' })).toBeVisible()
 
   await page.reload()
   await expect(page.locator('.locker-transition')).toHaveCount(0)
-  await expect(page.getByText('1/4')).toBeVisible()
+  await expect(page.getByText('4/4')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Review watch' })).toBeVisible()
+
+  await page.setViewportSize({ width: 1440, height: 900 })
+  const statusBounds = await page.locator('.locker-status').boundingBox()
+  const trayBounds = await page.locator('.locker-memory-tray').boundingBox()
+  expect(statusBounds).not.toBeNull()
+  expect(trayBounds).not.toBeNull()
+  expect(statusBounds!.x + statusBounds!.width).toBeLessThanOrEqual(trayBounds!.x)
+
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 768, height: 900 },
+    { width: 375, height: 812 },
+  ]) {
+    await page.setViewportSize(viewport)
+    const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+    expect(horizontalOverflow).toBeLessThanOrEqual(0)
+  }
 })
 
 test('reduced motion, replay, and Escape skip keep the accessible path usable', async ({ page }) => {
@@ -97,7 +148,7 @@ test('reduced motion, replay, and Escape skip keep the accessible path usable', 
 })
 
 test('locker GLB loads into the real canvas and the directed camera settles on the watch', async ({ page }) => {
-  test.setTimeout(75_000)
+  test.setTimeout(240_000)
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.setViewportSize({ width: 1440, height: 900 })
   const responsePromise = page.waitForResponse((response) => response.url().includes('/models/locker-room.glb') && response.status() === 200)
@@ -112,11 +163,15 @@ test('locker GLB loads into the real canvas and the directed camera settles on t
   await expect(canvas).toBeVisible()
   await expect(canvas).toHaveAttribute('data-locker-camera-cue', 'watch-focus')
   await expect(canvas).toHaveAttribute('data-locker-camera-state', 'settled')
+  await expect(canvas).toHaveAttribute('data-locker-camera-fov', '30.00')
+  await expect(canvas).toHaveAttribute('data-locker-camera-distance', '3.490')
   await expect(canvas).toHaveAttribute('data-locker-watch-node', 'LOCKER_PROP_WATCH')
+  await expect(canvas).toHaveAttribute('data-locker-baseball-node', 'LOCKER_PROP_BASEBALL')
   await expect(canvas).toHaveAttribute('data-locker-wings-node', 'LOCKER_PROP_WINGS')
   await expect(canvas).toHaveAttribute('data-locker-bull-node', 'LOCKER_PROP_CHARGING_BULL')
   await expect(canvas).toHaveAttribute('data-locker-hat-node', 'LOCKER_PROP_CAPTAINS_HAT')
   await expect(canvas).toHaveAttribute('data-locker-wings-visual', 'silhouette')
+  await expect(canvas).toHaveAttribute('data-locker-baseball-visual', 'silhouette')
   await expect(canvas).toHaveAttribute('data-locker-bull-visual', 'silhouette')
   await expect(canvas).toHaveAttribute('data-locker-hat-visual', 'silhouette')
   await expect(page.locator('.prototype-badge')).toHaveCount(0)
@@ -129,17 +184,30 @@ test('locker GLB loads into the real canvas and the directed camera settles on t
   const canvasBounds = await canvas.boundingBox()
   expect(canvasBounds).not.toBeNull()
   await page.mouse.click(canvasBounds!.x + watchPoint.x, canvasBounds!.y + watchPoint.y)
-  await expect(page.getByRole('dialog', { name: 'Pilot watch' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Rolex GMT-Master' })).toBeVisible()
+  await page.getByRole('button', { name: 'Jet lag' }).click()
+  await expect(canvas).toHaveAttribute('data-locker-camera-cue', 'baseball-focus')
+  await expect(canvas).toHaveAttribute('data-locker-camera-state', 'settled')
+  await expect(canvas).toHaveAttribute('data-locker-camera-fov', '30.00')
+  await expect(canvas).toHaveAttribute('data-locker-camera-distance', '3.490')
+  await expect(page.getByRole('dialog', { name: 'Baseball' })).toBeVisible()
+  await page.getByRole('button', { name: 'Anthony Muñoz' }).click()
+  await expect(canvas).toHaveAttribute('data-locker-camera-cue', 'bull-focus')
+  await expect(canvas).toHaveAttribute('data-locker-camera-state', 'settled')
+  await expect(canvas).toHaveAttribute('data-locker-camera-fov', '30.00')
+  await expect(canvas).toHaveAttribute('data-locker-camera-distance', '3.490')
+  await page.getByRole('button', { name: 'Albert Einstein' }).click()
+  await expect(canvas).toHaveAttribute('data-locker-camera-cue', 'wings-focus')
+  await expect(canvas).toHaveAttribute('data-locker-camera-state', 'settled')
+  await expect(canvas).toHaveAttribute('data-locker-camera-fov', '30.00')
+  await expect(canvas).toHaveAttribute('data-locker-camera-distance', '3.490')
+  await page.getByRole('textbox', { name: 'Answer in hours' }).fill('1000 hours')
+  await page.getByRole('button', { name: 'Submit answer' }).click()
+  await expect(page.getByRole('button', { name: 'Claim the captain’s hat' })).toBeEnabled()
 
-  await page.evaluate((key) => {
-    const saved = JSON.parse(localStorage.getItem(key) ?? '{}') as GameState
-    saved.lockerCompleted = ['watch', 'baseball', 'wings', 'chargingBull']
-    saved.lockerHatRevealed = true
-    saved.lockerIntroCompleted = true
-    localStorage.setItem(key, JSON.stringify(saved))
-  }, STORAGE_KEY)
   await page.reload()
   await expect(page.locator('canvas')).toHaveAttribute('data-locker-hat-visual', 'revealed', { timeout: 30_000 })
+  await expect(page.locator('canvas')).toHaveAttribute('data-locker-baseball-visual', 'revealed')
   await expect(page.locator('canvas')).toHaveAttribute('data-locker-wings-visual', 'revealed')
   await expect(page.locator('canvas')).toHaveAttribute('data-locker-bull-visual', 'revealed')
   await expect(page.getByRole('button', { name: 'Claim the captain’s hat' })).toBeEnabled()

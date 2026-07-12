@@ -8,13 +8,13 @@ Make the approved Airbus completion flow into an emotional handoff: fade to blac
 
 The downloaded Game Locker and bench load from `public/models/locker-room.glb` with the owner-supplied Tripo pilot watch, Wings, Charging Bull, and captain's hat. The browser stages a one-time cinematic entrance against black, keeps one bay under warm practical light, renders Wings/Bull/hat as locked near-black silhouettes, and completes a directed 4.5-second camera move to the real watch. Schema-v5 persistence skips the long intro on resumed locker saves while preserving v3/v4 progress.
 
-Only the watch is currently authored in the ordered sequence. Baseball, Wings, Charging Bull interaction copy, and Captain Mode continuation remain locked until the final order is reviewed. The imported later props restore their authored materials only when reducer state makes them available; the hat becomes claimable only when the full locker state reveals it.
+At this historical checkpoint, the authored sequence moved from the watch to the Charging Bull and then the Wings while baseball remained locked. That interim flow is superseded by `plans/0010-baseball-memory-import.md`, which inserts the playable baseball question before Bull and keeps Wings last. The imported later props restore their authored materials only when reducer state makes them available; the hat becomes claimable only when the full locker state reveals it.
 
 ## Scope
 
 Included: cinematic timing and copy, skip/replay/reduced-motion paths, wide and watch camera cues, black scene backdrop, warm practical lighting, watch-first reducer gating, the jet-lag multiple-choice question, schema migration, accessible controls, failure fallback, four-prop Tripo source intake, deterministic Blender cleanup and export, stable colliders/contracts, locked-prop material handling, browser tests, and visual evidence.
 
-Excluded: baseball prop intake, later memory order and personalized Wings/Bull copy, production audio, DC-9 changes, Model Y/Flight Mode/Mars work, and a Vercel deployment.
+Excluded: baseball prop intake, the post-Wings memory order, production audio, DC-9 changes, Model Y/Flight Mode/Mars work, and a Vercel deployment.
 
 ## Context and constraints
 
@@ -41,6 +41,7 @@ Excluded: baseball prop intake, later memory order and personalized Wings/Bull c
 - [x] 2026-07-11 - Mounted the Wings above the watch, placed the Bull on a slim dedicated shelf, kept both as locked silhouettes, and regenerated the 27,253,440-byte locker GLB.
 - [x] 2026-07-11 - Changed the scene backdrop to black, removed the locker reveal badge and bottom watch card, added the compact watch control, and replaced the watch answer with the four-choice jet-lag question.
 - [x] 2026-07-11 - Passed focused unit/type/browser validation and inspected the refreshed 1440/768/375 black-background captures with no console errors or horizontal overflow.
+- [x] 2026-07-11 - Swapped Bull/Wings placement, authored their automatic reveal sequence, regenerated the locker asset, and recorded browser evidence.
 - [ ] Capture a Vercel preview and receive owner approval for the locker visual gate.
 
 ## Discoveries
@@ -67,6 +68,8 @@ Excluded: baseball prop intake, later memory order and personalized Wings/Bull c
 - 2026-07-11 - Keep the newly imported Wings and Bull visible only as locked silhouettes. Do not expand `authoredSequence` until the owner defines their story flow.
 - 2026-07-11 - Use `Begin with the pilot watch.` as the complete opening instruction, expose `Inspect watch` as a compact native control, and keep later memory cards out of the tray until they are authored.
 - 2026-07-11 - Make `Jet lag` the only correct watch choice; wrong answers give the time-zone clue first and the body-clock clue on repeated failure.
+- 2026-07-11 - Put the Charging Bull between the watch and Wings, keep its dedicated shelf, automatically log the Bull after the watch, and require one readable story continuation before revealing/logging Wings.
+- 2026-07-11 - Remove the passive next-memory and hidden-hat messages; keep retry/hint status and the eventual revealed-hat callout accessible.
 
 ## Milestones
 
@@ -100,15 +103,18 @@ Repeat focused implementation, validation, browser inspection, and remaining-del
 
 ## Evidence
 
-- Locker GLB after four-prop intake: 27,253,440 bytes; SHA-256 `3829754b92f9e06bf406fb7f2afce21336a3975ca422feb496e5cf88985cd69c`; 46 selected objects, eight materials, eighteen textures, and four exported `game_id` parents.
-- A cache-busted request from the active browser server returned the exact same 27,253,440 bytes and SHA-256 as `public/models/locker-room.glb`.
+- Locker GLB after the Bull/Wings layout revision: 27,253,492 bytes; SHA-256 `03d13d9e596ad77b7ca540f19a4826316d7467bdd7fe4d978bf48e71abcbf757`; 46 selected objects, eight materials, eighteen textures, and four exported `game_id` parents.
+- A cache-busted request from the production preview returned the exact same 27,253,492 bytes as `public/models/locker-room.glb`.
 - `npm run asset:locker` passed; Blender validation retained five known environment-transform warnings and glTF validation reported no errors.
 - `npm run check` passed: lint, typecheck, 33 Vitest tests, and production build.
 - Focused state/storage Vitest passed 32/32 and locker Playwright passed 5/5, including all four real exported prop nodes, Wings/Bull/hat silhouette/reveal states, exact jet-lag choices, exported watch collider, skip/replay, persistence, and fallback.
 - `npm run assets:check` passed with the already-recorded locker generated-tangent warnings; no GLB errors.
 - `npm run pipeline:evals` passed 6/6; `git diff --check` passed.
 - Inspected refreshed browser captures with no console errors or horizontal overflow: `.cache/assets/locker/browser/locker-black-props-1440.png`, `locker-watch-jet-lag-question-1440.png`, `locker-black-props-768.png`, and `locker-black-props-375.png`.
+- Bull/Wings revision validation passed: 33/33 Vitest tests, 5/5 focused locker Playwright tests, 12/12 full Chromium tests, `npm run check`, `npm run assets:check`, 6/6 pipeline evals, and `git diff --check`.
+- Inspected actual-browser Bull/Wings captures at 1440, 768, and 375 widths under `.cache/assets/locker/browser/locker-bull-focus-1440.png` and `locker-wings-focus-{1440,768,375}.png`; no application errors or horizontal overflow were present.
+- The downloaded baseball candidate is preserved under `.cache/cockpit-pipeline/sources/locker/baseball/original/` with SHA-256 `75dda2bf01c8c8863820ec25750ef2f1b15940ccfeb1b1c56d8d0b548d5ab19e`. It remains outside the runtime asset pending decimation and owner-reviewed placement.
 
 ## Outcome and handoff
 
-The cinematic, black-background watch-first interaction, jet-lag question, and four personal prop imports are implemented and locally validated. Temporary Wings/Bull/hat visuals and runtime hitboxes have been replaced by Blender-owned contracts. Remaining work is the Vercel/owner visual gate, baseball intake, and authoring the later bottom-to-top keepsake order.
+The cinematic, black-background watch-first interaction and jet-lag question now flow automatically into the Charging Bull, then through an explicit readable continuation into the Wings. The Bull/Wings layout, shelf, camera cues, copy, accessible controls, persistence, and generated asset are locally validated. Remaining work is the Vercel/owner visual gate and production intake/placement of the staged baseball candidate.

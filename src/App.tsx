@@ -105,10 +105,22 @@ export default function App() {
   const [airbusHotspots, setAirbusHotspots] = useState<AirbusHotspotScreenPositions>({})
   const [selectedAirbusCard, setSelectedAirbusCard] = useState<string | null>(null)
   const [selectedLockerMemory, setSelectedLockerMemory] = useState<LockerMemoryId | null>(null)
+  const [pendingLockerMemoryFocus, setPendingLockerMemoryFocus] = useState<LockerMemoryId | null>(null)
+  const [lastAutoFocusedLockerMemory, setLastAutoFocusedLockerMemory] = useState<LockerMemoryId | null>(null)
   const pendingLockerIntroOnLoad = state.phase === 'locker' && !state.lockerIntroCompleted
   const [lockerIntroStage, setLockerIntroStage] = useState<LockerIntroStage>(pendingLockerIntroOnLoad ? 'black-pause' : 'idle')
-  const [lockerCameraCue, setLockerCameraCue] = useState<LockerCameraCue>(pendingLockerIntroOnLoad ? 'entry-wide' : 'watch-focus')
-  const [lockerCameraImmediate, setLockerCameraImmediate] = useState(pendingLockerIntroOnLoad && reducedMotion)
+  const [lockerCameraCue, setLockerCameraCue] = useState<LockerCameraCue>(
+    pendingLockerIntroOnLoad
+      ? 'entry-wide'
+      : state.lockerCompleted.includes('wings')
+        ? 'wings-focus'
+        : state.lockerCompleted.includes('chargingBull')
+          ? 'bull-focus'
+          : state.lockerCompleted.includes('baseball')
+            ? 'baseball-focus'
+            : 'watch-focus',
+  )
+  const [lockerCameraImmediate, setLockerCameraImmediate] = useState(state.phase === 'locker' && reducedMotion)
   const [lockerIntroSkipRequested, setLockerIntroSkipRequested] = useState(false)
   const airbusSceneReady = airbusLoadState.status === 'ready' || airbusLoadState.status === 'accessible-fallback'
   const lockerIntroActive = lockerIntroStage !== 'idle'
@@ -117,6 +129,40 @@ export default function App() {
   const lockerInteractionEnabled = state.phase === 'locker' && state.lockerIntroCompleted && !lockerIntroActive
   const availableLockerMemories = lockerFlow.memoryIds.filter((memoryId) => isLockerMemoryAvailable(state, memoryId))
   const viewerResetReady = !lockerIntroActive && (state.phase !== 'airbus' || airbusSceneReady)
+
+  useEffect(() => {
+    if (state.phase !== 'locker' || lockerIntroActive || state.lockerHatRevealed) return
+    const nextMemory: LockerMemoryId | null = state.lockerCompleted.includes('chargingBull')
+      ? 'wings'
+      : state.lockerCompleted.includes('baseball')
+        ? 'chargingBull'
+        : state.lockerCompleted.includes('watch')
+          ? 'baseball'
+          : null
+    if (!nextMemory || nextMemory === lastAutoFocusedLockerMemory) return
+    const focusTimeout = window.setTimeout(() => {
+      setLastAutoFocusedLockerMemory(nextMemory)
+      setSelectedLockerMemory(null)
+      setLockerCameraImmediate(reducedMotion)
+      setLockerCameraCue(nextMemory === 'wings' ? 'wings-focus' : nextMemory === 'baseball' ? 'baseball-focus' : 'bull-focus')
+      if (skipPrototypeScene || lockerLoadState.status === 'accessible-fallback') {
+        setSelectedLockerMemory(nextMemory)
+        setPendingLockerMemoryFocus(null)
+      } else {
+        setPendingLockerMemoryFocus(nextMemory)
+      }
+    }, 0)
+    return () => window.clearTimeout(focusTimeout)
+  }, [lastAutoFocusedLockerMemory, lockerIntroActive, lockerLoadState.status, reducedMotion, skipPrototypeScene, state.lockerCompleted, state.lockerHatRevealed, state.phase])
+
+  useEffect(() => {
+    if (!pendingLockerMemoryFocus || (!skipPrototypeScene && lockerLoadState.status !== 'accessible-fallback')) return
+    const fallbackTimeout = window.setTimeout(() => {
+      setSelectedLockerMemory(pendingLockerMemoryFocus)
+      setPendingLockerMemoryFocus(null)
+    }, 0)
+    return () => window.clearTimeout(fallbackTimeout)
+  }, [lockerLoadState.status, pendingLockerMemoryFocus, skipPrototypeScene])
 
   useEffect(() => {
     loaderStartedAtRef.current = performance.now()
@@ -239,6 +285,8 @@ export default function App() {
   const beginLockerIntro = useCallback(() => {
     setHelpOpen(false)
     setSelectedLockerMemory(null)
+    setPendingLockerMemoryFocus(null)
+    setLastAutoFocusedLockerMemory(null)
     setLockerIntroSkipRequested(false)
     setLockerCameraCue('entry-wide')
     setLockerCameraImmediate(reducedMotion)
@@ -255,11 +303,17 @@ export default function App() {
   }, [dispatch, lockerSceneReady, state.phase])
 
   const handleLockerCameraSettled = useCallback((cue: LockerCameraCue) => {
-    if (cue !== 'watch-focus' || lockerIntroStage !== 'focus-watch') return
-    if (!state.lockerIntroCompleted) dispatch({ type: 'COMPLETE_LOCKER_INTRO' })
-    setLockerIntroStage('idle')
-    setLockerIntroSkipRequested(false)
-  }, [dispatch, lockerIntroStage, state.lockerIntroCompleted])
+    if (cue === 'watch-focus' && lockerIntroStage === 'focus-watch') {
+      if (!state.lockerIntroCompleted) dispatch({ type: 'COMPLETE_LOCKER_INTRO' })
+      setLockerIntroStage('idle')
+      setLockerIntroSkipRequested(false)
+      return
+    }
+    const settledMemory = cue === 'baseball-focus' ? 'baseball' : cue === 'bull-focus' ? 'chargingBull' : cue === 'wings-focus' ? 'wings' : null
+    if (!settledMemory || pendingLockerMemoryFocus !== settledMemory) return
+    setSelectedLockerMemory(settledMemory)
+    setPendingLockerMemoryFocus(null)
+  }, [dispatch, lockerIntroStage, pendingLockerMemoryFocus, state.lockerIntroCompleted])
 
   const restart = () => {
     const confirmed = window.confirm(`Restart ${gameCopy.title} and clear saved progress?`)
@@ -269,6 +323,8 @@ export default function App() {
     setAirbusHotspots({})
     setSelectedAirbusCard(null)
     setSelectedLockerMemory(null)
+    setPendingLockerMemoryFocus(null)
+    setLastAutoFocusedLockerMemory(null)
     setLockerLoadState({ status: 'idle' })
     setLockerIntroStage('idle')
     setLockerCameraCue('watch-focus')
@@ -386,9 +442,6 @@ export default function App() {
             onLockerMemory={(memoryId) => {
               if (!lockerInteractionEnabled || !availableLockerMemories.includes(memoryId)) return
               setSelectedLockerMemory(memoryId)
-              if ((lockerFlow.inspectionIds as readonly string[]).includes(memoryId)) {
-                dispatch({ type: 'INSPECT_LOCKER_MEMORY', memoryId: memoryId as 'wings' | 'chargingBull' })
-              }
             }}
             onLockerHat={() => dispatch({ type: 'CLAIM_CAPTAIN_HAT' })}
           />
