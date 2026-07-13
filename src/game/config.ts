@@ -4,8 +4,8 @@ export const personalization = {
   captainDisplayName: 'Pop T',
   homeBaseAirport: 'MEM',
   startingAircraft: 'McDonnell Douglas DC-9',
-  // Confirmed production target (docs/GAME_DESIGN.md); DC-9-51 artifacts are historical/compat reference only.
-  exactDc9Variant: 'McDonnell Douglas DC-9-50',
+  // Owner-cleared exact production target; DC-9-51 artifacts are atmosphere references only.
+  exactDc9Variant: 'McDonnell Douglas DC-9-32',
   laterAircraft: 'Airbus',
   // Confirmed production target (docs/GAME_DESIGN.md).
   exactAirbusModel: 'Airbus A320',
@@ -138,19 +138,59 @@ export const lockerFlow = {
 
 export const dc9LegacyFlow = {
   title: 'POP T CAPTAIN MODE',
-  subtitle: 'Legacy checklist ready.',
-  checklistOrder: ['battery', 'navigation', 'cabin'] as const,
-  routePuzzleAnswers: ['LIT', 'JAN', 'BHM'],
+  subtitle: 'MEM route verification · parked-cockpit secure',
+  secureControlIds: ['apuBuses', 'apuMaster', 'battery'] as const,
+  secureSequence: ['apuBuses', 'apuMaster', 'battery'] as const,
+  secureControls: {
+    apuBuses: {
+      label: 'APU bus switches',
+      shortLabel: 'APU buses',
+      dataref: 'sim/cockpit2/electrical/APU_generator_on',
+      initialValue: 1,
+      targetValue: 0,
+      procedureStep: 1,
+    },
+    apuMaster: {
+      label: 'APU master switch',
+      shortLabel: 'APU master',
+      dataref: 'sim/cockpit2/electrical/APU_starter_switch',
+      initialValue: 1,
+      targetValue: 0,
+      procedureStep: 2,
+    },
+    battery: {
+      label: 'Battery switch',
+      shortLabel: 'Battery',
+      dataref: 'sim/cockpit/electrical/battery_on',
+      initialValue: 1,
+      targetValue: 0,
+      procedureStep: 3,
+    },
+  },
+  initialParkedState: {
+    parkingBrake: 'set',
+    fuelBoostPumps: 'off',
+    apuBuses: 'on',
+    apuMaster: 'run',
+    battery: 'on',
+  },
+  routePuzzleAnswers: ['BTR', 'STL', 'TYS'] as const,
   routePuzzleOptions: [
-    { code: 'LIT', city: 'Little Rock' },
-    { code: 'JAN', city: 'Jackson' },
-    { code: 'BHM', city: 'Birmingham' },
-    { code: 'LAX', city: 'Los Angeles' },
-    { code: 'SEA', city: 'Seattle' },
-    { code: 'AMS', city: 'Amsterdam' },
-  ],
+    { code: 'BTR', city: 'Baton Rouge', mileage: 319, verifiedDc9: true },
+    { code: 'STL', city: 'St. Louis', mileage: 256, verifiedDc9: true },
+    { code: 'TYS', city: 'Knoxville', mileage: 342, verifiedDc9: true },
+    { code: 'LAX', city: 'Los Angeles', mileage: 1619, verifiedDc9: false },
+    { code: 'SEA', city: 'Seattle', mileage: 1870, verifiedDc9: false },
+    { code: 'AMS', city: 'Amsterdam', mileage: 4544, verifiedDc9: false },
+  ] as const,
   completionText: 'Legacy authorization confirmed.',
-  routeQuestion: 'Select three short-haul route codes that belong to the MEM legacy funnel.',
+  routeQuestion: 'Select the three short MEM routes listed with DC9 equipment in the June 1995 timetable.',
+  routeRetry: 'That route set does not match the period DC-9 strip. Selections cleared; your earlier progress is safe.',
+  routeMileageHint: 'Compare the mileage column. The three verified routes are all under 350 miles from MEM.',
+  secureInstruction: 'Route verified. Secure the parked cockpit in termination order.',
+  secureRetry: 'That control is out of sequence. The three-control attempt has reset to APU power on; route verification remains logged.',
+  secureHint: 'Start with the paired APU bus switches, then follow the power source toward the battery.',
+  disclaimer: 'Commemorative, non-operational interaction in a safely parked cockpit.',
 } as const
 
 export const gameCopy = {

@@ -30,6 +30,33 @@ Do not bundle orientation, lighting, material, camera, and UI changes into one b
 7. **Interaction**: update hitboxes and tests to match the new visible composition.
 8. **Evidence**: capture browser screenshot and run focused checks.
 
+## Owner-feedback fast path
+
+Use this two-tier loop for a small placement, framing, scale, or camera correction after the production asset already exists.
+
+### Tier 1: visual decision
+
+1. Open the newest owner reference and the current browser screenshot side by side.
+2. Measure the relevant source bounds or transform once; do not begin with repeated coordinate guesses.
+3. Change one owner-visible variable and rebuild only the affected asset.
+4. Capture one authoritative desktop browser screenshot, plus a dragged view only when object anchoring is the defect.
+5. If human visual judgment is the only uncertainty, stop at that screenshot for owner review. Do not run the milestone completion matrix on a composition that may still be rejected.
+
+During Tier 1, do not update the ExecPlan or `TEST_REPORT.md`, capture every viewport, run broad test suites, or deploy a preview. Allow at most two local visual passes before asking for a specific owner decision.
+
+### Tier 2: one-time finalization
+
+After the owner-visible composition is accepted, perform the expensive work once:
+
+1. rebuild and validate the production asset;
+2. inspect the required 375/768/1440 views;
+3. run the focused browser test and `npm run check` only when application code changed;
+4. run asset validation and `git diff --check`;
+5. update the ExecPlan/report with final values; and
+6. publish and byte-check one preview when the milestone gate requires it.
+
+Do not repeat Tier 2 for intermediate visual guesses.
+
 ## Common fixes
 
 - Imported Empty root has no useful bounds: compute recursive child bounds.

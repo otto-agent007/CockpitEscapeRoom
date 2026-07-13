@@ -8,6 +8,7 @@ const assets = {
     blend: 'art-source/blender/dc9_master.blend',
     output: 'public/models/dc9-cockpit.glb',
     root: 'DC9_ROOT',
+    prepare: 'tools/blender/build_dc9_production.py',
   },
   airbus: {
     blend: 'art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend',

@@ -238,7 +238,7 @@ describe('gameReducer', () => {
     expect(state.statusMessage).not.toContain('one thousand')
   })
 
-  it('preserves captain progress and only completes reward after legacy sequence', () => {
+  it('requires route verification before the parked secure sequence and completes on battery-off', () => {
     let state: GameState = {
       ...enterLockerFromAirbus(),
       lockerCompleted: ['watch', 'baseball', 'wings', 'chargingBull'],
@@ -247,18 +247,55 @@ describe('gameReducer', () => {
     state = gameReducer(state, { type: 'CLAIM_CAPTAIN_HAT' })
     state = gameReducer(state, { type: 'CONTINUE_TO_CAPTAIN' })
 
-    for (const switchId of dc9LegacyFlow.checklistOrder) {
-      state = gameReducer(state, { type: 'ACTIVATE_SWITCH', switchId })
-    }
+    state = gameReducer(state, { type: 'ACTIVATE_DC9_CONTROL', controlId: 'apuBuses' })
+    expect(state.dc9SecureSequence).toEqual([])
     expect(state.phase).toBe('captain')
-    for (const code of ['LIT', 'JAN', 'BHM']) {
+    for (const code of dc9LegacyFlow.routePuzzleAnswers) {
       state = gameReducer(state, { type: 'TOGGLE_ROUTE', code })
     }
     state = gameReducer(state, { type: 'SUBMIT_ROUTE' })
+    expect(state.captainRouteVerified).toBe(true)
+    expect(state.phase).toBe('captain')
+
+    for (const controlId of dc9LegacyFlow.secureSequence) {
+      state = gameReducer(state, { type: 'ACTIVATE_DC9_CONTROL', controlId })
+    }
 
     expect(state.phase).toBe('reward')
     expect(state.completedPuzzles).toContain('captain')
     expect(state.captainRewardUnlocked).toBe(true)
+  })
+
+  it('clears only wrong route selections and advances the mileage hint', () => {
+    let state: GameState = { ...createInitialState(), phase: 'captain', completedPuzzles: ['firstOfficer', 'locker'] }
+    for (const code of ['BTR', 'LAX', 'SEA']) state = gameReducer(state, { type: 'TOGGLE_ROUTE', code })
+    state = gameReducer(state, { type: 'SUBMIT_ROUTE' })
+
+    expect(state.routeSelections).toEqual([])
+    expect(state.captainRouteVerified).toBe(false)
+    expect(state.captainAttempts.route).toBe(1)
+    expect(state.completedPuzzles).toEqual(['firstOfficer', 'locker'])
+
+    state = gameReducer(state, { type: 'USE_HINT' })
+    expect(state.statusMessage).toContain('under 350 miles')
+  })
+
+  it('resets only a wrong secure attempt while preserving the verified route', () => {
+    let state: GameState = {
+      ...createInitialState(),
+      phase: 'captain',
+      completedPuzzles: ['firstOfficer', 'locker'],
+      captainRouteVerified: true,
+      routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
+    }
+    state = gameReducer(state, { type: 'ACTIVATE_DC9_CONTROL', controlId: 'apuBuses' })
+    state = gameReducer(state, { type: 'ACTIVATE_DC9_CONTROL', controlId: 'battery' })
+
+    expect(state.phase).toBe('captain')
+    expect(state.captainRouteVerified).toBe(true)
+    expect(state.routeSelections).toEqual([...dc9LegacyFlow.routePuzzleAnswers])
+    expect(state.dc9SecureSequence).toEqual([])
+    expect(state.captainAttempts.secure).toBe(1)
   })
 
   it('returns from Mars without discarding completion', () => {

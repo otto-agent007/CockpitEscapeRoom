@@ -1,0 +1,25 @@
+{
+  "sim/joystick/yoke_heading_ratio": 0.0,
+  "sim/joystick/yolk_pitch_ratio": 0.0,
+  "sim/joystick/yolk_roll_ratio": 0.0,
+  "sim/cockpit2/gauges/indicators/pitch_AHARS_deg_pilot": 0.0,
+  "sim/cockpit2/gauges/indicators/pitch_AHARS_deg_copilot": 0.0,
+  "sim/cockpit2/gauges/indicators/roll_AHARS_deg_pilot": 0.0,
+  "sim/cockpit2/gauges/indicators/roll_AHARS_deg_copilot": 0.0,
+  "sim/cockpit2/gauges/indicators/vvi_fpm_pilot": 0.0,
+  "sim/cockpit2/gauges/indicators/vvi_fpm_copilot": 0.0,
+  "sim/cockpit2/gauges/actuators/barometer_setting_in_hg_pilot": 29.92,
+  "sim/cockpit2/gauges/actuators/barometer_setting_in_hg_copilot": 29.92,
+  "sim/cockpit/switches/gear_handle_status": 1.0,
+  "sim/cockpit2/controls/parking_brake_ratio": 1.0,
+  "sim/flightmodel/controls/sbrkrqst": 0.0,
+  "sim/flightmodel/engine/ENGN_thro[0]": 0.0,
+  "sim/flightmodel/engine/ENGN_thro[1]": 0.0,
+  "sim/flightmodel2/controls/flap1_deploy_ratio": 0.0
+  ,"sim/cockpit2/electrical/APU_generator_on": 1.0
+  ,"sim/cockpit2/electrical/APU_starter_switch": 1.0
+  ,"sim/cockpit/electrical/battery_on": 1.0
+  ,"sim/cockpit2/fuel/fuel_tank_pump_on[0]": 0.0
+  ,"sim/cockpit2/fuel/fuel_tank_pump_on[1]": 0.0
+  ,"sim/cockpit2/fuel/fuel_tank_pump_on[2]": 0.0
+}

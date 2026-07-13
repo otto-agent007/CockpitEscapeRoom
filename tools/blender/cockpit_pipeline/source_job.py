@@ -15,7 +15,7 @@ from .state_machine import require_transition
 
 DEFAULT_CACHE = ".cache/cockpit-pipeline"
 SOURCE_VARIANT = "DC-9-32"
-TARGET_VARIANT = "DC-9-50"
+TARGET_VARIANT = "DC-9-32"
 
 RELEVANT_FORMATS = {".ac", ".obj", ".gltf", ".glb", ".fbx", ".xml", ".png", ".jpg", ".jpeg", ".rgb", ".dds"}
 SUPPORTED_SOURCE_FORMATS = {".ac", ".xml", ".png", ".jpg", ".jpeg"}
@@ -292,7 +292,7 @@ def _candidate_plan(repo_path: Path) -> dict[str, object]:
                     "YokeBase is included as a mounting/support object from the same source file."
                 ],
                 "limitations": [
-                    "Variant applicability to DC-9-50 remains compatibility-only unless reviewed against DC-9-50 references.",
+                    "Exact DC-9-32 applicability still requires comparison against the owner-cleared Roger2009 production source.",
                     "This is source extraction only; hierarchy and pivots are not production-ready."
                 ]
             },
@@ -318,7 +318,7 @@ def _candidate_plan(repo_path: Path) -> dict[str, object]:
                 ],
                 "limitations": [
                     "Includes neighboring pedestal levers to preserve visual completeness; Agent 2 must decide final assembly boundaries.",
-                    "Variant applicability to DC-9-50 remains compatibility-only unless reviewed against DC-9-50 references."
+                    "Exact DC-9-32 applicability still requires comparison against the owner-cleared Roger2009 production source."
                 ]
             },
             {
@@ -533,7 +533,7 @@ The generated previews were inspected. The import proof, yoke, throttle, large g
 ## Known Limitations
 
 - This is source extraction only. The candidates are not source-approved and are not ready for assembly.
-- The source is DC-9-32; target variant is DC-9-50, so this remains a compatibility proxy unless reviewed against DC-9-50 references.
+- The source is DC-9-32, but remains a secondary FlightGear source; the owner-cleared Roger2009 DC-9-32 is production authority.
 - The ABS switch cluster is lower confidence because no explicit XML animation was found for `SwABS`.
 - The switch cluster source objects are spatially sparse in preview, which should be reviewed before assembly.
 - RGB textures were inventoried but not converted during this task.

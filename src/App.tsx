@@ -3,11 +3,11 @@ import { Hud } from './components/Hud'
 import { LockerTransition, type LockerIntroStage } from './components/LockerTransition'
 import { CaptainHatCelebration, QualificationCelebration } from './components/QualificationCelebration'
 import { SceneHelp } from './components/SceneHelp'
-import { gameCopy, lockerFlow, type FirstOfficerControl, type LockerMemoryId } from './game/config'
+import { dc9LegacyFlow, gameCopy, lockerFlow, type FirstOfficerControl, type LockerMemoryId } from './game/config'
 import { isLockerMemoryAvailable } from './game/state'
 import { clearGameState } from './game/storage'
 import { useGame } from './game/useGame'
-import type { AirbusHotspotScreenPositions, AirbusLoadState, LockerCameraCue, LockerLoadState } from './scenes/PrototypeScene'
+import type { AirbusHotspotScreenPositions, AirbusLoadState, Dc9HotspotScreenPositions, Dc9LoadState, LockerCameraCue, LockerLoadState } from './scenes/PrototypeScene'
 
 const PrototypeScene = lazy(async () => {
   const module = await import('./scenes/PrototypeScene')
@@ -98,6 +98,8 @@ export default function App() {
   const [airbusRetryToken, setAirbusRetryToken] = useState(0)
   const [lockerRetryToken, setLockerRetryToken] = useState(0)
   const [lockerLoadState, setLockerLoadState] = useState<LockerLoadState>({ status: 'idle' })
+  const [dc9LoadState, setDc9LoadState] = useState<Dc9LoadState>({ status: 'idle' })
+  const [dc9Hotspots, setDc9Hotspots] = useState<Dc9HotspotScreenPositions>({})
   const [cameraResetRevision, setCameraResetRevision] = useState(0)
   const [helpOpen, setHelpOpen] = useState(false)
   const [showAirbusLoader, setShowAirbusLoader] = useState(true)
@@ -308,6 +310,19 @@ export default function App() {
     dispatch({ type: 'CONTINUE_TO_CAPTAIN' })
   }, [dispatch])
 
+  const handleDc9Interaction = useCallback((gameId: string) => {
+    if (gameId === 'dc9.route.submit') {
+      dispatch({ type: 'SUBMIT_ROUTE' })
+      return
+    }
+    if (gameId.startsWith('dc9.route.')) {
+      dispatch({ type: 'TOGGLE_ROUTE', code: gameId.slice('dc9.route.'.length) })
+      return
+    }
+    const controlId = dc9LegacyFlow.secureControlIds.find((id) => `dc9.secure.${id}` === gameId)
+    if (controlId) dispatch({ type: 'ACTIVATE_DC9_CONTROL', controlId })
+  }, [dispatch])
+
   const handleLockerCameraSettled = useCallback((cue: LockerCameraCue) => {
     if (cue === 'watch-focus' && lockerIntroStage === 'focus-watch') {
       if (!state.lockerIntroCompleted) dispatch({ type: 'COMPLETE_LOCKER_INTRO' })
@@ -418,16 +433,20 @@ export default function App() {
   }
 
   return (
-    <main ref={shellRef} className={`game-shell${state.phase === 'airbus' ? ' airbus-shell' : ''}${state.phase === 'locker' ? ' locker-shell' : ''}`}>
-      {skipPrototypeScene || (state.phase === 'airbus' && airbusLoadState.status === 'accessible-fallback') || (state.phase === 'locker' && lockerLoadState.status === 'accessible-fallback') ? (
+    <main ref={shellRef} className={`game-shell${state.phase === 'airbus' ? ' airbus-shell' : ''}${state.phase === 'locker' ? ' locker-shell' : ''}${state.phase === 'captain' ? ' captain-shell' : ''}`}>
+      {skipPrototypeScene || (state.phase === 'airbus' && airbusLoadState.status === 'accessible-fallback') || (state.phase === 'locker' && lockerLoadState.status === 'accessible-fallback') || (state.phase === 'captain' && dc9LoadState.status === 'accessible-fallback') ? (
         state.phase === 'locker'
           ? <div className="scene scene--accessible scene--locker-accessible" aria-label="Static accessible captain's locker view"><div className="locker-accessible-mark">Captain's locker</div></div>
-          : <div className="scene scene--accessible" aria-label="Static accessible cockpit view"><img src={`${import.meta.env.BASE_URL}images/a320-game-ready-fo.png`} alt="Game-ready Airbus A320 cockpit from the first-officer seat" /></div>
+          : state.phase === 'captain'
+            ? <div className="scene scene--accessible scene--dc9-accessible" aria-label="Static accessible DC-9-32 cockpit view"><div className="dc9-accessible-mark">DC-9-32 · captain view unavailable</div></div>
+            : <div className="scene scene--accessible" aria-label="Static accessible cockpit view"><img src={`${import.meta.env.BASE_URL}images/a320-game-ready-fo.png`} alt="Game-ready Airbus A320 cockpit from the first-officer seat" /></div>
       ) : (
         <Suspense fallback={null}>
           <PrototypeScene
             phase={state.phase}
-            activeSwitches={state.switchSequence}
+            activeDc9Controls={state.dc9SecureSequence}
+            dc9RouteVerified={state.captainRouteVerified}
+            reducedMotion={reducedMotion}
             lockerHatRevealed={state.lockerHatRevealed}
             captainRewardUnlocked={state.captainRewardUnlocked}
             selectedAirbusCard={activeSelectedAirbusCard}
@@ -440,10 +459,12 @@ export default function App() {
             cameraResetRevision={cameraResetRevision}
             onAirbusLoadState={setAirbusLoadState}
             onLockerLoadState={setLockerLoadState}
+            onDc9LoadState={setDc9LoadState}
             onAirbusHotspotsChange={updateAirbusHotspots}
+            onDc9HotspotsChange={setDc9Hotspots}
             onAirbusTarget={placeSelectedAirbusCard}
             onLockerCameraSettled={handleLockerCameraSettled}
-            onSwitch={(switchId) => dispatch({ type: 'ACTIVATE_SWITCH', switchId })}
+            onDc9Interaction={handleDc9Interaction}
             onMars={() => dispatch({ type: 'UNLOCK_MARS' })}
             onLockerMemory={(memoryId) => {
               if (!lockerInteractionEnabled || !availableLockerMemories.includes(memoryId)) return
@@ -465,6 +486,9 @@ export default function App() {
           onSelectedAirbusCardChange={setSelectedAirbusCard}
           selectedLockerMemory={selectedLockerMemory}
           onSelectedLockerMemoryChange={setSelectedLockerMemory}
+          dc9LoadState={skipPrototypeScene ? { status: 'accessible-fallback' } : dc9LoadState}
+          dc9Hotspots={dc9Hotspots}
+          onDc9Fallback={() => setDc9LoadState({ status: 'accessible-fallback' })}
         />
       )}
       {state.phase === 'airbus' && !skipPrototypeScene && showAirbusLoader && airbusLoadState.status !== 'accessible-fallback' && (

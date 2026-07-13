@@ -48,7 +48,8 @@ function createRewardState(): GameState {
   return {
     ...createCaptainState(),
     phase: 'reward',
-    switchSequence: [...dc9LegacyFlow.checklistOrder],
+    captainRouteVerified: true,
+    dc9SecureSequence: [...dc9LegacyFlow.secureSequence],
     routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
     completedPuzzles: ['firstOfficer', 'locker', 'captain'],
     captainRewardUnlocked: true,
@@ -93,6 +94,88 @@ test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
   const canvas = page.locator('canvas')
   await expect(canvas).toHaveAttribute('data-airbus-camera-state', /,68\.00000$/)
   expect(consoleErrors).toEqual([])
+})
+
+test('DC-9 production cockpit loads the yoke route camera and completes the route-first accessible flow', async ({ page }) => {
+  test.setTimeout(180_000)
+  const consoleErrors: string[] = []
+  page.on('console', (message) => {
+    if (message.type() === 'error') consoleErrors.push(message.text())
+  })
+
+  await page.goto('/')
+  const modelResponse = page.waitForResponse(
+    (response) => response.url().includes('/models/dc9-cockpit.glb') && response.status() === 200,
+    { timeout: 30_000 },
+  )
+  await seedGameState(page, createCaptainState())
+  const response = await modelResponse
+  expect(Number(response.headers()['content-length'])).toBeGreaterThan(20_000_000)
+
+  const canvas = page.locator('canvas')
+  await expect(canvas).toHaveAttribute('data-dc9-model-state', 'ready', { timeout: 30_000 })
+  await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_ROUTE_CARD_APPROVAL')
+  await expect(canvas).toHaveAttribute('data-dc9-camera-state', /,(50|60)\.00000$/)
+  await expect(page.locator('.prototype-badge')).toHaveText('GREYBOX — DC-9 CAPTAIN FLOW')
+  await expect(page.locator('.hud')).toHaveCount(0)
+  await expect(page.locator('.captain-interface')).toBeVisible()
+
+  const firstRoute = dc9LegacyFlow.routePuzzleAnswers[0]
+  const firstRouteButton = page.getByRole('button', { name: new RegExp(`^${firstRoute},`) })
+  await expect(firstRouteButton).toHaveAttribute('data-projection', 'mesh')
+  const firstRoutePoint = await firstRouteButton.getAttribute('data-projection-point')
+  expect(firstRoutePoint).not.toBeNull()
+  if (firstRoutePoint) {
+    const [clientX, clientY] = firstRoutePoint.split(',').map(Number)
+    await canvas.dispatchEvent('click', { clientX, clientY, bubbles: true, cancelable: true })
+  }
+  await expect(firstRouteButton).toHaveAttribute('aria-pressed', 'true')
+
+  const initialCameraState = await canvas.getAttribute('data-dc9-camera-state')
+  const bounds = await canvas.boundingBox()
+  expect(bounds).not.toBeNull()
+  if (bounds) {
+    const startX = bounds.x + bounds.width * 0.25
+    const startY = bounds.y + bounds.height * 0.25
+    await canvas.dispatchEvent('pointerdown', { clientX: startX, clientY: startY, button: 0, pointerId: 1 })
+    await canvas.dispatchEvent('pointermove', { clientX: startX + 400, clientY: startY + 20, pointerId: 1 })
+    await canvas.dispatchEvent('pointerup', { clientX: startX + 400, clientY: startY + 20, pointerId: 1 })
+    await canvas.dispatchEvent('click', { clientX: startX + 400, clientY: startY + 20 })
+    await expect.poll(() => canvas.getAttribute('data-dc9-camera-state')).not.toBe(initialCameraState)
+    await page.keyboard.press('r')
+    await expect.poll(() => canvas.getAttribute('data-dc9-camera-state')).toBe(initialCameraState)
+  }
+
+  for (const code of dc9LegacyFlow.routePuzzleAnswers.slice(1)) {
+    const routeButton = page.getByRole('button', { name: new RegExp(`^${code},`) })
+    await routeButton.press('Enter')
+    await expect(routeButton).toHaveAttribute('aria-pressed', 'true')
+  }
+  await page.getByRole('button', { name: 'Verify MEM strip' }).press('Enter')
+  await expect(page.getByText('Route verified', { exact: true })).toBeVisible()
+
+  for (const controlId of dc9LegacyFlow.secureSequence) {
+    const control = page.getByRole('button', { name: new RegExp(dc9LegacyFlow.secureControls[controlId].label, 'i') })
+    await control.press('Enter')
+  }
+  await expect(page.getByText('Ground Transport Upgrade Authorized')).toBeVisible()
+  expect(consoleErrors).toEqual([])
+})
+
+test('DC-9 model failure keeps the compact accessible captain controls', async ({ page }) => {
+  test.setTimeout(30_000)
+  await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
+  await page.goto('/')
+  await seedGameState(page, createCaptainState())
+
+  const canvas = page.locator('canvas')
+  await expect(canvas).toHaveAttribute('data-dc9-model-state', 'fallback')
+  await expect(page.getByRole('alert')).toContainText('3D cockpit unavailable')
+  await expect(page.locator('.hud')).toHaveCount(0)
+
+  const btr = page.getByRole('button', { name: /^BTR,/ })
+  await btr.press('Enter')
+  await expect(btr).toHaveAttribute('aria-pressed', 'true')
 })
 
 test('Airbus onboarding, locker reveal, and captain completion unlock reward', async ({ page }) => {
@@ -142,7 +225,7 @@ test('Airbus onboarding, locker reveal, and captain completion unlock reward', a
 
   await seedGameState(page, createCaptainState())
   await expect(page.getByRole('heading', { name: 'POP T CAPTAIN MODE' })).toBeVisible()
-  await expect(page.getByRole('button', { name: /Stored power/i })).toBeVisible()
+  await expect(page.getByRole('button', { name: /^BTR,/ })).toBeVisible()
 
   await seedGameState(page, createRewardState())
   await expect(page.getByRole('heading', { name: 'Ground transport release' })).toBeVisible()

@@ -1,18 +1,15 @@
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber'
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { OrbitControls as ThreeOrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import * as THREE from 'three'
-import { firstOfficerFlow, type FirstOfficerControl, type LockerMemoryId } from '../game/config'
-import { type GamePhase, type SwitchId } from '../game/state'
+import { dc9LegacyFlow, firstOfficerFlow, type FirstOfficerControl, type LockerMemoryId } from '../game/config'
+import { type Dc9SecureControlId, type GamePhase } from '../game/state'
 
 // Cockpit shells produced by the asset pipeline and served from public/models.
 const AIRBUS_MODEL_URL = `${import.meta.env.BASE_URL}models/airbus-first-officer.glb`
-const DC9_MODEL_URL = `${import.meta.env.BASE_URL}models/dc9-cockpit.glb`
+const DC9_MODEL_URL = `${import.meta.env.BASE_URL}models/dc9-cockpit.glb?v=dc9-yoke-card-v9-20260713`
 const LOCKER_MODEL_URL = `${import.meta.env.BASE_URL}models/locker-room.glb?v=locker-seams-cf212389`
-
-// Provisional placement, tuned in-browser during visual approval — not final framing.
-const DC9_MODEL_TRANSFORM = { position: [0, -0.35, 0] as [number, number, number], scale: 1 }
 
 // Fetch and parse each cockpit GLB once per session, even across scene remounts.
 const cockpitModelCache = new Map<string, Promise<THREE.Group>>()
@@ -26,38 +23,10 @@ function loadCockpitModel(url: string): Promise<THREE.Group> {
   return promise
 }
 
-// Renders a real cockpit shell, falling back to greybox while it loads or if it fails.
-function CockpitModel({
-  url,
-  transform,
-  fallback,
-}: {
-  url: string
-  transform: { position: [number, number, number]; scale: number }
-  fallback: ReactNode
-}) {
-  const [scene, setScene] = useState<THREE.Group | null>(null)
-
-  useEffect(() => {
-    let active = true
-    loadCockpitModel(url)
-      .then((loaded) => {
-        if (active) setScene(loaded)
-      })
-      .catch((error) => {
-        console.error(`CockpitEscapeRoom: failed to load cockpit model ${url}`, error)
-      })
-    return () => {
-      active = false
-    }
-  }, [url])
-
-  if (!scene) return <>{fallback}</>
-  return <primitive object={scene} position={transform.position} scale={transform.scale} />
-}
-
-const CAPTAIN_SWITCH_IDS = ['battery', 'navigation', 'cabin'] as const
 const AIRBUS_GAME_CAMERA = 'CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW'
+const DC9_GAME_CAMERA = 'CAM_DC9_CAPTAIN_GAME'
+const DC9_ROUTE_CAMERA = 'CAM_DC9_ROUTE_CARD_APPROVAL'
+const DC9_SECURE_CAMERA = 'CAM_DC9_OVERHEAD_APPROVAL'
 const AIRBUS_WIDE_GAME_FOV = 68
 const AIRBUS_NARROW_GAME_FOV = 92
 const AIRBUS_MIN_FOV = 50
@@ -67,6 +36,16 @@ const AIRBUS_FO_EYE_QUATERNION = new THREE.Quaternion(-0.100679, 0.13991, 0.0143
 const AIRBUS_LOOK_YAW_LIMIT = 0.34
 const AIRBUS_LOOK_PITCH_LIMIT = 0.22
 const AIRBUS_LOOK_POINTER_SPEED = 0.0021
+const DC9_WIDE_GAME_FOV = 64
+const DC9_NARROW_GAME_FOV = 76
+const DC9_ROUTE_WIDE_FOV = 50
+const DC9_ROUTE_NARROW_FOV = 60
+const DC9_MIN_FOV = 48
+const DC9_MAX_FOV = 82
+const DC9_LOOK_YAW_LEFT_LIMIT = 0.30
+const DC9_LOOK_YAW_RIGHT_LIMIT = 0.72
+const DC9_LOOK_PITCH_LIMIT = 0.18
+const DC9_LOOK_POINTER_SPEED = 0.0018
 const LOCKER_CAMERA_MOVE_SECONDS = 4.5
 const LOCKER_MEMORY_CAMERA_MOVE_SECONDS = 1.8
 const LOCKER_CLOSE_FOCUS_FOV = 30
@@ -158,10 +137,14 @@ export type AirbusLoadState =
   | { status: 'accessible-fallback'; loadedBytes: number; totalBytes?: number }
 
 export type LockerLoadState = { status: 'idle' | 'loading' | 'ready' | 'error' | 'accessible-fallback' }
+export type Dc9LoadState = { status: 'idle' | 'loading' | 'ready' | 'error' | 'accessible-fallback'; message?: string }
+export type Dc9HotspotScreenPositions = Record<string, { x: number; y: number; visible: boolean }>
 
 interface PrototypeSceneProps {
   phase: Exclude<GamePhase, 'briefing'>
-  activeSwitches: SwitchId[]
+  activeDc9Controls: Dc9SecureControlId[]
+  dc9RouteVerified: boolean
+  reducedMotion: boolean
   lockerHatRevealed: boolean
   captainRewardUnlocked: boolean
   selectedAirbusCard: string | null
@@ -174,10 +157,12 @@ interface PrototypeSceneProps {
   cameraResetRevision: number
   onAirbusLoadState: (state: AirbusLoadState) => void
   onLockerLoadState: (state: LockerLoadState) => void
+  onDc9LoadState: (state: Dc9LoadState) => void
   onAirbusHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
+  onDc9HotspotsChange?: (positions: Dc9HotspotScreenPositions) => void
   onAirbusTarget: (control: FirstOfficerControl) => void
   onLockerCameraSettled: (cue: LockerCameraCue) => void
-  onSwitch: (switchId: SwitchId) => void
+  onDc9Interaction: (gameId: string) => void
   onMars: () => void
   onLockerMemory: (memoryId: LockerMemoryId) => void
   onLockerHat: () => void
@@ -552,6 +537,148 @@ function AirbusSeatLookControls({
 
     return () => {
       draggingRef.current = false
+      canvas.removeEventListener('pointerdown', onLookStart)
+      canvas.removeEventListener('pointermove', onLookMove)
+      canvas.removeEventListener('pointerup', stopDrag)
+      canvas.removeEventListener('pointercancel', stopDrag)
+      canvas.removeEventListener('wheel', onWheel)
+    }
+  }, [gl])
+
+  return null
+}
+
+function applyDc9GameplayCameraTransform(runtimeCamera: THREE.Camera, sourceCamera: THREE.Camera, fovOverride?: number) {
+  sourceCamera.updateMatrixWorld(true)
+  sourceCamera.getWorldPosition(runtimeCamera.position)
+  sourceCamera.getWorldQuaternion(runtimeCamera.quaternion)
+  runtimeCamera.scale.set(1, 1, 1)
+  if (runtimeCamera instanceof THREE.PerspectiveCamera && sourceCamera instanceof THREE.PerspectiveCamera) {
+    runtimeCamera.fov = fovOverride ?? sourceCamera.fov
+    runtimeCamera.near = Math.max(0.01, sourceCamera.near)
+    runtimeCamera.far = sourceCamera.far
+    runtimeCamera.updateProjectionMatrix()
+  }
+  runtimeCamera.updateMatrix()
+  runtimeCamera.updateMatrixWorld(true)
+  runtimeCamera.matrixWorldInverse.copy(runtimeCamera.matrixWorld).invert()
+}
+
+function Dc9SeatLookControls({
+  sourceCamera,
+  cameraResetRevision,
+  wideFov,
+  narrowFov,
+}: {
+  sourceCamera: THREE.Camera
+  cameraResetRevision: number
+  wideFov: number
+  narrowFov: number
+}) {
+  const { camera, gl, size } = useThree()
+  const basePositionRef = useRef(new THREE.Vector3())
+  const baseQuaternionRef = useRef(new THREE.Quaternion())
+  const fovRef = useRef(wideFov)
+  const narrowFovRef = useRef(narrowFov)
+  const yawRef = useRef(0)
+  const pitchRef = useRef(0)
+  const draggingRef = useRef(false)
+  const lastPointerRef = useRef({ x: 0, y: 0 })
+  const cameraDirtyRef = useRef(true)
+  const runtimeCameraRef = useRef(camera)
+  const canvasRef = useRef(gl.domElement)
+  const widthRef = useRef(size.width)
+
+  useEffect(() => {
+    runtimeCameraRef.current = camera
+    canvasRef.current = gl.domElement
+    widthRef.current = size.width
+    narrowFovRef.current = narrowFov
+    cameraDirtyRef.current = true
+  }, [camera, gl, narrowFov, size.width])
+
+  useLayoutEffect(() => {
+    sourceCamera.updateMatrixWorld(true)
+    sourceCamera.getWorldPosition(basePositionRef.current)
+    sourceCamera.getWorldQuaternion(baseQuaternionRef.current)
+    fovRef.current = wideFov
+    narrowFovRef.current = narrowFov
+    yawRef.current = 0
+    pitchRef.current = 0
+    cameraDirtyRef.current = true
+  }, [cameraResetRevision, narrowFov, sourceCamera, wideFov])
+
+  useFrame(() => {
+    if (!cameraDirtyRef.current) return
+    const runtimeCamera = runtimeCameraRef.current
+    const yawQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yawRef.current)
+    const pitchQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), pitchRef.current)
+    runtimeCamera.position.copy(basePositionRef.current)
+    runtimeCamera.quaternion.copy(baseQuaternionRef.current).multiply(yawQuaternion).multiply(pitchQuaternion)
+    if (runtimeCamera instanceof THREE.PerspectiveCamera) {
+      runtimeCamera.fov = widthRef.current < 900 ? narrowFovRef.current : fovRef.current
+      runtimeCamera.updateProjectionMatrix()
+    }
+    runtimeCamera.updateMatrix()
+    runtimeCamera.updateMatrixWorld(true)
+    runtimeCamera.matrixWorldInverse.copy(runtimeCamera.matrixWorld).invert()
+    canvasRef.current.dataset.dc9CameraState = [
+      runtimeCamera.position.x,
+      runtimeCamera.position.y,
+      runtimeCamera.position.z,
+      runtimeCamera.quaternion.x,
+      runtimeCamera.quaternion.y,
+      runtimeCamera.quaternion.z,
+      runtimeCamera.quaternion.w,
+      runtimeCamera instanceof THREE.PerspectiveCamera ? runtimeCamera.fov : 0,
+    ].map((value) => value.toFixed(5)).join(',')
+    cameraDirtyRef.current = false
+  })
+
+  useEffect(() => {
+    const canvas = gl.domElement
+    const stopDrag = () => {
+      draggingRef.current = false
+    }
+    const onLookStart = (event: PointerEvent) => {
+      if (event.button !== 0) return
+      draggingRef.current = true
+      lastPointerRef.current = { x: event.clientX, y: event.clientY }
+      try {
+        canvas.setPointerCapture(event.pointerId)
+      } catch {
+        // Synthetic accessibility/test events may not own an active browser pointer.
+      }
+    }
+    const onLookMove = (event: PointerEvent) => {
+      if (!draggingRef.current) return
+      const deltaX = event.clientX - lastPointerRef.current.x
+      const deltaY = event.clientY - lastPointerRef.current.y
+      lastPointerRef.current = { x: event.clientX, y: event.clientY }
+      yawRef.current = THREE.MathUtils.clamp(
+        yawRef.current - deltaX * DC9_LOOK_POINTER_SPEED,
+        -DC9_LOOK_YAW_RIGHT_LIMIT,
+        DC9_LOOK_YAW_LEFT_LIMIT,
+      )
+      pitchRef.current = THREE.MathUtils.clamp(
+        pitchRef.current - deltaY * DC9_LOOK_POINTER_SPEED,
+        -DC9_LOOK_PITCH_LIMIT,
+        DC9_LOOK_PITCH_LIMIT,
+      )
+      cameraDirtyRef.current = true
+    }
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault()
+      fovRef.current = THREE.MathUtils.clamp(fovRef.current + event.deltaY * 0.025, DC9_MIN_FOV, DC9_MAX_FOV)
+      cameraDirtyRef.current = true
+    }
+
+    canvas.addEventListener('pointerdown', onLookStart)
+    canvas.addEventListener('pointermove', onLookMove)
+    canvas.addEventListener('pointerup', stopDrag)
+    canvas.addEventListener('pointercancel', stopDrag)
+    canvas.addEventListener('wheel', onWheel, { passive: false })
+    return () => {
       canvas.removeEventListener('pointerdown', onLookStart)
       canvas.removeEventListener('pointermove', onLookMove)
       canvas.removeEventListener('pointerup', stopDrag)
@@ -1202,79 +1329,411 @@ function LockerRoom({
   )
 }
 
-function CaptainCockpit({
-  activeSwitches,
-  phase,
-  onSwitch,
-  onMars,
+function Dc9RuntimeLighting() {
+  return (
+    <>
+      <ambientLight intensity={0.32} color="#dce6e7" />
+      <hemisphereLight args={['#d8e8ef', '#132023', 0.42]} />
+      <directionalLight position={[-2.2, 3.2, 2.8]} intensity={1.18} color="#ffe0bd" />
+      <directionalLight position={[2.5, 1.9, 2.2]} intensity={0.76} color="#b8d5ff" />
+      <pointLight position={[-0.7, 0.75, 3.0]} intensity={0.5} distance={3.2} color="#d8efff" />
+    </>
+  )
+}
+
+const DC9_REQUIRED_NODES = [
+  'DC9_ROOT', 'DC9_STATIC', 'DC9_INSTRUMENTS', 'DC9_INTERACTIVE', 'DC9_COLLIDERS', 'DC9_PUZZLE_PROPS',
+  'DC9_CTRL_APU_BUSES', 'DC9_CTRL_APU_MASTER', 'DC9_CTRL_BATTERY', 'DC9_ROUTE_SUBMIT', DC9_GAME_CAMERA, DC9_ROUTE_CAMERA, DC9_SECURE_CAMERA,
+  ...dc9LegacyFlow.routePuzzleOptions.map((route) => `DC9_ROUTE_ROW_${route.code}`),
+] as const
+
+const DC9_CONTROL_NODES: Record<Dc9SecureControlId, string> = {
+  apuBuses: 'DC9_CTRL_APU_BUSES',
+  apuMaster: 'DC9_CTRL_APU_MASTER',
+  battery: 'DC9_CTRL_BATTERY',
+}
+
+const DC9_CONTROL_TRAVEL: Record<Dc9SecureControlId, number> = {
+  apuBuses: THREE.MathUtils.degToRad(-40),
+  apuMaster: THREE.MathUtils.degToRad(-20),
+  battery: THREE.MathUtils.degToRad(-40),
+}
+
+function configureDc9Collider(object: THREE.Object3D) {
+  if (!(object instanceof THREE.Mesh) || object.userData.collider_only !== true) return
+  object.visible = true
+  object.castShadow = false
+  object.receiveShadow = false
+  object.material = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, colorWrite: false })
+}
+
+function Dc9ControlAnimator({
+  controls,
+  activeControls,
+  reducedMotion,
+}: {
+  controls: Partial<Record<Dc9SecureControlId, THREE.Object3D>>
+  activeControls: Dc9SecureControlId[]
+  reducedMotion: boolean
+}) {
+  const controlRefs = useRef<Partial<Record<Dc9SecureControlId, THREE.Object3D>>>({})
+  useEffect(() => {
+    controlRefs.current = { ...controls }
+  }, [controls])
+  useFrame((_, delta) => {
+    for (const controlId of dc9LegacyFlow.secureControlIds) {
+      const object = controlRefs.current[controlId]
+      if (!object) continue
+      const target = activeControls.includes(controlId) ? DC9_CONTROL_TRAVEL[controlId] : 0
+      object.rotation.x = reducedMotion
+        ? target
+        : THREE.MathUtils.damp(object.rotation.x, target, 13, delta)
+    }
+  })
+  return null
+}
+
+function Dc9HotspotProjector({
+  targets,
+  onChange,
+}: {
+  targets: Map<string, THREE.Object3D>
+  onChange?: (positions: Dc9HotspotScreenPositions) => void
+}) {
+  const { camera, size } = useThree()
+  const lastPayload = useRef('')
+  const point = useMemo(() => new THREE.Vector3(), [])
+  useFrame(() => {
+    if (!onChange) return
+    const positions: Dc9HotspotScreenPositions = {}
+    for (const [gameId, object] of targets) {
+      object.getWorldPosition(point)
+      point.project(camera)
+      positions[gameId] = {
+        x: ((point.x + 1) / 2) * size.width,
+        y: ((1 - point.y) / 2) * size.height,
+        visible: point.z >= -1 && point.z <= 1 && point.x >= -1 && point.x <= 1 && point.y >= -1 && point.y <= 1,
+      }
+    }
+    const payload = JSON.stringify(positions)
+    if (payload !== lastPayload.current) {
+      lastPayload.current = payload
+      onChange(positions)
+    }
+  })
+  useEffect(() => () => onChange?.({}), [onChange])
+  return null
+}
+
+function Dc9InteractionRaycaster({
+  scene,
+  enabled,
+  onInteraction,
   onHoverInteractive,
 }: {
-  activeSwitches: SwitchId[]
-  phase: 'captain' | 'reward' | 'mars'
-  onSwitch: (switchId: SwitchId) => void
-  onMars: () => void
+  scene: THREE.Group
+  enabled: boolean
+  onInteraction: (gameId: string) => void
   onHoverInteractive: HoverHandler
 }) {
-  const positions = useMemo<[number, number, number][]>(() => [
-    [-0.78, -0.15, 0.34],
-    [0, -0.15, 0.34],
-    [0.78, -0.15, 0.34],
-  ], [])
+  const { camera, gl } = useThree()
+  const raycaster = useRef(new THREE.Raycaster())
+  const pointer = useRef(new THREE.Vector2())
+  const colliders = useMemo(() => {
+    const result: THREE.Mesh[] = []
+    scene.traverse((object) => {
+      if (object instanceof THREE.Mesh && object.userData.collider_only === true) result.push(object)
+    })
+    return result
+  }, [scene])
+
+  useEffect(() => {
+    if (!enabled) return
+    const canvas = gl.domElement
+    let pointerDownAt: { x: number; y: number } | null = null
+    let dragged = false
+    const pick = (event: MouseEvent | PointerEvent) => {
+      const bounds = canvas.getBoundingClientRect()
+      pointer.current.set(
+        ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
+        -((event.clientY - bounds.top) / bounds.height) * 2 + 1,
+      )
+      raycaster.current.setFromCamera(pointer.current, camera)
+      const hit = raycaster.current.intersectObjects(colliders.filter((collider) => collider.visible), false)[0]
+      return typeof hit?.object.userData.collider_target_game_id === 'string'
+        ? hit.object.userData.collider_target_game_id
+        : null
+    }
+    const onPointerDown = (event: PointerEvent) => {
+      pointerDownAt = { x: event.clientX, y: event.clientY }
+      dragged = false
+    }
+    const onMove = (event: PointerEvent) => {
+      if (pointerDownAt && Math.hypot(event.clientX - pointerDownAt.x, event.clientY - pointerDownAt.y) > 6) {
+        dragged = true
+      }
+      onHoverInteractive(Boolean(pick(event)))
+    }
+    const onClick = (event: MouseEvent) => {
+      pointerDownAt = null
+      if (dragged) {
+        dragged = false
+        return
+      }
+      const gameId = pick(event)
+      if (!gameId) return
+      event.preventDefault()
+      event.stopPropagation()
+      onInteraction(gameId)
+    }
+    const clear = () => {
+      pointerDownAt = null
+      dragged = false
+      onHoverInteractive(false)
+    }
+    canvas.addEventListener('pointerdown', onPointerDown)
+    canvas.addEventListener('pointermove', onMove)
+    canvas.addEventListener('click', onClick)
+    canvas.addEventListener('pointerleave', clear)
+    return () => {
+      canvas.removeEventListener('pointerdown', onPointerDown)
+      canvas.removeEventListener('pointermove', onMove)
+      canvas.removeEventListener('click', onClick)
+      canvas.removeEventListener('pointerleave', clear)
+      clear()
+    }
+  }, [camera, colliders, enabled, gl, onHoverInteractive, onInteraction])
+  return null
+}
+
+function Dc9Cockpit({
+  cameraResetRevision,
+  activeControls,
+  routeVerified,
+  phase,
+  reducedMotion,
+  interactionEnabled,
+  onLoadState,
+  onHotspotsChange,
+  onInteraction,
+  onHoverInteractive,
+}: {
+  cameraResetRevision: number
+  activeControls: Dc9SecureControlId[]
+  routeVerified: boolean
+  phase: 'captain' | 'reward' | 'mars'
+  reducedMotion: boolean
+  interactionEnabled: boolean
+  onLoadState: (state: Dc9LoadState) => void
+  onHotspotsChange?: (positions: Dc9HotspotScreenPositions) => void
+  onInteraction: (gameId: string) => void
+  onHoverInteractive: HoverHandler
+}) {
+  const { camera, gl, size } = useThree()
+  const [loaded, setLoaded] = useState<{
+    scene: THREE.Group
+    camera: THREE.Camera
+    routeCamera: THREE.Camera
+    secureCamera: THREE.Camera
+    controls: Partial<Record<Dc9SecureControlId, THREE.Object3D>>
+    targets: Map<string, THREE.Object3D>
+  } | null>(null)
+  const [loadFailed, setLoadFailed] = useState(false)
+  const canvasRef = useRef(gl.domElement)
+
+  useEffect(() => {
+    canvasRef.current = gl.domElement
+  }, [gl])
+
+  useEffect(() => {
+    let active = true
+    const canvas = canvasRef.current
+    onLoadState({ status: 'loading' })
+    canvas.dataset.dc9ModelState = 'loading'
+    loadCockpitModel(DC9_MODEL_URL)
+      .then((source) => {
+        if (!active) return
+        const scene = source.clone(true)
+        const missingNodes = DC9_REQUIRED_NODES.filter((nodeName) => !scene.getObjectByName(nodeName))
+        if (missingNodes.length > 0) throw new Error(`DC-9 contract missing: ${missingNodes.join(', ')}`)
+        const targets = new Map<string, THREE.Object3D>()
+        const colliderTargets = new Map<string, THREE.Object3D>()
+        scene.traverse((object) => {
+          if (object instanceof THREE.Light) {
+            object.visible = false
+            object.intensity = 0
+          }
+          if (object instanceof THREE.Mesh) {
+            configureDc9Collider(object)
+            object.frustumCulled = false
+            object.castShadow = true
+            object.receiveShadow = true
+            const materials = Array.isArray(object.material) ? object.material : [object.material]
+            for (const material of materials) {
+              if (!(material instanceof THREE.MeshStandardMaterial) || !material.name.startsWith('OBJ8_')) continue
+              if (material.name === 'OBJ8_Glass_DAY') continue
+              // OBJ8 import retains X-Plane alpha attributes, but the shell atlases
+              // are opaque. Treating every draw range as blended sorts the yoke and
+              // pedestal behind the floor. Only the native gauge cutouts need alpha.
+              material.transparent = false
+              material.alphaTest = material.name === 'OBJ8_DC9-32_cockpit_DAY' ? 0.5 : 0
+              material.depthWrite = true
+              material.needsUpdate = true
+            }
+          }
+          if (typeof object.userData.game_id === 'string') {
+            if (targets.has(object.userData.game_id)) throw new Error(`Duplicate DC-9 game_id: ${object.userData.game_id}`)
+            targets.set(object.userData.game_id, object)
+          }
+          if (typeof object.userData.collider_target_game_id === 'string') {
+            colliderTargets.set(object.userData.collider_target_game_id, object)
+          }
+        })
+        for (const [gameId, collider] of colliderTargets) targets.set(gameId, collider)
+        scene.updateMatrixWorld(true)
+        const sourceCamera = scene.getObjectByName(DC9_GAME_CAMERA)
+        if (!(sourceCamera instanceof THREE.Camera)) {
+          throw new Error(`DC-9 cockpit asset is missing required camera ${DC9_GAME_CAMERA}.`)
+        }
+        const routeCamera = scene.getObjectByName(DC9_ROUTE_CAMERA)
+        if (!(routeCamera instanceof THREE.Camera)) {
+          throw new Error(`DC-9 cockpit asset is missing required camera ${DC9_ROUTE_CAMERA}.`)
+        }
+        const secureCamera = scene.getObjectByName(DC9_SECURE_CAMERA)
+        if (!(secureCamera instanceof THREE.Camera)) {
+          throw new Error(`DC-9 cockpit asset is missing required camera ${DC9_SECURE_CAMERA}.`)
+        }
+        const controls = Object.fromEntries(
+          dc9LegacyFlow.secureControlIds.map((controlId) => [controlId, scene.getObjectByName(DC9_CONTROL_NODES[controlId])]),
+        ) as Partial<Record<Dc9SecureControlId, THREE.Object3D>>
+        setLoadFailed(false)
+        setLoaded({ scene, camera: sourceCamera, routeCamera, secureCamera, controls, targets })
+        canvas.dataset.dc9ModelState = 'ready'
+        canvas.dataset.dc9CameraNode = sourceCamera.name
+        canvas.dataset.dc9TargetCount = String(targets.size)
+        canvas.dataset.dc9Targets = [...targets.keys()].join(',')
+        onLoadState({ status: 'ready' })
+      })
+      .catch((error) => {
+        cockpitModelCache.delete(DC9_MODEL_URL)
+        console.error('Failed to load DC-9 cockpit asset.', error)
+        if (!active) return
+        setLoadFailed(true)
+        setLoaded(null)
+        canvas.dataset.dc9ModelState = 'fallback'
+        onLoadState({ status: 'error', message: error instanceof Error ? error.message : 'DC-9 cockpit failed to load.' })
+      })
+    return () => {
+      active = false
+      delete canvas.dataset.dc9ModelState
+      delete canvas.dataset.dc9CameraNode
+      delete canvas.dataset.dc9CameraState
+      delete canvas.dataset.dc9TargetCount
+      delete canvas.dataset.dc9Targets
+    }
+  }, [gl, onLoadState])
+
+  useLayoutEffect(() => {
+    if (!loaded) return
+    const routeStage = phase === 'captain' && !routeVerified
+    const secureStage = phase === 'captain' && routeVerified
+    const sourceCamera = routeStage ? loaded.routeCamera : secureStage ? loaded.secureCamera : loaded.camera
+    const wideFov = routeStage ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV
+    const narrowFov = routeStage ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV
+    loaded.scene.updateMatrixWorld(true)
+    applyDc9GameplayCameraTransform(
+      camera,
+      sourceCamera,
+      size.width < 900 ? narrowFov : wideFov,
+    )
+    canvasRef.current.dataset.dc9CameraNode = sourceCamera.name
+  }, [camera, loaded, phase, routeVerified, size.width])
+
+  useLayoutEffect(() => {
+    if (!loaded) return
+    const routeProps = loaded.scene.getObjectByName('DC9_PUZZLE_PROPS')
+    if (routeProps) routeProps.visible = !routeVerified
+    loaded.scene.traverse((object) => {
+      const gameId = object.userData.collider_target_game_id
+      if (typeof gameId !== 'string') return
+      object.visible = gameId.startsWith('dc9.route.') ? !routeVerified : routeVerified
+    })
+  }, [loaded, routeVerified])
 
   return (
     <>
-      <color attach="background" args={['#0d1517']} />
-      <ambientLight intensity={0.64} />
-      <directionalLight position={[2.5, 3.8, 2.4]} intensity={2} castShadow />
-      <CockpitModel
-        url={DC9_MODEL_URL}
-        transform={DC9_MODEL_TRANSFORM}
-        fallback={
-          <mesh receiveShadow>
-            <boxGeometry args={[3.4, 2.45, 0.35]} />
-            <meshStandardMaterial color="#3c5258" roughness={0.82} />
-          </mesh>
-        }
+      <color attach="background" args={['#070b0d']} />
+      <Dc9RuntimeLighting />
+      {loaded && !loadFailed ? (
+        <>
+          <primitive object={loaded.scene} dispose={null} />
+          <Dc9SeatLookControls
+            sourceCamera={phase === 'captain' && !routeVerified
+              ? loaded.routeCamera
+              : phase === 'captain' && routeVerified
+                ? loaded.secureCamera
+                : loaded.camera}
+            cameraResetRevision={cameraResetRevision}
+            wideFov={phase === 'captain' && !routeVerified ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV}
+            narrowFov={phase === 'captain' && !routeVerified ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV}
+          />
+          <Dc9ControlAnimator controls={loaded.controls} activeControls={activeControls} reducedMotion={reducedMotion} />
+          <Dc9HotspotProjector targets={loaded.targets} onChange={onHotspotsChange} />
+          <Dc9InteractionRaycaster
+            scene={loaded.scene}
+            enabled={interactionEnabled}
+            onInteraction={onInteraction}
+            onHoverInteractive={onHoverInteractive}
+          />
+        </>
+      ) : (
+        <mesh receiveShadow position={[0, 0.18, 0]}>
+          <boxGeometry args={[3.4, 2.45, 0.35]} />
+          <meshStandardMaterial color="#3c5258" roughness={0.82} />
+        </mesh>
+      )}
+    </>
+  )
+}
+
+function CaptainCockpit({
+  activeControls,
+  routeVerified,
+  reducedMotion,
+  phase,
+  cameraResetRevision,
+  onLoadState,
+  onHotspotsChange,
+  onInteraction,
+  onMars,
+  onHoverInteractive,
+}: {
+  activeControls: Dc9SecureControlId[]
+  routeVerified: boolean
+  reducedMotion: boolean
+  phase: 'captain' | 'reward' | 'mars'
+  cameraResetRevision: number
+  onLoadState: (state: Dc9LoadState) => void
+  onHotspotsChange?: (positions: Dc9HotspotScreenPositions) => void
+  onInteraction: (gameId: string) => void
+  onMars: () => void
+  onHoverInteractive: HoverHandler
+}) {
+  return (
+    <>
+      <Dc9Cockpit
+        cameraResetRevision={cameraResetRevision}
+        activeControls={activeControls}
+        routeVerified={routeVerified}
+        phase={phase}
+        reducedMotion={reducedMotion}
+        interactionEnabled={phase === 'captain'}
+        onLoadState={onLoadState}
+        onHotspotsChange={onHotspotsChange}
+        onInteraction={onInteraction}
+        onHoverInteractive={onHoverInteractive}
       />
-      {positions.map((position, index) => {
-        const switchId = CAPTAIN_SWITCH_IDS[index]
-        if (!switchId) return null
-        const active = activeSwitches.includes(switchId)
-        return (
-          <group key={switchId} position={position}>
-            <mesh castShadow>
-              <boxGeometry args={[0.56, 0.7, 0.16]} />
-              <meshStandardMaterial color="#374845" roughness={0.7} />
-            </mesh>
-            <mesh
-              position={[0, active ? 0.16 : -0.16, 0.2]}
-              rotation={[active ? -0.52 : 0.52, 0, 0]}
-              onClick={(event) => {
-                event.stopPropagation()
-                onSwitch(switchId)
-              }}
-              onPointerOver={() => {
-                onHoverInteractive(true)
-              }}
-              onPointerOut={() => {
-                onHoverInteractive(false)
-              }}
-              onPointerLeave={() => {
-                onHoverInteractive(false)
-              }}
-              castShadow
-            >
-              <boxGeometry args={[0.16, 0.54, 0.16]} />
-              <meshStandardMaterial color={active ? '#e6c468' : '#c3c6bd'} roughness={0.38} />
-            </mesh>
-          </group>
-        )
-      })}
-      <mesh position={[1.22, 0.87, 0.18]}>
-        <boxGeometry args={[0.48, 0.18, 0.06]} />
-        <meshStandardMaterial color="#dfb84e" emissive={phase === 'captain' ? '#9a6518' : '#4f6d19'} />
-      </mesh>
-      <mesh
+      {phase !== 'captain' && <mesh
         position={[-1.2, 0.9, 0.21]}
         onClick={(event) => {
           event.stopPropagation()
@@ -1288,7 +1747,7 @@ function CaptainCockpit({
       >
         <sphereGeometry args={[0.08, 20, 20]} />
         <meshStandardMaterial color={phase === 'reward' || phase === 'mars' ? '#bf2b20' : '#321612'} />
-      </mesh>
+      </mesh>}
       {phase !== 'captain' && (
         <mesh position={[0, -1.05, -0.6]} castShadow>
           <boxGeometry args={[1.9, 0.42, 0.72]} />
@@ -1301,7 +1760,9 @@ function CaptainCockpit({
 
 export function PrototypeScene({
   phase,
-  activeSwitches,
+  activeDc9Controls,
+  dc9RouteVerified,
+  reducedMotion,
   lockerHatRevealed,
   captainRewardUnlocked,
   selectedAirbusCard,
@@ -1314,10 +1775,12 @@ export function PrototypeScene({
   cameraResetRevision,
   onAirbusLoadState,
   onLockerLoadState,
+  onDc9LoadState,
   onAirbusHotspotsChange,
+  onDc9HotspotsChange,
   onAirbusTarget,
   onLockerCameraSettled,
-  onSwitch,
+  onDc9Interaction,
   onMars,
   onLockerMemory,
   onLockerHat,
@@ -1369,9 +1832,14 @@ export function PrototypeScene({
         )}
         {(phase === 'captain' || phase === 'reward' || phase === 'mars') && (
           <CaptainCockpit
-            activeSwitches={activeSwitches}
+            activeControls={activeDc9Controls}
+            routeVerified={dc9RouteVerified}
+            reducedMotion={reducedMotion}
             phase={phase}
-            onSwitch={onSwitch}
+            cameraResetRevision={cameraResetRevision}
+            onLoadState={onDc9LoadState}
+            onHotspotsChange={onDc9HotspotsChange}
+            onInteraction={onDc9Interaction}
             onMars={onMars}
             onHoverInteractive={onInteractiveHover}
           />
@@ -1383,7 +1851,7 @@ export function PrototypeScene({
           </mesh>
         )}
 
-        {phase !== 'airbus' && phase !== 'locker' && (
+        {(phase === 'reward' || phase === 'mars') && (
           <LimitedOrbitControls airbusCameraRevision={cameraResetRevision} />
         )}
       </Canvas>

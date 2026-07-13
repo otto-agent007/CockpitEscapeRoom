@@ -349,6 +349,216 @@ p {
   background: #070d0f;
 }
 
+.captain-shell {
+  position: relative;
+  display: block;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #06090a;
+}
+
+.captain-shell .scene {
+  position: absolute;
+  inset: 0;
+  min-height: 100vh;
+}
+
+.captain-interface {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+  padding: 0.7rem clamp(0.75rem, 1.8vw, 1.5rem) 0.75rem;
+  pointer-events: none;
+}
+
+.captain-interface button {
+  pointer-events: auto;
+}
+
+.captain-topbar {
+  display: flex;
+  width: min(100%, 78rem);
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-inline: auto;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid rgba(226, 215, 179, 0.24);
+  border-radius: 0.65rem;
+  background: rgba(5, 10, 11, 0.76);
+  backdrop-filter: blur(12px);
+}
+
+.captain-topbar .eyebrow,
+.captain-topbar p { margin: 0; }
+
+.captain-progress {
+  display: grid;
+  justify-items: end;
+  color: #d6d9d1;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.captain-progress strong { color: #f0d493; }
+
+.captain-projected-controls {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.captain-route-hotspot,
+.captain-route-submit,
+.captain-secure-hotspot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(236, 222, 179, 0.34);
+  border-radius: 0.35rem;
+  background: rgba(4, 10, 10, 0.72);
+  color: #f1e5c3;
+  box-shadow: 0 0.35rem 1.2rem rgba(0, 0, 0, 0.34);
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+
+.captain-route-hotspot {
+  display: grid;
+  width: clamp(7.6rem, 12vw, 10.5rem);
+  grid-template-columns: 2.5rem 1fr;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.34rem 0.48rem;
+  text-align: left;
+}
+
+.captain-route-hotspot strong { color: #f0cb72; }
+
+.captain-route-hotspot span,
+.captain-secure-hotspot span {
+  overflow: hidden;
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.captain-route-hotspot.is-selected {
+  border-color: #f1cb70;
+  background: rgba(68, 55, 25, 0.9);
+}
+
+.captain-route-hotspot.is-hinted,
+.captain-secure-hotspot.is-hinted {
+  box-shadow: 0 0 0 2px rgba(241, 203, 112, 0.5), 0 0 1.3rem rgba(241, 203, 112, 0.35);
+}
+
+.captain-route-submit {
+  padding: 0.5rem 0.7rem;
+  color: #f3d486;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.captain-route-submit:disabled { cursor: not-allowed; opacity: 0.4; }
+
+.captain-secure-hotspot {
+  display: grid;
+  min-width: 7.5rem;
+  gap: 0.15rem;
+  padding: 0.45rem 0.55rem;
+}
+
+.captain-secure-hotspot strong {
+  color: #f0cb72;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.captain-secure-hotspot.is-complete {
+  border-color: rgba(120, 206, 157, 0.55);
+  background: rgba(20, 67, 45, 0.84);
+}
+
+.captain-status-dock {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  width: min(68rem, calc(100% - 8rem));
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: auto auto 0;
+  padding: 0.72rem 0.9rem;
+  border: 1px solid rgba(226, 215, 179, 0.25);
+  border-radius: 0.75rem;
+  background: rgba(5, 10, 11, 0.88);
+  box-shadow: 0 -0.5rem 2rem rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(14px);
+}
+
+.captain-stage-label,
+.captain-status,
+.captain-status-dock small { margin: 0; }
+
+.captain-stage-label {
+  color: #f0cb72;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.captain-status { color: #f2f0e6; font-size: 0.84rem; line-height: 1.35; }
+.captain-status-dock small { color: #aeb7af; font-size: 0.65rem; }
+.captain-dock-actions { display: flex; flex: 0 0 auto; gap: 0.45rem; }
+
+.captain-dock-actions button,
+.captain-load-notice button {
+  border: 1px solid rgba(240, 212, 147, 0.38);
+  border-radius: 999px;
+  padding: 0.42rem 0.7rem;
+  background: rgba(21, 31, 30, 0.95);
+  cursor: pointer;
+}
+
+.captain-load-notice {
+  position: fixed;
+  z-index: 7;
+  top: 5.25rem;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid rgba(220, 145, 112, 0.45);
+  border-radius: 0.65rem;
+  background: rgba(32, 15, 12, 0.94);
+  transform: translateX(-50%);
+  pointer-events: auto;
+}
+
+.scene--dc9-accessible {
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at 50% 28%, rgba(73, 91, 88, 0.32), transparent 50%), linear-gradient(#101819, #050707);
+}
+
+.dc9-accessible-mark {
+  padding: 1rem;
+  border: 1px solid rgba(238, 203, 121, 0.35);
+  color: #d8cda9;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.captain-shell .prototype-badge { top: 4.75rem; z-index: 5; }
+.captain-shell .scene-tools { bottom: 5.6rem; }
+
 .airbus-shell .scene {
   position: absolute;
   inset: 0;
@@ -1738,6 +1948,11 @@ progress {
     border-left: 0;
   }
 
+  .captain-shell .scene { min-height: 100vh; }
+  .captain-status-dock { width: min(42rem, calc(100% - 5.5rem)); }
+  .captain-route-hotspot { width: 8rem; }
+  .captain-load-notice { width: min(34rem, calc(100% - 2rem)); flex-wrap: wrap; }
+
   .locker-shell {
     overflow-y: auto;
   }
@@ -1842,6 +2057,21 @@ progress {
   .route-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .captain-interface { padding: 0.4rem 0.45rem 0.5rem; }
+  .captain-topbar { padding: 0.45rem 0.55rem; }
+  .captain-topbar .eyebrow { max-width: 12rem; font-size: 0.66rem; }
+  .captain-progress span { display: none; }
+  .captain-route-hotspot { width: 6.8rem; grid-template-columns: 2rem 1fr; padding: 0.28rem 0.34rem; }
+  .captain-route-hotspot span { font-size: 0.56rem; }
+  .captain-route-submit { max-width: 7rem; padding: 0.4rem; font-size: 0.62rem; }
+  .captain-secure-hotspot { min-width: 6rem; max-width: 7rem; padding: 0.35rem; }
+  .captain-status-dock { width: calc(100% - 3.6rem); gap: 0.45rem; padding: 0.5rem; }
+  .captain-status { font-size: 0.72rem; }
+  .captain-status-dock small { display: none; }
+  .captain-dock-actions { display: grid; }
+  .captain-shell .scene-tools { right: 0.4rem; bottom: 6.5rem; flex-direction: column; }
+  .captain-shell .prototype-badge { top: 3.8rem; left: 0.5rem; font-size: 0.58rem; }
 
   .scene {
     min-height: 45vh;

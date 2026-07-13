@@ -28,6 +28,12 @@ scene.render.resolution_y = 900
 scene.render.resolution_percentage = 100
 scene.render.image_settings.file_format = "PNG"
 
+# Runtime hit volumes must be exported, but they are evidence helpers rather than
+# visible cockpit geometry. Hide them only in this transient approval-render process.
+for obj in bpy.data.objects:
+    if obj.get("collider_only") is True:
+        obj.hide_render = True
+
 for camera in cameras:
     scene.camera = camera
     output = PREVIEW_DIR / f"{camera.name.lower()}.png"

@@ -9,10 +9,10 @@ Dad must always be portrayed as a highly capable pilot. The story honors what th
 ## Confirmed production targets
 
 - **First-Officer Mode aircraft:** Airbus A320.
-- **Pop T Captain Mode aircraft:** McDonnell Douglas DC-9-50.
+- **Pop T Captain Mode aircraft:** McDonnell Douglas DC-9-32.
 - **Reward vehicle:** red Tesla Model Y.
 
-These are now the chosen production targets. Do not describe the Airbus as an unspecified bonus aircraft, and do not treat DC-9-51 as the production target. Existing DC-9-51 source artifacts may remain useful only as labeled compatibility or historical reference material.
+These are now the chosen production targets. The owner-cleared Roger2009 DC-9-32 is the exact Captain Mode geometry and texture authority. Existing DC-9-51 source artifacts may remain useful only as labeled Northwest-era color, wear, atmosphere, or historical reference material.
 
 ## Player loop
 
@@ -24,7 +24,7 @@ Wrong answers must never erase completed progress or force a restart.
 
 1. **Airbus A320 First-Officer Mode** — approachable drag-and-drop cockpit familiarization.
 2. **Locker Room / Captain’s Locker Scene** — personal reveal space with memory objects and milestone clues.
-3. **Pop T Captain Mode — DC-9-50** — tougher analog checklist-style legacy challenge.
+3. **Pop T Captain Mode — DC-9-32** — tougher analog checklist-style legacy challenge.
 4. **Ground Transport Upgrade Authorized** — protected red Tesla Model Y surprise.
 5. **Advanced Mobility Package Unlocked** — Model Y Flight Mode transformation.
 6. **Father’s Day Final Message** — emotional closing beat.
@@ -38,7 +38,7 @@ It should feel like the family entering Dad’s cockpit and learning the languag
 
 After all five labels are correct, ask: **“What is the minimum total flight time (hours) required to qualify for a standard Airline Transport Pilot certificate?”** Accept `1500`, `1,500`, `1500 hour`, and `1500 hours`. The earned response is **“Airline Transport Pilot milestone recognized. First-Officer knowledge logged.”**
 
-Do not foreshadow Pop T Captain Mode, the DC-9-50, the Model Y, or Flight Mode during this section.
+Do not foreshadow Pop T Captain Mode, the DC-9-32, the Model Y, or Flight Mode during this section.
 
 ## Locker Room / Captain’s Locker Scene
 
@@ -52,22 +52,20 @@ The playable sequence is watch → baseball → Charging Bull → airline wings 
 
 Completing the Wings question fades the locker to black and presents the real captain's hat in a confetti-backed promotion card. One **“Enter Pop T Captain Mode”** action claims the hat and advances; reduced-motion mode presents the same card immediately without animated confetti.
 
-## Pop T Captain Mode — DC-9-50
+## Pop T Captain Mode — DC-9-32
 
-The DC-9-50 is the earned legacy cockpit. It should feel older, denser, more analog, and more personal than the Airbus A320.
+The DC-9-32 is the earned legacy cockpit. It should feel older, denser, more analog, and more personal than the Airbus A320.
 
 This is not a generic hard mode. It is **Pop T Captain Mode**.
 
-Use harder, checklist-like puzzles while staying fictional, safe, and family-friendly:
+Use a route-first, checklist-like puzzle while staying fictional, safe, and family-friendly:
 
-- Captain’s scan puzzle
-- Legacy checklist sequencing
-- MEM route-strip reasoning
-- Analog panel observation
-- Personal memory recall
-- Final hangar release authorization
+- Select the verified short MEM routes `BTR`, `STL`, and `TYS` from the six-row period route card.
+- Secure the parked cockpit in order: APU buses off, APU master off, then battery off.
+- Treat fuel pumps off as an explicit initial precondition, not a player action.
+- Battery-off completes Captain Mode and authorizes the hangar reward.
 
-Use DC-9-50 references for production geometry. Use other DC-9 variants only when compatibility limits are recorded.
+Use the owner-cleared Roger2009 DC-9-32 for production geometry and cleared textures. Use DC-9-51 references only for compatible Northwest-era color, wear, and atmosphere, with limits recorded.
 
 ## Model Y reward and Flight Mode sequence
 
@@ -75,7 +73,7 @@ The red Tesla Model Y must remain hidden until after Pop T Captain Mode completi
 
 Reward sequence:
 
-1. The DC-9-50 settles into a warm completed-state glow.
+1. The DC-9-32 settles into a warm completed-state glow.
 2. The hangar confirms: **“Legacy authorization confirmed.”**
 3. The red Tesla Model Y is revealed.
 4. Title: **“Ground Transport Upgrade Authorized.”**
@@ -125,7 +123,7 @@ This should never block the main ending.
 - Clear A320 cockpit landmarks for family players.
 - Friendly lighting and obvious interaction zones.
 
-### DC-9-50 Pop T Captain Mode
+### DC-9-32 Pop T Captain Mode
 
 - Convincing captain-seat scale.
 - Dense analog instrument panel.
@@ -150,7 +148,7 @@ Keep asset groups separate and lazy-loaded:
 
 - Airbus A320 First-Officer cockpit
 - Locker room scene
-- DC-9-50 Pop T Captain cockpit
+- DC-9-32 Pop T Captain cockpit
 - Model Y hangar reward and Flight Mode transformation
 - Mars Easter egg
 
@@ -160,7 +158,7 @@ Essential gameplay must not exist only inside WebGL. Use HTML overlays for instr
 
 1. Airbus A320 First-Officer cockpit interaction proof — **approved for production by the owner on 2026-07-10**
 2. Locker room reveal proof
-3. DC-9-50 captain-view proof
+3. DC-9-32 captain-view proof
 4. First Pop T Captain puzzle
 5. Model Y reward reveal and Flight Mode transformation
 6. Mars Easter egg

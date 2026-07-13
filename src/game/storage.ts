@@ -1,6 +1,6 @@
-import { createInitialState, type GamePhase, type GameState, type PuzzleId, type SwitchId } from './state'
+import { createInitialState, DC9_SECURE_ORDER, type Dc9SecureControlId, type GamePhase, type GameState, type PuzzleId } from './state'
 import { type FirstOfficerControl, type FirstOfficerDecoy, type LockerMemoryId, type LockerQuestionId } from './config'
-import { firstOfficerFlow, lockerFlow } from './config'
+import { dc9LegacyFlow, firstOfficerFlow, lockerFlow } from './config'
 
 export const STORAGE_KEY = 'cockpit-escape-room:game-state:v1'
 
@@ -47,12 +47,20 @@ function isSafeDecoyAssignments(value: unknown): value is Record<FirstOfficerDec
   )
 }
 
-function isSafeSwitchSequence(value: unknown): value is SwitchId[] {
+function isSafeSecureSequence(value: unknown): value is Dc9SecureControlId[] {
   return (
     Array.isArray(value) &&
-    value.every((entry): entry is SwitchId => entry === 'battery' || entry === 'navigation' || entry === 'cabin') &&
-    hasNoDuplicates(value)
+    value.every((entry): entry is Dc9SecureControlId =>
+      (DC9_SECURE_ORDER as readonly string[]).includes(entry),
+    ) &&
+    value.every((entry, index) => entry === DC9_SECURE_ORDER[index])
   )
+}
+
+function isSafeCaptainAttempts(value: unknown): value is GameState['captainAttempts'] {
+  if (!value || typeof value !== 'object') return false
+  const candidate = value as Record<string, unknown>
+  return isSafeNonNegativeInteger(candidate.route) && isSafeNonNegativeInteger(candidate.secure)
 }
 
 function isSafePuzzleIds(value: unknown): value is PuzzleId[] {
@@ -103,7 +111,7 @@ function isGameState(value: unknown): value is GameState {
   if (!value || typeof value !== 'object') return false
   const candidate = value as Partial<GameState>
   return (
-    candidate.schemaVersion === 5 &&
+    candidate.schemaVersion === 6 &&
     isSafePhase(candidate.phase) &&
     isSafeAssignments(candidate.airbusAssignments) &&
     isSafeDecoyAssignments(candidate.airbusDecoyAssignments) &&
@@ -113,7 +121,9 @@ function isGameState(value: unknown): value is GameState {
     typeof candidate.lockerIntroCompleted === 'boolean' &&
     typeof candidate.lockerHatRevealed === 'boolean' &&
     typeof candidate.captainModeUnlocked === 'boolean' &&
-    isSafeSwitchSequence(candidate.switchSequence) &&
+    typeof candidate.captainRouteVerified === 'boolean' &&
+    isSafeSecureSequence(candidate.dc9SecureSequence) &&
+    isSafeCaptainAttempts(candidate.captainAttempts) &&
     Array.isArray(candidate.routeSelections) &&
     candidate.routeSelections.every((value): value is string => typeof value === 'string') &&
     candidate.routeSelections.length === new Set(candidate.routeSelections).size &&
@@ -129,18 +139,44 @@ function hasReachedLocker(phase: unknown): boolean {
   return phase === 'locker' || phase === 'captain' || phase === 'reward' || phase === 'mars'
 }
 
+function migrateV5(value: unknown): GameState | null {
+  if (!value || typeof value !== 'object') return null
+  const candidate = value as Record<string, unknown>
+  if (candidate.schemaVersion !== 5) return null
+  const completedPuzzles = Array.isArray(candidate.completedPuzzles)
+    ? candidate.completedPuzzles.filter((entry): entry is PuzzleId =>
+        entry === 'firstOfficer' || entry === 'locker' || entry === 'captain',
+      )
+    : []
+  const completedCaptain = completedPuzzles.includes('captain') || candidate.phase === 'reward' || candidate.phase === 'mars'
+  const validRoutes = Array.isArray(candidate.routeSelections)
+    ? candidate.routeSelections.filter((entry): entry is string =>
+        typeof entry === 'string' && dc9LegacyFlow.routePuzzleOptions.some((route) => route.code === entry),
+      )
+    : []
+  const migrated = {
+    ...candidate,
+    schemaVersion: 6,
+    captainRouteVerified: completedCaptain,
+    dc9SecureSequence: completedCaptain ? [...DC9_SECURE_ORDER] : [],
+    captainAttempts: { route: 0, secure: 0 },
+    routeSelections: candidate.phase === 'captain' ? validRoutes : validRoutes,
+  }
+  return isGameState(migrated) ? migrated : null
+}
+
 function migrateV4(value: unknown): GameState | null {
   if (!value || typeof value !== 'object') return null
   const candidate = value as Record<string, unknown>
   if (candidate.schemaVersion !== 4) return null
 
-  const migrated = {
+  const migratedV5 = {
     ...candidate,
     schemaVersion: 5,
     lockerAttempts: normalizeLockerAttempts(candidate.lockerAttempts) ?? { watch: 0, baseball: 0, chargingBull: 0, wings: 0 },
     lockerIntroCompleted: hasReachedLocker(candidate.phase),
   }
-  return isGameState(migrated) ? migrated : null
+  return migrateV5(migratedV5)
 }
 
 function migrateV3(value: unknown): GameState | null {
@@ -158,7 +194,7 @@ function migrateV3(value: unknown): GameState | null {
     ? [...lockerFlow.memoryIds]
     : lockerFlow.memoryIds.filter((id) => id === 'watch' || id === 'baseball').filter((id) => legacyCompleted.includes(id))
 
-  const migrated = {
+  const migratedV5 = {
     ...candidate,
     schemaVersion: 5,
     lockerCompleted,
@@ -166,7 +202,7 @@ function migrateV3(value: unknown): GameState | null {
     lockerIntroCompleted: hasReachedLocker(candidate.phase),
     lockerHatRevealed: preserveFullLocker,
   }
-  return isGameState(migrated) ? migrated : null
+  return migrateV5(migratedV5)
 }
 
 export function loadGameState(storage: Pick<Storage, 'getItem' | 'removeItem'> = window.localStorage): GameState {
@@ -174,13 +210,15 @@ export function loadGameState(storage: Pick<Storage, 'getItem' | 'removeItem'> =
     const raw = storage.getItem(STORAGE_KEY)
     if (!raw) return createInitialState()
     const parsed: unknown = JSON.parse(raw)
-    const normalized = parsed && typeof parsed === 'object' && (parsed as Record<string, unknown>).schemaVersion === 5
+    const normalized = parsed && typeof parsed === 'object' && [3, 4, 5, 6].includes(Number((parsed as Record<string, unknown>).schemaVersion))
       ? normalizeLockerAttempts((parsed as Record<string, unknown>).lockerAttempts)
       : null
     const normalizedParsed = normalized
       ? { ...(parsed as Record<string, unknown>), lockerAttempts: normalized }
       : parsed
-    const state = isGameState(normalizedParsed) ? normalizedParsed : migrateV4(normalizedParsed) ?? migrateV3(normalizedParsed)
+    const state = isGameState(normalizedParsed)
+      ? normalizedParsed
+      : migrateV5(normalizedParsed) ?? migrateV4(normalizedParsed) ?? migrateV3(normalizedParsed)
     if (state) {
       return state.phase === 'airbus' ? { ...state, airbusClockAnswer: '' } : state
     }
