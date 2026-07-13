@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Hud } from './components/Hud'
 import { LockerTransition, type LockerIntroStage } from './components/LockerTransition'
-import { QualificationCelebration } from './components/QualificationCelebration'
+import { CaptainHatCelebration, QualificationCelebration } from './components/QualificationCelebration'
 import { SceneHelp } from './components/SceneHelp'
 import { gameCopy, lockerFlow, type FirstOfficerControl, type LockerMemoryId } from './game/config'
 import { isLockerMemoryAvailable } from './game/state'
@@ -124,9 +124,10 @@ export default function App() {
   const [lockerIntroSkipRequested, setLockerIntroSkipRequested] = useState(false)
   const airbusSceneReady = airbusLoadState.status === 'ready' || airbusLoadState.status === 'accessible-fallback'
   const lockerIntroActive = lockerIntroStage !== 'idle'
+  const captainHatCelebrationActive = state.phase === 'locker' && state.lockerHatRevealed && !lockerIntroActive
   const lockerIntroErrorVisible = lockerIntroStage === 'waiting-for-locker' && lockerLoadState.status === 'error'
   const lockerSceneReady = skipPrototypeScene || lockerLoadState.status === 'ready' || lockerLoadState.status === 'accessible-fallback'
-  const lockerInteractionEnabled = state.phase === 'locker' && state.lockerIntroCompleted && !lockerIntroActive
+  const lockerInteractionEnabled = state.phase === 'locker' && state.lockerIntroCompleted && !lockerIntroActive && !captainHatCelebrationActive
   const availableLockerMemories = lockerFlow.memoryIds.filter((memoryId) => isLockerMemoryAvailable(state, memoryId))
   const viewerResetReady = !lockerIntroActive && (state.phase !== 'airbus' || airbusSceneReady)
 
@@ -302,6 +303,11 @@ export default function App() {
     setLockerIntroStage(state.phase === 'locker' && lockerSceneReady ? 'focus-watch' : 'waiting-for-locker')
   }, [dispatch, lockerSceneReady, state.phase])
 
+  const enterCaptainMode = useCallback(() => {
+    dispatch({ type: 'CLAIM_CAPTAIN_HAT' })
+    dispatch({ type: 'CONTINUE_TO_CAPTAIN' })
+  }, [dispatch])
+
   const handleLockerCameraSettled = useCallback((cue: LockerCameraCue) => {
     if (cue === 'watch-focus' && lockerIntroStage === 'focus-watch') {
       if (!state.lockerIntroCompleted) dispatch({ type: 'COMPLETE_LOCKER_INTRO' })
@@ -447,7 +453,7 @@ export default function App() {
           />
         </Suspense>
       )}
-      {!lockerIntroActive && (
+      {!lockerIntroActive && !captainHatCelebrationActive && (
         <Hud
           state={state}
           dispatch={dispatch}
@@ -477,7 +483,7 @@ export default function App() {
           <button type="button" className="secondary-button" onClick={() => setLockerLoadState({ status: 'accessible-fallback' })}>Continue with accessible controls</button>
         </section>
       )}
-      {!lockerIntroActive && (
+      {!lockerIntroActive && !captainHatCelebrationActive && (
         <div className="scene-tools">
           {state.phase === 'locker' && state.lockerIntroCompleted && (
             <button type="button" className="scene-tool-button" aria-label="Replay locker intro" onClick={beginLockerIntro}>↻</button>
@@ -486,13 +492,16 @@ export default function App() {
           <button type="button" className="scene-tool-button" aria-label="Toggle fullscreen" onClick={() => void toggleFullscreen()}>⛶</button>
         </div>
       )}
-      {!lockerIntroActive && helpOpen && <button type="button" className="scene-help-dismiss" onClick={closeHelp} aria-label="Dismiss viewer help" tabIndex={-1} />}
-      {!lockerIntroActive && <SceneHelp phase={state.phase} open={helpOpen} onClose={closeHelp} />}
+      {!lockerIntroActive && !captainHatCelebrationActive && helpOpen && <button type="button" className="scene-help-dismiss" onClick={closeHelp} aria-label="Dismiss viewer help" tabIndex={-1} />}
+      {!lockerIntroActive && !captainHatCelebrationActive && <SceneHelp phase={state.phase} open={helpOpen} onClose={closeHelp} />}
       {state.phase === 'airbus' && state.completedPuzzles.includes('firstOfficer') && !lockerIntroActive && (
         <QualificationCelebration
           reducedMotion={reducedMotion}
           onContinue={beginLockerIntro}
         />
+      )}
+      {captainHatCelebrationActive && (
+        <CaptainHatCelebration reducedMotion={reducedMotion} onContinue={enterCaptainMode} />
       )}
       {lockerIntroActive && !lockerIntroErrorVisible && (
         <LockerTransition

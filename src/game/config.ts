@@ -106,9 +106,8 @@ export const lockerFlow = {
       acceptedAnswers: ['1000', '1000 hour', '1000 hours'] as const,
       feedback: 'Correct: 1,000 hours. The wings remember preparation, teamwork, and earned responsibility.',
       retry: 'Not quite. Think of the Part 121 experience milestone commonly associated with a captain upgrade.',
-      strongerHint: 'The milestone is one thousand hours.',
+      strongerHint: 'It is a four-digit hour milestone below the 1,500-hour ATP total-time requirement.',
       inputLabel: 'Answer in hours',
-      inputPlaceholder: 'e.g. 1000 hours',
       story:
         'With this deep history came powerful superstitions. One of the most famous military traditions is the “Breaking of the Wings.” Upon graduating from flight school, a new pilot receives their very first pair of wings but is told never to wear them. Instead, they deliberately break the badge into two halves. The pilot keeps one half, and the other is given to a loved one or best friend for good luck. Superstition dictates that the two halves must never be reunited while the pilot is alive, otherwise, it invites bad luck.',
     },
@@ -117,7 +116,6 @@ export const lockerFlow = {
       storyTitle: 'Charging Bull',
       eyebrow: 'Patience and judgment',
       answerMode: 'choice',
-      emphasizeQuestion: true,
       question:
         "Which historical figure is most commonly credited with saying, 'Compound interest is the eighth wonder of the world. He who understands it, earns it... he who doesn't... pays it'?",
       choices: ['Warren Buffett', 'Benjamin Franklin', 'Albert Einstein', 'John D. Rockefeller'] as const,

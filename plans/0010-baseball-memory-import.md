@@ -30,6 +30,7 @@ The baseball is an owner-review Tripo candidate, not final production art. Keep 
 - [x] 2026-07-12 — Replaced the rejected proxy treatments with the three new complete-4K Tripo downloads, enforced source hashes and material-wired 4K PBR roles in the pipeline, rebuilt the master/GLB, and captured owner-review browser evidence.
 - [x] 2026-07-12 — Applied the owner-directed centering pass to the watch, Wings, and captain's hat, lowered locker-only lighting, regenerated the master/GLB, and captured responsive browser proof for owner review.
 - [x] 2026-07-12 — Rotated the baseball to the owner-selected vertical-seam presentation, replaced focus zooms with a constant-distance camera climb, and made Wings a required free-text question before the hat reveal.
+- [x] 2026-07-12 — Removed the Wings answer giveaway, bolded all locker questions, and replaced the small hat claim/promotion UI with a fade-to-black Captain's Hat celebration and one-button Captain Mode transition.
 
 ## Discoveries
 
@@ -44,6 +45,7 @@ The baseball is an owner-review Tripo candidate, not final production art. Keep 
 - A base-color-only candidate and then a generic smooth sphere/flat-material pass were tested and rejected after browser review because cleaner surfaces did not preserve the props' identity.
 - The 2026-07-11 procedural baseball, voxel Bull, and stylized Wings atlas were rejected/superseded. The current comparison uses the three newly downloaded complete-4K Tripo sources with their authored PBR materials, staged to 2K for the browser; the owner remains the visual authority.
 - The centering pass moves only watch, Wings, and hat from x=`0.42` to x=`0.56`. Baseball, Bull, and both support shelves remain fixed so the requested composition change does not disturb their accepted positions. Locker-only browser and Blender approval lights are reduced by roughly 12–15 percent; prop materials and texture maps are unchanged.
+- The Captain's Hat celebration uses a transparent render of the exact deployed `LOCKER_PROP_CAPTAINS_HAT` GLB node. The master, deployable GLB, stable node, `game_id`, and schema-v5 state remain unchanged.
 
 ## Milestones
 
@@ -129,3 +131,12 @@ This milestone hands the playable ordered memory loop and complete-4K Tripo rebu
 - Current master: 50,237,876 bytes, SHA-256 `648a63df7a95de0cda11cf2c2ba2dcb988b621ab6ab04388f3ae460d0fc63f42`. Current GLB: 44,288,740 bytes, SHA-256 `cf212389e0d04aa34a528cbc2af07e59b4acc9d4e98e386f725c78da43279c5c`.
 - Actual-browser evidence: `.cache/assets/locker/browser/locker-seam-flow-{watch,baseball-card,baseball-clean,bull-question,wings-question}-1440.png`, responsive Wings views/cards at 768/375, matching no-cache GLB bytes/hash, no console/page errors, and no horizontal overflow. Visual acceptance remains with the owner.
 - Validation passed: deterministic Blender rebuild, Python compile, `npm run assets:check`, `npm run pipeline:evals` (6/6), `npm run check` (42/42 unit tests plus production build), focused accessible/real-GLB Playwright, full Playwright (12/12 in 3.8 minutes), and `git diff --check`. The expanded real-GLB path retains every assertion under a 240-second ceiling.
+
+## 2026-07-12 Wings copy and Captain's Hat celebration
+
+- Rolex, baseball, Charging Bull, and Wings question legends now use semantic bold text. The Wings form has no placeholder, and its repeated-wrong clue narrows the range without stating the exact answer; successful feedback still confirms `1,000 hours`.
+- Completing Wings now hides the locker HUD, fades to black over 700 ms, holds for 150 ms, and reveals the Captain's Hat card over 350 ms. The shared qualification shell supplies the modal focus trap and 24-piece confetti field; reduced motion skips the animation and confetti.
+- The one `Enter Pop T Captain Mode` action dispatches the existing claim and continue actions in order. Reloading while the hat is revealed reopens the celebration; entering Captain Mode persists and prevents replay.
+- Blender 5.1.2 rendered `LOCKER_PROP_CAPTAINS_HAT` from the unchanged deployed locker GLB into a 1024×1024 RGBA image. Runtime image: 563,765 bytes, SHA-256 `e426b329b273fcd593ed7bace8848a2573f8ed8bfb198b3063df63beb05d4f8c`; two decoded repeat renders were pixel-identical.
+- Browser proof: `/tmp/captain-hat-celebration-final-{1440,768,375}.png`. The final layout has no horizontal overflow, the CTA retains focus, and no console/page errors occurred. A separate real-GLB browser pass received the exact 44,288,740-byte locker model and the exact runtime PNG.
+- Validation passed: Python compile, `npm run assets:check`, `npm run pipeline:evals` (6/6), `npm run check` (42/42 unit tests plus production build), focused locker Playwright, and full `npm run test:e2e` (12/12 in 4.2 minutes). Vercel publication and final owner visual approval remain open.

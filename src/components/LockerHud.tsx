@@ -109,11 +109,9 @@ export function LockerHud({ state, dispatch, selectedMemory, onSelectedMemoryCha
           <p>{selectedMemoryConfig.story}</p>
           {isQuestion(selectedMemory) && !completed.has(selectedMemory) ? (
             selectedMemoryConfig.answerMode === 'choice' ? (
-              <fieldset className={`locker-choice-fieldset${'emphasizeQuestion' in selectedMemoryConfig && selectedMemoryConfig.emphasizeQuestion ? ' locker-choice-fieldset--emphasized' : ''}`}>
+              <fieldset className="locker-choice-fieldset">
                 <legend className="locker-question-block">
-                  {'emphasizeQuestion' in selectedMemoryConfig && selectedMemoryConfig.emphasizeQuestion
-                    ? <strong>{selectedMemoryConfig.question}</strong>
-                    : selectedMemoryConfig.question}
+                  <strong>{selectedMemoryConfig.question}</strong>
                 </legend>
                 <div className="locker-choice-grid">
                   {selectedMemoryConfig.choices.map((choice) => (
@@ -131,7 +129,7 @@ export function LockerHud({ state, dispatch, selectedMemory, onSelectedMemoryCha
             ) : (
               <form className="locker-answer-form" onSubmit={submitTextAnswer}>
                 <fieldset className="locker-choice-fieldset">
-                  <legend className="locker-question-block">{selectedMemoryConfig.question}</legend>
+                  <legend className="locker-question-block"><strong>{selectedMemoryConfig.question}</strong></legend>
                   <label htmlFor="locker-text-answer">{selectedMemoryConfig.inputLabel}</label>
                   <input
                     id="locker-text-answer"
@@ -139,7 +137,6 @@ export function LockerHud({ state, dispatch, selectedMemory, onSelectedMemoryCha
                     type="text"
                     autoComplete="off"
                     value={textResponse}
-                    placeholder={selectedMemoryConfig.inputPlaceholder}
                     onChange={(event) => setTextResponse(event.target.value)}
                   />
                   <button type="submit" className="primary-button" disabled={!textResponse.trim()}>Submit answer</button>
@@ -152,25 +149,6 @@ export function LockerHud({ state, dispatch, selectedMemory, onSelectedMemoryCha
         </section>
       )}
 
-      {state.lockerHatRevealed && (
-        <div className="locker-hat-callout is-revealed">
-          <span>{lockerFlow.hatText.revealText}</span>
-          <button type="button" className="primary-button" disabled={state.captainModeUnlocked} onClick={() => dispatch({ type: 'CLAIM_CAPTAIN_HAT' })}>
-            {state.captainModeUnlocked ? 'Captain’s hat claimed' : 'Claim the captain’s hat'}
-          </button>
-        </div>
-      )}
-
-      {state.captainModeUnlocked && (
-        <section className="locker-promotion" role="dialog" aria-modal="true" aria-labelledby="locker-promotion-title">
-          <p className="eyebrow">{lockerFlow.hatText.promotionText}</p>
-          <h2 id="locker-promotion-title">{lockerFlow.hatText.captainModeText}</h2>
-          <p>The memories are logged. The captain's seat is ready.</p>
-          <button type="button" className="primary-button" autoFocus onClick={() => dispatch({ type: 'CONTINUE_TO_CAPTAIN' })}>
-            Enter Pop T Captain Mode
-          </button>
-        </section>
-      )}
     </aside>
   )
 }

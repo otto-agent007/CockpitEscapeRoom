@@ -63,6 +63,7 @@ test('watch completion opens the baseball question, then Bull and Wings', async 
 
   await page.getByRole('button', { name: 'Inspect watch' }).click()
   await expect(page.getByText(/Rolex GMT-Master was originally developed in 1954/)).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Rolex GMT-Master' }).locator('legend strong')).toContainText('Rolex GMT-Master')
   await page.getByRole('button', { name: 'Brain fog' }).click()
   await expect(page.locator('.locker-status')).toContainText('crossing several time zones')
   await page.getByRole('button', { name: 'Motion sickness' }).click()
@@ -74,6 +75,7 @@ test('watch completion opens the baseball question, then Bull and Wings', async 
   await expect(page.getByRole('dialog', { name: 'Baseball' })).toBeVisible()
   await expect(page.getByText('Before the captain wore wings, he wore a glove.')).toBeVisible()
   await expect(page.getByText('Which future Pro Football Hall of Famer from Chaffey High crossed paths with him?')).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Baseball' }).locator('legend strong')).toContainText('Which future Pro Football Hall of Famer')
   await page.getByRole('button', { name: 'Orlando Pace' }).click()
   await expect(page.locator('.locker-status')).toContainText('not the one attached')
   await page.getByRole('button', { name: 'Johnathan Ogden' }).click()
@@ -91,35 +93,36 @@ test('watch completion opens the baseball question, then Bull and Wings', async 
   await expect(page.getByRole('dialog', { name: 'Aviation Traditions: “Breaking the Wings”' })).toBeVisible()
   await expect(page.getByText(/two halves must never be reunited/)).toBeVisible()
   await expect(page.getByText(/minimum amount of second-in-command experience/)).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Aviation Traditions: “Breaking the Wings”' }).locator('legend strong')).toContainText('minimum amount of second-in-command experience')
   const wingsCardBounds = await page.getByRole('dialog', { name: 'Aviation Traditions: “Breaking the Wings”' }).boundingBox()
   const lockerActionsBounds = await page.locator('.locker-actions').boundingBox()
   expect(wingsCardBounds).not.toBeNull()
   expect(lockerActionsBounds).not.toBeNull()
   expect(wingsCardBounds!.y + wingsCardBounds!.height).toBeLessThanOrEqual(lockerActionsBounds!.y)
   const wingsAnswer = page.getByRole('textbox', { name: 'Answer in hours' })
+  await expect(wingsAnswer).not.toHaveAttribute('placeholder')
   await wingsAnswer.fill('500 hours')
   await page.getByRole('button', { name: 'Submit answer' }).click()
   await expect(page.locator('.locker-status')).toContainText('Part 121 experience milestone')
   await wingsAnswer.fill('1500 hours')
   await page.getByRole('button', { name: 'Submit answer' }).click()
-  await expect(page.locator('.locker-status')).toContainText('one thousand hours')
+  await expect(page.locator('.locker-status')).toContainText('four-digit hour milestone below the 1,500-hour ATP')
   await wingsAnswer.fill('1,000 hours')
   await page.getByRole('button', { name: 'Submit answer' }).click()
-  await expect(page.getByText('4/4')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Claim the captain’s hat' })).toBeVisible()
+  const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })
+  await expect(celebration).toHaveAttribute('data-celebration-ready', 'true')
+  await expect(celebration.getByRole('img', { name: 'Captain’s hat' })).toBeVisible()
+  await expect(celebration.locator('.qualification-confetti i')).toHaveCount(24)
+  const enterCaptainButton = celebration.getByRole('button', { name: 'Enter Pop T Captain Mode' })
+  await expect(enterCaptainButton).toBeFocused()
+  await page.keyboard.press('Tab')
+  await expect(enterCaptainButton).toBeFocused()
 
   await page.reload()
   await expect(page.locator('.locker-transition')).toHaveCount(0)
-  await expect(page.getByText('4/4')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Review watch' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })).toBeVisible()
 
   await page.setViewportSize({ width: 1440, height: 900 })
-  const statusBounds = await page.locator('.locker-status').boundingBox()
-  const trayBounds = await page.locator('.locker-memory-tray').boundingBox()
-  expect(statusBounds).not.toBeNull()
-  expect(trayBounds).not.toBeNull()
-  expect(statusBounds!.x + statusBounds!.width).toBeLessThanOrEqual(trayBounds!.x)
-
   for (const viewport of [
     { width: 1440, height: 900 },
     { width: 768, height: 900 },
@@ -129,6 +132,9 @@ test('watch completion opens the baseball question, then Bull and Wings', async 
     const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
     expect(horizontalOverflow).toBeLessThanOrEqual(0)
   }
+
+  await page.getByRole('button', { name: 'Enter Pop T Captain Mode' }).click()
+  await expect(page.getByRole('heading', { name: 'POP T CAPTAIN MODE' })).toBeVisible()
 })
 
 test('reduced motion, replay, and Escape skip keep the accessible path usable', async ({ page }) => {
@@ -203,14 +209,18 @@ test('locker GLB loads into the real canvas and the directed camera settles on t
   await expect(canvas).toHaveAttribute('data-locker-camera-distance', '3.490')
   await page.getByRole('textbox', { name: 'Answer in hours' }).fill('1000 hours')
   await page.getByRole('button', { name: 'Submit answer' }).click()
-  await expect(page.getByRole('button', { name: 'Claim the captain’s hat' })).toBeEnabled()
+  await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })).toBeVisible()
+  await expect(page.locator('.qualification-confetti')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Enter Pop T Captain Mode' })).toBeFocused()
 
   await page.reload()
   await expect(page.locator('canvas')).toHaveAttribute('data-locker-hat-visual', 'revealed', { timeout: 30_000 })
   await expect(page.locator('canvas')).toHaveAttribute('data-locker-baseball-visual', 'revealed')
   await expect(page.locator('canvas')).toHaveAttribute('data-locker-wings-visual', 'revealed')
   await expect(page.locator('canvas')).toHaveAttribute('data-locker-bull-visual', 'revealed')
-  await expect(page.getByRole('button', { name: 'Claim the captain’s hat' })).toBeEnabled()
+  await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })).toBeVisible()
+  await page.getByRole('button', { name: 'Enter Pop T Captain Mode' }).click()
+  await expect(page.getByRole('heading', { name: 'POP T CAPTAIN MODE' })).toBeVisible()
 })
 
 test('locker load failure offers retry and a watch-first accessible fallback', async ({ page }) => {

@@ -149,3 +149,9 @@ The GLB contains the environment materials plus the imported prop materials and 
 - Current master: 50,237,876 bytes, SHA-256 `648a63df7a95de0cda11cf2c2ba2dcb988b621ab6ab04388f3ae460d0fc63f42`. Current GLB: 44,288,740 bytes, SHA-256 `cf212389e0d04aa34a528cbc2af07e59b4acc9d4e98e386f725c78da43279c5c`.
 - The Bull question is a separate bold block; the widened Wings card clears the lower-right actions at 1440 and remains overflow-free at 768/375. Browser response bytes/hash matched disk and no console/page errors were recorded.
 - The rotation and composition are comparison evidence for owner review, not agent visual approval.
+
+## 2026-07-12 Captain's Hat celebration render
+
+- The promotion presentation is derived from the unchanged deployed GLB node `LOCKER_PROP_CAPTAINS_HAT` through `tools/blender/render_glb_node.py`. Blender 5.1.2 produced a 1024×1024 RGBA image with two subtree meshes and two materials; the published 563,765-byte PNG has SHA-256 `e426b329b273fcd593ed7bace8848a2573f8ed8bfb198b3063df63beb05d4f8c`. A repeat render decoded to identical RGBA pixels.
+- The locker master and GLB hashes remain `648a63df7a95de0cda11cf2c2ba2dcb988b621ab6ab04388f3ae460d0fc63f42` and `cf212389e0d04aa34a528cbc2af07e59b4acc9d4e98e386f725c78da43279c5c`; stable hierarchy, metadata, materials, textures, and interaction contracts did not change.
+- Final browser evidence is `/tmp/captain-hat-celebration-final-{1440,768,375}.png`; all widths showed the upright real hat, readable copy, unobstructed CTA, zero horizontal overflow, and no console/page errors. Confetti is suppressed under reduced motion. Visual acceptance remains with the owner.

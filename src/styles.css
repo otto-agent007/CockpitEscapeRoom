@@ -1050,6 +1050,25 @@ p {
   backdrop-filter: blur(8px);
 }
 
+.qualification-celebration--fade-to-black {
+  background: #000;
+  backdrop-filter: none;
+  animation: captain-celebration-blackout 700ms ease-out both;
+}
+
+.qualification-celebration--fade-to-black .qualification-card {
+  opacity: 0;
+  transform: translateY(0.75rem) scale(0.98);
+  transition:
+    opacity 350ms ease-out,
+    transform 350ms ease-out;
+}
+
+.qualification-celebration--fade-to-black.is-revealed .qualification-card {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
 .qualification-card {
   position: relative;
   z-index: 2;
@@ -1062,6 +1081,24 @@ p {
     rgba(7, 18, 19, 0.97);
   box-shadow: 0 2rem 7rem rgba(0, 0, 0, 0.62), 0 0 3rem rgba(213, 170, 76, 0.12);
   text-align: center;
+}
+
+.qualification-celebration--captain .qualification-card {
+  width: min(38rem, 100%);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  background:
+    radial-gradient(circle at 50% 16%, rgba(241, 199, 106, 0.2), transparent 46%),
+    linear-gradient(180deg, rgba(18, 17, 15, 0.98), rgba(5, 7, 8, 0.99));
+}
+
+.qualification-hat {
+  display: block;
+  width: min(26rem, 82vw);
+  max-height: min(21rem, 38vh);
+  object-fit: contain;
+  margin: -0.75rem auto 0.5rem;
+  filter: drop-shadow(0 1.2rem 1.5rem rgba(0, 0, 0, 0.72)) drop-shadow(0 0 1.8rem rgba(241, 199, 106, 0.2));
 }
 
 .qualification-card h2 {
@@ -1149,6 +1186,11 @@ p {
 @keyframes qualification-confetti-fall {
   from { transform: translate3d(0, -10vh, 0) rotate(0deg); }
   to { transform: translate3d(2rem, 120vh, 0) rotate(720deg); }
+}
+
+@keyframes captain-celebration-blackout {
+  from { background-color: rgba(0, 0, 0, 0); }
+  to { background-color: #000; }
 }
 
 .airbus-atp span {
@@ -1388,9 +1430,7 @@ progress {
 
 .locker-hud button,
 .locker-hud input,
-.locker-story-card,
-.locker-promotion,
-.locker-hat-callout {
+.locker-story-card {
   pointer-events: auto;
 }
 
@@ -1516,8 +1556,7 @@ progress {
   pointer-events: auto;
 }
 
-.locker-story-card,
-.locker-promotion {
+.locker-story-card {
   position: absolute;
   top: 50%;
   right: clamp(1rem, 3vw, 3rem);
@@ -1532,8 +1571,7 @@ progress {
   transform: translateY(-50%);
 }
 
-.locker-story-card h2,
-.locker-promotion h2 {
+.locker-story-card h2 {
   margin: 0.25rem 0 0.85rem;
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(1.55rem, 3vw, 2.35rem);
@@ -1574,8 +1612,8 @@ progress {
   padding: 0;
 }
 
-.locker-choice-fieldset--emphasized .locker-question-block {
-  font-weight: 700;
+.locker-question-block strong {
+  font-weight: 800;
 }
 
 .locker-answer-form .primary-button {
@@ -1632,43 +1670,6 @@ progress {
 .locker-story-complete {
   padding-left: 0.75rem;
   border-left: 3px solid #d5aa4c;
-}
-
-.locker-hat-callout {
-  position: absolute;
-  left: 50%;
-  top: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.55rem 0.65rem 0.55rem 0.85rem;
-  border: 1px solid rgba(223, 192, 132, 0.2);
-  border-radius: 999px;
-  background: rgba(15, 12, 10, 0.72);
-  color: #c8bca7;
-  transform: translateX(-50%);
-}
-
-.locker-hat-callout:not(.is-revealed) button {
-  display: none;
-}
-
-.locker-promotion {
-  z-index: 6;
-  left: 50%;
-  right: auto;
-  width: min(34rem, calc(100vw - 2rem));
-  text-align: center;
-  transform: translate(-50%, -50%);
-}
-
-.locker-promotion::before {
-  position: fixed;
-  z-index: -1;
-  inset: -100vh -100vw;
-  content: "";
-  background: rgba(3, 3, 3, 0.68);
-  backdrop-filter: blur(5px);
 }
 
 .locker-load-error {
@@ -1757,7 +1758,6 @@ progress {
   .locker-status,
   .locker-watch-link,
   .locker-actions,
-  .locker-hat-callout,
   .locker-story-card {
     position: relative;
     inset: auto;
@@ -1771,7 +1771,6 @@ progress {
   .locker-memory-tray--single { grid-template-columns: minmax(0, 1fr); }
   .locker-actions { display: flex; width: 100%; margin-top: 0.8rem; }
   .locker-story-card { max-height: none; margin-top: 1rem; }
-  .locker-hat-callout { justify-content: space-between; margin-top: 0.8rem; border-radius: 0.65rem; }
   .airbus-card-tray {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
