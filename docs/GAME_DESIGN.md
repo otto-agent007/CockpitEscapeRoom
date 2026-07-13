@@ -50,6 +50,8 @@ The emotional idea is: **“Before you can sit in the captain’s seat, understa
 
 The playable sequence is watch → baseball → Charging Bull → airline wings → captain's hat. The Wings memory asks: **“In U.S. airline operations, what is the minimum amount of second-in-command experience commonly associated with qualifying to serve as captain?”** Accept friendly forms of `1000 hours`; wrong answers preserve prior memories and advance to a stronger hint.
 
+Completing the Wings question fades the locker to black and presents the real captain's hat in a confetti-backed promotion card. One **“Enter Pop T Captain Mode”** action claims the hat and advances; reduced-motion mode presents the same card immediately without animated confetti.
+
 ## Pop T Captain Mode — DC-9-50
 
 The DC-9-50 is the earned legacy cockpit. It should feel older, denser, more analog, and more personal than the Airbus A320.

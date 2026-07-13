@@ -201,7 +201,7 @@ function hintFor(state: GameState): string {
 
   if (state.phase === 'locker') {
     if (!state.lockerIntroCompleted) return 'Let the locker room come into view.'
-    if (state.lockerHatRevealed) return 'The upper cubby is open. Claim the captain’s hat.'
+    if (state.lockerHatRevealed) return 'The upper cubby is open. Captain promotion is ready.'
     const available = lockerFlow.memoryIds.filter((id) => isLockerMemoryAvailable(state, id) && !state.lockerCompleted.includes(id))
     if (state.lockerCompleted.includes('wings')) return 'The airline wings are logged. One locker memory remains.'
     if (state.lockerCompleted.includes('chargingBull')) return 'The Charging Bull is logged. Continue to the airline wings.'

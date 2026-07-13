@@ -234,7 +234,8 @@ describe('gameReducer', () => {
     state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'wings', response: '1500 hours' })
     expect(state.lockerCompleted).toEqual(['watch', 'baseball', 'chargingBull'])
     expect(state.lockerAttempts.wings).toBe(2)
-    expect(state.statusMessage).toContain('one thousand hours')
+    expect(state.statusMessage).toContain('four-digit hour milestone below the 1,500-hour ATP')
+    expect(state.statusMessage).not.toContain('one thousand')
   })
 
   it('preserves captain progress and only completes reward after legacy sequence', () => {

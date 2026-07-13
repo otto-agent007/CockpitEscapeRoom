@@ -1,5 +1,14 @@
 # Test report
 
+## 2026-07-12 Wings question emphasis and Captain's Hat celebration
+
+- Rolex, baseball, Charging Bull, and Wings questions now render as semantic bold legends. Removed `e.g. 1000 hours` from the Wings input and replaced the repeated-wrong exact-answer reveal with a non-answer range clue; prior progress and accepted answer variants are unchanged.
+- Correct Wings completion now fades to black and presents the real Captain's Hat with the Crew Qualification celebration language, 24-piece confetti, and one `Enter Pop T Captain Mode` action. Reduced motion shows the static card without animation/confetti; reload resumes the unclaimed celebration.
+- Blender 5.1.2 rendered the exact `LOCKER_PROP_CAPTAINS_HAT` subtree from the unchanged runtime GLB into `public/images/captains-hat-celebration.png`: 1024×1024 RGBA, 563,765 bytes, SHA-256 `e426b329b273fcd593ed7bace8848a2573f8ed8bfb198b3063df63beb05d4f8c`, two meshes, and two materials. A repeat render produced identical decoded RGBA pixels.
+- The locker GLB remains 44,288,740 bytes with SHA-256 `cf212389e0d04aa34a528cbc2af07e59b4acc9d4e98e386f725c78da43279c5c`; the master remains 50,237,876 bytes with SHA-256 `648a63df7a95de0cda11cf2c2ba2dcb988b621ab6ab04388f3ae460d0fc63f42`.
+- Actual-browser proof: `/tmp/captain-hat-celebration-final-{1440,768,375}.png`. The final card has no horizontal overflow, the CTA remains focused, and there were no console/page errors. A no-cache real-GLB run received the exact model and PNG byte lengths before the responsive captures.
+- Passed: Python compile, `npm run assets:check`, `npm run pipeline:evals` (6/6), `npm run check` (42/42 unit tests plus production build), focused locker Playwright, and full `npm run test:e2e` (12/12 in 4.2 minutes). Vercel publication and final owner visual approval remain open.
+
 ## 2026-07-12 Baseball seam, continuous camera, and Wings question pass
 
 - Baked the owner-selected baseball XYZ rotation `(-45°, 0°, 90°)` through Blender. The supplied 4K Tripo geometry/materials, `(0.64, -0.48, 1.34)` placement, `0.30` scale, stable root, and exported collider remain unchanged; both curved vertical seam bands now face the player like `/mnt/2TBHDD/Downloads/realistic-vector-baseball.jpg`.
