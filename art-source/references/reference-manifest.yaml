@@ -90,6 +90,281 @@ dc9_40_northwest_cockpit_secondary:
   notes: Secondary Northwest cockpit source for shared characteristics only.
   sha256: 39410d0332778479e75fde22d36c607987d29b671d92a819cbf88cbba2068ef4
   downloaded_at: '2026-06-22T01:01:58+00:00'
+dc9_32_xplane_roger2009_evaluation:
+  title: Douglas DC-9-30 unfinished v0.19 simulator package
+  source_page: https://forums.x-plane.org/files/file/21649-douglas-dc-9-30-unfinished/
+  source_type: xplane_simulator_package
+  creator: roger2009, with credited package contributors
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9-32
+    operator: Not target-specific
+    registration: Not applicable
+  era: Published September 5, 2015
+  viewpoint: full simulator aircraft with detailed virtual cockpit
+  classification: primary
+  confidence: high
+  target_compatibility: Owner-cleared exact DC-9-32 production geometry and texture
+    authority for Pop T Captain Mode.
+  intended_uses:
+  - deterministic OBJ8 conversion and Blender assembly
+  - derivative cockpit geometry and texture production
+  - exact-target cockpit geometry and cleared texture authority
+  - browser runtime integration after asset and visual validation
+  limitations: Direct creator permission for CockpitEscapeRoom use and derivative
+    production was owner-confirmed on 2026-07-12. Use only the cleared donor assets;
+    DC-9-51 references remain atmosphere and Northwest-era finish cues, not geometry
+    overrides. Interactions remain fictional and non-operational.
+  local_file: dc9-51/primary/roger2009_dc9_32_production_authority.url
+  download_status: cached_owner_cleared_source
+  notes: Promoted to exact production authority by owner direction on 2026-07-13.
+  sha256: c6893ec158121ea2568109327790ff5d45669da0758a0f493ddf1df0a8bb4171
+  verified_at: '2026-07-13T12:00:00-07:00'
+dc9_faa_normal_checklist_appendix_d:
+  title: FAA-approved DC-9 normal checklist, Appendix D
+  source_page: https://www.govinfo.gov/content/pkg/GOVPUB-TD1_100-PURL-LPS109353/pdf/GOVPUB-TD1_100-PURL-LPS109353.pdf
+  source_type: federal_government_checklist_pdf
+  creator: United States Department of Transportation / FAA
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9 series
+    operator: Not applicable
+    registration: Not applicable
+  era: FAA approval dated October 16, 1995
+  viewpoint: Appendix D normal-checklist text only
+  classification: primary
+  confidence: high
+  target_compatibility: Procedure authority for the parked secure sequence only.
+  intended_uses:
+  - APU bus switches off
+  - APU master switch off
+  - fuel boost pumps off precondition
+  - battery switch off completion
+  limitations: Use Appendix D checklist evidence only. Never import or reference the
+    surrounding accident narrative in game content. No PDF bytes are committed.
+  local_file: dc9-51/primary/faa_dc9_normal_checklist_appendix_d.url
+  download_status: metadata_only
+  notes: URL shortcut verified 2026-07-13; checksum covers the shortcut record, not
+    the remote PDF.
+  sha256: c17738e68e6db7f3347797287224c38557bbd57ceef644f7326d56b073ab3498
+  verified_at: '2026-07-13T12:00:00-07:00'
+dc9_roger2009_procedure_guide:
+  title: Procedures for DC9, Roger2009 donor guide
+  source_page: https://www.dropbox.com/scl/fi/q2i6msf969dl04roqtwai/Procedures-for-DC9.pdf?rlkey=73gvwlb3g8hux454dyhb8t5os&e=1&dl=0
+  source_type: simulator_procedure_guide_pdf
+  creator: Roger2009 package documentation
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9-32 simulator
+    operator: Not target-specific
+    registration: Not applicable
+  era: Legacy simulator package documentation
+  viewpoint: donor procedures and available-control documentation
+  classification: primary
+  confidence: high
+  target_compatibility: Donor-state and available-control verification for the exact
+    production source; not sole real-world procedure authority.
+  intended_uses:
+  - donor parked-state verification
+  - source control and dataref availability
+  - control-state cross-checking against the FAA checklist
+  limitations: Do not treat simulator procedures as sole real-world authority. No PDF
+    bytes are committed without redistribution rights.
+  local_file: dc9-51/primary/roger2009_dc9_procedure_guide.url
+  download_status: metadata_only
+  notes: URL shortcut verified 2026-07-13; checksum covers the shortcut record.
+  sha256: 78b486d0cf653bd327145917521458ceed4b82a4af33eadab75503e220b5d60b
+  verified_at: '2026-07-13T12:00:00-07:00'
+dc9_reflected_reality_controls_video:
+  title: Reflected Reality DC-9 control-location video
+  source_page: https://www.youtube.com/watch?v=Vc6PGJiSPv8
+  source_type: video_reference
+  creator: Reflected Reality
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9 family
+    operator: Not target-specific
+    registration: Not applicable
+  era: Contemporary reference capture of legacy controls
+  viewpoint: cockpit control location, appearance, and movement
+  classification: presentation
+  confidence: medium
+  target_compatibility: Presentation evidence for control placement, appearance, and
+    movement only; not procedure authority.
+  intended_uses:
+  - control-location comparison
+  - control movement comparison
+  - restrained visual presentation reference
+  limitations: Do not use as sole procedure authority. Video, captions, and frames are
+    not committed without redistribution rights.
+  local_file: dc9-51/presentation/reflected_reality_dc9_controls.url
+  download_status: metadata_only
+  notes: URL shortcut verified 2026-07-13; checksum covers the shortcut record.
+  sha256: 9ea6c535bb8ce71ac8719fc19577034c76375e7982a2c40d4e9a6badceacfe9b
+  verified_at: '2026-07-13T12:00:00-07:00'
+dc9_northwest_mem_timetable_1995:
+  title: Northwest Airlines system timetable, June 1, 1995
+  source_page: https://dlg.usg.edu/record/delta_nwa-tt_nwa-tt-19950601
+  source_type: digitized_airline_timetable
+  creator: Northwest Airlines; Digital Library of Georgia host
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC9 equipment code
+    operator: Northwest Airlines
+    registration: Not applicable
+  era: Effective June 1, 1995
+  viewpoint: MEM route tables and period mileage
+  classification: primary
+  confidence: high
+  target_compatibility: Route-card authority for MEM destination codes, city names,
+    period mileage, and DC9 equipment notation.
+  intended_uses:
+  - BTR, STL, and TYS verified short-route answers
+  - LAX, SEA, and AMS route-card distractors
+  - period city and mileage display
+  limitations: Route and schedule evidence only; not cockpit geometry or procedure
+    authority. No timetable scan is committed.
+  local_file: dc9-51/primary/northwest_1995_mem_timetable.url
+  download_status: metadata_only
+  notes: URL shortcut verified 2026-07-13; checksum covers the shortcut record.
+  sha256: 7cd75c71693842b6c801787466d668f2e0a1e8f08cfc86666c63bd089c86d5ff
+  verified_at: '2026-07-13T12:00:00-07:00'
+dc9_32_xplained_cockpit_12:
+  title: Roger2009 DC-9-30 cockpit view 12
+  source_page: https://www.x-plained.com/impression-roger2009-dc-9-30-series/
+  source_type: simulator_review_screenshot
+  creator: X-Plained / Roger2009 simulator package
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9-32 simulator
+    operator: Not target-specific
+    registration: Not applicable
+  era: Review published 2014
+  viewpoint: virtual cockpit overview
+  classification: presentation
+  confidence: high
+  target_compatibility: High-value presentation benchmark for the exact Roger2009
+    donor. Use for donor component placement and orientation, subordinate to the real
+    DC-9-51 primary reference for target geometry.
+  intended_uses:
+  - donor cockpit composition
+  - panel and yoke orientation comparison
+  - captain-view framing benchmark
+  limitations: Simulator screenshot of a DC-9-32, not target DC-9-51 geometry authority.
+  local_file: dc9-51/presentation/xplained-roger2009-cockpit-12.png
+  direct_image_url: https://www.x-plained.com/wp-content/uploads/2016/05/Roger2009-Douglas-DC-9-30-Series-12.png
+  download_status: metadata_only
+  notes: Owner identified the linked Roger2009 article as a repair reference. Downloaded
+    screenshot bytes remain outside the repository pending redistribution rights.
+dc9_32_xplained_cockpit_13:
+  title: Roger2009 DC-9-30 cockpit view 13
+  source_page: https://www.x-plained.com/impression-roger2009-dc-9-30-series/
+  source_type: simulator_review_screenshot
+  creator: X-Plained / Roger2009 simulator package
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9-32 simulator
+    operator: Not target-specific
+    registration: Not applicable
+  era: Review published 2014
+  viewpoint: virtual cockpit instrument panel detail
+  classification: presentation
+  confidence: high
+  target_compatibility: High-value presentation benchmark for the exact Roger2009
+    donor; subordinate to the real DC-9-51 primary reference for target geometry.
+  intended_uses:
+  - instrument placement comparison
+  - panel depth and gauge-density comparison
+  limitations: Simulator screenshot of a DC-9-32, not target DC-9-51 geometry authority.
+  local_file: dc9-51/presentation/xplained-roger2009-cockpit-13.png
+  direct_image_url: https://www.x-plained.com/wp-content/uploads/2016/05/Roger2009-Douglas-DC-9-30-Series-13.png
+  download_status: pending
+  notes: Owner identified the linked Roger2009 article as the primary repair asset.
+dc9_32_xplained_cockpit_14:
+  title: Roger2009 DC-9-30 cockpit view 14
+  source_page: https://www.x-plained.com/impression-roger2009-dc-9-30-series/
+  source_type: simulator_review_screenshot
+  creator: X-Plained / Roger2009 simulator package
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9-32 simulator
+    operator: Not target-specific
+    registration: Not applicable
+  era: Review published 2014
+  viewpoint: virtual cockpit component detail
+  classification: presentation
+  confidence: high
+  target_compatibility: High-value presentation benchmark for the exact Roger2009
+    donor; subordinate to the real DC-9-51 primary reference for target geometry.
+  intended_uses:
+  - component orientation comparison
+  - control and bezel depth comparison
+  limitations: Simulator screenshot of a DC-9-32, not target DC-9-51 geometry authority.
+  local_file: dc9-51/presentation/xplained-roger2009-cockpit-14.png
+  direct_image_url: https://www.x-plained.com/wp-content/uploads/2016/05/Roger2009-Douglas-DC-9-30-Series-14.png
+  download_status: metadata_only
+  notes: Owner identified the linked Roger2009 article as a repair reference. Downloaded
+    screenshot bytes remain outside the repository pending redistribution rights.
+dc9_32_xplained_cockpit_15:
+  title: Roger2009 DC-9-30 cockpit view 15
+  source_page: https://www.x-plained.com/impression-roger2009-dc-9-30-series/
+  source_type: simulator_review_screenshot
+  creator: X-Plained / Roger2009 simulator package
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9-32 simulator
+    operator: Not target-specific
+    registration: Not applicable
+  era: Review published 2014
+  viewpoint: virtual cockpit pedestal detail
+  classification: presentation
+  confidence: high
+  target_compatibility: High-value presentation benchmark for the exact Roger2009
+    donor; subordinate to the real DC-9-51 primary reference for target geometry.
+  intended_uses:
+  - pedestal composition
+  - throttle and autopilot placement comparison
+  limitations: Simulator screenshot of a DC-9-32, not target DC-9-51 geometry authority.
+  local_file: dc9-51/presentation/xplained-roger2009-cockpit-15.png
+  direct_image_url: https://www.x-plained.com/wp-content/uploads/2016/05/Roger2009-Douglas-DC-9-30-Series-15.png
+  download_status: metadata_only
+  notes: Owner identified the linked Roger2009 article as a repair reference. Downloaded
+    screenshot bytes remain outside the repository pending redistribution rights.
+dc9_32_xplained_cockpit_16:
+  title: Roger2009 DC-9-30 cockpit view 16
+  source_page: https://www.x-plained.com/impression-roger2009-dc-9-30-series/
+  source_type: simulator_review_screenshot
+  creator: X-Plained / Roger2009 simulator package
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9-32 simulator
+    operator: Not target-specific
+    registration: Not applicable
+  era: Review published 2014
+  viewpoint: virtual cockpit overhead detail
+  classification: presentation
+  confidence: high
+  target_compatibility: High-value presentation benchmark for the exact Roger2009
+    donor; subordinate to the real DC-9-51 primary reference for target geometry.
+  intended_uses:
+  - overhead composition
+  - switch and instrument-density comparison
+  limitations: Simulator screenshot of a DC-9-32, not target DC-9-51 geometry authority.
+  local_file: dc9-51/presentation/xplained-roger2009-cockpit-16.png
+  direct_image_url: https://www.x-plained.com/wp-content/uploads/2016/05/Roger2009-Douglas-DC-9-30-Series-16.png
+  download_status: metadata_only
+  notes: Owner identified the linked Roger2009 article as a repair reference. Downloaded
+    screenshot bytes remain outside the repository pending redistribution rights.
 dc9_import_centerview:
   title: DC-9-51 centerview reference photo
   source_page: https://commons.wikimedia.org/w/index.php?search=dc-9-51+centerview

@@ -1,5 +1,7 @@
 # DC-9-51 Reference Pack
 
+> Historical reference-pack plan. Its DC-9-51 target decision was superseded on 2026-07-13 by `plans/0012-dc9-pop-t-captain-level.md`; retained DC-9-51 evidence is atmosphere/finish compatibility material for the exact Roger2009 DC-9-32 production target.
+
 ## Purpose
 
 Create a compact, license-aware reference library and Blender reference-board scene for a Northwest-style McDonnell Douglas DC-9-51 cockpit. After this milestone, a maintainer can validate the source list, download only approved references, generate contact sheets and a modeling brief, and open a Blender scene that separates primary layout material from secondary, presentation, and missing-view placeholders.

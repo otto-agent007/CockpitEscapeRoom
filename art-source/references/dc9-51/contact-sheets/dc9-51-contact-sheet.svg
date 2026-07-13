@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="912" height="3550" viewBox="0 0 912 3550">
+<svg xmlns="http://www.w3.org/2000/svg" width="912" height="4702" viewBox="0 0 912 4702">
 <rect width="100%" height="100%" fill="#f6f4ef"/>
 <text x="24" y="38" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#20242a">DC-9-51 Reference Contact Sheet</text>
 <text x="24" y="62" font-family="Arial, sans-serif" font-size="13" fill="#545b64">Generated from reference-manifest.yaml. Variant mismatches are intentionally labeled.</text>
@@ -21,87 +21,123 @@
 <text x="40" y="778" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence medium</text>
 <text x="40" y="800" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">shared DC-9 analog layout comparison; material and wear comparison</text>
 <rect x="468" y="474" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
-<image href="../secondary/md81_midwest_cockpit_secondary.jpg" x="484" y="490" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
-<text x="484" y="734" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">md81_midwest_cockpit_secondary</text>
-<text x="484" y="756" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">MD-81 | Midwest Airlines | flight deck forward, wide view</text>
+<image href="../secondary/dc-9-51_centerview.jpg" x="484" y="490" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="484" y="734" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_centerview</text>
+<text x="484" y="756" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9-51 | Unknown | cockpit forward, captain-eye approximate</text>
 <text x="484" y="778" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
-<text x="484" y="800" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">analog gauge depth comparison; material and lighting comparison</text>
+<text x="484" y="800" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">cockpit framing checks; analog layout awareness</text>
 <rect x="24" y="858" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
-<image href="../secondary/dc-9-51_centerview.jpg" x="40" y="874" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
-<text x="40" y="1118" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_centerview</text>
-<text x="40" y="1140" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9-51 | Unknown | cockpit forward, captain-eye approximate</text>
+<image href="../secondary/DC9_51_northwest.jpg" x="40" y="874" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="40" y="1118" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_northwest_51</text>
+<text x="40" y="1140" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9-51 | Unknown | cockpit forward, wide view</text>
 <text x="40" y="1162" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
-<text x="40" y="1184" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">cockpit framing checks; analog layout awareness</text>
+<text x="40" y="1184" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">layout density checks; material and lighting comparison</text>
 <rect x="468" y="858" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
-<image href="../secondary/DC9_51_northwest.jpg" x="484" y="874" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
-<text x="484" y="1118" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_northwest_51</text>
-<text x="484" y="1140" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9-51 | Unknown | cockpit forward, wide view</text>
+<image href="../secondary/dc9_cockpit_airportview.jpg" x="484" y="874" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="484" y="1118" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_airport_view</text>
+<text x="484" y="1140" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9 family | Unknown | cockpit-forward, broad</text>
 <text x="484" y="1162" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
-<text x="484" y="1184" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">layout density checks; material and lighting comparison</text>
+<text x="484" y="1184" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">external context checks; general instrument layout checks</text>
 <rect x="24" y="1242" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
-<image href="../secondary/dc9_cockpit_airportview.jpg" x="40" y="1258" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
-<text x="40" y="1502" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_airport_view</text>
-<text x="40" y="1524" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9 family | Unknown | cockpit-forward, broad</text>
+<image href="../secondary/dc9_instrument_panel.jpg" x="40" y="1258" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="40" y="1502" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_instrument_panel</text>
+<text x="40" y="1524" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9 family | Unknown | cockpit instrument panel close-up</text>
 <text x="40" y="1546" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
-<text x="40" y="1568" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">external context checks; general instrument layout checks</text>
+<text x="40" y="1568" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">analog panel comparison; instrument spacing checks</text>
 <rect x="468" y="1242" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
-<image href="../secondary/dc9_instrument_panel.jpg" x="484" y="1258" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
-<text x="484" y="1502" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_instrument_panel</text>
-<text x="484" y="1524" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9 family | Unknown | cockpit instrument panel close-up</text>
+<image href="../secondary/DC9_n776NC.jpg" x="484" y="1258" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="484" y="1502" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_n776nc</text>
+<text x="484" y="1524" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9 family | Unknown | cockpit or aircraft context</text>
 <text x="484" y="1546" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
-<text x="484" y="1568" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">analog panel comparison; instrument spacing checks</text>
+<text x="484" y="1568" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">family registration context; visual identity checks</text>
 <rect x="24" y="1626" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
-<image href="../secondary/DC9_n776NC.jpg" x="40" y="1642" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
-<text x="40" y="1886" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_n776nc</text>
-<text x="40" y="1908" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9 family | Unknown | cockpit or aircraft context</text>
+<image href="../secondary/dc9_referencepic.jpg" x="40" y="1642" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="40" y="1886" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_reference_pic</text>
+<text x="40" y="1908" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9 family | Unknown | cockpit interior</text>
 <text x="40" y="1930" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
-<text x="40" y="1952" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">family registration context; visual identity checks</text>
+<text x="40" y="1952" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">overall panel proportion checks; candidate control spacing checks</text>
 <rect x="468" y="1626" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
-<image href="../secondary/dc9_referencepic.jpg" x="484" y="1642" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
-<text x="484" y="1886" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_reference_pic</text>
-<text x="484" y="1908" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9 family | Unknown | cockpit interior</text>
+<image href="../secondary/instruments-in-cockpit-of-mcdonnell-douglas-dc-9-airliner-in-elder-EG49WH.jpg" x="484" y="1642" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="484" y="1886" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_elder_instruments</text>
+<text x="484" y="1908" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9 family | Unknown | cockpit instrument close-up</text>
 <text x="484" y="1930" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
-<text x="484" y="1952" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">overall panel proportion checks; candidate control spacing checks</text>
+<text x="484" y="1952" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">glass and gauge studies; panel finish comparison</text>
 <rect x="24" y="2010" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
-<image href="../secondary/dc9_runwayview.jpg" x="40" y="2026" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
-<text x="40" y="2270" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_runway_view</text>
-<text x="40" y="2292" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9 family | Unknown | cockpit and runway</text>
+<image href="../secondary/Northwest_DC9_CaptainsHat_Manuals_Wings_Nametag.jpg" x="40" y="2026" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="40" y="2270" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_northwest_hat</text>
+<text x="40" y="2292" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9 family | Unknown | cockpit-side memorabilia</text>
 <text x="40" y="2314" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
-<text x="40" y="2336" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">contextual lighting checks; runway scene orientation</text>
+<text x="40" y="2336" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">story detail references; side area cues</text>
 <rect x="468" y="2010" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
-<image href="../secondary/DC9-v-A3201.webp" x="484" y="2026" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
-<text x="484" y="2270" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_dc9_a3201</text>
+<image href="../secondary/SPS-DC9C-1.jpg" x="484" y="2026" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="484" y="2270" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_sps</text>
 <text x="484" y="2292" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9 family | Unknown | cockpit interior</text>
 <text x="484" y="2314" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
-<text x="484" y="2336" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">material feel checks; control cluster comparison</text>
+<text x="484" y="2336" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">panel detail comparison; control spacing study</text>
 <rect x="24" y="2394" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
-<image href="../secondary/instruments-in-cockpit-of-mcdonnell-douglas-dc-9-airliner-in-elder-EG49WH.jpg" x="40" y="2410" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
-<text x="40" y="2654" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_elder_instruments</text>
-<text x="40" y="2676" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9 family | Unknown | cockpit instrument close-up</text>
+<image href="../A320_MIPA1.jpg" x="40" y="2410" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="40" y="2654" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">a320_mipa1</text>
+<text x="40" y="2676" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">A320 family; exact cockpit model still requires owner confirmation | Unknown | cockpit panel det</text>
 <text x="40" y="2698" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
-<text x="40" y="2720" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">glass and gauge studies; panel finish comparison</text>
+<text x="40" y="2720" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">Airbus First-Officer cockpit reference board; visual comparison after exact model confirmation</text>
 <rect x="468" y="2394" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
-<image href="../secondary/Northwest_DC9_CaptainsHat_Manuals_Wings_Nametag.jpg" x="484" y="2410" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
-<text x="484" y="2654" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_northwest_hat</text>
-<text x="484" y="2676" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9 family | Unknown | cockpit-side memorabilia</text>
+<image href="../SPS-A320-1.jpg" x="484" y="2410" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="484" y="2654" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">a320_sps_1</text>
+<text x="484" y="2676" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">A320 family; exact cockpit model still requires owner confirmation | Unknown | cockpit panel det</text>
 <text x="484" y="2698" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
-<text x="484" y="2720" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">story detail references; side area cues</text>
+<text x="484" y="2720" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">Airbus panel detail comparison; Airbus reference board completeness check</text>
 <rect x="24" y="2778" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
-<image href="../secondary/old-dc-9-jet-airplane-cockpit-KE2E3D.jpg" x="40" y="2794" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
-<text x="40" y="3038" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_legacy_cockpit</text>
-<text x="40" y="3060" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9 family | Unknown | cockpit interior</text>
+<image href="../a320_OVERHEAD.jpg" x="40" y="2794" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="40" y="3038" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">a320_overhead</text>
+<text x="40" y="3060" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">A320 family; exact cockpit model still requires owner confirmation | Unknown | overhead panel</text>
 <text x="40" y="3082" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
-<text x="40" y="3104" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">shape comparisons; general interior styling checks</text>
+<text x="40" y="3104" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">overhead layout comparison; Airbus reference board completeness check</text>
 <rect x="468" y="2778" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
-<image href="../secondary/SPS-DC9C-1.jpg" x="484" y="2794" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
-<text x="484" y="3038" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_sps</text>
-<text x="484" y="3060" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9 family | Unknown | cockpit interior</text>
+<image href="../a320_PEDESTAL.jpg" x="484" y="2794" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="484" y="3038" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">a320_pedestal</text>
+<text x="484" y="3060" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">A320 family; exact cockpit model still requires owner confirmation | Unknown | pedestal</text>
 <text x="484" y="3082" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
-<text x="484" y="3104" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">panel detail comparison; control spacing study</text>
+<text x="484" y="3104" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">pedestal layout comparison; Airbus reference board completeness check</text>
 <rect x="24" y="3162" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
-<image href="../secondary/view-into-cockpit-of-mcdonnell-douglas-dc-9-airliner-in-elder-museum-EG49WP.jpg" x="40" y="3178" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
-<text x="40" y="3422" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">dc9_import_elder_museum</text>
-<text x="40" y="3444" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">DC-9 family | Unknown | cockpit interior close</text>
+<image href="../a320_behind_seats.jpg" x="40" y="3178" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="40" y="3422" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">a320_behind_seats</text>
+<text x="40" y="3444" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">A320 family; exact cockpit model still requires owner confirmation | Unknown | cockpit behind se</text>
 <text x="40" y="3466" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
-<text x="40" y="3488" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">sidewall and lighting checks; control placement awareness</text>
+<text x="40" y="3488" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">cockpit volume comparison; first-officer seat relationship reference</text>
+<rect x="468" y="3162" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
+<image href="../a320_cockpit_behind_first_officer.jpg" x="484" y="3178" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="484" y="3422" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">a320_behind_first_officer</text>
+<text x="484" y="3444" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">A320 family; exact cockpit model still requires owner confirmation | Unknown | behind first offi</text>
+<text x="484" y="3466" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
+<text x="484" y="3488" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">first-officer cockpit relationship reference; Airbus cockpit volume comparison</text>
+<rect x="24" y="3546" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
+<image href="../a320_cockpit_centerview_with_pilots.jpg" x="40" y="3562" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="40" y="3806" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">a320_centerview_with_pilots</text>
+<text x="40" y="3828" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">A320 family; exact cockpit model still requires owner confirmation | Unknown | cockpit center vi</text>
+<text x="40" y="3850" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
+<text x="40" y="3872" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">cockpit scale comparison; display and glareshield relationship reference</text>
+<rect x="468" y="3546" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
+<image href="../a320_cockpit_nopilots.jpg" x="484" y="3562" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="484" y="3806" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">a320_centerview_no_pilots</text>
+<text x="484" y="3828" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">A320 family; exact cockpit model still requires owner confirmation | Unknown | cockpit center vi</text>
+<text x="484" y="3850" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
+<text x="484" y="3872" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">cockpit panel relationship comparison; display layout reference after exact model confirmation</text>
+<rect x="24" y="3930" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
+<image href="../a320_sidestick.jpg" x="40" y="3946" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="40" y="4190" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">a320_sidestick</text>
+<text x="40" y="4212" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">A320 family; exact cockpit model still requires owner confirmation | Unknown | sidestick close-u</text>
+<text x="40" y="4234" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
+<text x="40" y="4256" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">First-Officer sidestick relationship reference; interaction target planning after exact model co</text>
+<rect x="468" y="3930" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
+<image href="../a320_cockpit_centerview_with_labels.png" x="484" y="3946" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="484" y="4190" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">a320_centerview_with_labels</text>
+<text x="484" y="4212" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">A320 family; exact cockpit model still requires owner confirmation | Unknown | labeled cockpit c</text>
+<text x="484" y="4234" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
+<text x="484" y="4256" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">control identification reference; First-Officer puzzle target comparison</text>
+<rect x="24" y="4314" width="420" height="360" rx="6" fill="#ffffff" stroke="#c8ccd2"/>
+<image href="../a320_cockpit_with_labels.png" x="40" y="4330" width="388" height="220" preserveAspectRatio="xMidYMid meet"/>
+<text x="40" y="4574" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#20242a">a320_cockpit_with_labels</text>
+<text x="40" y="4596" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">A320 family; exact cockpit model still requires owner confirmation | Unknown | labeled cockpit w</text>
+<text x="40" y="4618" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">secondary | confidence low</text>
+<text x="40" y="4640" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#20242a">control identification reference; First-Officer puzzle target comparison</text>
 </svg>

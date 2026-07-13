@@ -1,5 +1,7 @@
 # Cockpit Pipeline Ubuntu Foundation
 
+> Production-target update, 2026-07-13: the owner-cleared Roger2009 DC-9-32 is the exact Pop T Captain geometry/texture authority. Older unresolved, DC-9-50, and DC-9-51 target decisions below remain historical pipeline evidence and are superseded by `plans/0012-dc9-pop-t-captain-level.md`.
+
 ## Purpose
 
 Establish the Ubuntu-side foundation for the staged Blender cockpit pipeline before Agent 1 starts a four-component DC-9 vertical slice. A maintainer can validate machine readiness, create and advance stage manifests, verify handoff hashes, and run a Blender headless smoke test without constructing or replacing production cockpit assets.

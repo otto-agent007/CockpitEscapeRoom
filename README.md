@@ -6,12 +6,12 @@ The current narrative direction is:
 
 1. **Airbus A320 First-Officer Mode** — accessible drag-and-drop onboarding in a modern A320 cockpit.
 2. **Locker Room / Captain’s Locker** — personal reveal space and memory-gate progression.
-3. **Pop T Captain Mode in the DC-9-50** — earned legacy cockpit challenge.
+3. **Pop T Captain Mode in the DC-9-32** — earned legacy cockpit challenge.
 4. **Model Y reveal and Flight Mode transformation** — personal reward reveal with sleek, plausible-futuristic wing/panel deployment.
 5. **Father’s Day final message** — warm closing beat after the reward sequence.
 6. **Optional Mars Easter egg** after the main ending.
 
-The DC-9-50 and Airbus A320 experiences are non-operational fiction, built as respectful family tribute gameplay.
+The DC-9-32 and Airbus A320 experiences are non-operational fiction, built as respectful family tribute gameplay.
 
 ## Run it
 
@@ -47,7 +47,7 @@ Use `npm run dev` and confirm:
 
 - The Airbus A320 First-Officer onboarding flow runs and gives safe retry/hint behavior.
 - The locker scene reveal sequence unlocks **Pop T Captain Mode** only after required interactions.
-- The DC-9-50 Captain progression preserves completed progress on wrong answers.
+- The DC-9-32 Captain progression preserves completed progress on wrong answers.
 - The red Tesla Model Y reveal stays hidden until Captain Mode completion.
 - The Model Y Flight Mode transformation is a reward beat, not required puzzle information.
 - The final message and hidden Mars payoff remain separate.
@@ -64,8 +64,8 @@ Use `npm run dev` and confirm:
 - The project name is **CockpitEscapeRoom**.
 - Dad is portrayed as an expert pilot; the game is a legacy tribute, never an emergency failure scenario.
 - The narrative is locked to `docs/GAME_DESIGN.md`; do not present the legacy reveal before the locker stage is complete.
-- The chosen production aircraft targets are **Airbus A320** for First-Officer Mode and **McDonnell Douglas DC-9-50** for Pop T Captain Mode.
-- The DC-9-50 and Airbus A320 flows must remain distinct and production-realistic in their own right.
+- The chosen production aircraft targets are **Airbus A320** for First-Officer Mode and **McDonnell Douglas DC-9-32** for Pop T Captain Mode.
+- The DC-9-32 and Airbus A320 flows must remain distinct and production-realistic in their own right.
 - This is a private, personal build that will not be distributed, so it may freely use owner-supplied aircraft, airline, and vehicle assets.
 - Use the official Blender MCP only for controlled scene inspection, cleanup, validation support, naming, pivots, metadata, preview renders, and export support.
 - Do not use Blender MCP for uncontrolled broad rewrites of approved scenes or to bypass the asset-report and validation trail.

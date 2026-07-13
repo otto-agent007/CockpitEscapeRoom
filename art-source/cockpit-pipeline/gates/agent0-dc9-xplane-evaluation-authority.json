@@ -1,0 +1,25 @@
+{
+  "gate": "reference-authority",
+  "artifactId": "agent0-dc9-xplane-evaluation-authority",
+  "createdAt": "2026-07-12T00:00:00Z",
+  "updatedAt": "2026-07-13T00:00:00Z",
+  "sceneGroup": "DC-9 Pop T Captain cockpit",
+  "targetAircraftOrObject": "McDonnell Douglas DC-9-32 flight deck",
+  "targetVariantStatus": "Owner-cleared Roger2009 DC-9-32 is the exact production geometry and cleared-texture authority.",
+  "sourceCandidateType": "simulator-geometry",
+  "sourceIdentity": "roger2009 Douglas DC-9-30 unfinished v0.19 X-Plane package, published September 5, 2015; direct creator permission owner-confirmed 2026-07-12",
+  "allowedUsage": [
+    "deterministic OBJ8 conversion and Blender source assembly",
+    "derivative geometry and texture refit for CockpitEscapeRoom",
+    "production runtime export after asset validation",
+    "exact-target production geometry and cleared donor texture use"
+  ],
+  "forbiddenUsage": [
+    "allowing older DC-9-50 or DC-9-51 decisions to override the cleared DC-9-32 target",
+    "silently mixing DC-9 variants",
+    "bypassing asset validation, browser proof, or owner visual approval"
+  ],
+  "variantCompatibility": "DC-9-32 is the exact production target. DC-9-51 references are limited to compatible Northwest-era color, wear, and atmosphere cues.",
+  "ownerApprovalStatus": "approved-for-next-stage",
+  "nextAllowedStage": "agent1-sourcing"
+}

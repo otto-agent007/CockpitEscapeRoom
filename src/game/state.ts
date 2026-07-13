@@ -8,8 +8,8 @@ import {
   type LockerQuestionId,
 } from './config'
 
-export const GAME_SCHEMA_VERSION = 5 as const
-export const SWITCH_ORDER = dc9LegacyFlow.checklistOrder
+export const GAME_SCHEMA_VERSION = 6 as const
+export const DC9_SECURE_ORDER = dc9LegacyFlow.secureSequence
 export const PUZZLE_IDS = ['firstOfficer', 'locker', 'captain'] as const
 export type GamePhase = 'briefing' | 'airbus' | 'locker' | 'captain' | 'reward' | 'mars'
 export type GameAction =
@@ -24,14 +24,14 @@ export type GameAction =
   | { type: 'USE_LOCKER_HINT'; memoryId?: LockerQuestionId }
   | { type: 'CLAIM_CAPTAIN_HAT' }
   | { type: 'CONTINUE_TO_CAPTAIN' }
-  | { type: 'ACTIVATE_SWITCH'; switchId: SwitchId }
+  | { type: 'ACTIVATE_DC9_CONTROL'; controlId: Dc9SecureControlId }
   | { type: 'TOGGLE_ROUTE'; code: string }
   | { type: 'SUBMIT_ROUTE' }
   | { type: 'USE_HINT' }
   | { type: 'UNLOCK_MARS' }
   | { type: 'RETURN_TO_REWARD' }
   | { type: 'RESET' }
-export type SwitchId = (typeof SWITCH_ORDER)[number]
+export type Dc9SecureControlId = (typeof DC9_SECURE_ORDER)[number]
 export type PuzzleId = (typeof PUZZLE_IDS)[number]
 
 export type AirbusAssignments = {
@@ -60,7 +60,9 @@ export interface GameState {
   lockerIntroCompleted: boolean
   lockerHatRevealed: boolean
   captainModeUnlocked: boolean
-  switchSequence: SwitchId[]
+  captainRouteVerified: boolean
+  dc9SecureSequence: Dc9SecureControlId[]
+  captainAttempts: { route: number; secure: number }
   routeSelections: string[]
   completedPuzzles: PuzzleId[]
   hintsUsed: number
@@ -211,8 +213,18 @@ function hintFor(state: GameState): string {
   }
 
   if (state.phase === 'captain') {
-    if (state.routeSelections.length > 0) return 'Check the active route strip sequence and adjust the order.'
-    return `Try the checklist in legacy order, then pick the Southern funnel route set.`
+    if (!state.captainRouteVerified) {
+      return state.captainAttempts.route > 0
+        ? dc9LegacyFlow.routeMileageHint
+        : 'Use the code, city, and period-mileage columns to identify the three short MEM DC-9 routes.'
+    }
+    if (state.captainAttempts.secure > 0) {
+      const next = DC9_SECURE_ORDER[state.dc9SecureSequence.length]
+      return next
+        ? `Next: ${dc9LegacyFlow.secureControls[next].label}. ${dc9LegacyFlow.secureHint}`
+        : dc9LegacyFlow.secureHint
+    }
+    return dc9LegacyFlow.secureHint
   }
 
   return 'No hint is needed now.'
@@ -235,7 +247,9 @@ export function createInitialState(): GameState {
     lockerIntroCompleted: false,
     lockerHatRevealed: false,
     captainModeUnlocked: false,
-    switchSequence: [],
+    captainRouteVerified: false,
+    dc9SecureSequence: [],
+    captainAttempts: { route: 0, secure: 0 },
     routeSelections: [],
     completedPuzzles: [],
     hintsUsed: 0,
@@ -429,35 +443,46 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         phase: 'captain',
-        statusMessage: `${lockerFlow.hatText.captainModeText}. Legacy checklist ready.`,
+        captainRouteVerified: false,
+        dc9SecureSequence: [],
+        routeSelections: [],
+        statusMessage: `${lockerFlow.hatText.captainModeText}. Verify the MEM route strip first.`,
       }
 
-    case 'ACTIVATE_SWITCH': {
+    case 'ACTIVATE_DC9_CONTROL': {
       if (state.phase !== 'captain') return state
-      const expected = SWITCH_ORDER[state.switchSequence.length]
+      if (!state.captainRouteVerified) {
+        return { ...state, statusMessage: 'Verify the MEM route strip before securing cockpit power.' }
+      }
+      const expected = DC9_SECURE_ORDER[state.dc9SecureSequence.length]
 
-      if (action.switchId === expected) {
-        const nextSequence = [...state.switchSequence, action.switchId]
-        const complete = nextSequence.length === SWITCH_ORDER.length
+      if (action.controlId === expected) {
+        const nextSequence = [...state.dc9SecureSequence, action.controlId]
+        const complete = nextSequence.length === DC9_SECURE_ORDER.length
         return {
           ...state,
-          switchSequence: nextSequence,
-          routeSelections: state.routeSelections,
+          phase: complete ? 'reward' : state.phase,
+          dc9SecureSequence: nextSequence,
+          completedPuzzles: complete ? unique([...state.completedPuzzles, 'captain']) : state.completedPuzzles,
+          captainRewardUnlocked: complete || state.captainRewardUnlocked,
           statusMessage: complete
-            ? 'Checklist sequence complete. The legacy route strip is now available.'
-            : `Good. ${SWITCH_ORDER.length - nextSequence.length} switch${SWITCH_ORDER.length - nextSequence.length === 1 ? '' : 's'} remaining.`,
+            ? dc9LegacyFlow.completionText
+            : `${dc9LegacyFlow.secureControls[action.controlId].label} off. ${DC9_SECURE_ORDER.length - nextSequence.length} control${DC9_SECURE_ORDER.length - nextSequence.length === 1 ? '' : 's'} remaining.`,
         }
       }
 
       return {
         ...state,
-        switchSequence: [],
-        statusMessage: 'That checklist step did not latch. Retry this captain sequence.',
+        dc9SecureSequence: [],
+        captainAttempts: { ...state.captainAttempts, secure: state.captainAttempts.secure + 1 },
+        statusMessage: dc9LegacyFlow.secureRetry,
       }
     }
 
     case 'TOGGLE_ROUTE': {
       if (state.phase !== 'captain') return state
+      if (state.captainRouteVerified) return state
+      if (!(dc9LegacyFlow.routePuzzleOptions as readonly { code: string }[]).some((route) => route.code === action.code)) return state
       const selected = state.routeSelections.includes(action.code)
       if (selected) {
         return {
@@ -481,20 +506,20 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'SUBMIT_ROUTE': {
       if (state.phase !== 'captain') return state
+      if (state.captainRouteVerified) return state
       const correct = sameCodeSet(state.routeSelections, dc9LegacyFlow.routePuzzleAnswers)
       if (!correct) {
         return {
           ...state,
           routeSelections: [],
-          statusMessage: 'Those routes do not match the legacy pattern. Retry any three Southern choices.',
+          captainAttempts: { ...state.captainAttempts, route: state.captainAttempts.route + 1 },
+          statusMessage: dc9LegacyFlow.routeRetry,
         }
       }
       return {
         ...state,
-        phase: 'reward',
-        completedPuzzles: unique([...state.completedPuzzles, 'captain']),
-        captainRewardUnlocked: true,
-        statusMessage: dc9LegacyFlow.completionText,
+        captainRouteVerified: true,
+        statusMessage: dc9LegacyFlow.secureInstruction,
       }
     }
 

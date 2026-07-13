@@ -22,6 +22,12 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", required=True, type=Path)
     parser.add_argument("--output-dir", required=True, type=Path)
+    parser.add_argument(
+        "--view-profile",
+        choices=("source-inspection", "dc9-captain"),
+        default="source-inspection",
+        help="Use the DC-9 profile when three-quarter.png must be judged from the locked captain seat.",
+    )
     script_args = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
     return parser.parse_args(script_args)
 
@@ -143,14 +149,21 @@ def main() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     target = Vector((0.0, 0.0, 0.85))
     views = {
-        "front": (0.0, -3.5, 1.45),
-        "three-quarter": (2.65, -2.65, 1.75),
-        "side": (3.5, 0.0, 1.45),
-        "top": (0.25, -0.8, 4.0),
+        "front": ((0.0, -3.5, 1.45), target, 58.0),
+        "three-quarter": ((2.65, -2.65, 1.75), target, 58.0),
+        "side": ((3.5, 0.0, 1.45), target, 58.0),
+        "top": ((0.25, -0.8, 4.0), target, 58.0),
     }
-    for name, location in views.items():
+    if args.view_profile == "dc9-captain":
+        # Derived from the source DC-9-32 captain eye point and panel focus after
+        # the candidate is normalized above. This is a restrained seated view,
+        # angled slightly toward the center stack rather than an exterior orbit.
+        views["three-quarter"] = ((-0.275, -0.385, 0.787), (0.08, 0.42, 0.57), 46.0)
+
+    for name, (location, view_target, lens) in views.items():
         camera.location = location
-        look_at(camera, target)
+        camera.data.lens = lens
+        look_at(camera, Vector(view_target))
         scene.render.filepath = str(output_dir / f"{name}.png")
         bpy.ops.render.render(write_still=True)
 
@@ -161,6 +174,7 @@ def main() -> None:
         "meshObjectCount": len([obj for obj in imported if obj.type == "MESH"]),
         "triangleCount": mesh_triangles(imported),
         "materialCount": len({material.name for obj in imported if obj.type == "MESH" for material in obj.data.materials if material}),
+        "viewProfile": args.view_profile,
         "textures": [
             {"name": image.name, "width": image.size[0], "height": image.size[1], "packed": bool(image.packed_file)}
             for image in bpy.data.images

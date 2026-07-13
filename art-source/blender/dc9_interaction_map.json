@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "aircraft": "McDonnell Douglas DC-9-32",
+  "sourceObject": "DC9-32_cockpit.obj",
+  "controls": {
+    "apuBuses": {
+      "node": "DC9_CTRL_APU_BUSES",
+      "game_id": "dc9.secure.apuBuses",
+      "dataref": "sim/cockpit2/electrical/APU_generator_on",
+      "label": "APU bus switches",
+      "interaction": "toggle",
+      "axis": "LOCAL_X",
+      "initial": 1.0,
+      "target": 0.0,
+      "procedureStep": 1,
+      "sourceDrawRangeIndices": [417, 418, 419]
+    },
+    "apuMaster": {
+      "node": "DC9_CTRL_APU_MASTER",
+      "game_id": "dc9.secure.apuMaster",
+      "dataref": "sim/cockpit2/electrical/APU_starter_switch",
+      "label": "APU master switch",
+      "interaction": "toggle",
+      "axis": "LOCAL_X",
+      "initial": 1.0,
+      "target": 0.0,
+      "procedureStep": 2,
+      "sourceDrawRangeIndices": [413, 414]
+    },
+    "battery": {
+      "node": "DC9_CTRL_BATTERY",
+      "game_id": "dc9.secure.battery",
+      "dataref": "sim/cockpit/electrical/battery_on",
+      "label": "Battery switch",
+      "interaction": "toggle",
+      "axis": "LOCAL_X",
+      "initial": 1.0,
+      "target": 0.0,
+      "procedureStep": 3,
+      "sourceDrawRangeIndices": [415, 416]
+    }
+  },
+  "routeCard": {
+    "origin": "MEM",
+    "timetableDate": "1995-06-01",
+    "verifiedRoutes": ["BTR", "STL", "TYS"],
+    "rows": [
+      { "code": "BTR", "city": "Baton Rouge", "periodMileage": 319 },
+      { "code": "STL", "city": "St. Louis", "periodMileage": 256 },
+      { "code": "TYS", "city": "Knoxville", "periodMileage": 342 },
+      { "code": "LAX", "city": "Los Angeles", "periodMileage": 1619 },
+      { "code": "SEA", "city": "Seattle", "periodMileage": 1870 },
+      { "code": "AMS", "city": "Amsterdam", "periodMileage": 4544 }
+    ]
+  }
+}

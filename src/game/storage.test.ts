@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { firstOfficerFlow } from './config'
+import { dc9LegacyFlow, firstOfficerFlow } from './config'
 import { createInitialState, type GameState } from './state'
 import { loadGameState, saveGameState, STORAGE_KEY } from './storage'
 
@@ -94,7 +94,7 @@ describe('game storage', () => {
     const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(legacy) })
 
     const migrated = loadGameState(storage)
-    expect(migrated.schemaVersion).toBe(5)
+    expect(migrated.schemaVersion).toBe(6)
     expect(migrated.lockerCompleted).toEqual(['watch'])
     expect(migrated.lockerAttempts).toEqual({ watch: 0, baseball: 0, chargingBull: 0, wings: 0 })
     expect(migrated.lockerIntroCompleted).toBe(true)
@@ -113,7 +113,7 @@ describe('game storage', () => {
     const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(legacy) })
 
     const migrated = loadGameState(storage)
-    expect(migrated.schemaVersion).toBe(5)
+    expect(migrated.schemaVersion).toBe(6)
     expect(migrated.lockerIntroCompleted).toBe(true)
     expect(migrated.lockerCompleted).toEqual(['watch'])
     expect(migrated.completedPuzzles).toEqual(['firstOfficer'])
@@ -141,6 +141,49 @@ describe('game storage', () => {
     expect(migrated.lockerAttempts).toEqual({ watch: 1, baseball: 2, chargingBull: 1, wings: 0 })
     expect(migrated.lockerCompleted).toEqual(['watch', 'baseball', 'chargingBull', 'wings'])
     expect(migrated.lockerHatRevealed).toBe(true)
+  })
+
+  it('migrates an in-progress schema-v5 Captain save back to route verification', () => {
+    const legacy = {
+      ...createInitialState(),
+      schemaVersion: 5,
+      phase: 'captain',
+      switchSequence: ['battery', 'navigation'],
+      routeSelections: ['BTR', 'LAX', 'obsolete'],
+    }
+    delete (legacy as Partial<GameState>).captainRouteVerified
+    delete (legacy as Partial<GameState>).dc9SecureSequence
+    delete (legacy as Partial<GameState>).captainAttempts
+    const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(legacy) })
+
+    const migrated = loadGameState(storage)
+    expect(migrated.schemaVersion).toBe(6)
+    expect(migrated.phase).toBe('captain')
+    expect(migrated.captainRouteVerified).toBe(false)
+    expect(migrated.dc9SecureSequence).toEqual([])
+    expect(migrated.routeSelections).toEqual(['BTR', 'LAX'])
+  })
+
+  it.each(['reward', 'mars'] as const)('preserves schema-v5 %s completion and reward state', (phase) => {
+    const legacy = {
+      ...createInitialState(),
+      schemaVersion: 5,
+      phase,
+      completedPuzzles: ['firstOfficer', 'locker', 'captain'],
+      captainRewardUnlocked: true,
+      marsUnlocked: phase === 'mars',
+      switchSequence: ['battery', 'navigation', 'cabin'],
+    }
+    delete (legacy as Partial<GameState>).captainRouteVerified
+    delete (legacy as Partial<GameState>).dc9SecureSequence
+    delete (legacy as Partial<GameState>).captainAttempts
+    const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(legacy) })
+
+    const migrated = loadGameState(storage)
+    expect(migrated.phase).toBe(phase)
+    expect(migrated.completedPuzzles).toContain('captain')
+    expect(migrated.captainRewardUnlocked).toBe(true)
+    expect(migrated.dc9SecureSequence).toEqual([...dc9LegacyFlow.secureSequence])
   })
 
   it('preserves a schema-v3 unlocked hat as completed new locker memories', () => {
