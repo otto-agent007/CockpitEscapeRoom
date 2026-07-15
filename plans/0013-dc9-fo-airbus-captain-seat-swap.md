@@ -193,6 +193,33 @@ Repeat review -> smallest coherent repair -> focused validation -> actual browse
 
 Implementation, full-diff review, local technical verification, and preview publication are complete. Owner approval remains reopened for the DC-9 FO view, Airbus captain view, and complete reordered journey.
 
+## 2026-07-15 golden-key finale polish follow-up
+
+### Goal, context, constraints, and done-when
+
+- **Goal:** Replace the text Captain's Key opener with the supplied golden key on the right-side green ledge, deliver a premium key celebration, fade cleanly into the locker, and compact the yoke route card plus Home Operations Log.
+- **Context:** The approved design is `docs/superpowers/specs/2026-07-15-dc9-golden-key-finale-polish-design.md`. The source is `/mnt/2TBHDD/Downloads/golden key 3d model.glb` with SHA-256 `b243ec3571ef597048ad8ef08ae63eac8da6f9790f7552570921d08aff0a898d`. Browser reproduction proved the current reducer dispatch mounts the locker before the 900ms blackout covers the DC-9.
+- **Constraints:** Preserve schema v8 and the safe parked-aircraft story, add no production dependency, keep native HTML equivalents, import and optimize the Tripo asset through Blender, preserve unrelated screenshots, and keep the current five-page Home Operations content.
+- **Done when:** The real key is discoverable by manual rightward scan and pointer/keyboard access; its celebration and reduced-motion path pass; the phase remains DC-9 until full black; the route card is exactly half-height and centered neatly on the yoke; Home Operations is 360-430px tall at 1440x900; asset, app, browser, and responsive checks pass with recorded evidence.
+
+### Follow-up progress
+
+- [x] Approved option A for the route card and the unified night-cockpit visual direction.
+- [x] Inspected the source key, current DC-9 contracts, route-card geometry, key reveal, Home Operations layout, and locker transition timing.
+- [x] Reproduced the early locker mount during the key-claim fade and recorded the phase-ordering root cause.
+- [x] Baseline verification: Blender 5.1.2, source hash confirmed, and 62/62 Vitest tests passing.
+- [ ] Add failing asset/runtime/browser contracts for the new key, shortened route card, compact log, and black-frame phase commit.
+- [ ] Import, optimize, place, rebuild, validate, and browser-prove the golden key and route card.
+- [ ] Implement the projected key interaction, celebration, transition sequencing, and Home Operations styling.
+- [ ] Run full automated checks, responsive browser inspection, complete-diff review, and evidence updates.
+
+### Follow-up decisions
+
+- Integrate the optimized key into `dc9-cockpit.glb` instead of adding a second runtime model request.
+- Use passive chevrons only; never pan the camera automatically.
+- Keep `LockerIntroStage` names and make the existing `fade-to-black` to `black-pause` boundary the single `CLAIM_CAPTAINS_KEY` dispatch point.
+- Preserve the five Home Operations pages and Momma Cheryl title; only the key celebration drops the prior personalization/engraving copy.
+
 ## 2026-07-15 owner-feedback completion pass
 
 - Moved the ATP qualification gate out of the Airbus chapter and placed it at the end of the DC-9 chapter, after shutdown and before the Captain's Key handoff. The gate retains visible native input and submit behavior, safe retry, keyboard access, and persisted progress.
