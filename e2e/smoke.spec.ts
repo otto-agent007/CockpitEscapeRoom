@@ -123,6 +123,7 @@ test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
 
 test('DC-9 production cockpit stages the Final Flight Log with the existing registry', async ({ page }) => {
   test.setTimeout(180_000)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
   const consoleErrors: string[] = []
   page.on('console', (message) => {
     if (message.type() === 'error') consoleErrors.push(message.text())
@@ -157,15 +158,15 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   await expect(page.getByRole('dialog', { name: 'Legacy Route Record' })).toBeVisible()
 
   for (const code of dc9LegacyFlow.routePuzzleAnswers) {
-    await page.getByRole('button', { name: new RegExp(`^${code},`) }).click()
+    await page.getByRole('button', { name: new RegExp(`^${code},`) }).press('Enter')
   }
-  await page.getByRole('button', { name: 'Record selected routes' }).click()
+  await page.getByRole('button', { name: 'Record selected routes' }).press('Enter')
   await expect(page.getByRole('dialog', { name: 'Home Operations Log — Momma Cheryl' })).toBeVisible()
   await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_ROUTE_CARD_APPROVAL')
   for (let pageNumber = 1; pageNumber < dc9LegacyFlow.homeOperationsPages.length; pageNumber += 1) {
-    await page.getByRole('button', { name: 'Next page' }).click()
+    await page.getByRole('button', { name: 'Next page' }).press('Enter')
   }
-  await page.getByRole('button', { name: 'Record this legacy' }).click()
+  await page.getByRole('button', { name: 'Record this legacy' }).press('Enter')
   await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_OVERHEAD_APPROVAL')
 
   const apuBuses = page.getByRole('button', { name: /APU bus switches/ })
@@ -174,12 +175,12 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   await expect(apuBuses).toHaveAttribute('data-projection', 'mesh')
   await expect(apuMaster).toHaveAttribute('data-projection', 'mesh')
   await expect(battery).toHaveAttribute('data-projection', 'mesh')
-  await battery.click()
-  await apuBuses.click()
-  await battery.click()
+  await battery.press('Enter')
+  await apuBuses.press('Enter')
+  await battery.press('Enter')
   await expect(apuBuses).toHaveAttribute('aria-pressed', 'true')
-  await apuMaster.click()
-  await battery.click()
+  await apuMaster.press('Enter')
+  await battery.press('Enter')
   await expect(page.getByRole('button', { name: "Open The Captain's Key" })).toBeVisible()
   await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_CAPTAIN_GAME')
   expect(consoleErrors).toEqual([])
