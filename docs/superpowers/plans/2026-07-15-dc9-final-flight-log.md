@@ -351,7 +351,7 @@ git commit -m "feat: migrate progress to DC-9-first flow"
 - Consumes: `GameState.dc9`, `dc9LegacyFlow`, and `dispatch(GameAction)`.
 - Produces: semantic dialogs and buttons with stable accessible names used by Playwright.
 
-- [ ] **Step 1: Add failing Playwright assertions for the route trigger and overlay**
+- [x] **Step 1: Add failing Playwright assertions for the route trigger and overlay**
 
 Seed an initial DC-9 state, then assert:
 
@@ -362,26 +362,26 @@ await expect(page.getByRole('button', { name: /^DTW, Detroit/ })).toBeVisible()
 await expect(page.getByText(/Which three cities were familiar stops/)).toBeVisible()
 ```
 
-- [ ] **Step 2: Run focused E2E and verify failure**
+- [x] **Step 2: Run focused E2E and verify failure**
 
 Run: `npx playwright test e2e/smoke.spec.ts -g "DC-9 Final Flight Log accessible flow" --workers=1`  
 Expected: FAIL because the new trigger/dialog do not exist.
 
-- [ ] **Step 3: Implement `LegacyRouteRecord`**
+- [x] **Step 3: Implement `LegacyRouteRecord`**
 
 Use a semantic `role="dialog"`, heading association, six native buttons with `aria-pressed`, a submit button, permanent stamp text for completed codes, and hint text selected from `routeAttempts`. At attempt 3, apply a visual class and screen-reader text to DTW/MSP/STL.
 
 Do not write route state with `useState`; dispatch reducer actions.
 
-- [ ] **Step 4: Implement `HomeOperationsLog`**
+- [x] **Step 4: Implement `HomeOperationsLog`**
 
 Render one configured page at a time inside a dialog named `Home Operations Log — Momma Cheryl`. Provide Previous/Next buttons and a final `Record this legacy` action. Do not render inputs, answer controls, correctness messages, timers, or scores.
 
-- [ ] **Step 5: Implement `Dc9Chapter`**
+- [x] **Step 5: Implement `Dc9Chapter`**
 
 Compose the correct overlay based on `dc9.stage`. Expose callbacks for opening the route record, completing the log, shutdown interaction status, opening the key, and claiming it.
 
-- [ ] **Step 6: Add split layout and functional narrow fallback**
+- [x] **Step 6: Add split layout and functional narrow fallback**
 
 Desktop: cockpit remains visible and the document occupies the right portion.  
 Narrow fallback: stack the document over a compact cockpit band.  
@@ -389,16 +389,16 @@ Do not create alternate mobile component trees, gesture-only controls, or mobile
 
 Include `@media (prefers-reduced-motion: reduce)` rules that disable document movement.
 
-- [ ] **Step 7: Wire `Dc9Chapter` into App**
+- [x] **Step 7: Wire `Dc9Chapter` into App**
 
 Pass only state and dispatch-oriented callbacks. Keep model-load fallback messaging and global status live region intact.
 
-- [ ] **Step 8: Run focused E2E**
+- [x] **Step 8: Run focused E2E**
 
 Run: `npx playwright test e2e/smoke.spec.ts -g "DC-9 Final Flight Log accessible flow" --workers=1`  
 Expected: route and Home Operations assertions PASS.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/components/dc9 src/App.tsx e2e/smoke.spec.ts

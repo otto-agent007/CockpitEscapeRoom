@@ -1,10 +1,11 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Hud } from './components/Hud'
+import { Dc9Chapter } from './components/dc9/Dc9Chapter'
 import { LockerTransition, type LockerIntroStage } from './components/LockerTransition'
 import { CaptainHatCelebration, QualificationCelebration } from './components/QualificationCelebration'
 import { SceneHelp } from './components/SceneHelp'
 import { dc9LegacyFlow, gameCopy, lockerFlow, type FirstOfficerControl, type LockerMemoryId } from './game/config'
-import { isLockerMemoryAvailable } from './game/state'
+import { isLockerMemoryAvailable, type Dc9SecureControlId } from './game/state'
 import { clearGameState } from './game/storage'
 import { useGame } from './game/useGame'
 import type { AirbusHotspotScreenPositions, AirbusLoadState, Dc9HotspotScreenPositions, Dc9LoadState, LockerCameraCue, LockerLoadState } from './scenes/PrototypeScene'
@@ -99,6 +100,7 @@ export default function App() {
   const [lockerRetryToken, setLockerRetryToken] = useState(0)
   const [lockerLoadState, setLockerLoadState] = useState<LockerLoadState>({ status: 'idle' })
   const [dc9LoadState, setDc9LoadState] = useState<Dc9LoadState>({ status: 'idle' })
+  const [dc9FamiliarizationApuOff, setDc9FamiliarizationApuOff] = useState(false)
   const [dc9Hotspots, setDc9Hotspots] = useState<Dc9HotspotScreenPositions>({})
   const [cameraResetRevision, setCameraResetRevision] = useState(0)
   const [helpOpen, setHelpOpen] = useState(false)
@@ -311,6 +313,11 @@ export default function App() {
   }, [dispatch])
 
   const handleDc9Interaction = useCallback((gameId: string) => {
+    if (gameId === 'dc9.secure.apuMaster') {
+      setDc9FamiliarizationApuOff(true)
+      window.dispatchEvent(new CustomEvent('dc9-control-change', { detail: { dataref: 'sim/cockpit2/electrical/APU_starter_switch', value: 0 } }))
+      return
+    }
     if (gameId === 'dc9.route.submit') {
       dispatch({ type: 'SUBMIT_ROUTE' })
       return
@@ -444,8 +451,8 @@ export default function App() {
         <Suspense fallback={null}>
           <PrototypeScene
             phase={state.phase}
-            activeDc9Controls={state.dc9SecureSequence}
-            dc9RouteVerified={state.captainRouteVerified}
+            activeDc9Controls={(dc9FamiliarizationApuOff ? ['apuMaster'] : []) as Dc9SecureControlId[]}
+            dc9RouteVerified
             reducedMotion={reducedMotion}
             lockerHatRevealed={state.lockerHatRevealed}
             captainRewardUnlocked={state.captainRewardUnlocked}
@@ -474,7 +481,7 @@ export default function App() {
           />
         </Suspense>
       )}
-      {!lockerIntroActive && !captainHatCelebrationActive && (
+      {!lockerIntroActive && !captainHatCelebrationActive && state.phase !== 'captain' && (
         <Hud
           state={state}
           dispatch={dispatch}
@@ -490,6 +497,9 @@ export default function App() {
           dc9Hotspots={dc9Hotspots}
           onDc9Fallback={() => setDc9LoadState({ status: 'accessible-fallback' })}
         />
+      )}
+      {state.phase === 'captain' && (
+        <Dc9Chapter state={state} dispatch={dispatch} onRestart={restart} />
       )}
       {state.phase === 'airbus' && !skipPrototypeScene && showAirbusLoader && airbusLoadState.status !== 'accessible-fallback' && (
         <AirbusLoader

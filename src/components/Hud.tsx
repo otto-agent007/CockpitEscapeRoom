@@ -271,7 +271,7 @@ export function Hud({
         <div className="captain-projected-controls" data-testid="captain-projected-controls">
           {!state.captainRouteVerified && dc9LegacyFlow.routePuzzleOptions.map((route, index) => {
             const selected = selectedRoutes.has(route.code)
-            const highlighted = state.captainAttempts.route >= 2 && route.verifiedDc9
+            const highlighted = state.captainAttempts.route >= 2 && route.familiar
             const routeHotspot = dc9Hotspots[`dc9.route.${route.code}`]
             return (
               <button
@@ -280,13 +280,13 @@ export function Hud({
                 className={`captain-route-hotspot${selected ? ' is-selected' : ''}${highlighted ? ' is-hinted' : ''}`}
                 style={projectedStyle(`dc9.route.${route.code}`, routeFallback[index] ?? { x: '18%', y: '50%' })}
                 aria-pressed={selected}
-                aria-label={`${route.code}, ${route.city}, ${route.mileage} miles from Memphis`}
+                aria-label={`${route.code}, ${route.city}`}
                 data-projection={routeHotspot?.visible ? 'mesh' : 'fallback'}
                 data-projection-point={routeHotspot ? `${routeHotspot.x},${routeHotspot.y}` : undefined}
                 onClick={() => dispatch({ type: 'TOGGLE_ROUTE', code: route.code })}
               >
                 <strong>{route.code}</strong>
-                <span>{route.city} · {route.mileage} mi</span>
+                <span>{route.city}</span>
               </button>
             )
           })}

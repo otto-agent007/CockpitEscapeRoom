@@ -313,7 +313,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         dc9: { ...state.dc9, stage: 'routeRecord' },
-        statusMessage: dc9LegacyFlow.routeQuestion,
+        statusMessage: 'Legacy Route Record opened. Select three familiar stops.',
       }
 
     case 'TOGGLE_DC9_ROUTE': {
