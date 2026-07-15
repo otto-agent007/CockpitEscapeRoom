@@ -26,6 +26,9 @@ function glbJson(path) {
 const requiredModelContracts = {
   'dc9-cockpit.glb': [
     'DC9_ROOT',
+    'DC9_PROP_CAPTAINS_KEY',
+    'DC9_PROP_CAPTAINS_KEY_MESH',
+    'DC9_HITBOX_CAPTAINS_KEY',
     'CAM_DC9_FIRST_OFFICER_GAME',
     'CAM_DC9_FIRST_OFFICER_APPROVAL',
     'CAM_DC9_FIRST_OFFICER_ROUTE_APPROVAL',
@@ -87,9 +90,48 @@ for (const [model, requiredNodes] of Object.entries(requiredModelContracts)) {
       const routeContractParentedToFirstOfficerYoke = routeContractNodes.every(
         (name) => parentName(name) === 'OBJ8_DC9VC2_RANGE_014',
       )
-      if (!centeredOnFirstOfficerYoke || !routeContractParentedToFirstOfficerYoke) {
-        console.error('DC-9 route record and hitboxes must be centered on the first-officer yoke.')
+      const routePositionAccessorIndex = routeCard?.mesh === undefined
+        ? undefined
+        : json.meshes?.[routeCard.mesh]?.primitives?.[0]?.attributes?.POSITION
+      const routePositionAccessor = routePositionAccessorIndex === undefined
+        ? undefined
+        : json.accessors?.[routePositionAccessorIndex]
+      const routeCardHeight = Array.isArray(routePositionAccessor?.min) && Array.isArray(routePositionAccessor?.max)
+        ? routePositionAccessor.max[1] - routePositionAccessor.min[1]
+        : undefined
+      const routeCardIsHalfHeight = typeof routeCardHeight === 'number' && Math.abs(routeCardHeight - 0.15) < 0.002
+      if (!centeredOnFirstOfficerYoke || !routeContractParentedToFirstOfficerYoke || !routeCardIsHalfHeight) {
+        console.error(`DC-9 route record and hitboxes must be centered on the first-officer yoke at 0.15 scene-unit height; received ${routeCardHeight ?? 'none'}.`)
         failed = true
+      }
+
+      const key = nodes[nodeIndex('DC9_PROP_CAPTAINS_KEY')]
+      const keyHitbox = nodes[nodeIndex('DC9_HITBOX_CAPTAINS_KEY')]
+      if (key?.extras?.game_id !== 'dc9.key.open'
+        || key?.extras?.interaction !== 'open'
+        || keyHitbox?.extras?.collider_only !== true
+        || keyHitbox?.extras?.collider_target_game_id !== 'dc9.key.open') {
+        console.error('DC-9 Captain\'s Key must export its stable game_id and collider contract.')
+        failed = true
+      }
+
+      const reportPath = 'asset-reports/dc9-golden-key-intake.json'
+      if (!existsSync(reportPath)) {
+        console.error(`Missing DC-9 golden-key intake report: ${reportPath}`)
+        failed = true
+      } else {
+        const report = JSON.parse(readFileSync(reportPath, 'utf8'))
+        const textureRoles = new Set((report.textures ?? []).map((texture) => texture.role))
+        const completeTextures = ['baseColor', 'normal', 'metallicRoughness'].every((role) => textureRoles.has(role))
+        if (report.sourceSha256 !== 'b243ec3571ef597048ad8ef08ae63eac8da6f9790f7552570921d08aff0a898d'
+          || report.runtimeTriangleCount > 72_000
+          || report.runtimeMaterialCount !== 1
+          || report.sourceTextureGatePassed !== true
+          || !completeTextures
+          || (report.textures ?? []).some((texture) => texture.runtimeDimensions?.[0] > 1024 || texture.runtimeDimensions?.[1] > 1024)) {
+          console.error('DC-9 golden-key intake report violates the approved source or runtime budget.')
+          failed = true
+        }
       }
     }
     if (model === 'airbus-captain.glb') {
