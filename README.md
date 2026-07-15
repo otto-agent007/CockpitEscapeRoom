@@ -6,7 +6,7 @@ The current narrative direction is:
 
 1. **DC-9 Final Flight Log** — a warm opening chapter with DTW/MSP/STL route memories, Momma Cheryl’s non-puzzle Home Operations Log, and a forgiving ceremonial shutdown.
 2. **Locker Room / Captain’s Locker** — personal reveal space opened by the Captain’s Key.
-3. **Existing Airbus A320 First-Officer Mode** — accessible drag-and-drop crew experience in the modern A320 cockpit.
+3. **Existing Airbus A320 First-Officer Mode** — unchanged accessible drag-and-drop crew experience in the modern A320 cockpit, now occupying the Captain-mode slot.
 4. **Model Y reveal and Flight Mode transformation** — personal reward reveal with sleek, plausible-futuristic wing/panel deployment.
 5. **Father’s Day final message** — warm closing beat after the reward sequence.
 6. **Optional Mars Easter egg** after the main ending.
@@ -46,7 +46,8 @@ npm run assets:check
 Use `npm run dev` and confirm:
 
 - The DC-9-32 Final Flight Log accepts DTW/MSP/STL, preserves completed stamps and shutdown steps, and presents Momma Cheryl’s record only as recognition.
-- The Captain’s Key opens the locker, and the completed locker continues to the unchanged Airbus A320 First-Officer experience.
+- The original opening remains unchanged except for the **Start Game** button, which opens the DC-9 instead of Airbus.
+- The Captain’s Key opens the unchanged locker, whose existing **Enter Pop T Captain Mode** button continues to unchanged Airbus gameplay in the Captain-mode slot.
 - The Airbus assignment, retry, keyboard, ATP, and persistence behavior still works after the reorder.
 - The red Tesla Model Y reveal stays hidden until the DC-9 → locker → Airbus journey is complete.
 - The Model Y Flight Mode transformation is a reward beat, not required puzzle information.

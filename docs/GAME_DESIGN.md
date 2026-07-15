@@ -24,7 +24,7 @@ Wrong answers must never erase completed progress or force a restart.
 
 1. **DC-9 Final Flight Log** — a warm opening memory chapter in the safely parked DC-9-32.
 2. **Locker Room / Captain’s Locker Scene** — personal reveal space with memory objects and milestone clues.
-3. **Existing Airbus A320 First-Officer Mode** — approachable drag-and-drop cockpit familiarization.
+3. **Existing Airbus A320 First-Officer Mode in the Captain-mode slot** — unchanged approachable drag-and-drop cockpit familiarization.
 4. **Ground Transport Upgrade Authorized** — protected red Tesla Model Y surprise.
 5. **Advanced Mobility Package Unlocked** — Model Y Flight Mode transformation.
 6. **Father’s Day Final Message** — emotional closing beat.
@@ -32,7 +32,7 @@ Wrong answers must never erase completed progress or force a restart.
 
 ## DC-9 Final Flight Log
 
-The game opens in Pop T’s safely parked DC-9-32 at late afternoon or sunset. This is a warm, lightly realistic family-memory chapter, not a simulator emergency and not a claim about a literal final itinerary. Keep the existing production GLB, interaction registry, yoke trigger, captain camera, route camera, overhead camera, and the three supported shutdown pivots.
+The existing opening screen remains unchanged except that its button is titled **Start Game**. That button opens Pop T’s safely parked DC-9-32. This is a warm, lightly realistic family-memory chapter, not a simulator emergency and not a claim about a literal final itinerary. Keep the existing production GLB, interaction registry, yoke trigger, captain camera, route camera, overhead camera, and the three supported shutdown pivots.
 
 The narrow strip on the captain yoke opens the readable Legacy Route Record. The representative familiar routes are `DTW`, `MSP`, and `STL`. Wrong submissions progressively offer a Northwest-hubs/Midwestern-stop annotation, then Michigan/Minnesota/Missouri, then a warm outline on the three codes. Correct stamps are permanent and later mistakes never remove them.
 
@@ -42,7 +42,7 @@ After both records are complete, the existing overhead view supports a forgiving
 
 ## Locker Room / Captain’s Locker Scene
 
-The locker room is the emotional hinge of the game. It should be quieter, warmer, and more intimate than the cockpit. The Captain’s Key opens it after the DC-9 chapter. The player inspects personal objects, memory clues, and a final captain’s hat reveal before continuing to the existing Airbus experience.
+The locker room is the emotional hinge of the game. It remains unchanged. The Captain’s Key opens it after the DC-9 chapter. The player inspects personal objects, memory clues, and the existing final captain’s hat reveal before the existing **Enter Pop T Captain Mode** action continues to Airbus.
 
 The locker should feel like a place, not a quiz menu. Use a mix of click-to-learn moments, short prompts, and one final promotion trigger.
 
@@ -50,15 +50,15 @@ Personal objects include a baseball memory connected to Anthony Muñoz, a pilot-
 
 The playable sequence is watch → baseball → Charging Bull → airline wings → captain's hat. The Wings memory asks: **“In U.S. airline operations, what is the minimum amount of second-in-command experience commonly associated with qualifying to serve as captain?”** Accept friendly forms of `1000 hours`; wrong answers preserve prior memories and advance to a stronger hint.
 
-Completing the Wings question fades the locker to black and presents the real captain's hat in a confetti-backed recognition card. One **“Continue to Airbus First-Officer Mode”** action claims the hat and advances; reduced-motion mode presents the same card immediately without animated confetti.
+Completing the Wings question fades the locker to black and presents the real captain's hat in its existing confetti-backed promotion card. The unchanged **“Enter Pop T Captain Mode”** action claims the hat and advances to the existing Airbus gameplay, which now occupies the Captain-mode slot; reduced-motion mode presents the same card immediately without animated confetti.
 
-## Existing Airbus A320 First-Officer Mode
+## Existing Airbus A320 First-Officer Mode in the Captain-mode slot
 
-First-Officer Mode teaches the family the language of the cockpit in a fun, game-like way. Use the existing modern A320 cockpit, clear labels, safe retry behavior, and accessible HTML equivalents for required 3D interactions. This milestone reorders the chapter but does not redesign its gameplay.
+The existing First-Officer gameplay teaches the family the language of the cockpit in a fun, game-like way. It now occupies the Captain-mode slot in the overall journey, without any redesign to its modern A320 cockpit, copy, labels, safe retry behavior, qualification celebration, or accessible HTML equivalents.
 
 The production interaction uses five tactile training cards—sidestick, thrust levers, gear lever, radio panel, and altitude area—with immediate explanations, green confirmation, and clue-based retries.
 
-After all five labels are correct, ask: **“What is the minimum total flight time (hours) required to qualify for a standard Airline Transport Pilot certificate?”** Accept `1500`, `1,500`, `1500 hour`, and `1500 hours`. The earned response is **“Airline Transport Pilot milestone recognized. First-Officer knowledge logged.”** Completion routes directly to the protected Model Y reward.
+After all five labels are correct, ask: **“What is the minimum total flight time (hours) required to qualify for a standard Airline Transport Pilot certificate?”** Accept `1500`, `1,500`, `1500 hour`, and `1500 hours`. The earned response is **“Airline Transport Pilot milestone recognized. First-Officer knowledge logged.”** The existing qualification celebration remains; its **Continue** action routes to the protected Model Y reward.
 
 Do not reveal the Model Y, Flight Mode, or Mars reward before this chapter is complete.
 

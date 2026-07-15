@@ -2,7 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Hud } from './components/Hud'
 import { Dc9Chapter } from './components/dc9/Dc9Chapter'
 import { LockerTransition, type LockerIntroStage } from './components/LockerTransition'
-import { CaptainHatCelebration } from './components/QualificationCelebration'
+import { CaptainHatCelebration, QualificationCelebration } from './components/QualificationCelebration'
 import { SceneHelp } from './components/SceneHelp'
 import { dc9LegacyFlow, gameCopy, lockerFlow, type FirstOfficerControl, type LockerMemoryId } from './game/config'
 import { isLockerMemoryAvailable } from './game/state'
@@ -310,6 +310,10 @@ export default function App() {
     beginAirbusLoading()
   }, [beginAirbusLoading, dispatch])
 
+  const continueToReward = useCallback(() => {
+    dispatch({ type: 'CONTINUE_FROM_AIRBUS_TO_REWARD' })
+  }, [dispatch])
+
   const claimCaptainsKey = useCallback(() => {
     dispatch({ type: 'CLAIM_CAPTAINS_KEY' })
     beginLockerIntro()
@@ -394,30 +398,30 @@ export default function App() {
     return (
       <main className="briefing-shell">
         <section className="briefing-hero" aria-labelledby="game-title">
-          <div className="briefing-visual briefing-visual--dc9" aria-hidden="true">
-            <div className="briefing-visual__dc9-window" />
-            <div className="briefing-visual__label">DC-9-32 · safely parked at sunset</div>
+          <div className="briefing-visual" aria-hidden="true">
+            <img src={`${import.meta.env.BASE_URL}images/a320-game-ready-fo.png`} alt="" />
+            <div className="briefing-visual__label">A320 first-officer station</div>
           </div>
 
           <div className="briefing-panel">
-            <p className="briefing-route">{gameCopy.title} · commemorative legacy flight</p>
-            <h1 id="game-title">DC-9 Final Flight Log</h1>
+            <p className="briefing-route">Airbus A320 · First-Officer onboarding</p>
+            <h1 id="game-title">{gameCopy.title}</h1>
             <p className="lede">
-              Return to Pop T&apos;s safely parked DC-9, record three familiar routes, and recognize the full home crew before securing the cockpit.
+              Take the right seat, scan the panel, and match each cockpit label to the control it belongs to.
             </p>
 
             <ol className="briefing-checklist" aria-label="Opening tasks">
               <li>
                 <span>1</span>
-                Record three familiar DC-9 destinations.
+                Identify five A320 control areas.
               </li>
               <li>
                 <span>2</span>
-                Read Momma Cheryl&apos;s Home Operations Log.
+                Answer the Airline Transport Pilot question.
               </li>
               <li>
                 <span>3</span>
-                Secure the parked aircraft and receive the Captain&apos;s Key.
+                Unlock the next sealed instruction.
               </li>
             </ol>
 
@@ -428,7 +432,7 @@ export default function App() {
                 dispatch({ type: 'START' })
               }}
             >
-              Begin DC-9 Final Flight Log
+              Start Game
             </button>
           </div>
         </section>
@@ -531,6 +535,9 @@ export default function App() {
       )}
       {!lockerIntroActive && !captainHatCelebrationActive && helpOpen && <button type="button" className="scene-help-dismiss" onClick={closeHelp} aria-label="Dismiss viewer help" tabIndex={-1} />}
       {!lockerIntroActive && !captainHatCelebrationActive && <SceneHelp phase={state.phase} open={helpOpen} onClose={closeHelp} />}
+      {state.phase === 'airbus' && state.completedPuzzles.includes('firstOfficer') && !lockerIntroActive && (
+        <QualificationCelebration reducedMotion={reducedMotion} onContinue={continueToReward} />
+      )}
       {captainHatCelebrationActive && (
         <CaptainHatCelebration reducedMotion={reducedMotion} onContinue={continueToAirbus} />
       )}

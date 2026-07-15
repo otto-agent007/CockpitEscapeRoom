@@ -5,7 +5,7 @@ const phaseGuidance: Record<Exclude<GamePhase, 'briefing'>, string> = {
   airbus: 'Select a label, then place it on the matching cockpit control.',
   locker: 'Inspect the personal objects, then reveal the captain’s hat.',
   captain: 'Inspect the analog panel and use the mirrored checklist controls.',
-  reward: 'Explore the hangar reward after the full crew journey is complete.',
+  reward: 'Explore the hangar reward after Captain Mode completion.',
   mars: 'Explore the optional mission control after the main ending.',
 }
 

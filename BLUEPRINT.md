@@ -3,7 +3,7 @@
 ## 1. Core thesis
 
 CockpitEscapeRoom is a personalized Father’s Day tribute flow with one emotional arc:
-DC-9 Final Flight Log → locker memory reveal → existing Airbus First-Officer experience → hidden Model Y reveal.
+Original opening screen / Start Game → DC-9 Final Flight Log → unchanged locker memory reveal → unchanged Airbus gameplay in the Captain-mode slot → hidden Model Y reveal.
 
 ## 2. Player and occasion
 
@@ -15,7 +15,7 @@ Wrong choices should never erase earned milestones. The aircraft is safely parke
 
 1. **DC-9 Final Flight Log** opening memory chapter.
 2. **Locker room sequence** with personal memory objects.
-3. **Existing Airbus A320 First-Officer Mode** crew experience.
+3. **Existing Airbus A320 First-Officer Mode** crew experience, now occupying the Captain-mode slot.
 4. **Red Tesla Model Y reveal** as the personal reward.
 5. **Optional Mars Easter egg** after completion.
 
@@ -56,7 +56,7 @@ Wrong answers never erase completed puzzles. Final Flight Log route stamps and s
 
 ## 5. Final Flight Log and Airbus experience
 
-The opening Final Flight Log uses a reliable yoke trigger, a readable HTML route record, progressive hints, a non-puzzle Home Operations Log, and the three supported shutdown controls. The later Airbus experience retains its existing labels, assignment feedback, and ATP question.
+The original opening screen remains in place, with only its button renamed to **Start Game** and routed to the Final Flight Log. The Final Flight Log uses a reliable yoke trigger, a readable HTML route record, progressive hints, a non-puzzle Home Operations Log, and the three supported shutdown controls. The later Airbus experience occupies the Captain-mode slot while retaining its existing labels, assignment feedback, ATP question, and presentation.
 
 The Final Flight Log is not a memorization exam. The Northwest/Memphis/DC-9 history should appear mainly in scenery, route choices, dispatch texture, sounds, and the rhythm of the hub. Fleet counts, exact retirement dates, and economics are reference material, not required answers unless a later puzzle proves fun in playtesting.
 

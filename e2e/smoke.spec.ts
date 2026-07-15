@@ -202,8 +202,10 @@ test('DC-9 model failure keeps the compact accessible captain controls', async (
 test('complete reordered journey', async ({ page }) => {
   await page.goto('/?skip3d=1')
 
-  await expect(page.getByRole('heading', { name: /DC-9 Final Flight Log/i })).toBeVisible()
-  await page.getByRole('button', { name: 'Begin DC-9 Final Flight Log' }).click()
+  await expect(page.getByRole('heading', { name: "The Captain's Key" })).toBeVisible()
+  await expect(page.getByText('A320 first-officer station')).toBeVisible()
+  await page.getByRole('button', { name: 'Start Game' }).click()
+  await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Open Legacy Route Record' }).click()
   for (const code of dc9LegacyFlow.routePuzzleAnswers) {
@@ -229,7 +231,7 @@ test('complete reordered journey', async ({ page }) => {
   await keyReveal.getByRole('button', { name: "Take the Captain's Key" }).click()
   await page.getByRole('button', { name: 'Skip cinematic' }).click()
 
-  await expect(page.getByRole('heading', { name: /Captain's Locker/i })).toBeVisible()
+  await expect(page.getByRole('heading', { name: "Before the captain's seat" })).toBeVisible()
 
   await seedGameState(page, {
     ...createLockerState(),
@@ -238,11 +240,11 @@ test('complete reordered journey', async ({ page }) => {
     statusMessage: lockerFlow.hatText.revealText,
   })
 
-  const lockerCelebration = page.getByRole('dialog', { name: /Captain.s locker complete/i })
+  const lockerCelebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })
   await expect(lockerCelebration).toBeVisible()
-  await lockerCelebration.getByRole('button', { name: 'Continue to Airbus First-Officer Mode' }).click()
+  await lockerCelebration.getByRole('button', { name: 'Enter Pop T Captain Mode' }).click()
 
-  await expect(page.getByRole('heading', { name: /Airbus.*First[- ]Officer/i })).toBeVisible()
+  await expect(page.getByText('Airbus First-Officer Mode', { exact: true })).toBeVisible()
   await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toHaveCount(0)
   await expect(page.getByText(/minimum total flight time required/)).toHaveCount(0)
   await expect(page.getByRole('button', { name: /^CLOCK\b/ })).toHaveCount(0)
@@ -273,7 +275,10 @@ test('complete reordered journey', async ({ page }) => {
   await expect(page.getByText(/total flight time \(hours\) required/)).toBeVisible()
   await atpAnswer.fill('1500 hours')
   await atpAnswer.press('Enter')
-  await expect(page.getByText('Ground Transport Upgrade Authorized')).toBeVisible()
+  const qualification = page.getByRole('dialog', { name: 'Airline Transport Pilot milestone recognized' })
+  await expect(qualification).toBeVisible()
+  await qualification.getByRole('button', { name: 'Continue' }).click()
+  await expect(page.getByText('Ground Transport Upgrade Authorized', { exact: true })).toBeVisible()
   await expect(page.getByText(/Happy Father’s Day/i)).toBeVisible()
   await expect(page.getByText(/red Tesla Model Y is unlocked/i)).toBeVisible()
 })
@@ -320,10 +325,11 @@ test('Airbus cards show immediate placement feedback and recover', async ({ page
   await expect(page.getByText('4/5')).toBeVisible()
   await placeAirbusCard(page, 'THRUST', 'Thrust levers')
   await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: /Captain's Locker/i })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: "Before the captain's seat" })).toHaveCount(0)
   await page.getByRole('textbox', { name: 'Airline Transport Pilot answer' }).fill('1500')
   await page.getByRole('button', { name: 'Verify' }).click()
-  await expect(page.getByText('Ground Transport Upgrade Authorized')).toBeVisible()
+  await page.getByRole('button', { name: 'Continue' }).click()
+  await expect(page.getByText('Ground Transport Upgrade Authorized', { exact: true })).toBeVisible()
 })
 
 test('saved progress persists during Airbus phase', async ({ page }) => {

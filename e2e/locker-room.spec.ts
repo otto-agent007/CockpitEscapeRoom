@@ -68,7 +68,7 @@ test("Captain's Key plays the narrative handoff and settles on the watch-first g
 
   await skipButton.click()
   await expect(transition).toHaveCount(0)
-  await expect(page.getByRole('heading', { name: "Captain's Locker" })).toBeVisible()
+  await expect(page.getByRole('heading', { name: "Before the captain's seat" })).toBeVisible()
   const watchButton = page.getByRole('button', { name: 'Inspect watch' })
   await expect(watchButton).toBeVisible()
   await expect(watchButton).toBeFocused()
@@ -137,18 +137,18 @@ test('watch completion opens the baseball question, then Bull and Wings', async 
   await expect(page.locator('.locker-status')).toContainText('four-digit hour milestone below the 1,500-hour ATP')
   await wingsAnswer.fill('1,000 hours')
   await page.getByRole('button', { name: 'Submit answer' }).click()
-  const celebration = page.getByRole('dialog', { name: /Captain.s locker complete/i })
+  const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })
   await expect(celebration).toHaveAttribute('data-celebration-ready', 'true')
   await expect(celebration.getByRole('img', { name: 'Captain’s hat' })).toBeVisible()
   await expect(celebration.locator('.qualification-confetti i')).toHaveCount(24)
-  const continueToAirbusButton = celebration.getByRole('button', { name: 'Continue to Airbus First-Officer Mode' })
+  const continueToAirbusButton = celebration.getByRole('button', { name: 'Enter Pop T Captain Mode' })
   await expect(continueToAirbusButton).toBeFocused()
   await page.keyboard.press('Tab')
   await expect(continueToAirbusButton).toBeFocused()
 
   await page.reload()
   await expect(page.locator('.locker-transition')).toHaveCount(0)
-  await expect(page.getByRole('dialog', { name: /Captain.s locker complete/i })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })).toBeVisible()
 
   await page.setViewportSize({ width: 1440, height: 900 })
   for (const viewport of [
@@ -161,8 +161,8 @@ test('watch completion opens the baseball question, then Bull and Wings', async 
     expect(horizontalOverflow).toBeLessThanOrEqual(0)
   }
 
-  await page.getByRole('button', { name: 'Continue to Airbus First-Officer Mode' }).click()
-  await expect(page.getByRole('heading', { name: 'Airbus A320 First-Officer Mode' })).toBeVisible()
+  await page.getByRole('button', { name: 'Enter Pop T Captain Mode' }).click()
+  await expect(page.getByText('Airbus First-Officer Mode', { exact: true })).toBeVisible()
 })
 
 test('reduced motion, replay, and Escape skip keep the accessible path usable', async ({ page }) => {
@@ -237,18 +237,18 @@ test('locker GLB loads into the real canvas and the directed camera settles on t
   await expect(canvas).toHaveAttribute('data-locker-camera-distance', '3.490')
   await page.getByRole('textbox', { name: 'Answer in hours' }).fill('1000 hours')
   await page.getByRole('button', { name: 'Submit answer' }).click()
-  await expect(page.getByRole('dialog', { name: /Captain.s locker complete/i })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })).toBeVisible()
   await expect(page.locator('.qualification-confetti')).toHaveCount(0)
-  await expect(page.getByRole('button', { name: 'Continue to Airbus First-Officer Mode' })).toBeFocused()
+  await expect(page.getByRole('button', { name: 'Enter Pop T Captain Mode' })).toBeFocused()
 
   await page.reload()
   await expect(page.locator('canvas')).toHaveAttribute('data-locker-hat-visual', 'revealed', { timeout: 30_000 })
   await expect(page.locator('canvas')).toHaveAttribute('data-locker-baseball-visual', 'revealed')
   await expect(page.locator('canvas')).toHaveAttribute('data-locker-wings-visual', 'revealed')
   await expect(page.locator('canvas')).toHaveAttribute('data-locker-bull-visual', 'revealed')
-  await expect(page.getByRole('dialog', { name: /Captain.s locker complete/i })).toBeVisible()
-  await page.getByRole('button', { name: 'Continue to Airbus First-Officer Mode' }).click()
-  await expect(page.getByRole('heading', { name: 'Airbus A320 First-Officer Mode' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })).toBeVisible()
+  await page.getByRole('button', { name: 'Enter Pop T Captain Mode' }).click()
+  await expect(page.getByText('Airbus First-Officer Mode', { exact: true })).toBeVisible()
 })
 
 test('locker load failure offers retry and a watch-first accessible fallback', async ({ page }) => {

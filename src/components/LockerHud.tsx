@@ -55,7 +55,7 @@ export function LockerHud({ state, dispatch, selectedMemory, onSelectedMemoryCha
       <header className="locker-header">
         <div>
           <p className="eyebrow">Captain's locker</p>
-          <h1>Captain&apos;s Locker</h1>
+          <h1>Before the captain's seat</h1>
         </div>
         <div className="locker-count" aria-label={`${state.lockerCompleted.length} of ${lockerFlow.memoryIds.length} memories found`}>
           <span>Memories found</span>

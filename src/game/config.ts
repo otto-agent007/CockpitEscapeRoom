@@ -58,13 +58,15 @@ export const firstOfficerFlow = {
   clockAnswers: ['1500', '1500hour', '1500hours'] as const,
   clockFeedback: 'Airline Transport Pilot milestone recognized.',
   knowledgeLoggedText: 'First-Officer knowledge logged.',
+  firstCompleteBanner: 'FIRST-OFFICER MODE COMPLETE',
+  lockerAccessText: 'Locker access granted.',
 } as const
 
 export const lockerFlow = {
   memoryIds: ['watch', 'baseball', 'chargingBull', 'wings'] as const,
   authoredSequence: ['watch', 'baseball', 'chargingBull', 'wings'] as const,
   questionIds: ['watch', 'baseball', 'chargingBull', 'wings'] as const,
-  introText: "The Captain's Key opens a room shaped by the people and memories that carried the family forward.",
+  introText: 'Before you can sit in the captain’s seat, you must understand the Captain’s journey…',
   openingInstruction: 'Begin with the pilot watch.',
   memories: {
     watch: {
@@ -128,8 +130,8 @@ export const lockerFlow = {
   hatText: {
     revealText: 'Four memories align. The upper cubby opens.',
     foundText: 'Captain’s hat recognized.',
-    promotionText: 'A family legacy is ready for its next chapter.',
-    captainModeText: 'AIRBUS FIRST-OFFICER EXPERIENCE READY',
+    promotionText: 'Promotion available.',
+    captainModeText: 'POP T CAPTAIN MODE UNLOCKED',
     completeText: 'Locker scene complete.',
   } as const,
 } as const
@@ -210,9 +212,9 @@ export const dc9LegacyFlow = {
 
 export const gameCopy = {
   title: "The Captain's Key",
-  subtitle: 'A DC-9 family legacy, the Captain’s Locker, and an Airbus chapter.',
+  subtitle: 'First-Officer onboarding in Airbus, then the DC-9 legacy reveal.',
   premise:
-    'The journey begins with Pop T’s DC-9 Final Flight Log, continues through the Captain’s Locker, and then enters the existing Airbus First-Officer experience.',
+    'The game is a personalized tribute. Start in a modern Airbus coaching loop, discover the locker story, then unlock Pop T Captain Mode in the DC-9.',
   rewardTitle: 'Ground Transport Upgrade Authorized',
   rewardVehicleLine: 'The red Tesla Model Y is unlocked.',
   finalMessage:
@@ -224,7 +226,7 @@ export const gameCopy = {
     title: 'Mars diversion accepted.',
     message: 'The final game will hide this trigger behind the completed ending.',
   },
-  briefInstructions: 'Begin in the DC-9, carry The Captain’s Key into the locker, then continue to the Airbus First-Officer experience.',
+  briefInstructions: 'Start in Airbus First-Officer Mode, complete the locker reveal, then enter Pop T Captain Mode.',
 } as const
 
 export type FirstOfficerControl = (typeof firstOfficerFlow.controlIds)[number]

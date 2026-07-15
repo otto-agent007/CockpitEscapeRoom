@@ -1797,7 +1797,6 @@ export function PrototypeScene({
         camera={{ position: [0, 0.25, 5.6], fov: 42 }}
         dpr={[1, 1.5]}
         shadows="percentage"
-        tabIndex={0}
         fallback={<div className="canvas-fallback">WebGL is unavailable. Use the accessible cockpit controls.</div>}
       >
         {phase === 'airbus' && (

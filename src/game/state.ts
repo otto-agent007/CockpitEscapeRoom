@@ -36,6 +36,7 @@ export type GameAction =
   | { type: 'ASSIGN_AIRBUS_DECOY_CARD'; decoy: FirstOfficerDecoy; card: string }
   | { type: 'SET_AIRBUS_CLOCK_ANSWER'; value: string }
   | { type: 'SUBMIT_AIRBUS_CLOCK' }
+  | { type: 'CONTINUE_FROM_AIRBUS_TO_REWARD' }
   | { type: 'COMPLETE_LOCKER_INTRO' }
   | { type: 'SUBMIT_LOCKER_ANSWER'; memoryId: LockerQuestionId; response: string }
   | { type: 'USE_LOCKER_HINT'; memoryId?: LockerQuestionId }
@@ -496,12 +497,19 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
       return {
         ...state,
-        phase: 'reward',
         completedPuzzles: unique([...state.completedPuzzles, 'firstOfficer']),
-        captainRewardUnlocked: true,
         statusMessage: `${firstOfficerFlow.clockFeedback} ${firstOfficerFlow.knowledgeLoggedText}`,
       }
     }
+
+    case 'CONTINUE_FROM_AIRBUS_TO_REWARD':
+      if (state.phase !== 'airbus' || !state.completedPuzzles.includes('firstOfficer')) return state
+      return {
+        ...state,
+        phase: 'reward',
+        captainRewardUnlocked: true,
+        statusMessage: 'Ground transport upgrade authorized.',
+      }
 
     case 'COMPLETE_LOCKER_INTRO':
       if (state.phase !== 'locker' || state.lockerIntroCompleted) return state

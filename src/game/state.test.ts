@@ -144,7 +144,7 @@ describe('DC-9 Final Flight Log reducer', () => {
     expect(next.statusMessage).toContain('already complete')
   })
 
-  it('routes successful Airbus qualification to the protected reward', () => {
+  it('keeps the existing Airbus completion celebration before the reward handoff', () => {
     let state: GameState = {
       ...createInitialState(),
       phase: 'airbus',
@@ -171,9 +171,22 @@ describe('DC-9 Final Flight Log reducer', () => {
     state = gameReducer(state, { type: 'SET_AIRBUS_CLOCK_ANSWER', value: '1500' })
     state = gameReducer(state, { type: 'SUBMIT_AIRBUS_CLOCK' })
 
-    expect(state.phase).toBe('reward')
+    expect(state.phase).toBe('airbus')
     expect(state.completedPuzzles).toEqual(['captain', 'locker', 'firstOfficer'])
-    expect(state.captainRewardUnlocked).toBe(true)
+    expect(state.captainRewardUnlocked).toBe(false)
+  })
+
+  it('continues from the existing Airbus completion celebration to the reward', () => {
+    const state: GameState = {
+      ...createInitialState(),
+      phase: 'airbus',
+      completedPuzzles: ['captain', 'locker', 'firstOfficer'],
+    }
+
+    const next = gameReducer(state, { type: 'CONTINUE_FROM_AIRBUS_TO_REWARD' })
+
+    expect(next.phase).toBe('reward')
+    expect(next.captainRewardUnlocked).toBe(true)
   })
 })
 
@@ -242,7 +255,7 @@ describe('gameReducer', () => {
     expect(state.statusMessage).toContain('Airline Transport Pilot question')
   })
 
-  it('routes qualification to the protected reward after a recoverable wrong answer', () => {
+  it('shows the existing completion celebration after a recoverable wrong answer', () => {
     let state = completeAirbusLabels()
 
     state = gameReducer(state, { type: 'SUBMIT_AIRBUS_CLOCK' })
@@ -252,10 +265,10 @@ describe('gameReducer', () => {
     state = gameReducer(state, { type: 'SET_AIRBUS_CLOCK_ANSWER', value: firstOfficerFlow.clockAnswer })
     state = gameReducer(state, { type: 'SUBMIT_AIRBUS_CLOCK' })
 
-    expect(state.phase).toBe('reward')
+    expect(state.phase).toBe('airbus')
     expect(state.completedPuzzles).toEqual(['firstOfficer'])
     expect(state.statusMessage).toContain('milestone recognized')
-    expect(state.captainRewardUnlocked).toBe(true)
+    expect(state.captainRewardUnlocked).toBe(false)
   })
 
   it.each(['1500', '1,500', '1500 hour', '1500 hours'])(
@@ -265,7 +278,7 @@ describe('gameReducer', () => {
       state = gameReducer(state, { type: 'SET_AIRBUS_CLOCK_ANSWER', value: answer })
       state = gameReducer(state, { type: 'SUBMIT_AIRBUS_CLOCK' })
 
-      expect(state.phase).toBe('reward')
+      expect(state.phase).toBe('airbus')
       expect(state.completedPuzzles).toContain('firstOfficer')
     },
   )

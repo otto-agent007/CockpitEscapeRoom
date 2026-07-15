@@ -4,7 +4,7 @@
 
 The repository and product are named **CockpitEscapeRoom**. Do not rename the project or reintroduce earlier working titles.
 
-Build a fun, personalized browser escape room honoring an expert pilot who started on McDonnell Douglas DC-9 aircraft and later flew Airbus aircraft. The gameplay opens with the **DC-9 Final Flight Log**, transitions through a personal locker reveal, continues into the existing **Airbus A320 First-Officer experience**, and then unlocks the red Tesla Model Y reward. A sleek near-future **Flight Mode** transformation follows with clean panel movement, wing/stabilizer deployment, hidden lift fans, and concealed propulsion accents. A hidden Mars mission remains an optional Easter egg after the main ending.
+Build a fun, personalized browser escape room honoring an expert pilot who started on McDonnell Douglas DC-9 aircraft and later flew Airbus aircraft. Preserve the existing opening screen except that its button is titled **Start Game**; that button opens the **DC-9 Final Flight Log** in the former Airbus slot. The unchanged locker reveal follows, then its existing **Enter Pop T Captain Mode** action opens the unchanged **Airbus A320 First-Officer gameplay**, which now occupies the Captain-mode slot. The red Tesla Model Y reward unlocks after that Airbus chapter. A sleek near-future **Flight Mode** transformation follows with clean panel movement, wing/stabilizer deployment, hidden lift fans, and concealed propulsion accents. A hidden Mars mission remains an optional Easter egg after the main ending.
 
 The aircraft is safely parked for a commemorative legacy flight. Never frame Dad as causing an accident, emergency, or systems failure.
 

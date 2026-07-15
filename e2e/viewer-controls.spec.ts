@@ -78,7 +78,7 @@ test('viewer help closes with Escape and restores trigger focus', async ({ page 
   expect(tools!.x).toBeGreaterThan(dock!.x + dock!.width)
 })
 
-test('reduced motion Airbus completion routes directly to reward and survives reload', async ({ page }) => {
+test('reduced motion Airbus completion keeps its celebration before reward and survives reload', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/?skip3d=1')
   await seed(page, airbusState({
@@ -93,8 +93,10 @@ test('reduced motion Airbus completion routes directly to reward and survives re
 
   await page.getByRole('textbox', { name: 'Airline Transport Pilot answer' }).fill('1500 hours')
   await page.getByRole('button', { name: 'Verify' }).click()
-  await expect(page.getByText('Ground Transport Upgrade Authorized')).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Airline Transport Pilot milestone recognized' })).toBeVisible()
   await expect(page.locator('.qualification-confetti')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Continue' }).click()
+  await expect(page.getByText('Ground Transport Upgrade Authorized', { exact: true })).toBeVisible()
   await page.reload()
-  await expect(page.getByText('Ground Transport Upgrade Authorized')).toBeVisible()
+  await expect(page.getByText('Ground Transport Upgrade Authorized', { exact: true })).toBeVisible()
 })

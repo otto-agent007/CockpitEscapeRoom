@@ -220,7 +220,7 @@ describe('game storage', () => {
     })
   })
 
-  it('moves completed First-Officer progress forward to the reward after reload', () => {
+  it('keeps completed First-Officer progress at the existing celebration after reload', () => {
     const storage = createMemoryStorage()
     const state = createAirbusV7State({
       completedPuzzles: ['captain', 'locker', 'firstOfficer'],
@@ -230,9 +230,7 @@ describe('game storage', () => {
 
     expect(loadGameState(storage)).toEqual({
       ...state,
-      phase: 'reward',
-      captainRewardUnlocked: true,
-      airbusClockAnswer: '1500',
+      airbusClockAnswer: '',
     })
   })
 

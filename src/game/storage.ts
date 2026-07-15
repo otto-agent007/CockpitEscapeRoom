@@ -249,10 +249,6 @@ function normalizeV7(value: unknown): GameState | null {
     phase = 'captain'
     dc9 = createInitialState().dc9
   }
-  if (phase === 'airbus' && completedPuzzles.includes('firstOfficer')) {
-    phase = 'reward'
-    captainRewardUnlocked = true
-  }
   if (phase === 'reward' || phase === 'mars') captainRewardUnlocked = true
 
   return {

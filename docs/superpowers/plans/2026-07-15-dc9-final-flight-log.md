@@ -154,9 +154,9 @@ routeCompletionText: 'Legacy routes recorded. A companion record is ready.',
 
 Add five neutral `homeOperationsPages` covering the parallel operation, three children, food/care, sports/games/cheerleading, school-clothes shopping, household needs, and recognition. Do not invent dates, routes, quotations, school transportation, or first-person authorship.
 
-- [x] **Step 4: Update global copy for the new order**
+- [x] **Step 4: Update DC-9 copy without redesigning surrounding scenes**
 
-Change briefing and transition copy to say the journey begins in the DC-9, continues through the Captain's Locker, and then enters the existing Airbus experience. Remove statements that Airbus is first or the locker promotes the player into DC-9 Captain Mode.
+Preserve the existing briefing, locker, and Airbus copy. Change only the briefing button label to `Start Game`, and make that action open the revised DC-9 chapter. Treat this milestone as swapping the DC-9 and Airbus positions: the unchanged locker still unlocks `Pop T Captain Mode`, and the unchanged Airbus gameplay now occupies that Captain-mode slot.
 
 - [x] **Step 5: Run the focused test**
 
@@ -493,9 +493,9 @@ Use `?skip3d=1` and complete/seed each checkpoint. Assert the phase headings app
 await expect(page.getByRole('heading', { name: /Final Flight Log/i })).toBeVisible()
 // complete DC-9
 await expect(page.getByRole('heading', { name: /Captain's Locker/i })).toBeVisible()
-// complete locker
+// complete the unchanged locker
 await expect(page.getByRole('heading', { name: /First Officer/i })).toBeVisible()
-// complete Airbus
+// complete the unchanged Airbus gameplay in the Captain-mode slot
 await expect(page.getByText('Ground Transport Upgrade Authorized')).toBeVisible()
 ```
 
@@ -508,15 +508,15 @@ Expected: FAIL because the current order begins with Airbus.
 
 Render a dialog named `The Captain's Key` with both engravings, one `Take the Captain's Key` button, focus management, Escape behavior only before claim, and a live text equivalent. Reduced-motion mode renders the final key pose immediately.
 
-- [x] **Step 4: Update locker transition copy**
+- [x] **Step 4: Preserve the locker transition and route it to Airbus**
 
-Remove `Enter Pop T Captain Mode`, promotion-to-DC-9 wording, and any claim that the locker unlocks the DC-9. The locker now acknowledges the captain's hat and continues to the existing Airbus crew experience.
+Keep the existing `POP T CAPTAIN MODE UNLOCKED` celebration, `Enter Pop T Captain Mode` button, copy, puzzles, models, props, camera sequence, and hat mechanics unchanged. Change only the button's internal destination so it opens the existing Airbus gameplay, which now occupies the Captain-mode slot.
 
-Do not change locker puzzles, models, props, camera sequence, or hat celebration mechanics beyond necessary button/copy/routing changes.
+Do not change any player-facing locker presentation or behavior.
 
 - [x] **Step 5: Update Airbus completion routing**
 
-After the existing five-card and ATP question flow succeeds, route to `reward`. Preserve all existing assignment, retry, accessibility, and qualification behavior.
+After the existing five-card and ATP question flow and its existing qualification celebration succeed, make the celebration's `Continue` action route to `reward`. Preserve all existing Airbus copy, assignment, retry, accessibility, and qualification behavior.
 
 - [x] **Step 6: Run complete-order and existing Airbus tests**
 
@@ -550,7 +550,7 @@ Document the order DC-9 → locker → Airbus → Model Y. Include DTW/MSP/STL, 
 
 - [x] **Step 2: Update README**
 
-Replace the old Airbus-first narrative and verification checklist. State that mobile-specific visual polish is not part of this milestone while accessible narrow fallback remains.
+Document the DC-9/Airbus slot swap while making clear that the opening screen, locker, and Airbus surfaces remain unchanged. State that mobile-specific visual polish is not part of this milestone while accessible narrow fallback remains.
 
 - [x] **Step 3: Run focused unit checks**
 
@@ -581,12 +581,10 @@ Expected: all cases PASS with no application console errors.
 
 Capture and inspect the primary production desktop width for:
 
-- sunset cockpit introduction
 - cockpit/log split view
 - Home Operations Log
 - overhead shutdown
 - key reveal
-- locker transition
 
 Also exercise one narrow width only as a functional overflow/accessibility check. Do not create a mobile visual-approval gate or spend the milestone polishing a separate mobile composition.
 
@@ -614,7 +612,7 @@ git commit -m "docs: record DC-9 final flight log verification"
 
 - [x] **Step 12: Final review with Sol Extra High**
 
-Review the complete branch against `docs/superpowers/specs/2026-07-15-dc9-final-flight-log-design.md`. Reject any result that rebuilds the DC-9 asset, treats Momma Cheryl's record as a quiz, restores progress-reset behavior, reintroduces Airbus-first copy, or adds a dedicated mobile milestone.
+Review the complete branch against `docs/superpowers/specs/2026-07-15-dc9-final-flight-log-design.md` plus the owner's scope correction. Reject any result that rebuilds the DC-9 asset, treats Momma Cheryl's record as a quiz, alters the existing opening beyond the `Start Game` button and its destination, changes player-facing locker/Airbus gameplay, restores progress-reset behavior, or adds a dedicated mobile milestone.
 
 ---
 
@@ -624,13 +622,13 @@ Review the complete branch against `docs/superpowers/specs/2026-07-15-dc9-final-
 
 - 2026-07-14: Tasks 1–6 completed sequentially with one focused commit per task.
 - 2026-07-14: Task 7 completed. Extra High final review repaired two scope regressions, and all post-review static, asset, focused-browser, and full-browser gates passed.
+- 2026-07-14: Owner correction applied after review: restored the original opening, locker, and Airbus surfaces; retained only the `Start Game` label plus DC-9/Airbus slot swap; restored the existing Airbus completion celebration before reward.
 
 ### Discoveries
 
 - The current GLB intentionally retains legacy route-row IDs and baked BTR/STL/TYS text. The runtime must validate those fixed IDs while using them only as the single HTML record trigger; deriving registry requirements from the new DTW/MSP/STL content incorrectly forced the accessible fallback.
-- React's current immutability lint rule rejects assigning `tabIndex` through the renderer returned by `useThree`. Declaring `tabIndex={0}` on `<Canvas>` preserves keyboard focus without mutating a hook-owned value.
 - Historical locker/viewer browser fixtures seeded an illegal Airbus-first v7 state. Legal post-key locker and post-locker Airbus fixtures preserve the same locker/Airbus mechanics under the approved order.
-- Browser evidence exposed two presentation defects not caught by assertions: the opening illustration was too dark to read as a cockpit, and a global paragraph color made Home Operations text too pale. Both were repaired in the DC-9-owned stylesheet and re-inspected.
+- The approved change is a slot swap: DC-9 replaces Airbus immediately after the original start screen, while unchanged Airbus gameplay occupies the Captain-mode slot after the unchanged locker.
 - Extra High final review found an out-of-scope generic donor-control/yoke-motion expansion in `PrototypeScene.tsx`; it was removed so the implementation retains the strict registry, existing yoke trigger, saved cameras, and three authored shutdown pivots only.
 - Migrated saves retained the completed First-Officer flag but initially routed back into Airbus after the locker. The locker continuation now recognizes that prior completion and advances those players to the existing reward without changing the normal DC-9 → locker → Airbus path.
 
@@ -638,11 +636,11 @@ Review the complete branch against `docs/superpowers/specs/2026-07-15-dc9-final-
 
 - Executed inline on `design/dc9-final-flight-log` as requested instead of creating a worktree.
 - Preserved all pre-existing Blender, GLB, asset-report, pipeline-tool, and unrelated local changes without staging them.
-- Used a lightweight HTML/CSS key cinematic and a CSS opening illustration; no physical key model or DC-9 asset rebuild was introduced.
+- Used a lightweight HTML/CSS key cinematic; no physical key model or DC-9 asset rebuild was introduced.
 - Updated `AGENTS.md` and `BLUEPRINT.md` with the approved order in addition to the planned README and game-design files so repository guidance cannot reintroduce Airbus-first behavior.
 - Updated the stale asset-loading sentence in `docs/ARCHITECTURE.md` so it no longer instructs future work to load Airbus first.
 
 ### Validation evidence
 
 - Exact command results, pass counts, asset hashes, known warnings, and inspected screenshot paths are recorded in `TEST_REPORT.md` under `2026-07-14 - DC-9 Final Flight Log reordered journey`.
-- Post-review verification passed: `npm run check` (61/61 unit tests plus build), `npm run assets:check`, focused Playwright (7/7 in 2.3 minutes), full Playwright (15/15 in 4.2 minutes), and `git diff --check`.
+- Owner-correction verification passed: focused reducer/storage tests (57/57), corrected complete-journey Playwright (1/1), unchanged locker/Airbus regression Playwright (8/8), `npm run check` (62/62 unit tests plus build), `npm run assets:check`, and full Playwright (15/15 in 4.3 minutes). Final diff checks are recorded after staging only the correction.
