@@ -761,3 +761,22 @@ Historical checkpoint; the 2026-07-11 transition and Tripo-intake sections above
 - Added a deterministic `dc9-captain` profile to `tools/blender/render_source_candidate.py`. It retains front/side/top as source-geometry inspection views while locking `three-quarter.png` to the left-seat eye point, a restrained 46 mm lens, and a sightline across the captain panel toward the center stack.
 - Blender 5.1.2 regenerated and visually inspected the corrected 1,313,183-byte render twice. Both runs preserved the fixed camera and visible framing; their PNG byte hashes differed, so EEVEE preview hashes are not treated as stable evidence.
 - The source GLB remained byte-identical at SHA-256 `00eed7115fa045eb391cae7976d31ecf25b15d6e74ea50ad60b094c2bbbef114`; this repair changed camera evidence only, not donor geometry or the playable runtime GLB.
+
+## 2026-07-14 - DC-9 Final Flight Log reordered journey
+
+- Implemented and verified the approved slot swap: the original opening is unchanged except for its **Start Game** label and DC-9 destination; the revised DC-9 Final Flight Log then leads to the unchanged Captain's Locker; its existing **Enter Pop T Captain Mode** action leads to unchanged Airbus A320 gameplay in the Captain-mode slot; the existing Airbus qualification celebration then continues to the Model Y reward. Momma Cheryl's five-page Home Operations Log is read-only recognition with no input, score, timer, or failure state.
+- `npm test -- src/game/state.test.ts src/game/storage.test.ts` passed 57/57 reducer and persistence tests.
+- `npm run check` passed: ESLint, TypeScript, 62/62 Vitest tests, and the Vite production build.
+- `npm run assets:check` passed without rebuilding the DC-9. Existing validator information/warnings remain limited to imported-asset unused UV/empty-node and generated-tangent reports.
+- `npx playwright test e2e/smoke.spec.ts -g "DC-9|complete reordered journey|Airbus" --workers=1` passed 7/7 in 2.3 minutes.
+- `npm run test:e2e -- --workers=1` passed 15/15 Chromium cases in 4.3 minutes. Coverage includes the real Airbus and DC-9 GLBs, strict DC-9 registry/cameras, model/load failures, keyboard focus, safe retry, reduced motion, reload persistence, Captain's Key handoff, unchanged locker progression, the existing Airbus qualification celebration before reward, and Mars/reward save preservation.
+- Actual-browser verification passed after launching Chromium with the host-required `--no-sandbox` argument: meaningful content rendered, no Vite error overlay or page errors appeared, and the only dev-server console warning was the existing upstream `THREE.Clock` deprecation.
+- Inspected 1440 × 900 evidence:
+  - `preview-renders/dc9-final-flight-log/02-cockpit-route-record-1440.png`
+  - `preview-renders/dc9-final-flight-log/03-home-operations-log-1440.png`
+  - `preview-renders/dc9-final-flight-log/04-overhead-shutdown-1440.png`
+  - `preview-renders/dc9-final-flight-log/05-captains-key-reveal-1440.png`
+- A single 375 × 812 functional check found zero horizontal overflow; the stacked Legacy Route Record remained within `x=12..363` and exposed all six route controls, submit, close, viewer-help, fullscreen, and restart controls. This is functional narrow-layout evidence, not a mobile visual-approval milestone.
+- `public/models/dc9-cockpit.glb` remained 30,420,832 bytes with SHA-256 `60bfc2e6c137ad47bfb269dfdd4a71c1dda6eb95a0367d7f54a508c7d69fb7cd`, exactly matching the hash recorded before implementation. `art-source/blender/dc9_master.blend` and `dc9_reference_scene.blend` also retained their pre-implementation hashes. `npm run asset:dc9` was not run.
+- No external preview was published during this verification pass, so preview-byte parity is not applicable. Real local HTTP model delivery and runtime registry readiness are covered by the passing production-GLB browser test.
+- Owner-correction review restored the original opening presentation, byte-for-byte original locker UI/copy, and byte-for-byte original Airbus UI/copy. Only the `Start Game` label/destination and internal inter-chapter handoffs differ outside the DC-9 implementation. The two screenshots that documented the mistaken opening and locker changes were removed.

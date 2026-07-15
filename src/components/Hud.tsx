@@ -1,7 +1,7 @@
 import { useMemo, useState, type DragEvent } from 'react'
-import { dc9LegacyFlow, firstOfficerFlow, gameCopy, type FirstOfficerControl, type LockerMemoryId } from '../game/config'
-import { DC9_SECURE_ORDER, gameProgress, type GameAction, type GameState } from '../game/state'
-import type { AirbusHotspotScreenPositions, Dc9HotspotScreenPositions, Dc9LoadState } from '../scenes/PrototypeScene'
+import { firstOfficerFlow, gameCopy, type FirstOfficerControl, type LockerMemoryId } from '../game/config'
+import { gameProgress, type GameAction, type GameState } from '../game/state'
+import type { AirbusHotspotScreenPositions } from '../scenes/PrototypeScene'
 import { LockerHud } from './LockerHud'
 
 interface HudProps {
@@ -15,9 +15,6 @@ interface HudProps {
   onSelectedAirbusCardChange: (card: string | null) => void
   selectedLockerMemory: LockerMemoryId | null
   onSelectedLockerMemoryChange: (memory: LockerMemoryId | null) => void
-  dc9LoadState: Dc9LoadState
-  dc9Hotspots: Dc9HotspotScreenPositions
-  onDc9Fallback?: () => void
 }
 
 const airbusTargetMeta: Record<FirstOfficerControl, { x: number; y: number }> = {
@@ -39,13 +36,9 @@ export function Hud({
   onSelectedAirbusCardChange,
   selectedLockerMemory,
   onSelectedLockerMemoryChange,
-  dc9LoadState,
-  dc9Hotspots,
-  onDc9Fallback,
 }: HudProps) {
   const [draggingAirbusCard, setDraggingAirbusCard] = useState<string | null>(null)
   const [activeAirbusTarget, setActiveAirbusTarget] = useState<FirstOfficerControl | null>(null)
-  const selectedRoutes = new Set(state.routeSelections)
   const assignedCards = useMemo(() => new Set(Object.values(state.airbusAssignments).filter(Boolean)), [state.airbusAssignments])
 
   const isComplete = (id: FirstOfficerControl) => state.airbusAssignments[id] === firstOfficerFlow.controlMatch[id]
@@ -239,111 +232,6 @@ export function Hud({
         onSelectedMemoryChange={onSelectedLockerMemoryChange}
         onRestart={onRestart}
       />
-    )
-  }
-
-  if (state.phase === 'captain') {
-    const projectedStyle = (gameId: string, fallback: { x: string; y: string }) => {
-      const hotspot = dc9Hotspots[gameId]
-      return hotspot?.visible
-        ? { left: `clamp(62px, ${hotspot.x}px, calc(100vw - 62px))`, top: `${hotspot.y}px` }
-        : { left: fallback.x, top: fallback.y }
-    }
-    const routeFallback = [
-      { x: '18%', y: '35%' }, { x: '18%', y: '42%' }, { x: '18%', y: '49%' },
-      { x: '18%', y: '56%' }, { x: '18%', y: '63%' }, { x: '18%', y: '70%' },
-    ]
-    const secureFallback = [{ x: '44%', y: '18%' }, { x: '53%', y: '18%' }, { x: '62%', y: '18%' }]
-    const fallback = dc9LoadState.status === 'error' || dc9LoadState.status === 'accessible-fallback'
-    return (
-      <section className={`captain-interface${fallback ? ' captain-interface--fallback' : ''}`} aria-labelledby="captain-heading">
-        <header className="captain-topbar">
-          <div>
-            <p className="eyebrow">DC-9-32 · Pop T Captain Mode</p>
-            <h2 id="captain-heading" className="sr-only">DC-9-32 Pop T Captain Mode</h2>
-          </div>
-          <div className="captain-progress" aria-label="Captain Mode progress">
-            <span>{state.captainRouteVerified ? 'Route verified' : 'Route verification'}</span>
-            <strong>{state.captainRouteVerified ? `${state.dc9SecureSequence.length}/3 secure` : `${state.routeSelections.length}/3 selected`}</strong>
-          </div>
-        </header>
-
-        <div className="captain-projected-controls" data-testid="captain-projected-controls">
-          {!state.captainRouteVerified && dc9LegacyFlow.routePuzzleOptions.map((route, index) => {
-            const selected = selectedRoutes.has(route.code)
-            const highlighted = state.captainAttempts.route >= 2 && route.verifiedDc9
-            const routeHotspot = dc9Hotspots[`dc9.route.${route.code}`]
-            return (
-              <button
-                key={route.code}
-                type="button"
-                className={`captain-route-hotspot${selected ? ' is-selected' : ''}${highlighted ? ' is-hinted' : ''}`}
-                style={projectedStyle(`dc9.route.${route.code}`, routeFallback[index] ?? { x: '18%', y: '50%' })}
-                aria-pressed={selected}
-                aria-label={`${route.code}, ${route.city}, ${route.mileage} miles from Memphis`}
-                data-projection={routeHotspot?.visible ? 'mesh' : 'fallback'}
-                data-projection-point={routeHotspot ? `${routeHotspot.x},${routeHotspot.y}` : undefined}
-                onClick={() => dispatch({ type: 'TOGGLE_ROUTE', code: route.code })}
-              >
-                <strong>{route.code}</strong>
-                <span>{route.city} · {route.mileage} mi</span>
-              </button>
-            )
-          })}
-          {!state.captainRouteVerified && (
-            <button
-              type="button"
-              className="captain-route-submit"
-              style={projectedStyle('dc9.route.submit', { x: '18%', y: '78%' })}
-              disabled={state.routeSelections.length !== dc9LegacyFlow.routePuzzleAnswers.length}
-              onClick={() => dispatch({ type: 'SUBMIT_ROUTE' })}
-            >
-              Verify MEM strip
-            </button>
-          )}
-          {state.captainRouteVerified && DC9_SECURE_ORDER.map((controlId, index) => {
-            const complete = state.dc9SecureSequence.includes(controlId)
-            const next = DC9_SECURE_ORDER[state.dc9SecureSequence.length] === controlId
-            const secureHotspot = dc9Hotspots[`dc9.secure.${controlId}`]
-            return (
-              <button
-                key={controlId}
-                type="button"
-                className={`captain-secure-hotspot${complete ? ' is-complete' : ''}${state.captainAttempts.secure >= 2 && next ? ' is-hinted' : ''}`}
-                style={projectedStyle(`dc9.secure.${controlId}`, secureFallback[index] ?? { x: '52%', y: '18%' })}
-                aria-pressed={complete}
-                disabled={complete}
-                data-projection={secureHotspot?.visible ? 'mesh' : 'fallback'}
-                data-projection-point={secureHotspot ? `${secureHotspot.x},${secureHotspot.y},${secureHotspot.visible}` : undefined}
-                onClick={() => dispatch({ type: 'ACTIVATE_DC9_CONTROL', controlId })}
-              >
-                <span>{dc9LegacyFlow.secureControls[controlId].label}</span>
-                <strong>{complete ? 'Off' : next ? 'Next' : 'Stand by'}</strong>
-              </button>
-            )
-          })}
-        </div>
-
-        {dc9LoadState.status === 'error' && (
-          <div className="captain-load-notice" role="alert">
-            <strong>3D cockpit unavailable.</strong>
-            <span>Your progress is safe; the same controls remain available.</span>
-            {onDc9Fallback && <button type="button" onClick={onDc9Fallback}>Use static cockpit view</button>}
-          </div>
-        )}
-
-        <footer className="captain-status-dock">
-          <div>
-            <p className="captain-stage-label">{state.captainRouteVerified ? 'Parked-cockpit secure' : 'MEM route strip'}</p>
-            <p className="captain-status" aria-live="polite" aria-atomic="true">{state.statusMessage}</p>
-            <small>{dc9LegacyFlow.disclaimer}</small>
-          </div>
-          <div className="captain-dock-actions">
-            <button type="button" onClick={() => dispatch({ type: 'USE_HINT' })}>Hint</button>
-            <button type="button" onClick={onRestart}>Restart</button>
-          </div>
-        </footer>
-      </section>
     )
   }
 

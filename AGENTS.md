@@ -4,7 +4,7 @@
 
 The repository and product are named **CockpitEscapeRoom**. Do not rename the project or reintroduce earlier working titles.
 
-Build a fun, personalized browser escape room honoring an expert pilot who started on McDonnell Douglas DC-9 aircraft and later flew Airbus aircraft. The gameplay opens in **Airbus A320 First-Officer onboarding**, transitions through a personal locker reveal, then unlocks **Pop T Captain Mode in a McDonnell Douglas DC-9-32 legacy cockpit**. A red Tesla Model Y reward unlocks after Captain Mode completion, followed by a sleek near-future **Flight Mode** transformation with clean panel movement, wing/stabilizer deployment, hidden lift fans, and concealed propulsion accents. A hidden Mars mission remains an optional Easter egg after the main ending.
+Build a fun, personalized browser escape room honoring an expert pilot who started on McDonnell Douglas DC-9 aircraft and later flew Airbus aircraft. Preserve the existing opening screen except that its button is titled **Start Game**; that button opens the **DC-9 Final Flight Log** in the former Airbus slot. The unchanged locker reveal follows, then its existing **Enter Pop T Captain Mode** action opens the unchanged **Airbus A320 First-Officer gameplay**, which now occupies the Captain-mode slot. The red Tesla Model Y reward unlocks after that Airbus chapter. A sleek near-future **Flight Mode** transformation follows with clean panel movement, wing/stabilizer deployment, hidden lift fans, and concealed propulsion accents. A hidden Mars mission remains an optional Easter egg after the main ending.
 
 The aircraft is safely parked for a commemorative legacy flight. Never frame Dad as causing an accident, emergency, or systems failure.
 
@@ -118,7 +118,7 @@ Stop only when validation passes, a bounded maximum attempt count is reached, th
 - Stable object names, pivots, hierarchy, animations, and `game_id` custom properties are public runtime contracts.
 - Do not run destructive GLB optimization until hierarchy and interaction regression tests prove it safe.
 - Record material count, texture sizes, optimization decisions, validation output, and preview-render evidence before treating a generated asset as production-ready.
-- Preserve Model Y spoiler protection: no reward asset, Flight Mode thumbnail, menu item, loading copy, hint, or achievement may reveal the Model Y before Pop T Captain Mode completion.
+- Preserve Model Y spoiler protection: no reward asset, Flight Mode thumbnail, menu item, loading copy, hint, or achievement may reveal the Model Y before the DC-9, locker, and Airbus chapters are complete.
 - The Model Y Flight Mode transformation should stay sleek, plausible-futuristic, and premium: clean mechanical panels, wing/stabilizer deployment, hidden lift fans or concealed propulsion accents, restrained lighting, no aggressive sci-fi styling, and no humanoid robot transformation.
 - Owner-approved airline artwork, logos, textures, and production assets may be used when they match the current scene group and asset authority.
 
@@ -126,10 +126,10 @@ Stop only when validation passes, a bounded maximum attempt count is reached, th
 
 Pause for owner review after:
 
-1. Airbus A320 First-Officer interaction proof.
+1. DC-9-32 Final Flight Log interaction proof.
 2. Locker room reveal proof.
-3. DC-9-32 captain-seat blockout and first browser export.
-4. First polished DC-9-32 puzzle.
+3. Existing Airbus A320 First-Officer interaction regression proof.
+4. Complete reordered journey proof.
 5. Red Model Y reward and Flight Mode transformation asset.
 6. Final complete-game review.
 

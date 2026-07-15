@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { dc9LegacyFlow, lockerFlow } from '../src/game/config'
 import { createInitialState, type GameState } from '../src/game/state'
 import { STORAGE_KEY } from '../src/game/storage'
 
@@ -6,7 +7,21 @@ function lockerState(overrides: Partial<GameState> = {}): GameState {
   return {
     ...createInitialState(),
     phase: 'locker',
-    completedPuzzles: ['firstOfficer'],
+    dc9: {
+      stage: 'complete',
+      routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
+      routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
+      routeAttempts: 0,
+      homePage: dc9LegacyFlow.homeOperationsPages.length - 1,
+      homeOperationsCompleted: true,
+      secureSequence: [...dc9LegacyFlow.secureSequence],
+      keyRevealed: true,
+      keyClaimed: true,
+    },
+    captainRouteVerified: true,
+    dc9SecureSequence: [...dc9LegacyFlow.secureSequence],
+    routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
+    completedPuzzles: ['captain'],
     lockerIntroCompleted: true,
     statusMessage: 'Begin with the pilot watch.',
     ...overrides,
@@ -19,15 +34,28 @@ async function seed(page: Page, state: GameState, suffix = '?skip3d=1') {
   await page.reload()
 }
 
-test('Airbus completion plays the narrative handoff and settles on the watch-first gate', async ({ page }) => {
+test("Captain's Key plays the narrative handoff and settles on the watch-first gate", async ({ page }) => {
   await seed(page, {
     ...createInitialState(),
-    phase: 'airbus',
-    completedPuzzles: ['firstOfficer'],
-    statusMessage: 'Airline Transport Pilot milestone recognized. First-Officer knowledge logged.',
+    phase: 'captain',
+    dc9: {
+      stage: 'keyReveal',
+      routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
+      routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
+      routeAttempts: 0,
+      homePage: dc9LegacyFlow.homeOperationsPages.length - 1,
+      homeOperationsCompleted: true,
+      secureSequence: [...dc9LegacyFlow.secureSequence],
+      keyRevealed: true,
+      keyClaimed: false,
+    },
+    captainRouteVerified: true,
+    dc9SecureSequence: [...dc9LegacyFlow.secureSequence],
+    routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
+    statusMessage: "The Captain's Key is ready.",
   })
 
-  await page.getByRole('button', { name: 'Continue' }).click()
+  await page.getByRole('button', { name: "Take the Captain's Key" }).click()
   const transition = page.locator('.locker-transition')
   await expect(transition).toBeVisible()
   const skipButton = page.getByRole('button', { name: 'Skip cinematic' })
@@ -36,7 +64,7 @@ test('Airbus completion plays the narrative handoff and settles on the watch-fir
   await expect(skipButton).toBeFocused()
   await expect(page.getByRole('button', { name: 'Inspect watch' })).toHaveCount(0)
   await expect(transition).toHaveAttribute('data-locker-intro-stage', 'title-in', { timeout: 5_000 })
-  await expect(page.getByText('Before you can sit in the captain’s seat, you must understand the Captain’s journey…')).toBeVisible()
+  await expect(page.getByText(lockerFlow.introText)).toBeVisible()
 
   await skipButton.click()
   await expect(transition).toHaveCount(0)
@@ -113,10 +141,10 @@ test('watch completion opens the baseball question, then Bull and Wings', async 
   await expect(celebration).toHaveAttribute('data-celebration-ready', 'true')
   await expect(celebration.getByRole('img', { name: 'Captain’s hat' })).toBeVisible()
   await expect(celebration.locator('.qualification-confetti i')).toHaveCount(24)
-  const enterCaptainButton = celebration.getByRole('button', { name: 'Enter Pop T Captain Mode' })
-  await expect(enterCaptainButton).toBeFocused()
+  const continueToAirbusButton = celebration.getByRole('button', { name: 'Enter Pop T Captain Mode' })
+  await expect(continueToAirbusButton).toBeFocused()
   await page.keyboard.press('Tab')
-  await expect(enterCaptainButton).toBeFocused()
+  await expect(continueToAirbusButton).toBeFocused()
 
   await page.reload()
   await expect(page.locator('.locker-transition')).toHaveCount(0)
@@ -134,7 +162,7 @@ test('watch completion opens the baseball question, then Bull and Wings', async 
   }
 
   await page.getByRole('button', { name: 'Enter Pop T Captain Mode' }).click()
-  await expect(page.getByRole('heading', { name: 'POP T CAPTAIN MODE' })).toBeVisible()
+  await expect(page.getByText('Airbus First-Officer Mode', { exact: true })).toBeVisible()
 })
 
 test('reduced motion, replay, and Escape skip keep the accessible path usable', async ({ page }) => {
@@ -220,7 +248,7 @@ test('locker GLB loads into the real canvas and the directed camera settles on t
   await expect(page.locator('canvas')).toHaveAttribute('data-locker-bull-visual', 'revealed')
   await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })).toBeVisible()
   await page.getByRole('button', { name: 'Enter Pop T Captain Mode' }).click()
-  await expect(page.getByRole('heading', { name: 'POP T CAPTAIN MODE' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Airbus A320 First-Officer Mode' })).toBeVisible()
 })
 
 test('locker load failure offers retry and a watch-first accessible fallback', async ({ page }) => {

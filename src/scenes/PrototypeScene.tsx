@@ -4,7 +4,7 @@ import { OrbitControls as ThreeOrbitControls } from 'three/addons/controls/Orbit
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import * as THREE from 'three'
 import { dc9LegacyFlow, firstOfficerFlow, type FirstOfficerControl, type LockerMemoryId } from '../game/config'
-import { type Dc9SecureControlId, type GamePhase } from '../game/state'
+import { type Dc9ChapterStage, type Dc9SecureControlId, type GamePhase } from '../game/state'
 
 // Cockpit shells produced by the asset pipeline and served from public/models.
 const AIRBUS_MODEL_URL = `${import.meta.env.BASE_URL}models/airbus-first-officer.glb`
@@ -143,7 +143,7 @@ export type Dc9HotspotScreenPositions = Record<string, { x: number; y: number; v
 interface PrototypeSceneProps {
   phase: Exclude<GamePhase, 'briefing'>
   activeDc9Controls: Dc9SecureControlId[]
-  dc9RouteVerified: boolean
+  dc9ChapterStage: Dc9ChapterStage
   reducedMotion: boolean
   lockerHatRevealed: boolean
   captainRewardUnlocked: boolean
@@ -1329,22 +1329,23 @@ function LockerRoom({
   )
 }
 
-function Dc9RuntimeLighting() {
+function Dc9RuntimeLighting({ secureSteps }: { secureSteps: number }) {
   return (
     <>
-      <ambientLight intensity={0.32} color="#dce6e7" />
-      <hemisphereLight args={['#d8e8ef', '#132023', 0.42]} />
-      <directionalLight position={[-2.2, 3.2, 2.8]} intensity={1.18} color="#ffe0bd" />
-      <directionalLight position={[2.5, 1.9, 2.2]} intensity={0.76} color="#b8d5ff" />
-      <pointLight position={[-0.7, 0.75, 3.0]} intensity={0.5} distance={3.2} color="#d8efff" />
+      <ambientLight intensity={secureSteps >= 3 ? 0.13 : secureSteps >= 1 ? 0.23 : 0.32} color="#dce6e7" />
+      <hemisphereLight args={['#d8e8ef', '#132023', secureSteps >= 2 ? 0.22 : 0.42]} />
+      <directionalLight position={[-2.2, 3.2, 2.8]} intensity={secureSteps >= 3 ? 0.72 : 1.18} color="#ffe0bd" />
+      <directionalLight position={[2.5, 1.9, 2.2]} intensity={secureSteps >= 1 ? 0.38 : 0.76} color="#b8d5ff" />
+      <pointLight position={[-0.7, 0.75, 3.0]} intensity={secureSteps >= 2 ? 0.12 : 0.5} distance={3.2} color="#d8efff" />
     </>
   )
 }
 
+const DC9_LEGACY_ROUTE_REGISTRY_CODES = ['BTR', 'STL', 'TYS', 'LAX', 'SEA', 'AMS'] as const
 const DC9_REQUIRED_NODES = [
   'DC9_ROOT', 'DC9_STATIC', 'DC9_INSTRUMENTS', 'DC9_INTERACTIVE', 'DC9_COLLIDERS', 'DC9_PUZZLE_PROPS',
   'DC9_CTRL_APU_BUSES', 'DC9_CTRL_APU_MASTER', 'DC9_CTRL_BATTERY', 'DC9_ROUTE_SUBMIT', DC9_GAME_CAMERA, DC9_ROUTE_CAMERA, DC9_SECURE_CAMERA,
-  ...dc9LegacyFlow.routePuzzleOptions.map((route) => `DC9_ROUTE_ROW_${route.code}`),
+  ...DC9_LEGACY_ROUTE_REGISTRY_CODES.map((code) => `DC9_ROUTE_ROW_${code}`),
 ] as const
 
 const DC9_CONTROL_NODES: Record<Dc9SecureControlId, string> = {
@@ -1509,7 +1510,7 @@ function Dc9InteractionRaycaster({
 function Dc9Cockpit({
   cameraResetRevision,
   activeControls,
-  routeVerified,
+  chapterStage,
   phase,
   reducedMotion,
   interactionEnabled,
@@ -1520,7 +1521,7 @@ function Dc9Cockpit({
 }: {
   cameraResetRevision: number
   activeControls: Dc9SecureControlId[]
-  routeVerified: boolean
+  chapterStage: Dc9ChapterStage
   phase: 'captain' | 'reward' | 'mars'
   reducedMotion: boolean
   interactionEnabled: boolean
@@ -1635,9 +1636,9 @@ function Dc9Cockpit({
 
   useLayoutEffect(() => {
     if (!loaded) return
-    const routeStage = phase === 'captain' && !routeVerified
-    const secureStage = phase === 'captain' && routeVerified
-    const sourceCamera = routeStage ? loaded.routeCamera : secureStage ? loaded.secureCamera : loaded.camera
+    const routeStage = phase === 'captain' && (chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations')
+    const shutdownStage = phase === 'captain' && chapterStage === 'shutdown'
+    const sourceCamera = routeStage ? loaded.routeCamera : shutdownStage ? loaded.secureCamera : loaded.camera
     const wideFov = routeStage ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV
     const narrowFov = routeStage ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV
     loaded.scene.updateMatrixWorld(true)
@@ -1647,35 +1648,38 @@ function Dc9Cockpit({
       size.width < 900 ? narrowFov : wideFov,
     )
     canvasRef.current.dataset.dc9CameraNode = sourceCamera.name
-  }, [camera, loaded, phase, routeVerified, size.width])
+  }, [camera, chapterStage, loaded, phase, size.width])
 
   useLayoutEffect(() => {
     if (!loaded) return
+    const routeInteractive = phase === 'captain' && (chapterStage === 'intro' || chapterStage === 'routeRecord')
+    const shutdownInteractive = phase === 'captain' && chapterStage === 'shutdown'
     const routeProps = loaded.scene.getObjectByName('DC9_PUZZLE_PROPS')
-    if (routeProps) routeProps.visible = !routeVerified
+    if (routeProps) routeProps.visible = false
     loaded.scene.traverse((object) => {
       const gameId = object.userData.collider_target_game_id
       if (typeof gameId !== 'string') return
-      object.visible = gameId.startsWith('dc9.route.') ? !routeVerified : routeVerified
+      if (gameId.startsWith('dc9.route.')) object.visible = routeInteractive
+      else if (gameId.startsWith('dc9.secure.')) object.visible = shutdownInteractive
     })
-  }, [loaded, routeVerified])
+  }, [chapterStage, loaded, phase])
 
   return (
     <>
       <color attach="background" args={['#070b0d']} />
-      <Dc9RuntimeLighting />
+      <Dc9RuntimeLighting secureSteps={activeControls.length} />
       {loaded && !loadFailed ? (
         <>
           <primitive object={loaded.scene} dispose={null} />
           <Dc9SeatLookControls
-            sourceCamera={phase === 'captain' && !routeVerified
+            sourceCamera={phase === 'captain' && (chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations')
               ? loaded.routeCamera
-              : phase === 'captain' && routeVerified
+              : phase === 'captain' && chapterStage === 'shutdown'
                 ? loaded.secureCamera
                 : loaded.camera}
             cameraResetRevision={cameraResetRevision}
-            wideFov={phase === 'captain' && !routeVerified ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV}
-            narrowFov={phase === 'captain' && !routeVerified ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV}
+            wideFov={phase === 'captain' && (chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations') ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV}
+            narrowFov={phase === 'captain' && (chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations') ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV}
           />
           <Dc9ControlAnimator controls={loaded.controls} activeControls={activeControls} reducedMotion={reducedMotion} />
           <Dc9HotspotProjector targets={loaded.targets} onChange={onHotspotsChange} />
@@ -1698,7 +1702,7 @@ function Dc9Cockpit({
 
 function CaptainCockpit({
   activeControls,
-  routeVerified,
+  chapterStage,
   reducedMotion,
   phase,
   cameraResetRevision,
@@ -1709,7 +1713,7 @@ function CaptainCockpit({
   onHoverInteractive,
 }: {
   activeControls: Dc9SecureControlId[]
-  routeVerified: boolean
+  chapterStage: Dc9ChapterStage
   reducedMotion: boolean
   phase: 'captain' | 'reward' | 'mars'
   cameraResetRevision: number
@@ -1724,7 +1728,7 @@ function CaptainCockpit({
       <Dc9Cockpit
         cameraResetRevision={cameraResetRevision}
         activeControls={activeControls}
-        routeVerified={routeVerified}
+        chapterStage={chapterStage}
         phase={phase}
         reducedMotion={reducedMotion}
         interactionEnabled={phase === 'captain'}
@@ -1761,7 +1765,7 @@ function CaptainCockpit({
 export function PrototypeScene({
   phase,
   activeDc9Controls,
-  dc9RouteVerified,
+  dc9ChapterStage,
   reducedMotion,
   lockerHatRevealed,
   captainRewardUnlocked,
@@ -1833,7 +1837,7 @@ export function PrototypeScene({
         {(phase === 'captain' || phase === 'reward' || phase === 'mars') && (
           <CaptainCockpit
             activeControls={activeDc9Controls}
-            routeVerified={dc9RouteVerified}
+            chapterStage={dc9ChapterStage}
             reducedMotion={reducedMotion}
             phase={phase}
             cameraResetRevision={cameraResetRevision}
@@ -1850,14 +1854,13 @@ export function PrototypeScene({
             <meshStandardMaterial color="#a41419" roughness={0.25} metalness={0.55} />
           </mesh>
         )}
-
         {(phase === 'reward' || phase === 'mars') && (
           <LimitedOrbitControls airbusCameraRevision={cameraResetRevision} />
         )}
       </Canvas>
       {phase !== 'airbus' && phase !== 'locker' && (
         <div className="prototype-badge">
-          {phase === 'captain' ? 'GREYBOX — DC-9 CAPTAIN FLOW' : 'HANGAR VIEW'}
+          {phase === 'captain' ? 'GREYBOX — DC-9 FINAL FLIGHT LOG' : 'HANGAR VIEW'}
         </div>
       )}
     </div>
