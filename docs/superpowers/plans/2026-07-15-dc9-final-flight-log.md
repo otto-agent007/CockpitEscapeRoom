@@ -182,7 +182,7 @@ git commit -m "feat: define DC-9 final flight log content"
 - Produces: `Dc9ChapterStage`, `Dc9ChapterProgress`, new `GameAction` variants.
 - Consumes: approved config from Task 1.
 
-- [ ] **Step 1: Add failing reducer tests for the new start and route flow**
+- [x] **Step 1: Add failing reducer tests for the new start and route flow**
 
 Test these exact behaviors:
 
@@ -204,12 +204,12 @@ expect(state.dc9.stage).toBe('homeOperations')
 
 Also assert that a wrong submission increments `routeAttempts`, preserves already completed codes, and leaves the stage at `routeRecord`.
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `npm test -- src/game/state.test.ts`  
 Expected: FAIL because `GameState.dc9` and the new actions do not exist.
 
-- [ ] **Step 3: Introduce schema v7 and `Dc9ChapterProgress`**
+- [x] **Step 3: Introduce schema v7 and `Dc9ChapterProgress`**
 
 Set `GAME_SCHEMA_VERSION = 7`. Add `dc9: Dc9ChapterProgress` to `GameState` and initialize it exactly as:
 
@@ -229,7 +229,7 @@ dc9: {
 
 Keep legacy top-level captain fields temporarily only if migration consumers require them; mark them for removal in Task 3 after storage migration is proven.
 
-- [ ] **Step 4: Implement route actions**
+- [x] **Step 4: Implement route actions**
 
 Rules:
 
@@ -240,7 +240,7 @@ Rules:
 - Hint level is `Math.min(routeAttempts, 3)`.
 - A correct submission stores the three approved codes and advances to `homeOperations`.
 
-- [ ] **Step 5: Add failing Home Operations and shutdown tests**
+- [x] **Step 5: Add failing Home Operations and shutdown tests**
 
 Exercise:
 
@@ -259,22 +259,22 @@ state = gameReducer(state, { type: 'ACTIVATE_DC9_CONTROL', controlId: 'apuBuses'
 expect(state.dc9.secureSequence).toEqual(['apuBuses'])
 ```
 
-- [ ] **Step 6: Implement forgiving shutdown and key actions**
+- [x] **Step 6: Implement forgiving shutdown and key actions**
 
 Out-of-order input increments the secure attempt count and updates calm guidance but never resets `secureSequence`. Battery completion advances to `keyReveal`. `OPEN_CAPTAINS_KEY` marks `keyRevealed`; `CLAIM_CAPTAINS_KEY` marks `keyClaimed`, adds `captain` to completed puzzles for backward compatibility, and changes phase to `locker`.
 
-- [ ] **Step 7: Reorder locker and Airbus completion**
+- [x] **Step 7: Reorder locker and Airbus completion**
 
 Make locker completion transition to Airbus through `CONTINUE_FROM_LOCKER_TO_AIRBUS`. Make successful Airbus completion transition to reward rather than locker. Preserve existing Airbus puzzle mechanics.
 
 Update obsolete actions only after all call sites are handled; do not overload old action names with opposite meaning.
 
-- [ ] **Step 8: Run reducer tests**
+- [x] **Step 8: Run reducer tests**
 
 Run: `npm test -- src/game/state.test.ts`  
 Expected: PASS.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/game/state.ts src/game/state.test.ts

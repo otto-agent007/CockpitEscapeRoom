@@ -8,10 +8,28 @@ import {
   type LockerQuestionId,
 } from './config'
 
-export const GAME_SCHEMA_VERSION = 6 as const
+export const GAME_SCHEMA_VERSION = 7 as const
 export const DC9_SECURE_ORDER = dc9LegacyFlow.secureSequence
 export const PUZZLE_IDS = ['firstOfficer', 'locker', 'captain'] as const
 export type GamePhase = 'briefing' | 'airbus' | 'locker' | 'captain' | 'reward' | 'mars'
+export type Dc9ChapterStage =
+  | 'intro'
+  | 'routeRecord'
+  | 'homeOperations'
+  | 'shutdown'
+  | 'keyReveal'
+  | 'complete'
+export interface Dc9ChapterProgress {
+  stage: Dc9ChapterStage
+  routeSelections: string[]
+  routeCompleted: string[]
+  routeAttempts: number
+  homePage: number
+  homeOperationsCompleted: boolean
+  secureSequence: Dc9SecureControlId[]
+  keyRevealed: boolean
+  keyClaimed: boolean
+}
 export type GameAction =
   | { type: 'START' }
   | { type: 'ASSIGN_AIRBUS_CARD'; control: FirstOfficerControl; card: string }
@@ -24,7 +42,15 @@ export type GameAction =
   | { type: 'USE_LOCKER_HINT'; memoryId?: LockerQuestionId }
   | { type: 'CLAIM_CAPTAIN_HAT' }
   | { type: 'CONTINUE_TO_CAPTAIN' }
+  | { type: 'OPEN_DC9_ROUTE_RECORD' }
+  | { type: 'TOGGLE_DC9_ROUTE'; code: string }
+  | { type: 'SUBMIT_DC9_ROUTES' }
+  | { type: 'SET_HOME_OPERATIONS_PAGE'; page: number }
+  | { type: 'COMPLETE_HOME_OPERATIONS' }
   | { type: 'ACTIVATE_DC9_CONTROL'; controlId: Dc9SecureControlId }
+  | { type: 'OPEN_CAPTAINS_KEY' }
+  | { type: 'CLAIM_CAPTAINS_KEY' }
+  | { type: 'CONTINUE_FROM_LOCKER_TO_AIRBUS' }
   | { type: 'TOGGLE_ROUTE'; code: string }
   | { type: 'SUBMIT_ROUTE' }
   | { type: 'USE_HINT' }
@@ -59,6 +85,8 @@ export interface GameState {
   lockerAttempts: LockerAttempts
   lockerIntroCompleted: boolean
   lockerHatRevealed: boolean
+  dc9: Dc9ChapterProgress
+  // Schema-v6 compatibility fields remain until migration and old call sites are removed.
   captainModeUnlocked: boolean
   captainRouteVerified: boolean
   dc9SecureSequence: Dc9SecureControlId[]
@@ -246,6 +274,17 @@ export function createInitialState(): GameState {
     lockerAttempts: { watch: 0, baseball: 0, chargingBull: 0, wings: 0 },
     lockerIntroCompleted: false,
     lockerHatRevealed: false,
+    dc9: {
+      stage: 'intro',
+      routeSelections: [],
+      routeCompleted: [],
+      routeAttempts: 0,
+      homePage: 0,
+      homeOperationsCompleted: false,
+      secureSequence: [],
+      keyRevealed: false,
+      keyClaimed: false,
+    },
     captainModeUnlocked: false,
     captainRouteVerified: false,
     dc9SecureSequence: [],
@@ -255,8 +294,7 @@ export function createInitialState(): GameState {
     hintsUsed: 0,
     captainRewardUnlocked: false,
     marsUnlocked: false,
-    statusMessage:
-      'Start in Airbus First-Officer Mode. Complete the labels, then move to the locker.',
+    statusMessage: 'Begin the DC-9 Final Flight Log when you are ready.',
   }
 }
 
@@ -266,9 +304,118 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.phase !== 'briefing') return state
       return {
         ...state,
-        phase: 'airbus',
-        statusMessage: 'Match the Airbus labels to the right cockpit boxes.',
+        phase: 'captain',
+        statusMessage: 'The parked DC-9 is ready. Find the route strip on the captain yoke.',
       }
+
+    case 'OPEN_DC9_ROUTE_RECORD':
+      if (state.phase !== 'captain' || (state.dc9.stage !== 'intro' && state.dc9.stage !== 'routeRecord')) return state
+      return {
+        ...state,
+        dc9: { ...state.dc9, stage: 'routeRecord' },
+        statusMessage: dc9LegacyFlow.routeQuestion,
+      }
+
+    case 'TOGGLE_DC9_ROUTE': {
+      if (state.phase !== 'captain' || state.dc9.stage !== 'routeRecord') return state
+      if (!(dc9LegacyFlow.routePuzzleOptions as readonly { code: string }[]).some((route) => route.code === action.code)) return state
+      if (state.dc9.routeCompleted.includes(action.code)) {
+        return { ...state, statusMessage: `${action.code} is permanently stamped in the legacy record.` }
+      }
+      const selected = state.dc9.routeSelections.includes(action.code)
+      if (selected) {
+        return {
+          ...state,
+          dc9: {
+            ...state.dc9,
+            routeSelections: state.dc9.routeSelections.filter((code) => code !== action.code),
+          },
+          statusMessage: `${action.code} lifted from the current selection.`,
+        }
+      }
+      if (state.dc9.routeSelections.length >= dc9LegacyFlow.routePuzzleAnswers.length) {
+        return { ...state, statusMessage: 'The route record holds three selections. Lift one before adding another.' }
+      }
+      return {
+        ...state,
+        dc9: {
+          ...state.dc9,
+          routeSelections: [...state.dc9.routeSelections, action.code],
+        },
+        statusMessage: `${action.code} selected for the legacy route record.`,
+      }
+    }
+
+    case 'SUBMIT_DC9_ROUTES': {
+      if (state.phase !== 'captain' || state.dc9.stage !== 'routeRecord') return state
+      const approved = dc9LegacyFlow.routePuzzleAnswers as readonly string[]
+      const stampedSet = new Set([
+        ...state.dc9.routeCompleted,
+        ...state.dc9.routeSelections.filter((code) => approved.includes(code)),
+      ])
+      const stamped = approved.filter((code) => stampedSet.has(code))
+      const complete = stamped.length === approved.length
+      if (complete) {
+        return {
+          ...state,
+          dc9: {
+            ...state.dc9,
+            stage: 'homeOperations',
+            routeSelections: [...approved],
+            routeCompleted: [...approved],
+          },
+          captainRouteVerified: true,
+          routeSelections: [...approved],
+          statusMessage: dc9LegacyFlow.routeCompletionText,
+        }
+      }
+      const routeAttempts = state.dc9.routeAttempts + 1
+      const hint = routeAttempts === 1
+        ? dc9LegacyFlow.routeHints[0]
+        : routeAttempts === 2
+          ? dc9LegacyFlow.routeHints[1]
+          : `${dc9LegacyFlow.routeHints[1]} DTW, MSP, and STL are outlined for final support.`
+      return {
+        ...state,
+        dc9: {
+          ...state.dc9,
+          routeSelections: stamped,
+          routeCompleted: stamped,
+          routeAttempts,
+        },
+        captainAttempts: { ...state.captainAttempts, route: routeAttempts },
+        statusMessage: hint,
+      }
+    }
+
+    case 'SET_HOME_OPERATIONS_PAGE': {
+      if (state.phase !== 'captain' || state.dc9.stage !== 'homeOperations') return state
+      const finalPage = dc9LegacyFlow.homeOperationsPages.length - 1
+      const page = Number.isSafeInteger(action.page)
+        ? Math.max(0, Math.min(action.page, finalPage))
+        : state.dc9.homePage
+      return {
+        ...state,
+        dc9: { ...state.dc9, homePage: page },
+        statusMessage: `Home Operations Log page ${page + 1} of ${finalPage + 1}.`,
+      }
+    }
+
+    case 'COMPLETE_HOME_OPERATIONS': {
+      if (state.phase !== 'captain' || state.dc9.stage !== 'homeOperations') return state
+      if (state.dc9.homePage < dc9LegacyFlow.homeOperationsPages.length - 1) {
+        return { ...state, statusMessage: 'Continue through the Home Operations Log before applying its legacy seal.' }
+      }
+      return {
+        ...state,
+        dc9: {
+          ...state.dc9,
+          stage: 'shutdown',
+          homeOperationsCompleted: true,
+        },
+        statusMessage: dc9LegacyFlow.secureInstruction,
+      }
+    }
 
     case 'ASSIGN_AIRBUS_CARD': {
       if (state.phase !== 'airbus') return state
@@ -351,7 +498,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
       return {
         ...state,
+        phase: 'reward',
         completedPuzzles: unique([...state.completedPuzzles, 'firstOfficer']),
+        captainRewardUnlocked: true,
         statusMessage: `${firstOfficerFlow.clockFeedback} ${firstOfficerFlow.knowledgeLoggedText}`,
       }
     }
@@ -451,20 +600,22 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'ACTIVATE_DC9_CONTROL': {
       if (state.phase !== 'captain') return state
-      if (!state.captainRouteVerified) {
-        return { ...state, statusMessage: 'Verify the MEM route strip before securing cockpit power.' }
+      if (state.dc9.stage !== 'shutdown') {
+        return { ...state, statusMessage: 'Complete both legacy records before beginning the ceremonial shutdown.' }
       }
-      const expected = DC9_SECURE_ORDER[state.dc9SecureSequence.length]
+      const expected = DC9_SECURE_ORDER[state.dc9.secureSequence.length]
 
       if (action.controlId === expected) {
-        const nextSequence = [...state.dc9SecureSequence, action.controlId]
+        const nextSequence = [...state.dc9.secureSequence, action.controlId]
         const complete = nextSequence.length === DC9_SECURE_ORDER.length
         return {
           ...state,
-          phase: complete ? 'reward' : state.phase,
+          dc9: {
+            ...state.dc9,
+            stage: complete ? 'keyReveal' : 'shutdown',
+            secureSequence: nextSequence,
+          },
           dc9SecureSequence: nextSequence,
-          completedPuzzles: complete ? unique([...state.completedPuzzles, 'captain']) : state.completedPuzzles,
-          captainRewardUnlocked: complete || state.captainRewardUnlocked,
           statusMessage: complete
             ? dc9LegacyFlow.completionText
             : `${dc9LegacyFlow.secureControls[action.controlId].label} off. ${DC9_SECURE_ORDER.length - nextSequence.length} control${DC9_SECURE_ORDER.length - nextSequence.length === 1 ? '' : 's'} remaining.`,
@@ -473,11 +624,42 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       return {
         ...state,
-        dc9SecureSequence: [],
         captainAttempts: { ...state.captainAttempts, secure: state.captainAttempts.secure + 1 },
         statusMessage: dc9LegacyFlow.secureRetry,
       }
     }
+
+    case 'OPEN_CAPTAINS_KEY':
+      if (state.phase !== 'captain' || state.dc9.stage !== 'keyReveal') return state
+      return {
+        ...state,
+        dc9: { ...state.dc9, keyRevealed: true },
+        statusMessage: "The Captain's Key is ready. Its engravings honor Pop T and Momma Cheryl.",
+      }
+
+    case 'CLAIM_CAPTAINS_KEY':
+      if (state.phase !== 'captain' || state.dc9.stage !== 'keyReveal' || !state.dc9.keyRevealed) return state
+      return {
+        ...state,
+        phase: 'locker',
+        dc9: {
+          ...state.dc9,
+          stage: 'complete',
+          keyClaimed: true,
+        },
+        completedPuzzles: unique([...state.completedPuzzles, 'captain']),
+        lockerIntroCompleted: false,
+        statusMessage: "The Captain's Key is claimed. The Captain's Locker is opening.",
+      }
+
+    case 'CONTINUE_FROM_LOCKER_TO_AIRBUS':
+      if (state.phase !== 'locker' || !state.completedPuzzles.includes('locker')) return state
+      return {
+        ...state,
+        phase: 'airbus',
+        airbusClockAnswer: '',
+        statusMessage: 'The family legacy continues in the Airbus A320 First-Officer experience.',
+      }
 
     case 'TOGGLE_ROUTE': {
       if (state.phase !== 'captain') return state
