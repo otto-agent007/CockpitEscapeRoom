@@ -2,7 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Hud } from './components/Hud'
 import { Dc9Chapter } from './components/dc9/Dc9Chapter'
 import { LockerTransition, type LockerIntroStage } from './components/LockerTransition'
-import { CaptainHatCelebration, QualificationCelebration } from './components/QualificationCelebration'
+import { CaptainHatCelebration } from './components/QualificationCelebration'
 import { SceneHelp } from './components/SceneHelp'
 import { dc9LegacyFlow, gameCopy, lockerFlow, type FirstOfficerControl, type LockerMemoryId } from './game/config'
 import { isLockerMemoryAvailable } from './game/state'
@@ -198,7 +198,6 @@ export default function App() {
       const advance = () => {
         switch (lockerIntroStage) {
           case 'fade-to-black':
-            if (state.phase === 'airbus') dispatch({ type: 'CONTINUE_TO_LOCKER' })
             setLockerIntroStage('black-pause')
             break
           case 'black-pause':
@@ -241,7 +240,7 @@ export default function App() {
       cancelAnimationFrame(secondFrame)
       window.clearTimeout(timeout)
     }
-  }, [dispatch, lockerIntroStage, reducedMotion, state.phase])
+  }, [lockerIntroStage, reducedMotion])
 
   useEffect(() => {
     if (lockerIntroStage !== 'waiting-for-locker' || !lockerSceneReady) return
@@ -302,14 +301,19 @@ export default function App() {
     setLockerIntroSkipRequested(true)
     setLockerCameraImmediate(true)
     setLockerCameraCue('watch-focus')
-    if (state.phase === 'airbus') dispatch({ type: 'CONTINUE_TO_LOCKER' })
     setLockerIntroStage(state.phase === 'locker' && lockerSceneReady ? 'focus-watch' : 'waiting-for-locker')
-  }, [dispatch, lockerSceneReady, state.phase])
+  }, [lockerSceneReady, state.phase])
 
-  const enterCaptainMode = useCallback(() => {
+  const continueToAirbus = useCallback(() => {
     dispatch({ type: 'CLAIM_CAPTAIN_HAT' })
-    dispatch({ type: 'CONTINUE_TO_CAPTAIN' })
-  }, [dispatch])
+    dispatch({ type: 'CONTINUE_FROM_LOCKER_TO_AIRBUS' })
+    beginAirbusLoading()
+  }, [beginAirbusLoading, dispatch])
+
+  const claimCaptainsKey = useCallback(() => {
+    dispatch({ type: 'CLAIM_CAPTAINS_KEY' })
+    beginLockerIntro()
+  }, [beginLockerIntro, dispatch])
 
   const handleDc9Interaction = useCallback((gameId: string) => {
     if (gameId === 'dc9.key.open') {
@@ -390,30 +394,30 @@ export default function App() {
     return (
       <main className="briefing-shell">
         <section className="briefing-hero" aria-labelledby="game-title">
-          <div className="briefing-visual" aria-hidden="true">
-            <img src={`${import.meta.env.BASE_URL}images/a320-game-ready-fo.png`} alt="" />
-            <div className="briefing-visual__label">A320 first-officer station</div>
+          <div className="briefing-visual briefing-visual--dc9" aria-hidden="true">
+            <div className="briefing-visual__dc9-window" />
+            <div className="briefing-visual__label">DC-9-32 · safely parked at sunset</div>
           </div>
 
           <div className="briefing-panel">
-            <p className="briefing-route">Airbus A320 · First-Officer onboarding</p>
-            <h1 id="game-title">{gameCopy.title}</h1>
+            <p className="briefing-route">{gameCopy.title} · commemorative legacy flight</p>
+            <h1 id="game-title">DC-9 Final Flight Log</h1>
             <p className="lede">
-              Take the right seat, scan the panel, and match each cockpit label to the control it belongs to.
+              Return to Pop T&apos;s safely parked DC-9, record three familiar routes, and recognize the full home crew before securing the cockpit.
             </p>
 
             <ol className="briefing-checklist" aria-label="Opening tasks">
               <li>
                 <span>1</span>
-                Identify five A320 control areas.
+                Record three familiar DC-9 destinations.
               </li>
               <li>
                 <span>2</span>
-                Answer the Airline Transport Pilot question.
+                Read Momma Cheryl&apos;s Home Operations Log.
               </li>
               <li>
                 <span>3</span>
-                Unlock the next sealed instruction.
+                Secure the parked aircraft and receive the Captain&apos;s Key.
               </li>
             </ol>
 
@@ -421,11 +425,10 @@ export default function App() {
               type="button"
               className="primary-button primary-button--large"
               onClick={() => {
-                beginAirbusLoading()
                 dispatch({ type: 'START' })
               }}
             >
-              Begin First-Officer onboarding
+              Begin DC-9 Final Flight Log
             </button>
           </div>
         </section>
@@ -497,6 +500,8 @@ export default function App() {
           loadState={skipPrototypeScene ? { status: 'accessible-fallback' } : dc9LoadState}
           hotspots={dc9Hotspots}
           onUseFallback={() => setDc9LoadState({ status: 'accessible-fallback' })}
+          reducedMotion={reducedMotion}
+          onClaimKey={claimCaptainsKey}
         />
       )}
       {state.phase === 'airbus' && !skipPrototypeScene && showAirbusLoader && airbusLoadState.status !== 'accessible-fallback' && (
@@ -526,14 +531,8 @@ export default function App() {
       )}
       {!lockerIntroActive && !captainHatCelebrationActive && helpOpen && <button type="button" className="scene-help-dismiss" onClick={closeHelp} aria-label="Dismiss viewer help" tabIndex={-1} />}
       {!lockerIntroActive && !captainHatCelebrationActive && <SceneHelp phase={state.phase} open={helpOpen} onClose={closeHelp} />}
-      {state.phase === 'airbus' && state.completedPuzzles.includes('firstOfficer') && !lockerIntroActive && (
-        <QualificationCelebration
-          reducedMotion={reducedMotion}
-          onContinue={beginLockerIntro}
-        />
-      )}
       {captainHatCelebrationActive && (
-        <CaptainHatCelebration reducedMotion={reducedMotion} onContinue={enterCaptainMode} />
+        <CaptainHatCelebration reducedMotion={reducedMotion} onContinue={continueToAirbus} />
       )}
       {lockerIntroActive && !lockerIntroErrorVisible && (
         <LockerTransition

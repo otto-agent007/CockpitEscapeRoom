@@ -36,12 +36,10 @@ export type GameAction =
   | { type: 'ASSIGN_AIRBUS_DECOY_CARD'; decoy: FirstOfficerDecoy; card: string }
   | { type: 'SET_AIRBUS_CLOCK_ANSWER'; value: string }
   | { type: 'SUBMIT_AIRBUS_CLOCK' }
-  | { type: 'CONTINUE_TO_LOCKER' }
   | { type: 'COMPLETE_LOCKER_INTRO' }
   | { type: 'SUBMIT_LOCKER_ANSWER'; memoryId: LockerQuestionId; response: string }
   | { type: 'USE_LOCKER_HINT'; memoryId?: LockerQuestionId }
   | { type: 'CLAIM_CAPTAIN_HAT' }
-  | { type: 'CONTINUE_TO_CAPTAIN' }
   | { type: 'OPEN_DC9_ROUTE_RECORD' }
   | { type: 'TOGGLE_DC9_ROUTE'; code: string }
   | { type: 'SUBMIT_DC9_ROUTES' }
@@ -505,15 +503,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
     }
 
-    case 'CONTINUE_TO_LOCKER':
-      if (state.phase !== 'airbus' || !state.completedPuzzles.includes('firstOfficer')) return state
-      return {
-        ...state,
-        phase: 'locker',
-        lockerIntroCompleted: false,
-        statusMessage: `${firstOfficerFlow.firstCompleteBanner}. ${firstOfficerFlow.lockerAccessText}`,
-      }
-
     case 'COMPLETE_LOCKER_INTRO':
       if (state.phase !== 'locker' || state.lockerIntroCompleted) return state
       return {
@@ -585,17 +574,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         captainModeUnlocked: true,
         completedPuzzles: unique([...state.completedPuzzles, 'locker']),
         statusMessage: `${lockerFlow.hatText.foundText} ${lockerFlow.hatText.promotionText} ${lockerFlow.hatText.captainModeText}`,
-      }
-
-    case 'CONTINUE_TO_CAPTAIN':
-      if (state.phase !== 'locker' || !state.captainModeUnlocked) return state
-      return {
-        ...state,
-        phase: 'captain',
-        captainRouteVerified: false,
-        dc9SecureSequence: [],
-        routeSelections: [],
-        statusMessage: `${lockerFlow.hatText.captainModeText}. Verify the MEM route strip first.`,
       }
 
     case 'ACTIVATE_DC9_CONTROL': {

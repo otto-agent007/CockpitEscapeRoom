@@ -3,6 +3,7 @@ import { dc9LegacyFlow } from '../../game/config'
 import { DC9_SECURE_ORDER, type GameAction, type GameState } from '../../game/state'
 import { HomeOperationsLog } from './HomeOperationsLog'
 import { LegacyRouteRecord } from './LegacyRouteRecord'
+import { CaptainsKeyReveal } from './CaptainsKeyReveal'
 import type { Dc9HotspotScreenPositions, Dc9LoadState } from '../../scenes/PrototypeScene'
 import './dc9Chapter.css'
 
@@ -13,13 +14,17 @@ interface Dc9ChapterProps {
   loadState: Dc9LoadState
   hotspots: Dc9HotspotScreenPositions
   onUseFallback: () => void
+  reducedMotion: boolean
+  onClaimKey: () => void
 }
 
 const LEGACY_ROUTE_TRIGGER_IDS = ['dc9.route.BTR', 'dc9.route.STL', 'dc9.route.TYS', 'dc9.route.LAX', 'dc9.route.SEA', 'dc9.route.AMS', 'dc9.route.submit'] as const
 
-export function Dc9Chapter({ state, dispatch, onRestart, loadState, hotspots, onUseFallback }: Dc9ChapterProps) {
+export function Dc9Chapter({ state, dispatch, onRestart, loadState, hotspots, onUseFallback, reducedMotion, onClaimKey }: Dc9ChapterProps) {
   const [routeRecordDismissed, setRouteRecordDismissed] = useState(false)
+  const [keyRevealDismissed, setKeyRevealDismissed] = useState(false)
   const routeRecordVisible = state.dc9.stage === 'routeRecord' && !routeRecordDismissed
+  const keyRevealVisible = state.dc9.stage === 'keyReveal' && state.dc9.keyRevealed && !keyRevealDismissed
   const routeProjection = LEGACY_ROUTE_TRIGGER_IDS
     .map((gameId) => hotspots[gameId])
     .find((position) => position?.visible)
@@ -27,6 +32,11 @@ export function Dc9Chapter({ state, dispatch, onRestart, loadState, hotspots, on
   const openRouteRecord = () => {
     setRouteRecordDismissed(false)
     dispatch({ type: 'OPEN_DC9_ROUTE_RECORD' })
+  }
+
+  const openCaptainsKey = () => {
+    setKeyRevealDismissed(false)
+    dispatch({ type: 'OPEN_CAPTAINS_KEY' })
   }
 
   return (
@@ -94,10 +104,18 @@ export function Dc9Chapter({ state, dispatch, onRestart, loadState, hotspots, on
         </section>
       ) : null}
 
-      {state.dc9.stage === 'keyReveal' && !state.dc9.keyRevealed ? (
-        <button type="button" className="dc9-key-glint" onClick={() => dispatch({ type: 'OPEN_CAPTAINS_KEY' })}>
+      {state.dc9.stage === 'keyReveal' && (!state.dc9.keyRevealed || keyRevealDismissed) ? (
+        <button type="button" className="dc9-key-glint" onClick={openCaptainsKey}>
           Open The Captain&apos;s Key
         </button>
+      ) : null}
+
+      {keyRevealVisible ? (
+        <CaptainsKeyReveal
+          reducedMotion={reducedMotion}
+          onClaim={onClaimKey}
+          onDismiss={() => setKeyRevealDismissed(true)}
+        />
       ) : null}
 
       {loadState.status === 'error' ? (

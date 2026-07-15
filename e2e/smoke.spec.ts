@@ -19,41 +19,43 @@ function createLockerState(): GameState {
   return {
     ...createInitialState(),
     phase: 'locker',
-    airbusAssignments: {
-      sidestick: 'SIDESTICK',
-      thrust: 'THRUST',
-      gear: 'GEAR',
-      radio: 'RADIO',
-      altitude: 'ALTITUDE',
+    dc9: {
+      stage: 'complete',
+      routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
+      routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
+      routeAttempts: 0,
+      homePage: dc9LegacyFlow.homeOperationsPages.length - 1,
+      homeOperationsCompleted: true,
+      secureSequence: [...dc9LegacyFlow.secureSequence],
+      keyRevealed: true,
+      keyClaimed: true,
     },
-    completedPuzzles: ['firstOfficer'],
+    captainRouteVerified: true,
+    dc9SecureSequence: [...dc9LegacyFlow.secureSequence],
+    routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
+    completedPuzzles: ['captain'],
     lockerIntroCompleted: true,
-    statusMessage: 'FIRST-OFFICER MODE COMPLETE. Locker access granted.',
+    statusMessage: 'The Captain’s Key opened the locker.',
   }
 }
 
 function createCaptainState(): GameState {
   return {
-    ...createLockerState(),
+    ...createInitialState(),
     phase: 'captain',
-    lockerCompleted: [...lockerFlow.memoryIds],
-    lockerHatRevealed: true,
-    captainModeUnlocked: true,
-    completedPuzzles: ['firstOfficer', 'locker'],
-    statusMessage: 'Captain’s hat recognized. Promotion available. POP T CAPTAIN MODE UNLOCKED',
+    statusMessage: 'The parked DC-9 is ready. Find the route strip on the captain yoke.',
   }
 }
 
-function createRewardState(): GameState {
+function createAirbusState(): GameState {
   return {
-    ...createCaptainState(),
-    phase: 'reward',
-    captainRouteVerified: true,
-    dc9SecureSequence: [...dc9LegacyFlow.secureSequence],
-    routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
-    completedPuzzles: ['firstOfficer', 'locker', 'captain'],
-    captainRewardUnlocked: true,
-    statusMessage: dc9LegacyFlow.completionText,
+    ...createLockerState(),
+    phase: 'airbus',
+    lockerCompleted: [...lockerFlow.memoryIds],
+    lockerHatRevealed: true,
+    captainModeUnlocked: true,
+    completedPuzzles: ['captain', 'locker'],
+    statusMessage: 'Airbus First-Officer experience ready.',
   }
 }
 
@@ -103,7 +105,7 @@ test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
     { timeout: 20_000 },
   )
 
-  await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
+  await seedGameState(page, createAirbusState())
   await modelResponse
 
   await expect(page.locator('.prototype-badge')).toHaveCount(0)
@@ -197,11 +199,50 @@ test('DC-9 model failure keeps the compact accessible captain controls', async (
   await expect(page.getByRole('dialog', { name: 'Legacy Route Record' })).toBeVisible()
 })
 
-test('Airbus onboarding, locker reveal, and captain completion unlock reward', async ({ page }) => {
+test('complete reordered journey', async ({ page }) => {
   await page.goto('/?skip3d=1')
 
-  await expect(page.getByRole('heading', { name: "The Captain's Key" })).toBeVisible()
-  await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
+  await expect(page.getByRole('heading', { name: /DC-9 Final Flight Log/i })).toBeVisible()
+  await page.getByRole('button', { name: 'Begin DC-9 Final Flight Log' }).click()
+
+  await page.getByRole('button', { name: 'Open Legacy Route Record' }).click()
+  for (const code of dc9LegacyFlow.routePuzzleAnswers) {
+    await page.getByRole('button', { name: new RegExp(`^${code},`) }).click()
+  }
+  await page.getByRole('button', { name: 'Record selected routes' }).click()
+  for (let pageNumber = 1; pageNumber < dc9LegacyFlow.homeOperationsPages.length; pageNumber += 1) {
+    await page.getByRole('button', { name: 'Next page' }).click()
+  }
+  await page.getByRole('button', { name: 'Record this legacy' }).click()
+  await page.getByRole('button', { name: /APU bus switches/ }).click()
+  await page.getByRole('button', { name: /APU master switch/ }).click()
+  await page.getByRole('button', { name: /Battery switch/ }).click()
+  await page.getByRole('button', { name: "Open The Captain's Key" }).click()
+
+  const keyReveal = page.getByRole('dialog', { name: "The Captain's Key" })
+  await expect(keyReveal).toBeVisible()
+  const engravingFields = keyReveal.locator('.captains-key-reveal__engravings strong')
+  await expect(engravingFields).toHaveText([
+    dc9LegacyFlow.keyEngravings.front,
+    dc9LegacyFlow.keyEngravings.reverse,
+  ])
+  await keyReveal.getByRole('button', { name: "Take the Captain's Key" }).click()
+  await page.getByRole('button', { name: 'Skip cinematic' }).click()
+
+  await expect(page.getByRole('heading', { name: /Captain's Locker/i })).toBeVisible()
+
+  await seedGameState(page, {
+    ...createLockerState(),
+    lockerCompleted: [...lockerFlow.memoryIds],
+    lockerHatRevealed: true,
+    statusMessage: lockerFlow.hatText.revealText,
+  })
+
+  const lockerCelebration = page.getByRole('dialog', { name: /Captain.s locker complete/i })
+  await expect(lockerCelebration).toBeVisible()
+  await lockerCelebration.getByRole('button', { name: 'Continue to Airbus First-Officer Mode' }).click()
+
+  await expect(page.getByRole('heading', { name: /Airbus.*First[- ]Officer/i })).toBeVisible()
   await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toHaveCount(0)
   await expect(page.getByText(/minimum total flight time required/)).toHaveCount(0)
   await expect(page.getByRole('button', { name: /^CLOCK\b/ })).toHaveCount(0)
@@ -232,29 +273,14 @@ test('Airbus onboarding, locker reveal, and captain completion unlock reward', a
   await expect(page.getByText(/total flight time \(hours\) required/)).toBeVisible()
   await atpAnswer.fill('1500 hours')
   await atpAnswer.press('Enter')
-  const qualification = page.getByRole('dialog', { name: 'Airline Transport Pilot milestone recognized' })
-  await expect(qualification).toBeVisible()
-  await expect(qualification.getByRole('button', { name: 'Continue' })).toBeFocused()
-  await qualification.getByRole('button', { name: 'Continue' }).click()
-  await page.getByRole('button', { name: 'Skip cinematic' }).click()
-
-  await expect(page.getByRole('heading', { name: "Before the captain's seat" })).toBeVisible()
-  await page.getByRole('button', { name: 'Inspect watch' }).click()
-  await expect(page.getByRole('button', { name: 'Jet lag' })).toBeVisible()
-
-  await seedGameState(page, createCaptainState())
-  await expect(page.getByRole('heading', { name: 'POP T CAPTAIN MODE' })).toBeVisible()
-  await expect(page.getByRole('button', { name: /^BTR,/ })).toBeVisible()
-
-  await seedGameState(page, createRewardState())
-  await expect(page.getByRole('heading', { name: 'Ground transport release' })).toBeVisible()
+  await expect(page.getByText('Ground Transport Upgrade Authorized')).toBeVisible()
   await expect(page.getByText(/Happy Father’s Day/i)).toBeVisible()
   await expect(page.getByText(/red Tesla Model Y is unlocked/i)).toBeVisible()
 })
 
 test('Airbus cards show immediate placement feedback and recover', async ({ page }) => {
   await page.goto('/?skip3d=1')
-  await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
+  await seedGameState(page, createAirbusState())
 
   const sidestickCard = page.getByRole('button', { name: /^SIDESTICK\b/ })
   const sidestickTarget = page.getByRole('button', { name: 'Cockpit drop zone 1' })
@@ -294,17 +320,15 @@ test('Airbus cards show immediate placement feedback and recover', async ({ page
   await expect(page.getByText('4/5')).toBeVisible()
   await placeAirbusCard(page, 'THRUST', 'Thrust levers')
   await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: "Before the captain's seat" })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: /Captain's Locker/i })).toHaveCount(0)
   await page.getByRole('textbox', { name: 'Airline Transport Pilot answer' }).fill('1500')
   await page.getByRole('button', { name: 'Verify' }).click()
-  await page.getByRole('button', { name: 'Continue' }).click()
-  await page.getByRole('button', { name: 'Skip cinematic' }).click()
-  await expect(page.getByRole('heading', { name: "Before the captain's seat" })).toBeVisible()
+  await expect(page.getByText('Ground Transport Upgrade Authorized')).toBeVisible()
 })
 
 test('saved progress persists during Airbus phase', async ({ page }) => {
   await page.goto('/?skip3d=1')
-  await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
+  await seedGameState(page, createAirbusState())
   await placeAirbusCard(page, 'RADIO', 'Sidestick')
   await page.reload()
 

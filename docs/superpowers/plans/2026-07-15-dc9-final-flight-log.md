@@ -485,7 +485,7 @@ git commit -m "feat: stage DC-9 final flight interactions"
 - Consumes: `dc9.keyRevealed`, `dc9.keyClaimed`, `keyEngravings`.
 - Produces: claim action that changes phase to locker; locker completion action that changes phase to Airbus; Airbus completion that changes phase to reward.
 
-- [ ] **Step 1: Add a failing complete-order E2E test**
+- [x] **Step 1: Add a failing complete-order E2E test**
 
 Use `?skip3d=1` and complete/seed each checkpoint. Assert the phase headings appear in this order:
 
@@ -499,31 +499,31 @@ await expect(page.getByRole('heading', { name: /First Officer/i })).toBeVisible(
 await expect(page.getByText('Ground Transport Upgrade Authorized')).toBeVisible()
 ```
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `npx playwright test e2e/smoke.spec.ts -g "complete reordered journey" --workers=1`  
 Expected: FAIL because the current order begins with Airbus.
 
-- [ ] **Step 3: Implement `CaptainsKeyReveal`**
+- [x] **Step 3: Implement `CaptainsKeyReveal`**
 
 Render a dialog named `The Captain's Key` with both engravings, one `Take the Captain's Key` button, focus management, Escape behavior only before claim, and a live text equivalent. Reduced-motion mode renders the final key pose immediately.
 
-- [ ] **Step 4: Update locker transition copy**
+- [x] **Step 4: Update locker transition copy**
 
 Remove `Enter Pop T Captain Mode`, promotion-to-DC-9 wording, and any claim that the locker unlocks the DC-9. The locker now acknowledges the captain's hat and continues to the existing Airbus crew experience.
 
 Do not change locker puzzles, models, props, camera sequence, or hat celebration mechanics beyond necessary button/copy/routing changes.
 
-- [ ] **Step 5: Update Airbus completion routing**
+- [x] **Step 5: Update Airbus completion routing**
 
 After the existing five-card and ATP question flow succeeds, route to `reward`. Preserve all existing assignment, retry, accessibility, and qualification behavior.
 
-- [ ] **Step 6: Run complete-order and existing Airbus tests**
+- [x] **Step 6: Run complete-order and existing Airbus tests**
 
 Run: `npx playwright test e2e/smoke.spec.ts -g "complete reordered journey|Airbus" --workers=1`  
 Expected: PASS.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/components/dc9 src/App.tsx src/components/Hud.tsx src/styles.css e2e/smoke.spec.ts

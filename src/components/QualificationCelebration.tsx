@@ -89,9 +89,9 @@ export function CaptainHatCelebration({ reducedMotion, onContinue }: { reducedMo
   return (
     <MilestoneCelebration
       eyebrow="Captain’s locker complete"
-      title="POP T CAPTAIN MODE UNLOCKED"
-      body="The memories are logged. The captain’s seat is ready."
-      actionLabel="Enter Pop T Captain Mode"
+      title="Captain’s locker complete"
+      body="The memories are logged and the captain’s hat is recognized. The existing Airbus crew experience is ready."
+      actionLabel="Continue to Airbus First-Officer Mode"
       reducedMotion={reducedMotion}
       onContinue={onContinue}
       visual={<img className="qualification-hat" src={`${import.meta.env.BASE_URL}images/captains-hat-celebration.png`} alt="Captain’s hat" />}

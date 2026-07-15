@@ -66,8 +66,8 @@ export function Hud({
       <section className="airbus-training" aria-labelledby="airbus-heading">
         <div className="airbus-topbar">
           <div>
-            <p className="eyebrow">Airbus First-Officer Mode</p>
-            <h2 id="airbus-heading" className="sr-only">Airbus cockpit label placement</h2>
+            <p className="eyebrow">Crew experience</p>
+            <h2 id="airbus-heading">Airbus A320 First-Officer Mode</h2>
           </div>
           <div className="airbus-progress" aria-label={`${placedAirbusCards} of ${firstOfficerFlow.controlCards.length} cards placed`}>
             <span>{gameProgress(state)}% complete</span>
