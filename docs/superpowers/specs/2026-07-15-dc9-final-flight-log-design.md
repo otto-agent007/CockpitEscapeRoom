@@ -2,7 +2,7 @@
 
 Date: 2026-07-15  
 Status: Approved design  
-Scope: DC-9 opening chapter only
+Scope: DC-9 opening chapter plus the minimum progression changes required to place locker and the existing Airbus chapter after it
 
 ## Purpose
 
@@ -21,7 +21,18 @@ This chapter treats the DC-9 as a living family memory rather than the game's de
 - Essential instructions, records, hints, and acknowledgements remain available in HTML.
 - This milestone does not include a dedicated mobile layout or mobile visual-polish gate.
 
-## Chapter progression
+## Global game progression
+
+The implemented game order becomes:
+
+1. DC-9 Final Flight Log
+2. Locker Room / Captain's Locker
+3. Existing Airbus A320 experience
+4. Model Y reward and later ending content
+
+The Airbus gameplay itself is not redesigned in this milestone. Only phase routing, transition copy, persistence/migration, and regression tests may change to place it after the locker.
+
+## DC-9 chapter progression
 
 1. Cockpit introduction
 2. Yoke route-strip discovery
@@ -221,8 +232,8 @@ Existing completed saves must remain completed and must not be forced backward. 
 - Broad Blender reconstruction or destructive GLB optimization
 - A complex physical 3D key
 - Dedicated mobile layout design or mobile visual-approval screenshots
-- Airbus redesign
-- Locker-room redesign beyond accepting the new key transition
+- Airbus gameplay redesign beyond the minimum phase-routing and transition-copy changes needed to place the existing experience after the locker
+- Locker-room gameplay redesign beyond accepting the key, removing obsolete promotion-to-DC-9 language, and transitioning to the existing Airbus chapter
 - Model Y, Mars, or end-credit photo-montage implementation
 - Removing the DC-9 greybox label
 
@@ -244,7 +255,7 @@ Update or add coverage for:
 - real-GLB interaction-registry compatibility
 - missing-model/registry fallback
 - DC-9-to-locker transition
-- no regressions to later locker, Airbus, Model Y, or Mars progress
+- the complete DC-9 → locker → Airbus → reward order, including no regressions to existing Airbus gameplay, Model Y, or Mars progress
 
 Run the repository's standard validation commands, including unit tests, type/lint/build checks, asset validation, focused real-GLB browser coverage, and the full end-to-end suite.
 
@@ -268,6 +279,7 @@ codex --model gpt-5.6
 
 The design is complete when:
 
+- The global order is DC-9 → locker → existing Airbus → Model Y reward.
 - The DC-9 functions as the opening memory chapter.
 - The yoke strip reliably opens the split Legacy Route Record.
 - DTW, MSP, and STL form the family-knowledge puzzle with progressive hints.
