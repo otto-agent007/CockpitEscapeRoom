@@ -220,6 +220,19 @@
   box-shadow: 0 0 30px rgb(242 190 83 / 38%);
 }
 
+.dc9-chapter__load-error {
+  position: absolute;
+  top: 6.5rem;
+  left: 1rem;
+  display: grid;
+  gap: .55rem;
+  width: min(26rem, calc(100vw - 2rem));
+  padding: 1rem;
+  border: 1px solid rgb(231 176 107 / 48%);
+  color: #fff1d2;
+  background: rgb(42 24 18 / 94%);
+}
+
 .dc9-chapter__status {
   position: absolute;
   left: 1rem;

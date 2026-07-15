@@ -5,7 +5,7 @@ import { LockerTransition, type LockerIntroStage } from './components/LockerTran
 import { CaptainHatCelebration, QualificationCelebration } from './components/QualificationCelebration'
 import { SceneHelp } from './components/SceneHelp'
 import { dc9LegacyFlow, gameCopy, lockerFlow, type FirstOfficerControl, type LockerMemoryId } from './game/config'
-import { isLockerMemoryAvailable, type Dc9SecureControlId } from './game/state'
+import { isLockerMemoryAvailable } from './game/state'
 import { clearGameState } from './game/storage'
 import { useGame } from './game/useGame'
 import type { AirbusHotspotScreenPositions, AirbusLoadState, Dc9HotspotScreenPositions, Dc9LoadState, LockerCameraCue, LockerLoadState } from './scenes/PrototypeScene'
@@ -100,7 +100,6 @@ export default function App() {
   const [lockerRetryToken, setLockerRetryToken] = useState(0)
   const [lockerLoadState, setLockerLoadState] = useState<LockerLoadState>({ status: 'idle' })
   const [dc9LoadState, setDc9LoadState] = useState<Dc9LoadState>({ status: 'idle' })
-  const [dc9FamiliarizationApuOff, setDc9FamiliarizationApuOff] = useState(false)
   const [dc9Hotspots, setDc9Hotspots] = useState<Dc9HotspotScreenPositions>({})
   const [cameraResetRevision, setCameraResetRevision] = useState(0)
   const [helpOpen, setHelpOpen] = useState(false)
@@ -313,17 +312,12 @@ export default function App() {
   }, [dispatch])
 
   const handleDc9Interaction = useCallback((gameId: string) => {
-    if (gameId === 'dc9.secure.apuMaster') {
-      setDc9FamiliarizationApuOff(true)
-      window.dispatchEvent(new CustomEvent('dc9-control-change', { detail: { dataref: 'sim/cockpit2/electrical/APU_starter_switch', value: 0 } }))
-      return
-    }
-    if (gameId === 'dc9.route.submit') {
-      dispatch({ type: 'SUBMIT_ROUTE' })
+    if (gameId === 'dc9.key.open') {
+      dispatch({ type: 'OPEN_CAPTAINS_KEY' })
       return
     }
     if (gameId.startsWith('dc9.route.')) {
-      dispatch({ type: 'TOGGLE_ROUTE', code: gameId.slice('dc9.route.'.length) })
+      dispatch({ type: 'OPEN_DC9_ROUTE_RECORD' })
       return
     }
     const controlId = dc9LegacyFlow.secureControlIds.find((id) => `dc9.secure.${id}` === gameId)
@@ -451,8 +445,8 @@ export default function App() {
         <Suspense fallback={null}>
           <PrototypeScene
             phase={state.phase}
-            activeDc9Controls={(dc9FamiliarizationApuOff ? ['apuMaster'] : []) as Dc9SecureControlId[]}
-            dc9RouteVerified
+            activeDc9Controls={state.dc9.secureSequence}
+            dc9ChapterStage={state.dc9.stage}
             reducedMotion={reducedMotion}
             lockerHatRevealed={state.lockerHatRevealed}
             captainRewardUnlocked={state.captainRewardUnlocked}
@@ -493,13 +487,17 @@ export default function App() {
           onSelectedAirbusCardChange={setSelectedAirbusCard}
           selectedLockerMemory={selectedLockerMemory}
           onSelectedLockerMemoryChange={setSelectedLockerMemory}
-          dc9LoadState={skipPrototypeScene ? { status: 'accessible-fallback' } : dc9LoadState}
-          dc9Hotspots={dc9Hotspots}
-          onDc9Fallback={() => setDc9LoadState({ status: 'accessible-fallback' })}
         />
       )}
       {state.phase === 'captain' && (
-        <Dc9Chapter state={state} dispatch={dispatch} onRestart={restart} />
+        <Dc9Chapter
+          state={state}
+          dispatch={dispatch}
+          onRestart={restart}
+          loadState={skipPrototypeScene ? { status: 'accessible-fallback' } : dc9LoadState}
+          hotspots={dc9Hotspots}
+          onUseFallback={() => setDc9LoadState({ status: 'accessible-fallback' })}
+        />
       )}
       {state.phase === 'airbus' && !skipPrototypeScene && showAirbusLoader && airbusLoadState.status !== 'accessible-fallback' && (
         <AirbusLoader

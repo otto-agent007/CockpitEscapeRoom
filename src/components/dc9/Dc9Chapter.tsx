@@ -3,17 +3,26 @@ import { dc9LegacyFlow } from '../../game/config'
 import { DC9_SECURE_ORDER, type GameAction, type GameState } from '../../game/state'
 import { HomeOperationsLog } from './HomeOperationsLog'
 import { LegacyRouteRecord } from './LegacyRouteRecord'
+import type { Dc9HotspotScreenPositions, Dc9LoadState } from '../../scenes/PrototypeScene'
 import './dc9Chapter.css'
 
 interface Dc9ChapterProps {
   state: GameState
   dispatch: React.Dispatch<GameAction>
   onRestart: () => void
+  loadState: Dc9LoadState
+  hotspots: Dc9HotspotScreenPositions
+  onUseFallback: () => void
 }
 
-export function Dc9Chapter({ state, dispatch, onRestart }: Dc9ChapterProps) {
+const LEGACY_ROUTE_TRIGGER_IDS = ['dc9.route.BTR', 'dc9.route.STL', 'dc9.route.TYS', 'dc9.route.LAX', 'dc9.route.SEA', 'dc9.route.AMS', 'dc9.route.submit'] as const
+
+export function Dc9Chapter({ state, dispatch, onRestart, loadState, hotspots, onUseFallback }: Dc9ChapterProps) {
   const [routeRecordDismissed, setRouteRecordDismissed] = useState(false)
   const routeRecordVisible = state.dc9.stage === 'routeRecord' && !routeRecordDismissed
+  const routeProjection = LEGACY_ROUTE_TRIGGER_IDS
+    .map((gameId) => hotspots[gameId])
+    .find((position) => position?.visible)
 
   const openRouteRecord = () => {
     setRouteRecordDismissed(false)
@@ -33,7 +42,15 @@ export function Dc9Chapter({ state, dispatch, onRestart }: Dc9ChapterProps) {
       {(state.dc9.stage === 'intro' || (state.dc9.stage === 'routeRecord' && routeRecordDismissed)) ? (
         <div className="dc9-chapter__prompt">
           <p>Find the narrow route strip attached to the captain-yoke center pad.</p>
-          <button type="button" className="primary-button" onClick={openRouteRecord}>Open Legacy Route Record</button>
+          <button
+            type="button"
+            className="primary-button"
+            data-projection={routeProjection ? 'mesh' : 'fallback'}
+            data-projection-point={routeProjection ? `${routeProjection.x},${routeProjection.y}` : undefined}
+            onClick={openRouteRecord}
+          >
+            Open Legacy Route Record
+          </button>
         </div>
       ) : null}
 
@@ -56,6 +73,7 @@ export function Dc9Chapter({ state, dispatch, onRestart }: Dc9ChapterProps) {
             {DC9_SECURE_ORDER.map((controlId) => {
               const complete = state.dc9.secureSequence.includes(controlId)
               const next = DC9_SECURE_ORDER[state.dc9.secureSequence.length] === controlId
+              const projection = hotspots[`dc9.secure.${controlId}`]
               return (
                 <button
                   key={controlId}
@@ -63,6 +81,8 @@ export function Dc9Chapter({ state, dispatch, onRestart }: Dc9ChapterProps) {
                   className={`dc9-shutdown__control${complete ? ' is-complete' : ''}${next ? ' is-next' : ''}`}
                   aria-pressed={complete}
                   disabled={complete}
+                  data-projection={projection?.visible ? 'mesh' : 'fallback'}
+                  data-projection-point={projection ? `${projection.x},${projection.y},${projection.visible}` : undefined}
                   onClick={() => dispatch({ type: 'ACTIVATE_DC9_CONTROL', controlId })}
                 >
                   <span>{dc9LegacyFlow.secureControls[controlId].label}</span>
@@ -78,6 +98,14 @@ export function Dc9Chapter({ state, dispatch, onRestart }: Dc9ChapterProps) {
         <button type="button" className="dc9-key-glint" onClick={() => dispatch({ type: 'OPEN_CAPTAINS_KEY' })}>
           Open The Captain&apos;s Key
         </button>
+      ) : null}
+
+      {loadState.status === 'error' ? (
+        <div className="dc9-chapter__load-error" role="alert">
+          <strong>3D cockpit unavailable.</strong>
+          <span>{loadState.message ?? 'The DC-9 model could not be loaded.'} Your progress is safe; the complete chapter remains available here.</span>
+          <button type="button" className="secondary-button" onClick={onUseFallback}>Use static cockpit view</button>
+        </div>
       ) : null}
 
       <footer className="dc9-chapter__status">

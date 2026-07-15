@@ -419,7 +419,7 @@ git commit -m "feat: add DC-9 legacy record overlays"
 - Consumes: `Dc9ChapterStage`, existing `dc9.route.*` registry IDs, and semantic shutdown IDs.
 - Produces: `Open Legacy Route Record` trigger, stage-appropriate cameras, projected shutdown controls, and `Open The Captain's Key` glint.
 
-- [ ] **Step 1: Update the real-GLB E2E test to describe the new contract**
+- [x] **Step 1: Update the real-GLB E2E test to describe the new contract**
 
 Assert:
 
@@ -432,37 +432,37 @@ Assert:
 - Out-of-order battery input does not clear completed APU buses.
 - Battery completion exposes `Open The Captain's Key`.
 
-- [ ] **Step 2: Run the real-GLB test and verify failure**
+- [x] **Step 2: Run the real-GLB test and verify failure**
 
 Run: `npx playwright test e2e/smoke.spec.ts -g "DC-9 production cockpit.*Final Flight Log" --workers=1`  
 Expected: FAIL on the old per-row mesh behavior.
 
-- [ ] **Step 3: Convert route mesh behavior into one trigger**
+- [x] **Step 3: Convert route mesh behavior into one trigger**
 
 Keep strict registry validation unchanged. During `intro` and `routeRecord`, any `dc9.route.*` interaction dispatches `OPEN_DC9_ROUTE_RECORD`; individual route selection happens only in HTML. Do not rebuild the GLB or change baked strip text.
 
-- [ ] **Step 4: Drive cameras from chapter stage**
+- [x] **Step 4: Drive cameras from chapter stage**
 
 Use the existing route camera for `intro|routeRecord|homeOperations`, overhead camera for `shutdown`, and captain camera for `keyReveal|complete`. Retain `R` reset and constrained look behavior.
 
-- [ ] **Step 5: Preserve forgiving switch animation**
+- [x] **Step 5: Preserve forgiving switch animation**
 
 Animate only controls present in `dc9.secureSequence`. An out-of-order attempt may briefly acknowledge through UI state, but must not be inserted into active controls or mutate the GLB pivot permanently.
 
-- [ ] **Step 6: Add the lightweight key glint**
+- [x] **Step 6: Add the lightweight key glint**
 
 Use a simple emissive sphere/plane or HTML-projected target near the log area, visible only after the authored shutdown sequence. Its semantic control is `Open The Captain's Key`. Do not add a Blender asset.
 
-- [ ] **Step 7: Remove obsolete Captain HUD**
+- [x] **Step 7: Remove obsolete Captain HUD**
 
 Delete the old route-selection sidebar/projection UI from `Hud.tsx` or its Captain-specific branch. Keep accessible projected shutdown buttons and model-failure fallback. Update the badge text to retain `GREYBOX` without claiming this is still the final Captain challenge.
 
-- [ ] **Step 8: Run focused real-GLB and fallback tests**
+- [x] **Step 8: Run focused real-GLB and fallback tests**
 
 Run: `npx playwright test e2e/smoke.spec.ts -g "DC-9" --workers=1`  
 Expected: all DC-9 real-model and aborted-model tests PASS with no console errors.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/scenes/PrototypeScene.tsx src/components/Hud.tsx src/App.tsx e2e/smoke.spec.ts
