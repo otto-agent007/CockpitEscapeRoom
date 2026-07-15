@@ -1,5 +1,8 @@
 # DC-9 X-Plane Source Intake Report
 
+> **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
+
+
 ## Purpose
 
 Inspect the cached X-Plane DC-9-32 package as a possible prebuilt cockpit compatibility source for the DC-9 Pop T Captain cockpit.

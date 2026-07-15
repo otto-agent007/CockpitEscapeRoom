@@ -1,5 +1,8 @@
 # DC-9-51 Modeling Brief
 
+> **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
+
+
 Target: Northwest-style McDonnell Douglas DC-9-51 cockpit. Use this brief as reference triage, not as production approval.
 
 ## Reference Hierarchy

@@ -1,5 +1,8 @@
 # A320 five-card feedback simplification
 
+> **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
+
+
 ## Purpose
 
 Make Airbus First-Officer onboarding easier for family players with no pilot training. The player should place five obvious cockpit labels, see each target turn green or red immediately, then answer the ATP-hours question without needing a weird `CLOCK` placement card.

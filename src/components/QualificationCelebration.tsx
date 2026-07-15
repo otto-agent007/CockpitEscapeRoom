@@ -74,9 +74,9 @@ function MilestoneCelebration({
 export function QualificationCelebration({ reducedMotion, onContinue }: { reducedMotion: boolean; onContinue: () => void }) {
   return (
     <MilestoneCelebration
-      eyebrow="Crew qualification complete"
+      eyebrow="POP T CAPTAIN MODE COMPLETE"
       title="Airline Transport Pilot milestone recognized"
-      body="First-Officer knowledge logged."
+      body="Captain knowledge logged."
       actionLabel="Continue"
       reducedMotion={reducedMotion}
       onContinue={onContinue}

@@ -1,5 +1,8 @@
 # Cockpit Pipeline Ubuntu Foundation
 
+> **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
+
+
 > Production-target update, 2026-07-13: the owner-cleared Roger2009 DC-9-32 is the exact Pop T Captain geometry/texture authority. Older unresolved, DC-9-50, and DC-9-51 target decisions below remain historical pipeline evidence and are superseded by `plans/0012-dc9-pop-t-captain-level.md`.
 
 ## Purpose

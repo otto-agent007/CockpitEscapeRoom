@@ -2,7 +2,7 @@
 
 ## Goal
 
-A former DC-9 pilot should recognize the main cockpit immediately from the captain’s viewpoint. A former Airbus pilot should recognize the First-Officer cockpit as the exact model selected. Realism comes from correct proportions, materials, camera placement, lighting, and familiar visual relationships—not from simulating every operational system.
+A former DC-9 pilot should recognize the main cockpit immediately from the first-officer/right-seat viewpoint. A former Airbus pilot should recognize the A320 from the captain/left-seat viewpoint. Realism comes from correct proportions, materials, camera placement, lighting, and familiar visual relationships—not from simulating every operational system.
 
 ## Reference policy
 
@@ -12,9 +12,9 @@ Build an approved reference board for each aircraft. Record source, model/varian
 
 The first DC-9 blockout must demonstrate:
 
-- Captain-eye camera height, field of view, and sightline.
+- First-officer eye camera height, field of view, and sightline.
 - Main instrument panel silhouette and density.
-- Relationship between captain instruments, central engine instruments, yokes, glare shield, windshield, pedestal, and overhead.
+- Relationship between first-officer instruments, central engine instruments, yokes, glare shield, windshield, pedestal, and overhead.
 - Era-appropriate blue-green/gray panel family.
 - Correct large control shapes and spacing.
 - Analog gauge depth and glass response.
@@ -25,7 +25,7 @@ The owner must answer “yes” to: **Does this feel unmistakably like the DC-9 
 
 ## Airbus approval criteria
 
-**Status:** The current Airbus A320 First-Officer cockpit, right-seat camera, and five-target browser presentation were approved by the owner for production on 2026-07-10. Future changes must preserve that approved baseline or reopen the visual gate with new comparison evidence.
+**Status:** The 2026-07-10 right-seat presentation was superseded on 2026-07-15. The current Airbus A320 Pop T Captain contract uses the exported left-seat camera and captain-side sidestick; owner visual approval is reopened and requires new browser evidence.
 
 Do not model the production Airbus cockpit until the exact model is confirmed. The blockout must demonstrate model-specific:
 
@@ -40,7 +40,7 @@ The Airbus may not reuse DC-9 geometry, labels, or control placement.
 
 ## Camera and interaction
 
-Use a restrained captain-seat camera with limited look and lean rather than free-flight controls. Zooming into puzzle zones should feel like leaning toward the panel. Avoid wide-angle distortion that makes the cockpit look like a game arena.
+Use restrained seat-specific cameras with limited look and lean rather than free-flight controls: DC-9 first officer/right seat and Airbus captain/left seat. Zooming into puzzle zones should feel like leaning toward the panel. Avoid wide-angle distortion that makes the cockpit look like a game arena.
 
 Interactive controls need correct pivots and believable travel. Use simplified collider meshes when necessary, but do not alter visible proportions to make clicking easier; expand the invisible hit target instead.
 
@@ -59,11 +59,11 @@ Do not approve an asset only under dramatic lighting.
 
 Each visual gate includes:
 
-- Fixed captain-seat screenshot.
+- Fixed seat-role screenshot (DC-9 right seat or Airbus left seat).
 - Main-panel close-up.
 - Overhead and pedestal views when applicable.
 - Vercel preview URL.
 - GLB size and object/material counts.
-- Mobile and desktop screenshots.
+- Consistent 1440×900 desktop screenshots for this seat-role milestone.
 - Known deviations from the reference set.
 - Source manifest updates.

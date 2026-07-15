@@ -101,9 +101,9 @@ def _eval_aircraft_detail_separation(fixture: dict[str, Any]) -> list[str]:
     violations: list[str] = []
     target = fixture.get("targetSceneGroup")
     imported = set(fixture.get("importedDetailFamilies", []))
-    if target == "DC-9 Pop T Captain cockpit" and "airbus" in imported:
+    if isinstance(target, str) and target.startswith("DC-9 ") and "airbus" in imported:
         violations.append("airbus-detail-imported-into-dc9")
-    if target == "Airbus A320 First-Officer cockpit" and "dc9" in imported:
+    if isinstance(target, str) and target.startswith("Airbus A320 ") and "dc9" in imported:
         violations.append("dc9-detail-imported-into-airbus")
     return violations
 

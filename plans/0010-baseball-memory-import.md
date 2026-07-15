@@ -1,5 +1,8 @@
 # Baseball memory import and playable locker reveal
 
+> **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
+
+
 ## Purpose
 
 Make the preserved Tripo baseball a real Blender-to-browser locker prop and make the player-visible reveal sequence read: watch → baseball question → Charging Bull → Wings → captain’s hat.

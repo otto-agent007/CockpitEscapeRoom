@@ -51,7 +51,7 @@ export function Dc9Chapter({ state, dispatch, onRestart, loadState, hotspots, on
 
       {(state.dc9.stage === 'intro' || (state.dc9.stage === 'routeRecord' && routeRecordDismissed)) ? (
         <div className="dc9-chapter__prompt">
-          <p>Find the narrow route strip attached to the captain-yoke center pad.</p>
+          <p>Find the narrow route strip attached to the first-officer yoke.</p>
           <button
             type="button"
             className="primary-button"

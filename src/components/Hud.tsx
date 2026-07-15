@@ -1,5 +1,5 @@
 import { useMemo, useState, type DragEvent } from 'react'
-import { firstOfficerFlow, gameCopy, type FirstOfficerControl, type LockerMemoryId } from '../game/config'
+import { airbusCaptainFlow, gameCopy, type AirbusControl, type LockerMemoryId } from '../game/config'
 import { gameProgress, type GameAction, type GameState } from '../game/state'
 import type { AirbusHotspotScreenPositions } from '../scenes/PrototypeScene'
 import { LockerHud } from './LockerHud'
@@ -17,8 +17,8 @@ interface HudProps {
   onSelectedLockerMemoryChange: (memory: LockerMemoryId | null) => void
 }
 
-const airbusTargetMeta: Record<FirstOfficerControl, { x: number; y: number }> = {
-  sidestick: { x: 72, y: 79 },
+const airbusTargetMeta: Record<AirbusControl, { x: number; y: number }> = {
+  sidestick: { x: 19.5, y: 79 },
   thrust: { x: 25.5, y: 86 },
   gear: { x: 39.5, y: 57 },
   radio: { x: 40, y: 83 },
@@ -38,14 +38,14 @@ export function Hud({
   onSelectedLockerMemoryChange,
 }: HudProps) {
   const [draggingAirbusCard, setDraggingAirbusCard] = useState<string | null>(null)
-  const [activeAirbusTarget, setActiveAirbusTarget] = useState<FirstOfficerControl | null>(null)
+  const [activeAirbusTarget, setActiveAirbusTarget] = useState<AirbusControl | null>(null)
   const assignedCards = useMemo(() => new Set(Object.values(state.airbusAssignments).filter(Boolean)), [state.airbusAssignments])
 
-  const isComplete = (id: FirstOfficerControl) => state.airbusAssignments[id] === firstOfficerFlow.controlMatch[id]
+  const isComplete = (id: AirbusControl) => state.airbusAssignments[id] === airbusCaptainFlow.controlMatch[id]
   const placedAirbusCards = Object.values(state.airbusAssignments).filter(Boolean).length
-  const airbusLabelsComplete = firstOfficerFlow.controlIds.every((control) => state.airbusAssignments[control] === firstOfficerFlow.controlMatch[control])
+  const airbusLabelsComplete = airbusCaptainFlow.controlIds.every((control) => state.airbusAssignments[control] === airbusCaptainFlow.controlMatch[control])
 
-  const placeAirbusCard = (control: FirstOfficerControl, card: string) => {
+  const placeAirbusCard = (control: AirbusControl, card: string) => {
     dispatch({ type: 'ASSIGN_AIRBUS_CARD', control, card })
     onSelectedAirbusCardChange(null)
     setDraggingAirbusCard(null)
@@ -66,18 +66,18 @@ export function Hud({
       <section className="airbus-training" aria-labelledby="airbus-heading">
         <div className="airbus-topbar">
           <div>
-            <p className="eyebrow">Airbus First-Officer Mode</p>
+            <p className="eyebrow">Airbus A320 Pop T Captain Mode</p>
             <h2 id="airbus-heading" className="sr-only">Airbus cockpit label placement</h2>
           </div>
-          <div className="airbus-progress" aria-label={`${placedAirbusCards} of ${firstOfficerFlow.controlCards.length} cards placed`}>
+          <div className="airbus-progress" aria-label={`${placedAirbusCards} of ${airbusCaptainFlow.controlCards.length} cards placed`}>
             <span>{gameProgress(state)}% complete</span>
-            <strong>{placedAirbusCards}/{firstOfficerFlow.controlCards.length}</strong>
+            <strong>{placedAirbusCards}/{airbusCaptainFlow.controlCards.length}</strong>
           </div>
         </div>
 
         <div className="airbus-card-tray" aria-label="Draggable label cards">
-          {firstOfficerFlow.controlCards.map((card) => {
-            const control = firstOfficerFlow.controlIds.find((controlId) => firstOfficerFlow.controlMatch[controlId] === card)
+          {airbusCaptainFlow.controlCards.map((card) => {
+            const control = airbusCaptainFlow.controlIds.find((controlId) => airbusCaptainFlow.controlMatch[controlId] === card)
             const assigned = assignedCards.has(card)
             const selected = selectedAirbusCard === card
 
@@ -101,7 +101,7 @@ export function Hud({
                 }}
               >
                 <strong>{card}</strong>
-                <span className="airbus-card-description">{control ? firstOfficerFlow.controlDescriptions[control] : ''}</span>
+                <span className="airbus-card-description">{control ? airbusCaptainFlow.controlDescriptions[control] : ''}</span>
                 {assigned && <span className="airbus-card-placement">Placed</span>}
               </button>
             )
@@ -112,7 +112,7 @@ export function Hud({
           className={`airbus-target-layer${Object.keys(airbusHotspots).length > 0 ? ' airbus-target-layer--projected' : ''}${airbusMeshPickingEnabled ? ' airbus-target-layer--mesh-picking' : ' airbus-target-layer--fallback'}${selectedAirbusCard || draggingAirbusCard ? ' is-placing-card' : ''}`}
           aria-label="Cockpit placement targets"
         >
-          {firstOfficerFlow.controlIds.map((control, index) => {
+          {airbusCaptainFlow.controlIds.map((control, index) => {
             const assignedCard = state.airbusAssignments[control]
             const complete = isComplete(control)
             const wrong = Boolean(assignedCard) && !complete
@@ -180,27 +180,27 @@ export function Hud({
 
         <div
           className={`airbus-dock${airbusLabelsComplete ? ' airbus-dock--atp' : ''}`}
-          aria-label="First-Officer status and controls"
+          aria-label="Pop T Captain status and controls"
         >
           <div className="status airbus-status" aria-live="polite" aria-atomic="true">
             {state.statusMessage}
           </div>
 
-          {airbusLabelsComplete && !state.completedPuzzles.includes('firstOfficer') && (
+          {airbusLabelsComplete && !state.completedPuzzles.includes('airbus') && (
             <form
               className="airbus-qualification-form"
               onSubmit={(event) => {
                 event.preventDefault()
-                dispatch({ type: 'SUBMIT_AIRBUS_CLOCK' })
+                dispatch({ type: 'SUBMIT_AIRBUS_QUALIFICATION' })
               }}
             >
               <label className="airbus-atp">
-                <span>{firstOfficerFlow.clockQuestion}</span>
+                <span>{airbusCaptainFlow.clockQuestion}</span>
                 <input
                   type="text"
-                  value={state.airbusClockAnswer}
+                  value={state.airbusQualificationAnswer}
                   onChange={(event) => {
-                    dispatch({ type: 'SET_AIRBUS_CLOCK_ANSWER', value: event.target.value })
+                    dispatch({ type: 'SET_AIRBUS_QUALIFICATION_ANSWER', value: event.target.value })
                   }}
                   inputMode="text"
                   aria-label="Airline Transport Pilot answer"

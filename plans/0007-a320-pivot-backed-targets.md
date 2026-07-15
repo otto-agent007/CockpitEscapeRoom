@@ -1,5 +1,8 @@
 # A320 pivot-backed First-Officer targets
 
+> **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
+
+
 ## Purpose
 
 Promote the Airbus First-Officer label targets from screen-projected hotspots to asset-backed runtime targets. Players should still complete the same five-card onboarding flow, but the A320 GLB should now carry documented pivot proxies and raycastable hitboxes for the five player-facing cockpit targets.

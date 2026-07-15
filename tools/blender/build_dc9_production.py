@@ -1,4 +1,4 @@
-"""Build the owner-review DC-9 captain cockpit from the cleared OBJ8 source.
+"""Build the owner-review DC-9 first-officer cockpit from the cleared OBJ8 source.
 
 Run with Blender opening the donor evaluation blend, for example:
 
@@ -7,7 +7,7 @@ Run with Blender opening the donor evaluation blend, for example:
 
 The script imports the donor's native instrument and control geometry in a deterministic
 parked pose, applies a restrained presentation correction to the donor cockpit atlas,
-creates stable runtime groups and captain cameras, packs source images, and saves
+creates stable runtime groups and first-officer cameras, packs source images, and saves
 art-source/blender/dc9_master.blend.
 """
 
@@ -199,16 +199,17 @@ def create_interaction_contract(root: bpy.types.Object, pose: dict[str, float]) 
 
     card_material = make_principled_material("MAT_DC9_ROUTE_CARD", (0.78, 0.73, 0.58, 1.0), roughness=0.82)
     line_material = make_principled_material("MAT_DC9_ROUTE_CARD_LINE", (0.10, 0.14, 0.15, 1.0), roughness=0.70)
-    # The video reference clips a narrow speed card to the camera-facing center
-    # pad of the captain's yoke. The imported yoke handles are
+    # Mount the narrow route strip to the camera-facing center pad of the
+    # first-officer yoke. The imported yoke handles are
     # OBJ8_DC9VC2_RANGE_013, while pitch-range OBJ8_DC9VC2_RANGE_012 contains
     # the column/pad whose front face reaches y=-2.754. Place the card just in
     # front of that face and let it hang down from the pad.
-    card_center = (-0.4843, -2.775, 0.27)
+    card_center = (0.4843, -2.775, 0.27)
     board = make_box("DC9_PROP_MEM_ROUTE_CARD", props, card_center, (0.10, 0.012, 0.30), card_material)
     board["game_id"] = "dc9.route.card"
     board["interaction"] = "container"
     board["mounted_to_source"] = "OBJ8_DC9VC2_RANGE_012"
+    board["seat_role"] = "first_officer"
     board["route_origin"] = "MEM"
     board["timetable_date"] = "1995-06-01"
     for index, route in enumerate(ROUTES):
@@ -685,6 +686,9 @@ def make_camera(
     location: tuple[float, float, float],
     target: tuple[float, float, float],
     lens: float,
+    *,
+    role: str = "first_officer_seated_non_operational",
+    deprecated_replacement: str | None = None,
 ) -> bpy.types.Object:
     data = bpy.data.cameras.new(f"{name}_DATA")
     data.lens = lens
@@ -696,8 +700,36 @@ def make_camera(
     camera.location = location
     point_object_at(camera, target)
     camera.parent = root
-    camera["camera_role"] = "captain_seated_non_operational"
+    camera["camera_role"] = role
+    if deprecated_replacement:
+        camera["deprecated"] = True
+        camera["compatibility_only"] = True
+        camera["replacement_camera"] = deprecated_replacement
     return camera
+
+
+def attach_route_contract_to_first_officer_yoke() -> None:
+    """Make the visible strip and its hit volumes true children of the FO yoke."""
+    yoke = bpy.data.objects.get("OBJ8_DC9VC2_RANGE_012")
+    if yoke is None:
+        raise RuntimeError("First-officer yoke pad source OBJ8_DC9VC2_RANGE_012 is missing")
+    candidates = []
+    for group_name in ("DC9_PUZZLE_PROPS", "DC9_COLLIDERS"):
+        group = bpy.data.objects.get(group_name)
+        if group is None:
+            continue
+        candidates.extend(
+            child for child in list(group.children)
+            if child.name.startswith("DC9_ROUTE_")
+            or child.name.startswith("DC9_PROP_MEM_ROUTE_CARD")
+            or child.name.startswith("DC9_HITBOX_ROUTE_")
+        )
+    for obj in candidates:
+        world = obj.matrix_world.copy()
+        obj.parent = yoke
+        obj.matrix_world = world
+        obj["mounted_to_source"] = yoke.name
+        obj["seat_role"] = "first_officer"
 
 
 def make_area_light(
@@ -726,45 +758,63 @@ def configure_scene(root: bpy.types.Object) -> None:
 
     game_camera = make_camera(
         root,
+        "CAM_DC9_FIRST_OFFICER_GAME",
+        (0.45, -3.34, 0.82),
+        (0.38, -2.38, 0.34),
+        25.0,
+    )
+    approval_camera = make_camera(
+        root,
+        "CAM_DC9_FIRST_OFFICER_APPROVAL",
+        (0.45, -3.34, 0.82),
+        (0.38, -2.38, 0.34),
+        25.0,
+    )
+    make_camera(
+        root,
+        "CAM_DC9_FIRST_OFFICER_MAIN_PANEL_APPROVAL",
+        (0.35, -3.25, 0.72),
+        (0.10, -2.34, 0.36),
+        32.0,
+    )
+    make_camera(
+        root,
+        "CAM_DC9_FIRST_OFFICER_OVERHEAD_APPROVAL",
+        (0.47, -3.21, 0.93),
+        (0.19, -2.46, 1.16),
+        39.0,
+    )
+    make_camera(
+        root,
+        "CAM_DC9_FIRST_OFFICER_ROUTE_APPROVAL",
+        (0.45, -3.34, 0.82),
+        (0.45, -2.60, 0.30),
+        40.0,
+    )
+    make_camera(
+        root,
+        "CAM_DC9_FIRST_OFFICER_PEDESTAL_APPROVAL",
+        (0.43, -3.12, 0.59),
+        (0.08, -2.25, -0.12),
+        39.0,
+    )
+    make_camera(
+        root,
         "CAM_DC9_CAPTAIN_GAME",
         (-0.45, -3.34, 0.82),
         (-0.38, -2.38, 0.34),
         25.0,
+        role="deprecated_captain_compatibility",
+        deprecated_replacement="CAM_DC9_FIRST_OFFICER_GAME",
     )
-    approval_camera = make_camera(
+    make_camera(
         root,
         "CAM_DC9_CAPTAIN_APPROVAL",
         (-0.45, -3.34, 0.82),
         (-0.38, -2.38, 0.34),
         25.0,
-    )
-    make_camera(
-        root,
-        "CAM_DC9_MAIN_PANEL_APPROVAL",
-        (-0.35, -3.25, 0.72),
-        (-0.10, -2.34, 0.36),
-        32.0,
-    )
-    make_camera(
-        root,
-        "CAM_DC9_OVERHEAD_APPROVAL",
-        (-0.47, -3.21, 0.93),
-        (-0.19, -2.46, 1.16),
-        39.0,
-    )
-    make_camera(
-        root,
-        "CAM_DC9_ROUTE_CARD_APPROVAL",
-        (-0.45, -3.34, 0.82),
-        (-0.45, -2.60, 0.30),
-        40.0,
-    )
-    make_camera(
-        root,
-        "CAM_DC9_PEDESTAL_APPROVAL",
-        (-0.43, -3.12, 0.59),
-        (-0.08, -2.25, -0.12),
-        39.0,
+        role="deprecated_captain_compatibility",
+        deprecated_replacement="CAM_DC9_FIRST_OFFICER_APPROVAL",
     )
     bpy.context.scene.camera = approval_camera
 
@@ -813,8 +863,8 @@ def configure_scene(root: bpy.types.Object) -> None:
     scene.view_settings.look = "AgX - Medium High Contrast"
 
     locators = make_empty("DC9_LOCATORS", root)
-    captain_eye = make_empty("DC9_LOC_CAPTAIN_EYE", locators)
-    captain_eye.matrix_world = game_camera.matrix_world.copy()
+    first_officer_eye = make_empty("DC9_LOC_FIRST_OFFICER_EYE", locators)
+    first_officer_eye.matrix_world = game_camera.matrix_world.copy()
     panel_focus = make_empty("DC9_LOC_MAIN_PANEL_FOCUS", locators)
     panel_focus.location = (-0.35, -2.22, 0.43)
 
@@ -851,6 +901,8 @@ def build() -> None:
             parent,
             exclude_draw_indices=selected_draws if source_path == COCKPIT_OBJECT else None,
         )
+
+    attach_route_contract_to_first_officer_yoke()
 
     normalize_donor_image_profiles()
     tune_source_materials()

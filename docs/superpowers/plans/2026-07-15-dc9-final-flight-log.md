@@ -1,5 +1,8 @@
 # DC-9 Final Flight Log Implementation Plan
 
+> **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
+
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace the current Captain-mode placement with a 10–15 minute DC-9 Final Flight Log opening and reorder the complete game to DC-9 → locker → existing Airbus → Model Y reward.

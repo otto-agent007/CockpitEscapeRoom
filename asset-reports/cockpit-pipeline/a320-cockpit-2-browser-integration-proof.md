@@ -1,3 +1,20 @@
+# Airbus A320 Pop T Captain seat-role migration
+
+Date: 2026-07-15
+
+- Authoritative source: `art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend`; deployable output: `public/models/airbus-captain.glb`.
+- Blender 5.1.2 rebuilt and validated the source. The preserved imported-source warnings (124) and candidate notes (127) are documented and do not alter the five target contracts.
+- Canonical cameras: `CAM_AIRBUS_CAPTAIN_GAME_VIEW` and `AIRBUS_A320_CAM_CAPTAIN_APPROVAL`. The exported gameplay camera owns its transform and 68-degree vertical FOV; the browser no longer supplies a hard-coded first-officer transform.
+- The sidestick pivot/collider/cue moved to the captain-side sidestick. All five target families retain stable names, pivots, and `game_id` values with `puzzle_id = airbus`.
+- Deprecated first-officer cameras remain compatibility-only nodes with explicit replacement metadata. The deprecated `public/models/airbus-first-officer.glb` deployable file was removed.
+- Current GLB: 39,878,544 bytes; SHA-256 `8ede97bc91e1ad6ca88f7abbced7c7d7e43483fc99ea1f266687f982bde89899`; 157 selected export objects; 15 interactive target contract objects; 10 materials and 10 textures; no destructive optimization.
+
+Current browser evidence is durable at `preview-renders/seat-role-swap/airbus-captain-targets-initial-1440.png` and `preview-renders/seat-role-swap/airbus-captain-targets-dragged-1440.png`. Both captures use the captain camera with the SIDESTICK card selected and report five projected target controls before and after seated head-look drag.
+- Current approval still: `public/images/a320-game-ready-captain.png`; SHA-256 `2d3cfae76008f6cf713bd37d0af0622cbf34beed66b0b30ae6955a73214f6479`.
+- Browser visual evidence and the reopened owner gate are recorded in `plans/0013-dc9-fo-airbus-captain-seat-swap.md` and `TEST_REPORT.md`.
+
+> **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
+
 # Airbus A320 Cockpit 2 Production Handoff
 
 ## 2026-07-10 owner production approval

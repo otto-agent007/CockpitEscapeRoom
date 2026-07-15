@@ -1,5 +1,8 @@
 # Airbus production promotion, loading, and viewer help
 
+> **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
+
+
 ## Purpose
 
 Give desktop players one polished A320 loading experience, recoverable 3D failures, seated look/zoom controls, and reusable viewer help without changing the validated aircraft asset.

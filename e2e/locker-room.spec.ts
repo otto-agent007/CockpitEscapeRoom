@@ -15,13 +15,11 @@ function lockerState(overrides: Partial<GameState> = {}): GameState {
       homePage: dc9LegacyFlow.homeOperationsPages.length - 1,
       homeOperationsCompleted: true,
       secureSequence: [...dc9LegacyFlow.secureSequence],
+      secureAttempts: 0,
       keyRevealed: true,
       keyClaimed: true,
     },
-    captainRouteVerified: true,
-    dc9SecureSequence: [...dc9LegacyFlow.secureSequence],
-    routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
-    completedPuzzles: ['captain'],
+    completedPuzzles: ['dc9'],
     lockerIntroCompleted: true,
     statusMessage: 'Begin with the pilot watch.',
     ...overrides,
@@ -37,7 +35,7 @@ async function seed(page: Page, state: GameState, suffix = '?skip3d=1') {
 test("Captain's Key plays the narrative handoff and settles on the watch-first gate", async ({ page }) => {
   await seed(page, {
     ...createInitialState(),
-    phase: 'captain',
+    phase: 'dc9',
     dc9: {
       stage: 'keyReveal',
       routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
@@ -46,12 +44,10 @@ test("Captain's Key plays the narrative handoff and settles on the watch-first g
       homePage: dc9LegacyFlow.homeOperationsPages.length - 1,
       homeOperationsCompleted: true,
       secureSequence: [...dc9LegacyFlow.secureSequence],
+      secureAttempts: 0,
       keyRevealed: true,
       keyClaimed: false,
     },
-    captainRouteVerified: true,
-    dc9SecureSequence: [...dc9LegacyFlow.secureSequence],
-    routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
     statusMessage: "The Captain's Key is ready.",
   })
 
@@ -162,7 +158,7 @@ test('watch completion opens the baseball question, then Bull and Wings', async 
   }
 
   await page.getByRole('button', { name: 'Enter Pop T Captain Mode' }).click()
-  await expect(page.getByText('Airbus First-Officer Mode', { exact: true })).toBeVisible()
+  await expect(page.getByText('Airbus A320 Pop T Captain Mode', { exact: true })).toBeVisible()
 })
 
 test('reduced motion, replay, and Escape skip keep the accessible path usable', async ({ page }) => {
@@ -248,7 +244,7 @@ test('locker GLB loads into the real canvas and the directed camera settles on t
   await expect(page.locator('canvas')).toHaveAttribute('data-locker-bull-visual', 'revealed')
   await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })).toBeVisible()
   await page.getByRole('button', { name: 'Enter Pop T Captain Mode' }).click()
-  await expect(page.getByRole('heading', { name: 'Airbus A320 First-Officer Mode' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Airbus A320 Pop T Captain Mode' })).toBeVisible()
 })
 
 test('locker load failure offers retry and a watch-first accessible fallback', async ({ page }) => {

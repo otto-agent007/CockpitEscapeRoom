@@ -4,7 +4,7 @@
 
 ```text
 art-source/blender/dc9_master.blend
-art-source/blender/airbus_master.blend
+art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend
 art-source/blender/tesla_reward.blend
 art-source/blender/locker_room_master.blend
 ```
@@ -114,3 +114,9 @@ A deployable GLB must preserve:
 - Material and texture assignments.
 
 Do not run a flattening, joining, or destructive deduplication optimization unless an automated interaction regression proves the named controls still work.
+
+## Seat-role camera contract
+
+The active DC-9 camera family is `CAM_DC9_FIRST_OFFICER_GAME`, `CAM_DC9_FIRST_OFFICER_APPROVAL`, and the `CAM_DC9_FIRST_OFFICER_*_APPROVAL` route, main-panel, overhead, and pedestal cameras. The active Airbus cameras are `CAM_AIRBUS_CAPTAIN_GAME_VIEW` and `AIRBUS_A320_CAM_CAPTAIN_APPROVAL`. Old seat cameras may remain only with explicit `deprecated`, `compatibility_only`, and `replacement_camera` metadata.
+
+The deployable Airbus path is `public/models/airbus-captain.glb`. React Three Fiber consumes its exported captain camera transform and 68° vertical field of view directly. The DC-9 route strip and colliders are children of the actual first-officer yoke while retaining their stable route and shutdown `game_id` values.

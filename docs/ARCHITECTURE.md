@@ -21,7 +21,7 @@
 
 ## Asset loading
 
-Load the application shell immediately. Lazy-load Three.js after the player begins. Load the DC-9 for the opening chapter, then fetch locker, Airbus First-Officer, vehicle reward, and Mars assets only as their stages unlock.
+Load the application shell immediately. Lazy-load Three.js after the player begins. Load the DC-9 for the opening chapter, then fetch locker, Airbus Pop T Captain, vehicle reward, and Mars assets only as their stages unlock.
 
 Use stable filenames during development. Before production, consider content-hashed asset URLs or an asset manifest so long-lived browser caches do not serve stale models.
 
@@ -29,7 +29,7 @@ Use stable filenames during development. Before production, consider content-has
 
 The starter uses a pure reducer. Keep game state serializable. Persist only player progress and settings, never Three.js objects, texture references, audio nodes, or DOM state.
 
-Every storage schema has a version. Add explicit migrations or safely reset when a future schema is incompatible.
+The active storage schema is v8 with phases `briefing | dc9 | locker | airbus | reward | mars` and puzzle IDs `dc9 | locker | airbus`. Keep the existing storage key. Migrations accept v3-v7 saves, map legacy captain/first-officer identifiers without losing progress, and write only canonical v8 state. Add explicit migrations or safely reset when a future schema is incompatible.
 
 ## Accessibility
 

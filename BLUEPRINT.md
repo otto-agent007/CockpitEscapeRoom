@@ -3,7 +3,7 @@
 ## 1. Core thesis
 
 CockpitEscapeRoom is a personalized Father’s Day tribute flow with one emotional arc:
-Original opening screen / Start Game → DC-9 Final Flight Log → unchanged locker memory reveal → unchanged Airbus gameplay in the Captain-mode slot → hidden Model Y reveal.
+Original opening screen / Start Game → DC-9 First-Officer Final Flight Log → unchanged locker memory reveal → Airbus A320 Pop T Captain Mode → hidden Model Y reveal.
 
 ## 2. Player and occasion
 
@@ -13,9 +13,9 @@ Wrong choices should never erase earned milestones. The aircraft is safely parke
 
 ## 3. Experience structure
 
-1. **DC-9 Final Flight Log** opening memory chapter.
+1. **DC-9 First-Officer Final Flight Log** opening memory chapter from the right seat.
 2. **Locker room sequence** with personal memory objects.
-3. **Existing Airbus A320 First-Officer Mode** crew experience, now occupying the Captain-mode slot.
+3. **Airbus A320 Pop T Captain Mode** crew experience, now occupying the Captain-mode slot.
 4. **Red Tesla Model Y reveal** as the personal reward.
 5. **Optional Mars Easter egg** after completion.
 
@@ -42,7 +42,7 @@ Wrong answers must never erase completed stages.
 
 1. Stable Final Flight Log records, shutdown, and Captain’s Key.
 2. Locker memory interaction and hat-reveal gate.
-3. Existing Airbus First-Officer matcher and clock gate.
+3. Airbus Pop T Captain five-card matcher and ATP gate from the left seat.
 4. Reward reveal UI and final closing message.
 5. Mars optional trigger.
 
@@ -56,7 +56,7 @@ Wrong answers never erase completed puzzles. Final Flight Log route stamps and s
 
 ## 5. Final Flight Log and Airbus experience
 
-The original opening screen remains in place, with only its button renamed to **Start Game** and routed to the Final Flight Log. The Final Flight Log uses a reliable yoke trigger, a readable HTML route record, progressive hints, a non-puzzle Home Operations Log, and the three supported shutdown controls. The later Airbus experience occupies the Captain-mode slot while retaining its existing labels, assignment feedback, ATP question, and presentation.
+The original opening screen remains in place, with only its button renamed to **Start Game** and routed to the Final Flight Log. The Final Flight Log uses the DC-9 right-seat first-officer view, a reliable route strip attached to the first-officer yoke, a readable HTML route record, progressive hints, a non-puzzle Home Operations Log, and the three supported shutdown controls. The later Airbus experience uses the left-seat captain view while retaining its five labels, assignment feedback, ATP question, and presentation.
 
 The Final Flight Log is not a memorization exam. The Northwest/Memphis/DC-9 history should appear mainly in scenery, route choices, dispatch texture, sounds, and the rhythm of the hub. Fleet counts, exact retirement dates, and economics are reference material, not required answers unless a later puzzle proves fun in playtesting.
 
@@ -66,13 +66,13 @@ The DC-9 level celebrates the aircraft as a durable short-haul workhorse in the 
 
 Completing the reordered DC-9 → locker → Airbus journey opens the hangar and reveals a red Model Y. The production reward scene may use a playful plate such as `CAPT DAD`, `DC9 2 EV`, `MEM FLYR`, or `MARS 09` after the owner chooses one.
 
-The later Airbus First-Officer chapter represents type transition and adaptability. A hidden Mars control turns the Model Y into a humorous surface vehicle and awards the rank “Commander, Mars Transport Division.”
+The later Airbus Pop T Captain chapter represents type transition and adaptability. A hidden Mars control turns the Model Y into a humorous surface vehicle and awards the rank “Commander, Mars Transport Division.”
 
 ## 7. Visual realism standard
 
-The DC-9 must read immediately as a DC-9 from the captain’s seat. Required qualities include correct major geometry, analog instrument density, center-panel proportions, yokes, overhead and pedestal relationships, era-appropriate panel color, believable wear, glass, labels, restrained annunciator light, and a convincing captain-eye camera.
+The DC-9 must read immediately as a DC-9 from the first-officer/right seat. Required qualities include correct major geometry, analog instrument density, center-panel proportions, yokes, overhead and pedestal relationships, era-appropriate panel color, believable wear, glass, labels, restrained annunciator light, and a convincing first-officer eye camera.
 
-The Airbus First-Officer cockpit must be a completely separate asset. It may not be a recolored or rearranged DC-9. The exact Airbus model must be confirmed before final modeling because display, side-stick, flight-control-unit, overhead, pedestal, and lighting details depend on the model.
+The Airbus Pop T Captain cockpit must be a completely separate asset. It may not be a recolored or rearranged DC-9. The exact Airbus model must be confirmed before final modeling because display, side-stick, flight-control-unit, overhead, pedestal, and lighting details depend on the model.
 
 Visual accuracy and puzzle behavior are separated: the cockpit can look authentic while the interactive sequences remain fictional.
 
@@ -87,7 +87,7 @@ HTML overlays carry instructions, hints, settings, captions, and accessible alte
 Each production scene has its own master file and deployable GLB:
 
 - `dc9_master.blend` → `dc9-cockpit.glb`
-- `airbus_master.blend` → `airbus-first-officer.glb`
+- `art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend` → `airbus-captain.glb`
 - `tesla_reward.blend` → `model-y-reward.glb`
 
 The pipeline validates roots, cameras, pivots, object names, `game_id` values, textures, materials, scale, and GLB structure before copying an asset into `public/models`.
@@ -123,7 +123,7 @@ The loop stops when validation passes, the maximum bounded attempts are reached,
 
 **Phase 2 — locker reveal proof:** personal locker objects, captain’s hat reveal, accessible inspection flow, and spoiler-safe transition.
 
-**Phase 3 — Airbus First-Officer regression proof:** existing drag-and-drop object matching, ATP gate, browser integration, and owner visual gate.
+**Phase 3 — Airbus Pop T Captain proof:** left-seat exported camera, captain-side sidestick target, existing drag-and-drop object matching, ATP gate, browser integration, and owner visual gate.
 
 **Phase 4 — Model Y reward:** red Model Y asset, achievement card, optional plate.
 
@@ -137,7 +137,7 @@ A release candidate is done only when:
 
 - All required puzzles can be completed across the DC-9, locker, and Airbus chapters.
 - Correct, wrong, repeated-wrong, hint, reload, resume, and reset paths work.
-- The DC-9 and Airbus pass owner visual approval from the captain’s viewpoint.
+- The DC-9 passes owner visual approval from the first-officer/right seat and the Airbus from the captain/left seat.
 - The Airbus model and DC-9 variant are documented.
 - Keyboard and screen-reader equivalents exist for every required 3D action.
 - Reduced-motion mode, sound controls, and readable contrast are present.

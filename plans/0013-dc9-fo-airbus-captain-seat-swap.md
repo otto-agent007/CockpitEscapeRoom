@@ -63,19 +63,21 @@ Excluded:
 - [x] 2026-07-15 - Read root and nested agent guidance, blueprint, game design, visual realism, workflow, ownership, asset contracts, pipeline docs, relevant skills, and `PLANS.md`.
 - [x] 2026-07-15 - Inspected Git state and preserved all durable tracked/untracked pre-migration work except `.vercel` as commit `80dd15c` on `wip/pre-seat-role-swap-20260715`.
 - [x] 2026-07-15 - Created `agent/dc9-fo-airbus-captain-seat-swap` from `40a1a66`; `npm install` found no vulnerabilities and baseline `npm test` passed 57/57.
-- [ ] Write and observe failing schema-v8 and seat-role terminology tests.
-- [ ] Implement schema v8 and v3-v7 migration with no progress loss.
-- [ ] Rebuild and validate the DC-9 FO source/GLB/camera family/route strip.
-- [ ] Rebuild and validate the Airbus captain source/GLB/camera/targets.
-- [ ] Integrate new assets/copy/help/fallback stills in the browser.
-- [ ] Update living contracts and add historical supersession notices.
-- [ ] Complete automated and actual-browser validation, current evidence, full-diff review, and Vercel preview.
+- [x] 2026-07-15 - Added schema-v8 and v7-migration tests; the focused run failed 10 assertions on version 7, phase `captain`, legacy puzzle IDs, and absent canonical fields, proving the new contract was not already present.
+- [x] 2026-07-15 - Implemented canonical schema v8, `dc9 | locker | airbus` puzzle semantics, nested `dc9.secureAttempts`, renamed Airbus/reward fields, explicit v7-to-v8 migration, and the retained v3-v7 chain. Focused state/storage tests pass 61/61 and `npm run typecheck` passes.
+- [x] 2026-07-15 - Rebuilt and validated the DC-9 FO source/GLB/camera family and parented route contract on the first-officer yoke.
+- [x] 2026-07-15 - Rebuilt and validated the Airbus captain source/GLB/camera/targets; fixed exported sensor fit so the GLB owns a true 68-degree vertical FOV.
+- [x] 2026-07-15 - Integrated new assets, exact copy/help/completion terms, fallback stills, and direct exported-camera runtime behavior.
+- [x] 2026-07-15 - Updated living contracts and added standardized notices above historical plans/evidence.
+- [x] 2026-07-15 - Completed asset, app, pipeline, and 15-case browser validation plus inspected 1440x900 seat views. Remaining: full-diff review and Vercel preview.
 
 ## Discoveries
 
 - The requested base commit and current HEAD were both `40a1a66`; the dirty pre-migration layer was therefore preservable without rebasing or conflict resolution.
 - `.vercel` was the only intentionally excluded untracked directory and is locally ignored through `.git/info/exclude` on the feature branch.
 - Baseline unit coverage consists of 57 Vitest tests across state and storage.
+- Schema v8 can isolate every pre-v8 field inside `src/game/storage.ts`; no legacy compatibility fields are required in `GameState` or newly saved JSON.
+- Blender `AUTO` sensor fit converted the requested Airbus view to a 59.3-degree glTF vertical FOV. An asset-contract test caught it; explicit `VERTICAL` sensor fit now exports `yfov = 1.1868238449` (68 degrees).
 
 ## Decision log
 
@@ -174,7 +176,19 @@ Repeat review -> smallest coherent repair -> focused validation -> actual browse
 - Feature base: `40a1a66` on `agent/dc9-fo-airbus-captain-seat-swap`.
 - `npm install`: up to date; 397 packages audited; 0 vulnerabilities. One existing pnpm-style allow-scripts warning for `sharp@0.34.5` was reported.
 - Baseline `npm test`: 2 files passed, 57 tests passed, 0 failed.
+- TDD red run: `npm run test -- --run src/game/state.test.ts src/game/storage.test.ts` failed 10/67 assertions for the expected missing schema-v8 semantics.
+- TDD green run: the same focused command passed 61/61 after consolidating migration coverage; `npm run typecheck` passed.
+- DC-9 build: Blender 5.1.2 passed with zero scene warnings; GLB 30,338,056 bytes, SHA-256 `501e1bb65a7e025125edd26cba31aa7775cdf4c39e3a1c1e2efaf42ddc62635d`.
+- Airbus build: Blender 5.1.2 passed with 124 preserved imported-source warnings; final evidence-promoted GLB 39,878,544 bytes, SHA-256 `8ede97bc91e1ad6ca88f7abbced7c7d7e43483fc99ea1f266687f982bde89899`.
+- `npm run assets:check`: passed both deployable GLBs and canonical camera/FOV/node contracts.
+- `npm run pipeline:evals`: passed 6/6 after making the aircraft-mixing guard accept both legacy and current scene-group names.
+- `npm run check`: passed lint, TypeScript, 61/61 Vitest tests, and production build.
+- `npm run test:e2e`: passed 15/15 Chromium cases in 3.7 minutes.
+- Durable actual-browser evidence: `preview-renders/seat-role-swap/dc9-first-officer-game-1440.png`, `preview-renders/seat-role-swap/airbus-captain-targets-initial-1440.png`, and `preview-renders/seat-role-swap/airbus-captain-targets-dragged-1440.png`. The updated DC-9 copy names the first-officer yoke; both Airbus states have the SIDESTICK card selected and report five projected targets attached before and after head-look drag. Camera datasets matched canonical nodes/transforms and no application errors were recorded.
+- Full-diff review found four high-severity issues and no critical issues. The completed DC-9 attempt-history normalization, accessible captain-side sidestick fallback, assembly/current-gate ownership conflict, and stale screenshot evidence were repaired and covered by focused tests or durable browser proof.
+- Post-review verification: `npm run check` passed lint, TypeScript, 63/63 Vitest tests, and the production build; `npm run assets:check` passed; the focused model-failure fallback Playwright case passed 1/1 with the captain-side sidestick anchor asserted; the regenerated current runtime gate validates.
+- Vercel preview: `https://cockpit-escape-room-fpgu0ip7r-ottoagent007-gmailcoms-projects.vercel.app` reached `READY`. Authenticated preview retrieval returned the final 39,878,544-byte Airbus GLB with SHA-256 `8ede97bc91e1ad6ca88f7abbced7c7d7e43483fc99ea1f266687f982bde89899`, matching the local deployable byte for byte.
 
 ## Outcome and handoff
 
-In progress. Technical completion will hand off three owner approvals: DC-9 FO view, Airbus captain view, and the complete reordered journey. Any visual mismatch remaining after the bounded repair cycles will be listed here with the exact screenshot, expected reference relationship, observed delta, and attempted repairs.
+Implementation, full-diff review, local technical verification, and preview publication are complete. Owner approval remains reopened for the DC-9 FO view, Airbus captain view, and complete reordered journey.

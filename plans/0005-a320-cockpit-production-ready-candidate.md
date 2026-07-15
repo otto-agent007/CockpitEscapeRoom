@@ -1,5 +1,8 @@
 # A320 cockpit production-ready approval candidate
 
+> **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
+
+
 ## Purpose
 
 Prepare the Airbus A320 First-Officer cockpit as an owner-reviewable approval candidate. The player should still get the current five-card First-Officer onboarding flow, while maintainers have a regenerated canonical shaded source, deployable GLB, cleanup report, browser screenshots, and validation evidence ready for owner review.
