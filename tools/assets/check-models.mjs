@@ -64,12 +64,46 @@ for (const [model, requiredNodes] of Object.entries(requiredModelContracts)) {
       console.error(`${model} is missing required runtime nodes: ${missing.join(', ')}`)
       failed = true
     }
+    if (model === 'dc9-cockpit.glb') {
+      const nodes = json.nodes ?? []
+      const nodeIndex = (name) => nodes.findIndex((node) => node.name === name)
+      const parentName = (name) => {
+        const index = nodeIndex(name)
+        const parent = nodes.find((node) => node.children?.includes(index))
+        return parent?.name
+      }
+      const routeCard = nodes[nodeIndex('DC9_PROP_MEM_ROUTE_CARD')]
+      const routeTranslation = routeCard?.translation
+      const centeredOnFirstOfficerYoke = Array.isArray(routeTranslation)
+        && Math.abs(routeTranslation[0] - 0.4973) < 0.002
+        && Math.abs(routeTranslation[1] - 0.27) < 0.002
+        && Math.abs(routeTranslation[2] - 2.775) < 0.002
+      const routeContractNodes = nodes
+        .map((node) => node.name)
+        .filter((name) => name === 'DC9_PROP_MEM_ROUTE_CARD'
+          || name === 'DC9_ROUTE_SUBMIT'
+          || /^DC9_ROUTE_ROW_[A-Z]{3}$/.test(name ?? '')
+          || name?.startsWith('DC9_HITBOX_ROUTE_'))
+      const routeContractParentedToFirstOfficerYoke = routeContractNodes.every(
+        (name) => parentName(name) === 'OBJ8_DC9VC2_RANGE_014',
+      )
+      if (!centeredOnFirstOfficerYoke || !routeContractParentedToFirstOfficerYoke) {
+        console.error('DC-9 route record and hitboxes must be centered on the first-officer yoke.')
+        failed = true
+      }
+    }
     if (model === 'airbus-captain.glb') {
       const cameraNode = (json.nodes ?? []).find((node) => node.name === 'CAM_AIRBUS_CAPTAIN_GAME_VIEW')
       const camera = cameraNode && Number.isInteger(cameraNode.camera) ? json.cameras?.[cameraNode.camera] : null
       const verticalFov = camera?.perspective?.yfov
       if (typeof verticalFov !== 'number' || verticalFov < 1.16 || verticalFov > 1.21) {
         console.error(`Airbus captain gameplay camera must export a 68-degree vertical field of view; received ${verticalFov ?? 'none'}.`)
+        failed = true
+      }
+      const radioPivot = (json.nodes ?? []).find((node) => node.name === 'AIRBUS_A320_TARGET_RADIO_PIVOT')
+      const radioLateral = radioPivot?.translation?.[0]
+      if (typeof radioLateral !== 'number' || radioLateral >= 0) {
+        console.error(`Airbus captain radio target must be on the captain/left side; received lateral coordinate ${radioLateral ?? 'none'}.`)
         failed = true
       }
     }

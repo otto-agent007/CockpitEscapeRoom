@@ -17,6 +17,7 @@ export type Dc9ChapterStage =
   | 'routeRecord'
   | 'homeOperations'
   | 'shutdown'
+  | 'qualification'
   | 'keyReveal'
   | 'complete'
 export interface Dc9ChapterProgress {
@@ -35,8 +36,8 @@ export type GameAction =
   | { type: 'START' }
   | { type: 'ASSIGN_AIRBUS_CARD'; control: AirbusControl; card: string }
   | { type: 'ASSIGN_AIRBUS_DECOY_CARD'; decoy: AirbusDecoy; card: string }
-  | { type: 'SET_AIRBUS_QUALIFICATION_ANSWER'; value: string }
-  | { type: 'SUBMIT_AIRBUS_QUALIFICATION' }
+  | { type: 'SET_ATP_QUALIFICATION_ANSWER'; value: string }
+  | { type: 'SUBMIT_DC9_ATP_QUALIFICATION' }
   | { type: 'CONTINUE_FROM_AIRBUS_TO_REWARD' }
   | { type: 'COMPLETE_LOCKER_INTRO' }
   | { type: 'SUBMIT_LOCKER_ANSWER'; memoryId: LockerQuestionId; response: string }
@@ -132,10 +133,6 @@ function countPlacedAirbusCards(assignments: AirbusAssignments): number {
   return Object.values(assignments).filter(Boolean).length
 }
 
-function allControlsAssigned(assignments: AirbusAssignments): boolean {
-  return countPlacedAirbusCards(assignments) === airbusCaptainFlow.controlCards.length
-}
-
 function removeCardFromAirbusTargets(
   assignments: AirbusAssignments,
   decoyAssignments: AirbusDecoyAssignments,
@@ -169,12 +166,12 @@ function controlAnswerFeedback(assignments: AirbusAssignments): string {
     return `Green means correct. ${remaining} label${remaining === 1 ? '' : 's'} left.`
   }
 
-  return 'All five labels are correct. Answer the Airline Transport Pilot question to qualify.'
+  return `${airbusCaptainFlow.firstCompleteBanner}. ${airbusCaptainFlow.knowledgeLoggedText}`
 }
 
 function isAirlineTransportPilotAnswerCorrect(value: string): boolean {
   const normalized = normalize(value)
-  return airbusCaptainFlow.clockAnswers.some((answer) => normalize(answer) === normalized)
+  return dc9LegacyFlow.atpAnswers.some((answer) => normalize(answer) === normalized)
 }
 
 function isLockerAnswerCorrect(memoryId: LockerQuestionId, response: string): boolean {
@@ -206,13 +203,17 @@ export function isLockerMemoryAvailable(
 
 function hintFor(state: GameState): string {
   if (state.phase === 'airbus') {
-    if (!allControlsAssigned(state.airbusAssignments)) {
+    if (countPlacedAirbusCards(state.airbusAssignments) !== airbusCaptainFlow.controlCards.length) {
       return 'Green boxes are correct. Red boxes need a different label. Place the remaining cards on the visible boxes.'
     }
     if (!allControlsCorrect(state.airbusAssignments)) {
       return 'Fix the red box by selecting that card again and placing a better match.'
     }
-    return `All five labels are correct. Try ${airbusCaptainFlow.clockQuestion}`
+    return `${airbusCaptainFlow.firstCompleteBanner}. ${airbusCaptainFlow.knowledgeLoggedText}`
+  }
+
+  if (state.phase === 'dc9' && state.dc9.stage === 'qualification') {
+    return 'Use the standard total-time milestone for an Airline Transport Pilot certificate.'
   }
 
   if (state.phase === 'locker') {
@@ -406,7 +407,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             ...state.airbusAssignments,
             [action.control]: null,
           },
-          airbusQualificationAnswer: '',
           statusMessage: 'Card removed from control. Reassign a matching card.',
         }
       }
@@ -426,7 +426,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         airbusAssignments: nextAssignments,
         airbusDecoyAssignments: cleared.decoyAssignments,
-        airbusQualificationAnswer: '',
+        completedPuzzles: allControlsCorrect(nextAssignments)
+          ? unique([...state.completedPuzzles, 'airbus'])
+          : state.completedPuzzles,
         statusMessage: correctPlacement && !hasWrongPlacement && !allControlsCorrect(nextAssignments)
           ? airbusCaptainFlow.controlHints[action.control]
           : feedback,
@@ -444,32 +446,19 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         airbusAssignments: cleared.assignments,
         airbusDecoyAssignments: nextDecoyAssignments,
-        airbusQualificationAnswer: '',
         statusMessage: 'That area is not part of this five-label check. Use one of the visible cockpit boxes.',
       }
     }
 
-    case 'SET_AIRBUS_QUALIFICATION_ANSWER':
-      if (state.phase !== 'airbus') return state
+    case 'SET_ATP_QUALIFICATION_ANSWER':
+      if (state.phase !== 'dc9' || state.dc9.stage !== 'qualification') return state
       return {
         ...state,
         airbusQualificationAnswer: action.value,
       }
 
-    case 'SUBMIT_AIRBUS_QUALIFICATION': {
-      if (state.phase !== 'airbus') return state
-      if (!allControlsAssigned(state.airbusAssignments)) {
-        return {
-          ...state,
-          statusMessage: 'Place each label on the visible cockpit boxes.',
-        }
-      }
-      if (!allControlsCorrect(state.airbusAssignments)) {
-        return {
-          ...state,
-          statusMessage: 'Fix the red label boxes before moving on.',
-        }
-      }
+    case 'SUBMIT_DC9_ATP_QUALIFICATION': {
+      if (state.phase !== 'dc9' || state.dc9.stage !== 'qualification') return state
       if (!isAirlineTransportPilotAnswerCorrect(state.airbusQualificationAnswer)) {
         return {
           ...state,
@@ -478,8 +467,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
       return {
         ...state,
-        completedPuzzles: unique([...state.completedPuzzles, 'airbus']),
-        statusMessage: `${airbusCaptainFlow.clockFeedback} ${airbusCaptainFlow.knowledgeLoggedText}`,
+        dc9: { ...state.dc9, stage: 'keyReveal' },
+        statusMessage: `${dc9LegacyFlow.atpFeedback} The Captain's Key is ready.`,
       }
     }
 
@@ -579,11 +568,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           ...state,
           dc9: {
             ...state.dc9,
-            stage: complete ? 'keyReveal' : 'shutdown',
+            stage: complete ? 'qualification' : 'shutdown',
             secureSequence: nextSequence,
           },
           statusMessage: complete
-            ? dc9LegacyFlow.completionText
+            ? `${dc9LegacyFlow.completionText} Complete the Airline Transport Pilot milestone to close the Final Flight Log.`
             : `${dc9LegacyFlow.secureControls[action.controlId].label} off. ${DC9_SECURE_ORDER.length - nextSequence.length} control${DC9_SECURE_ORDER.length - nextSequence.length === 1 ? '' : 's'} remaining.`,
         }
       }

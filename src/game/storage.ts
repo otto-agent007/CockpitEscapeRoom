@@ -240,10 +240,11 @@ function normalizeDc9Progress(
   const keyClaimed = shutdownComplete && candidate.keyClaimed === true
   const keyRevealed = shutdownComplete && (candidate.keyRevealed === true || keyClaimed)
   const hasRouteEvidence = routeSelections.length > 0 || routeCompleted.length > 0 || routeAttempts > 0
+  const savedStage = candidate.stage
   const stage: Dc9ChapterProgress['stage'] = keyClaimed
     ? 'complete'
     : shutdownComplete
-      ? 'keyReveal'
+      ? savedStage === 'qualification' ? 'qualification' : 'keyReveal'
       : homeOperationsCompleted
         ? 'shutdown'
         : routesComplete

@@ -200,11 +200,11 @@ def create_interaction_contract(root: bpy.types.Object, pose: dict[str, float]) 
     card_material = make_principled_material("MAT_DC9_ROUTE_CARD", (0.78, 0.73, 0.58, 1.0), roughness=0.82)
     line_material = make_principled_material("MAT_DC9_ROUTE_CARD_LINE", (0.10, 0.14, 0.15, 1.0), roughness=0.70)
     # Mount the narrow route strip to the camera-facing center pad of the
-    # first-officer yoke. The imported yoke handles are
-    # OBJ8_DC9VC2_RANGE_013, while pitch-range OBJ8_DC9VC2_RANGE_012 contains
-    # the column/pad whose front face reaches y=-2.754. Place the card just in
-    # front of that face and let it hang down from the pad.
-    card_center = (0.4843, -2.775, 0.27)
+    # first-officer yoke. The imported FO yoke handles are
+    # OBJ8_DC9VC2_RANGE_015, while pitch-range OBJ8_DC9VC2_RANGE_014 contains
+    # the column/pad whose horizontal center is x=0.4973 and whose front face
+    # reaches y=-2.754. Place the card just in front of that face.
+    card_center = (0.4973, -2.775, 0.27)
     board = make_box("DC9_PROP_MEM_ROUTE_CARD", props, card_center, (0.10, 0.012, 0.30), card_material)
     board["game_id"] = "dc9.route.card"
     board["interaction"] = "container"
@@ -710,9 +710,9 @@ def make_camera(
 
 def attach_route_contract_to_first_officer_yoke() -> None:
     """Make the visible strip and its hit volumes true children of the FO yoke."""
-    yoke = bpy.data.objects.get("OBJ8_DC9VC2_RANGE_012")
+    yoke = bpy.data.objects.get("OBJ8_DC9VC2_RANGE_014")
     if yoke is None:
-        raise RuntimeError("First-officer yoke pad source OBJ8_DC9VC2_RANGE_012 is missing")
+        raise RuntimeError("First-officer yoke pad source OBJ8_DC9VC2_RANGE_014 is missing")
     candidates = []
     for group_name in ("DC9_PUZZLE_PROPS", "DC9_COLLIDERS"):
         group = bpy.data.objects.get(group_name)
@@ -724,6 +724,11 @@ def attach_route_contract_to_first_officer_yoke() -> None:
             or child.name.startswith("DC9_PROP_MEM_ROUTE_CARD")
             or child.name.startswith("DC9_HITBOX_ROUTE_")
         )
+    # Newly created route objects have just received their local positions.
+    # Evaluate those transforms before preserving matrix_world during the
+    # parent swap; otherwise Blender retains the stale identity matrix and
+    # collapses the complete route contract to the scene origin.
+    bpy.context.view_layer.update()
     for obj in candidates:
         world = obj.matrix_world.copy()
         obj.parent = yoke
@@ -759,14 +764,14 @@ def configure_scene(root: bpy.types.Object) -> None:
     game_camera = make_camera(
         root,
         "CAM_DC9_FIRST_OFFICER_GAME",
-        (0.45, -3.34, 0.82),
+        (0.45, -3.24, 0.70),
         (0.38, -2.38, 0.34),
         25.0,
     )
     approval_camera = make_camera(
         root,
         "CAM_DC9_FIRST_OFFICER_APPROVAL",
-        (0.45, -3.34, 0.82),
+        (0.45, -3.24, 0.70),
         (0.38, -2.38, 0.34),
         25.0,
     )

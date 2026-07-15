@@ -192,3 +192,15 @@ Repeat review -> smallest coherent repair -> focused validation -> actual browse
 ## Outcome and handoff
 
 Implementation, full-diff review, local technical verification, and preview publication are complete. Owner approval remains reopened for the DC-9 FO view, Airbus captain view, and complete reordered journey.
+
+## 2026-07-15 owner-feedback completion pass
+
+- Moved the ATP qualification gate out of the Airbus chapter and placed it at the end of the DC-9 chapter, after shutdown and before the Captain's Key handoff. The gate retains visible native input and submit behavior, safe retry, keyboard access, and persisted progress.
+- Shortened the opening copy so it ends with `Take the right seat and complete the Final Flight Log.` The DC-9 cockpit now preloads behind the opening and the Start Game transition fades through black into the already-loading cockpit.
+- Lowered the DC-9 first-officer eye point to the headrest-level right-seat view requested by the owner.
+- Repositioned the Airbus radio target slightly left on the square radio display and the thrust target right onto the thrust levers. The final 1440x900 evidence is `preview-renders/seat-role-swap/airbus-radio-left-thrust-right-final-candidate-1440.png`.
+- Rebuilt the Legacy Route Record so the physical card and all contract hitboxes are centered on the actual first-officer yoke (`OBJ8_DC9VC2_RANGE_014`). The card itself is now the projected native-HTML opener, receives a gold hover/focus outline, and opens a compact record dialog without the obsolete yellow button or unused lower space.
+- Final route-record evidence is `preview-renders/seat-role-swap/dc9-route-record-centered-1440.png`, `preview-renders/seat-role-swap/dc9-route-record-hover-1440.png`, and `preview-renders/seat-role-swap/dc9-route-record-compact-dialog-1440.png`.
+- The owner approved the resulting view and journey refinements and requested PR publication.
+- Fresh publication verification passed: `npm run pipeline:evals` 6/6, `npm run assets:check`, `npm run check` with 62/62 Vitest tests, `npm run test:e2e -- --workers=1` with 18/18 Chromium cases, and `git diff --check`.
+- Final generated assets: DC-9 GLB 30,339,164 bytes, SHA-256 `a5a4cca94a616b1cca78cf1ca6eeb9a0325239fe036a558963834a511f05e377`; Airbus GLB 39,878,736 bytes, SHA-256 `367d7862b079cf1f01562f5f258c6e3bc473b01918219b5b8ba31867d43c31c4`.

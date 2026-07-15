@@ -5,23 +5,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import * as THREE from 'three'
 import { dc9LegacyFlow, airbusCaptainFlow, type AirbusControl, type LockerMemoryId } from '../game/config'
 import { type Dc9ChapterStage, type Dc9SecureControlId, type GamePhase } from '../game/state'
-
-// Cockpit shells produced by the asset pipeline and served from public/models.
-const AIRBUS_MODEL_URL = `${import.meta.env.BASE_URL}models/airbus-captain.glb`
-const DC9_MODEL_URL = `${import.meta.env.BASE_URL}models/dc9-cockpit.glb?v=dc9-first-officer-v1-20260715`
-const LOCKER_MODEL_URL = `${import.meta.env.BASE_URL}models/locker-room.glb?v=locker-seams-cf212389`
-
-// Fetch and parse each cockpit GLB once per session, even across scene remounts.
-const cockpitModelCache = new Map<string, Promise<THREE.Group>>()
-
-function loadCockpitModel(url: string): Promise<THREE.Group> {
-  let promise = cockpitModelCache.get(url)
-  if (!promise) {
-    promise = new GLTFLoader().loadAsync(url).then((gltf) => gltf.scene)
-    cockpitModelCache.set(url, promise)
-  }
-  return promise
-}
+import { AIRBUS_MODEL_URL, clearCockpitModel, DC9_MODEL_URL, loadCockpitModel, LOCKER_MODEL_URL } from './cockpitModelLoader'
 
 const AIRBUS_GAME_CAMERA = 'CAM_AIRBUS_CAPTAIN_GAME_VIEW'
 const DC9_GAME_CAMERA = 'CAM_DC9_FIRST_OFFICER_GAME'
@@ -1188,7 +1172,7 @@ function LockerRoom({
   useEffect(() => {
     let active = true
     onLoadState({ status: 'loading' })
-    if (retryToken > 0) cockpitModelCache.delete(LOCKER_MODEL_URL)
+    if (retryToken > 0) clearCockpitModel(LOCKER_MODEL_URL)
     loadCockpitModel(LOCKER_MODEL_URL)
       .then((loaded) => {
         if (!active) return
@@ -1216,7 +1200,7 @@ function LockerRoom({
         onLoadState({ status: 'ready' })
       })
       .catch((error) => {
-        cockpitModelCache.delete(LOCKER_MODEL_URL)
+        clearCockpitModel(LOCKER_MODEL_URL)
         console.error('Failed to load captain locker asset.', error)
         if (active) onLoadState({ status: 'error' })
       })
@@ -1618,7 +1602,7 @@ function Dc9Cockpit({
         onLoadState({ status: 'ready' })
       })
       .catch((error) => {
-        cockpitModelCache.delete(DC9_MODEL_URL)
+        clearCockpitModel(DC9_MODEL_URL)
         console.error('Failed to load DC-9 cockpit asset.', error)
         if (!active) return
         setLoadFailed(true)

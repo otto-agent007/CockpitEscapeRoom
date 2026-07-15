@@ -52,11 +52,6 @@ export const airbusCaptainFlow = {
     radio: 'Right. That’s the radio panel.',
     altitude: 'Correct. That’s where altitude is read.',
   } as const,
-  clockQuestion:
-    'What is the minimum total flight time (hours) required to qualify for a standard Airline Transport Pilot certificate?',
-  clockAnswer: '1500',
-  clockAnswers: ['1500', '1500hour', '1500hours'] as const,
-  clockFeedback: 'Airline Transport Pilot milestone recognized.',
   knowledgeLoggedText: 'Captain knowledge logged.',
   firstCompleteBanner: 'POP T CAPTAIN MODE COMPLETE',
   lockerAccessText: 'Locker access granted.',
@@ -207,6 +202,10 @@ export const dc9LegacyFlow = {
   secureInstruction: 'Both legacy records are complete. Ceremonially secure the parked cockpit in order.',
   secureRetry: 'That step comes later. Complete the preceding checklist item first; recorded progress remains safe.',
   secureHint: 'Start with the paired APU bus switches, then follow the power source toward the battery.',
+  atpQuestion:
+    'What is the minimum total flight time (hours) required to qualify for a standard Airline Transport Pilot certificate?',
+  atpAnswers: ['1500', '1500hour', '1500hours'] as const,
+  atpFeedback: 'Airline Transport Pilot milestone recognized.',
   disclaimer: 'Commemorative, non-operational interaction in a safely parked cockpit.',
 } as const
 

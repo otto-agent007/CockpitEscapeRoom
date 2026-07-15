@@ -71,11 +71,11 @@ function MilestoneCelebration({
   )
 }
 
-export function QualificationCelebration({ reducedMotion, onContinue }: { reducedMotion: boolean; onContinue: () => void }) {
+export function AirbusCompletionCelebration({ reducedMotion, onContinue }: { reducedMotion: boolean; onContinue: () => void }) {
   return (
     <MilestoneCelebration
-      eyebrow="POP T CAPTAIN MODE COMPLETE"
-      title="Airline Transport Pilot milestone recognized"
+      eyebrow="Airbus A320"
+      title="POP T CAPTAIN MODE COMPLETE"
       body="Captain knowledge logged."
       actionLabel="Continue"
       reducedMotion={reducedMotion}

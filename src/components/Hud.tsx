@@ -43,7 +43,6 @@ export function Hud({
 
   const isComplete = (id: AirbusControl) => state.airbusAssignments[id] === airbusCaptainFlow.controlMatch[id]
   const placedAirbusCards = Object.values(state.airbusAssignments).filter(Boolean).length
-  const airbusLabelsComplete = airbusCaptainFlow.controlIds.every((control) => state.airbusAssignments[control] === airbusCaptainFlow.controlMatch[control])
 
   const placeAirbusCard = (control: AirbusControl, card: string) => {
     dispatch({ type: 'ASSIGN_AIRBUS_CARD', control, card })
@@ -178,42 +177,10 @@ export function Hud({
           })}
         </div>
 
-        <div
-          className={`airbus-dock${airbusLabelsComplete ? ' airbus-dock--atp' : ''}`}
-          aria-label="Pop T Captain status and controls"
-        >
+        <div className="airbus-dock" aria-label="Pop T Captain status and controls">
           <div className="status airbus-status" aria-live="polite" aria-atomic="true">
             {state.statusMessage}
           </div>
-
-          {airbusLabelsComplete && !state.completedPuzzles.includes('airbus') && (
-            <form
-              className="airbus-qualification-form"
-              onSubmit={(event) => {
-                event.preventDefault()
-                dispatch({ type: 'SUBMIT_AIRBUS_QUALIFICATION' })
-              }}
-            >
-              <label className="airbus-atp">
-                <span>{airbusCaptainFlow.clockQuestion}</span>
-                <input
-                  type="text"
-                  value={state.airbusQualificationAnswer}
-                  onChange={(event) => {
-                    dispatch({ type: 'SET_AIRBUS_QUALIFICATION_ANSWER', value: event.target.value })
-                  }}
-                  inputMode="text"
-                  aria-label="Airline Transport Pilot answer"
-                />
-              </label>
-              <button
-                type="submit"
-                className="primary-button airbus-dock-button"
-              >
-                Verify
-              </button>
-            </form>
-          )}
 
           <button type="button" className="text-button airbus-restart" onClick={onRestart}>
             Restart

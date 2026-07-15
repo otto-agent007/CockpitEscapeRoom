@@ -2,7 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Hud } from './components/Hud'
 import { Dc9Chapter } from './components/dc9/Dc9Chapter'
 import { LockerTransition, type LockerIntroStage } from './components/LockerTransition'
-import { CaptainHatCelebration, QualificationCelebration } from './components/QualificationCelebration'
+import { AirbusCompletionCelebration, CaptainHatCelebration } from './components/QualificationCelebration'
 import { SceneHelp } from './components/SceneHelp'
 import { dc9LegacyFlow, gameCopy, lockerFlow, type AirbusControl, type LockerMemoryId } from './game/config'
 import { isLockerMemoryAvailable } from './game/state'
@@ -34,6 +34,33 @@ const REDUCED_LOCKER_INTRO_TIMINGS = {
   revealLocker: 250,
   wideHold: 0,
 } as const
+
+type Dc9EntryStage = 'idle' | 'fade-out' | 'waiting-for-cockpit' | 'fade-in'
+
+function Dc9EntryTransition({
+  stage,
+  reducedMotion,
+  onFadeInComplete,
+}: {
+  stage: Exclude<Dc9EntryStage, 'idle'>
+  reducedMotion: boolean
+  onFadeInComplete: () => void
+}) {
+  useEffect(() => {
+    if (stage !== 'fade-in') return
+    const fallback = window.setTimeout(onFadeInComplete, reducedMotion ? 50 : 1_500)
+    return () => window.clearTimeout(fallback)
+  }, [onFadeInComplete, reducedMotion, stage])
+
+  return (
+    <div
+      className={`dc9-entry-transition dc9-entry-transition--${stage}`}
+      data-stage={stage}
+      aria-hidden="true"
+      onAnimationEnd={stage === 'fade-in' ? onFadeInComplete : undefined}
+    />
+  )
+}
 
 function useReducedMotion(): boolean {
   const [reduced, setReduced] = useState(() => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches)
@@ -101,6 +128,7 @@ export default function App() {
   const [lockerLoadState, setLockerLoadState] = useState<LockerLoadState>({ status: 'idle' })
   const [dc9LoadState, setDc9LoadState] = useState<Dc9LoadState>({ status: 'idle' })
   const [dc9Hotspots, setDc9Hotspots] = useState<Dc9HotspotScreenPositions>({})
+  const [dc9EntryStage, setDc9EntryStage] = useState<Dc9EntryStage>('idle')
   const [cameraResetRevision, setCameraResetRevision] = useState(0)
   const [helpOpen, setHelpOpen] = useState(false)
   const [showAirbusLoader, setShowAirbusLoader] = useState(true)
@@ -133,6 +161,29 @@ export default function App() {
   const lockerInteractionEnabled = state.phase === 'locker' && state.lockerIntroCompleted && !lockerIntroActive && !captainHatCelebrationActive
   const availableLockerMemories = lockerFlow.memoryIds.filter((memoryId) => isLockerMemoryAvailable(state, memoryId))
   const viewerResetReady = !lockerIntroActive && (state.phase !== 'airbus' || airbusSceneReady)
+  const finishDc9Entry = useCallback(() => setDc9EntryStage('idle'), [])
+
+  useEffect(() => {
+    if (state.phase !== 'briefing' || skipPrototypeScene) return
+    void import('./scenes/cockpitModelLoader').then(({ preloadDc9Cockpit }) => preloadDc9Cockpit()).catch(() => undefined)
+  }, [skipPrototypeScene, state.phase])
+
+  useEffect(() => {
+    if (dc9EntryStage !== 'fade-out') return
+    const timeout = window.setTimeout(() => {
+      dispatch({ type: 'START' })
+      setDc9EntryStage('waiting-for-cockpit')
+    }, reducedMotion ? 20 : 900)
+    return () => window.clearTimeout(timeout)
+  }, [dc9EntryStage, dispatch, reducedMotion])
+
+  useEffect(() => {
+    if (dc9EntryStage !== 'waiting-for-cockpit') return
+    const cockpitSettled = skipPrototypeScene || dc9LoadState.status === 'ready' || dc9LoadState.status === 'error' || dc9LoadState.status === 'accessible-fallback'
+    if (!cockpitSettled) return
+    const timeout = window.setTimeout(() => setDc9EntryStage('fade-in'), 0)
+    return () => window.clearTimeout(timeout)
+  }, [dc9EntryStage, dc9LoadState.status, skipPrototypeScene])
 
   useEffect(() => {
     if (state.phase !== 'locker' || lockerIntroActive || state.lockerHatRevealed) return
@@ -407,35 +458,20 @@ export default function App() {
             <p className="briefing-route">DC-9-32 · First-Officer onboarding</p>
             <h1 id="game-title">{gameCopy.title}</h1>
             <p className="lede">
-              Take the right seat and complete the commemorative Final Flight Log before the locker reveal.
+              Take the right seat and complete the Final Flight Log.
             </p>
-
-            <ol className="briefing-checklist" aria-label="Opening tasks">
-              <li>
-                <span>1</span>
-                Verify the DC-9 route card.
-              </li>
-              <li>
-                <span>2</span>
-                Review the Home Operations Log.
-              </li>
-              <li>
-                <span>3</span>
-                Secure the parked aircraft and unlock the Captain’s Key.
-              </li>
-            </ol>
 
             <button
               type="button"
               className="primary-button primary-button--large"
-              onClick={() => {
-                dispatch({ type: 'START' })
-              }}
+              disabled={dc9EntryStage !== 'idle'}
+              onClick={() => setDc9EntryStage('fade-out')}
             >
               Start Game
             </button>
           </div>
         </section>
+        {dc9EntryStage !== 'idle' && <Dc9EntryTransition stage={dc9EntryStage} reducedMotion={reducedMotion} onFadeInComplete={finishDc9Entry} />}
       </main>
     )
   }
@@ -536,7 +572,7 @@ export default function App() {
       {!lockerIntroActive && !captainHatCelebrationActive && helpOpen && <button type="button" className="scene-help-dismiss" onClick={closeHelp} aria-label="Dismiss viewer help" tabIndex={-1} />}
       {!lockerIntroActive && !captainHatCelebrationActive && <SceneHelp phase={state.phase} open={helpOpen} onClose={closeHelp} />}
       {state.phase === 'airbus' && state.completedPuzzles.includes('airbus') && !lockerIntroActive && (
-        <QualificationCelebration reducedMotion={reducedMotion} onContinue={continueToReward} />
+        <AirbusCompletionCelebration reducedMotion={reducedMotion} onContinue={continueToReward} />
       )}
       {captainHatCelebrationActive && (
         <CaptainHatCelebration reducedMotion={reducedMotion} onContinue={continueToAirbus} />
@@ -549,6 +585,7 @@ export default function App() {
           onSkip={skipLockerIntro}
         />
       )}
+      {dc9EntryStage !== 'idle' && <Dc9EntryTransition stage={dc9EntryStage} reducedMotion={reducedMotion} onFadeInComplete={finishDc9Entry} />}
     </main>
   )
 }

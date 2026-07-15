@@ -88,11 +88,11 @@ test('reduced motion Airbus completion keeps its celebration before reward and s
       radio: 'RADIO',
       altitude: 'ALTITUDE',
     },
+    completedPuzzles: ['dc9', 'locker', 'airbus'],
   }))
 
-  await page.getByRole('textbox', { name: 'Airline Transport Pilot answer' }).fill('1500 hours')
-  await page.getByRole('button', { name: 'Verify' }).click()
-  await expect(page.getByRole('dialog', { name: 'Airline Transport Pilot milestone recognized' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toHaveCount(0)
   await expect(page.locator('.qualification-confetti')).toHaveCount(0)
   await page.getByRole('button', { name: 'Continue' }).click()
   await expect(page.getByText('Ground Transport Upgrade Authorized', { exact: true })).toBeVisible()

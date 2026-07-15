@@ -795,3 +795,15 @@ Historical checkpoint; the 2026-07-11 transition and Tripo-intake sections above
 - Vercel preview `https://cockpit-escape-room-fpgu0ip7r-ottoagent007-gmailcoms-projects.vercel.app` reached `READY`. `vercel curl` retrieved the deployed Airbus GLB at 39,878,544 bytes with SHA-256 `8ede97bc91e1ad6ca88f7abbced7c7d7e43483fc99ea1f266687f982bde89899`, exactly matching `public/models/airbus-captain.glb`.
 - Current stills: `public/images/dc9-game-ready-first-officer.png` SHA-256 `3ab21e6985c90e05d6ff1dc9097e60896fe101e4e78e1095adaaac76e6ff65ef`; `public/images/a320-game-ready-captain.png` SHA-256 `2d3cfae76008f6cf713bd37d0af0622cbf34beed66b0b30ae6955a73214f6479`.
 - Owner visual approval remains reopened for the DC-9 FO view, Airbus captain view, and complete reordered journey. Vercel preview evidence is pending.
+
+## 2026-07-15 - Owner-feedback completion pass
+
+- The ATP gate now appears at the end of the DC-9 chapter before the Captain's Key; its native answer field remains readable and submit-capable. Opening copy is spoiler-safe, and Start Game preloads the cockpit behind a fade-through-black transition.
+- The DC-9 first-officer camera was lowered to the requested headrest-level viewpoint. The Airbus radio target is slightly left on the square display and the thrust target is right on the thrust levers.
+- The Legacy Route Record card, rows, and hitboxes were rebuilt on the actual first-officer yoke parent `OBJ8_DC9VC2_RANGE_014`, centered at `(0.4973, -2.775, 0.27)`. Asset validation asserts that parent and the exported translation.
+- Browser verification at 1440x900 reported `data-dc9-model-state=ready`, camera `CAM_DC9_FIRST_OFFICER_ROUTE_APPROVAL`, a mesh-projected route trigger, no obsolete prompt, and a compact 573.4px-high dialog. Hover/focus produces the requested gold outline.
+- Focused Playwright coverage passed the new route-record interaction case and the production DC-9 GLB case after updating the moved ATP expectation.
+- Final evidence: `preview-renders/seat-role-swap/opening-spoiler-safe-1440.png`, `preview-renders/seat-role-swap/dc9-atp-final-gate-1440.png`, `preview-renders/seat-role-swap/dc9-fo-lowered-headrest-atp-entry-candidate-1440.png`, `preview-renders/seat-role-swap/airbus-radio-left-thrust-right-final-candidate-1440.png`, `preview-renders/seat-role-swap/dc9-route-record-centered-1440.png`, `preview-renders/seat-role-swap/dc9-route-record-hover-1440.png`, and `preview-renders/seat-role-swap/dc9-route-record-compact-dialog-1440.png`.
+- Owner approval was received for PR publication.
+- Fresh release verification passed: `npm run pipeline:evals` 6/6; `npm run assets:check`; `npm run check` with lint, TypeScript, 62/62 Vitest tests, and production build; `npm run test:e2e -- --workers=1` with 18/18 Chromium cases in 7.1 minutes; and `git diff --check`.
+- Final DC-9 GLB: 30,339,164 bytes, SHA-256 `a5a4cca94a616b1cca78cf1ca6eeb9a0325239fe036a558963834a511f05e377`. Final Airbus GLB: 39,878,736 bytes, SHA-256 `367d7862b079cf1f01562f5f258c6e3bc473b01918219b5b8ba31867d43c31c4`.
