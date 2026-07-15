@@ -73,7 +73,7 @@ Selecting it opens a split presentation:
 
 ### Route memory puzzle
 
-The six existing route-row interaction IDs are preserved. Their displayed route data may change without requiring new cockpit geometry.
+The yoke strip acts as one discovery trigger. Its existing route-row IDs remain in the GLB registry for compatibility, but the readable DTW/MSP/STL puzzle is rendered with HTML controls in the overlay. The implementation does not need to rebuild the 3D strip or replace its baked route text.
 
 The three correct familiar routes are:
 
@@ -99,7 +99,7 @@ Correct selections receive permanent ink stamps and remain complete across later
 
 Completing all three routes produces:
 
-> Legacy routes recorded. Aircraft ready to secure.
+> Legacy routes recorded. A companion record is ready.
 
 ## Home Operations Log
 
