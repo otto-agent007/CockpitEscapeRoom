@@ -248,7 +248,7 @@ test('locker GLB loads into the real canvas and the directed camera settles on t
   await expect(page.locator('canvas')).toHaveAttribute('data-locker-bull-visual', 'revealed')
   await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })).toBeVisible()
   await page.getByRole('button', { name: 'Enter Pop T Captain Mode' }).click()
-  await expect(page.getByText('Airbus First-Officer Mode', { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Airbus A320 First-Officer Mode' })).toBeVisible()
 })
 
 test('locker load failure offers retry and a watch-first accessible fallback', async ({ page }) => {
