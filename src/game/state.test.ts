@@ -30,6 +30,22 @@ function completeAirbusLabels(): GameState {
   return state
 }
 
+describe('DC-9 Final Flight Log configuration', () => {
+  it('uses the approved routes, hint ladder, recognition record, and key engravings', () => {
+    expect(dc9LegacyFlow.routePuzzleAnswers).toEqual(['DTW', 'MSP', 'STL'])
+    expect(dc9LegacyFlow.routeHints).toEqual([
+      'Two were Northwest hubs and one was a familiar Midwestern stop.',
+      'Think Michigan, Minnesota, and Missouri.',
+    ])
+    expect(dc9LegacyFlow.homeOperationsPages.join(' ')).toContain('Momma Cheryl')
+    expect(dc9LegacyFlow.homeOperationsPages.join(' ')).not.toMatch(/quiz|answer|correct/i)
+    expect(dc9LegacyFlow.keyEngravings).toEqual({
+      front: "THE CAPTAIN'S KEY",
+      reverse: 'POP T & MOMMA CHERYL',
+    })
+  })
+})
+
 describe('gameReducer', () => {
   it('advances to Airbus mode after briefing start', () => {
     const state = gameReducer(createInitialState(), { type: 'START' })
@@ -277,7 +293,7 @@ describe('gameReducer', () => {
     expect(state.completedPuzzles).toEqual(['firstOfficer', 'locker'])
 
     state = gameReducer(state, { type: 'USE_HINT' })
-    expect(state.statusMessage).toContain('under 350 miles')
+    expect(state.statusMessage).toContain('Michigan, Minnesota, and Missouri')
   })
 
   it('resets only a wrong secure attempt while preserving the verified route', () => {

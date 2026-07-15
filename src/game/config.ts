@@ -66,7 +66,7 @@ export const lockerFlow = {
   memoryIds: ['watch', 'baseball', 'chargingBull', 'wings'] as const,
   authoredSequence: ['watch', 'baseball', 'chargingBull', 'wings'] as const,
   questionIds: ['watch', 'baseball', 'chargingBull', 'wings'] as const,
-  introText: 'Before you can sit in the captain’s seat, you must understand the Captain’s journey…',
+  introText: "The Captain's Key opens a room shaped by the people and memories that carried the family forward.",
   openingInstruction: 'Begin with the pilot watch.',
   memories: {
     watch: {
@@ -130,15 +130,15 @@ export const lockerFlow = {
   hatText: {
     revealText: 'Four memories align. The upper cubby opens.',
     foundText: 'Captain’s hat recognized.',
-    promotionText: 'Promotion available.',
-    captainModeText: 'POP T CAPTAIN MODE UNLOCKED',
+    promotionText: 'A family legacy is ready for its next chapter.',
+    captainModeText: 'AIRBUS FIRST-OFFICER EXPERIENCE READY',
     completeText: 'Locker scene complete.',
   } as const,
 } as const
 
 export const dc9LegacyFlow = {
-  title: 'POP T CAPTAIN MODE',
-  subtitle: 'MEM route verification · parked-cockpit secure',
+  title: 'DC-9 FINAL FLIGHT LOG',
+  subtitle: 'Legacy route record · home crew recognition · ceremonial shutdown',
   secureControlIds: ['apuBuses', 'apuMaster', 'battery'] as const,
   secureSequence: ['apuBuses', 'apuMaster', 'battery'] as const,
   secureControls: {
@@ -174,30 +174,47 @@ export const dc9LegacyFlow = {
     apuMaster: 'run',
     battery: 'on',
   },
-  routePuzzleAnswers: ['BTR', 'STL', 'TYS'] as const,
+  routePuzzleAnswers: ['DTW', 'MSP', 'STL'] as const,
   routePuzzleOptions: [
-    { code: 'BTR', city: 'Baton Rouge', mileage: 319, verifiedDc9: true },
-    { code: 'STL', city: 'St. Louis', mileage: 256, verifiedDc9: true },
-    { code: 'TYS', city: 'Knoxville', mileage: 342, verifiedDc9: true },
-    { code: 'LAX', city: 'Los Angeles', mileage: 1619, verifiedDc9: false },
-    { code: 'SEA', city: 'Seattle', mileage: 1870, verifiedDc9: false },
-    { code: 'AMS', city: 'Amsterdam', mileage: 4544, verifiedDc9: false },
+    { code: 'DTW', city: 'Detroit', familiar: true },
+    { code: 'MSP', city: 'Minneapolis–St. Paul', familiar: true },
+    { code: 'STL', city: 'St. Louis', familiar: true },
+    { code: 'BTR', city: 'Baton Rouge', familiar: false },
+    { code: 'TYS', city: 'Knoxville', familiar: false },
+    { code: 'AMS', city: 'Amsterdam', familiar: false },
   ] as const,
-  completionText: 'Legacy authorization confirmed.',
-  routeQuestion: 'Select the three short MEM routes listed with DC9 equipment in the June 1995 timetable.',
-  routeRetry: 'That route set does not match the period DC-9 strip. Selections cleared; your earlier progress is safe.',
-  routeMileageHint: 'Compare the mileage column. The three verified routes are all under 350 miles from MEM.',
-  secureInstruction: 'Route verified. Secure the parked cockpit in termination order.',
-  secureRetry: 'That control is out of sequence. The three-control attempt has reset to APU power on; route verification remains logged.',
+  routeQuestion: "Which three cities were familiar stops during Pop T's DC-9 years?",
+  routeHints: [
+    'Two were Northwest hubs and one was a familiar Midwestern stop.',
+    'Think Michigan, Minnesota, and Missouri.',
+  ] as const,
+  routeFinalHintCodes: ['DTW', 'MSP', 'STL'] as const,
+  routeCompletionText: 'Legacy routes recorded. A companion record is ready.',
+  routeRetry: 'Those selections do not complete this legacy record. Your stamped routes remain recorded.',
+  routeMileageHint: 'Think Michigan, Minnesota, and Missouri.',
+  homeOperationsPages: [
+    'The parallel operation — While Pop T kept passengers and crews on course, Momma Cheryl kept the family operation moving at home.',
+    'The home crew — Momma Cheryl cared for and fed three children, keeping everyone prepared while travel carried Pop T away and home again.',
+    'Keeping everyone moving — Sports practices and games, cheerleading practices and events, and the daily rhythm of three children all had to meet on time.',
+    'The invisible record — School-clothes shopping, changing schedules, household needs, and unexpected problems were handled with steady judgment.',
+    'Recognition — Pop T kept his passengers and crews on course. Momma Cheryl kept the family on course. Both were essential to bringing the crew home.',
+  ] as const,
+  keyEngravings: {
+    front: "THE CAPTAIN'S KEY",
+    reverse: 'POP T & MOMMA CHERYL',
+  } as const,
+  completionText: 'Routes recorded. Home crew recognized. Aircraft secured.',
+  secureInstruction: 'Both legacy records are complete. Ceremonially secure the parked cockpit in order.',
+  secureRetry: 'That step comes later. Complete the preceding checklist item first; recorded progress remains safe.',
   secureHint: 'Start with the paired APU bus switches, then follow the power source toward the battery.',
   disclaimer: 'Commemorative, non-operational interaction in a safely parked cockpit.',
 } as const
 
 export const gameCopy = {
   title: "The Captain's Key",
-  subtitle: 'First-Officer onboarding in Airbus, then the DC-9 legacy reveal.',
+  subtitle: 'A DC-9 family legacy, the Captain’s Locker, and an Airbus chapter.',
   premise:
-    'The game is a personalized tribute. Start in a modern Airbus coaching loop, discover the locker story, then unlock Pop T Captain Mode in the DC-9.',
+    'The journey begins with Pop T’s DC-9 Final Flight Log, continues through the Captain’s Locker, and then enters the existing Airbus First-Officer experience.',
   rewardTitle: 'Ground Transport Upgrade Authorized',
   rewardVehicleLine: 'The red Tesla Model Y is unlocked.',
   finalMessage:
@@ -209,7 +226,7 @@ export const gameCopy = {
     title: 'Mars diversion accepted.',
     message: 'The final game will hide this trigger behind the completed ending.',
   },
-  briefInstructions: 'Start in Airbus First-Officer Mode, complete the locker reveal, then enter Pop T Captain Mode.',
+  briefInstructions: 'Begin in the DC-9, carry The Captain’s Key into the locker, then continue to the Airbus First-Officer experience.',
 } as const
 
 export type FirstOfficerControl = (typeof firstOfficerFlow.controlIds)[number]

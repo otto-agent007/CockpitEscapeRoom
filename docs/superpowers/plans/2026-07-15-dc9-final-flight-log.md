@@ -106,7 +106,7 @@ Components consume `Dc9ChapterProgress` and dispatch `GameAction`; they must not
 - Produces: `dc9LegacyFlow.routePuzzleAnswers`, `routePuzzleOptions`, `routeHints`, `homeOperationsPages`, `keyEngravings`.
 - Consumes: no new runtime interfaces.
 
-- [ ] **Step 1: Write failing configuration assertions**
+- [x] **Step 1: Write failing configuration assertions**
 
 Add a Vitest block that verifies exact approved data:
 
@@ -124,12 +124,12 @@ expect(dc9LegacyFlow.keyEngravings).toEqual({
 })
 ```
 
-- [ ] **Step 2: Run the focused test and verify failure**
+- [x] **Step 2: Run the focused test and verify failure**
 
 Run: `npm test -- src/game/state.test.ts`  
 Expected: FAIL because the new route/hint/log/key fields do not exist.
 
-- [ ] **Step 3: Replace the old route and Captain copy**
+- [x] **Step 3: Replace the old route and Captain copy**
 
 Update `dc9LegacyFlow` with six HTML-overlay choices whose three correct answers are DTW/MSP/STL. Retain six choices so the existing interaction contract remains stable. Use this shape:
 
@@ -154,16 +154,16 @@ routeCompletionText: 'Legacy routes recorded. A companion record is ready.',
 
 Add five neutral `homeOperationsPages` covering the parallel operation, three children, food/care, sports/games/cheerleading, school-clothes shopping, household needs, and recognition. Do not invent dates, routes, quotations, school transportation, or first-person authorship.
 
-- [ ] **Step 4: Update global copy for the new order**
+- [x] **Step 4: Update global copy for the new order**
 
 Change briefing and transition copy to say the journey begins in the DC-9, continues through the Captain's Locker, and then enters the existing Airbus experience. Remove statements that Airbus is first or the locker promotes the player into DC-9 Captain Mode.
 
-- [ ] **Step 5: Run the focused test**
+- [x] **Step 5: Run the focused test**
 
 Run: `npm test -- src/game/state.test.ts`  
 Expected: PASS for the new configuration assertions.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/game/config.ts src/game/state.test.ts
