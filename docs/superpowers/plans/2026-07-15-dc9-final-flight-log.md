@@ -294,7 +294,7 @@ git commit -m "feat: add reordered DC-9 chapter state"
 - Consumes: schema-v6 `GameState` and schema-v7 `Dc9ChapterProgress`.
 - Produces: `loadGameState(): GameState` normalized to schema 7.
 
-- [ ] **Step 1: Add failing schema-v6 migration tests**
+- [x] **Step 1: Add failing schema-v6 migration tests**
 
 Cover at least:
 
@@ -305,12 +305,12 @@ Cover at least:
 
 Use explicit fixture objects with `schemaVersion: 6`; do not mutate `createInitialState()` into a fake old schema via unsafe casts without listing every legacy field.
 
-- [ ] **Step 2: Run and verify migration tests fail**
+- [x] **Step 2: Run and verify migration tests fail**
 
 Run: `npm test -- src/game/storage.test.ts`  
 Expected: FAIL because schema 7 migration is missing.
 
-- [ ] **Step 3: Implement one-way migration**
+- [x] **Step 3: Implement one-way migration**
 
 Add a dedicated `migrateV6ToV7(raw)` function. Mapping rules:
 
@@ -320,16 +320,16 @@ Add a dedicated `migrateV6ToV7(raw)` function. Mapping rules:
 - Saves in the old Airbus or locker phase restart at the new DC-9 opening unless the old completed-puzzle set proves that chapter was already completed.
 - Never remove `captainRewardUnlocked`, `marsUnlocked`, or completed puzzle IDs.
 
-- [ ] **Step 4: Normalize schema-v7 state**
+- [x] **Step 4: Normalize schema-v7 state**
 
 Validate configured route codes, unique shutdown steps in authored order, page range `0..4`, boolean key flags, and legal stage/phase combinations. Impossible combinations fall back to the nearest safe earlier stage, except completed reward/Mars states, which always stay complete.
 
-- [ ] **Step 5: Run storage and reducer tests**
+- [x] **Step 5: Run storage and reducer tests**
 
 Run: `npm test -- src/game/storage.test.ts src/game/state.test.ts`  
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/game/storage.ts src/game/storage.test.ts src/game/state.ts
