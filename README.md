@@ -4,9 +4,9 @@ A personalized, family-first 3D browser escape room honoring Dad as a highly cap
 
 The current narrative direction is:
 
-1. **Airbus A320 First-Officer Mode** — accessible drag-and-drop onboarding in a modern A320 cockpit.
-2. **Locker Room / Captain’s Locker** — personal reveal space and memory-gate progression.
-3. **Pop T Captain Mode in the DC-9-32** — earned legacy cockpit challenge.
+1. **DC-9 Final Flight Log** — a warm opening chapter with DTW/MSP/STL route memories, Momma Cheryl’s non-puzzle Home Operations Log, and a forgiving ceremonial shutdown.
+2. **Locker Room / Captain’s Locker** — personal reveal space opened by the Captain’s Key.
+3. **Existing Airbus A320 First-Officer Mode** — accessible drag-and-drop crew experience in the modern A320 cockpit.
 4. **Model Y reveal and Flight Mode transformation** — personal reward reveal with sleek, plausible-futuristic wing/panel deployment.
 5. **Father’s Day final message** — warm closing beat after the reward sequence.
 6. **Optional Mars Easter egg** after the main ending.
@@ -45,10 +45,10 @@ npm run assets:check
 
 Use `npm run dev` and confirm:
 
-- The Airbus A320 First-Officer onboarding flow runs and gives safe retry/hint behavior.
-- The locker scene reveal sequence unlocks **Pop T Captain Mode** only after required interactions.
-- The DC-9-32 Captain progression preserves completed progress on wrong answers.
-- The red Tesla Model Y reveal stays hidden until Captain Mode completion.
+- The DC-9-32 Final Flight Log accepts DTW/MSP/STL, preserves completed stamps and shutdown steps, and presents Momma Cheryl’s record only as recognition.
+- The Captain’s Key opens the locker, and the completed locker continues to the unchanged Airbus A320 First-Officer experience.
+- The Airbus assignment, retry, keyboard, ATP, and persistence behavior still works after the reorder.
+- The red Tesla Model Y reveal stays hidden until the DC-9 → locker → Airbus journey is complete.
 - The Model Y Flight Mode transformation is a reward beat, not required puzzle information.
 - The final message and hidden Mars payoff remain separate.
 
@@ -63,12 +63,13 @@ Use `npm run dev` and confirm:
 
 - The project name is **CockpitEscapeRoom**.
 - Dad is portrayed as an expert pilot; the game is a legacy tribute, never an emergency failure scenario.
-- The narrative is locked to `docs/GAME_DESIGN.md`; do not present the legacy reveal before the locker stage is complete.
-- The chosen production aircraft targets are **Airbus A320** for First-Officer Mode and **McDonnell Douglas DC-9-32** for Pop T Captain Mode.
+- The narrative is locked to `docs/GAME_DESIGN.md`; the required order is DC-9 → locker → existing Airbus → Model Y reward.
+- The chosen production aircraft targets are **McDonnell Douglas DC-9-32** for the opening Final Flight Log and **Airbus A320** for the later First-Officer experience.
 - The DC-9-32 and Airbus A320 flows must remain distinct and production-realistic in their own right.
 - This is a private, personal build that will not be distributed, so it may freely use owner-supplied aircraft, airline, and vehicle assets.
 - Use the official Blender MCP only for controlled scene inspection, cleanup, validation support, naming, pivots, metadata, preview renders, and export support.
 - Do not use Blender MCP for uncontrolled broad rewrites of approved scenes or to bypass the asset-report and validation trail.
 - Do not remove or rename the greybox label until visual approval milestones are passed.
+- Narrow layouts must remain functionally accessible, but dedicated mobile composition, visual polish, and a mobile approval milestone are not part of the Final Flight Log milestone.
 
 See [`BLUEPRINT.md`](BLUEPRINT.md) for the detailed blueprint and delivery details.

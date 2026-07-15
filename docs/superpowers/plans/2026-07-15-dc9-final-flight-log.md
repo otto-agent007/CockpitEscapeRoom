@@ -544,40 +544,40 @@ git commit -m "feat: connect the Captain's Key journey"
 - Consumes: completed behavior from Tasks 1–6.
 - Produces: current source-of-truth documentation and reproducible evidence.
 
-- [ ] **Step 1: Update game-design source of truth**
+- [x] **Step 1: Update game-design source of truth**
 
 Document the order DC-9 → locker → Airbus → Model Y. Include DTW/MSP/STL, the non-puzzle Home Operations Log, forgiving shutdown, both key engravings, and the end-credit photo montage remaining deferred.
 
-- [ ] **Step 2: Update README**
+- [x] **Step 2: Update README**
 
 Replace the old Airbus-first narrative and verification checklist. State that mobile-specific visual polish is not part of this milestone while accessible narrow fallback remains.
 
-- [ ] **Step 3: Run focused unit checks**
+- [x] **Step 3: Run focused unit checks**
 
 Run: `npm test -- src/game/state.test.ts src/game/storage.test.ts`  
 Expected: all reducer/storage tests PASS.
 
-- [ ] **Step 4: Run static and build checks**
+- [x] **Step 4: Run static and build checks**
 
 Run: `npm run check`  
 Expected: lint, typecheck, unit tests, and production build PASS.
 
-- [ ] **Step 5: Validate assets without rebuilding DC-9**
+- [x] **Step 5: Validate assets without rebuilding DC-9**
 
 Run: `npm run assets:check`  
 Expected: PASS with no new DC-9 validator errors. Do not run `npm run asset:dc9` unless a validation failure proves the existing artifact must be regenerated.
 
-- [ ] **Step 6: Run focused browser tests**
+- [x] **Step 6: Run focused browser tests**
 
 Run: `npx playwright test e2e/smoke.spec.ts -g "DC-9|complete reordered journey|Airbus" --workers=1`  
 Expected: all focused cases PASS, including real GLB and fallback.
 
-- [ ] **Step 7: Run the full browser suite**
+- [x] **Step 7: Run the full browser suite**
 
 Run: `npm run test:e2e -- --workers=1`  
 Expected: all cases PASS with no application console errors.
 
-- [ ] **Step 8: Inspect desktop evidence**
+- [x] **Step 8: Inspect desktop evidence**
 
 Capture and inspect the primary production desktop width for:
 
@@ -590,11 +590,11 @@ Capture and inspect the primary production desktop width for:
 
 Also exercise one narrow width only as a functional overflow/accessibility check. Do not create a mobile visual-approval gate or spend the milestone polishing a separate mobile composition.
 
-- [ ] **Step 9: Update TEST_REPORT**
+- [x] **Step 9: Update TEST_REPORT**
 
 Record exact commands, pass counts, known unrelated warnings, screenshot paths, served GLB byte parity if a preview is published, and confirmation that `public/models/dc9-cockpit.glb` was not rebuilt.
 
-- [ ] **Step 10: Final diff checks**
+- [x] **Step 10: Final diff checks**
 
 Run:
 
@@ -605,7 +605,7 @@ git status --short
 
 Expected: no whitespace errors; only intended files are modified.
 
-- [ ] **Step 11: Commit**
+- [x] **Step 11: Commit**
 
 ```bash
 git add docs/GAME_DESIGN.md README.md TEST_REPORT.md e2e/smoke.spec.ts
@@ -615,3 +615,30 @@ git commit -m "docs: record DC-9 final flight log verification"
 - [ ] **Step 12: Final review with Sol Extra High**
 
 Review the complete branch against `docs/superpowers/specs/2026-07-15-dc9-final-flight-log-design.md`. Reject any result that rebuilds the DC-9 asset, treats Momma Cheryl's record as a quiz, restores progress-reset behavior, reintroduces Airbus-first copy, or adds a dedicated mobile milestone.
+
+---
+
+## Execution record
+
+### Progress
+
+- 2026-07-14: Tasks 1–6 completed sequentially with one focused commit per task.
+- 2026-07-14: Task 7 documentation, static checks, asset validation, focused browser tests, full browser suite, and desktop/narrow evidence completed. Final diff review and documentation commit remain.
+
+### Discoveries
+
+- The current GLB intentionally retains legacy route-row IDs and baked BTR/STL/TYS text. The runtime must validate those fixed IDs while using them only as the single HTML record trigger; deriving registry requirements from the new DTW/MSP/STL content incorrectly forced the accessible fallback.
+- React's current immutability lint rule rejects assigning `tabIndex` through the renderer returned by `useThree`. Declaring `tabIndex={0}` on `<Canvas>` preserves keyboard focus without mutating a hook-owned value.
+- Historical locker/viewer browser fixtures seeded an illegal Airbus-first v7 state. Legal post-key locker and post-locker Airbus fixtures preserve the same locker/Airbus mechanics under the approved order.
+- Browser evidence exposed two presentation defects not caught by assertions: the opening illustration was too dark to read as a cockpit, and a global paragraph color made Home Operations text too pale. Both were repaired in the DC-9-owned stylesheet and re-inspected.
+
+### Decisions
+
+- Executed inline on `design/dc9-final-flight-log` as requested instead of creating a worktree.
+- Preserved all pre-existing Blender, GLB, asset-report, pipeline-tool, and unrelated local changes without staging them.
+- Used a lightweight HTML/CSS key cinematic and a CSS opening illustration; no physical key model or DC-9 asset rebuild was introduced.
+- Updated `AGENTS.md` and `BLUEPRINT.md` with the approved order in addition to the planned README and game-design files so repository guidance cannot reintroduce Airbus-first behavior.
+
+### Validation evidence
+
+- Exact command results, pass counts, asset hashes, known warnings, and inspected screenshot paths are recorded in `TEST_REPORT.md` under `2026-07-14 - DC-9 Final Flight Log reordered journey`.

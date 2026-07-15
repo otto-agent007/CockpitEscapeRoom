@@ -58,8 +58,6 @@ export const firstOfficerFlow = {
   clockAnswers: ['1500', '1500hour', '1500hours'] as const,
   clockFeedback: 'Airline Transport Pilot milestone recognized.',
   knowledgeLoggedText: 'First-Officer knowledge logged.',
-  firstCompleteBanner: 'FIRST-OFFICER MODE COMPLETE',
-  lockerAccessText: 'Locker access granted.',
 } as const
 
 export const lockerFlow = {

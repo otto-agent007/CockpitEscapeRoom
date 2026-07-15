@@ -283,7 +283,6 @@ interface PrototypeSceneProps {
   dc9ChapterStage: Dc9ChapterStage
   reducedMotion: boolean
   lockerHatRevealed: boolean
-  captainRewardUnlocked: boolean
   selectedAirbusCard: string | null
   airbusRetryToken: number
   lockerRetryToken: number
@@ -627,7 +626,6 @@ function AirbusSeatLookControls({
 
   useEffect(() => {
     const canvas = gl.domElement
-    canvas.tabIndex = 0
     const stopDrag = () => {
       draggingRef.current = false
     }
@@ -1593,7 +1591,6 @@ function Dc9InteractionRaycaster({
   useEffect(() => {
     if (!enabled) return
     const canvas = gl.domElement
-    canvas.tabIndex = 0
     let pointerDownAt: { x: number; y: number } | null = null
     let dragged = false
     const donorValues = new Map<string, number>()
@@ -1606,7 +1603,6 @@ function Dc9InteractionRaycaster({
       values: Map<string, number>
     } | null = null
     let hoveredDonor: { gameId: string; object: THREE.Object3D } | null = null
-    const setOutline = (_object: THREE.Object3D | null) => undefined
     const donorRoot = (object: THREE.Object3D) => {
       const rootName = object.userData.source_motion_root_name
       return typeof rootName === 'string' ? scene.getObjectByName(rootName) ?? null : null
@@ -1756,7 +1752,6 @@ function Dc9InteractionRaycaster({
       const hit = pick(event)
       hoveredDonor = hit
       onHoverInteractive(Boolean(hit))
-      setOutline(hit ? donorRoot(hit.object) ?? hit.object : null)
       const hoverLabel = hit ? `${hit.object.userData.accessible_label ?? 'Cockpit control'} - ${controlState(hit.object)}` : ''
       canvas.title = hoverLabel
       if (canvas.parentElement) {
@@ -1826,7 +1821,6 @@ function Dc9InteractionRaycaster({
       hoveredDonor = null
       delete canvas.dataset.dc9ControlDragging
       onHoverInteractive(false)
-      setOutline(null)
       canvas.title = ''
       if (canvas.parentElement) delete canvas.parentElement.dataset.dc9HoverLabel
     }
@@ -1849,7 +1843,7 @@ function Dc9InteractionRaycaster({
       canvas.removeEventListener('pointerleave', clear)
       clear()
     }
-  }, [camera, colliders, enabled, gl, onHoverInteractive, onInteraction])
+  }, [camera, colliders, enabled, gl, onHoverInteractive, onInteraction, scene])
   return null
 }
 
@@ -2163,7 +2157,6 @@ export function PrototypeScene({
   dc9ChapterStage,
   reducedMotion,
   lockerHatRevealed,
-  captainRewardUnlocked,
   selectedAirbusCard,
   airbusRetryToken,
   lockerRetryToken,
@@ -2192,6 +2185,7 @@ export function PrototypeScene({
         camera={{ position: [0, 0.25, 5.6], fov: 42 }}
         dpr={[1, 1.5]}
         shadows="percentage"
+        tabIndex={0}
         fallback={<div className="canvas-fallback">WebGL is unavailable. Use the accessible cockpit controls.</div>}
       >
         {phase === 'airbus' && (
@@ -2243,13 +2237,6 @@ export function PrototypeScene({
             onHoverInteractive={onInteractiveHover}
           />
         )}
-        {false && captainRewardUnlocked && phase === 'reward' && (
-          <mesh position={[0, -1.12, -0.58]} rotation={[0, -0.35, 0]}>
-            <boxGeometry args={[1.55, 0.38, 0.72]} />
-            <meshStandardMaterial color="#a41419" roughness={0.25} metalness={0.55} />
-          </mesh>
-        )}
-
         {(phase === 'reward' || phase === 'mars') && (
           <LimitedOrbitControls airbusCameraRevision={cameraResetRevision} />
         )}

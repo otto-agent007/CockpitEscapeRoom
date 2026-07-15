@@ -169,6 +169,10 @@
   line-height: 1.75;
 }
 
+.dc9-home-log__page p {
+  color: #3b3021;
+}
+
 .dc9-document__navigation {
   display: flex;
   justify-content: space-between;
@@ -344,8 +348,8 @@
 
 .briefing-visual--dc9 {
   background:
-    linear-gradient(180deg, rgb(33 21 28 / 8%), rgb(5 10 12 / 75%)),
-    radial-gradient(circle at 50% 64%, #e18a51 0 7%, #914f4d 25%, #30334d 57%, #101923 100%);
+    linear-gradient(180deg, rgb(24 28 40 / 8%), rgb(5 10 12 / 58%)),
+    radial-gradient(circle at 52% 56%, #ffc16d 0 6%, #d46f55 20%, #65506c 43%, #1c2a38 72%, #0d171d 100%);
 }
 
 .briefing-visual__dc9-window {
@@ -353,7 +357,39 @@
   inset: 12% 10% 18%;
   border: clamp(1.3rem, 4vw, 4rem) solid #12191c;
   border-radius: 45% 45% 12% 12%;
-  box-shadow: inset 0 -8rem 0 rgb(12 17 18 / 76%);
+  background:
+    linear-gradient(180deg, transparent 0 56%, rgb(36 41 47 / 32%) 57%, rgb(12 18 20 / 78%) 59%),
+    radial-gradient(circle at 58% 48%, #ffca75 0 5%, #d47559 19%, #6c536b 45%, #263644 78%);
+  box-shadow: inset 0 -3rem 5rem rgb(9 14 15 / 62%), 0 24px 70px rgb(0 0 0 / 35%);
+}
+
+.briefing-visual__dc9-window::before {
+  position: absolute;
+  left: -5%;
+  right: -5%;
+  bottom: -7%;
+  height: 42%;
+  border-top: .75rem solid #111a1c;
+  border-radius: 18% 18% 0 0;
+  content: "";
+  background:
+    radial-gradient(circle at 16% 45%, #b9c7b2 0 1.2%, #203033 1.5% 5.5%, #0c1315 5.8% 8%, transparent 8.2%),
+    radial-gradient(circle at 36% 45%, #d1b871 0 1.2%, #263638 1.5% 5.5%, #0c1315 5.8% 8%, transparent 8.2%),
+    radial-gradient(circle at 58% 45%, #b9c7b2 0 1.2%, #203033 1.5% 5.5%, #0c1315 5.8% 8%, transparent 8.2%),
+    radial-gradient(circle at 79% 45%, #d1b871 0 1.2%, #263638 1.5% 5.5%, #0c1315 5.8% 8%, transparent 8.2%),
+    linear-gradient(155deg, #35484a, #172426 65%);
+  box-shadow: 0 -1rem 2rem rgb(0 0 0 / 36%);
+}
+
+.briefing-visual__dc9-window::after {
+  position: absolute;
+  top: -8%;
+  bottom: 35%;
+  left: 50%;
+  width: 1.15rem;
+  content: "";
+  background: linear-gradient(90deg, #0c1315, #293638 48%, #0c1315);
+  transform: translateX(-50%) rotate(-1deg);
 }
 
 @keyframes captains-key-arrive {

@@ -3,7 +3,7 @@
 ## 1. Core thesis
 
 CockpitEscapeRoom is a personalized Father’s Day tribute flow with one emotional arc:
-Airbus First-Officer onboarding → locker memory reveal → Pop T Captain Mode in the DC-9 → hidden Model Y reveal.
+DC-9 Final Flight Log → locker memory reveal → existing Airbus First-Officer experience → hidden Model Y reveal.
 
 ## 2. Player and occasion
 
@@ -13,9 +13,9 @@ Wrong choices should never erase earned milestones. The aircraft is safely parke
 
 ## 3. Experience structure
 
-1. **Airbus A320 First-Officer Mode** onboarding.
+1. **DC-9 Final Flight Log** opening memory chapter.
 2. **Locker room sequence** with personal memory objects.
-3. **Pop T Captain Mode** (DC-9 legacy checklist challenge).
+3. **Existing Airbus A320 First-Officer Mode** crew experience.
 4. **Red Tesla Model Y reveal** as the personal reward.
 5. **Optional Mars Easter egg** after completion.
 
@@ -27,22 +27,22 @@ Wrong answers must never erase completed stages.
 
 ## 5. Story and spoiler rules
 
-- Airbus is the first gameplay layer and should not reveal DC-9 or Model Y spoilers.
-- Do not show the Model Y before final Captain Mode completion and hangar reveal.
-- The DC-9 is personal and more dense than Airbus.
+- The DC-9 is the first gameplay layer and should feel personal, warm, and safely parked.
+- Do not show the Model Y before the DC-9, locker, and Airbus chapters are complete.
+- The DC-9 and Airbus remain distinct aircraft experiences.
 
 ## 6. Technical direction
 
 - Vite + React + TypeScript + React Three Fiber + Three.js.
 - Pure reducer/state in `src/game`, presentation in `src/scenes`, controls and status in `src/components`.
-- Load Airbus first, then DC-9 and reward layers as unlocked.
+- Load DC-9 first, then locker, Airbus, and reward layers as unlocked.
 - Keep hints progressive and persistent saves robust.
 
 ## 7. Delivery priorities
 
-1. Stable First-Officer matcher and clock gate.
+1. Stable Final Flight Log records, shutdown, and Captain’s Key.
 2. Locker memory interaction and hat-reveal gate.
-3. DC-9 checklist/route sequence.
+3. Existing Airbus First-Officer matcher and clock gate.
 4. Reward reveal UI and final closing message.
 5. Mars optional trigger.
 
@@ -52,21 +52,21 @@ Every puzzle follows the same loop:
 
 **Observe → inspect → decide → receive immediate feedback → retry or request a progressive hint → restore one system → receive a personal or visual reward → advance.**
 
-Wrong answers never erase completed puzzles. Captain Mode may reset the current attempt, but it must remain fair and fun.
+Wrong answers never erase completed puzzles. Final Flight Log route stamps and shutdown steps remain complete across later mistakes.
 
-## 5. Crew Mode and Captain Mode
+## 5. Final Flight Log and Airbus experience
 
-Crew Mode includes city names, clearer labels, and stronger progressive hints. Captain Mode uses airport codes, compact labels, realistic-looking route strips, and subtler clues.
+The opening Final Flight Log uses a reliable yoke trigger, a readable HTML route record, progressive hints, a non-puzzle Home Operations Log, and the three supported shutdown controls. The later Airbus experience retains its existing labels, assignment feedback, and ATP question.
 
-Captain Mode is not a memorization exam. The Northwest/Memphis/DC-9 history should appear mainly in scenery, route choices, dispatch texture, sounds, and the rhythm of the hub. Fleet counts, exact retirement dates, and economics are reference material, not required answers unless a later puzzle proves fun in playtesting.
+The Final Flight Log is not a memorization exam. The Northwest/Memphis/DC-9 history should appear mainly in scenery, route choices, dispatch texture, sounds, and the rhythm of the hub. Fleet counts, exact retirement dates, and economics are reference material, not required answers unless a later puzzle proves fun in playtesting.
 
 ## 6. Personalized narrative and rewards
 
 The DC-9 level celebrates the aircraft as a durable short-haul workhorse in the Memphis network. The family crew restores a fictional “legacy lockout” and rebuilds a small portion of the Southern funnel around MEM.
 
-Completing Captain Mode opens the hangar and reveals a red Model Y. The production reward scene may use a playful plate such as `CAPT DAD`, `DC9 2 EV`, `MEM FLYR`, or `MARS 09` after the owner chooses one.
+Completing the reordered DC-9 → locker → Airbus journey opens the hangar and reveals a red Model Y. The production reward scene may use a playful plate such as `CAPT DAD`, `DC9 2 EV`, `MEM FLYR`, or `MARS 09` after the owner chooses one.
 
-The Airbus First-Officer opening represents type transition and adaptability. A hidden Mars control turns the Model Y into a humorous surface vehicle and awards the rank “Commander, Mars Transport Division.”
+The later Airbus First-Officer chapter represents type transition and adaptability. A hidden Mars control turns the Model Y into a humorous surface vehicle and awards the rank “Commander, Mars Transport Division.”
 
 ## 7. Visual realism standard
 
@@ -119,13 +119,13 @@ The loop stops when validation passes, the maximum bounded attempts are reached,
 
 **Phase 0 — Bootstrap:** working greybox, docs, tests, CI, Vercel preview, Blender scripts.
 
-**Phase 1 — Airbus First-Officer proof:** approachable cockpit landmarks, drag-and-drop object matching, clock gate, browser integration.
+**Phase 1 — DC-9 Final Flight Log proof:** route record, Home Operations recognition, ceremonial shutdown, Captain’s Key, browser integration.
 
 **Phase 2 — locker reveal proof:** personal locker objects, captain’s hat reveal, accessible inspection flow, and spoiler-safe transition.
 
-**Phase 3 — DC-9 Captain Mode proof:** captain-eye blockout, analog checklist puzzle, route card, browser integration, and owner visual gate.
+**Phase 3 — Airbus First-Officer regression proof:** existing drag-and-drop object matching, ATP gate, browser integration, and owner visual gate.
 
-**Phase 4 — Captain reward:** red Model Y asset, achievement card, optional plate.
+**Phase 4 — Model Y reward:** red Model Y asset, achievement card, optional plate.
 
 **Phase 5 — main game polish:** progressive hints, saved progress, final message, performance budget, and cross-scene regression pass.
 
@@ -135,7 +135,7 @@ The loop stops when validation passes, the maximum bounded attempts are reached,
 
 A release candidate is done only when:
 
-- All required puzzles can be completed in Crew and Captain modes.
+- All required puzzles can be completed across the DC-9, locker, and Airbus chapters.
 - Correct, wrong, repeated-wrong, hint, reload, resume, and reset paths work.
 - The DC-9 and Airbus pass owner visual approval from the captain’s viewpoint.
 - The Airbus model and DC-9 variant are documented.

@@ -1,6 +1,40 @@
-import { expect, test } from '@playwright/test'
-import { createInitialState } from '../src/game/state'
+import { expect, test, type Page } from '@playwright/test'
+import { dc9LegacyFlow, lockerFlow } from '../src/game/config'
+import { createInitialState, type GameState } from '../src/game/state'
 import { STORAGE_KEY } from '../src/game/storage'
+
+function airbusState(overrides: Partial<GameState> = {}): GameState {
+  return {
+    ...createInitialState(),
+    phase: 'airbus',
+    dc9: {
+      stage: 'complete',
+      routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
+      routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
+      routeAttempts: 0,
+      homePage: dc9LegacyFlow.homeOperationsPages.length - 1,
+      homeOperationsCompleted: true,
+      secureSequence: [...dc9LegacyFlow.secureSequence],
+      keyRevealed: true,
+      keyClaimed: true,
+    },
+    captainRouteVerified: true,
+    dc9SecureSequence: [...dc9LegacyFlow.secureSequence],
+    routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
+    lockerCompleted: [...lockerFlow.memoryIds],
+    lockerIntroCompleted: true,
+    lockerHatRevealed: true,
+    captainModeUnlocked: true,
+    completedPuzzles: ['captain', 'locker'],
+    statusMessage: 'Airbus First-Officer experience ready.',
+    ...overrides,
+  }
+}
+
+async function seed(page: Page, state: GameState) {
+  await page.evaluate(({ key, value }) => localStorage.setItem(key, JSON.stringify(value)), { key: STORAGE_KEY, value: state })
+  await page.reload()
+}
 
 test('loading failure offers retry and accessible completion path', async ({ page }) => {
   let requests = 0
@@ -9,7 +43,7 @@ test('loading failure offers retry and accessible completion path', async ({ pag
     return route.fulfill({ status: 503, body: 'offline' })
   })
   await page.goto('/')
-  await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
+  await seed(page, airbusState())
 
   await expect(page.getByRole('heading', { name: 'Airbus A320 First-Officer Mode' })).toBeVisible()
   await expect(page.getByText('One of the most beautiful offices on earth.')).toBeVisible()
@@ -28,7 +62,7 @@ test('loading failure offers retry and accessible completion path', async ({ pag
 
 test('viewer help closes with Escape and restores trigger focus', async ({ page }) => {
   await page.goto('/?skip3d=1')
-  await page.getByRole('button', { name: 'Begin First-Officer onboarding' }).click()
+  await seed(page, airbusState())
   const trigger = page.getByRole('button', { name: 'Open viewer help' })
   await trigger.click()
   await expect(page.getByRole('dialog', { name: 'Explore this scene' })).toContainText('Look from the right seat')
@@ -44,20 +78,23 @@ test('viewer help closes with Escape and restores trigger focus', async ({ page 
   expect(tools!.x).toBeGreaterThan(dock!.x + dock!.width)
 })
 
-test('reduced motion qualification uses a static celebration and survives reload', async ({ page }) => {
+test('reduced motion Airbus completion routes directly to reward and survives reload', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/?skip3d=1')
-  await page.evaluate(
-    ({ key, state }) => window.localStorage.setItem(key, JSON.stringify(state)),
-    {
-      key: STORAGE_KEY,
-      state: { ...createInitialState(), phase: 'airbus', completedPuzzles: ['firstOfficer'] },
+  await seed(page, airbusState({
+    airbusAssignments: {
+      sidestick: 'SIDESTICK',
+      thrust: 'THRUST',
+      gear: 'GEAR',
+      radio: 'RADIO',
+      altitude: 'ALTITUDE',
     },
-  )
-  await page.reload()
+  }))
 
-  const dialog = page.getByRole('dialog', { name: 'Airline Transport Pilot milestone recognized' })
-  await expect(dialog).toBeVisible()
+  await page.getByRole('textbox', { name: 'Airline Transport Pilot answer' }).fill('1500 hours')
+  await page.getByRole('button', { name: 'Verify' }).click()
+  await expect(page.getByText('Ground Transport Upgrade Authorized')).toBeVisible()
   await expect(page.locator('.qualification-confetti')).toHaveCount(0)
-  await expect(dialog.getByRole('button', { name: 'Continue' })).toBeFocused()
+  await page.reload()
+  await expect(page.getByText('Ground Transport Upgrade Authorized')).toBeVisible()
 })

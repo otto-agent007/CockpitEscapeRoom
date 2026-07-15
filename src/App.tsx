@@ -452,7 +452,6 @@ export default function App() {
             dc9ChapterStage={state.dc9.stage}
             reducedMotion={reducedMotion}
             lockerHatRevealed={state.lockerHatRevealed}
-            captainRewardUnlocked={state.captainRewardUnlocked}
             selectedAirbusCard={activeSelectedAirbusCard}
             airbusRetryToken={airbusRetryToken}
             lockerRetryToken={lockerRetryToken}
