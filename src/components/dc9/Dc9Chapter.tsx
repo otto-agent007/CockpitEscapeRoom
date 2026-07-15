@@ -18,16 +18,12 @@ interface Dc9ChapterProps {
   onClaimKey: () => void
 }
 
-const LEGACY_ROUTE_TRIGGER_IDS = ['dc9.route.BTR', 'dc9.route.STL', 'dc9.route.TYS', 'dc9.route.LAX', 'dc9.route.SEA', 'dc9.route.AMS', 'dc9.route.submit'] as const
-
 export function Dc9Chapter({ state, dispatch, onRestart, loadState, hotspots, onUseFallback, reducedMotion, onClaimKey }: Dc9ChapterProps) {
   const [routeRecordDismissed, setRouteRecordDismissed] = useState(false)
   const [keyRevealDismissed, setKeyRevealDismissed] = useState(false)
   const routeRecordVisible = state.dc9.stage === 'routeRecord' && !routeRecordDismissed
   const keyRevealVisible = state.dc9.stage === 'keyReveal' && state.dc9.keyRevealed && !keyRevealDismissed
-  const routeProjection = LEGACY_ROUTE_TRIGGER_IDS
-    .map((gameId) => hotspots[gameId])
-    .find((position) => position?.visible)
+  const routeProjection = hotspots['dc9.route.card']
 
   const openRouteRecord = () => {
     setRouteRecordDismissed(false)
@@ -50,18 +46,17 @@ export function Dc9Chapter({ state, dispatch, onRestart, loadState, hotspots, on
       </header>
 
       {(state.dc9.stage === 'intro' || (state.dc9.stage === 'routeRecord' && routeRecordDismissed)) ? (
-        <div className="dc9-chapter__prompt">
-          <p>Find the narrow route strip attached to the captain-yoke center pad.</p>
-          <button
-            type="button"
-            className="primary-button"
-            data-projection={routeProjection ? 'mesh' : 'fallback'}
-            data-projection-point={routeProjection ? `${routeProjection.x},${routeProjection.y}` : undefined}
-            onClick={openRouteRecord}
-          >
-            Open Legacy Route Record
-          </button>
-        </div>
+        <button
+          type="button"
+          className={`dc9-route-record-trigger${routeProjection?.visible ? ' is-projected' : ' is-fallback'}`}
+          aria-label="Open Legacy Route Record"
+          data-projection={routeProjection?.visible ? 'mesh' : 'fallback'}
+          data-projection-point={routeProjection?.visible ? `${routeProjection.x},${routeProjection.y}` : undefined}
+          style={routeProjection?.visible ? { left: routeProjection.x, top: routeProjection.y } : undefined}
+          onClick={openRouteRecord}
+        >
+          <span className="dc9-route-record-trigger__fallback" aria-hidden="true">Open Legacy Route Record</span>
+        </button>
       ) : null}
 
       {routeRecordVisible ? (
@@ -101,6 +96,32 @@ export function Dc9Chapter({ state, dispatch, onRestart, loadState, hotspots, on
               )
             })}
           </div>
+        </section>
+      ) : null}
+
+      {state.dc9.stage === 'qualification' ? (
+        <section className="dc9-atp-gate" aria-labelledby="dc9-atp-title">
+          <p className="eyebrow">Final Flight Log · closing milestone</p>
+          <h2 id="dc9-atp-title">Airline Transport Pilot</h2>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault()
+              dispatch({ type: 'SUBMIT_DC9_ATP_QUALIFICATION' })
+            }}
+          >
+            <label>
+              <span>{dc9LegacyFlow.atpQuestion}</span>
+              <input
+                type="text"
+                value={state.airbusQualificationAnswer}
+                onChange={(event) => dispatch({ type: 'SET_ATP_QUALIFICATION_ANSWER', value: event.target.value })}
+                inputMode="text"
+                aria-label="Airline Transport Pilot answer"
+                autoFocus
+              />
+            </label>
+            <button type="submit" className="primary-button">Verify</button>
+          </form>
         </section>
       ) : null}
 

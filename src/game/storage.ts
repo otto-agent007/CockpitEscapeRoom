@@ -8,14 +8,44 @@ import {
   type GameState,
   type PuzzleId,
 } from './state'
-import { type FirstOfficerControl, type FirstOfficerDecoy, type LockerMemoryId, type LockerQuestionId } from './config'
-import { dc9LegacyFlow, firstOfficerFlow, lockerFlow } from './config'
+import {
+  airbusCaptainFlow,
+  dc9LegacyFlow,
+  lockerFlow,
+  type AirbusControl,
+  type AirbusDecoy,
+  type LockerMemoryId,
+  type LockerQuestionId,
+} from './config'
 
 export const STORAGE_KEY = 'cockpit-escape-room:game-state:v1'
 
-type LegacyV6State = Omit<GameState, 'schemaVersion' | 'dc9'> & {
-  schemaVersion: 6
+type LegacyPhase = 'briefing' | 'airbus' | 'locker' | 'captain' | 'reward' | 'mars'
+type LegacyPuzzleId = 'firstOfficer' | 'locker' | 'captain'
+
+interface LegacyCommonState {
+  phase: LegacyPhase
+  airbusAssignments: Record<AirbusControl, string | null>
+  airbusDecoyAssignments: Record<AirbusDecoy, string | null>
+  airbusClockAnswer: string
+  lockerCompleted: LockerMemoryId[]
+  lockerAttempts: Record<LockerQuestionId, number>
+  lockerIntroCompleted: boolean
+  lockerHatRevealed: boolean
+  captainModeUnlocked: boolean
+  captainRouteVerified: boolean
+  dc9SecureSequence: Dc9SecureControlId[]
+  captainAttempts: { route: number; secure: number }
+  routeSelections: string[]
+  completedPuzzles: LegacyPuzzleId[]
+  hintsUsed: number
+  captainRewardUnlocked: boolean
+  marsUnlocked: boolean
+  statusMessage: string
 }
+
+type LegacyV6State = LegacyCommonState & { schemaVersion: 6 }
+type LegacyV7State = LegacyCommonState & { schemaVersion: 7; dc9: unknown }
 
 const APPROVED_ROUTE_CODES = [...dc9LegacyFlow.routePuzzleAnswers] as string[]
 const ALL_ROUTE_CODES = dc9LegacyFlow.routePuzzleOptions.map((route) => route.code) as string[]
@@ -28,61 +58,62 @@ function isString(value: unknown): value is string {
   return typeof value === 'string'
 }
 
-function isSafePhase(value: unknown): value is GamePhase {
-  return (
-    value === 'briefing' ||
-    value === 'airbus' ||
-    value === 'locker' ||
-    value === 'captain' ||
-    value === 'reward' ||
-    value === 'mars'
-  )
+function isSafeNonNegativeInteger(value: unknown): value is number {
+  return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0
 }
 
-function isSafeAssignments(value: unknown): value is Record<FirstOfficerControl, string | null> {
-  if (!value || typeof value !== 'object') return false
-  const candidate = value as Record<string, unknown>
-  const controls = [...firstOfficerFlow.controlIds]
-  return (
-    controls.every((control) => {
-      const raw = candidate[control]
-      return raw === null || typeof raw === 'string'
-    }) && controls.every((control) => Object.prototype.hasOwnProperty.call(candidate, control))
-  )
+function isLegacyPhase(value: unknown): value is LegacyPhase {
+  return value === 'briefing' || value === 'airbus' || value === 'locker' || value === 'captain' || value === 'reward' || value === 'mars'
 }
 
-function isSafeDecoyAssignments(value: unknown): value is Record<FirstOfficerDecoy, string | null> {
+function isCanonicalPhase(value: unknown): value is GamePhase {
+  return value === 'briefing' || value === 'dc9' || value === 'locker' || value === 'airbus' || value === 'reward' || value === 'mars'
+}
+
+function isSafeAssignments(value: unknown): value is Record<AirbusControl, string | null> {
   if (!value || typeof value !== 'object') return false
   const candidate = value as Record<string, unknown>
-  const decoys = [...firstOfficerFlow.decoyIds]
-  return (
-    decoys.every((decoy) => {
-      const raw = candidate[decoy]
-      return raw === null || typeof raw === 'string'
-    }) && decoys.every((decoy) => Object.prototype.hasOwnProperty.call(candidate, decoy))
-  )
+  return airbusCaptainFlow.controlIds.every((control) => {
+    const raw = candidate[control]
+    return Object.prototype.hasOwnProperty.call(candidate, control) && (raw === null || typeof raw === 'string')
+  })
+}
+
+function isSafeDecoyAssignments(value: unknown): value is Record<AirbusDecoy, string | null> {
+  if (!value || typeof value !== 'object') return false
+  const candidate = value as Record<string, unknown>
+  return airbusCaptainFlow.decoyIds.every((decoy) => {
+    const raw = candidate[decoy]
+    return Object.prototype.hasOwnProperty.call(candidate, decoy) && (raw === null || typeof raw === 'string')
+  })
 }
 
 function isSafeSecureSequence(value: unknown): value is Dc9SecureControlId[] {
   return (
     Array.isArray(value) &&
-    value.every((entry): entry is Dc9SecureControlId =>
-      (DC9_SECURE_ORDER as readonly string[]).includes(entry),
-    ) &&
+    value.every((entry): entry is Dc9SecureControlId => (DC9_SECURE_ORDER as readonly string[]).includes(entry)) &&
     value.every((entry, index) => entry === DC9_SECURE_ORDER[index])
   )
 }
 
-function isSafeCaptainAttempts(value: unknown): value is GameState['captainAttempts'] {
+function isSafeLegacyAttempts(value: unknown): value is LegacyCommonState['captainAttempts'] {
   if (!value || typeof value !== 'object') return false
   const candidate = value as Record<string, unknown>
   return isSafeNonNegativeInteger(candidate.route) && isSafeNonNegativeInteger(candidate.secure)
 }
 
+function isSafeLegacyPuzzleIds(value: unknown): value is LegacyPuzzleId[] {
+  return (
+    Array.isArray(value) &&
+    value.every((entry): entry is LegacyPuzzleId => entry === 'firstOfficer' || entry === 'locker' || entry === 'captain') &&
+    hasNoDuplicates(value)
+  )
+}
+
 function isSafePuzzleIds(value: unknown): value is PuzzleId[] {
   return (
     Array.isArray(value) &&
-    value.every((entry): entry is PuzzleId => entry === 'firstOfficer' || entry === 'locker' || entry === 'captain') &&
+    value.every((entry): entry is PuzzleId => entry === 'dc9' || entry === 'locker' || entry === 'airbus') &&
     hasNoDuplicates(value)
   )
 }
@@ -90,9 +121,7 @@ function isSafePuzzleIds(value: unknown): value is PuzzleId[] {
 function isSafeLockerCompleted(value: unknown): value is LockerMemoryId[] {
   return (
     Array.isArray(value) &&
-    value.every((entry): entry is LockerMemoryId =>
-      (lockerFlow.memoryIds as readonly string[]).includes(entry),
-    ) &&
+    value.every((entry): entry is LockerMemoryId => (lockerFlow.memoryIds as readonly string[]).includes(entry)) &&
     hasNoDuplicates(value)
   )
 }
@@ -114,18 +143,17 @@ function normalizeLockerAttempts(value: unknown): Record<LockerQuestionId, numbe
   const watch = isSafeNonNegativeInteger(candidate.watch) ? candidate.watch : null
   const baseball = isSafeNonNegativeInteger(candidate.baseball) ? candidate.baseball : null
   if (watch === null || baseball === null) return null
-  const chargingBull = isSafeNonNegativeInteger(candidate.chargingBull) ? candidate.chargingBull : 0
-  const wings = isSafeNonNegativeInteger(candidate.wings) ? candidate.wings : 0
-  return { watch, baseball, chargingBull, wings }
+  return {
+    watch,
+    baseball,
+    chargingBull: isSafeNonNegativeInteger(candidate.chargingBull) ? candidate.chargingBull : 0,
+    wings: isSafeNonNegativeInteger(candidate.wings) ? candidate.wings : 0,
+  }
 }
 
-function isSafeNonNegativeInteger(value: unknown): value is number {
-  return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0
-}
-
-function hasSafeCommonState(candidate: Record<string, unknown>): boolean {
+function hasSafeLegacyCommonState(candidate: Record<string, unknown>): boolean {
   return (
-    isSafePhase(candidate.phase) &&
+    isLegacyPhase(candidate.phase) &&
     isSafeAssignments(candidate.airbusAssignments) &&
     isSafeDecoyAssignments(candidate.airbusDecoyAssignments) &&
     typeof candidate.airbusClockAnswer === 'string' &&
@@ -136,11 +164,11 @@ function hasSafeCommonState(candidate: Record<string, unknown>): boolean {
     typeof candidate.captainModeUnlocked === 'boolean' &&
     typeof candidate.captainRouteVerified === 'boolean' &&
     isSafeSecureSequence(candidate.dc9SecureSequence) &&
-    isSafeCaptainAttempts(candidate.captainAttempts) &&
+    isSafeLegacyAttempts(candidate.captainAttempts) &&
     Array.isArray(candidate.routeSelections) &&
-    candidate.routeSelections.every((value): value is string => typeof value === 'string') &&
-    candidate.routeSelections.length === new Set(candidate.routeSelections).size &&
-    isSafePuzzleIds(candidate.completedPuzzles) &&
+    candidate.routeSelections.every(isString) &&
+    hasNoDuplicates(candidate.routeSelections) &&
+    isSafeLegacyPuzzleIds(candidate.completedPuzzles) &&
     isSafeNonNegativeInteger(candidate.hintsUsed) &&
     typeof candidate.captainRewardUnlocked === 'boolean' &&
     typeof candidate.marsUnlocked === 'boolean' &&
@@ -151,18 +179,25 @@ function hasSafeCommonState(candidate: Record<string, unknown>): boolean {
 function isLegacyV6State(value: unknown): value is LegacyV6State {
   if (!value || typeof value !== 'object') return false
   const candidate = value as Record<string, unknown>
-  return candidate.schemaVersion === 6 && hasSafeCommonState(candidate)
+  return candidate.schemaVersion === 6 && hasSafeLegacyCommonState(candidate)
 }
 
-function fullDc9Progress(): Dc9ChapterProgress {
+function isLegacyV7State(value: unknown): value is LegacyV7State {
+  if (!value || typeof value !== 'object') return false
+  const candidate = value as Record<string, unknown>
+  return candidate.schemaVersion === 7 && hasSafeLegacyCommonState(candidate)
+}
+
+function fullDc9Progress(routeAttempts = 0, secureAttempts = 0): Dc9ChapterProgress {
   return {
     stage: 'complete',
     routeSelections: [...APPROVED_ROUTE_CODES],
     routeCompleted: [...APPROVED_ROUTE_CODES],
-    routeAttempts: 0,
+    routeAttempts,
     homePage: dc9LegacyFlow.homeOperationsPages.length - 1,
     homeOperationsCompleted: true,
     secureSequence: [...DC9_SECURE_ORDER],
+    secureAttempts,
     keyRevealed: true,
     keyClaimed: true,
   }
@@ -186,18 +221,18 @@ function normalizeSecureSequence(value: unknown): Dc9SecureControlId[] {
 
 function normalizeDc9Progress(
   value: unknown,
-  phase: GamePhase,
-  completedPuzzles: readonly PuzzleId[],
-  captainRewardUnlocked: boolean,
+  completed: boolean,
+  fallbackRouteAttempts = 0,
+  fallbackSecureAttempts = 0,
 ): Dc9ChapterProgress {
-  const completedChapter = completedPuzzles.includes('captain') || captainRewardUnlocked || phase === 'reward' || phase === 'mars'
-  if (completedChapter) return fullDc9Progress()
-  if (!value || typeof value !== 'object') return createInitialState().dc9
+  const candidate = value && typeof value === 'object' ? value as Record<string, unknown> : null
+  const routeAttempts = candidate && isSafeNonNegativeInteger(candidate.routeAttempts) ? candidate.routeAttempts : fallbackRouteAttempts
+  const secureAttempts = candidate && isSafeNonNegativeInteger(candidate.secureAttempts) ? candidate.secureAttempts : fallbackSecureAttempts
+  if (completed) return fullDc9Progress(routeAttempts, secureAttempts)
+  if (!candidate) return { ...createInitialState().dc9, routeAttempts, secureAttempts }
 
-  const candidate = value as Record<string, unknown>
   const routeCompleted = normalizeRouteCodes(candidate.routeCompleted, APPROVED_ROUTE_CODES)
   const routeSelections = normalizeRouteCodes(candidate.routeSelections, ALL_ROUTE_CODES)
-  const routeAttempts = isSafeNonNegativeInteger(candidate.routeAttempts) ? candidate.routeAttempts : 0
   const routesComplete = routeCompleted.length === APPROVED_ROUTE_CODES.length
   const homeOperationsCompleted = routesComplete && candidate.homeOperationsCompleted === true
   const secureSequence = homeOperationsCompleted ? normalizeSecureSequence(candidate.secureSequence) : []
@@ -205,11 +240,11 @@ function normalizeDc9Progress(
   const keyClaimed = shutdownComplete && candidate.keyClaimed === true
   const keyRevealed = shutdownComplete && (candidate.keyRevealed === true || keyClaimed)
   const hasRouteEvidence = routeSelections.length > 0 || routeCompleted.length > 0 || routeAttempts > 0
-
+  const savedStage = candidate.stage
   const stage: Dc9ChapterProgress['stage'] = keyClaimed
     ? 'complete'
     : shutdownComplete
-      ? 'keyReveal'
+      ? savedStage === 'qualification' ? 'qualification' : 'keyReveal'
       : homeOperationsCompleted
         ? 'shutdown'
         : routesComplete
@@ -218,9 +253,7 @@ function normalizeDc9Progress(
             ? 'routeRecord'
             : 'intro'
   const finalPage = dc9LegacyFlow.homeOperationsPages.length - 1
-  const homePage = routesComplete && isSafeNonNegativeInteger(candidate.homePage)
-    ? Math.min(candidate.homePage, finalPage)
-    : 0
+  const homePage = routesComplete && isSafeNonNegativeInteger(candidate.homePage) ? Math.min(candidate.homePage, finalPage) : 0
 
   return {
     stage,
@@ -230,45 +263,111 @@ function normalizeDc9Progress(
     homePage,
     homeOperationsCompleted,
     secureSequence,
+    secureAttempts,
     keyRevealed,
     keyClaimed,
   }
 }
 
-function normalizeV7(value: unknown): GameState | null {
-  if (!value || typeof value !== 'object') return null
-  const candidate = value as Record<string, unknown>
-  if (candidate.schemaVersion !== GAME_SCHEMA_VERSION || !hasSafeCommonState(candidate)) return null
+function mapLegacyPuzzles(value: readonly LegacyPuzzleId[]): PuzzleId[] {
+  const mapped = value.map((id): PuzzleId => id === 'captain' ? 'dc9' : id === 'firstOfficer' ? 'airbus' : 'locker')
+  return [...new Set(mapped)]
+}
 
-  let phase = candidate.phase as GamePhase
-  const completedPuzzles = candidate.completedPuzzles as PuzzleId[]
-  let captainRewardUnlocked = candidate.captainRewardUnlocked as boolean
-  let dc9 = normalizeDc9Progress(candidate.dc9, phase, completedPuzzles, captainRewardUnlocked)
+function mapLegacyPhase(value: LegacyPhase): GamePhase {
+  return value === 'captain' ? 'dc9' : value
+}
 
-  if ((phase === 'locker' || phase === 'airbus') && !completedPuzzles.includes('captain')) {
-    phase = 'captain'
-    dc9 = createInitialState().dc9
-  }
-  if (phase === 'reward' || phase === 'mars') captainRewardUnlocked = true
+export function migrateV7ToV8(value: unknown): GameState | null {
+  if (!isLegacyV7State(value)) return null
+  const phase = mapLegacyPhase(value.phase)
+  const completedPuzzles = mapLegacyPuzzles(value.completedPuzzles)
+  const rewardUnlocked = value.captainRewardUnlocked || phase === 'reward' || phase === 'mars'
+  const completedDc9 = completedPuzzles.includes('dc9') || rewardUnlocked
+  const dc9 = normalizeDc9Progress(
+    value.dc9,
+    completedDc9,
+    value.captainAttempts.route,
+    value.captainAttempts.secure,
+  )
 
   return {
-    ...(candidate as unknown as GameState),
     schemaVersion: GAME_SCHEMA_VERSION,
     phase,
+    airbusAssignments: value.airbusAssignments,
+    airbusDecoyAssignments: value.airbusDecoyAssignments,
+    airbusQualificationAnswer: value.airbusClockAnswer,
+    lockerCompleted: value.lockerCompleted,
+    lockerAttempts: value.lockerAttempts,
+    lockerIntroCompleted: value.lockerIntroCompleted,
+    lockerHatRevealed: value.lockerHatRevealed,
     dc9,
-    captainRewardUnlocked,
-    airbusClockAnswer: phase === 'airbus' ? '' : candidate.airbusClockAnswer as string,
+    airbusCaptainModeUnlocked: value.captainModeUnlocked || completedPuzzles.includes('locker'),
+    completedPuzzles,
+    hintsUsed: value.hintsUsed,
+    rewardUnlocked,
+    marsUnlocked: value.marsUnlocked,
+    statusMessage: phase === 'dc9' && dc9.stage === 'intro'
+      ? 'The parked DC-9 is ready. Find the route strip on the first-officer yoke.'
+      : value.statusMessage,
   }
 }
 
-export function migrateV6ToV7(value: unknown): GameState | null {
-  if (!isLegacyV6State(value)) return null
+function hasSafeCanonicalCommonState(candidate: Record<string, unknown>): boolean {
+  return (
+    isCanonicalPhase(candidate.phase) &&
+    isSafeAssignments(candidate.airbusAssignments) &&
+    isSafeDecoyAssignments(candidate.airbusDecoyAssignments) &&
+    typeof candidate.airbusQualificationAnswer === 'string' &&
+    isSafeLockerCompleted(candidate.lockerCompleted) &&
+    isSafeLockerAttempts(candidate.lockerAttempts) &&
+    typeof candidate.lockerIntroCompleted === 'boolean' &&
+    typeof candidate.lockerHatRevealed === 'boolean' &&
+    typeof candidate.airbusCaptainModeUnlocked === 'boolean' &&
+    isSafePuzzleIds(candidate.completedPuzzles) &&
+    isSafeNonNegativeInteger(candidate.hintsUsed) &&
+    typeof candidate.rewardUnlocked === 'boolean' &&
+    typeof candidate.marsUnlocked === 'boolean' &&
+    isString(candidate.statusMessage)
+  )
+}
 
+function normalizeV8(value: unknown): GameState | null {
+  if (!value || typeof value !== 'object') return null
+  const candidate = value as Record<string, unknown>
+  if (candidate.schemaVersion !== GAME_SCHEMA_VERSION || !hasSafeCanonicalCommonState(candidate)) return null
+  const phase = candidate.phase as GamePhase
+  const completedPuzzles = candidate.completedPuzzles as PuzzleId[]
+  const rewardUnlocked = candidate.rewardUnlocked === true || phase === 'reward' || phase === 'mars'
+  const dc9 = normalizeDc9Progress(candidate.dc9, completedPuzzles.includes('dc9') || rewardUnlocked)
+
+  return {
+    schemaVersion: GAME_SCHEMA_VERSION,
+    phase,
+    airbusAssignments: candidate.airbusAssignments as GameState['airbusAssignments'],
+    airbusDecoyAssignments: candidate.airbusDecoyAssignments as GameState['airbusDecoyAssignments'],
+    airbusQualificationAnswer: candidate.airbusQualificationAnswer as string,
+    lockerCompleted: candidate.lockerCompleted as LockerMemoryId[],
+    lockerAttempts: candidate.lockerAttempts as GameState['lockerAttempts'],
+    lockerIntroCompleted: candidate.lockerIntroCompleted as boolean,
+    lockerHatRevealed: candidate.lockerHatRevealed as boolean,
+    dc9,
+    airbusCaptainModeUnlocked: candidate.airbusCaptainModeUnlocked as boolean,
+    completedPuzzles,
+    hintsUsed: candidate.hintsUsed as number,
+    rewardUnlocked,
+    marsUnlocked: candidate.marsUnlocked as boolean,
+    statusMessage: candidate.statusMessage as string,
+  }
+}
+
+function migrateV6ToV7(value: unknown): LegacyV7State | null {
+  if (!isLegacyV6State(value)) return null
   const completedCaptain = value.completedPuzzles.includes('captain') || value.captainRewardUnlocked || value.phase === 'reward' || value.phase === 'mars'
   const legacySelections = normalizeRouteCodes(value.routeSelections, ALL_ROUTE_CODES)
   const routeVerified = value.captainRouteVerified && !completedCaptain
   const dc9 = completedCaptain
-    ? fullDc9Progress()
+    ? fullDc9Progress(value.captainAttempts.secure)
     : routeVerified
       ? {
           ...createInitialState().dc9,
@@ -276,6 +375,7 @@ export function migrateV6ToV7(value: unknown): GameState | null {
           routeSelections: [...APPROVED_ROUTE_CODES],
           routeCompleted: [...APPROVED_ROUTE_CODES],
           routeAttempts: value.captainAttempts.route,
+          secureAttempts: value.captainAttempts.secure,
         }
       : value.phase === 'captain' && legacySelections.length > 0
         ? {
@@ -283,16 +383,16 @@ export function migrateV6ToV7(value: unknown): GameState | null {
             stage: 'routeRecord' as const,
             routeSelections: legacySelections,
             routeAttempts: value.captainAttempts.route,
+            secureAttempts: value.captainAttempts.secure,
           }
         : createInitialState().dc9
-
-  const phase: GamePhase = completedCaptain
+  const phase: LegacyPhase = completedCaptain
     ? value.phase === 'mars' ? 'mars' : 'reward'
     : value.phase === 'briefing' ? 'briefing' : 'captain'
 
   return {
     ...value,
-    schemaVersion: GAME_SCHEMA_VERSION,
+    schemaVersion: 7,
     phase,
     dc9,
     captainRouteVerified: dc9.routeCompleted.length === APPROVED_ROUTE_CODES.length,
@@ -306,7 +406,7 @@ export function migrateV6ToV7(value: unknown): GameState | null {
           ? dc9LegacyFlow.routeCompletionText
           : dc9.stage === 'routeRecord'
             ? dc9LegacyFlow.routeQuestion
-            : 'The parked DC-9 is ready. Find the route strip on the captain yoke.',
+            : 'The parked DC-9 is ready. Find the route strip on the first-officer yoke.',
   }
 }
 
@@ -319,15 +419,11 @@ function migrateV5(value: unknown): LegacyV6State | null {
   const candidate = value as Record<string, unknown>
   if (candidate.schemaVersion !== 5) return null
   const completedPuzzles = Array.isArray(candidate.completedPuzzles)
-    ? candidate.completedPuzzles.filter((entry): entry is PuzzleId =>
-        entry === 'firstOfficer' || entry === 'locker' || entry === 'captain',
-      )
+    ? candidate.completedPuzzles.filter((entry): entry is LegacyPuzzleId => entry === 'firstOfficer' || entry === 'locker' || entry === 'captain')
     : []
   const completedCaptain = completedPuzzles.includes('captain') || candidate.phase === 'reward' || candidate.phase === 'mars'
   const validRoutes = Array.isArray(candidate.routeSelections)
-    ? candidate.routeSelections.filter((entry): entry is string =>
-        typeof entry === 'string' && dc9LegacyFlow.routePuzzleOptions.some((route) => route.code === entry),
-      )
+    ? candidate.routeSelections.filter((entry): entry is string => typeof entry === 'string' && dc9LegacyFlow.routePuzzleOptions.some((route) => route.code === entry))
     : []
   const migrated = {
     ...candidate,
@@ -335,7 +431,7 @@ function migrateV5(value: unknown): LegacyV6State | null {
     captainRouteVerified: completedCaptain,
     dc9SecureSequence: completedCaptain ? [...DC9_SECURE_ORDER] : [],
     captainAttempts: { route: 0, secure: 0 },
-    routeSelections: candidate.phase === 'captain' ? validRoutes : validRoutes,
+    routeSelections: validRoutes,
   }
   return isLegacyV6State(migrated) ? migrated : null
 }
@@ -344,40 +440,33 @@ function migrateV4(value: unknown): LegacyV6State | null {
   if (!value || typeof value !== 'object') return null
   const candidate = value as Record<string, unknown>
   if (candidate.schemaVersion !== 4) return null
-
-  const migratedV5 = {
+  return migrateV5({
     ...candidate,
     schemaVersion: 5,
     lockerAttempts: normalizeLockerAttempts(candidate.lockerAttempts) ?? { watch: 0, baseball: 0, chargingBull: 0, wings: 0 },
     lockerIntroCompleted: hasReachedLocker(candidate.phase),
-  }
-  return migrateV5(migratedV5)
+  })
 }
 
 function migrateV3(value: unknown): LegacyV6State | null {
   if (!value || typeof value !== 'object') return null
   const candidate = value as Record<string, unknown>
   if (candidate.schemaVersion !== 3 || !Array.isArray(candidate.lockerCompleted)) return null
-
-  const legacyCompleted = candidate.lockerCompleted.filter((entry): entry is string => typeof entry === 'string')
-  const completedPuzzles = Array.isArray(candidate.completedPuzzles)
-    ? candidate.completedPuzzles.filter((entry): entry is string => typeof entry === 'string')
-    : []
+  const legacyCompleted = candidate.lockerCompleted.filter(isString)
+  const completedPuzzles = Array.isArray(candidate.completedPuzzles) ? candidate.completedPuzzles.filter(isString) : []
   const laterPhase = candidate.phase === 'captain' || candidate.phase === 'reward' || candidate.phase === 'mars'
   const preserveFullLocker = candidate.lockerHatRevealed === true || completedPuzzles.includes('locker') || laterPhase
   const lockerCompleted: LockerMemoryId[] = preserveFullLocker
     ? [...lockerFlow.memoryIds]
-    : lockerFlow.memoryIds.filter((id) => id === 'watch' || id === 'baseball').filter((id) => legacyCompleted.includes(id))
-
-  const migratedV5 = {
+    : lockerFlow.memoryIds.filter((id) => (id === 'watch' || id === 'baseball') && legacyCompleted.includes(id))
+  return migrateV5({
     ...candidate,
     schemaVersion: 5,
     lockerCompleted,
     lockerAttempts: { watch: 0, baseball: 0, chargingBull: 0, wings: 0 },
     lockerIntroCompleted: hasReachedLocker(candidate.phase),
     lockerHatRevealed: preserveFullLocker,
-  }
-  return migrateV5(migratedV5)
+  })
 }
 
 export function loadGameState(storage: Pick<Storage, 'getItem' | 'removeItem'> = window.localStorage): GameState {
@@ -385,19 +474,19 @@ export function loadGameState(storage: Pick<Storage, 'getItem' | 'removeItem'> =
     const raw = storage.getItem(STORAGE_KEY)
     if (!raw) return createInitialState()
     const parsed: unknown = JSON.parse(raw)
-    const normalized = parsed && typeof parsed === 'object' && [3, 4, 5, 6, 7].includes(Number((parsed as Record<string, unknown>).schemaVersion))
+    const parsedVersion = parsed && typeof parsed === 'object' ? Number((parsed as Record<string, unknown>).schemaVersion) : NaN
+    const normalizedAttempts = [3, 4, 5, 6, 7].includes(parsedVersion)
       ? normalizeLockerAttempts((parsed as Record<string, unknown>).lockerAttempts)
       : null
-    const normalizedParsed = normalized
-      ? { ...(parsed as Record<string, unknown>), lockerAttempts: normalized }
+    const normalizedParsed = normalizedAttempts
+      ? { ...(parsed as Record<string, unknown>), lockerAttempts: normalizedAttempts }
       : parsed
-    const legacy = isLegacyV6State(normalizedParsed)
+    const legacyV6 = isLegacyV6State(normalizedParsed)
       ? normalizedParsed
       : migrateV5(normalizedParsed) ?? migrateV4(normalizedParsed) ?? migrateV3(normalizedParsed)
-    const state = normalizeV7(normalizedParsed) ?? (legacy ? migrateV6ToV7(legacy) : null)
-    if (state) {
-      return state
-    }
+    const legacyV7 = isLegacyV7State(normalizedParsed) ? normalizedParsed : legacyV6 ? migrateV6ToV7(legacyV6) : null
+    const state = normalizeV8(normalizedParsed) ?? (legacyV7 ? migrateV7ToV8(legacyV7) : null)
+    if (state) return state
     storage.removeItem(STORAGE_KEY)
   } catch {
     storage.removeItem(STORAGE_KEY)
@@ -405,10 +494,7 @@ export function loadGameState(storage: Pick<Storage, 'getItem' | 'removeItem'> =
   return createInitialState()
 }
 
-export function saveGameState(
-  state: GameState,
-  storage: Pick<Storage, 'setItem'> = window.localStorage,
-): void {
+export function saveGameState(state: GameState, storage: Pick<Storage, 'setItem'> = window.localStorage): void {
   try {
     storage.setItem(STORAGE_KEY, JSON.stringify(state))
   } catch {

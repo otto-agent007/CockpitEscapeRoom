@@ -1,5 +1,8 @@
 # DC-9-50 Captain-View Production Proof
 
+> **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
+
+
 > Historical plan, superseded on 2026-07-13 by `plans/0012-dc9-pop-t-captain-level.md`. Its donor-intake and visual-repair evidence remains valid, but its DC-9-50 target decision is no longer active; the owner-cleared Roger2009 DC-9-32 is now the exact production target.
 
 ## Purpose

@@ -1,5 +1,8 @@
 # Airbus A320 Web Reference Source Job Report
 
+> **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
+
+
 ## Purpose
 
 Run Agent 1 sourcing for the Airbus A320 First-Officer cockpit with web search enabled, without downloading copyrighted media or producing geometry.

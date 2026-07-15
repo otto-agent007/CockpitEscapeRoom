@@ -27,23 +27,40 @@ function createLockerState(): GameState {
       homePage: dc9LegacyFlow.homeOperationsPages.length - 1,
       homeOperationsCompleted: true,
       secureSequence: [...dc9LegacyFlow.secureSequence],
+      secureAttempts: 0,
       keyRevealed: true,
       keyClaimed: true,
     },
-    captainRouteVerified: true,
-    dc9SecureSequence: [...dc9LegacyFlow.secureSequence],
-    routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
-    completedPuzzles: ['captain'],
+    completedPuzzles: ['dc9'],
     lockerIntroCompleted: true,
     statusMessage: 'The Captain’s Key opened the locker.',
   }
 }
 
-function createCaptainState(): GameState {
+function createDc9State(): GameState {
   return {
     ...createInitialState(),
-    phase: 'captain',
-    statusMessage: 'The parked DC-9 is ready. Find the route strip on the captain yoke.',
+    phase: 'dc9',
+    statusMessage: 'The parked DC-9 is ready. Find the route strip on the first-officer yoke.',
+  }
+}
+
+function createDc9QualificationState(): GameState {
+  return {
+    ...createDc9State(),
+    dc9: {
+      stage: 'qualification',
+      routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
+      routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
+      routeAttempts: 0,
+      homePage: dc9LegacyFlow.homeOperationsPages.length - 1,
+      homeOperationsCompleted: true,
+      secureSequence: [...dc9LegacyFlow.secureSequence],
+      secureAttempts: 0,
+      keyRevealed: false,
+      keyClaimed: false,
+    },
+    statusMessage: 'Aircraft secured. Complete the Airline Transport Pilot milestone to close the Final Flight Log.',
   }
 }
 
@@ -53,9 +70,9 @@ function createAirbusState(): GameState {
     phase: 'airbus',
     lockerCompleted: [...lockerFlow.memoryIds],
     lockerHatRevealed: true,
-    captainModeUnlocked: true,
-    completedPuzzles: ['captain', 'locker'],
-    statusMessage: 'Airbus First-Officer experience ready.',
+    airbusCaptainModeUnlocked: true,
+    completedPuzzles: ['dc9', 'locker'],
+    statusMessage: 'Airbus Pop T Captain experience ready.',
   }
 }
 
@@ -69,12 +86,33 @@ async function seedGameState(page: Page, state: GameState): Promise<void> {
   await page.reload()
 }
 
+test('opening stays spoiler-safe, preloads the DC-9, and fades into the cockpit', async ({ page }) => {
+  test.setTimeout(45_000)
+  const dc9Request = page.waitForRequest(
+    (request) => request.url().includes('/models/dc9-cockpit.glb'),
+    { timeout: 15_000 },
+  )
+  await page.goto('/')
+  await dc9Request
+
+  await expect(page.locator('.lede')).toHaveText('Take the right seat and complete the Final Flight Log.')
+  await expect(page.locator('.briefing-checklist')).toHaveCount(0)
+  await expect(page.getByText(/locker reveal/i)).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: "The Captain's Key" })).toBeVisible()
+
+  await page.getByRole('button', { name: 'Start Game' }).click()
+  await expect(page.locator('.dc9-entry-transition')).toHaveAttribute('data-stage', /fade-out|waiting-for-cockpit|fade-in/)
+  await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toBeVisible({ timeout: 15_000 })
+  await expect(page.locator('.dc9-entry-transition')).toHaveAttribute('data-stage', 'fade-in', { timeout: 20_000 })
+  await expect(page.locator('.dc9-entry-transition')).toHaveCount(0, { timeout: 5_000 })
+})
+
 test('DC-9 Final Flight Log accessible flow', async ({ page }) => {
   await page.goto('/?skip3d=1')
   await seedGameState(page, {
     ...createInitialState(),
-    phase: 'captain',
-    statusMessage: 'The parked DC-9 is ready. Find the route strip on the captain yoke.',
+    phase: 'dc9',
+    statusMessage: 'The parked DC-9 is ready. Find the route strip on the first-officer yoke.',
   })
 
   await page.getByRole('button', { name: 'Open Legacy Route Record' }).click()
@@ -92,6 +130,38 @@ test('DC-9 Final Flight Log accessible flow', async ({ page }) => {
   await expect(homeOperations.getByText(/parallel operation/i)).toBeVisible()
 })
 
+test('DC-9 route record uses the yoke hotspot and a compact dialog', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/?skip3d=1')
+  await seedGameState(page, createDc9State())
+
+  const routeTrigger = page.getByRole('button', { name: 'Open Legacy Route Record' })
+  await expect(routeTrigger).toHaveClass(/dc9-route-record-trigger/)
+  await expect(routeTrigger).toHaveAttribute('data-projection', 'fallback')
+  await expect(page.locator('.dc9-chapter__prompt')).toHaveCount(0)
+  await routeTrigger.focus()
+  await expect(routeTrigger).toHaveCSS('border-top-color', 'rgb(240, 200, 117)')
+  await routeTrigger.press('Enter')
+
+  const routeDialog = page.getByRole('dialog', { name: 'Legacy Route Record' })
+  await expect(routeDialog).toBeVisible()
+  const routeDialogBounds = await routeDialog.boundingBox()
+  expect(routeDialogBounds?.height).toBeLessThan(650)
+})
+
+test('DC-9 ATP gate accepts pointer typing and submits the visible answer', async ({ page }) => {
+  await page.goto('/?skip3d=1')
+  await seedGameState(page, createDc9QualificationState())
+
+  const answer = page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })
+  await answer.click()
+  await page.keyboard.type('1500 hours')
+  await expect(answer).toHaveValue('1500 hours')
+  await expect(answer).toHaveCSS('color', 'rgb(255, 255, 255)')
+  await page.getByRole('button', { name: 'Verify' }).click()
+  await expect(page.getByRole('button', { name: "Open The Captain's Key" })).toBeVisible()
+})
+
 test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
   test.setTimeout(75_000)
   const consoleErrors: string[] = []
@@ -101,7 +171,7 @@ test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
 
   await page.goto('/')
   const modelResponse = page.waitForResponse(
-    (response) => response.url().includes('/models/airbus-first-officer.glb') && response.status() === 200,
+    (response) => response.url().includes('/models/airbus-captain.glb') && response.status() === 200,
     { timeout: 20_000 },
   )
 
@@ -134,13 +204,13 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
     (response) => response.url().includes('/models/dc9-cockpit.glb') && response.status() === 200,
     { timeout: 30_000 },
   )
-  await seedGameState(page, { ...createInitialState(), phase: 'captain' })
+  await seedGameState(page, { ...createInitialState(), phase: 'dc9' })
   const response = await modelResponse
   expect(Number(response.headers()['content-length'])).toBeGreaterThan(20_000_000)
 
   const canvas = page.locator('canvas')
   await expect(canvas).toHaveAttribute('data-dc9-model-state', 'ready', { timeout: 30_000 })
-  await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_ROUTE_CARD_APPROVAL')
+  await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_FIRST_OFFICER_ROUTE_APPROVAL')
   await expect(canvas).toHaveAttribute('data-dc9-targets', /dc9\.route\.BTR/)
   await expect(canvas).toHaveAttribute('data-dc9-targets', /dc9\.secure\.apuBuses/)
   await expect(page.locator('.prototype-badge')).toHaveText('GREYBOX — DC-9 FINAL FLIGHT LOG')
@@ -148,7 +218,11 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   await expect(page.locator('.captain-interface')).toHaveCount(0)
 
   const routeTrigger = page.getByRole('button', { name: 'Open Legacy Route Record' })
+  await expect(routeTrigger).toHaveClass(/dc9-route-record-trigger/)
+  await expect(page.locator('.dc9-chapter__prompt')).toHaveCount(0)
   await expect(routeTrigger).toHaveAttribute('data-projection', 'mesh')
+  await routeTrigger.hover()
+  await expect(routeTrigger).toHaveCSS('border-top-color', 'rgb(240, 200, 117)')
   const routePoint = await routeTrigger.getAttribute('data-projection-point')
   expect(routePoint).not.toBeNull()
   if (routePoint) {
@@ -162,12 +236,12 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   }
   await page.getByRole('button', { name: 'Record selected routes' }).press('Enter')
   await expect(page.getByRole('dialog', { name: 'Home Operations Log — Momma Cheryl' })).toBeVisible()
-  await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_ROUTE_CARD_APPROVAL')
+  await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_FIRST_OFFICER_ROUTE_APPROVAL')
   for (let pageNumber = 1; pageNumber < dc9LegacyFlow.homeOperationsPages.length; pageNumber += 1) {
     await page.getByRole('button', { name: 'Next page' }).press('Enter')
   }
   await page.getByRole('button', { name: 'Record this legacy' }).press('Enter')
-  await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_OVERHEAD_APPROVAL')
+  await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_FIRST_OFFICER_OVERHEAD_APPROVAL')
 
   const apuBuses = page.getByRole('button', { name: /APU bus switches/ })
   const apuMaster = page.getByRole('button', { name: /APU master switch/ })
@@ -181,8 +255,11 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   await expect(apuBuses).toHaveAttribute('aria-pressed', 'true')
   await apuMaster.press('Enter')
   await battery.press('Enter')
+  const atpAnswer = page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })
+  await atpAnswer.fill('1500 hours')
+  await page.getByRole('button', { name: 'Verify' }).press('Enter')
   await expect(page.getByRole('button', { name: "Open The Captain's Key" })).toBeVisible()
-  await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_CAPTAIN_GAME')
+  await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_FIRST_OFFICER_GAME')
   expect(consoleErrors).toEqual([])
 })
 
@@ -190,7 +267,7 @@ test('DC-9 model failure keeps the compact accessible captain controls', async (
   test.setTimeout(30_000)
   await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
   await page.goto('/')
-  await seedGameState(page, createCaptainState())
+  await seedGameState(page, createDc9State())
 
   const canvas = page.locator('canvas')
   await expect(canvas).toHaveAttribute('data-dc9-model-state', 'fallback')
@@ -204,7 +281,7 @@ test('complete reordered journey', async ({ page }) => {
   await page.goto('/?skip3d=1')
 
   await expect(page.getByRole('heading', { name: "The Captain's Key" })).toBeVisible()
-  await expect(page.getByText('A320 first-officer station')).toBeVisible()
+  await expect(page.getByText('DC-9-32 first-officer station')).toBeVisible()
   await page.getByRole('button', { name: 'Start Game' }).click()
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toBeVisible()
 
@@ -220,6 +297,10 @@ test('complete reordered journey', async ({ page }) => {
   await page.getByRole('button', { name: /APU bus switches/ }).click()
   await page.getByRole('button', { name: /APU master switch/ }).click()
   await page.getByRole('button', { name: /Battery switch/ }).click()
+  const dc9AtpAnswer = page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })
+  await expect(dc9AtpAnswer).toBeVisible()
+  await dc9AtpAnswer.fill('1500 hours')
+  await page.getByRole('button', { name: 'Verify' }).click()
   await page.getByRole('button', { name: "Open The Captain's Key" }).click()
 
   const keyReveal = page.getByRole('dialog', { name: "The Captain's Key" })
@@ -245,7 +326,7 @@ test('complete reordered journey', async ({ page }) => {
   await expect(lockerCelebration).toBeVisible()
   await lockerCelebration.getByRole('button', { name: 'Enter Pop T Captain Mode' }).click()
 
-  await expect(page.getByText('Airbus First-Officer Mode', { exact: true })).toBeVisible()
+  await expect(page.getByText('Airbus A320 Pop T Captain Mode', { exact: true })).toBeVisible()
   await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toHaveCount(0)
   await expect(page.getByText(/minimum total flight time required/)).toHaveCount(0)
   await expect(page.getByRole('button', { name: /^CLOCK\b/ })).toHaveCount(0)
@@ -269,16 +350,10 @@ test('complete reordered journey', async ({ page }) => {
   await placeAirbusCard(page, 'RADIO', 'Radio panel')
   await placeAirbusCard(page, 'ALTITUDE', 'Altitude area')
 
-  const atpAnswer = page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })
-  await expect(atpAnswer).toBeVisible()
-  await expect(atpAnswer).toHaveValue('')
-  await expect(atpAnswer).not.toHaveAttribute('placeholder', '1500')
-  await expect(page.getByText(/total flight time \(hours\) required/)).toBeVisible()
-  await atpAnswer.fill('1500 hours')
-  await atpAnswer.press('Enter')
-  const qualification = page.getByRole('dialog', { name: 'Airline Transport Pilot milestone recognized' })
-  await expect(qualification).toBeVisible()
-  await qualification.getByRole('button', { name: 'Continue' }).click()
+  const completion = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
+  await expect(completion).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toHaveCount(0)
+  await completion.getByRole('button', { name: 'Continue' }).click()
   await expect(page.getByText('Ground Transport Upgrade Authorized', { exact: true })).toBeVisible()
   await expect(page.getByText(/Happy Father’s Day/i)).toBeVisible()
   await expect(page.getByText(/red Tesla Model Y is unlocked/i)).toBeVisible()
@@ -325,11 +400,9 @@ test('Airbus cards show immediate placement feedback and recover', async ({ page
   await placeAirbusCard(page, 'ALTITUDE', 'Altitude area')
   await expect(page.getByText('4/5')).toBeVisible()
   await placeAirbusCard(page, 'THRUST', 'Thrust levers')
-  await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toHaveCount(0)
   await expect(page.getByRole('heading', { name: "Before the captain's seat" })).toHaveCount(0)
-  await page.getByRole('textbox', { name: 'Airline Transport Pilot answer' }).fill('1500')
-  await page.getByRole('button', { name: 'Verify' }).click()
-  await page.getByRole('button', { name: 'Continue' }).click()
+  await page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' }).getByRole('button', { name: 'Continue' }).click()
   await expect(page.getByText('Ground Transport Upgrade Authorized', { exact: true })).toBeVisible()
 })
 

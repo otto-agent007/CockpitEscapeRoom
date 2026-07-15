@@ -12,8 +12,9 @@ const assets = {
   },
   airbus: {
     blend: 'art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend',
-    output: 'public/models/airbus-first-officer.glb',
+    output: 'public/models/airbus-captain.glb',
     root: 'AIRBUS_ROOT',
+    prepare: 'tools/blender/prepare_airbus_captain.py',
   },
   tesla: {
     blend: 'art-source/blender/tesla_reward.blend',

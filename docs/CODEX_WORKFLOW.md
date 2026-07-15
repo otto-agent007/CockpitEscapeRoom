@@ -44,7 +44,7 @@ Tripo AI is allowed only as a rapid candidate/proxy generator. Its outputs must 
 
 The official Blender MCP may be used for scene inspection and controlled edits such as cleanup, naming, pivot checks, metadata review, validation support, preview renders, and export support. It must not be used for uncontrolled broad rewrites of approved scenes or to bypass deterministic scripts, asset reports, owner visual gates, or runtime-contract validation.
 
-Keep generated assets separated by scene group: Airbus A320 First-Officer cockpit, locker room scene, DC-9 Pop T Captain cockpit, Model Y hangar reward, and Mars Easter egg. Do not mix Airbus and DC-9 aircraft-specific details.
+Keep generated assets separated by scene group: Airbus A320 Pop T Captain cockpit, locker room scene, DC-9 First-Officer cockpit, Model Y hangar reward, and Mars Easter egg. Do not mix Airbus and DC-9 aircraft-specific details.
 
 ## Implementation and repair loop
 

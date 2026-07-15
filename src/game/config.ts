@@ -14,7 +14,7 @@ export const personalization = {
   rewardPlateIdeas: ['CAPT DAD', 'DC9 2 EV', 'MEM FLYR', 'MARS 09'],
 } as const
 
-export const firstOfficerFlow = {
+export const airbusCaptainFlow = {
   controlIds: ['sidestick', 'thrust', 'gear', 'radio', 'altitude'] as const,
   decoyIds: ['leftPanelKnobs', 'rightDisplay', 'sideConsole', 'windshieldLights'] as const,
   controlCards: ['SIDESTICK', 'THRUST', 'GEAR', 'RADIO', 'ALTITUDE'] as const,
@@ -52,13 +52,8 @@ export const firstOfficerFlow = {
     radio: 'Right. That’s the radio panel.',
     altitude: 'Correct. That’s where altitude is read.',
   } as const,
-  clockQuestion:
-    'What is the minimum total flight time (hours) required to qualify for a standard Airline Transport Pilot certificate?',
-  clockAnswer: '1500',
-  clockAnswers: ['1500', '1500hour', '1500hours'] as const,
-  clockFeedback: 'Airline Transport Pilot milestone recognized.',
-  knowledgeLoggedText: 'First-Officer knowledge logged.',
-  firstCompleteBanner: 'FIRST-OFFICER MODE COMPLETE',
+  knowledgeLoggedText: 'Captain knowledge logged.',
+  firstCompleteBanner: 'POP T CAPTAIN MODE COMPLETE',
   lockerAccessText: 'Locker access granted.',
 } as const
 
@@ -207,14 +202,18 @@ export const dc9LegacyFlow = {
   secureInstruction: 'Both legacy records are complete. Ceremonially secure the parked cockpit in order.',
   secureRetry: 'That step comes later. Complete the preceding checklist item first; recorded progress remains safe.',
   secureHint: 'Start with the paired APU bus switches, then follow the power source toward the battery.',
+  atpQuestion:
+    'What is the minimum total flight time (hours) required to qualify for a standard Airline Transport Pilot certificate?',
+  atpAnswers: ['1500', '1500hour', '1500hours'] as const,
+  atpFeedback: 'Airline Transport Pilot milestone recognized.',
   disclaimer: 'Commemorative, non-operational interaction in a safely parked cockpit.',
 } as const
 
 export const gameCopy = {
   title: "The Captain's Key",
-  subtitle: 'First-Officer onboarding in Airbus, then the DC-9 legacy reveal.',
+  subtitle: 'DC-9 First-Officer legacy flight log, then Airbus Pop T Captain Mode.',
   premise:
-    'The game is a personalized tribute. Start in a modern Airbus coaching loop, discover the locker story, then unlock Pop T Captain Mode in the DC-9.',
+    'The game is a personalized tribute. Begin in the DC-9 right seat, discover the locker story, then earn the Airbus A320 left-seat command view.',
   rewardTitle: 'Ground Transport Upgrade Authorized',
   rewardVehicleLine: 'The red Tesla Model Y is unlocked.',
   finalMessage:
@@ -226,11 +225,11 @@ export const gameCopy = {
     title: 'Mars diversion accepted.',
     message: 'The final game will hide this trigger behind the completed ending.',
   },
-  briefInstructions: 'Start in Airbus First-Officer Mode, complete the locker reveal, then enter Pop T Captain Mode.',
+  briefInstructions: 'Start with the DC-9 First-Officer Final Flight Log, complete the locker reveal, then enter Airbus A320 Pop T Captain Mode.',
 } as const
 
-export type FirstOfficerControl = (typeof firstOfficerFlow.controlIds)[number]
-export type FirstOfficerDecoy = (typeof firstOfficerFlow.decoyIds)[number]
+export type AirbusControl = (typeof airbusCaptainFlow.controlIds)[number]
+export type AirbusDecoy = (typeof airbusCaptainFlow.decoyIds)[number]
 export type LockerMemoryId = (typeof lockerFlow.memoryIds)[number]
 export type LockerQuestionId = (typeof lockerFlow.questionIds)[number]
 export type LegacyRouteOption = (typeof dc9LegacyFlow.routePuzzleOptions)[number]

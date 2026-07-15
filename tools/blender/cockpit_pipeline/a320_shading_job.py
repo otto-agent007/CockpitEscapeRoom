@@ -88,7 +88,7 @@ def run_a320_shading_job(assembly_job_id: str = ASSEMBLY_JOB_ID, shading_job_id:
             "captain-display-check.png",
             "captain-pullback-review.png",
             "complete-interior-approval.png",
-            "first-officer-approval.png",
+            "captain-approval.png",
             "sketchfab-camera-parity.png",
         ]
         if (preview_dir / name).is_file()
@@ -288,7 +288,7 @@ def _write_contact_sheet(root: Path, preview_dir: Path) -> Path:
         ("Agent 3 source-parity", preview_dir / "captain-daylight.png"),
         ("Sketchfab base color", root / "preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/base-color.png"),
         ("Complete interior approval", preview_dir / "complete-interior-approval.png"),
-        ("First Officer approval", preview_dir / "first-officer-approval.png"),
+        ("Captain approval", preview_dir / "captain-approval.png"),
         ("Sketchfab camera parity", preview_dir / "sketchfab-camera-parity.png"),
     ]
     entries = [(label, image) for label, image in entries if image.is_file()]
@@ -418,7 +418,7 @@ This pass also performs a conservative zoom-out cleanup before export. It quaran
 - Preview directory: `{preview_dir}`
 - Sketchfab comparison contact sheet: `{contact_sheet}`
 - Complete interior approval render: `{preview_dir / "complete-interior-approval.png"}`
-- First Officer approval render: `{preview_dir / "first-officer-approval.png"}`
+- Captain approval render: `{preview_dir / "captain-approval.png"}`
 {sketchfab_parity_line.rstrip()}
 
 ## Validation Results
@@ -437,7 +437,7 @@ This pass also performs a conservative zoom-out cleanup before export. It quaran
 ## Known Limitations
 
 - This is a material/optimization handoff for a prebuilt A320 cockpit source, not final browser integration.
-- Five First-Officer pivot, collider, and cue-proxy contracts survive shaded export/reimport. That coordinate check does not by itself verify browser visual alignment; imported source mesh chunks outside that player-facing set remain compound parts with broad semantic labels.
+- Five Pop T Captain pivot, collider, and cue-proxy contracts survive shaded export/reimport. That coordinate check does not by itself verify browser visual alignment; imported source mesh chunks outside that player-facing set remain compound parts with broad semantic labels.
 - Finer imported-source mesh splitting remains deferred until downstream interactions require independent visible control pivots.
 - Display treatment is restrained preview material work; live avionics UI and accessible HTML mirrors remain downstream browser work.
 - Human review is required before shaded approval or public model promotion.

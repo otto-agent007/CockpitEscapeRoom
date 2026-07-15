@@ -9,7 +9,7 @@
 .dc9-chapter button,
 .dc9-document,
 .dc9-shutdown,
-.dc9-chapter__prompt,
+.dc9-atp-gate,
 .dc9-chapter__status,
 .dc9-chapter__topbar {
   pointer-events: auto;
@@ -41,17 +41,6 @@
   letter-spacing: .14em;
 }
 
-.dc9-chapter__prompt {
-  position: absolute;
-  left: 1rem;
-  bottom: 7rem;
-  max-width: 24rem;
-  padding: 1rem;
-  border: 1px solid rgb(233 204 140 / 30%);
-  background: rgb(13 22 23 / 88%);
-  box-shadow: 0 18px 48px rgb(0 0 0 / 34%);
-}
-
 .dc9-document {
   position: absolute;
   top: 1rem;
@@ -66,6 +55,61 @@
     linear-gradient(rgb(255 252 237 / 92%), rgb(236 224 193 / 96%)),
     repeating-linear-gradient(0deg, transparent 0 28px, rgb(82 64 37 / 8%) 29px 30px);
   box-shadow: 0 24px 70px rgb(0 0 0 / 48%);
+}
+
+.dc9-route-record-trigger {
+  position: absolute;
+  z-index: 4;
+  width: 8.75rem;
+  height: 17.75rem;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: .35rem;
+  color: #fff4cf;
+  background: transparent;
+  box-shadow: none;
+  transform: translate(-45%, -55%);
+  transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+}
+
+.dc9-route-record-trigger:hover,
+.dc9-route-record-trigger:focus,
+.dc9-route-record-trigger:focus-visible {
+  border-color: #f0c875;
+  outline: none;
+  background: rgb(240 200 117 / 6%);
+  box-shadow: 0 0 0 2px rgb(240 200 117 / 24%), 0 0 24px rgb(240 200 117 / 52%);
+}
+
+.dc9-route-record-trigger__fallback {
+  display: none;
+}
+
+.dc9-route-record-trigger.is-fallback {
+  left: 50%;
+  top: 58%;
+  width: auto;
+  height: auto;
+  padding: .65rem 1rem;
+  border-color: rgb(240 200 117 / 55%);
+  background: rgb(12 19 21 / 88%);
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+
+.dc9-route-record-trigger.is-fallback .dc9-route-record-trigger__fallback {
+  display: inline;
+}
+
+.dc9-route-record-trigger.is-fallback:hover,
+.dc9-route-record-trigger.is-fallback:focus,
+.dc9-route-record-trigger.is-fallback:focus-visible {
+  border-color: #f0c875;
+}
+
+.dc9-route-record {
+  bottom: auto;
+  max-height: calc(100vh - 8rem);
 }
 
 .dc9-document__header {
@@ -427,6 +471,7 @@
 @media (prefers-reduced-motion: reduce) {
   .dc9-document,
   .dc9-route-choice,
+  .dc9-route-record-trigger,
   .dc9-key-glint {
     animation: none;
     transition: none;
@@ -441,4 +486,32 @@
 .captains-key-reveal--reduced-motion .captains-key,
 .captains-key-reveal--reduced-motion .captains-key-reveal__light {
   animation: none;
+}
+.dc9-atp-gate {
+  position: fixed;
+  z-index: 8;
+  left: 50%;
+  top: 50%;
+  width: min(34rem, calc(100vw - 2rem));
+  padding: 1.35rem;
+  border: 1px solid rgba(238, 203, 121, 0.5);
+  border-radius: 0.85rem;
+  background: rgba(5, 12, 13, 0.94);
+  box-shadow: 0 1.5rem 5rem rgba(0, 0, 0, 0.58);
+  transform: translate(-50%, -50%);
+}
+
+.dc9-atp-gate form,
+.dc9-atp-gate label {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.dc9-atp-gate input {
+  width: 100%;
+  border: 1px solid rgba(238, 203, 121, 0.45);
+  border-radius: 0.55rem;
+  padding: 0.78rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.52);
 }

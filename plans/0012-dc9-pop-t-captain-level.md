@@ -1,5 +1,8 @@
 # DC-9-32 Pop T Captain Production Pass
 
+> **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
+
+
 ## Purpose
 
 Make the owner-cleared Roger2009 DC-9-32 the exact Pop T Captain production target. The player sees a full-screen, cockpit-only legacy challenge: verify three short MEM routes, then secure the safely parked cockpit by switching the APU buses off, the APU master off, and the battery off. Battery-off releases the hangar reward.

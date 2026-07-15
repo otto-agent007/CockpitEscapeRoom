@@ -4,7 +4,7 @@
 
 The repository and product are named **CockpitEscapeRoom**. Do not rename the project or reintroduce earlier working titles.
 
-Build a fun, personalized browser escape room honoring an expert pilot who started on McDonnell Douglas DC-9 aircraft and later flew Airbus aircraft. Preserve the existing opening screen except that its button is titled **Start Game**; that button opens the **DC-9 Final Flight Log** in the former Airbus slot. The unchanged locker reveal follows, then its existing **Enter Pop T Captain Mode** action opens the unchanged **Airbus A320 First-Officer gameplay**, which now occupies the Captain-mode slot. The red Tesla Model Y reward unlocks after that Airbus chapter. A sleek near-future **Flight Mode** transformation follows with clean panel movement, wing/stabilizer deployment, hidden lift fans, and concealed propulsion accents. A hidden Mars mission remains an optional Easter egg after the main ending.
+Build a fun, personalized browser escape room honoring an expert pilot who started on McDonnell Douglas DC-9 aircraft and later flew Airbus aircraft. Preserve the existing opening screen except that its button is titled **Start Game**; that button opens the **DC-9 First-Officer Final Flight Log** from the right seat. The unchanged locker reveal follows, then its existing **Enter Pop T Captain Mode** action opens **Airbus A320 Pop T Captain gameplay** from the left seat. The red Tesla Model Y reward unlocks after that Airbus chapter. A sleek near-future **Flight Mode** transformation follows with clean panel movement, wing/stabilizer deployment, hidden lift fans, and concealed propulsion accents. A hidden Mars mission remains an optional Easter egg after the main ending.
 
 The aircraft is safely parked for a commemorative legacy flight. Never frame Dad as causing an accident, emergency, or systems failure.
 
@@ -111,7 +111,7 @@ Stop only when validation passes, a bounded maximum attempt count is reached, th
 - Tripo-generated assets must be imported into Blender before runtime use, cleaned, optimized, given stable object names, checked for pivots/local axes, and documented in `asset-reports/`.
 - The official Blender MCP may be used for scene inspection, controlled cleanup, validation support, naming, pivots, metadata, preview renders, and export support.
 - Do not use Blender MCP for uncontrolled broad rewrites of approved scenes or edits that bypass the asset report and validation trail.
-- Keep generated assets separated by scene group: Airbus A320 First-Officer cockpit, locker room scene, DC-9-32 Pop T Captain cockpit, Model Y hangar reward and Flight Mode transformation, and Mars Easter egg.
+- Keep generated assets separated by scene group: Airbus A320 Pop T Captain cockpit, locker room scene, DC-9-32 First-Officer cockpit, Model Y hangar reward and Flight Mode transformation, and Mars Easter egg.
 - Do not mix Airbus A320 and DC-9-32 aircraft-specific details.
 - Blender master files live under `art-source/blender` and generated deployable GLBs under `public/models`.
 - Never edit generated GLBs by hand.
@@ -128,7 +128,7 @@ Pause for owner review after:
 
 1. DC-9-32 Final Flight Log interaction proof.
 2. Locker room reveal proof.
-3. Existing Airbus A320 First-Officer interaction regression proof.
+3. Airbus A320 Pop T Captain left-seat interaction proof.
 4. Complete reordered journey proof.
 5. Red Model Y reward and Flight Mode transformation asset.
 6. Final complete-game review.

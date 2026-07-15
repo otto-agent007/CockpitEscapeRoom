@@ -1,5 +1,8 @@
 # A320 First-Officer playable repair
 
+> **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
+
+
 ## Purpose
 
 Repair the deployed First-Officer opening so it starts from a readable Airbus A320 right-seat cockpit view and uses the intended label-card placement puzzle instead of sidebar dropdowns.

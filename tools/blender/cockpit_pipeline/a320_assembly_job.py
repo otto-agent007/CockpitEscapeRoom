@@ -62,7 +62,10 @@ def run_a320_assembly_job(source_job_id: str = SOURCE_JOB_ID, assembly_job_id: s
 
     contract_summary_path = output_dir / "runtime-contract-summary.json"
     contract_summary = json.loads(contract_summary_path.read_text(encoding="utf-8"))
-    runtime_contract_path = gate_dir / "a320-cockpit-2-runtime-contract.json"
+    # This assembly-stage contract is retained for source-pipeline provenance.
+    # The deployable captain-view contract is generated and promoted separately,
+    # so rerunning this historical assembly job must not overwrite the current gate.
+    runtime_contract_path = output_dir / "a320-cockpit-2-assembly-runtime-contract.json"
     _write_runtime_contract(runtime_contract_path, contract_summary)
     validate_json_file(runtime_contract_path, "runtime_contract.schema.json")
 
@@ -144,22 +147,22 @@ def _write_runtime_contract(path: Path, summary: dict[str, object]) -> None:
     )
     contract = {
         "gate": "runtime-contract",
-        "artifactId": "a320-cockpit-2-runtime-contract-001",
+        "artifactId": "a320-cockpit-2-assembly-runtime-contract-001",
         "createdAt": _now(),
         "sceneGroup": summary["sceneGroup"],
-        "assetPath": "public/models/airbus-first-officer.glb",
+        "assetPath": "art-source/cockpit-pipeline/jobs/a320-cockpit-2-assembly/a320-cockpit-2-assembly.glb",
         "rootObject": summary["rootObject"],
         "runtimeNodes": summary["runtimeNodes"],
         "customPropertiesPreserved": True,
         "reimportValidation": "pass",
         "visualAlignmentValidation": {
             "status": "verified" if visual_alignment_verified else "not-verified",
-            "evidence": "Inspected browser evidence at preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-approval-candidate-targets-1440.png and airbus-approval-candidate-targets-768.png verifies the five pivot-projected cues against visible controls.",
+            "evidence": "Assembly-stage metadata only. Current deployable captain-view browser evidence is tracked by art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json.",
         },
-        "scaleAndCameraAssumptions": "Source model is kept in imported Blender scale. The browser starts from CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW, uses restrained seated head-look, raycasts exported colliders, and renders compact HTML cues projected from exported pivots while preserving keyboard equivalents.",
+        "scaleAndCameraAssumptions": "Source model is kept in imported Blender scale. The browser starts from CAM_AIRBUS_CAPTAIN_GAME_VIEW, uses restrained seated head-look, raycasts exported colliders, and renders compact HTML cues projected from exported pivots while preserving keyboard equivalents.",
         "knownReferenceDeviations": [
             "Prebuilt Sketchfab source still needs model-correct A320 reference review before production promotion.",
-            "Five First-Officer targets have export-verified pivots, invisible hitboxes, and cue proxies. Browser alignment is verified at 1440 and 768 pixels; imported source controls outside that player-facing set remain deferred.",
+            "Five Pop T Captain targets have export-verified pivots, invisible hitboxes, and cue proxies. Captain-seat browser alignment requires current 1440x900 evidence; imported source controls outside that player-facing set remain deferred.",
             "Display content is dark/static source geometry; live display materials and deeper imported-control mesh splitting belong to later stages."
         ],
     }
@@ -225,7 +228,7 @@ Agent 2 consumed the owner-approved A320 Cockpit 2 source inspection artifact an
 - Created `AIRBUS_ROOT` and stable Airbus grouping nodes for static geometry, display candidates, interactive candidates, locators, colliders, and puzzle props.
 - Renamed imported mesh nodes with stable, semantic `AIRBUS_A320_*` prefixes such as seat, sidewall, floor, pedestal, and display-panel roles while preserving original generic Sketchfab source node names in custom properties.
 - Added basic `game_id` metadata to root, groups, locators, and classified meshes.
-- Added five export-verified First-Officer pivot, collider, and cue-proxy contracts for sidestick, thrust, gear, radio, and altitude. Export survival is recorded separately from visual alignment.
+- Added five export-verified Pop T Captain pivot, collider, and cue-proxy contracts for sidestick, thrust, gear, radio, and altitude. Export survival is recorded separately from visual alignment.
 - Exported a neutral GLB with `export_extras=True`.
 
 ## Sketchfab 360 Interior Evidence
@@ -252,7 +255,7 @@ Agent 2 consumed the owner-approved A320 Cockpit 2 source inspection artifact an
 
 ## Known Limitations
 
-- Five browser-facing First-Officer target node contracts survive GLB reimport and are visually verified at the 1440 px and 768 px approval viewports. Imported source mesh controls outside that player-facing set remain deferred.
+- Five browser-facing Pop T Captain target node contracts survive GLB reimport. Current captain-seat visual alignment is accepted only with 1440x900 browser evidence. Imported source mesh controls outside that player-facing set remain deferred.
 - Materials are source/import materials only. Agent 3 owns material cleanup, display treatment, texture sizing, and optimization.
 - The GLB is a staged assembly artifact, not a deployable production asset.
 - Browser integration remains a separate handoff after later approval.

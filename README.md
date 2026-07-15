@@ -6,7 +6,7 @@ The current narrative direction is:
 
 1. **DC-9 Final Flight Log** — a warm opening chapter with DTW/MSP/STL route memories, Momma Cheryl’s non-puzzle Home Operations Log, and a forgiving ceremonial shutdown.
 2. **Locker Room / Captain’s Locker** — personal reveal space opened by the Captain’s Key.
-3. **Existing Airbus A320 First-Officer Mode** — unchanged accessible drag-and-drop crew experience in the modern A320 cockpit, now occupying the Captain-mode slot.
+3. **Airbus A320 Pop T Captain Mode** — the accessible five-card crew experience in the modern A320 cockpit from the captain/left seat.
 4. **Model Y reveal and Flight Mode transformation** — personal reward reveal with sleek, plausible-futuristic wing/panel deployment.
 5. **Father’s Day final message** — warm closing beat after the reward sequence.
 6. **Optional Mars Easter egg** after the main ending.
@@ -47,7 +47,7 @@ Use `npm run dev` and confirm:
 
 - The DC-9-32 Final Flight Log accepts DTW/MSP/STL, preserves completed stamps and shutdown steps, and presents Momma Cheryl’s record only as recognition.
 - The original opening remains unchanged except for the **Start Game** button, which opens the DC-9 instead of Airbus.
-- The Captain’s Key opens the unchanged locker, whose existing **Enter Pop T Captain Mode** button continues to unchanged Airbus gameplay in the Captain-mode slot.
+- The Captain’s Key opens the unchanged locker, whose existing **Enter Pop T Captain Mode** button continues to the Airbus left-seat captain gameplay.
 - The Airbus assignment, retry, keyboard, ATP, and persistence behavior still works after the reorder.
 - The red Tesla Model Y reveal stays hidden until the DC-9 → locker → Airbus journey is complete.
 - The Model Y Flight Mode transformation is a reward beat, not required puzzle information.
@@ -65,7 +65,7 @@ Use `npm run dev` and confirm:
 - The project name is **CockpitEscapeRoom**.
 - Dad is portrayed as an expert pilot; the game is a legacy tribute, never an emergency failure scenario.
 - The narrative is locked to `docs/GAME_DESIGN.md`; the required order is DC-9 → locker → existing Airbus → Model Y reward.
-- The chosen production aircraft targets are **McDonnell Douglas DC-9-32** for the opening Final Flight Log and **Airbus A320** for the later First-Officer experience.
+- The chosen production aircraft targets are **McDonnell Douglas DC-9-32** for the opening right-seat First-Officer Final Flight Log and **Airbus A320** for the later left-seat Pop T Captain experience.
 - The DC-9-32 and Airbus A320 flows must remain distinct and production-realistic in their own right.
 - This is a private, personal build that will not be distributed, so it may freely use owner-supplied aircraft, airline, and vehicle assets.
 - Use the official Blender MCP only for controlled scene inspection, cleanup, validation support, naming, pivots, metadata, preview renders, and export support.

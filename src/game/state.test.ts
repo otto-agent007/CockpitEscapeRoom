@@ -1,6 +1,34 @@
 import { describe, expect, it } from 'vitest'
-import { dc9LegacyFlow, firstOfficerFlow, lockerFlow } from './config'
+import { dc9LegacyFlow, airbusCaptainFlow, lockerFlow } from './config'
 import { createInitialState, gameReducer, isLockerMemoryAvailable, type GameState } from './state'
+
+describe('schema-v8 canonical state', () => {
+  it('starts with seat-role semantic fields and no schema-v6 compatibility fields', () => {
+    const state = createInitialState() as unknown as Record<string, unknown>
+    const dc9 = state.dc9 as Record<string, unknown>
+
+    expect(state.schemaVersion).toBe(8)
+    expect(state.phase).toBe('briefing')
+    expect(state.airbusQualificationAnswer).toBe('')
+    expect(state.airbusCaptainModeUnlocked).toBe(false)
+    expect(state.rewardUnlocked).toBe(false)
+    expect(dc9.secureAttempts).toBe(0)
+    expect(state).not.toHaveProperty('airbusClockAnswer')
+    expect(state).not.toHaveProperty('captainModeUnlocked')
+    expect(state).not.toHaveProperty('captainRouteVerified')
+    expect(state).not.toHaveProperty('dc9SecureSequence')
+    expect(state).not.toHaveProperty('captainAttempts')
+    expect(state).not.toHaveProperty('routeSelections')
+    expect(state).not.toHaveProperty('captainRewardUnlocked')
+  })
+
+  it('starts the Final Flight Log in the canonical dc9 phase from the right seat', () => {
+    const state = gameReducer(createInitialState(), { type: 'START' }) as unknown as Record<string, unknown>
+
+    expect(state.phase).toBe('dc9')
+    expect(state.statusMessage).toContain('first-officer yoke')
+  })
+})
 
 function enterLockerFromAirbus(completeIntro = true): GameState {
   let state: GameState = { ...createInitialState(), phase: 'locker' }
@@ -10,14 +38,23 @@ function enterLockerFromAirbus(completeIntro = true): GameState {
 
 function completeAirbusLabels(): GameState {
   let state: GameState = { ...createInitialState(), phase: 'airbus' }
-  for (const control of firstOfficerFlow.controlIds) {
+  for (const control of airbusCaptainFlow.controlIds) {
     state = gameReducer(state, {
       type: 'ASSIGN_AIRBUS_CARD',
       control,
-      card: firstOfficerFlow.controlMatch[control],
+      card: airbusCaptainFlow.controlMatch[control],
     })
   }
   return state
+}
+
+function enterDc9HomeOperations(): GameState {
+  let state = gameReducer(createInitialState(), { type: 'START' })
+  state = gameReducer(state, { type: 'OPEN_DC9_ROUTE_RECORD' })
+  for (const code of dc9LegacyFlow.routePuzzleAnswers) {
+    state = gameReducer(state, { type: 'TOGGLE_DC9_ROUTE', code })
+  }
+  return gameReducer(state, { type: 'SUBMIT_DC9_ROUTES' })
 }
 
 describe('DC-9 Final Flight Log configuration', () => {
@@ -33,22 +70,15 @@ describe('DC-9 Final Flight Log configuration', () => {
       front: "THE CAPTAIN'S KEY",
       reverse: 'POP T & MOMMA CHERYL',
     })
+    expect(dc9LegacyFlow.atpQuestion).toContain('Airline Transport Pilot')
+    expect(airbusCaptainFlow).not.toHaveProperty('clockQuestion')
   })
 })
 
 describe('DC-9 Final Flight Log reducer', () => {
-  function enterHomeOperations(): GameState {
-    let state = gameReducer(createInitialState(), { type: 'START' })
-    state = gameReducer(state, { type: 'OPEN_DC9_ROUTE_RECORD' })
-    for (const code of ['DTW', 'MSP', 'STL']) {
-      state = gameReducer(state, { type: 'TOGGLE_DC9_ROUTE', code })
-    }
-    return gameReducer(state, { type: 'SUBMIT_DC9_ROUTES' })
-  }
-
   it('starts in the DC-9 and advances from the route record to Home Operations', () => {
     let state = gameReducer(createInitialState(), { type: 'START' })
-    expect(state.phase).toBe('captain')
+    expect(state.phase).toBe('dc9')
     expect(state.dc9.stage).toBe('intro')
 
     state = gameReducer(state, { type: 'OPEN_DC9_ROUTE_RECORD' })
@@ -78,17 +108,16 @@ describe('DC-9 Final Flight Log reducer', () => {
   })
 
   it('completes the recognition record before beginning a forgiving shutdown', () => {
-    let state = enterHomeOperations()
+    let state = enterDc9HomeOperations()
     state = gameReducer(state, { type: 'SET_HOME_OPERATIONS_PAGE', page: 4 })
     state = gameReducer(state, { type: 'COMPLETE_HOME_OPERATIONS' })
 
     expect(state.dc9.homeOperationsCompleted).toBe(true)
     expect(state.dc9.stage).toBe('shutdown')
 
-    const before = state
     state = gameReducer(state, { type: 'ACTIVATE_DC9_CONTROL', controlId: 'battery' })
     expect(state.dc9.secureSequence).toEqual([])
-    expect(state.captainAttempts.secure).toBe(before.captainAttempts.secure + 1)
+    expect(state.dc9.secureAttempts).toBe(1)
 
     state = gameReducer(state, { type: 'ACTIVATE_DC9_CONTROL', controlId: 'apuBuses' })
     expect(state.dc9.secureSequence).toEqual(['apuBuses'])
@@ -99,16 +128,28 @@ describe('DC-9 Final Flight Log reducer', () => {
     state = gameReducer(state, { type: 'ACTIVATE_DC9_CONTROL', controlId: 'apuMaster' })
     state = gameReducer(state, { type: 'ACTIVATE_DC9_CONTROL', controlId: 'battery' })
     expect(state.dc9.secureSequence).toEqual(['apuBuses', 'apuMaster', 'battery'])
+    expect(state.dc9.stage).toBe('qualification')
+
+    state = gameReducer(state, { type: 'SUBMIT_DC9_ATP_QUALIFICATION' })
+    expect(state.dc9.stage).toBe('qualification')
+    expect(state.statusMessage).toContain('not yet recognized')
+    expect(state.dc9.secureSequence).toEqual(['apuBuses', 'apuMaster', 'battery'])
+
+    state = gameReducer(state, { type: 'SET_ATP_QUALIFICATION_ANSWER', value: '1500 hours' })
+    state = gameReducer(state, { type: 'SUBMIT_DC9_ATP_QUALIFICATION' })
     expect(state.dc9.stage).toBe('keyReveal')
+    expect(state.statusMessage).toContain('milestone recognized')
   })
 
   it('claims The Captain\'s Key and continues from the locker to Airbus', () => {
-    let state = enterHomeOperations()
+    let state = enterDc9HomeOperations()
     state = gameReducer(state, { type: 'SET_HOME_OPERATIONS_PAGE', page: 4 })
     state = gameReducer(state, { type: 'COMPLETE_HOME_OPERATIONS' })
     for (const controlId of dc9LegacyFlow.secureSequence) {
       state = gameReducer(state, { type: 'ACTIVATE_DC9_CONTROL', controlId })
     }
+    state = gameReducer(state, { type: 'SET_ATP_QUALIFICATION_ANSWER', value: '1,500' })
+    state = gameReducer(state, { type: 'SUBMIT_DC9_ATP_QUALIFICATION' })
     state = gameReducer(state, { type: 'OPEN_CAPTAINS_KEY' })
     expect(state.dc9.keyRevealed).toBe(true)
 
@@ -116,7 +157,7 @@ describe('DC-9 Final Flight Log reducer', () => {
     expect(state.dc9.keyClaimed).toBe(true)
     expect(state.dc9.stage).toBe('complete')
     expect(state.phase).toBe('locker')
-    expect(state.completedPuzzles).toContain('captain')
+    expect(state.completedPuzzles).toContain('dc9')
 
     state = gameReducer(state, { type: 'COMPLETE_LOCKER_INTRO' })
     state = {
@@ -133,18 +174,18 @@ describe('DC-9 Final Flight Log reducer', () => {
     const state: GameState = {
       ...createInitialState(),
       phase: 'locker',
-      completedPuzzles: ['captain', 'locker', 'firstOfficer'],
-      captainRewardUnlocked: false,
+      completedPuzzles: ['dc9', 'locker', 'airbus'],
+      rewardUnlocked: false,
     }
 
     const next = gameReducer(state, { type: 'CONTINUE_FROM_LOCKER_TO_AIRBUS' })
 
     expect(next.phase).toBe('reward')
-    expect(next.captainRewardUnlocked).toBe(true)
+    expect(next.rewardUnlocked).toBe(true)
     expect(next.statusMessage).toContain('already complete')
   })
 
-  it('keeps the existing Airbus completion celebration before the reward handoff', () => {
+  it('completes Airbus after the five correct labels before the reward handoff', () => {
     let state: GameState = {
       ...createInitialState(),
       phase: 'airbus',
@@ -159,41 +200,38 @@ describe('DC-9 Final Flight Log reducer', () => {
         keyRevealed: true,
         keyClaimed: true,
       },
-      completedPuzzles: ['captain', 'locker'],
+      completedPuzzles: ['dc9', 'locker'],
     }
-    for (const control of firstOfficerFlow.controlIds) {
+    for (const control of airbusCaptainFlow.controlIds) {
       state = gameReducer(state, {
         type: 'ASSIGN_AIRBUS_CARD',
         control,
-        card: firstOfficerFlow.controlMatch[control],
+        card: airbusCaptainFlow.controlMatch[control],
       })
     }
-    state = gameReducer(state, { type: 'SET_AIRBUS_CLOCK_ANSWER', value: '1500' })
-    state = gameReducer(state, { type: 'SUBMIT_AIRBUS_CLOCK' })
-
     expect(state.phase).toBe('airbus')
-    expect(state.completedPuzzles).toEqual(['captain', 'locker', 'firstOfficer'])
-    expect(state.captainRewardUnlocked).toBe(false)
+    expect(state.completedPuzzles).toEqual(['dc9', 'locker', 'airbus'])
+    expect(state.rewardUnlocked).toBe(false)
   })
 
   it('continues from the existing Airbus completion celebration to the reward', () => {
     const state: GameState = {
       ...createInitialState(),
       phase: 'airbus',
-      completedPuzzles: ['captain', 'locker', 'firstOfficer'],
+      completedPuzzles: ['dc9', 'locker', 'airbus'],
     }
 
     const next = gameReducer(state, { type: 'CONTINUE_FROM_AIRBUS_TO_REWARD' })
 
     expect(next.phase).toBe('reward')
-    expect(next.captainRewardUnlocked).toBe(true)
+    expect(next.rewardUnlocked).toBe(true)
   })
 })
 
 describe('gameReducer', () => {
   it('advances to the DC-9 opening after briefing start', () => {
     const state = gameReducer(createInitialState(), { type: 'START' })
-    expect(state.phase).toBe('captain')
+    expect(state.phase).toBe('dc9')
     expect(state.statusMessage).toContain('route strip')
   })
 
@@ -238,50 +276,36 @@ describe('gameReducer', () => {
     expect(state.statusMessage).toContain('five-label check')
   })
 
-  it('clears obsolete clock answers after an Airbus placement changes', () => {
-    let state: GameState = { ...createInitialState(), phase: 'airbus' }
-    state = gameReducer(state, { type: 'SET_AIRBUS_CLOCK_ANSWER', value: '1500' })
+  it('does not disturb the DC-9 ATP answer when an Airbus placement changes', () => {
+    let state: GameState = { ...createInitialState(), phase: 'airbus', airbusQualificationAnswer: '1500' }
     state = gameReducer(state, { type: 'ASSIGN_AIRBUS_CARD', control: 'sidestick', card: 'RADIO' })
 
-    expect(state.airbusClockAnswer).toBe('')
+    expect(state.airbusQualificationAnswer).toBe('1500')
     expect(state.phase).toBe('airbus')
   })
 
-  it('shows the Airline Transport Pilot question after all Airbus labels are correct', () => {
+  it('completes Airbus immediately after all five labels are correct', () => {
     const state = completeAirbusLabels()
 
     expect(state.phase).toBe('airbus')
-    expect(state.completedPuzzles).toEqual([])
-    expect(state.statusMessage).toContain('Airline Transport Pilot question')
+    expect(state.completedPuzzles).toEqual(['airbus'])
+    expect(state.statusMessage).toContain('POP T CAPTAIN MODE COMPLETE')
+    expect(state.statusMessage).toContain('Captain knowledge logged')
   })
 
-  it('shows the existing completion celebration after a recoverable wrong answer', () => {
-    let state = completeAirbusLabels()
+  it.each(['1500', '1,500', '1500 hour', '1500 hours'])('accepts the DC-9 ATP answer %s', (answer) => {
+    let state = enterDc9HomeOperations()
+    state = gameReducer(state, { type: 'SET_HOME_OPERATIONS_PAGE', page: 4 })
+    state = gameReducer(state, { type: 'COMPLETE_HOME_OPERATIONS' })
+    for (const controlId of dc9LegacyFlow.secureSequence) {
+      state = gameReducer(state, { type: 'ACTIVATE_DC9_CONTROL', controlId })
+    }
+    state = gameReducer(state, { type: 'SET_ATP_QUALIFICATION_ANSWER', value: answer })
+    state = gameReducer(state, { type: 'SUBMIT_DC9_ATP_QUALIFICATION' })
 
-    state = gameReducer(state, { type: 'SUBMIT_AIRBUS_CLOCK' })
-    expect(state.phase).toBe('airbus')
-    expect(state.statusMessage).toContain('Airline Transport Pilot answer is not yet recognized')
-
-    state = gameReducer(state, { type: 'SET_AIRBUS_CLOCK_ANSWER', value: firstOfficerFlow.clockAnswer })
-    state = gameReducer(state, { type: 'SUBMIT_AIRBUS_CLOCK' })
-
-    expect(state.phase).toBe('airbus')
-    expect(state.completedPuzzles).toEqual(['firstOfficer'])
-    expect(state.statusMessage).toContain('milestone recognized')
-    expect(state.captainRewardUnlocked).toBe(false)
+    expect(state.phase).toBe('dc9')
+    expect(state.dc9.stage).toBe('keyReveal')
   })
-
-  it.each(['1500', '1,500', '1500 hour', '1500 hours'])(
-    'accepts the friendly flight-hour answer %s',
-    (answer) => {
-      let state = completeAirbusLabels()
-      state = gameReducer(state, { type: 'SET_AIRBUS_CLOCK_ANSWER', value: answer })
-      state = gameReducer(state, { type: 'SUBMIT_AIRBUS_CLOCK' })
-
-      expect(state.phase).toBe('airbus')
-      expect(state.completedPuzzles).toContain('firstOfficer')
-    },
-  )
 
   it('blocks locker memories until the intro settles, then unlocks only the watch', () => {
     let state = enterLockerFromAirbus(false)
@@ -301,7 +325,7 @@ describe('gameReducer', () => {
     expect(isLockerMemoryAvailable(state, 'baseball')).toBe(true)
     expect(isLockerMemoryAvailable(state, 'chargingBull')).toBe(false)
     expect(state.lockerHatRevealed).toBe(false)
-    expect(state.captainModeUnlocked).toBe(false)
+    expect(state.airbusCaptainModeUnlocked).toBe(false)
     expect(state.statusMessage).toContain('manage jet lag')
   })
 
@@ -391,7 +415,7 @@ describe('gameReducer', () => {
 
   it('returns from Mars without discarding completion', () => {
     let state = createInitialState()
-    state = { ...state, phase: 'reward', completedPuzzles: ['firstOfficer', 'locker', 'captain'], captainRewardUnlocked: true }
+    state = { ...state, phase: 'reward', completedPuzzles: ['airbus', 'locker', 'dc9'], rewardUnlocked: true }
     state = gameReducer(state, { type: 'UNLOCK_MARS' })
 
     expect(state.phase).toBe('mars')
@@ -399,6 +423,6 @@ describe('gameReducer', () => {
 
     state = gameReducer(state, { type: 'RETURN_TO_REWARD' })
     expect(state.phase).toBe('reward')
-    expect(state.completedPuzzles).toEqual(['firstOfficer', 'locker', 'captain'])
+    expect(state.completedPuzzles).toEqual(['airbus', 'locker', 'dc9'])
   })
 })

@@ -1,9 +1,9 @@
 {
   "gate": "runtime-contract",
-  "artifactId": "a320-cockpit-2-runtime-contract-001",
-  "createdAt": "2026-07-10T02:03:20Z",
-  "sceneGroup": "Airbus A320 First-Officer cockpit",
-  "assetPath": "public/models/airbus-first-officer.glb",
+  "artifactId": "a320-cockpit-2-captain-runtime-contract-002",
+  "createdAt": "2026-07-15T10:13:34Z",
+  "sceneGroup": "Airbus A320 Pop T Captain cockpit",
+  "assetPath": "public/models/airbus-captain.glb",
   "rootObject": "AIRBUS_ROOT",
   "runtimeNodes": [
     {
@@ -52,7 +52,7 @@
       "pivotVerified": true,
       "pivotExportVerified": true,
       "localAxis": "WORLD",
-      "htmlEquivalent": "Camera target locator; no direct HTML control."
+      "htmlEquivalent": "Camera locator; no direct HTML control."
     },
     {
       "name": "AIRBUS_A320_LOC_INTERIOR_360_CENTER",
@@ -60,7 +60,23 @@
       "pivotVerified": true,
       "pivotExportVerified": true,
       "localAxis": "WORLD",
-      "htmlEquivalent": "Interior scan locator between the cockpit seats; no direct HTML control."
+      "htmlEquivalent": "Camera locator; no direct HTML control."
+    },
+    {
+      "name": "CAM_AIRBUS_CAPTAIN_GAME_VIEW",
+      "gameId": "airbus.a320.camera.captain_game_view",
+      "pivotVerified": false,
+      "pivotExportVerified": false,
+      "localAxis": "CAMERA_LOCAL",
+      "htmlEquivalent": "Keyboard and pointer seated-look controls plus accessible placement controls."
+    },
+    {
+      "name": "AIRBUS_A320_CAM_CAPTAIN_APPROVAL",
+      "gameId": "airbus.a320.camera.captain_approval",
+      "pivotVerified": false,
+      "pivotExportVerified": false,
+      "localAxis": "CAMERA_LOCAL",
+      "htmlEquivalent": "Approval camera; no direct HTML control."
     },
     {
       "name": "AIRBUS_A320_TARGET_SIDESTICK_PIVOT",
@@ -70,7 +86,7 @@
       "localAxis": "LOCAL_X",
       "htmlEquivalent": "Sidestick target button in the Airbus placement layer.",
       "nodeRole": "pivot",
-      "visualAlignmentStatus": "verified_browser_1440_768"
+      "visualAlignmentStatus": "verified_browser_1440_captain"
     },
     {
       "name": "AIRBUS_A320_TARGET_SIDESTICK_HITBOX",
@@ -80,17 +96,17 @@
       "localAxis": "LOCAL_X",
       "htmlEquivalent": "Sidestick target button in the Airbus placement layer.",
       "nodeRole": "collider",
-      "visualAlignmentStatus": "verified_browser_1440_768"
+      "visualAlignmentStatus": "verified_browser_1440_captain"
     },
     {
       "name": "AIRBUS_A320_TARGET_SIDESTICK_CUE",
       "gameId": "airbus.a320.target.sidestick.cue",
-      "pivotVerified": true,
+      "pivotVerified": false,
       "pivotExportVerified": true,
-      "localAxis": "LOCAL_X",
+      "localAxis": "GROUP_ROOT",
       "htmlEquivalent": "Sidestick target button in the Airbus placement layer.",
       "nodeRole": "cue",
-      "visualAlignmentStatus": "verified_browser_1440_768"
+      "visualAlignmentStatus": "verified_browser_1440_captain"
     },
     {
       "name": "AIRBUS_A320_TARGET_THRUST_PIVOT",
@@ -100,7 +116,7 @@
       "localAxis": "LOCAL_X",
       "htmlEquivalent": "Thrust levers target button in the Airbus placement layer.",
       "nodeRole": "pivot",
-      "visualAlignmentStatus": "verified_browser_1440_768"
+      "visualAlignmentStatus": "verified_browser_1440_captain"
     },
     {
       "name": "AIRBUS_A320_TARGET_THRUST_HITBOX",
@@ -110,17 +126,17 @@
       "localAxis": "LOCAL_X",
       "htmlEquivalent": "Thrust levers target button in the Airbus placement layer.",
       "nodeRole": "collider",
-      "visualAlignmentStatus": "verified_browser_1440_768"
+      "visualAlignmentStatus": "verified_browser_1440_captain"
     },
     {
       "name": "AIRBUS_A320_TARGET_THRUST_CUE",
       "gameId": "airbus.a320.target.thrust.cue",
-      "pivotVerified": true,
+      "pivotVerified": false,
       "pivotExportVerified": true,
-      "localAxis": "LOCAL_X",
+      "localAxis": "GROUP_ROOT",
       "htmlEquivalent": "Thrust levers target button in the Airbus placement layer.",
       "nodeRole": "cue",
-      "visualAlignmentStatus": "verified_browser_1440_768"
+      "visualAlignmentStatus": "verified_browser_1440_captain"
     },
     {
       "name": "AIRBUS_A320_TARGET_GEAR_PIVOT",
@@ -130,7 +146,7 @@
       "localAxis": "LOCAL_X",
       "htmlEquivalent": "Landing gear lever target button in the Airbus placement layer.",
       "nodeRole": "pivot",
-      "visualAlignmentStatus": "verified_browser_1440_768"
+      "visualAlignmentStatus": "verified_browser_1440_captain"
     },
     {
       "name": "AIRBUS_A320_TARGET_GEAR_HITBOX",
@@ -140,17 +156,17 @@
       "localAxis": "LOCAL_X",
       "htmlEquivalent": "Landing gear lever target button in the Airbus placement layer.",
       "nodeRole": "collider",
-      "visualAlignmentStatus": "verified_browser_1440_768"
+      "visualAlignmentStatus": "verified_browser_1440_captain"
     },
     {
       "name": "AIRBUS_A320_TARGET_GEAR_CUE",
       "gameId": "airbus.a320.target.gear.cue",
-      "pivotVerified": true,
+      "pivotVerified": false,
       "pivotExportVerified": true,
-      "localAxis": "LOCAL_X",
+      "localAxis": "GROUP_ROOT",
       "htmlEquivalent": "Landing gear lever target button in the Airbus placement layer.",
       "nodeRole": "cue",
-      "visualAlignmentStatus": "verified_browser_1440_768"
+      "visualAlignmentStatus": "verified_browser_1440_captain"
     },
     {
       "name": "AIRBUS_A320_TARGET_RADIO_PIVOT",
@@ -160,7 +176,7 @@
       "localAxis": "LOCAL_X",
       "htmlEquivalent": "Radio panel target button in the Airbus placement layer.",
       "nodeRole": "pivot",
-      "visualAlignmentStatus": "verified_browser_1440_768"
+      "visualAlignmentStatus": "verified_browser_1440_captain"
     },
     {
       "name": "AIRBUS_A320_TARGET_RADIO_HITBOX",
@@ -170,17 +186,17 @@
       "localAxis": "LOCAL_X",
       "htmlEquivalent": "Radio panel target button in the Airbus placement layer.",
       "nodeRole": "collider",
-      "visualAlignmentStatus": "verified_browser_1440_768"
+      "visualAlignmentStatus": "verified_browser_1440_captain"
     },
     {
       "name": "AIRBUS_A320_TARGET_RADIO_CUE",
       "gameId": "airbus.a320.target.radio.cue",
-      "pivotVerified": true,
+      "pivotVerified": false,
       "pivotExportVerified": true,
-      "localAxis": "LOCAL_X",
+      "localAxis": "GROUP_ROOT",
       "htmlEquivalent": "Radio panel target button in the Airbus placement layer.",
       "nodeRole": "cue",
-      "visualAlignmentStatus": "verified_browser_1440_768"
+      "visualAlignmentStatus": "verified_browser_1440_captain"
     },
     {
       "name": "AIRBUS_A320_TARGET_ALTITUDE_PIVOT",
@@ -190,7 +206,7 @@
       "localAxis": "LOCAL_X",
       "htmlEquivalent": "Altitude area target button in the Airbus placement layer.",
       "nodeRole": "pivot",
-      "visualAlignmentStatus": "verified_browser_1440_768"
+      "visualAlignmentStatus": "verified_browser_1440_captain"
     },
     {
       "name": "AIRBUS_A320_TARGET_ALTITUDE_HITBOX",
@@ -200,29 +216,29 @@
       "localAxis": "LOCAL_X",
       "htmlEquivalent": "Altitude area target button in the Airbus placement layer.",
       "nodeRole": "collider",
-      "visualAlignmentStatus": "verified_browser_1440_768"
+      "visualAlignmentStatus": "verified_browser_1440_captain"
     },
     {
       "name": "AIRBUS_A320_TARGET_ALTITUDE_CUE",
       "gameId": "airbus.a320.target.altitude.cue",
-      "pivotVerified": true,
+      "pivotVerified": false,
       "pivotExportVerified": true,
-      "localAxis": "LOCAL_X",
+      "localAxis": "GROUP_ROOT",
       "htmlEquivalent": "Altitude area target button in the Airbus placement layer.",
       "nodeRole": "cue",
-      "visualAlignmentStatus": "verified_browser_1440_768"
+      "visualAlignmentStatus": "verified_browser_1440_captain"
     }
   ],
   "customPropertiesPreserved": true,
   "reimportValidation": "pass",
   "visualAlignmentValidation": {
     "status": "verified",
-    "evidence": "Inspected browser evidence at preview-renders/cockpit-pipeline/a320-cockpit-2-browser-integration/airbus-approval-candidate-targets-1440.png and airbus-approval-candidate-targets-768.png verifies the five pivot-projected cues against visible controls."
+    "evidence": "The real captain-seat GLB was inspected at 1440x900 with five projected targets active in preview-renders/seat-role-swap/airbus-captain-targets-initial-1440.png and after seated head-look drag in preview-renders/seat-role-swap/airbus-captain-targets-dragged-1440.png. Both states reported five projected targets; Playwright verifies reachability."
   },
-  "scaleAndCameraAssumptions": "Source model is kept in imported Blender scale. The browser starts from CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW, uses restrained seated head-look, raycasts exported colliders, and renders compact HTML cues projected from exported pivots while preserving keyboard equivalents.",
+  "scaleAndCameraAssumptions": "Source model is kept in imported Blender scale. The browser starts from CAM_AIRBUS_CAPTAIN_GAME_VIEW, consumes its exported 68-degree vertical FOV, uses restrained seated head-look, raycasts exported colliders, and projects accessible HTML cues from exported pivots.",
   "knownReferenceDeviations": [
     "Prebuilt Sketchfab source still needs model-correct A320 reference review before production promotion.",
-    "Five First-Officer targets have export-verified pivots, invisible hitboxes, and cue proxies. Browser alignment is verified at 1440 and 768 pixels; imported source controls outside that player-facing set remain deferred.",
+    "Five Pop T Captain targets have export-verified pivots, invisible hitboxes, and cue proxies. Captain-seat browser alignment is verified at 1440x900; imported source controls outside that player-facing set remain deferred.",
     "Display content is dark/static source geometry; live display materials and deeper imported-control mesh splitting belong to later stages."
   ]
 }

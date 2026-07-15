@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dc9LegacyFlow, firstOfficerFlow, lockerFlow } from './config'
+import { airbusCaptainFlow, dc9LegacyFlow, lockerFlow } from './config'
 import { createInitialState, type GameState } from './state'
 import { loadGameState, saveGameState, STORAGE_KEY } from './storage'
 
@@ -18,31 +18,23 @@ function createMemoryStorage(initial: Record<string, string> = {}) {
   }
 }
 
-interface LegacyV6State {
-  schemaVersion: 6
-  phase: GameState['phase']
-  airbusAssignments: GameState['airbusAssignments']
-  airbusDecoyAssignments: GameState['airbusDecoyAssignments']
-  airbusClockAnswer: string
-  lockerCompleted: GameState['lockerCompleted']
-  lockerAttempts: GameState['lockerAttempts']
-  lockerIntroCompleted: boolean
-  lockerHatRevealed: boolean
-  captainModeUnlocked: boolean
-  captainRouteVerified: boolean
-  dc9SecureSequence: GameState['dc9SecureSequence']
-  captainAttempts: GameState['captainAttempts']
-  routeSelections: string[]
-  completedPuzzles: GameState['completedPuzzles']
-  hintsUsed: number
-  captainRewardUnlocked: boolean
-  marsUnlocked: boolean
-  statusMessage: string
+function completedDc9(secureAttempts = 0, routeAttempts = 0): GameState['dc9'] {
+  return {
+    stage: 'complete',
+    routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
+    routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
+    routeAttempts,
+    homePage: dc9LegacyFlow.homeOperationsPages.length - 1,
+    homeOperationsCompleted: true,
+    secureSequence: [...dc9LegacyFlow.secureSequence],
+    secureAttempts,
+    keyRevealed: true,
+    keyClaimed: true,
+  }
 }
 
-function createLegacyV6State(overrides: Partial<LegacyV6State> = {}): LegacyV6State {
+function legacyCommon(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schemaVersion: 6,
     phase: 'briefing',
     airbusAssignments: {
       sidestick: null,
@@ -71,95 +63,157 @@ function createLegacyV6State(overrides: Partial<LegacyV6State> = {}): LegacyV6St
     hintsUsed: 0,
     captainRewardUnlocked: false,
     marsUnlocked: false,
-    statusMessage: 'Legacy schema-v6 save.',
+    statusMessage: 'Legacy save.',
     ...overrides,
   }
 }
 
-function createCompletedDc9Progress(): GameState['dc9'] {
+function legacyV7(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    stage: 'complete',
-    routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
-    routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
-    routeAttempts: 0,
-    homePage: dc9LegacyFlow.homeOperationsPages.length - 1,
-    homeOperationsCompleted: true,
-    secureSequence: [...dc9LegacyFlow.secureSequence],
-    keyRevealed: true,
-    keyClaimed: true,
-  }
-}
-
-function createAirbusV7State(overrides: Partial<GameState> = {}): GameState {
-  return {
-    ...createInitialState(),
-    phase: 'airbus',
-    dc9: createCompletedDc9Progress(),
-    lockerCompleted: [...lockerFlow.memoryIds],
-    lockerIntroCompleted: true,
-    lockerHatRevealed: true,
-    completedPuzzles: ['captain', 'locker'],
+    schemaVersion: 7,
+    ...legacyCommon(),
+    dc9: {
+      stage: 'intro',
+      routeSelections: [],
+      routeCompleted: [],
+      routeAttempts: 0,
+      homePage: 0,
+      homeOperationsCompleted: false,
+      secureSequence: [],
+      keyRevealed: false,
+      keyClaimed: false,
+    },
     ...overrides,
   }
 }
 
-describe('game storage', () => {
-  it('keeps completed schema-v6 reward and Mars progress complete', () => {
-    const legacy = createLegacyV6State({
-      phase: 'mars',
+function loadRaw(raw: Record<string, unknown>): GameState {
+  return loadGameState(createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(raw) }))
+}
+
+describe('schema-v7 to schema-v8 migration', () => {
+  it('preserves completed DC-9 route and secure attempt history', () => {
+    const dc9 = completedDc9(4, 5)
+    const legacyDc9: Record<string, unknown> = { ...dc9 }
+    delete legacyDc9.secureAttempts
+    const migrated = loadRaw(legacyV7({
+      phase: 'locker',
+      completedPuzzles: ['captain'],
+      captainAttempts: { route: 5, secure: 4 },
+      dc9: legacyDc9,
+    }))
+
+    expect(migrated.dc9.routeAttempts).toBe(5)
+    expect(migrated.dc9.secureAttempts).toBe(4)
+  })
+
+  it.each([
+    ['briefing', 'briefing', []],
+    ['captain', 'dc9', []],
+    ['locker', 'locker', ['captain']],
+    ['airbus', 'airbus', ['captain', 'locker']],
+    ['reward', 'reward', ['captain', 'locker', 'firstOfficer']],
+    ['mars', 'mars', ['captain', 'locker', 'firstOfficer']],
+  ] as const)('maps phase %s to %s without losing its valid journey boundary', (legacyPhase, phase, completedPuzzles) => {
+    const migrated = loadRaw(legacyV7({
+      phase: legacyPhase,
+      completedPuzzles,
+      captainModeUnlocked: completedPuzzles.some((id) => id === 'locker'),
+      captainRewardUnlocked: legacyPhase === 'reward' || legacyPhase === 'mars',
+      marsUnlocked: legacyPhase === 'mars',
+      dc9: completedPuzzles.some((id) => id === 'captain') ? completedDc9() : legacyV7().dc9,
+    }))
+
+    expect(migrated.schemaVersion).toBe(8)
+    expect(migrated.phase).toBe(phase)
+  })
+
+  it('renames puzzle and state semantics while preserving in-progress DC-9 data', () => {
+    const migrated = loadRaw(legacyV7({
+      phase: 'captain',
+      completedPuzzles: ['firstOfficer', 'locker'],
+      airbusClockAnswer: '1500 hours',
+      captainModeUnlocked: true,
       captainRouteVerified: true,
-      dc9SecureSequence: [...dc9LegacyFlow.secureSequence],
-      completedPuzzles: ['firstOfficer', 'locker', 'captain'],
+      dc9SecureSequence: ['apuBuses'],
+      captainAttempts: { route: 3, secure: 2 },
+      routeSelections: ['DTW', 'MSP', 'STL'],
+      dc9: {
+        stage: 'shutdown',
+        routeSelections: ['DTW', 'MSP', 'STL'],
+        routeCompleted: ['DTW', 'MSP', 'STL'],
+        routeAttempts: 3,
+        homePage: 4,
+        homeOperationsCompleted: true,
+        secureSequence: ['apuBuses'],
+        keyRevealed: false,
+        keyClaimed: false,
+      },
+    }))
+
+    expect(migrated.completedPuzzles).toEqual(['airbus', 'locker'])
+    expect(migrated.airbusQualificationAnswer).toBe('1500 hours')
+    expect(migrated.airbusCaptainModeUnlocked).toBe(true)
+    expect(migrated.rewardUnlocked).toBe(false)
+    expect(migrated.dc9).toMatchObject({
+      stage: 'shutdown',
+      routeSelections: ['DTW', 'MSP', 'STL'],
+      routeCompleted: ['DTW', 'MSP', 'STL'],
+      routeAttempts: 3,
+      homePage: 4,
+      homeOperationsCompleted: true,
+      secureSequence: ['apuBuses'],
+      secureAttempts: 2,
+    })
+    expect(migrated).not.toHaveProperty('airbusClockAnswer')
+    expect(migrated).not.toHaveProperty('captainModeUnlocked')
+    expect(migrated).not.toHaveProperty('captainRouteVerified')
+    expect(migrated).not.toHaveProperty('dc9SecureSequence')
+    expect(migrated).not.toHaveProperty('captainAttempts')
+    expect(migrated).not.toHaveProperty('routeSelections')
+    expect(migrated).not.toHaveProperty('captainRewardUnlocked')
+  })
+
+  it('preserves in-progress Airbus assignments and qualification answer', () => {
+    const migrated = loadRaw(legacyV7({
+      phase: 'airbus',
+      completedPuzzles: ['captain', 'locker'],
+      captainModeUnlocked: true,
+      dc9: completedDc9(),
+      airbusAssignments: {
+        sidestick: 'SIDESTICK',
+        thrust: 'THRUST',
+        gear: null,
+        radio: null,
+        altitude: null,
+      },
+      airbusClockAnswer: '1,500',
+    }))
+
+    expect(migrated.phase).toBe('airbus')
+    expect(migrated.airbusAssignments.sidestick).toBe('SIDESTICK')
+    expect(migrated.airbusAssignments.thrust).toBe('THRUST')
+    expect(migrated.airbusQualificationAnswer).toBe('1,500')
+  })
+
+  it('preserves reward and Mars state with canonical puzzle IDs', () => {
+    const migrated = loadRaw(legacyV7({
+      phase: 'mars',
+      completedPuzzles: ['captain', 'locker', 'firstOfficer'],
+      captainModeUnlocked: true,
       captainRewardUnlocked: true,
       marsUnlocked: true,
-    })
-    const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(legacy) })
+      dc9: completedDc9(2),
+    }))
 
-    const migrated = loadGameState(storage)
-    expect(migrated.schemaVersion).toBe(7)
     expect(migrated.phase).toBe('mars')
-    expect(migrated.dc9.stage).toBe('complete')
-    expect(migrated.dc9.keyRevealed).toBe(true)
-    expect(migrated.dc9.keyClaimed).toBe(true)
-    expect(migrated.captainRewardUnlocked).toBe(true)
+    expect(migrated.completedPuzzles).toEqual(['dc9', 'locker', 'airbus'])
+    expect(migrated.rewardUnlocked).toBe(true)
     expect(migrated.marsUnlocked).toBe(true)
   })
 
-  it('moves a route-verified schema-v6 Captain save to Home Operations', () => {
-    const legacy = createLegacyV6State({
-      phase: 'captain',
-      captainRouteVerified: true,
-      routeSelections: ['BTR', 'STL', 'TYS'],
-      completedPuzzles: ['firstOfficer', 'locker'],
-    })
-    const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(legacy) })
-
-    const migrated = loadGameState(storage)
-    expect(migrated.schemaVersion).toBe(7)
-    expect(migrated.phase).toBe('captain')
-    expect(migrated.dc9.stage).toBe('homeOperations')
-    expect(migrated.dc9.routeCompleted).toEqual(['DTW', 'MSP', 'STL'])
-    expect(migrated.dc9.homeOperationsCompleted).toBe(false)
-  })
-
-  it.each(['airbus', 'locker'] as const)('restarts a pre-Captain schema-v6 %s save at the new opening', (phase) => {
-    const legacy = createLegacyV6State({
-      phase,
-      completedPuzzles: phase === 'locker' ? ['firstOfficer'] : [],
-      lockerIntroCompleted: phase === 'locker',
-    })
-    const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(legacy) })
-
-    const migrated = loadGameState(storage)
-    expect(migrated.phase).toBe('captain')
-    expect(migrated.dc9.stage).toBe('intro')
-    expect(migrated.dc9.routeCompleted).toEqual([])
-    expect(migrated.completedPuzzles).toEqual(legacy.completedPuzzles)
-  })
-
   it('normalizes corrupt schema-v7 DC-9 progress to a recoverable boundary', () => {
-    const corrupt = {
-      ...createInitialState(),
+    const migrated = loadRaw(legacyV7({
       phase: 'captain',
       dc9: {
         stage: 'shutdown',
@@ -172,66 +226,185 @@ describe('game storage', () => {
         keyRevealed: true,
         keyClaimed: true,
       },
-    }
-    const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(corrupt) })
+    }))
 
-    const normalized = loadGameState(storage)
-    expect(normalized.phase).toBe('captain')
-    expect(normalized.dc9.stage).toBe('routeRecord')
-    expect(normalized.dc9.routeSelections).toEqual([])
-    expect(normalized.dc9.routeCompleted).toEqual(['DTW'])
-    expect(normalized.dc9.routeAttempts).toBe(0)
-    expect(normalized.dc9.secureSequence).toEqual([])
-    expect(normalized.dc9.keyClaimed).toBe(false)
+    expect(migrated.phase).toBe('dc9')
+    expect(migrated.dc9).toMatchObject({
+      stage: 'routeRecord',
+      routeSelections: [],
+      routeCompleted: ['DTW'],
+      routeAttempts: 0,
+      secureSequence: [],
+      secureAttempts: 0,
+      keyClaimed: false,
+    })
+  })
+})
+
+describe('schema-v3 through schema-v6 migration chain', () => {
+  it('keeps completed schema-v6 reward and Mars progress complete', () => {
+    const migrated = loadRaw({
+      schemaVersion: 6,
+      ...legacyCommon({
+        phase: 'mars',
+        captainRouteVerified: true,
+        dc9SecureSequence: [...dc9LegacyFlow.secureSequence],
+        completedPuzzles: ['firstOfficer', 'locker', 'captain'],
+        captainRewardUnlocked: true,
+        marsUnlocked: true,
+      }),
+    })
+
+    expect(migrated.schemaVersion).toBe(8)
+    expect(migrated.phase).toBe('mars')
+    expect(migrated.dc9.stage).toBe('complete')
+    expect(migrated.completedPuzzles).toEqual(['airbus', 'locker', 'dc9'])
+    expect(migrated.rewardUnlocked).toBe(true)
+    expect(migrated.marsUnlocked).toBe(true)
   })
 
-  it('round-trips valid saved progress', () => {
+  it('moves a route-verified schema-v6 save to DC-9 Home Operations', () => {
+    const migrated = loadRaw({
+      schemaVersion: 6,
+      ...legacyCommon({
+        phase: 'captain',
+        captainRouteVerified: true,
+        captainAttempts: { route: 2, secure: 0 },
+        routeSelections: ['BTR', 'STL', 'TYS'],
+        completedPuzzles: ['firstOfficer', 'locker'],
+      }),
+    })
+
+    expect(migrated.phase).toBe('dc9')
+    expect(migrated.dc9.stage).toBe('homeOperations')
+    expect(migrated.dc9.routeCompleted).toEqual(['DTW', 'MSP', 'STL'])
+    expect(migrated.dc9.routeAttempts).toBe(2)
+  })
+
+  it('migrates schema-v3 locker data without erasing prior Airbus progress', () => {
+    const migrated = loadRaw({
+      schemaVersion: 3,
+      ...legacyCommon({
+        phase: 'locker',
+        lockerCompleted: ['watch', 'nameplate'],
+        completedPuzzles: ['firstOfficer'],
+      }),
+      lockerAttempts: undefined,
+    })
+
+    expect(migrated.schemaVersion).toBe(8)
+    expect(migrated.phase).toBe('dc9')
+    expect(migrated.lockerCompleted).toEqual(['watch'])
+    expect(migrated.lockerAttempts).toEqual({ watch: 0, baseball: 0, chargingBull: 0, wings: 0 })
+    expect(migrated.completedPuzzles).toEqual(['airbus'])
+  })
+
+  it('migrates schema-v4 locker data as an already-seen intro', () => {
+    const migrated = loadRaw({
+      schemaVersion: 4,
+      ...legacyCommon({
+        phase: 'locker',
+        lockerCompleted: ['watch'],
+        completedPuzzles: ['firstOfficer'],
+      }),
+      lockerIntroCompleted: undefined,
+    })
+
+    expect(migrated.schemaVersion).toBe(8)
+    expect(migrated.phase).toBe('dc9')
+    expect(migrated.lockerIntroCompleted).toBe(true)
+    expect(migrated.completedPuzzles).toEqual(['airbus'])
+  })
+
+  it('preserves schema-v5 locker attempts created before later questions', () => {
+    const migrated = loadRaw({
+      schemaVersion: 5,
+      ...legacyCommon({
+        phase: 'locker',
+        lockerCompleted: ['watch', 'baseball'],
+        lockerAttempts: { watch: 1, baseball: 2 },
+      }),
+    })
+
+    expect(migrated.lockerAttempts).toEqual({ watch: 1, baseball: 2, chargingBull: 0, wings: 0 })
+    expect(migrated.lockerCompleted).toEqual(['watch', 'baseball'])
+  })
+
+  it.each(['reward', 'mars'] as const)('preserves schema-v5 %s completion and reward state', (phase) => {
+    const migrated = loadRaw({
+      schemaVersion: 5,
+      ...legacyCommon({
+        phase,
+        completedPuzzles: ['firstOfficer', 'locker', 'captain'],
+        captainRewardUnlocked: true,
+        marsUnlocked: phase === 'mars',
+      }),
+    })
+
+    expect(migrated.phase).toBe(phase)
+    expect(migrated.completedPuzzles).toEqual(['airbus', 'locker', 'dc9'])
+    expect(migrated.rewardUnlocked).toBe(true)
+    expect(migrated.dc9.secureSequence).toEqual([...dc9LegacyFlow.secureSequence])
+  })
+})
+
+describe('canonical schema-v8 storage', () => {
+  it('round-trips completed DC-9 attempt history', () => {
     const storage = createMemoryStorage()
-    const state = createAirbusV7State()
+    const state: GameState = {
+      ...createInitialState(),
+      phase: 'locker',
+      dc9: completedDc9(3, 6),
+      completedPuzzles: ['dc9'],
+    }
+
     saveGameState(state, storage)
+
+    expect(loadGameState(storage).dc9).toMatchObject({ routeAttempts: 6, secureAttempts: 3 })
+  })
+
+  it('round-trips valid in-progress Airbus Captain Mode state', () => {
+    const storage = createMemoryStorage()
+    const state: GameState = {
+      ...createInitialState(),
+      phase: 'airbus',
+      dc9: completedDc9(),
+      lockerCompleted: [...lockerFlow.memoryIds],
+      lockerIntroCompleted: true,
+      lockerHatRevealed: true,
+      airbusCaptainModeUnlocked: true,
+      completedPuzzles: ['dc9', 'locker'],
+      airbusAssignments: {
+        sidestick: airbusCaptainFlow.controlMatch.sidestick,
+        thrust: airbusCaptainFlow.controlMatch.thrust,
+        gear: null,
+        radio: null,
+        altitude: null,
+      },
+      airbusQualificationAnswer: '1500',
+    }
+
+    saveGameState(state, storage)
+
     expect(loadGameState(storage)).toEqual(state)
   })
 
-  it('clears stale Airbus clock answers when loading saved progress', () => {
+  it('writes only canonical state fields', () => {
     const storage = createMemoryStorage()
-    const state = createAirbusV7State({ airbusClockAnswer: '1500' })
-    saveGameState(state, storage)
+    saveGameState(createInitialState(), storage)
+    const saved = JSON.parse(storage.getItem(STORAGE_KEY) ?? '{}') as Record<string, unknown>
 
-    expect(loadGameState(storage)).toEqual({ ...state, airbusClockAnswer: '' })
-  })
-
-  it('keeps completed Airbus label saves at the Airline Transport Pilot question with a blank answer', () => {
-    const storage = createMemoryStorage()
-    const state = createAirbusV7State({
-      airbusAssignments: {
-        sidestick: firstOfficerFlow.controlMatch.sidestick,
-        thrust: firstOfficerFlow.controlMatch.thrust,
-        gear: firstOfficerFlow.controlMatch.gear,
-        radio: firstOfficerFlow.controlMatch.radio,
-        altitude: firstOfficerFlow.controlMatch.altitude,
-      },
-      airbusClockAnswer: '1500',
-    })
-    saveGameState(state, storage)
-
-    expect(loadGameState(storage)).toEqual({
-      ...state,
-      airbusClockAnswer: '',
-    })
-  })
-
-  it('keeps completed First-Officer progress at the existing celebration after reload', () => {
-    const storage = createMemoryStorage()
-    const state = createAirbusV7State({
-      completedPuzzles: ['captain', 'locker', 'firstOfficer'],
-      airbusClockAnswer: '1500',
-    })
-    saveGameState(state, storage)
-
-    expect(loadGameState(storage)).toEqual({
-      ...state,
-      airbusClockAnswer: '',
-    })
+    expect(saved.schemaVersion).toBe(8)
+    expect(saved).toHaveProperty('airbusQualificationAnswer')
+    expect(saved).toHaveProperty('airbusCaptainModeUnlocked')
+    expect(saved).toHaveProperty('rewardUnlocked')
+    expect(saved).not.toHaveProperty('airbusClockAnswer')
+    expect(saved).not.toHaveProperty('captainModeUnlocked')
+    expect(saved).not.toHaveProperty('captainRouteVerified')
+    expect(saved).not.toHaveProperty('dc9SecureSequence')
+    expect(saved).not.toHaveProperty('captainAttempts')
+    expect(saved).not.toHaveProperty('routeSelections')
+    expect(saved).not.toHaveProperty('captainRewardUnlocked')
   })
 
   it('recovers safely from corrupt saved data', () => {
@@ -240,131 +413,11 @@ describe('game storage', () => {
     expect(storage.getItem(STORAGE_KEY)).toBeNull()
   })
 
-  it('rejects an outdated schema', () => {
+  it('rejects unsupported schemas', () => {
     const storage = createMemoryStorage({
       [STORAGE_KEY]: JSON.stringify({ ...createInitialState(), schemaVersion: 1 }),
     })
     expect(loadGameState(storage)).toEqual(createInitialState())
-  })
-
-  it('migrates an in-progress schema-v3 locker without erasing First-Officer progress', () => {
-    const legacy = {
-      ...createInitialState(),
-      schemaVersion: 3,
-      phase: 'locker',
-      lockerCompleted: ['watch', 'nameplate'],
-      completedPuzzles: ['firstOfficer'],
-    }
-    delete (legacy as Partial<GameState>).lockerAttempts
-    const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(legacy) })
-
-    const migrated = loadGameState(storage)
-    expect(migrated.schemaVersion).toBe(7)
-    expect(migrated.phase).toBe('captain')
-    expect(migrated.lockerCompleted).toEqual(['watch'])
-    expect(migrated.lockerAttempts).toEqual({ watch: 0, baseball: 0, chargingBull: 0, wings: 0 })
-    expect(migrated.lockerIntroCompleted).toBe(true)
-    expect(migrated.completedPuzzles).toEqual(['firstOfficer'])
-  })
-
-  it('migrates a schema-v4 locker as an already-seen intro without losing progress', () => {
-    const legacy = {
-      ...createInitialState(),
-      schemaVersion: 4,
-      phase: 'locker',
-      lockerCompleted: ['watch'],
-      completedPuzzles: ['firstOfficer'],
-    }
-    delete (legacy as Partial<GameState>).lockerIntroCompleted
-    const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(legacy) })
-
-    const migrated = loadGameState(storage)
-    expect(migrated.schemaVersion).toBe(7)
-    expect(migrated.phase).toBe('captain')
-    expect(migrated.lockerIntroCompleted).toBe(true)
-    expect(migrated.lockerCompleted).toEqual(['watch'])
-    expect(migrated.completedPuzzles).toEqual(['firstOfficer'])
-  })
-
-  it('preserves schema-v5 saves created before the Bull question was added', () => {
-    const legacy = { ...createInitialState(), phase: 'locker', lockerCompleted: ['watch', 'baseball'], lockerAttempts: { watch: 1, baseball: 2 } }
-    const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(legacy) })
-
-    expect(loadGameState(storage).lockerAttempts).toEqual({ watch: 1, baseball: 2, chargingBull: 0, wings: 0 })
-    expect(loadGameState(storage).lockerCompleted).toEqual(['watch', 'baseball'])
-  })
-
-  it('preserves schema-v5 completion created before the Wings question was added', () => {
-    const legacy = {
-      ...createInitialState(),
-      phase: 'locker',
-      lockerCompleted: ['watch', 'baseball', 'chargingBull', 'wings'],
-      lockerHatRevealed: true,
-      lockerAttempts: { watch: 1, baseball: 2, chargingBull: 1 },
-    }
-    const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(legacy) })
-
-    const migrated = loadGameState(storage)
-    expect(migrated.lockerAttempts).toEqual({ watch: 1, baseball: 2, chargingBull: 1, wings: 0 })
-    expect(migrated.lockerCompleted).toEqual(['watch', 'baseball', 'chargingBull', 'wings'])
-    expect(migrated.lockerHatRevealed).toBe(true)
-  })
-
-  it('migrates an in-progress schema-v5 Captain save back to route verification', () => {
-    const legacy = {
-      ...createInitialState(),
-      schemaVersion: 5,
-      phase: 'captain',
-      switchSequence: ['battery', 'navigation'],
-      routeSelections: ['BTR', 'LAX', 'obsolete'],
-    }
-    delete (legacy as Partial<GameState>).captainRouteVerified
-    delete (legacy as Partial<GameState>).dc9SecureSequence
-    delete (legacy as Partial<GameState>).captainAttempts
-    const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(legacy) })
-
-    const migrated = loadGameState(storage)
-    expect(migrated.schemaVersion).toBe(7)
-    expect(migrated.phase).toBe('captain')
-    expect(migrated.captainRouteVerified).toBe(false)
-    expect(migrated.dc9SecureSequence).toEqual([])
-    expect(migrated.routeSelections).toEqual(['BTR'])
-    expect(migrated.dc9.stage).toBe('routeRecord')
-  })
-
-  it.each(['reward', 'mars'] as const)('preserves schema-v5 %s completion and reward state', (phase) => {
-    const legacy = {
-      ...createInitialState(),
-      schemaVersion: 5,
-      phase,
-      completedPuzzles: ['firstOfficer', 'locker', 'captain'],
-      captainRewardUnlocked: true,
-      marsUnlocked: phase === 'mars',
-      switchSequence: ['battery', 'navigation', 'cabin'],
-    }
-    delete (legacy as Partial<GameState>).captainRouteVerified
-    delete (legacy as Partial<GameState>).dc9SecureSequence
-    delete (legacy as Partial<GameState>).captainAttempts
-    const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(legacy) })
-
-    const migrated = loadGameState(storage)
-    expect(migrated.phase).toBe(phase)
-    expect(migrated.completedPuzzles).toContain('captain')
-    expect(migrated.captainRewardUnlocked).toBe(true)
-    expect(migrated.dc9SecureSequence).toEqual([...dc9LegacyFlow.secureSequence])
-  })
-
-  it('preserves a schema-v3 unlocked hat as completed new locker memories', () => {
-    const legacy = {
-      ...createInitialState(),
-      schemaVersion: 3,
-      phase: 'locker',
-      lockerCompleted: ['watch', 'baseball', 'nameplate', 'routeStrip', 'checklist'],
-      lockerHatRevealed: true,
-    }
-    delete (legacy as Partial<GameState>).lockerAttempts
-    const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(legacy) })
-
-    expect(loadGameState(storage).lockerCompleted).toEqual(['watch', 'baseball', 'chargingBull', 'wings'])
+    expect(storage.getItem(STORAGE_KEY)).toBeNull()
   })
 })

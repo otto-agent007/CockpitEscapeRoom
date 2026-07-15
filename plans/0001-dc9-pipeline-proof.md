@@ -1,5 +1,8 @@
 # DC-9 Blender-to-browser pipeline proof
 
+> **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
+
+
 ## Purpose
 
 After this milestone, the owner can open a Vercel preview and judge a small model-correct DC-9 cockpit blockout from the captain’s seat. Three switches, one gauge, one annunciator, and one Memphis route card will prove that Blender names, pivots, custom properties, animations, materials, and scale survive export into the game.

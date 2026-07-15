@@ -1,3 +1,18 @@
+# DC-9-32 First-Officer seat-role migration
+
+Date: 2026-07-15
+
+- Authoritative source: `art-source/blender/dc9_master.blend`; deployable output: `public/models/dc9-cockpit.glb`.
+- Blender 5.1.2 rebuilt and validated the source with zero scene errors or warnings.
+- Canonical cameras: `CAM_DC9_FIRST_OFFICER_GAME`, `CAM_DC9_FIRST_OFFICER_APPROVAL`, and first-officer main-panel, overhead, route, and pedestal approval cameras.
+- The route strip, row colliders, and submit collider are parented to the actual first-officer yoke while their route/shutdown `game_id` values remain stable.
+- Deprecated captain game/approval cameras remain compatibility-only nodes with replacement metadata.
+- Current GLB: 30,338,056 bytes; SHA-256 `501e1bb65a7e025125edd26cba31aa7775cdf4c39e3a1c1e2efaf42ddc62635d`; 656 selected export objects; 11 interactive contract objects; 8 materials and 5 textures; no destructive optimization.
+- Current approval still: `public/images/dc9-game-ready-first-officer.png`; SHA-256 `3ab21e6985c90e05d6ff1dc9097e60896fe101e4e78e1095adaaac76e6ff65ef`.
+- Browser visual evidence and the reopened owner gate are recorded in `plans/0013-dc9-fo-airbus-captain-seat-swap.md` and `TEST_REPORT.md`.
+
+> **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
+
 # DC-9-32 Pop T Captain production-pass report
 
 Date: 2026-07-13

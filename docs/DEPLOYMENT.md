@@ -12,7 +12,7 @@ asset/dc9-pipeline-proof
 feature/dc9-first-puzzle
 feature/dc9-main-game
 feature/model-y-reward
-feature/airbus-first-officer
+agent/dc9-fo-airbus-captain-seat-swap
 feature/mars-easter-egg
 release/fathers-day
 ```

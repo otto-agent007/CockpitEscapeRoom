@@ -15,18 +15,16 @@ function airbusState(overrides: Partial<GameState> = {}): GameState {
       homePage: dc9LegacyFlow.homeOperationsPages.length - 1,
       homeOperationsCompleted: true,
       secureSequence: [...dc9LegacyFlow.secureSequence],
+      secureAttempts: 0,
       keyRevealed: true,
       keyClaimed: true,
     },
-    captainRouteVerified: true,
-    dc9SecureSequence: [...dc9LegacyFlow.secureSequence],
-    routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
     lockerCompleted: [...lockerFlow.memoryIds],
     lockerIntroCompleted: true,
     lockerHatRevealed: true,
-    captainModeUnlocked: true,
-    completedPuzzles: ['captain', 'locker'],
-    statusMessage: 'Airbus First-Officer experience ready.',
+    airbusCaptainModeUnlocked: true,
+    completedPuzzles: ['dc9', 'locker'],
+    statusMessage: 'Airbus Pop T Captain experience ready.',
     ...overrides,
   }
 }
@@ -38,16 +36,16 @@ async function seed(page: Page, state: GameState) {
 
 test('loading failure offers retry and accessible completion path', async ({ page }) => {
   let requests = 0
-  await page.route('**/models/airbus-first-officer.glb', (route) => {
+  await page.route('**/models/airbus-captain.glb', (route) => {
     requests += 1
     return route.fulfill({ status: 503, body: 'offline' })
   })
   await page.goto('/')
   await seed(page, airbusState())
 
-  await expect(page.getByRole('heading', { name: 'Airbus A320 First-Officer Mode' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Airbus A320 Pop T Captain Mode' })).toBeVisible()
   await expect(page.getByText('One of the most beautiful offices on earth.')).toBeVisible()
-  await expect(page.getByText('Modern technology, human wisdom, and the view from the right seat.')).toBeVisible()
+  await expect(page.getByText('Modern technology, earned command, and the view from the left seat.')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Retry 3D' })).toBeVisible()
   await expect(page.getByRole('button', { name: /^SIDESTICK\b/ })).toHaveCount(0)
 
@@ -57,7 +55,8 @@ test('loading failure offers retry and accessible completion path', async ({ pag
 
   await page.getByRole('button', { name: 'Continue with accessible controls' }).click()
   await expect(page.getByRole('button', { name: /^SIDESTICK\b/ })).toBeVisible()
-  await expect(page.getByRole('img', { name: 'Game-ready Airbus A320 cockpit from the first-officer seat' })).toBeVisible()
+  await expect(page.getByRole('img', { name: 'Game-ready Airbus A320 cockpit from the captain seat' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Cockpit drop zone 1' })).toHaveAttribute('style', /left: 19\.5%/)
 })
 
 test('viewer help closes with Escape and restores trigger focus', async ({ page }) => {
@@ -65,7 +64,7 @@ test('viewer help closes with Escape and restores trigger focus', async ({ page 
   await seed(page, airbusState())
   const trigger = page.getByRole('button', { name: 'Open viewer help' })
   await trigger.click()
-  await expect(page.getByRole('dialog', { name: 'Explore this scene' })).toContainText('Look from the right seat')
+  await expect(page.getByRole('dialog', { name: 'Explore this scene' })).toContainText('Look from the left seat')
   await expect(page.getByRole('button', { name: 'Close viewer help' })).toBeFocused()
   await page.keyboard.press('Escape')
   await expect(page.getByRole('dialog', { name: 'Explore this scene' })).toHaveCount(0)
@@ -89,11 +88,11 @@ test('reduced motion Airbus completion keeps its celebration before reward and s
       radio: 'RADIO',
       altitude: 'ALTITUDE',
     },
+    completedPuzzles: ['dc9', 'locker', 'airbus'],
   }))
 
-  await page.getByRole('textbox', { name: 'Airline Transport Pilot answer' }).fill('1500 hours')
-  await page.getByRole('button', { name: 'Verify' }).click()
-  await expect(page.getByRole('dialog', { name: 'Airline Transport Pilot milestone recognized' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toHaveCount(0)
   await expect(page.locator('.qualification-confetti')).toHaveCount(0)
   await page.getByRole('button', { name: 'Continue' }).click()
   await expect(page.getByText('Ground Transport Upgrade Authorized', { exact: true })).toBeVisible()

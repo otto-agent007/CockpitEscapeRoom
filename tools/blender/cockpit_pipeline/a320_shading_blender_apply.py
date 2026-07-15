@@ -31,6 +31,9 @@ RUNTIME_METADATA_KEYS = [
     "coordinate_source",
     "target_game_id",
     "htmlEquivalent",
+    "deprecated",
+    "compatibility_only",
+    "replacement_camera",
 ]
 LOOSE_PART_QUARANTINE_COLLECTION = "A320_QUARANTINE_LOOSE_PARTS_REVIEW"
 LOOSE_PART_SOURCE_NODES = {
@@ -130,7 +133,7 @@ def _expected_runtime_nodes(node_report: dict[str, object], exclude: set[str] | 
                 names.add(collider)
             if isinstance(cue, str):
                 names.add(cue)
-    names.update(["AIRBUS_A320_LOC_CAPTAIN_EYE", "AIRBUS_A320_LOC_DASHBOARD_FOCUS", "CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW"])
+    names.update(["AIRBUS_A320_LOC_CAPTAIN_EYE", "AIRBUS_A320_LOC_DASHBOARD_FOCUS", "CAM_AIRBUS_CAPTAIN_GAME_VIEW"])
     return sorted(name for name in names if name not in exclude)
 
 
@@ -418,7 +421,7 @@ def _render_previews(preview_dir: Path, viewer_settings: dict[str, object]) -> N
         hidden_semantic_parts={"COCKPIT_FORWARD_INTERIOR_SHELL_AND_SEATS", "COCKPIT_REAR_BULKHEAD_SEATS_AND_SIDEWALLS"},
     )
     _render_camera_preview(preview_dir / "complete-interior-approval.png", "AIRBUS_A320_CAM_COMPLETE_INTERIOR_APPROVAL")
-    _render_camera_preview(preview_dir / "first-officer-approval.png", "AIRBUS_A320_CAM_FIRST_OFFICER_APPROVAL")
+    _render_camera_preview(preview_dir / "captain-approval.png", "AIRBUS_A320_CAM_CAPTAIN_APPROVAL")
     if bpy.data.objects.get("AIRBUS_A320_CAM_SKETCHFAB_VIEWER_PARITY"):
         _render_camera_preview(preview_dir / "sketchfab-camera-parity.png", "AIRBUS_A320_CAM_SKETCHFAB_VIEWER_PARITY")
     _render_preview(
@@ -479,12 +482,14 @@ def _render_camera_preview(path: Path, camera_name: str) -> None:
 def _add_approval_cameras(viewer_settings: dict[str, object]) -> None:
     _remove_stale_review_cameras()
     _add_between_seats_review_camera()
-    game_camera = _add_first_officer_game_camera(
-        "CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW",
-        game_id="airbus.a320.camera.first_officer_game_view",
-        purpose="Runtime First-Officer gameplay camera consumed by the React Three Fiber scene",
+    game_camera = _add_seat_camera(
+        "CAM_AIRBUS_CAPTAIN_GAME_VIEW",
+        location=(-0.153815, -0.647877, 0.130133),
+        rotation=(1.367064, 0.0, -0.282213),
+        game_id="airbus.a320.camera.captain_game_view",
+        purpose="Runtime captain gameplay camera consumed directly by the React Three Fiber scene",
     )
-    game_camera["source"] = "Recovered from d23ad95 saved shaded blend"
+    game_camera["source"] = "Mirrored from the approved FO eye calibration for the A320 captain seat"
     _add_review_camera(
         "AIRBUS_A320_CAM_COMPLETE_INTERIOR_APPROVAL",
         Vector((0.0, -0.86, 0.22)),
@@ -493,11 +498,15 @@ def _add_approval_cameras(viewer_settings: dict[str, object]) -> None:
         game_id="airbus.a320.camera.complete_interior_approval",
         purpose="Owner approval camera showing the visible cockpit interior without hiding shell or seat chunks",
     )
-    _add_first_officer_game_camera(
-        "AIRBUS_A320_CAM_FIRST_OFFICER_APPROVAL",
-        game_id="airbus.a320.camera.first_officer_approval",
-        purpose="Owner approval camera approximating the Airbus First Officer inside-cockpit screenshot target",
+    _add_seat_camera(
+        "AIRBUS_A320_CAM_CAPTAIN_APPROVAL",
+        location=(-0.153815, -0.647877, 0.130133),
+        rotation=(1.367064, 0.0, -0.282213),
+        game_id="airbus.a320.camera.captain_approval",
+        purpose="Owner approval camera for the Airbus A320 captain inside-cockpit target",
     )
+    _mark_deprecated_camera("CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW", "CAM_AIRBUS_CAPTAIN_GAME_VIEW")
+    _mark_deprecated_camera("AIRBUS_A320_CAM_FIRST_OFFICER_APPROVAL", "AIRBUS_A320_CAM_CAPTAIN_APPROVAL")
     camera_settings = viewer_settings.get("camera")
     if isinstance(camera_settings, dict):
         position = _vector_from_list(camera_settings.get("position"))
@@ -519,25 +528,42 @@ def _add_approval_cameras(viewer_settings: dict[str, object]) -> None:
                 camera.data.angle = math.radians(float(fov))
 
 
-def _add_first_officer_game_camera(name: str, game_id: str, purpose: str) -> bpy.types.Object:
+def _add_seat_camera(
+    name: str,
+    *,
+    location: tuple[float, float, float],
+    rotation: tuple[float, float, float],
+    game_id: str,
+    purpose: str,
+) -> bpy.types.Object:
     camera = bpy.data.objects.get(name)
     if camera is None:
         camera_data = bpy.data.cameras.new(name)
         camera = bpy.data.objects.new(name, camera_data)
         bpy.context.scene.collection.objects.link(camera)
-    camera.location = (0.153815, -0.647877, 0.130133)
-    camera.rotation_euler = (1.367064, 0.0, 0.282213)
-    camera.data.lens = 50
-    camera.data.angle = 0.691111
+    camera.location = location
+    camera.rotation_euler = rotation
+    camera.data.sensor_fit = "VERTICAL"
+    camera.data.angle_y = math.radians(68)
     camera.data.clip_start = 0.002
     camera.data.clip_end = 1000
     camera.data.display_size = 0.12
     camera["game_id"] = game_id
     camera["cameraPurpose"] = purpose
-    camera["fo_eye_forward_adjustment_m"] = 0.0508
-    camera["fo_eye_forward_adjustment_reason"] = "Move FO eye point 2 inches forward so orbiting back does not render from inside the seat."
+    camera["seat_role"] = "captain"
+    camera["eye_forward_adjustment_m"] = 0.0508
+    camera["eye_forward_adjustment_reason"] = "Keep the seated eye point forward of the seat back during restrained look controls."
     _parent_to_airbus_root(camera)
     return camera
+
+
+def _mark_deprecated_camera(name: str, replacement: str) -> None:
+    camera = bpy.data.objects.get(name)
+    if camera is None or camera.type != "CAMERA":
+        return
+    camera["deprecated"] = True
+    camera["compatibility_only"] = True
+    camera["replacement_camera"] = replacement
 
 
 def _add_review_camera(name: str, location: Vector, target: Vector, lens: float, game_id: str, purpose: str) -> bpy.types.Object:

@@ -1,22 +1,23 @@
 import {
   dc9LegacyFlow,
-  firstOfficerFlow,
+  airbusCaptainFlow,
   lockerFlow,
-  type FirstOfficerControl,
-  type FirstOfficerDecoy,
+  type AirbusControl,
+  type AirbusDecoy,
   type LockerMemoryId,
   type LockerQuestionId,
 } from './config'
 
-export const GAME_SCHEMA_VERSION = 7 as const
+export const GAME_SCHEMA_VERSION = 8 as const
 export const DC9_SECURE_ORDER = dc9LegacyFlow.secureSequence
-export const PUZZLE_IDS = ['firstOfficer', 'locker', 'captain'] as const
-export type GamePhase = 'briefing' | 'airbus' | 'locker' | 'captain' | 'reward' | 'mars'
+export const PUZZLE_IDS = ['dc9', 'locker', 'airbus'] as const
+export type GamePhase = 'briefing' | 'dc9' | 'locker' | 'airbus' | 'reward' | 'mars'
 export type Dc9ChapterStage =
   | 'intro'
   | 'routeRecord'
   | 'homeOperations'
   | 'shutdown'
+  | 'qualification'
   | 'keyReveal'
   | 'complete'
 export interface Dc9ChapterProgress {
@@ -27,15 +28,16 @@ export interface Dc9ChapterProgress {
   homePage: number
   homeOperationsCompleted: boolean
   secureSequence: Dc9SecureControlId[]
+  secureAttempts: number
   keyRevealed: boolean
   keyClaimed: boolean
 }
 export type GameAction =
   | { type: 'START' }
-  | { type: 'ASSIGN_AIRBUS_CARD'; control: FirstOfficerControl; card: string }
-  | { type: 'ASSIGN_AIRBUS_DECOY_CARD'; decoy: FirstOfficerDecoy; card: string }
-  | { type: 'SET_AIRBUS_CLOCK_ANSWER'; value: string }
-  | { type: 'SUBMIT_AIRBUS_CLOCK' }
+  | { type: 'ASSIGN_AIRBUS_CARD'; control: AirbusControl; card: string }
+  | { type: 'ASSIGN_AIRBUS_DECOY_CARD'; decoy: AirbusDecoy; card: string }
+  | { type: 'SET_ATP_QUALIFICATION_ANSWER'; value: string }
+  | { type: 'SUBMIT_DC9_ATP_QUALIFICATION' }
   | { type: 'CONTINUE_FROM_AIRBUS_TO_REWARD' }
   | { type: 'COMPLETE_LOCKER_INTRO' }
   | { type: 'SUBMIT_LOCKER_ANSWER'; memoryId: LockerQuestionId; response: string }
@@ -50,8 +52,6 @@ export type GameAction =
   | { type: 'OPEN_CAPTAINS_KEY' }
   | { type: 'CLAIM_CAPTAINS_KEY' }
   | { type: 'CONTINUE_FROM_LOCKER_TO_AIRBUS' }
-  | { type: 'TOGGLE_ROUTE'; code: string }
-  | { type: 'SUBMIT_ROUTE' }
   | { type: 'USE_HINT' }
   | { type: 'UNLOCK_MARS' }
   | { type: 'RETURN_TO_REWARD' }
@@ -60,11 +60,11 @@ export type Dc9SecureControlId = (typeof DC9_SECURE_ORDER)[number]
 export type PuzzleId = (typeof PUZZLE_IDS)[number]
 
 export type AirbusAssignments = {
-  [K in FirstOfficerControl]: string | null
+  [K in AirbusControl]: string | null
 }
 
 export type AirbusDecoyAssignments = {
-  [K in FirstOfficerDecoy]: string | null
+  [K in AirbusDecoy]: string | null
 }
 
 interface LockerPayload {
@@ -79,21 +79,16 @@ export interface GameState {
   phase: GamePhase
   airbusAssignments: AirbusAssignments
   airbusDecoyAssignments: AirbusDecoyAssignments
-  airbusClockAnswer: string
+  airbusQualificationAnswer: string
   lockerCompleted: LockerMemoryId[]
   lockerAttempts: LockerAttempts
   lockerIntroCompleted: boolean
   lockerHatRevealed: boolean
   dc9: Dc9ChapterProgress
-  // Schema-v6 compatibility fields remain until migration and old call sites are removed.
-  captainModeUnlocked: boolean
-  captainRouteVerified: boolean
-  dc9SecureSequence: Dc9SecureControlId[]
-  captainAttempts: { route: number; secure: number }
-  routeSelections: string[]
+  airbusCaptainModeUnlocked: boolean
   completedPuzzles: PuzzleId[]
   hintsUsed: number
-  captainRewardUnlocked: boolean
+  rewardUnlocked: boolean
   marsUnlocked: boolean
   statusMessage: string
 }
@@ -109,13 +104,6 @@ function normalize(value: unknown): string {
 
 function unique<T>(items: readonly T[]): T[] {
   return [...new Set(items)]
-}
-
-function sameCodeSet(actual: string[], expected: readonly string[]): boolean {
-  if (actual.length !== expected.length) return false
-  const sortedActual = [...actual].sort()
-  const sortedExpected = [...expected].sort()
-  return sortedActual.every((value, index) => value === sortedExpected[index])
 }
 
 function createEmptyAssignments(): AirbusAssignments {
@@ -138,15 +126,11 @@ function createEmptyDecoyAssignments(): AirbusDecoyAssignments {
 }
 
 function allControlsCorrect(assignments: AirbusAssignments): boolean {
-  return firstOfficerFlow.controlIds.every((id) => assignments[id] === firstOfficerFlow.controlMatch[id])
+  return airbusCaptainFlow.controlIds.every((id) => assignments[id] === airbusCaptainFlow.controlMatch[id])
 }
 
 function countPlacedAirbusCards(assignments: AirbusAssignments): number {
   return Object.values(assignments).filter(Boolean).length
-}
-
-function allControlsAssigned(assignments: AirbusAssignments): boolean {
-  return countPlacedAirbusCards(assignments) === firstOfficerFlow.controlCards.length
 }
 
 function removeCardFromAirbusTargets(
@@ -156,10 +140,10 @@ function removeCardFromAirbusTargets(
 ): { assignments: AirbusAssignments; decoyAssignments: AirbusDecoyAssignments } {
   const nextAssignments = { ...assignments }
   const nextDecoyAssignments = { ...decoyAssignments }
-  for (const control of firstOfficerFlow.controlIds) {
+  for (const control of airbusCaptainFlow.controlIds) {
     if (nextAssignments[control] === card) nextAssignments[control] = null
   }
-  for (const decoy of firstOfficerFlow.decoyIds) {
+  for (const decoy of airbusCaptainFlow.decoyIds) {
     if (nextDecoyAssignments[decoy] === card) nextDecoyAssignments[decoy] = null
   }
   return { assignments: nextAssignments, decoyAssignments: nextDecoyAssignments }
@@ -169,25 +153,25 @@ function controlAnswerFeedback(assignments: AirbusAssignments): string {
   const placed = countPlacedAirbusCards(assignments)
   if (placed === 0) return 'Match each label card to a cockpit object.'
 
-  const wrongControl = firstOfficerFlow.controlIds.find((control) => {
+  const wrongControl = airbusCaptainFlow.controlIds.find((control) => {
     const card = assignments[control]
-    return card !== null && card !== firstOfficerFlow.controlMatch[control]
+    return card !== null && card !== airbusCaptainFlow.controlMatch[control]
   })
   if (wrongControl) {
     return 'That card does not match this cockpit control. Try it somewhere else.'
   }
 
-  const remaining = firstOfficerFlow.controlCards.length - placed
+  const remaining = airbusCaptainFlow.controlCards.length - placed
   if (remaining > 0) {
     return `Green means correct. ${remaining} label${remaining === 1 ? '' : 's'} left.`
   }
 
-  return 'All five labels are correct. Answer the Airline Transport Pilot question to qualify.'
+  return `${airbusCaptainFlow.firstCompleteBanner}. ${airbusCaptainFlow.knowledgeLoggedText}`
 }
 
 function isAirlineTransportPilotAnswerCorrect(value: string): boolean {
   const normalized = normalize(value)
-  return firstOfficerFlow.clockAnswers.some((answer) => normalize(answer) === normalized)
+  return dc9LegacyFlow.atpAnswers.some((answer) => normalize(answer) === normalized)
 }
 
 function isLockerAnswerCorrect(memoryId: LockerQuestionId, response: string): boolean {
@@ -219,13 +203,17 @@ export function isLockerMemoryAvailable(
 
 function hintFor(state: GameState): string {
   if (state.phase === 'airbus') {
-    if (!allControlsAssigned(state.airbusAssignments)) {
+    if (countPlacedAirbusCards(state.airbusAssignments) !== airbusCaptainFlow.controlCards.length) {
       return 'Green boxes are correct. Red boxes need a different label. Place the remaining cards on the visible boxes.'
     }
     if (!allControlsCorrect(state.airbusAssignments)) {
       return 'Fix the red box by selecting that card again and placing a better match.'
     }
-    return `All five labels are correct. Try ${firstOfficerFlow.clockQuestion}`
+    return `${airbusCaptainFlow.firstCompleteBanner}. ${airbusCaptainFlow.knowledgeLoggedText}`
+  }
+
+  if (state.phase === 'dc9' && state.dc9.stage === 'qualification') {
+    return 'Use the standard total-time milestone for an Airline Transport Pilot certificate.'
   }
 
   if (state.phase === 'locker') {
@@ -239,14 +227,14 @@ function hintFor(state: GameState): string {
     return `Look for ${available.map((id) => lockerFlow.memories[id].label).join(', ')}.`
   }
 
-  if (state.phase === 'captain') {
-    if (!state.captainRouteVerified) {
-      return state.captainAttempts.route > 0
+  if (state.phase === 'dc9') {
+    if (state.dc9.routeCompleted.length !== dc9LegacyFlow.routePuzzleAnswers.length) {
+      return state.dc9.routeAttempts > 0
         ? dc9LegacyFlow.routeMileageHint
         : 'Use the code, city, and period-mileage columns to identify the three short MEM DC-9 routes.'
     }
-    if (state.captainAttempts.secure > 0) {
-      const next = DC9_SECURE_ORDER[state.dc9SecureSequence.length]
+    if (state.dc9.secureAttempts > 0) {
+      const next = DC9_SECURE_ORDER[state.dc9.secureSequence.length]
       return next
         ? `Next: ${dc9LegacyFlow.secureControls[next].label}. ${dc9LegacyFlow.secureHint}`
         : dc9LegacyFlow.secureHint
@@ -268,7 +256,7 @@ export function createInitialState(): GameState {
     phase: 'briefing',
     airbusAssignments: createEmptyAssignments(),
     airbusDecoyAssignments: createEmptyDecoyAssignments(),
-    airbusClockAnswer: '',
+    airbusQualificationAnswer: '',
     lockerCompleted: [],
     lockerAttempts: { watch: 0, baseball: 0, chargingBull: 0, wings: 0 },
     lockerIntroCompleted: false,
@@ -281,17 +269,14 @@ export function createInitialState(): GameState {
       homePage: 0,
       homeOperationsCompleted: false,
       secureSequence: [],
+      secureAttempts: 0,
       keyRevealed: false,
       keyClaimed: false,
     },
-    captainModeUnlocked: false,
-    captainRouteVerified: false,
-    dc9SecureSequence: [],
-    captainAttempts: { route: 0, secure: 0 },
-    routeSelections: [],
+    airbusCaptainModeUnlocked: false,
     completedPuzzles: [],
     hintsUsed: 0,
-    captainRewardUnlocked: false,
+    rewardUnlocked: false,
     marsUnlocked: false,
     statusMessage: 'Begin the DC-9 Final Flight Log when you are ready.',
   }
@@ -303,12 +288,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.phase !== 'briefing') return state
       return {
         ...state,
-        phase: 'captain',
-        statusMessage: 'The parked DC-9 is ready. Find the route strip on the captain yoke.',
+        phase: 'dc9',
+        statusMessage: 'The parked DC-9 is ready. Find the route strip on the first-officer yoke.',
       }
 
     case 'OPEN_DC9_ROUTE_RECORD':
-      if (state.phase !== 'captain' || (state.dc9.stage !== 'intro' && state.dc9.stage !== 'routeRecord')) return state
+      if (state.phase !== 'dc9' || (state.dc9.stage !== 'intro' && state.dc9.stage !== 'routeRecord')) return state
       return {
         ...state,
         dc9: { ...state.dc9, stage: 'routeRecord' },
@@ -316,7 +301,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
 
     case 'TOGGLE_DC9_ROUTE': {
-      if (state.phase !== 'captain' || state.dc9.stage !== 'routeRecord') return state
+      if (state.phase !== 'dc9' || state.dc9.stage !== 'routeRecord') return state
       if (!(dc9LegacyFlow.routePuzzleOptions as readonly { code: string }[]).some((route) => route.code === action.code)) return state
       if (state.dc9.routeCompleted.includes(action.code)) {
         return { ...state, statusMessage: `${action.code} is permanently stamped in the legacy record.` }
@@ -346,7 +331,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case 'SUBMIT_DC9_ROUTES': {
-      if (state.phase !== 'captain' || state.dc9.stage !== 'routeRecord') return state
+      if (state.phase !== 'dc9' || state.dc9.stage !== 'routeRecord') return state
       const approved = dc9LegacyFlow.routePuzzleAnswers as readonly string[]
       const stampedSet = new Set([
         ...state.dc9.routeCompleted,
@@ -363,8 +348,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             routeSelections: [...approved],
             routeCompleted: [...approved],
           },
-          captainRouteVerified: true,
-          routeSelections: [...approved],
           statusMessage: dc9LegacyFlow.routeCompletionText,
         }
       }
@@ -382,13 +365,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           routeCompleted: stamped,
           routeAttempts,
         },
-        captainAttempts: { ...state.captainAttempts, route: routeAttempts },
         statusMessage: hint,
       }
     }
 
     case 'SET_HOME_OPERATIONS_PAGE': {
-      if (state.phase !== 'captain' || state.dc9.stage !== 'homeOperations') return state
+      if (state.phase !== 'dc9' || state.dc9.stage !== 'homeOperations') return state
       const finalPage = dc9LegacyFlow.homeOperationsPages.length - 1
       const page = Number.isSafeInteger(action.page)
         ? Math.max(0, Math.min(action.page, finalPage))
@@ -401,7 +383,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case 'COMPLETE_HOME_OPERATIONS': {
-      if (state.phase !== 'captain' || state.dc9.stage !== 'homeOperations') return state
+      if (state.phase !== 'dc9' || state.dc9.stage !== 'homeOperations') return state
       if (state.dc9.homePage < dc9LegacyFlow.homeOperationsPages.length - 1) {
         return { ...state, statusMessage: 'Continue through the Home Operations Log before applying its legacy seal.' }
       }
@@ -425,7 +407,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             ...state.airbusAssignments,
             [action.control]: null,
           },
-          airbusClockAnswer: '',
           statusMessage: 'Card removed from control. Reassign a matching card.',
         }
       }
@@ -436,18 +417,20 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         [action.control]: action.card,
       }
       const feedback = controlAnswerFeedback(nextAssignments)
-      const correctPlacement = action.card === firstOfficerFlow.controlMatch[action.control]
-      const hasWrongPlacement = firstOfficerFlow.controlIds.some((control) => {
+      const correctPlacement = action.card === airbusCaptainFlow.controlMatch[action.control]
+      const hasWrongPlacement = airbusCaptainFlow.controlIds.some((control) => {
         const card = nextAssignments[control]
-        return card !== null && card !== firstOfficerFlow.controlMatch[control]
+        return card !== null && card !== airbusCaptainFlow.controlMatch[control]
       })
       return {
         ...state,
         airbusAssignments: nextAssignments,
         airbusDecoyAssignments: cleared.decoyAssignments,
-        airbusClockAnswer: '',
+        completedPuzzles: allControlsCorrect(nextAssignments)
+          ? unique([...state.completedPuzzles, 'airbus'])
+          : state.completedPuzzles,
         statusMessage: correctPlacement && !hasWrongPlacement && !allControlsCorrect(nextAssignments)
-          ? firstOfficerFlow.controlHints[action.control]
+          ? airbusCaptainFlow.controlHints[action.control]
           : feedback,
       }
     }
@@ -463,33 +446,20 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         airbusAssignments: cleared.assignments,
         airbusDecoyAssignments: nextDecoyAssignments,
-        airbusClockAnswer: '',
         statusMessage: 'That area is not part of this five-label check. Use one of the visible cockpit boxes.',
       }
     }
 
-    case 'SET_AIRBUS_CLOCK_ANSWER':
-      if (state.phase !== 'airbus') return state
+    case 'SET_ATP_QUALIFICATION_ANSWER':
+      if (state.phase !== 'dc9' || state.dc9.stage !== 'qualification') return state
       return {
         ...state,
-        airbusClockAnswer: action.value,
+        airbusQualificationAnswer: action.value,
       }
 
-    case 'SUBMIT_AIRBUS_CLOCK': {
-      if (state.phase !== 'airbus') return state
-      if (!allControlsAssigned(state.airbusAssignments)) {
-        return {
-          ...state,
-          statusMessage: 'Place each label on the visible cockpit boxes.',
-        }
-      }
-      if (!allControlsCorrect(state.airbusAssignments)) {
-        return {
-          ...state,
-          statusMessage: 'Fix the red label boxes before moving on.',
-        }
-      }
-      if (!isAirlineTransportPilotAnswerCorrect(state.airbusClockAnswer)) {
+    case 'SUBMIT_DC9_ATP_QUALIFICATION': {
+      if (state.phase !== 'dc9' || state.dc9.stage !== 'qualification') return state
+      if (!isAirlineTransportPilotAnswerCorrect(state.airbusQualificationAnswer)) {
         return {
           ...state,
           statusMessage: 'That Airline Transport Pilot answer is not yet recognized. Try the standard hour milestone.',
@@ -497,17 +467,17 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
       return {
         ...state,
-        completedPuzzles: unique([...state.completedPuzzles, 'firstOfficer']),
-        statusMessage: `${firstOfficerFlow.clockFeedback} ${firstOfficerFlow.knowledgeLoggedText}`,
+        dc9: { ...state.dc9, stage: 'keyReveal' },
+        statusMessage: `${dc9LegacyFlow.atpFeedback} The Captain's Key is ready.`,
       }
     }
 
     case 'CONTINUE_FROM_AIRBUS_TO_REWARD':
-      if (state.phase !== 'airbus' || !state.completedPuzzles.includes('firstOfficer')) return state
+      if (state.phase !== 'airbus' || !state.completedPuzzles.includes('airbus')) return state
       return {
         ...state,
         phase: 'reward',
-        captainRewardUnlocked: true,
+        rewardUnlocked: true,
         statusMessage: 'Ground transport upgrade authorized.',
       }
 
@@ -579,13 +549,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.phase !== 'locker' || !state.lockerHatRevealed) return state
       return {
         ...state,
-        captainModeUnlocked: true,
+        airbusCaptainModeUnlocked: true,
         completedPuzzles: unique([...state.completedPuzzles, 'locker']),
         statusMessage: `${lockerFlow.hatText.foundText} ${lockerFlow.hatText.promotionText} ${lockerFlow.hatText.captainModeText}`,
       }
 
     case 'ACTIVATE_DC9_CONTROL': {
-      if (state.phase !== 'captain') return state
+      if (state.phase !== 'dc9') return state
       if (state.dc9.stage !== 'shutdown') {
         return { ...state, statusMessage: 'Complete both legacy records before beginning the ceremonial shutdown.' }
       }
@@ -598,25 +568,24 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           ...state,
           dc9: {
             ...state.dc9,
-            stage: complete ? 'keyReveal' : 'shutdown',
+            stage: complete ? 'qualification' : 'shutdown',
             secureSequence: nextSequence,
           },
-          dc9SecureSequence: nextSequence,
           statusMessage: complete
-            ? dc9LegacyFlow.completionText
+            ? `${dc9LegacyFlow.completionText} Complete the Airline Transport Pilot milestone to close the Final Flight Log.`
             : `${dc9LegacyFlow.secureControls[action.controlId].label} off. ${DC9_SECURE_ORDER.length - nextSequence.length} control${DC9_SECURE_ORDER.length - nextSequence.length === 1 ? '' : 's'} remaining.`,
         }
       }
 
       return {
         ...state,
-        captainAttempts: { ...state.captainAttempts, secure: state.captainAttempts.secure + 1 },
+        dc9: { ...state.dc9, secureAttempts: state.dc9.secureAttempts + 1 },
         statusMessage: dc9LegacyFlow.secureRetry,
       }
     }
 
     case 'OPEN_CAPTAINS_KEY':
-      if (state.phase !== 'captain' || state.dc9.stage !== 'keyReveal') return state
+      if (state.phase !== 'dc9' || state.dc9.stage !== 'keyReveal') return state
       return {
         ...state,
         dc9: { ...state.dc9, keyRevealed: true },
@@ -624,7 +593,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
 
     case 'CLAIM_CAPTAINS_KEY':
-      if (state.phase !== 'captain' || state.dc9.stage !== 'keyReveal' || !state.dc9.keyRevealed) return state
+      if (state.phase !== 'dc9' || state.dc9.stage !== 'keyReveal' || !state.dc9.keyRevealed) return state
       return {
         ...state,
         phase: 'locker',
@@ -633,71 +602,27 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           stage: 'complete',
           keyClaimed: true,
         },
-        completedPuzzles: unique([...state.completedPuzzles, 'captain']),
+        completedPuzzles: unique([...state.completedPuzzles, 'dc9']),
         lockerIntroCompleted: false,
         statusMessage: "The Captain's Key is claimed. The Captain's Locker is opening.",
       }
 
     case 'CONTINUE_FROM_LOCKER_TO_AIRBUS':
       if (state.phase !== 'locker' || !state.completedPuzzles.includes('locker')) return state
-      if (state.completedPuzzles.includes('firstOfficer')) {
+      if (state.completedPuzzles.includes('airbus')) {
         return {
           ...state,
           phase: 'reward',
-          captainRewardUnlocked: true,
-          statusMessage: 'The Airbus First-Officer record is already complete. Ground transport upgrade authorized.',
+          rewardUnlocked: true,
+          statusMessage: 'Airbus A320 Pop T Captain Mode is already complete. Ground transport upgrade authorized.',
         }
       }
       return {
         ...state,
         phase: 'airbus',
-        airbusClockAnswer: '',
-        statusMessage: 'The family legacy continues in the Airbus A320 First-Officer experience.',
+        airbusQualificationAnswer: '',
+        statusMessage: 'The family legacy continues in Airbus A320 Pop T Captain Mode.',
       }
-
-    case 'TOGGLE_ROUTE': {
-      if (state.phase !== 'captain') return state
-      if (state.captainRouteVerified) return state
-      if (!(dc9LegacyFlow.routePuzzleOptions as readonly { code: string }[]).some((route) => route.code === action.code)) return state
-      const selected = state.routeSelections.includes(action.code)
-      if (selected) {
-        return {
-          ...state,
-          routeSelections: state.routeSelections.filter((code) => code !== action.code),
-          statusMessage: `${action.code} removed from the strip.`,
-        }
-      }
-      if (state.routeSelections.length >= dc9LegacyFlow.routePuzzleAnswers.length) {
-        return {
-          ...state,
-          statusMessage: 'The legacy strip holds three entries. Remove one before adding another.',
-        }
-      }
-      return {
-        ...state,
-        routeSelections: [...state.routeSelections, action.code],
-        statusMessage: `${action.code} added to legacy route choices.`,
-      }
-    }
-
-    case 'SUBMIT_ROUTE': {
-      if (state.phase !== 'captain') return state
-      if (state.captainRouteVerified) return state
-      const correct = sameCodeSet(state.routeSelections, dc9LegacyFlow.routePuzzleAnswers)
-      if (!correct) {
-        return {
-          ...state,
-          routeSelections: [],
-          captainAttempts: { ...state.captainAttempts, route: state.captainAttempts.route + 1 },
-          statusMessage: dc9LegacyFlow.routeRetry,
-        }
-      }
-      return {
-        ...state,
-        captainRouteVerified: true,
-        statusMessage: dc9LegacyFlow.secureInstruction,
-      }
-    }
 
     case 'USE_HINT':
       return {

@@ -48,13 +48,15 @@ The eval fixtures cover known failure modes: Tripo candidates promoted beyond pr
 
 Keep generated assets separated by scene group:
 
-- Airbus A320 First-Officer cockpit
+- Airbus A320 Pop T Captain cockpit
 - Locker room scene
-- DC-9 Pop T Captain cockpit
+- DC-9 First-Officer cockpit
 - Model Y hangar reward
 - Mars Easter egg
 
 Do not mix Airbus and DC-9 aircraft-specific details. The Airbus cockpit must remain a separate model-specific asset, and the DC-9 cockpit must stay model-correct in major visible geometry. Tripo-generated parts may help explore shape, scale, or prop options, but they may not silently override approved aircraft reference boards.
+
+The active aircraft seat contract is DC-9 first officer/right seat and Airbus A320 Pop T captain/left seat. Build the DC-9 from `art-source/blender/dc9_master.blend` into `public/models/dc9-cockpit.glb`; build the Airbus from the authoritative shaded source into `public/models/airbus-captain.glb`. Runtime camera names and target contracts are defined in `docs/ASSET_CONTRACT.md`.
 
 ## Tripo AI candidate rules
 
@@ -115,10 +117,13 @@ Production exports continue to use the repository asset commands:
 ```bash
 npm run asset:dc9
 npm run asset:airbus
+npm run asset:airbus:promote-gate
 npm run asset:tesla
 npm run asset:locker
 npm run assets:check
 ```
+
+Run `asset:airbus:promote-gate` only after the durable 1440x900 initial and dragged-look captain-view captures exist. It regenerates the current deployable gate from `public/models/airbus-captain.glb` and those evidence files. The older A320 assembly job writes its own assembly-stage contract and cannot overwrite this deployable gate.
 
 `npm run asset:locker` also runs the deterministic locker prop importer before validation/export. It preserves configured downloads, verifies immutable source hashes, and rejects Tripo candidates that fail the 4K source gate.
 

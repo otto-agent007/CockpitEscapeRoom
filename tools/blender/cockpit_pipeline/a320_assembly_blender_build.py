@@ -61,7 +61,7 @@ A320_LABEL_TARGETS = {
         "colliderName": "AIRBUS_A320_TARGET_SIDESTICK_HITBOX",
         "cueName": "AIRBUS_A320_TARGET_SIDESTICK_CUE",
         "gameId": "airbus.a320.target.sidestick",
-        "location": (0.224475, -0.453081, 0.045670),
+        "location": (-0.224475, -0.453081, 0.045670),
         "size": (0.055, 0.060, 0.090),
         "cueSize": (0.035, 0.012, 0.050),
         "cueShape": "sidestick_silhouette",
@@ -122,7 +122,7 @@ A320_LABEL_TARGETS = {
     },
 }
 
-TARGET_VISUAL_ALIGNMENT_STATUS = "verified_browser_1440_768"
+TARGET_VISUAL_ALIGNMENT_STATUS = "pending_browser_1440_captain"
 
 
 def main() -> None:
@@ -148,7 +148,7 @@ def main() -> None:
     root = bpy.data.objects.new("AIRBUS_ROOT", None)
     bpy.context.collection.objects.link(root)
     root["game_id"] = "airbus.a320.root"
-    root["scene_group"] = "Airbus A320 First-Officer cockpit"
+    root["scene_group"] = "Airbus A320 Pop T Captain cockpit"
     root["target_aircraft"] = "Airbus A320"
     root["assemblyStage"] = "assembly_complete"
     root["source_candidate_id"] = "a320-prebuilt-sketchfab-a320-cockpit-2"
@@ -219,7 +219,7 @@ def main() -> None:
 
     contract_summary = {
         "rootObject": root.name,
-        "sceneGroup": "Airbus A320 First-Officer cockpit",
+        "sceneGroup": "Airbus A320 Pop T Captain cockpit",
         "assetPath": glb_path.as_posix(),
         "runtimeNodes": [
             _runtime_node(root.name, "airbus.a320.root", False, "GROUP_ROOT", "Scene container; no direct HTML control."),
@@ -357,14 +357,14 @@ def _add_label_targets(parent: bpy.types.Object) -> list[dict[str, object]]:
         pivot["game_id"] = target["gameId"]
         pivot["control_id"] = control_id
         pivot["interaction"] = "label_target"
-        pivot["puzzle_id"] = "first_officer"
+        pivot["puzzle_id"] = "airbus"
         pivot["rotation_axis"] = target["rotationAxis"]
         pivot["rest_angle"] = 0.0
         pivot["active_angle"] = target["activeAngle"]
         pivot["pivotVerified"] = True
         pivot["pivotExportVerified"] = True
         pivot["visual_alignment_status"] = TARGET_VISUAL_ALIGNMENT_STATUS
-        pivot["coordinate_source"] = "1440x900 FO gameplay camera ray calibration"
+        pivot["coordinate_source"] = "1440x900 captain gameplay camera mirror calibration"
         pivot["htmlEquivalent"] = f"{target['label']} target button in the Airbus placement layer."
 
         collider = _create_box_mesh(target["colliderName"], target["size"])
@@ -378,7 +378,7 @@ def _add_label_targets(parent: bpy.types.Object) -> list[dict[str, object]]:
         collider["target_game_id"] = target["gameId"]
         collider["control_id"] = control_id
         collider["interaction"] = "label_target"
-        collider["puzzle_id"] = "first_officer"
+        collider["puzzle_id"] = "airbus"
         collider["rotation_axis"] = target["rotationAxis"]
         collider["rest_angle"] = 0.0
         collider["active_angle"] = target["activeAngle"]
@@ -399,7 +399,7 @@ def _add_label_targets(parent: bpy.types.Object) -> list[dict[str, object]]:
         cue["target_game_id"] = target["gameId"]
         cue["control_id"] = control_id
         cue["interaction"] = "label_target_cue"
-        cue["puzzle_id"] = "first_officer"
+        cue["puzzle_id"] = "airbus"
         cue["cueOnly"] = True
         cue["cue_shape"] = target["cueShape"]
         cue["pivotExportVerified"] = True

@@ -36,7 +36,7 @@ Do not replace Blender’s global startup file; keep the template versioned with
 
 ## 3. First DC-9 source file
 
-Save a copy as `dc9_master.blend`. Create `DC9_ROOT` and the hierarchy in `docs/ASSET_CONTRACT.md`. Add `CAM_DC9_CAPTAIN_APPROVAL` before modeling detail so proportions are always reviewed from the intended eye point.
+Save a copy as `dc9_master.blend`. Create `DC9_ROOT` and the hierarchy in `docs/ASSET_CONTRACT.md`. Add `CAM_DC9_FIRST_OFFICER_APPROVAL` before modeling detail so proportions are always reviewed from the intended right-seat eye point.
 
 ## 4. Proof-of-pipeline asset
 
@@ -79,13 +79,13 @@ Load the GLB in the actual React Three Fiber application. Verify:
 - Gauge animation.
 - Emissive material response.
 - Pointer and HTML-equivalent controls.
-- Mobile and desktop performance.
+- Desktop performance at the 1440×900 milestone viewport; retain existing narrow-width regressions.
 
 A Blender render alone is not acceptance evidence.
 
 ## 7. Texture and geometry strategy
 
-Use geometry for major controls, bezels, yokes, throttles, handles, and silhouettes. Bake shallow labels, paint grain, fine scratches, small fasteners, grime, and ambient occlusion when practical. Reserve the highest texel density for the captain’s main view and puzzle close-ups.
+Use geometry for major controls, bezels, yokes, throttles, handles, and silhouettes. Bake shallow labels, paint grain, fine scratches, small fasteners, grime, and ambient occlusion when practical. Reserve the highest texel density for the active seat view and puzzle close-ups.
 
 ## 8. Git LFS and deployment
 

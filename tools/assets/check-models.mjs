@@ -14,6 +14,105 @@ if (models.length === 0) {
 
 let failed = false
 
+function glbJson(path) {
+  const bytes = readFileSync(path)
+  if (bytes.toString('utf8', 0, 4) !== 'glTF') throw new Error('invalid GLB magic')
+  const jsonLength = bytes.readUInt32LE(12)
+  const jsonType = bytes.toString('utf8', 16, 20)
+  if (jsonType !== 'JSON') throw new Error('first GLB chunk is not JSON')
+  return JSON.parse(bytes.toString('utf8', 20, 20 + jsonLength))
+}
+
+const requiredModelContracts = {
+  'dc9-cockpit.glb': [
+    'DC9_ROOT',
+    'CAM_DC9_FIRST_OFFICER_GAME',
+    'CAM_DC9_FIRST_OFFICER_APPROVAL',
+    'CAM_DC9_FIRST_OFFICER_ROUTE_APPROVAL',
+    'CAM_DC9_FIRST_OFFICER_MAIN_PANEL_APPROVAL',
+    'CAM_DC9_FIRST_OFFICER_OVERHEAD_APPROVAL',
+    'CAM_DC9_FIRST_OFFICER_PEDESTAL_APPROVAL',
+  ],
+  'airbus-captain.glb': [
+    'AIRBUS_ROOT',
+    'CAM_AIRBUS_CAPTAIN_GAME_VIEW',
+    'AIRBUS_A320_CAM_CAPTAIN_APPROVAL',
+    'AIRBUS_A320_TARGET_SIDESTICK_PIVOT',
+    'AIRBUS_A320_TARGET_THRUST_PIVOT',
+    'AIRBUS_A320_TARGET_GEAR_PIVOT',
+    'AIRBUS_A320_TARGET_RADIO_PIVOT',
+    'AIRBUS_A320_TARGET_ALTITUDE_PIVOT',
+  ],
+}
+
+if (models.includes('airbus-first-officer.glb')) {
+  console.error('Deprecated deployable model must be removed: public/models/airbus-first-officer.glb')
+  failed = true
+}
+
+for (const [model, requiredNodes] of Object.entries(requiredModelContracts)) {
+  if (!models.includes(model)) {
+    console.error(`Missing required production model: ${join(modelDir, model)}`)
+    failed = true
+    continue
+  }
+  try {
+    const json = glbJson(join(modelDir, model))
+    const names = new Set((json.nodes ?? []).map((node) => node.name).filter(Boolean))
+    const missing = requiredNodes.filter((name) => !names.has(name))
+    if (missing.length > 0) {
+      console.error(`${model} is missing required runtime nodes: ${missing.join(', ')}`)
+      failed = true
+    }
+    if (model === 'dc9-cockpit.glb') {
+      const nodes = json.nodes ?? []
+      const nodeIndex = (name) => nodes.findIndex((node) => node.name === name)
+      const parentName = (name) => {
+        const index = nodeIndex(name)
+        const parent = nodes.find((node) => node.children?.includes(index))
+        return parent?.name
+      }
+      const routeCard = nodes[nodeIndex('DC9_PROP_MEM_ROUTE_CARD')]
+      const routeTranslation = routeCard?.translation
+      const centeredOnFirstOfficerYoke = Array.isArray(routeTranslation)
+        && Math.abs(routeTranslation[0] - 0.4973) < 0.002
+        && Math.abs(routeTranslation[1] - 0.27) < 0.002
+        && Math.abs(routeTranslation[2] - 2.775) < 0.002
+      const routeContractNodes = nodes
+        .map((node) => node.name)
+        .filter((name) => name === 'DC9_PROP_MEM_ROUTE_CARD'
+          || name === 'DC9_ROUTE_SUBMIT'
+          || /^DC9_ROUTE_ROW_[A-Z]{3}$/.test(name ?? '')
+          || name?.startsWith('DC9_HITBOX_ROUTE_'))
+      const routeContractParentedToFirstOfficerYoke = routeContractNodes.every(
+        (name) => parentName(name) === 'OBJ8_DC9VC2_RANGE_014',
+      )
+      if (!centeredOnFirstOfficerYoke || !routeContractParentedToFirstOfficerYoke) {
+        console.error('DC-9 route record and hitboxes must be centered on the first-officer yoke.')
+        failed = true
+      }
+    }
+    if (model === 'airbus-captain.glb') {
+      const cameraNode = (json.nodes ?? []).find((node) => node.name === 'CAM_AIRBUS_CAPTAIN_GAME_VIEW')
+      const camera = cameraNode && Number.isInteger(cameraNode.camera) ? json.cameras?.[cameraNode.camera] : null
+      const verticalFov = camera?.perspective?.yfov
+      if (typeof verticalFov !== 'number' || verticalFov < 1.16 || verticalFov > 1.21) {
+        console.error(`Airbus captain gameplay camera must export a 68-degree vertical field of view; received ${verticalFov ?? 'none'}.`)
+        failed = true
+      }
+      const radioPivot = (json.nodes ?? []).find((node) => node.name === 'AIRBUS_A320_TARGET_RADIO_PIVOT')
+      const radioLateral = radioPivot?.translation?.[0]
+      if (typeof radioLateral !== 'number' || radioLateral >= 0) {
+        console.error(`Airbus captain radio target must be on the captain/left side; received lateral coordinate ${radioLateral ?? 'none'}.`)
+        failed = true
+      }
+    }
+  } catch (error) {
+    console.error(`Could not inspect ${model}: ${error instanceof Error ? error.message : String(error)}`)
+    failed = true
+  }
+}
+
 if (models.includes('locker-room.glb')) {
   const reportPath = 'asset-reports/locker-room-prop-intake.json'
   const requiredProps = new Set(['baseball', 'pilot-watch', 'pilot-wings', 'charging-bull', 'captains-hat'])

@@ -36,7 +36,16 @@ for obj in bpy.data.objects:
 
 for camera in cameras:
     scene.camera = camera
+    fill = None
+    if ASSET_NAME == "airbus":
+        bpy.ops.object.light_add(type="POINT", location=camera.matrix_world.translation)
+        fill = bpy.context.object
+        fill.name = "AIRBUS_CAPTAIN_APPROVAL_CAMERA_FILL"
+        fill.data.energy = 95
+        fill.data.shadow_soft_size = 1.0
     output = PREVIEW_DIR / f"{camera.name.lower()}.png"
     scene.render.filepath = str(output)
     bpy.ops.render.render(write_still=True)
     print(f"Rendered {output}")
+    if fill is not None:
+        bpy.data.objects.remove(fill, do_unlink=True)

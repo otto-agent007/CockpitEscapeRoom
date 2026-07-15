@@ -3,36 +3,18 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { OrbitControls as ThreeOrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import * as THREE from 'three'
-import { dc9LegacyFlow, firstOfficerFlow, type FirstOfficerControl, type LockerMemoryId } from '../game/config'
+import { dc9LegacyFlow, airbusCaptainFlow, type AirbusControl, type LockerMemoryId } from '../game/config'
 import { type Dc9ChapterStage, type Dc9SecureControlId, type GamePhase } from '../game/state'
+import { AIRBUS_MODEL_URL, clearCockpitModel, DC9_MODEL_URL, loadCockpitModel, LOCKER_MODEL_URL } from './cockpitModelLoader'
 
-// Cockpit shells produced by the asset pipeline and served from public/models.
-const AIRBUS_MODEL_URL = `${import.meta.env.BASE_URL}models/airbus-first-officer.glb`
-const DC9_MODEL_URL = `${import.meta.env.BASE_URL}models/dc9-cockpit.glb?v=dc9-yoke-card-v9-20260713`
-const LOCKER_MODEL_URL = `${import.meta.env.BASE_URL}models/locker-room.glb?v=locker-seams-cf212389`
-
-// Fetch and parse each cockpit GLB once per session, even across scene remounts.
-const cockpitModelCache = new Map<string, Promise<THREE.Group>>()
-
-function loadCockpitModel(url: string): Promise<THREE.Group> {
-  let promise = cockpitModelCache.get(url)
-  if (!promise) {
-    promise = new GLTFLoader().loadAsync(url).then((gltf) => gltf.scene)
-    cockpitModelCache.set(url, promise)
-  }
-  return promise
-}
-
-const AIRBUS_GAME_CAMERA = 'CAM_AIRBUS_FIRST_OFFICER_GAME_VIEW'
-const DC9_GAME_CAMERA = 'CAM_DC9_CAPTAIN_GAME'
-const DC9_ROUTE_CAMERA = 'CAM_DC9_ROUTE_CARD_APPROVAL'
-const DC9_SECURE_CAMERA = 'CAM_DC9_OVERHEAD_APPROVAL'
+const AIRBUS_GAME_CAMERA = 'CAM_AIRBUS_CAPTAIN_GAME_VIEW'
+const DC9_GAME_CAMERA = 'CAM_DC9_FIRST_OFFICER_GAME'
+const DC9_ROUTE_CAMERA = 'CAM_DC9_FIRST_OFFICER_ROUTE_APPROVAL'
+const DC9_SECURE_CAMERA = 'CAM_DC9_FIRST_OFFICER_OVERHEAD_APPROVAL'
 const AIRBUS_WIDE_GAME_FOV = 68
 const AIRBUS_NARROW_GAME_FOV = 92
 const AIRBUS_MIN_FOV = 50
 const AIRBUS_MAX_FOV = 76
-const AIRBUS_FO_EYE_POSITION = new THREE.Vector3(0.153815, 0.130133, 0.647877)
-const AIRBUS_FO_EYE_QUATERNION = new THREE.Quaternion(-0.100679, 0.13991, 0.014302, 0.984929)
 const AIRBUS_LOOK_YAW_LIMIT = 0.34
 const AIRBUS_LOOK_PITCH_LIMIT = 0.22
 const AIRBUS_LOOK_POINTER_SPEED = 0.0021
@@ -77,7 +59,7 @@ const LOCKER_CAMERA_POSES: Record<LockerCameraCue, LockerCameraPose> = {
   'bull-focus': lockerCloseFocusPose(LOCKER_BULL_POSITION, LOCKER_MEMORY_CAMERA_MOVE_SECONDS),
   'wings-focus': lockerCloseFocusPose(LOCKER_WINGS_POSITION, LOCKER_MEMORY_CAMERA_MOVE_SECONDS),
 }
-const AIRBUS_TARGET_NODES: Record<FirstOfficerControl, { pivot: string; hitbox: string; cue: string }> = {
+const AIRBUS_TARGET_NODES: Record<AirbusControl, { pivot: string; hitbox: string; cue: string }> = {
   sidestick: {
     pivot: 'AIRBUS_A320_TARGET_SIDESTICK_PIVOT',
     hitbox: 'AIRBUS_A320_TARGET_SIDESTICK_HITBOX',
@@ -129,7 +111,7 @@ const AIRBUS_REQUIRED_NODES = [
   AIRBUS_GAME_CAMERA,
 ] as const
 
-export type AirbusHotspotScreenPositions = Partial<Record<FirstOfficerControl, { x: number; y: number; visible: boolean }>>
+export type AirbusHotspotScreenPositions = Partial<Record<AirbusControl, { x: number; y: number; visible: boolean }>>
 export type AirbusLoadState =
   | { status: 'loading'; loadedBytes: number; totalBytes?: number; percentage?: number }
   | { status: 'ready'; loadedBytes: number; totalBytes?: number; percentage: 100 }
@@ -146,7 +128,7 @@ interface PrototypeSceneProps {
   dc9ChapterStage: Dc9ChapterStage
   reducedMotion: boolean
   lockerHatRevealed: boolean
-  captainRewardUnlocked: boolean
+  rewardUnlocked: boolean
   selectedAirbusCard: string | null
   airbusRetryToken: number
   lockerRetryToken: number
@@ -160,7 +142,7 @@ interface PrototypeSceneProps {
   onDc9LoadState: (state: Dc9LoadState) => void
   onAirbusHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
   onDc9HotspotsChange?: (positions: Dc9HotspotScreenPositions) => void
-  onAirbusTarget: (control: FirstOfficerControl) => void
+  onAirbusTarget: (control: AirbusControl) => void
   onLockerCameraSettled: (cue: LockerCameraCue) => void
   onDc9Interaction: (gameId: string) => void
   onMars: () => void
@@ -172,18 +154,18 @@ type HoverHandler = (hovering: boolean) => void
 interface LoadedAirbusScene {
   scene: THREE.Group
   camera: THREE.Camera | null
-  targetPivots: Partial<Record<FirstOfficerControl, THREE.Object3D>>
+  targetPivots: Partial<Record<AirbusControl, THREE.Object3D>>
 }
 
 function projectAirbusHotspots(
   camera: THREE.Camera,
   size: { width: number; height: number },
-  targetPivots: Partial<Record<FirstOfficerControl, THREE.Object3D>>,
+  targetPivots: Partial<Record<AirbusControl, THREE.Object3D>>,
 ): AirbusHotspotScreenPositions {
   const positions: AirbusHotspotScreenPositions = {}
   const worldPosition = new THREE.Vector3()
 
-  for (const control of firstOfficerFlow.controlIds) {
+  for (const control of airbusCaptainFlow.controlIds) {
     const pivot = targetPivots[control]
     if (!pivot) continue
     pivot.getWorldPosition(worldPosition)
@@ -201,8 +183,9 @@ function projectAirbusHotspots(
 }
 
 function applyAirbusGameplayCameraTransform(runtimeCamera: THREE.Camera, sourceCamera: THREE.Camera, fovOverride?: number) {
-  runtimeCamera.position.copy(AIRBUS_FO_EYE_POSITION)
-  runtimeCamera.quaternion.copy(AIRBUS_FO_EYE_QUATERNION)
+  sourceCamera.updateWorldMatrix(true, false)
+  sourceCamera.getWorldPosition(runtimeCamera.position)
+  sourceCamera.getWorldQuaternion(runtimeCamera.quaternion)
   runtimeCamera.scale.set(1, 1, 1)
   runtimeCamera.updateMatrix()
   if (runtimeCamera instanceof THREE.PerspectiveCamera && sourceCamera instanceof THREE.PerspectiveCamera) {
@@ -428,8 +411,10 @@ function LockerOrbitControls({
 
 function AirbusSeatLookControls({
   airbusCameraRevision,
+  sourceCamera,
 }: {
   airbusCameraRevision: number
+  sourceCamera: THREE.Camera
 }) {
   const { camera, gl, size } = useThree()
   const basePositionRef = useRef(new THREE.Vector3())
@@ -479,14 +464,15 @@ function AirbusSeatLookControls({
     cameraDirtyRef.current = false
   })
 
-  useEffect(() => {
-    basePositionRef.current.copy(AIRBUS_FO_EYE_POSITION)
-    baseQuaternionRef.current.copy(AIRBUS_FO_EYE_QUATERNION)
+  useLayoutEffect(() => {
+    sourceCamera.updateWorldMatrix(true, false)
+    sourceCamera.getWorldPosition(basePositionRef.current)
+    sourceCamera.getWorldQuaternion(baseQuaternionRef.current)
     yawRef.current = 0
     pitchRef.current = 0
-    fovRef.current = AIRBUS_WIDE_GAME_FOV
+    fovRef.current = sourceCamera instanceof THREE.PerspectiveCamera ? sourceCamera.fov : AIRBUS_WIDE_GAME_FOV
     cameraDirtyRef.current = true
-  }, [airbusCameraRevision])
+  }, [airbusCameraRevision, sourceCamera])
 
   useEffect(() => {
     const canvas = gl.domElement
@@ -694,7 +680,7 @@ function AirbusHotspotProjector({
   targetPivots,
   onHotspotsChange,
 }: {
-  targetPivots: Partial<Record<FirstOfficerControl, THREE.Object3D>>
+  targetPivots: Partial<Record<AirbusControl, THREE.Object3D>>
   onHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
 }) {
   const { camera, size } = useThree()
@@ -713,14 +699,14 @@ function AirbusHotspotProjector({
   return null
 }
 
-function isFirstOfficerControl(value: unknown): value is FirstOfficerControl {
-  return typeof value === 'string' && (firstOfficerFlow.controlIds as readonly string[]).includes(value)
+function isAirbusControl(value: unknown): value is AirbusControl {
+  return typeof value === 'string' && (airbusCaptainFlow.controlIds as readonly string[]).includes(value)
 }
 
-function airbusControlForObject(object: THREE.Object3D): FirstOfficerControl | null {
+function airbusControlForObject(object: THREE.Object3D): AirbusControl | null {
   let current: THREE.Object3D | null = object
   while (current) {
-    if (current.userData.interaction === 'label_target' && isFirstOfficerControl(current.userData.control_id)) {
+    if (current.userData.interaction === 'label_target' && isAirbusControl(current.userData.control_id)) {
       return current.userData.control_id
     }
     current = current.parent
@@ -766,7 +752,7 @@ function AirbusTargetRaycaster({
 }: {
   scene: THREE.Group
   selectedAirbusCard: string | null
-  onTarget: (control: FirstOfficerControl) => void
+  onTarget: (control: AirbusControl) => void
   onHoverInteractive: HoverHandler
 }) {
   const { camera, gl } = useThree()
@@ -775,7 +761,7 @@ function AirbusTargetRaycaster({
   const hoveringRef = useRef(false)
   const colliders = useMemo(() => findAirbusTargetColliders(scene), [scene])
 
-  const pickControl = useCallback((event: MouseEvent | PointerEvent | DragEvent): FirstOfficerControl | null => {
+  const pickControl = useCallback((event: MouseEvent | PointerEvent | DragEvent): AirbusControl | null => {
     const bounds = gl.domElement.getBoundingClientRect()
     scene.updateMatrixWorld(true)
 
@@ -893,7 +879,7 @@ function AirbusCockpit({
   cameraResetRevision: number
   onLoadState: (state: AirbusLoadState) => void
   onAirbusHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
-  onAirbusTarget: (control: FirstOfficerControl) => void
+  onAirbusTarget: (control: AirbusControl) => void
   onHoverInteractive: HoverHandler
 }) {
   const { camera, size } = useThree()
@@ -946,8 +932,8 @@ function AirbusCockpit({
         loadedScene.userData.airbusRuntimeMaterialToneApplied = true
 
         loadedScene.updateMatrixWorld(true)
-        const targetPivots: Partial<Record<FirstOfficerControl, THREE.Object3D>> = {}
-        for (const control of firstOfficerFlow.controlIds) {
+        const targetPivots: Partial<Record<AirbusControl, THREE.Object3D>> = {}
+        for (const control of airbusCaptainFlow.controlIds) {
           const pivot = loadedScene.getObjectByName(AIRBUS_TARGET_NODES[control].pivot)
           if (pivot) targetPivots[control] = pivot
         }
@@ -985,7 +971,7 @@ function AirbusCockpit({
   useLayoutEffect(() => {
     if (!loaded?.camera) return
     loaded.scene.updateMatrixWorld(true)
-    applyAirbusGameplayCameraTransform(camera, loaded.camera, size.width < 900 ? AIRBUS_NARROW_GAME_FOV : AIRBUS_WIDE_GAME_FOV)
+    applyAirbusGameplayCameraTransform(camera, loaded.camera, size.width < 900 ? AIRBUS_NARROW_GAME_FOV : undefined)
     onAirbusHotspotsChange?.(projectAirbusHotspots(camera, { width: size.width, height: size.height }, loaded.targetPivots))
   }, [camera, loaded, onAirbusHotspotsChange, size.height, size.width])
 
@@ -1001,10 +987,10 @@ function AirbusCockpit({
     <>
       <color attach="background" args={['#172123']} />
       <AirbusRuntimeLighting />
-      {loaded && !loadFailed && (
+      {loaded?.camera && !loadFailed && (
         <>
           <primitive object={loaded.scene} />
-          <AirbusSeatLookControls airbusCameraRevision={cameraResetRevision} />
+          <AirbusSeatLookControls airbusCameraRevision={cameraResetRevision} sourceCamera={loaded.camera} />
           <AirbusHotspotProjector targetPivots={loaded.targetPivots} onHotspotsChange={onAirbusHotspotsChange} />
           <AirbusTargetRaycaster
             scene={loaded.scene}
@@ -1186,7 +1172,7 @@ function LockerRoom({
   useEffect(() => {
     let active = true
     onLoadState({ status: 'loading' })
-    if (retryToken > 0) cockpitModelCache.delete(LOCKER_MODEL_URL)
+    if (retryToken > 0) clearCockpitModel(LOCKER_MODEL_URL)
     loadCockpitModel(LOCKER_MODEL_URL)
       .then((loaded) => {
         if (!active) return
@@ -1214,7 +1200,7 @@ function LockerRoom({
         onLoadState({ status: 'ready' })
       })
       .catch((error) => {
-        cockpitModelCache.delete(LOCKER_MODEL_URL)
+        clearCockpitModel(LOCKER_MODEL_URL)
         console.error('Failed to load captain locker asset.', error)
         if (active) onLoadState({ status: 'error' })
       })
@@ -1522,7 +1508,7 @@ function Dc9Cockpit({
   cameraResetRevision: number
   activeControls: Dc9SecureControlId[]
   chapterStage: Dc9ChapterStage
-  phase: 'captain' | 'reward' | 'mars'
+  phase: 'dc9' | 'reward' | 'mars'
   reducedMotion: boolean
   interactionEnabled: boolean
   onLoadState: (state: Dc9LoadState) => void
@@ -1616,7 +1602,7 @@ function Dc9Cockpit({
         onLoadState({ status: 'ready' })
       })
       .catch((error) => {
-        cockpitModelCache.delete(DC9_MODEL_URL)
+        clearCockpitModel(DC9_MODEL_URL)
         console.error('Failed to load DC-9 cockpit asset.', error)
         if (!active) return
         setLoadFailed(true)
@@ -1636,8 +1622,8 @@ function Dc9Cockpit({
 
   useLayoutEffect(() => {
     if (!loaded) return
-    const routeStage = phase === 'captain' && (chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations')
-    const shutdownStage = phase === 'captain' && chapterStage === 'shutdown'
+    const routeStage = phase === 'dc9' && (chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations')
+    const shutdownStage = phase === 'dc9' && chapterStage === 'shutdown'
     const sourceCamera = routeStage ? loaded.routeCamera : shutdownStage ? loaded.secureCamera : loaded.camera
     const wideFov = routeStage ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV
     const narrowFov = routeStage ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV
@@ -1652,8 +1638,8 @@ function Dc9Cockpit({
 
   useLayoutEffect(() => {
     if (!loaded) return
-    const routeInteractive = phase === 'captain' && (chapterStage === 'intro' || chapterStage === 'routeRecord')
-    const shutdownInteractive = phase === 'captain' && chapterStage === 'shutdown'
+    const routeInteractive = phase === 'dc9' && (chapterStage === 'intro' || chapterStage === 'routeRecord')
+    const shutdownInteractive = phase === 'dc9' && chapterStage === 'shutdown'
     const routeProps = loaded.scene.getObjectByName('DC9_PUZZLE_PROPS')
     if (routeProps) routeProps.visible = false
     loaded.scene.traverse((object) => {
@@ -1672,14 +1658,14 @@ function Dc9Cockpit({
         <>
           <primitive object={loaded.scene} dispose={null} />
           <Dc9SeatLookControls
-            sourceCamera={phase === 'captain' && (chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations')
+            sourceCamera={phase === 'dc9' && (chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations')
               ? loaded.routeCamera
-              : phase === 'captain' && chapterStage === 'shutdown'
+              : phase === 'dc9' && chapterStage === 'shutdown'
                 ? loaded.secureCamera
                 : loaded.camera}
             cameraResetRevision={cameraResetRevision}
-            wideFov={phase === 'captain' && (chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations') ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV}
-            narrowFov={phase === 'captain' && (chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations') ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV}
+            wideFov={phase === 'dc9' && (chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations') ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV}
+            narrowFov={phase === 'dc9' && (chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations') ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV}
           />
           <Dc9ControlAnimator controls={loaded.controls} activeControls={activeControls} reducedMotion={reducedMotion} />
           <Dc9HotspotProjector targets={loaded.targets} onChange={onHotspotsChange} />
@@ -1715,7 +1701,7 @@ function CaptainCockpit({
   activeControls: Dc9SecureControlId[]
   chapterStage: Dc9ChapterStage
   reducedMotion: boolean
-  phase: 'captain' | 'reward' | 'mars'
+  phase: 'dc9' | 'reward' | 'mars'
   cameraResetRevision: number
   onLoadState: (state: Dc9LoadState) => void
   onHotspotsChange?: (positions: Dc9HotspotScreenPositions) => void
@@ -1731,13 +1717,13 @@ function CaptainCockpit({
         chapterStage={chapterStage}
         phase={phase}
         reducedMotion={reducedMotion}
-        interactionEnabled={phase === 'captain'}
+        interactionEnabled={phase === 'dc9'}
         onLoadState={onLoadState}
         onHotspotsChange={onHotspotsChange}
         onInteraction={onInteraction}
         onHoverInteractive={onHoverInteractive}
       />
-      {phase !== 'captain' && <mesh
+      {phase !== 'dc9' && <mesh
         position={[-1.2, 0.9, 0.21]}
         onClick={(event) => {
           event.stopPropagation()
@@ -1752,7 +1738,7 @@ function CaptainCockpit({
         <sphereGeometry args={[0.08, 20, 20]} />
         <meshStandardMaterial color={phase === 'reward' || phase === 'mars' ? '#bf2b20' : '#321612'} />
       </mesh>}
-      {phase !== 'captain' && (
+      {phase !== 'dc9' && (
         <mesh position={[0, -1.05, -0.6]} castShadow>
           <boxGeometry args={[1.9, 0.42, 0.72]} />
           <meshStandardMaterial color="#a4161b" roughness={0.35} />
@@ -1768,7 +1754,7 @@ export function PrototypeScene({
   dc9ChapterStage,
   reducedMotion,
   lockerHatRevealed,
-  captainRewardUnlocked,
+  rewardUnlocked,
   selectedAirbusCard,
   airbusRetryToken,
   lockerRetryToken,
@@ -1834,7 +1820,7 @@ export function PrototypeScene({
             />
           </>
         )}
-        {(phase === 'captain' || phase === 'reward' || phase === 'mars') && (
+        {(phase === 'dc9' || phase === 'reward' || phase === 'mars') && (
           <CaptainCockpit
             activeControls={activeDc9Controls}
             chapterStage={dc9ChapterStage}
@@ -1848,7 +1834,7 @@ export function PrototypeScene({
             onHoverInteractive={onInteractiveHover}
           />
         )}
-        {captainRewardUnlocked && phase === 'reward' && (
+        {rewardUnlocked && phase === 'reward' && (
           <mesh position={[0, -1.12, -0.58]} rotation={[0, -0.35, 0]}>
             <boxGeometry args={[1.55, 0.38, 0.72]} />
             <meshStandardMaterial color="#a41419" roughness={0.25} metalness={0.55} />
@@ -1860,7 +1846,7 @@ export function PrototypeScene({
       </Canvas>
       {phase !== 'airbus' && phase !== 'locker' && (
         <div className="prototype-badge">
-          {phase === 'captain' ? 'GREYBOX — DC-9 FINAL FLIGHT LOG' : 'HANGAR VIEW'}
+          {phase === 'dc9' ? 'GREYBOX — DC-9 FINAL FLIGHT LOG' : 'HANGAR VIEW'}
         </div>
       )}
     </div>

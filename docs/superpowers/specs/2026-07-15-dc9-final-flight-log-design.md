@@ -1,5 +1,8 @@
 # DC-9 Final Flight Log — Design
 
+> **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
+
+
 Date: 2026-07-15  
 Status: Approved design  
 Scope: DC-9 opening chapter plus the minimum progression changes required to place locker and the existing Airbus chapter after it
