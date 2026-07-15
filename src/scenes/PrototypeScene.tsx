@@ -8,7 +8,7 @@ import { type Dc9ChapterStage, type Dc9SecureControlId, type GamePhase } from '.
 
 // Cockpit shells produced by the asset pipeline and served from public/models.
 const AIRBUS_MODEL_URL = `${import.meta.env.BASE_URL}models/airbus-first-officer.glb`
-const DC9_MODEL_URL = `${import.meta.env.BASE_URL}models/dc9-cockpit.glb?v=dc9-operations-v12-20260713`
+const DC9_MODEL_URL = `${import.meta.env.BASE_URL}models/dc9-cockpit.glb?v=dc9-yoke-card-v9-20260713`
 const LOCKER_MODEL_URL = `${import.meta.env.BASE_URL}models/locker-room.glb?v=locker-seams-cf212389`
 
 // Fetch and parse each cockpit GLB once per session, even across scene remounts.
@@ -44,145 +44,8 @@ const DC9_MIN_FOV = 48
 const DC9_MAX_FOV = 82
 const DC9_LOOK_YAW_LEFT_LIMIT = 0.30
 const DC9_LOOK_YAW_RIGHT_LIMIT = 0.72
-const DC9_LOOK_PITCH_UP_LIMIT = 1.36
-const DC9_LOOK_PITCH_DOWN_LIMIT = 0.42
+const DC9_LOOK_PITCH_LIMIT = 0.18
 const DC9_LOOK_POINTER_SPEED = 0.0018
-
-function dc9ControlLabel(dataref: string) {
-  const sourceName = dataref.split('/').filter(Boolean).at(-1) ?? 'cockpit control'
-  return sourceName
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .replace(/[_-]+/g, ' ')
-    .replace(/\b\w/g, (letter) => letter.toUpperCase())
-}
-
-function dc9ControlId(dataref: string, instance: number | string) {
-  const slug = dataref.toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '')
-  return `dc9.control.${slug}.${instance}`
-}
-
-type Dc9MotionChannel = {
-  kind: 'rotate' | 'translate'
-  dataref: string
-  axis: [number, number, number] | null
-  pivot: [number, number, number] | null
-  keys: Array<[number, number[]]>
-}
-
-type Dc9MotionContract = {
-  version: 1
-  sourceDatarefs: string[]
-  manipulatorInstance: number
-  interaction: 'toggle' | 'drag-axis' | 'delta' | 'drag-xy' | 'inspect'
-  arguments: string[]
-  channels: Dc9MotionChannel[]
-}
-
-function parseDc9MotionContract(value: unknown): Dc9MotionContract | null {
-  if (typeof value !== 'string') return null
-  try {
-    const contract = JSON.parse(value) as Partial<Dc9MotionContract>
-    if (contract.version !== 1 || !Array.isArray(contract.channels) || !Array.isArray(contract.sourceDatarefs)) return null
-    return contract as Dc9MotionContract
-  } catch {
-    return null
-  }
-}
-
-function dc9SourceStem(name: string) {
-  return name.replace(/_RANGE_.*$/i, '').replace(/[^a-z0-9]+/gi, '.').replace(/^\.+|\.+$/g, '').toLowerCase()
-}
-
-function interpolateDc9Channel(channel: Dc9MotionChannel, value: number) {
-  const keys = channel.keys
-  if (keys.length === 0) return channel.kind === 'rotate' ? [0] : [0, 0, 0]
-  const exact = keys.filter(([input]) => input === value).at(-1)
-  if (exact) return exact[1]
-  const distinct = [...keys].sort((a, b) => a[0] - b[0])
-  if (value <= distinct[0]![0]) return distinct[0]![1]
-  if (value >= distinct.at(-1)![0]) return distinct.at(-1)![1]
-  const upperIndex = distinct.findIndex(([input]) => input > value)
-  const lower = distinct[upperIndex - 1]!
-  const upper = distinct[upperIndex]!
-  const amount = (value - lower[0]) / (upper[0] - lower[0])
-  return lower[1].map((component, index) => THREE.MathUtils.lerp(component, upper[1][index] ?? component, amount))
-}
-
-function dc9ChannelRange(channel: Dc9MotionChannel): [number, number] {
-  const inputs = channel.keys.map(([input]) => input)
-  return [Math.min(...inputs), Math.max(...inputs)]
-}
-
-function applyDc9RouteCardTexture(scene: THREE.Object3D) {
-  const card = scene.getObjectByName('DC9_PROP_MEM_ROUTE_CARD')
-  if (!(card instanceof THREE.Mesh)) return
-  const canvas = document.createElement('canvas')
-  canvas.width = 512
-  canvas.height = 1024
-  const context = canvas.getContext('2d')
-  if (!context) return
-  context.fillStyle = '#e8dfc4'
-  context.fillRect(0, 0, 512, 1024)
-  context.strokeStyle = '#172728'
-  context.lineWidth = 10
-  context.strokeRect(14, 14, 484, 996)
-  context.fillStyle = '#172728'
-  context.textAlign = 'center'
-  context.font = '700 48px sans-serif'
-  context.fillText('MEM ROUTE STRIP', 256, 82)
-  const routes = [['BTR', 'BATON ROUGE'], ['STL', 'ST. LOUIS'], ['TYS', 'KNOXVILLE'], ['LAX', 'LOS ANGELES'], ['SEA', 'SEATTLE'], ['AMS', 'AMSTERDAM']] as const
-  routes.forEach(([code, city], index) => {
-    const y = 175 + index * 118
-    context.textAlign = 'left'
-    context.strokeRect(45, y - 35, 42, 42)
-    context.font = '700 34px monospace'
-    context.fillText(code, 110, y)
-    context.font = '600 23px sans-serif'
-    context.fillText(city, 220, y)
-    context.beginPath()
-    context.moveTo(42, y + 35)
-    context.lineTo(470, y + 35)
-    context.stroke()
-  })
-  context.textAlign = 'center'
-  context.font = '700 26px sans-serif'
-  context.fillText('SELECT 3  •  VERIFY', 256, 940)
-  const texture = new THREE.CanvasTexture(canvas)
-  texture.colorSpace = THREE.SRGBColorSpace
-  texture.anisotropy = 8
-  const sourceMaterial = Array.isArray(card.material) ? card.material[0] : card.material
-  const material = sourceMaterial instanceof THREE.MeshStandardMaterial ? sourceMaterial.clone() : new THREE.MeshStandardMaterial()
-  material.map = texture
-  material.color.set(0xffffff)
-  material.roughness = 0.82
-  material.needsUpdate = true
-  card.material = material
-}
-
-function setupDc9CaptainYoke(scene: THREE.Group) {
-  const column = scene.getObjectByName('OBJ8_DC9VC2_RANGE_012')
-  const wheel = scene.getObjectByName('OBJ8_DC9VC2_RANGE_013')
-  if (!column || !wheel) return
-  const pitchRoot = new THREE.Group()
-  pitchRoot.name = 'DC9_CAPTAIN_YOKE_PITCH_ROOT'
-  pitchRoot.position.set(-0.579981, -0.289439, 2.56786)
-  const rollRoot = new THREE.Group()
-  rollRoot.name = 'DC9_CAPTAIN_YOKE_ROLL_ROOT'
-  rollRoot.position.set(-0.484682, 0.3098604, 2.4735297)
-  scene.add(pitchRoot, rollRoot)
-  pitchRoot.attach(column)
-  rollRoot.attach(wheel)
-  pitchRoot.attach(rollRoot)
-  for (const part of [column, wheel]) {
-    part.traverse((object) => {
-      if (!(object instanceof THREE.Mesh)) return
-      object.userData.dc9_direct_control = 'captain-yoke'
-      object.userData.game_id = 'dc9.control.captain.yoke'
-      object.userData.accessible_label = 'Captain control yoke'
-      object.frustumCulled = false
-    })
-  }
-}
 const LOCKER_CAMERA_MOVE_SECONDS = 4.5
 const LOCKER_MEMORY_CAMERA_MOVE_SECONDS = 1.8
 const LOCKER_CLOSE_FOCUS_FOV = 30
@@ -283,6 +146,7 @@ interface PrototypeSceneProps {
   dc9ChapterStage: Dc9ChapterStage
   reducedMotion: boolean
   lockerHatRevealed: boolean
+  captainRewardUnlocked: boolean
   selectedAirbusCard: string | null
   airbusRetryToken: number
   lockerRetryToken: number
@@ -643,7 +507,6 @@ function AirbusSeatLookControls({
 
     const onLookMove = (event: PointerEvent) => {
       if (!draggingRef.current) return
-      if (canvas.dataset.dc9ControlDragging === 'true') return
       const deltaX = event.clientX - lastPointerRef.current.x
       const deltaY = event.clientY - lastPointerRef.current.y
       lastPointerRef.current = { x: event.clientX, y: event.clientY }
@@ -799,8 +662,8 @@ function Dc9SeatLookControls({
       )
       pitchRef.current = THREE.MathUtils.clamp(
         pitchRef.current - deltaY * DC9_LOOK_POINTER_SPEED,
-        -DC9_LOOK_PITCH_UP_LIMIT,
-        DC9_LOOK_PITCH_DOWN_LIMIT,
+        -DC9_LOOK_PITCH_LIMIT,
+        DC9_LOOK_PITCH_LIMIT,
       )
       cameraDirtyRef.current = true
     }
@@ -1580,10 +1443,7 @@ function Dc9InteractionRaycaster({
   const colliders = useMemo(() => {
     const result: THREE.Mesh[] = []
     scene.traverse((object) => {
-      if (
-        object instanceof THREE.Mesh
-        && (object.userData.collider_only === true || typeof object.userData.source_manipulator_dataref === 'string' || object.userData.dc9_direct_control === 'captain-yoke')
-      ) result.push(object)
+      if (object instanceof THREE.Mesh && object.userData.collider_only === true) result.push(object)
     })
     return result
   }, [scene])
@@ -1593,75 +1453,6 @@ function Dc9InteractionRaycaster({
     const canvas = gl.domElement
     let pointerDownAt: { x: number; y: number } | null = null
     let dragged = false
-    const donorValues = new Map<string, number>()
-    const donorBases = new Map<string, { position: THREE.Vector3; quaternion: THREE.Quaternion }>()
-    let activeYoke: { startX: number; startY: number } | null = null
-    let activeDonor: {
-      root: THREE.Object3D
-      contract: Dc9MotionContract
-      start: { x: number; y: number }
-      values: Map<string, number>
-    } | null = null
-    let hoveredDonor: { gameId: string; object: THREE.Object3D } | null = null
-    const donorRoot = (object: THREE.Object3D) => {
-      const rootName = object.userData.source_motion_root_name
-      return typeof rootName === 'string' ? scene.getObjectByName(rootName) ?? null : null
-    }
-    const valueFor = (channel: Dc9MotionChannel) => {
-      const range = dc9ChannelRange(channel)
-      return donorValues.get(channel.dataref) ?? range[0]
-    }
-    const applyDonorMotion = (root: THREE.Object3D, contract: Dc9MotionContract) => {
-      let base = donorBases.get(root.uuid)
-      if (!base) {
-        base = { position: root.position.clone(), quaternion: root.quaternion.clone() }
-        donorBases.set(root.uuid, base)
-      }
-      root.position.copy(base.position)
-      root.quaternion.copy(base.quaternion)
-      for (const channel of contract.channels) {
-        const range = dc9ChannelRange(channel)
-        const initial = interpolateDc9Channel(channel, range[0])
-        const output = interpolateDc9Channel(channel, valueFor(channel))
-        if (channel.kind === 'translate') {
-          root.position.add(new THREE.Vector3(
-            (output[0] ?? 0) - (initial[0] ?? 0),
-            (output[1] ?? 0) - (initial[1] ?? 0),
-            (output[2] ?? 0) - (initial[2] ?? 0),
-          ))
-        } else if (channel.axis) {
-          const delta = THREE.MathUtils.degToRad((output[0] ?? 0) - (initial[0] ?? 0))
-          const rotation = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(...channel.axis).normalize(), delta)
-          root.quaternion.multiply(rotation)
-        }
-      }
-      root.updateMatrixWorld(true)
-    }
-    const setContractValue = (root: THREE.Object3D, contract: Dc9MotionContract, dataref: string, value: number) => {
-      const channel = contract.channels.find((candidate) => candidate.dataref === dataref)
-      if (!channel) return
-      const [minimum, maximum] = dc9ChannelRange(channel)
-      donorValues.set(dataref, THREE.MathUtils.clamp(value, minimum, maximum))
-      canvas.dataset.dc9LastMotionControl = root.name
-      canvas.dataset.dc9LastMotionValue = donorValues.get(dataref)!.toFixed(4)
-      scene.traverse((candidate) => {
-        const candidateContract = parseDc9MotionContract(candidate.userData.source_motion_contract_json)
-        if (candidateContract?.sourceDatarefs.includes(dataref)) applyDonorMotion(candidate, candidateContract)
-      })
-      window.dispatchEvent(new CustomEvent('dc9-control-change', { detail: { dataref, value: donorValues.get(dataref)! } }))
-      applyDonorMotion(root, contract)
-    }
-    const controlState = (object: THREE.Object3D) => {
-      if (object.userData.dc9_direct_control === 'captain-yoke') return 'drag pitch / roll'
-      const root = donorRoot(object)
-      const contract = root ? parseDc9MotionContract(root.userData.source_motion_contract_json) : null
-      if (!contract || contract.interaction === 'inspect' || contract.channels.length === 0) return 'inspect only'
-      const channel = contract.channels[0]!
-      const [minimum, maximum] = dc9ChannelRange(channel)
-      const value = valueFor(channel)
-      if (contract.interaction === 'toggle') return Math.abs(value - maximum) < Math.abs(value - minimum) ? 'ON' : 'OFF'
-      return `${value.toFixed(2)} / ${maximum.toFixed(2)}`
-    }
     const pick = (event: MouseEvent | PointerEvent) => {
       const bounds = canvas.getBoundingClientRect()
       pointer.current.set(
@@ -1670,94 +1461,19 @@ function Dc9InteractionRaycaster({
       )
       raycaster.current.setFromCamera(pointer.current, camera)
       const hit = raycaster.current.intersectObjects(colliders.filter((collider) => collider.visible), false)[0]
-      const gameId = hit?.object.userData.collider_target_game_id ?? hit?.object.userData.game_id
-      return hit && typeof gameId === 'string' ? { gameId, object: hit.object } : null
+      return typeof hit?.object.userData.collider_target_game_id === 'string'
+        ? hit.object.userData.collider_target_game_id
+        : null
     }
     const onPointerDown = (event: PointerEvent) => {
       pointerDownAt = { x: event.clientX, y: event.clientY }
       dragged = false
-      const hit = pick(event)
-      if (hit) canvas.focus({ preventScroll: true })
-      if (hit && (hit.gameId === 'dc9.control.captain.yoke' || hit.object.userData.dc9_direct_control === 'captain-yoke')) {
-        activeYoke = { startX: event.clientX, startY: event.clientY }
-        canvas.dataset.dc9ControlDragging = 'true'
-        canvas.setPointerCapture(event.pointerId)
-        event.preventDefault()
-        event.stopPropagation()
-        return
-      }
-      const root = hit ? donorRoot(hit.object) : null
-      const contract = root ? parseDc9MotionContract(root.userData.source_motion_contract_json) : null
-      if (root && contract && !['toggle', 'inspect'].includes(contract.interaction)) {
-        activeDonor = {
-          root,
-          contract,
-          start: { x: event.clientX, y: event.clientY },
-          values: new Map(contract.channels.map((channel) => [channel.dataref, valueFor(channel)])),
-        }
-        canvas.dataset.dc9ControlDragging = 'true'
-        canvas.setPointerCapture(event.pointerId)
-        event.preventDefault()
-        event.stopPropagation()
-      }
     }
     const onMove = (event: PointerEvent) => {
-      if (activeYoke) {
-        const pitch = THREE.MathUtils.clamp(-(event.clientY - activeYoke.startY) / 130, -1, 1)
-        const roll = THREE.MathUtils.clamp((event.clientX - activeYoke.startX) / 130, -1, 1)
-        const pitchRoot = scene.getObjectByName('DC9_CAPTAIN_YOKE_PITCH_ROOT')
-        const rollRoot = scene.getObjectByName('DC9_CAPTAIN_YOKE_ROLL_ROOT')
-        if (pitchRoot) pitchRoot.rotation.x = THREE.MathUtils.degToRad(THREE.MathUtils.lerp(-10, 15, (pitch + 1) / 2))
-        if (rollRoot) rollRoot.rotation.y = THREE.MathUtils.degToRad(-90 * roll)
-        canvas.dataset.dc9LastMotionControl = 'captain-yoke'
-        canvas.dataset.dc9LastMotionValue = `${pitch.toFixed(3)},${roll.toFixed(3)}`
-        window.dispatchEvent(new CustomEvent('dc9-control-change', { detail: { dataref: 'dc9/yoke/pitch', value: pitch } }))
-        window.dispatchEvent(new CustomEvent('dc9-control-change', { detail: { dataref: 'dc9/yoke/roll', value: roll } }))
-        dragged = true
-        event.preventDefault()
-      } else if (activeDonor) {
-        const active = activeDonor
-        const deltaX = event.clientX - active.start.x
-        const deltaY = event.clientY - active.start.y
-        const { contract, root } = active
-        const uniqueChannels = [...new Map(contract.channels.map((channel) => [channel.dataref, channel])).values()]
-        if (contract.interaction === 'drag-axis') {
-          const numbers = contract.arguments.slice(1).map(Number).filter(Number.isFinite)
-          const direction = new THREE.Vector2(numbers[0] || 0, -(numbers[1] || 1)).normalize()
-          const projected = deltaX * direction.x + deltaY * direction.y
-          for (const channel of uniqueChannels) {
-            const [minimum, maximum] = dc9ChannelRange(channel)
-            setContractValue(root, contract, channel.dataref, (active.values.get(channel.dataref) ?? minimum) + projected / 160 * (maximum - minimum))
-          }
-        } else if (contract.interaction === 'delta') {
-          for (const channel of uniqueChannels) {
-            const detents = [...new Set(channel.keys.map(([input]) => input))].sort((a, b) => a - b)
-            const startValue = active.values.get(channel.dataref) ?? detents[0]!
-            const startIndex = detents.reduce((best, value, index) => Math.abs(value - startValue) < Math.abs(detents[best]! - startValue) ? index : best, 0)
-            const nextIndex = THREE.MathUtils.clamp(startIndex + Math.round(-deltaY / 24), 0, detents.length - 1)
-            setContractValue(root, contract, channel.dataref, detents[nextIndex]!)
-          }
-        } else if (contract.interaction === 'drag-xy') {
-          uniqueChannels.forEach((channel, index) => {
-            const [minimum, maximum] = dc9ChannelRange(channel)
-            const delta = index === 0 ? deltaX : -deltaY
-            setContractValue(root, contract, channel.dataref, (active.values.get(channel.dataref) ?? minimum) + delta / 160 * (maximum - minimum))
-          })
-        }
-        dragged = true
-      }
       if (pointerDownAt && Math.hypot(event.clientX - pointerDownAt.x, event.clientY - pointerDownAt.y) > 6) {
         dragged = true
       }
-      const hit = pick(event)
-      hoveredDonor = hit
-      onHoverInteractive(Boolean(hit))
-      const hoverLabel = hit ? `${hit.object.userData.accessible_label ?? 'Cockpit control'} - ${controlState(hit.object)}` : ''
-      canvas.title = hoverLabel
-      if (canvas.parentElement) {
-        if (hoverLabel) canvas.parentElement.dataset.dc9HoverLabel = hoverLabel
-        else delete canvas.parentElement.dataset.dc9HoverLabel
-      }
+      onHoverInteractive(Boolean(pick(event)))
     }
     const onClick = (event: MouseEvent) => {
       pointerDownAt = null
@@ -1765,85 +1481,29 @@ function Dc9InteractionRaycaster({
         dragged = false
         return
       }
-      const hit = pick(event)
-      if (!hit) return
-      const root = donorRoot(hit.object)
-      const contract = root ? parseDc9MotionContract(root.userData.source_motion_contract_json) : null
-      if (root && contract) {
-        if (contract.interaction === 'toggle' && contract.channels.length > 0) {
-          const channel = contract.channels[0]!
-          const [minimum, maximum] = dc9ChannelRange(channel)
-          const current = valueFor(channel)
-          setContractValue(root, contract, channel.dataref, Math.abs(current - minimum) < Math.abs(current - maximum) ? maximum : minimum)
-        }
-        event.preventDefault()
-        event.stopPropagation()
-        return
-      }
+      const gameId = pick(event)
+      if (!gameId) return
       event.preventDefault()
       event.stopPropagation()
-      onInteraction(hit.gameId)
-    }
-    const stepDonor = (event: WheelEvent | KeyboardEvent, direction: number) => {
-      const keyboardRootName = canvas.dataset.dc9KeyboardControl
-      const hoveredRoot = hoveredDonor ? donorRoot(hoveredDonor.object) : null
-      const root = hoveredRoot ?? (typeof keyboardRootName === 'string' ? scene.getObjectByName(keyboardRootName) ?? null : null)
-      const contract = root ? parseDc9MotionContract(root.userData.source_motion_contract_json) : null
-      if (!root || !contract || contract.channels.length === 0 || contract.interaction === 'inspect') return
-      const channel = contract.channels[0]!
-      const [minimum, maximum] = dc9ChannelRange(channel)
-      if (contract.interaction === 'toggle') {
-        const current = valueFor(channel)
-        setContractValue(root, contract, channel.dataref, Math.abs(current - minimum) < Math.abs(current - maximum) ? maximum : minimum)
-      } else if (contract.interaction === 'delta') {
-        const detents = [...new Set(channel.keys.map(([input]) => input))].sort((a, b) => a - b)
-        const current = valueFor(channel)
-        const index = detents.reduce((best, value, candidate) => Math.abs(value - current) < Math.abs(detents[best]! - current) ? candidate : best, 0)
-        setContractValue(root, contract, channel.dataref, detents[THREE.MathUtils.clamp(index + direction, 0, detents.length - 1)]!)
-      } else {
-        setContractValue(root, contract, channel.dataref, valueFor(channel) + direction * (maximum - minimum) * 0.05)
-      }
-      event.preventDefault()
-      event.stopPropagation()
-    }
-    const onWheelControl = (event: WheelEvent) => stepDonor(event, event.deltaY > 0 ? -1 : 1)
-    const onKeyControl = (event: KeyboardEvent) => {
-      if (document.activeElement !== canvas) return
-      if (event.key === 'Enter' || event.key === ' ') stepDonor(event, 1)
-      else if (event.key === 'ArrowUp' || event.key === 'ArrowRight') stepDonor(event, 1)
-      else if (event.key === 'ArrowDown' || event.key === 'ArrowLeft') stepDonor(event, -1)
+      onInteraction(gameId)
     }
     const clear = () => {
       pointerDownAt = null
       dragged = false
-      activeDonor = null
-      activeYoke = null
-      hoveredDonor = null
-      delete canvas.dataset.dc9ControlDragging
       onHoverInteractive(false)
-      canvas.title = ''
-      if (canvas.parentElement) delete canvas.parentElement.dataset.dc9HoverLabel
     }
     canvas.addEventListener('pointerdown', onPointerDown)
     canvas.addEventListener('pointermove', onMove)
     canvas.addEventListener('click', onClick)
-    canvas.addEventListener('wheel', onWheelControl, { passive: false })
-    window.addEventListener('keydown', onKeyControl)
-    canvas.addEventListener('pointerup', clear)
-    canvas.addEventListener('pointercancel', clear)
     canvas.addEventListener('pointerleave', clear)
     return () => {
       canvas.removeEventListener('pointerdown', onPointerDown)
       canvas.removeEventListener('pointermove', onMove)
       canvas.removeEventListener('click', onClick)
-      canvas.removeEventListener('wheel', onWheelControl)
-      window.removeEventListener('keydown', onKeyControl)
-      canvas.removeEventListener('pointerup', clear)
-      canvas.removeEventListener('pointercancel', clear)
       canvas.removeEventListener('pointerleave', clear)
       clear()
     }
-  }, [camera, colliders, enabled, gl, onHoverInteractive, onInteraction, scene])
+  }, [camera, colliders, enabled, gl, onHoverInteractive, onInteraction])
   return null
 }
 
@@ -1895,35 +1555,6 @@ function Dc9Cockpit({
       .then((source) => {
         if (!active) return
         const scene = source.clone(true)
-        applyDc9RouteCardTexture(scene)
-        setupDc9CaptainYoke(scene)
-        const donorMeshes: THREE.Mesh[] = []
-        scene.traverse((object) => {
-          if (object instanceof THREE.Mesh && parseDc9MotionContract(object.userData.source_motion_contract_json)) donorMeshes.push(object)
-        })
-        const donorGroups = new Map<string, { root: THREE.Group; contract: Dc9MotionContract }>()
-        const donorPhysicalControls = new Set<string>()
-        for (const mesh of donorMeshes) {
-          const contract = parseDc9MotionContract(mesh.userData.source_motion_contract_json)
-          if (!contract) continue
-          const stem = dc9SourceStem(mesh.name)
-          const key = `${stem}:${contract.manipulatorInstance}`
-          donorPhysicalControls.add(key)
-          if (contract.channels.length === 0) continue
-          let entry = donorGroups.get(key)
-          if (!entry) {
-            const pivot = contract.channels.find((channel) => channel.pivot)?.pivot ?? [0, 0, 0]
-            const root = new THREE.Group()
-            root.name = `DC9_SOURCE_PIVOT_${stem.toUpperCase()}_${contract.manipulatorInstance}`
-            root.position.set(...pivot)
-            root.userData.source_motion_contract_json = mesh.userData.source_motion_contract_json
-            scene.add(root)
-            entry = { root, contract }
-            donorGroups.set(key, entry)
-          }
-          entry.root.attach(mesh)
-          mesh.userData.source_motion_root_name = entry.root.name
-        }
         const missingNodes = DC9_REQUIRED_NODES.filter((nodeName) => !scene.getObjectByName(nodeName))
         if (missingNodes.length > 0) throw new Error(`DC-9 contract missing: ${missingNodes.join(', ')}`)
         const targets = new Map<string, THREE.Object3D>()
@@ -1950,21 +1581,10 @@ function Dc9Cockpit({
               material.depthWrite = true
               material.needsUpdate = true
             }
-            const sourceDataref = object.userData.source_manipulator_dataref
-            const sourceInstance = object.userData.source_manipulator_instance
-            if (typeof sourceDataref === 'string' && sourceDataref && sourceInstance !== undefined) {
-              object.userData.game_id = dc9ControlId(`${dc9SourceStem(object.name)}.${sourceDataref}`, sourceInstance)
-              object.userData.accessible_label = dc9ControlLabel(sourceDataref)
-              object.userData.interaction = 'inspect'
-              object.userData.inspect_only = true
-            }
           }
           if (typeof object.userData.game_id === 'string') {
-            const isDonorControl = object.userData.game_id.startsWith('dc9.control.')
-            if (targets.has(object.userData.game_id) && !isDonorControl) {
-              throw new Error(`Duplicate DC-9 game_id: ${object.userData.game_id}`)
-            }
-            if (!targets.has(object.userData.game_id)) targets.set(object.userData.game_id, object)
+            if (targets.has(object.userData.game_id)) throw new Error(`Duplicate DC-9 game_id: ${object.userData.game_id}`)
+            targets.set(object.userData.game_id, object)
           }
           if (typeof object.userData.collider_target_game_id === 'string') {
             colliderTargets.set(object.userData.collider_target_game_id, object)
@@ -1992,10 +1612,6 @@ function Dc9Cockpit({
         canvas.dataset.dc9ModelState = 'ready'
         canvas.dataset.dc9CameraNode = sourceCamera.name
         canvas.dataset.dc9TargetCount = String(targets.size)
-        canvas.dataset.dc9AnimatedControlCount = String(donorGroups.size)
-        canvas.dataset.dc9InspectOnlyControlCount = String(donorPhysicalControls.size - donorGroups.size)
-        canvas.dataset.dc9KeyboardControl = [...donorGroups.values()].find(({ contract }) =>
-          contract.sourceDatarefs.includes('sim/cockpit2/engine/actuators/mixture_ratio[0]'))?.root.name ?? ''
         canvas.dataset.dc9Targets = [...targets.keys()].join(',')
         onLoadState({ status: 'ready' })
       })
@@ -2014,11 +1630,6 @@ function Dc9Cockpit({
       delete canvas.dataset.dc9CameraNode
       delete canvas.dataset.dc9CameraState
       delete canvas.dataset.dc9TargetCount
-      delete canvas.dataset.dc9AnimatedControlCount
-      delete canvas.dataset.dc9InspectOnlyControlCount
-      delete canvas.dataset.dc9KeyboardControl
-      delete canvas.dataset.dc9LastMotionControl
-      delete canvas.dataset.dc9LastMotionValue
       delete canvas.dataset.dc9Targets
     }
   }, [gl, onLoadState])
@@ -2157,6 +1768,7 @@ export function PrototypeScene({
   dc9ChapterStage,
   reducedMotion,
   lockerHatRevealed,
+  captainRewardUnlocked,
   selectedAirbusCard,
   airbusRetryToken,
   lockerRetryToken,
@@ -2236,6 +1848,12 @@ export function PrototypeScene({
             onMars={onMars}
             onHoverInteractive={onInteractiveHover}
           />
+        )}
+        {captainRewardUnlocked && phase === 'reward' && (
+          <mesh position={[0, -1.12, -0.58]} rotation={[0, -0.35, 0]}>
+            <boxGeometry args={[1.55, 0.38, 0.72]} />
+            <meshStandardMaterial color="#a41419" roughness={0.25} metalness={0.55} />
+          </mesh>
         )}
         {(phase === 'reward' || phase === 'mars') && (
           <LimitedOrbitControls airbusCameraRevision={cameraResetRevision} />

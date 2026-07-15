@@ -129,6 +129,21 @@ describe('DC-9 Final Flight Log reducer', () => {
     expect(state.phase).toBe('airbus')
   })
 
+  it('preserves migrated Airbus completion when leaving the locker', () => {
+    const state: GameState = {
+      ...createInitialState(),
+      phase: 'locker',
+      completedPuzzles: ['captain', 'locker', 'firstOfficer'],
+      captainRewardUnlocked: false,
+    }
+
+    const next = gameReducer(state, { type: 'CONTINUE_FROM_LOCKER_TO_AIRBUS' })
+
+    expect(next.phase).toBe('reward')
+    expect(next.captainRewardUnlocked).toBe(true)
+    expect(next.statusMessage).toContain('already complete')
+  })
+
   it('routes successful Airbus qualification to the protected reward', () => {
     let state: GameState = {
       ...createInitialState(),

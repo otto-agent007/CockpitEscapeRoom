@@ -21,7 +21,7 @@
 
 ## Asset loading
 
-Load the application shell immediately. Lazy-load Three.js after the player begins. Load Airbus First-Officer assets first, then fetch DC-9, vehicle reward, and Mars assets only when unlocked.
+Load the application shell immediately. Lazy-load Three.js after the player begins. Load the DC-9 for the opening chapter, then fetch locker, Airbus First-Officer, vehicle reward, and Mars assets only as their stages unlock.
 
 Use stable filenames during development. Before production, consider content-hashed asset URLs or an asset manifest so long-lived browser caches do not serve stale models.
 

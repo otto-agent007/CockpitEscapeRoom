@@ -766,9 +766,9 @@ Historical checkpoint; the 2026-07-11 transition and Tripo-intake sections above
 
 - Implemented and verified the approved order: DC-9 Final Flight Log → Captain's Locker → existing Airbus A320 First-Officer experience → Model Y reward. Momma Cheryl's five-page Home Operations Log is read-only recognition with no input, score, timer, or failure state.
 - `npm test -- src/game/state.test.ts src/game/storage.test.ts` passed 55/55 reducer and persistence tests.
-- `npm run check` passed: ESLint, TypeScript, 60/60 Vitest tests, and the Vite production build.
+- `npm run check` passed: ESLint, TypeScript, 61/61 Vitest tests, and the Vite production build.
 - `npm run assets:check` passed without rebuilding the DC-9. Existing validator information/warnings remain limited to imported-asset unused UV/empty-node and generated-tangent reports.
-- `npx playwright test e2e/smoke.spec.ts -g "DC-9|complete reordered journey|Airbus" --workers=1` passed 7/7 in 2.4 minutes.
+- `npx playwright test e2e/smoke.spec.ts -g "DC-9|complete reordered journey|Airbus" --workers=1` passed 7/7 in 2.3 minutes.
 - `npm run test:e2e -- --workers=1` passed 15/15 Chromium cases in 4.2 minutes. Coverage includes the real Airbus and DC-9 GLBs, strict DC-9 registry/cameras, model/load failures, keyboard focus, safe retry, reduced motion, reload persistence, Captain's Key handoff, locker progression, direct Airbus-to-reward routing, and Mars/reward save preservation.
 - Actual-browser verification passed after launching Chromium with the host-required `--no-sandbox` argument: meaningful content rendered, no Vite error overlay or page errors appeared, and the only dev-server console warning was the existing upstream `THREE.Clock` deprecation.
 - Inspected 1440 × 900 evidence:
@@ -781,3 +781,4 @@ Historical checkpoint; the 2026-07-11 transition and Tripo-intake sections above
 - A single 375 × 812 functional check found zero horizontal overflow; the stacked Legacy Route Record remained within `x=12..363` and exposed all six route controls, submit, close, viewer-help, fullscreen, and restart controls. This is functional narrow-layout evidence, not a mobile visual-approval milestone.
 - `public/models/dc9-cockpit.glb` remained 30,420,832 bytes with SHA-256 `60bfc2e6c137ad47bfb269dfdd4a71c1dda6eb95a0367d7f54a508c7d69fb7cd`, exactly matching the hash recorded before implementation. `art-source/blender/dc9_master.blend` and `dc9_reference_scene.blend` also retained their pre-implementation hashes. `npm run asset:dc9` was not run.
 - No external preview was published during this verification pass, so preview-byte parity is not applicable. Real local HTTP model delivery and runtime registry readiness are covered by the passing production-GLB browser test.
+- Extra High final review removed an out-of-scope generic donor-control/yoke-motion expansion, restored the existing Model Y reward placeholder, preserved strict registry validation, and added regression coverage so migrated completed-Airbus saves are not forced to replay that chapter.

@@ -632,6 +632,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'CONTINUE_FROM_LOCKER_TO_AIRBUS':
       if (state.phase !== 'locker' || !state.completedPuzzles.includes('locker')) return state
+      if (state.completedPuzzles.includes('firstOfficer')) {
+        return {
+          ...state,
+          phase: 'reward',
+          captainRewardUnlocked: true,
+          statusMessage: 'The Airbus First-Officer record is already complete. Ground transport upgrade authorized.',
+        }
+      }
       return {
         ...state,
         phase: 'airbus',

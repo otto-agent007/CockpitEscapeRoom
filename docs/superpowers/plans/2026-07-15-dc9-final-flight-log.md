@@ -612,7 +612,7 @@ git add docs/GAME_DESIGN.md README.md TEST_REPORT.md e2e/smoke.spec.ts
 git commit -m "docs: record DC-9 final flight log verification"
 ```
 
-- [ ] **Step 12: Final review with Sol Extra High**
+- [x] **Step 12: Final review with Sol Extra High**
 
 Review the complete branch against `docs/superpowers/specs/2026-07-15-dc9-final-flight-log-design.md`. Reject any result that rebuilds the DC-9 asset, treats Momma Cheryl's record as a quiz, restores progress-reset behavior, reintroduces Airbus-first copy, or adds a dedicated mobile milestone.
 
@@ -623,7 +623,7 @@ Review the complete branch against `docs/superpowers/specs/2026-07-15-dc9-final-
 ### Progress
 
 - 2026-07-14: Tasks 1–6 completed sequentially with one focused commit per task.
-- 2026-07-14: Task 7 documentation, static checks, asset validation, focused browser tests, full browser suite, and desktop/narrow evidence completed. Final diff review and documentation commit remain.
+- 2026-07-14: Task 7 completed. Extra High final review repaired two scope regressions, and all post-review static, asset, focused-browser, and full-browser gates passed.
 
 ### Discoveries
 
@@ -631,6 +631,8 @@ Review the complete branch against `docs/superpowers/specs/2026-07-15-dc9-final-
 - React's current immutability lint rule rejects assigning `tabIndex` through the renderer returned by `useThree`. Declaring `tabIndex={0}` on `<Canvas>` preserves keyboard focus without mutating a hook-owned value.
 - Historical locker/viewer browser fixtures seeded an illegal Airbus-first v7 state. Legal post-key locker and post-locker Airbus fixtures preserve the same locker/Airbus mechanics under the approved order.
 - Browser evidence exposed two presentation defects not caught by assertions: the opening illustration was too dark to read as a cockpit, and a global paragraph color made Home Operations text too pale. Both were repaired in the DC-9-owned stylesheet and re-inspected.
+- Extra High final review found an out-of-scope generic donor-control/yoke-motion expansion in `PrototypeScene.tsx`; it was removed so the implementation retains the strict registry, existing yoke trigger, saved cameras, and three authored shutdown pivots only.
+- Migrated saves retained the completed First-Officer flag but initially routed back into Airbus after the locker. The locker continuation now recognizes that prior completion and advances those players to the existing reward without changing the normal DC-9 → locker → Airbus path.
 
 ### Decisions
 
@@ -638,7 +640,9 @@ Review the complete branch against `docs/superpowers/specs/2026-07-15-dc9-final-
 - Preserved all pre-existing Blender, GLB, asset-report, pipeline-tool, and unrelated local changes without staging them.
 - Used a lightweight HTML/CSS key cinematic and a CSS opening illustration; no physical key model or DC-9 asset rebuild was introduced.
 - Updated `AGENTS.md` and `BLUEPRINT.md` with the approved order in addition to the planned README and game-design files so repository guidance cannot reintroduce Airbus-first behavior.
+- Updated the stale asset-loading sentence in `docs/ARCHITECTURE.md` so it no longer instructs future work to load Airbus first.
 
 ### Validation evidence
 
 - Exact command results, pass counts, asset hashes, known warnings, and inspected screenshot paths are recorded in `TEST_REPORT.md` under `2026-07-14 - DC-9 Final Flight Log reordered journey`.
+- Post-review verification passed: `npm run check` (61/61 unit tests plus build), `npm run assets:check`, focused Playwright (7/7 in 2.3 minutes), full Playwright (15/15 in 4.2 minutes), and `git diff --check`.
