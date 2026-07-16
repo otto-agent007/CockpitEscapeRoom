@@ -33,10 +33,13 @@ const LOCKER_MEMORY_CAMERA_MOVE_SECONDS = 1.8
 const LOCKER_CLOSE_FOCUS_FOV = 30
 const LOCKER_CLOSE_FOCUS_OFFSET = [-0.27, 0.37, 3.46] as const
 const LOCKER_WATCH_POSITION = [0.42, -0.75, -0.21] as const
+const LOCKER_WATCH_CAMERA_TARGET = [0.42, -0.75, -0.21] as const
+const LOCKER_WATCH_CAMERA_POSITION = [1.17, -0.38, 3.18] as const
 const LOCKER_BASEBALL_POSITION = [0.54, -0.48, 0.58] as const
 const LOCKER_BULL_POSITION = [0.31, 0.04, 1.44] as const
 const LOCKER_WINGS_POSITION = [0.42, 0.73, 0.73] as const
-export type LockerCameraCue = 'entry-wide' | 'watch-focus' | 'baseball-focus' | 'bull-focus' | 'wings-focus'
+const LOCKER_HAT_POSITION = [0.42, 1.00, -0.14] as const
+export type LockerCameraCue = 'entry-wide' | 'watch-focus' | 'baseball-focus' | 'bull-focus' | 'wings-focus' | 'hat-focus'
 type LockerCameraPose = { position: [number, number, number]; target: [number, number, number]; fov: number; duration: number }
 
 function lockerCloseFocusPose(target: readonly [number, number, number], duration: number): LockerCameraPose {
@@ -54,10 +57,16 @@ function lockerCloseFocusPose(target: readonly [number, number, number], duratio
 
 const LOCKER_CAMERA_POSES: Record<LockerCameraCue, LockerCameraPose> = {
   'entry-wide': { position: [0.25, 0.72, 7.6], target: [0, 0.18, 0], fov: 48, duration: LOCKER_CAMERA_MOVE_SECONDS },
-  'watch-focus': lockerCloseFocusPose(LOCKER_WATCH_POSITION, LOCKER_CAMERA_MOVE_SECONDS),
+  'watch-focus': {
+    position: [...LOCKER_WATCH_CAMERA_POSITION],
+    target: [...LOCKER_WATCH_CAMERA_TARGET],
+    fov: LOCKER_CLOSE_FOCUS_FOV,
+    duration: LOCKER_CAMERA_MOVE_SECONDS,
+  },
   'baseball-focus': lockerCloseFocusPose(LOCKER_BASEBALL_POSITION, LOCKER_MEMORY_CAMERA_MOVE_SECONDS),
   'bull-focus': lockerCloseFocusPose(LOCKER_BULL_POSITION, LOCKER_MEMORY_CAMERA_MOVE_SECONDS),
   'wings-focus': lockerCloseFocusPose(LOCKER_WINGS_POSITION, LOCKER_MEMORY_CAMERA_MOVE_SECONDS),
+  'hat-focus': lockerCloseFocusPose(LOCKER_HAT_POSITION, LOCKER_MEMORY_CAMERA_MOVE_SECONDS),
 }
 const AIRBUS_TARGET_NODES: Record<AirbusControl, { pivot: string; hitbox: string; cue: string }> = {
   sidestick: {
@@ -323,6 +332,8 @@ function LockerCameraDirector({
     canvasRef.current.dataset.lockerCameraState = 'moving'
     canvasRef.current.dataset.lockerCameraFov = pose.fov.toFixed(2)
     canvasRef.current.dataset.lockerCameraDistance = pose.position.distanceTo(pose.target).toFixed(3)
+    canvasRef.current.dataset.lockerCameraPosition = pose.position.toArray().map((value) => value.toFixed(2)).join(',')
+    canvasRef.current.dataset.lockerCameraTarget = pose.target.toArray().map((value) => value.toFixed(2)).join(',')
   }, [cue, immediate])
 
   useFrame((_, delta) => {

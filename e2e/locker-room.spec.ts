@@ -127,10 +127,10 @@ test('watch completion opens the baseball question, then Bull and Wings', async 
   await expect(wingsAnswer).not.toHaveAttribute('placeholder')
   await wingsAnswer.fill('500 hours')
   await page.getByRole('button', { name: 'Submit answer' }).click()
-  await expect(page.locator('.locker-status')).toContainText('Part 121 experience milestone')
+  await expect(page.locator('.locker-status')).toHaveText('Think in flight hours: it’s a round-number milestone between 500 and 1,500.')
   await wingsAnswer.fill('1500 hours')
   await page.getByRole('button', { name: 'Submit answer' }).click()
-  await expect(page.locator('.locker-status')).toContainText('four-digit hour milestone below the 1,500-hour ATP')
+  await expect(page.locator('.locker-status')).toHaveText('It’s a four-digit milestone below the 1,500-hour ATP requirement.')
   await wingsAnswer.fill('1,000 hours')
   await page.getByRole('button', { name: 'Submit answer' }).click()
   const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })
@@ -155,6 +155,8 @@ test('watch completion opens the baseball question, then Bull and Wings', async 
     await page.setViewportSize(viewport)
     const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
     expect(horizontalOverflow).toBeLessThanOrEqual(0)
+    const celebrationCardOverflow = await celebration.locator('.qualification-card').evaluate((element) => element.scrollWidth - element.clientWidth)
+    expect(celebrationCardOverflow).toBeLessThanOrEqual(0)
   }
 
   await page.getByRole('button', { name: 'Enter Pop T Captain Mode' }).click()
@@ -194,7 +196,9 @@ test('locker GLB loads into the real canvas and the directed camera settles on t
   await expect(canvas).toHaveAttribute('data-locker-camera-cue', 'watch-focus')
   await expect(canvas).toHaveAttribute('data-locker-camera-state', 'settled')
   await expect(canvas).toHaveAttribute('data-locker-camera-fov', '30.00')
-  await expect(canvas).toHaveAttribute('data-locker-camera-distance', '3.490')
+  await expect(canvas).toHaveAttribute('data-locker-camera-distance', '3.492')
+  await expect(canvas).toHaveAttribute('data-locker-camera-position', '1.17,-0.38,3.18')
+  await expect(canvas).toHaveAttribute('data-locker-camera-target', '0.42,-0.75,-0.21')
   await expect(canvas).toHaveAttribute('data-locker-watch-node', 'LOCKER_PROP_WATCH')
   await expect(canvas).toHaveAttribute('data-locker-baseball-node', 'LOCKER_PROP_BASEBALL')
   await expect(canvas).toHaveAttribute('data-locker-wings-node', 'LOCKER_PROP_WINGS')
@@ -231,8 +235,33 @@ test('locker GLB loads into the real canvas and the directed camera settles on t
   await expect(canvas).toHaveAttribute('data-locker-camera-state', 'settled')
   await expect(canvas).toHaveAttribute('data-locker-camera-fov', '30.00')
   await expect(canvas).toHaveAttribute('data-locker-camera-distance', '3.490')
+  await page.evaluate(() => {
+    const main = document.querySelector('main')
+    if (!main) throw new Error('Game shell is unavailable')
+    const windowWithStages = window as Window & { __lockerHatStages?: Array<{ stage: string | null; time: number }> }
+    windowWithStages.__lockerHatStages = []
+    new MutationObserver(() => {
+      windowWithStages.__lockerHatStages?.push({
+        stage: main.getAttribute('data-locker-hat-finale-stage'),
+        time: performance.now(),
+      })
+    }).observe(main, { attributes: true, attributeFilter: ['data-locker-hat-finale-stage'] })
+  })
   await page.getByRole('textbox', { name: 'Answer in hours' }).fill('1000 hours')
   await page.getByRole('button', { name: 'Submit answer' }).click()
+  await expect(canvas).toHaveAttribute('data-locker-camera-cue', 'hat-focus')
+  await expect(canvas).toHaveAttribute('data-locker-camera-state', 'settled')
+  await expect(page.locator('main')).toHaveAttribute('data-locker-hat-finale-stage', 'holding')
+  await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })).toHaveCount(0)
+  await expect(page.locator('main')).toHaveAttribute('data-locker-hat-finale-stage', 'ready', { timeout: 10_000 })
+  const holdDuration = await page.evaluate(() => {
+    const stages = (window as Window & { __lockerHatStages?: Array<{ stage: string | null; time: number }> }).__lockerHatStages ?? []
+    const holding = stages.find((entry) => entry.stage === 'holding')
+    const ready = stages.find((entry) => entry.stage === 'ready')
+    if (!holding || !ready) throw new Error(`Missing finale stages: ${JSON.stringify(stages)}`)
+    return ready.time - holding.time
+  })
+  expect(holdDuration).toBeGreaterThanOrEqual(1_950)
   await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })).toBeVisible()
   await expect(page.locator('.qualification-confetti')).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Enter Pop T Captain Mode' })).toBeFocused()
