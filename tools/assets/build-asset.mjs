@@ -14,6 +14,7 @@ const assets = {
       node: 'DC9_PROP_CAPTAINS_KEY',
       output: 'public/images/captains-key-celebration.png',
       cacheOutput: '.cache/assets/dc9/celebration/captains-key-celebration.png',
+      report: 'asset-reports/dc9-captains-key-celebration.json',
       distanceFactor: 2.1,
       presentationRotationDegrees: [-90, 98, 67],
     },
@@ -124,6 +125,29 @@ if (config.celebration) {
   )
   mkdirSync(dirname(resolve(config.celebration.output)), { recursive: true })
   copyFileSync(resolve(config.celebration.cacheOutput), resolve(config.celebration.output))
+  const generatedReportPath = resolve(config.celebration.cacheOutput).replace(/\.png$/i, '.json')
+  const generatedReport = JSON.parse(readFileSync(generatedReportPath, 'utf8'))
+  mkdirSync(dirname(resolve(config.celebration.report)), { recursive: true })
+  writeFileSync(
+    resolve(config.celebration.report),
+    JSON.stringify(
+      {
+        asset: 'dc9-captains-key-celebration',
+        sourceModel: config.output,
+        node: generatedReport.node,
+        output: config.celebration.output,
+        blenderVersion: generatedReport.blenderVersion,
+        meshObjectCount: generatedReport.meshObjectCount,
+        materialCount: generatedReport.materialCount,
+        resolution: generatedReport.resolution,
+        distanceFactor: generatedReport.distanceFactor,
+        presentationRotationDegrees: generatedReport.presentationRotationDegrees,
+        bounds: generatedReport.bounds,
+      },
+      null,
+      2,
+    ) + '\n',
+  )
 }
 
 const validationPath = resolve(cacheDir, 'validation.json')

@@ -45,6 +45,15 @@ function embeddedPngDimensions(json, binary, imageIndex) {
   return pngSignature ? [bytes.readUInt32BE(16), bytes.readUInt32BE(20)] : undefined
 }
 
+function pngDimensions(path) {
+  if (!existsSync(path)) return undefined
+  const bytes = readFileSync(path)
+  const pngSignature = bytes.length >= 24
+    && bytes[0] === 0x89
+    && bytes.toString('ascii', 1, 4) === 'PNG'
+  return pngSignature ? [bytes.readUInt32BE(16), bytes.readUInt32BE(20)] : undefined
+}
+
 const requiredModelContracts = {
   'dc9-cockpit.glb': [
     'DC9_ROOT',
@@ -201,19 +210,25 @@ for (const [model, requiredNodes] of Object.entries(requiredModelContracts)) {
         }
       }
 
-      const celebrationReportPath = '.cache/assets/dc9/celebration/captains-key-celebration.json'
+      const celebrationReportPath = 'asset-reports/dc9-captains-key-celebration.json'
+      const celebrationImagePath = 'public/images/captains-key-celebration.png'
       if (!existsSync(celebrationReportPath)) {
         console.error(`Missing DC-9 key celebration report: ${celebrationReportPath}`)
         failed = true
       } else {
         const celebrationReport = JSON.parse(readFileSync(celebrationReportPath, 'utf8'))
         const celebrationSize = celebrationReport.bounds?.size
+        const celebrationDimensions = pngDimensions(celebrationImagePath)
         const rendersUpright = Array.isArray(celebrationSize)
           && celebrationSize[2] > celebrationSize[0] * 2
           && celebrationSize[2] > celebrationSize[1] * 1.5
-        if (JSON.stringify(celebrationReport.presentationRotationDegrees) !== JSON.stringify([-90, 98, 67])
+        if (celebrationReport.sourceModel !== 'public/models/dc9-cockpit.glb'
+          || celebrationReport.node !== 'DC9_PROP_CAPTAINS_KEY'
+          || celebrationReport.output !== celebrationImagePath
+          || JSON.stringify(celebrationDimensions) !== JSON.stringify([1024, 1024])
+          || JSON.stringify(celebrationReport.presentationRotationDegrees) !== JSON.stringify([-90, 98, 67])
           || !rendersUpright) {
-          console.error('Captain\'s Key celebration must present the key upright with its engraved face toward the player.')
+          console.error('Captain\'s Key celebration must be a tracked 1024px render presented upright with its engraved face toward the player.')
           failed = true
         }
       }

@@ -1,0 +1,36 @@
+{
+  "asset": "dc9-captains-key-celebration",
+  "sourceModel": "public/models/dc9-cockpit.glb",
+  "node": "DC9_PROP_CAPTAINS_KEY",
+  "output": "public/images/captains-key-celebration.png",
+  "blenderVersion": "5.1.2",
+  "meshObjectCount": 1,
+  "materialCount": 1,
+  "resolution": [
+    1024,
+    1024
+  ],
+  "distanceFactor": 2.1,
+  "presentationRotationDegrees": [
+    -90.0,
+    98.0,
+    67.0
+  ],
+  "bounds": {
+    "min": [
+      1.1312131881713867,
+      -3.0689964294433594,
+      0.0227760449051857
+    ],
+    "max": [
+      1.204686164855957,
+      -2.9552407264709473,
+      0.2178097665309906
+    ],
+    "size": [
+      0.07347297668457031,
+      0.11375570297241211,
+      0.1950337290763855
+    ]
+  }
+}
