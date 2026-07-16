@@ -20,7 +20,7 @@ export function HomeOperationsLog({ progress, dispatch }: HomeOperationsLogProps
       <header className="dc9-document__header">
         <div>
           <p className="eyebrow">A completed companion record</p>
-          <h2 id="home-operations-log-title">Home Operations Log — Momma Cheryl</h2>
+          <h2 id="home-operations-log-title">Home Operations Log</h2>
         </div>
         <span className="dc9-home-log__folio" aria-label={`Page ${progress.homePage + 1} of ${finalPage + 1}`}>
           {progress.homePage + 1}/{finalPage + 1}

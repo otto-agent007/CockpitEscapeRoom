@@ -51,14 +51,36 @@ test("Captain's Key plays the narrative handoff and settles on the watch-first g
     statusMessage: "The Captain's Key is ready.",
   })
 
+  const celebration = page.getByRole('dialog', { name: "THE CAPTAIN'S KEY" })
+  await expect(celebration).toBeVisible()
+  await expect(celebration.getByRole('img', { name: "Golden Captain's Key" })).toBeVisible()
+  const keyRotation = await celebration.getByRole('img', { name: "Golden Captain's Key" }).evaluate((element) => {
+    const matrix = new DOMMatrix(getComputedStyle(element).transform)
+    return Math.atan2(matrix.b, matrix.a) * (180 / Math.PI)
+  })
+  expect(keyRotation).toBeCloseTo(6, 1)
+  await expect(celebration).toContainText('Legacy flight secured. The Captain’s Locker is ready.')
+  await expect(celebration).not.toContainText('Momma Cheryl')
+  await expect(celebration).not.toContainText('Front')
+  await expect(celebration.locator('.qualification-confetti i')).toHaveCount(24)
+
   await page.getByRole('button', { name: "Take the Captain's Key" }).click()
   const transition = page.locator('.locker-transition')
   await expect(transition).toBeVisible()
+  await expect(transition).toHaveAttribute('data-locker-intro-stage', 'fade-to-black')
+  const phaseDuringFade = await page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? '{}').phase, STORAGE_KEY)
+  expect(phaseDuringFade).toBe('dc9')
+  await expect(page.locator('.dc9-chapter')).toBeVisible()
+  await expect(page.getByRole('dialog')).toHaveCount(1)
+  await expect(page.getByRole('dialog', { name: "THE CAPTAIN'S KEY" })).toHaveCount(0)
   const skipButton = page.getByRole('button', { name: 'Skip cinematic' })
   await expect(skipButton).toBeFocused()
   await page.keyboard.press('Tab')
   await expect(skipButton).toBeFocused()
   await expect(page.getByRole('button', { name: 'Inspect watch' })).toHaveCount(0)
+  await expect(transition).toHaveAttribute('data-locker-intro-stage', 'black-pause', { timeout: 2_000 })
+  const phaseAtBlack = await page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? '{}').phase, STORAGE_KEY)
+  expect(phaseAtBlack).toBe('locker')
   await expect(transition).toHaveAttribute('data-locker-intro-stage', 'title-in', { timeout: 5_000 })
   await expect(page.getByText(lockerFlow.introText)).toBeVisible()
 
@@ -74,6 +96,40 @@ test("Captain's Key plays the narrative handoff and settles on the watch-first g
 
   const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? '{}') as GameState, STORAGE_KEY)
   expect(saved.lockerIntroCompleted).toBe(true)
+})
+
+test("Captain's Key celebration honors reduced motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await seed(page, {
+    ...createInitialState(),
+    phase: 'dc9',
+    dc9: {
+      stage: 'keyReveal',
+      routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
+      routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
+      routeAttempts: 0,
+      homePage: dc9LegacyFlow.homeOperationsPages.length - 1,
+      homeOperationsCompleted: true,
+      secureSequence: [...dc9LegacyFlow.secureSequence],
+      secureAttempts: 0,
+      keyRevealed: true,
+      keyClaimed: false,
+    },
+  })
+
+  const celebration = page.getByRole('dialog', { name: "THE CAPTAIN'S KEY" })
+  await expect(celebration).toBeVisible()
+  const keyRotation = await celebration.getByRole('img', { name: "Golden Captain's Key" }).evaluate((element) => {
+    const matrix = new DOMMatrix(getComputedStyle(element).transform)
+    return Math.atan2(matrix.b, matrix.a) * (180 / Math.PI)
+  })
+  expect(keyRotation).toBeCloseTo(6, 1)
+  await expect(celebration.locator('.qualification-confetti')).toHaveCount(0)
+  await expect(celebration.getByRole('button', { name: "Take the Captain's Key" })).toBeFocused()
+  await page.keyboard.press('Escape')
+  await expect(celebration).toHaveCount(0)
+  const dismissedKeyTrigger = page.getByRole('button', { name: "Open The Captain's Key" })
+  await expect(dismissedKeyTrigger).toBeFocused()
 })
 
 test('watch completion opens the baseball question, then Bull and Wings', async ({ page }) => {
@@ -180,7 +236,9 @@ test('reduced motion, replay, and Escape skip keep the accessible path usable', 
 })
 
 test('locker GLB loads into the real canvas and the directed camera settles on the watch', async ({ page }) => {
-  test.setTimeout(240_000)
+  // SwiftShader must decode the 42 MiB locker twice, then load the 38 MiB Airbus
+  // before this full persistence boundary can finish on the CI-class workstation.
+  test.setTimeout(420_000)
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.setViewportSize({ width: 1440, height: 900 })
   const responsePromise = page.waitForResponse((response) => response.url().includes('/models/locker-room.glb') && response.status() === 200)

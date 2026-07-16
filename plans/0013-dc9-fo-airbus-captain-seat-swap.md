@@ -193,6 +193,43 @@ Repeat review -> smallest coherent repair -> focused validation -> actual browse
 
 Implementation, full-diff review, local technical verification, and preview publication are complete. Owner approval remains reopened for the DC-9 FO view, Airbus captain view, and complete reordered journey.
 
+## 2026-07-15 golden-key finale polish follow-up
+
+### Goal, context, constraints, and done-when
+
+- **Goal:** Replace the text Captain's Key opener with the supplied golden key on the right-side green ledge, deliver a premium key celebration, fade cleanly into the locker, and compact the yoke route card plus Home Operations Log.
+- **Context:** The approved design is `docs/superpowers/specs/2026-07-15-dc9-golden-key-finale-polish-design.md`. The source is `/mnt/2TBHDD/Downloads/golden key 3d model.glb` with SHA-256 `b243ec3571ef597048ad8ef08ae63eac8da6f9790f7552570921d08aff0a898d`. Browser reproduction proved the current reducer dispatch mounts the locker before the 900ms blackout covers the DC-9.
+- **Constraints:** Preserve schema v8 and the safe parked-aircraft story, add no production dependency, keep native HTML equivalents, import and optimize the Tripo asset through Blender, preserve unrelated screenshots, and keep the current five-page Home Operations content.
+- **Done when:** The real key is discoverable by manual rightward scan and pointer/keyboard access; its celebration and reduced-motion path pass; the phase remains DC-9 until full black; the route card is exactly half-height and centered neatly on the yoke; Home Operations is 360-430px tall at 1440x900; asset, app, browser, and responsive checks pass with recorded evidence.
+
+### Follow-up progress
+
+- [x] Approved option A for the route card and the unified night-cockpit visual direction.
+- [x] Inspected the source key, current DC-9 contracts, route-card geometry, key reveal, Home Operations layout, and locker transition timing.
+- [x] Reproduced the early locker mount during the key-claim fade and recorded the phase-ordering root cause.
+- [x] Baseline verification: Blender 5.1.2, source hash confirmed, and 62/62 Vitest tests passing.
+- [x] Added failing asset/runtime/browser contracts for the new key, shortened route card, compact log, and black-frame phase commit; the initial failures proved the old text trigger, 0.30-unit card, 780px log, and early locker commit.
+- [x] Imported, optimized, placed, rebuilt, validated, and browser-proved the golden key and route card. The deployed key is 72,000 triangles with 1K PBR maps, and the route card is exactly 0.15 units tall and centered on the yoke.
+- [x] Implemented the projected key interaction, celebration, transition sequencing, and Home Operations styling. Focused browser coverage passes for confetti, reduced motion, fade/persistence, desktop and mobile log height, and the actual rightward scan.
+- [x] Ran full automated checks, responsive browser inspection, complete-diff review, and durable evidence updates. The final suite passed 19/19 browser cases after widening only the real-locker SwiftShader wall-clock budget.
+
+### Follow-up decisions
+
+- Integrate the optimized key into `dc9-cockpit.glb` instead of adding a second runtime model request.
+- Use passive chevrons only; never pan the camera automatically.
+- Keep `LockerIntroStage` names and make the existing `fade-to-black` to `black-pause` boundary the single `CLAIM_CAPTAINS_KEY` dispatch point.
+- Preserve the five Home Operations pages and Momma Cheryl title; only the key celebration drops the prior personalization/engraving copy.
+- Keep the entire key outside the right edge of the initial game camera. Show `>>>` only while its projection is outside the frustum, then remove the cue after a manual rightward scan brings the key into view.
+- Generate MikkTSpace tangents only for `DC9_PROP_CAPTAINS_KEY_MESH_GEOMETRY`; exporting tangents for the full legacy cockpit created hundreds of unused-tangent validator findings.
+
+### Follow-up discoveries
+
+- Blender projection measurements and actual-browser projection differ because the runtime camera uses the live canvas aspect and seat-look state. The authoritative placement is `(0.95, -2.55, 0.338)` on the green ledge; a key-stage-only 0.28-radian initial left glance starts its 1440 projection outside the frustum at x=1675.8, then a rightward drag brings it to x=1090.4 and removes the cue.
+- The complete flow initially exceeded the real-locker test's 240-second wall-clock budget under SwiftShader after all gameplay assertions had succeeded. A 420-second allowance preserves every assertion across two 42 MiB locker decodes and the following 38 MiB Airbus load; the isolated case passed in 3.4 minutes and the final 19-case suite passed in 8.0 minutes.
+- The generic node renderer framed the key too loosely because its longest dimension runs partly into depth. A per-asset `distanceFactor` of `1.55` produces a legible product render without changing the shared Captain's Hat framing.
+- The compact Home Operations height was correct at 1440 and 768, but the generic mobile `.dc9-document` bottom anchor reintroduced empty space at 375. A Home Operations-specific `bottom: auto` override reduced the final 375x812 panel from 580px to 439px.
+- The production DC-9 Playwright flow reached the new key state at the former 180-second ceiling under software rendering. All behavior was present; retaining the assertions and raising only that real-GLB case to 240 seconds produced a passing isolated run.
+
 ## 2026-07-15 owner-feedback completion pass
 
 - Moved the ATP qualification gate out of the Airbus chapter and placed it at the end of the DC-9 chapter, after shutdown and before the Captain's Key handoff. The gate retains visible native input and submit behavior, safe retry, keyboard access, and persisted progress.
@@ -204,3 +241,36 @@ Implementation, full-diff review, local technical verification, and preview publ
 - The owner approved the resulting view and journey refinements and requested PR publication.
 - Fresh publication verification passed: `npm run pipeline:evals` 6/6, `npm run assets:check`, `npm run check` with 62/62 Vitest tests, `npm run test:e2e -- --workers=1` with 18/18 Chromium cases, and `git diff --check`.
 - Final generated assets: DC-9 GLB 30,339,164 bytes, SHA-256 `a5a4cca94a616b1cca78cf1ca6eeb9a0325239fe036a558963834a511f05e377`; Airbus GLB 39,878,736 bytes, SHA-256 `367d7862b079cf1f01562f5f258c6e3bc473b01918219b5b8ba31867d43c31c4`.
+
+## 2026-07-16 DC-9 owner-feedback polish
+
+### Goal, context, constraints, and done-when
+
+- **Goal:** Remove the pre-cockpit Legacy Route Record flash, make its gold outline follow the physical card, improve route-copy contrast, refine Home Operations content and narrow-screen flow, shift the shutdown view slightly left, and tilt the popup key clockwise.
+- **Context:** A saved DC-9 intro reload renders the route opener as a visible fallback while the GLB is still `idle/loading`; the current route outline is a fixed CSS rectangle; the global paragraph rule overrides the intended dark route-question ink; Home Operations uses an internally scrolling height cap on narrow screens; shutdown begins at `0.10` radians of yaw; and the popup key has no screen-plane rotation.
+- **Constraints:** Preserve schema v8, DTW/MSP/STL answers and hints, five Home Operations pages, wrong-answer progress, accessible equivalents, reduced motion, the safely parked story, and all unrelated workspace changes. Add no dependency and do not rebuild or hand-edit the DC-9 GLB or Blender source.
+- **Done when:** Loading never exposes a visible route opener; the ready outline equals the projected card bounds plus 4px on each side; approved copy and dark question ink render; the narrow Home Operations panel grows with chapter-level scrolling and no internal scrollbar; shutdown yaw is `0.15`; the popup key is rotated `6deg`; focused and full validation plus 375/768/1440 browser evidence pass.
+
+### Progress
+
+- [x] Reproduced the loading-state fallback flash and traced it to `Dc9Chapter` treating missing projection data as a visible fallback before the model settles.
+- [x] Add focused failing unit and Playwright coverage for the approved behavior.
+- [x] Implement the loading gate, projected bounds, copy/layout, camera, and key changes.
+- [x] Validate focused and full flows, inspect the diff, capture browser evidence, and update `TEST_REPORT.md`.
+
+### Decisions
+
+- Project the real `DC9_PROP_MEM_ROUTE_CARD` mesh bounds and give the HTML outline a 4px margin rather than enlarging another fixed rectangle.
+- Keep a hidden keyboard route opener after the model is ready but the card is offscreen; show the compact visible fallback only for an actual load error or explicit accessible fallback.
+- On screens up to 760px, scroll the Home Operations chapter layer while allowing the document itself to grow without an internal scrollbar.
+- Rotate the existing popup image in CSS by `6deg`; do not regenerate the celebration PNG.
+
+### Evidence and discoveries
+
+- TDD red runs failed at the intended boundaries: the old page-two copy, visible loading-state route fallback, internally capped 375px Home Operations panel, light route question, and unrotated key.
+- Focused green coverage passed 5/5 for the saved-load regression, accessible DC-9 flow, route copy/contrast, and normal/reduced-motion key popup.
+- The production DC-9 flow passed with the real GLB, projected route-card bounds plus 8px total width/height, and shutdown camera state ending in `0.13868,0.24849,-0.01443,0.95855,64.00000`.
+- `npm run check` passed lint, TypeScript, 62/62 Vitest tests, and production build; `npm run assets:check` passed; `npm run pipeline:evals` passed 6/6; the complete smoke spec passed 11/11 in 5.9 minutes.
+- The first full browser suite passed 17/20. Two unrelated locker-WIP assertions remain red (Wings hint copy and watch camera distance `3.490` expected versus `3.492` actual). The DC-9 production case reached its final scan-cue assertion but crossed the 240-second ceiling under full-suite GLB contention; retaining every assertion and allowing 300 seconds produced a 4.5-minute passing smoke-spec run after the Airbus decode.
+- Actual-browser Playwright evidence was inspected at 375, 768, and 1440 pixels under `preview-renders/dc9-golden-key-finale/owner-polish-*.png`. The optional Browser plugin was unavailable, so repository Playwright was the browser-verification fallback.
+- Publication verification rebased the scoped golden-key/DC-9 work onto merged locker PR #44, excluded unpublished Airbus binary/source changes, and passed the complete `npm run test:e2e -- --workers=1` suite 20/20 in 8.2 minutes.

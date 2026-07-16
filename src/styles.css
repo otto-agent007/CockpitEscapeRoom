@@ -1332,6 +1332,33 @@ p {
     linear-gradient(180deg, rgba(18, 17, 15, 0.98), rgba(5, 7, 8, 0.99));
 }
 
+.qualification-celebration--key {
+  background:
+    radial-gradient(circle at 50% 38%, rgba(42, 121, 106, 0.24), transparent 52%),
+    rgba(1, 8, 10, 0.9);
+}
+
+.qualification-celebration--key .qualification-card {
+  width: min(37rem, 100%);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  border-color: rgba(126, 210, 188, 0.42);
+  background:
+    radial-gradient(circle at 50% 8%, rgba(241, 199, 106, 0.18), transparent 44%),
+    linear-gradient(155deg, rgba(9, 37, 34, 0.98), rgba(3, 13, 17, 0.99));
+  box-shadow: 0 2rem 7rem rgba(0, 0, 0, 0.7), 0 0 3.5rem rgba(82, 180, 157, 0.12);
+}
+
+.qualification-key {
+  display: block;
+  width: min(24rem, 78vw);
+  max-height: min(19rem, 38vh);
+  object-fit: contain;
+  margin: -1rem auto .25rem;
+  transform: rotate(6deg);
+  filter: drop-shadow(0 1.4rem 1.6rem rgba(0, 0, 0, 0.75)) drop-shadow(0 0 1.8rem rgba(241, 199, 106, 0.24));
+}
+
 .qualification-hat {
   display: block;
   width: min(26rem, 82vw);

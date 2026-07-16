@@ -159,6 +159,7 @@ export default function App() {
     state.phase === 'locker' && state.lockerHatRevealed ? 'ready' : 'idle',
   )
   const [lockerIntroSkipRequested, setLockerIntroSkipRequested] = useState(false)
+  const lockerIntroSkipRequestedRef = useRef(false)
   const airbusSceneReady = airbusLoadState.status === 'ready' || airbusLoadState.status === 'accessible-fallback'
   const lockerIntroActive = lockerIntroStage !== 'idle'
   const lockerHatFinaleActive = state.phase === 'locker' && state.lockerHatRevealed && lockerHatFinaleStage !== 'ready'
@@ -278,10 +279,11 @@ export default function App() {
       const advance = () => {
         switch (lockerIntroStage) {
           case 'fade-to-black':
+            if (state.phase === 'dc9') dispatch({ type: 'CLAIM_CAPTAINS_KEY' })
             setLockerIntroStage('black-pause')
             break
           case 'black-pause':
-            setLockerIntroStage('title-in')
+            setLockerIntroStage(lockerIntroSkipRequestedRef.current ? 'waiting-for-locker' : 'title-in')
             break
           case 'title-in':
             setLockerIntroStage('title-hold')
@@ -320,7 +322,7 @@ export default function App() {
       cancelAnimationFrame(secondFrame)
       window.clearTimeout(timeout)
     }
-  }, [lockerIntroStage, reducedMotion])
+  }, [dispatch, lockerIntroStage, reducedMotion, state.phase])
 
   useEffect(() => {
     if (lockerIntroStage !== 'waiting-for-locker' || !lockerSceneReady) return
@@ -342,6 +344,7 @@ export default function App() {
       if (!state.lockerIntroCompleted) dispatch({ type: 'COMPLETE_LOCKER_INTRO' })
       setLockerIntroStage('idle')
       setLockerIntroSkipRequested(false)
+      lockerIntroSkipRequestedRef.current = false
     }, 0)
     return () => window.clearTimeout(timeout)
   }, [dispatch, lockerIntroStage, lockerLoadState.status, skipPrototypeScene, state.lockerIntroCompleted])
@@ -371,6 +374,7 @@ export default function App() {
     setPendingLockerMemoryFocus(null)
     setLastAutoFocusedLockerMemory(null)
     setLockerIntroSkipRequested(false)
+    lockerIntroSkipRequestedRef.current = false
     setLockerCameraCue('entry-wide')
     setLockerCameraImmediate(reducedMotion)
     setLockerIntroStage('arming')
@@ -379,10 +383,12 @@ export default function App() {
   const skipLockerIntro = useCallback(() => {
     setSelectedLockerMemory(null)
     setLockerIntroSkipRequested(true)
+    lockerIntroSkipRequestedRef.current = true
     setLockerCameraImmediate(true)
     setLockerCameraCue('watch-focus')
+    if (state.phase === 'dc9' && (lockerIntroStage === 'arming' || lockerIntroStage === 'fade-to-black')) return
     setLockerIntroStage(state.phase === 'locker' && lockerSceneReady ? 'focus-watch' : 'waiting-for-locker')
-  }, [lockerSceneReady, state.phase])
+  }, [lockerIntroStage, lockerSceneReady, state.phase])
 
   const continueToAirbus = useCallback(() => {
     dispatch({ type: 'CLAIM_CAPTAIN_HAT' })
@@ -395,9 +401,9 @@ export default function App() {
   }, [dispatch])
 
   const claimCaptainsKey = useCallback(() => {
-    dispatch({ type: 'CLAIM_CAPTAINS_KEY' })
+    if (lockerIntroStage !== 'idle') return
     beginLockerIntro()
-  }, [beginLockerIntro, dispatch])
+  }, [beginLockerIntro, lockerIntroStage])
 
   const handleDc9Interaction = useCallback((gameId: string) => {
     if (gameId === 'dc9.key.open') {
@@ -417,6 +423,7 @@ export default function App() {
       if (!state.lockerIntroCompleted) dispatch({ type: 'COMPLETE_LOCKER_INTRO' })
       setLockerIntroStage('idle')
       setLockerIntroSkipRequested(false)
+      lockerIntroSkipRequestedRef.current = false
       return
     }
     if (cue === 'hat-focus' && lockerHatFinaleStage === 'moving') {
@@ -445,6 +452,7 @@ export default function App() {
     setLockerCameraImmediate(false)
     setLockerHatFinaleStage('idle')
     setLockerIntroSkipRequested(false)
+    lockerIntroSkipRequestedRef.current = false
     dispatch({ type: 'RESET' })
   }
 

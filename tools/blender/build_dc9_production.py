@@ -30,6 +30,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from tools.blender.cockpit_pipeline.xplane_obj8_blender_import import add_source_object
 from tools.blender.cockpit_pipeline.xplane_obj8_convert import load_pose, parse_obj8, partition_draw_ranges
+from tools.blender.import_dc9_golden_key import import_golden_key
 
 
 OUTPUT_BLEND = REPO_ROOT / "art-source" / "blender" / "dc9_master.blend"
@@ -204,11 +205,11 @@ def create_interaction_contract(root: bpy.types.Object, pose: dict[str, float]) 
     # OBJ8_DC9VC2_RANGE_015, while pitch-range OBJ8_DC9VC2_RANGE_014 contains
     # the column/pad whose horizontal center is x=0.4973 and whose front face
     # reaches y=-2.754. Place the card just in front of that face.
-    card_center = (0.4973, -2.775, 0.27)
-    board = make_box("DC9_PROP_MEM_ROUTE_CARD", props, card_center, (0.10, 0.012, 0.30), card_material)
+    card_center = (0.4973, -2.775, 0.32)
+    board = make_box("DC9_PROP_MEM_ROUTE_CARD", props, card_center, (0.10, 0.012, 0.15), card_material)
     board["game_id"] = "dc9.route.card"
     board["interaction"] = "container"
-    board["mounted_to_source"] = "OBJ8_DC9VC2_RANGE_012"
+    board["mounted_to_source"] = "OBJ8_DC9VC2_RANGE_014"
     board["seat_role"] = "first_officer"
     board["route_origin"] = "MEM"
     board["timetable_date"] = "1995-06-01"
@@ -216,7 +217,7 @@ def create_interaction_contract(root: bpy.types.Object, pose: dict[str, float]) 
         code = route["code"]
         city = route["city"]
         mileage = route["periodMileage"]
-        z = 0.39 - index * 0.04
+        z = card_center[2] + 0.0545 - index * 0.017
         row = make_empty(f"DC9_ROUTE_ROW_{code}", props)
         row.location = (card_center[0], -2.783, z)
         row["game_id"] = f"dc9.route.{code}"
@@ -226,18 +227,19 @@ def create_interaction_contract(root: bpy.types.Object, pose: dict[str, float]) 
         row["period_mileage"] = mileage
         row["origin"] = "MEM"
         row["verified_dc9_answer"] = code in VERIFIED_ROUTES
-        make_box(f"DC9_ROUTE_ROW_{code}_LINE", row, (0.0, 0.0, 0.0), (0.092, 0.006, 0.025), line_material)
-        collider = make_box(f"DC9_HITBOX_ROUTE_{code}", colliders, (card_center[0], -2.795, z), (0.16, 0.08, 0.032), collider_material)
+        make_box(f"DC9_ROUTE_ROW_{code}_LINE", row, (0.0, 0.0, 0.0), (0.092, 0.006, 0.014), line_material)
+        collider = make_box(f"DC9_HITBOX_ROUTE_{code}", colliders, (card_center[0], -2.795, z), (0.10, 0.06, 0.015), collider_material)
         collider["collider_only"] = True
         collider["collider_target_game_id"] = f"dc9.route.{code}"
 
     submit = make_empty("DC9_ROUTE_SUBMIT", props)
-    submit.location = (card_center[0], -2.783, 0.14)
+    submit_z = card_center[2] - 0.0525
+    submit.location = (card_center[0], -2.783, submit_z)
     submit["game_id"] = "dc9.route.submit"
     submit["interaction"] = "submit"
     submit["accessible_label"] = "Verify selected MEM routes"
-    make_box("DC9_ROUTE_SUBMIT_PLATE", submit, (0.0, 0.0, 0.0), (0.092, 0.006, 0.025), line_material)
-    submit_collider = make_box("DC9_HITBOX_ROUTE_SUBMIT", colliders, (card_center[0], -2.795, 0.14), (0.16, 0.08, 0.036), collider_material)
+    make_box("DC9_ROUTE_SUBMIT_PLATE", submit, (0.0, 0.0, 0.0), (0.092, 0.006, 0.018), line_material)
+    submit_collider = make_box("DC9_HITBOX_ROUTE_SUBMIT", colliders, (card_center[0], -2.795, submit_z), (0.10, 0.06, 0.020), collider_material)
     submit_collider["collider_only"] = True
     submit_collider["collider_target_game_id"] = "dc9.route.submit"
     return all_selected
@@ -908,6 +910,11 @@ def build() -> None:
         )
 
     attach_route_contract_to_first_officer_yoke()
+    golden_key_report = import_golden_key()
+    source_root["golden_key_contract"] = golden_key_report["stableContract"]["node"]
+    source_root["golden_key_report"] = str(
+        (REPO_ROOT / "asset-reports" / "dc9-golden-key-intake.json").relative_to(REPO_ROOT)
+    )
 
     normalize_donor_image_profiles()
     tune_source_materials()

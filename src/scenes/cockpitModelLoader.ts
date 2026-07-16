@@ -2,7 +2,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import * as THREE from 'three'
 
 export const AIRBUS_MODEL_URL = `${import.meta.env.BASE_URL}models/airbus-captain.glb`
-export const DC9_MODEL_URL = `${import.meta.env.BASE_URL}models/dc9-cockpit.glb?v=dc9-first-officer-v1-20260715`
+export const DC9_MODEL_URL = `${import.meta.env.BASE_URL}models/dc9-cockpit.glb?v=dc9-golden-key-v8-20260715`
 export const LOCKER_MODEL_URL = `${import.meta.env.BASE_URL}models/locker-room.glb?v=locker-seams-cf212389`
 
 // Fetch and parse each cockpit GLB once per session, even across scene remounts.
