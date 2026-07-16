@@ -85,7 +85,7 @@ Excluded:
 - Consumes: `gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'wings', response })` and `lockerFlow.memories.wings.retry/strongerHint`.
 - Produces: exact player-facing first and repeated retry messages; no type or reducer-shape change.
 
-- [ ] **Step 1: Replace the old substring checks with exact approved-message assertions**
+- [x] **Step 1: Replace the old substring checks with exact approved-message assertions**
 
 ```ts
 state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'wings', response: '500 hours' })
@@ -97,26 +97,26 @@ expect(state.lockerAttempts.wings).toBe(2)
 expect(state.statusMessage).toBe('It’s a four-digit milestone below the 1,500-hour ATP requirement.')
 ```
 
-- [ ] **Step 2: Run the focused test and verify the red state**
+- [x] **Step 2: Run the focused test and verify the red state**
 
 Run: `npm run test -- --run src/game/state.test.ts`
 
 Expected: FAIL because the reducer still returns `Part 121 experience milestone` and `ATP total-time requirement` wording.
 
-- [ ] **Step 3: Apply the approved copy in config**
+- [x] **Step 3: Apply the approved copy in config**
 
 ```ts
 retry: 'Think in flight hours: it’s a round-number milestone between 500 and 1,500.',
 strongerHint: 'It’s a four-digit milestone below the 1,500-hour ATP requirement.',
 ```
 
-- [ ] **Step 4: Run the focused test and verify green**
+- [x] **Step 4: Run the focused test and verify green**
 
 Run: `npm run test -- --run src/game/state.test.ts`
 
 Expected: PASS with all state tests green and no completed-memory regression.
 
-- [ ] **Step 5: Review the Task 1 delta without staging unrelated shared-file changes**
+- [x] **Step 5: Review the Task 1 delta without staging unrelated shared-file changes**
 
 Run: `git diff -- src/game/config.ts src/game/state.test.ts`
 
@@ -134,13 +134,13 @@ Expected: the new hint assertions and strings are identifiable as isolated hunks
 - Consumes: `lockerCameraCue: LockerCameraCue`, `lockerCameraImmediate: boolean`, and `onLockerCameraSettled(cue)`.
 - Produces: `LockerCameraCue` including `'hat-focus'`; deterministic `watch-focus` and `hat-focus` poses; canvas diagnostics `data-locker-camera-position` and `data-locker-camera-target`.
 
-- [ ] **Step 1: Add failing real-canvas assertions for the owner-reference watch pose and new hat cue contract**
+- [x] **Step 1: Add failing real-canvas assertions for the owner-reference watch pose and new hat cue contract**
 
 Immediately after the existing settled watch assertions, add:
 
 ```ts
-await expect(canvas).toHaveAttribute('data-locker-camera-position', '0.35,-0.38,3.25')
-await expect(canvas).toHaveAttribute('data-locker-camera-target', '0.62,-0.75,-0.21')
+await expect(canvas).toHaveAttribute('data-locker-camera-position', '1.17,-0.38,3.18')
+await expect(canvas).toHaveAttribute('data-locker-camera-target', '0.42,-0.75,-0.21')
 ```
 
 After the correct Wings submission, add the expected new cue boundary:
@@ -150,20 +150,20 @@ await expect(canvas).toHaveAttribute('data-locker-camera-cue', 'hat-focus')
 await expect(canvas).toHaveAttribute('data-locker-camera-state', 'settled')
 ```
 
-- [ ] **Step 2: Run the real-locker case and verify the red state**
+- [x] **Step 2: Run the real-locker case and verify the red state**
 
 Run: `npm run test:e2e -- e2e/locker-room.spec.ts --grep "locker GLB loads into the real canvas" --workers=1`
 
 Expected: FAIL because the camera position/target attributes and `hat-focus` cue do not exist.
 
-- [ ] **Step 3: Add explicit watch/hat targets and the new cue**
+- [x] **Step 3: Add explicit watch/hat targets and the new cue**
 
 Use these initial owner-reference values:
 
 ```ts
 const LOCKER_WATCH_POSITION = [0.42, -0.75, -0.21] as const
-const LOCKER_WATCH_CAMERA_TARGET = [0.62, -0.75, -0.21] as const
-const LOCKER_WATCH_CAMERA_POSITION = [0.35, -0.38, 3.25] as const
+const LOCKER_WATCH_CAMERA_TARGET = [0.42, -0.75, -0.21] as const
+const LOCKER_WATCH_CAMERA_POSITION = [1.17, -0.38, 3.18] as const
 const LOCKER_HAT_POSITION = [0.42, 1.00, -0.14] as const
 
 export type LockerCameraCue =
@@ -187,7 +187,7 @@ Define the poses without changing the Baseball/Bull/Wings shared offset:
 'hat-focus': lockerCloseFocusPose(LOCKER_HAT_POSITION, LOCKER_MEMORY_CAMERA_MOVE_SECONDS),
 ```
 
-- [ ] **Step 4: Publish deterministic position/target diagnostics at the cue boundary**
+- [x] **Step 4: Publish deterministic position/target diagnostics at the cue boundary**
 
 Inside `LockerCameraDirector`'s cue effect, add:
 
@@ -196,7 +196,7 @@ canvasRef.current.dataset.lockerCameraPosition = pose.position.toArray().map((va
 canvasRef.current.dataset.lockerCameraTarget = pose.target.toArray().map((value) => value.toFixed(2)).join(',')
 ```
 
-- [ ] **Step 5: Run typecheck and the real-locker case**
+- [x] **Step 5: Run typecheck and the real-locker case**
 
 Run: `npm run typecheck`
 
@@ -206,13 +206,13 @@ Run: `npm run test:e2e -- e2e/locker-room.spec.ts --grep "locker GLB loads into 
 
 Expected at this checkpoint: the watch diagnostic assertions pass; the `hat-focus` assertion remains red until Task 3 drives the cue.
 
-- [ ] **Step 6: Compare the watch frame with the owner screenshot and adjust only the dedicated watch pose if required**
+- [x] **Step 6: Compare the watch frame with the owner screenshot and adjust only the dedicated watch pose if required**
 
 Run the app at 1440x900, skip the cinematic after the real GLB loads, and capture `/tmp/locker-watch-owner-framing-1440.png`. Compare it with `/home/user1/Pictures/Screenshots/Screenshot from 2026-07-16 01-02-55.png`.
 
 Expected: the right locker bay and watch occupy the same three-quarter composition; if one bounded adjustment is required, change `LOCKER_WATCH_CAMERA_POSITION` and `LOCKER_WATCH_CAMERA_TARGET` together, then update the two exact e2e diagnostics to the approved values.
 
-- [ ] **Step 7: Review the Task 2 delta**
+- [x] **Step 7: Review the Task 2 delta**
 
 Run: `git diff -- src/scenes/PrototypeScene.tsx e2e/locker-room.spec.ts`
 
@@ -230,7 +230,7 @@ Expected: only cue/pose/diagnostic/test hunks for the locker are new; DC-9/Airbu
 - Consumes: durable `state.lockerHatRevealed`, `lockerLoadState.status`, `skipPrototypeScene`, `reducedMotion`, and `handleLockerCameraSettled('hat-focus')`.
 - Produces: transient `LockerHatFinaleStage = 'idle' | 'moving' | 'holding' | 'ready'`; `CaptainHatCelebration` mounts only at `ready`; reload initializes `ready`; accessible fallback advances directly to `ready`.
 
-- [ ] **Step 1: Add failing normal-motion celebration-order assertions**
+- [x] **Step 1: Add failing normal-motion celebration-order assertions**
 
 In the accessible full-memory case, retain the current immediate popup expectation because `skip3d=1` is the fallback boundary. In the real-canvas case, replace the immediate popup expectation after the correct Wings answer with:
 
@@ -251,13 +251,13 @@ Add a normal-motion assertion in the accessible flow that the final celebration 
 await expect(celebration.locator('.qualification-confetti i')).toHaveCount(24)
 ```
 
-- [ ] **Step 2: Run focused browser tests and verify the red state**
+- [x] **Step 2: Run focused browser tests and verify the red state**
 
 Run: `npm run test:e2e -- e2e/locker-room.spec.ts --grep "watch completion|locker GLB loads" --workers=1`
 
 Expected: FAIL because the real path still mounts the popup immediately and the finale stage attribute does not exist.
 
-- [ ] **Step 3: Add the transient finale stage and exact hold constant**
+- [x] **Step 3: Add the transient finale stage and exact hold constant**
 
 Near the locker timing constants and state declarations in `App.tsx`, add:
 
@@ -273,12 +273,13 @@ const [lockerHatFinaleStage, setLockerHatFinaleStage] = useState<LockerHatFinale
 Derive the display gates:
 
 ```ts
-const lockerHatFinaleActive = state.phase === 'locker' && (lockerHatFinaleStage === 'moving' || lockerHatFinaleStage === 'holding')
+const lockerHatFinaleActive =
+  state.phase === 'locker' && state.lockerHatRevealed && lockerHatFinaleStage !== 'ready'
 const captainHatCelebrationActive =
   state.phase === 'locker' && state.lockerHatRevealed && !lockerIntroActive && lockerHatFinaleStage === 'ready'
 ```
 
-- [ ] **Step 4: Start the first-run camera beat but preserve reload and fallback behavior**
+- [x] **Step 4: Start the first-run camera beat but preserve reload and fallback behavior**
 
 Add an effect that runs only when a current session changes the durable flag while the transient stage is still idle:
 
@@ -302,7 +303,7 @@ useEffect(() => {
 
 The state initializer is the reload guard: a persisted revealed hat starts at `ready`, so the effect does not replay the move or hold.
 
-- [ ] **Step 5: Start the two-second timer only from the settled callback**
+- [x] **Step 5: Start the two-second timer only from the settled callback**
 
 Extend `handleLockerCameraSettled` before memory mapping:
 
@@ -325,7 +326,7 @@ useEffect(() => {
 
 Include `lockerHatFinaleStage` in the callback dependency list.
 
-- [ ] **Step 6: Hide controls during the camera beat and expose the diagnostic stage**
+- [x] **Step 6: Hide controls during the camera beat and expose the diagnostic stage**
 
 Update `lockerInteractionEnabled`, the HUD/tool/help render guards, and the root element:
 
@@ -346,11 +347,11 @@ const lockerInteractionEnabled =
 
 Use `!lockerIntroActive && !captainHatCelebrationActive && !lockerHatFinaleActive` for the HUD, scene-tools, help-dismiss, and `SceneHelp` render guards. Do not change `CaptainHatCelebration`; its normal confetti and reduced-motion behavior remain authoritative.
 
-- [ ] **Step 7: Reset only transient finale state on restart**
+- [x] **Step 7: Reset only transient finale state on restart**
 
 Add `setLockerHatFinaleStage('idle')` to `restart()`. Do not add the transient stage to `GameState`, storage, or schema migration.
 
-- [ ] **Step 8: Run focused tests green**
+- [x] **Step 8: Run focused tests green**
 
 Run: `npm run test -- --run src/game/state.test.ts`
 
@@ -360,7 +361,7 @@ Run: `npm run test:e2e -- e2e/locker-room.spec.ts --workers=1`
 
 Expected: PASS for normal confetti, reduced-motion no-confetti, real hat cue/hold, immediate persisted reload, and accessible fallback.
 
-- [ ] **Step 9: Review the Task 3 delta**
+- [x] **Step 9: Review the Task 3 delta**
 
 Run: `git diff -- src/App.tsx e2e/locker-room.spec.ts src/components/QualificationCelebration.tsx src/styles.css`
 
@@ -381,7 +382,7 @@ Expected: `QualificationCelebration.tsx` and confetti CSS have no new feature di
 - Consumes: completed Tasks 1-3, actual local Vite app, real `public/models/locker-room.glb`, and the owner screenshot.
 - Produces: browser evidence, validation results, remaining-delta record, and a reviewable locker-only checkpoint.
 
-- [ ] **Step 1: Run the smallest relevant automated stack**
+- [x] **Step 1: Run the smallest relevant automated stack**
 
 Run: `npm run test -- --run src/game/state.test.ts`
 
@@ -389,7 +390,7 @@ Run: `npm run test:e2e -- e2e/locker-room.spec.ts --workers=1`
 
 Expected: both pass; record exact test counts and durations under Evidence.
 
-- [ ] **Step 2: Run repository completion checks**
+- [x] **Step 2: Run repository completion checks**
 
 Run: `npm run check`
 
@@ -399,7 +400,7 @@ Run: `git diff --check`
 
 Expected: all pass. If a command fails, stop, record the exact failure under Discoveries, use systematic debugging, repair the root cause, and rerun the failed plus adjacent check.
 
-- [ ] **Step 3: Exercise the actual browser at 1440, 768, and 375 widths**
+- [x] **Step 3: Exercise the actual browser at 1440, 768, and 375 widths**
 
 At every width, exercise:
 
@@ -414,21 +415,21 @@ At every width, exercise:
 
 Expected: no console/page errors, no horizontal overflow, no duplicate popup, and no enabled locker controls during the hat camera beat.
 
-- [ ] **Step 4: Capture durable screenshots**
+- [x] **Step 4: Capture durable screenshots**
 
 Save the nine screenshots listed in File Structure. The 1440 watch capture must be compared side by side with `/home/user1/Pictures/Screenshots/Screenshot from 2026-07-16 01-02-55.png` before claiming visual completion.
 
-- [ ] **Step 5: Conduct a complete-diff review**
+- [x] **Step 5: Conduct a complete-diff review**
 
 Review: `git diff -- src/game/config.ts src/game/state.test.ts src/scenes/PrototypeScene.tsx src/App.tsx e2e/locker-room.spec.ts plans/0014-locker-camera-finale-polish.md TEST_REPORT.md preview-renders/locker-camera-finale`
 
 Check for timer cleanup, stale callbacks, duplicate reveal execution, persisted-stage leakage, hidden keyboard controls, confetti regression, unsafe DOM insertion, and unrelated aircraft/asset changes. Resolve every critical/high issue and rerun affected checks.
 
-- [ ] **Step 6: Record actual evidence and outcome**
+- [x] **Step 6: Record actual evidence and outcome**
 
 Update Progress, Discoveries, Decision Log, Evidence, and Outcome in this plan. Add a dated `TEST_REPORT.md` section with files changed, commands actually run, pass/fail results, screenshots, viewports, browser/console health, placeholders, and genuine limitations.
 
-- [ ] **Step 7: Create a scoped implementation checkpoint only after hunk verification**
+- [x] **Step 7: Create a scoped implementation checkpoint only after hunk verification**
 
 Because `src/App.tsx`, `src/scenes/PrototypeScene.tsx`, `src/game/config.ts`, `src/game/state.test.ts`, `e2e/locker-room.spec.ts`, and `TEST_REPORT.md` already contain unrelated user work, stage only the verified locker-camera/hint hunks and new locker-finale files. Inspect `git diff --cached --check` and `git diff --cached --stat` before committing.
 
@@ -443,7 +444,11 @@ Expected: the checkpoint contains no GLB, Blender, DC-9, Airbus, Model Y, or unr
 - [x] 2026-07-16 - Read required repository guidance, current locker ExecPlans, camera/reducer/celebration code, tests, Git status, and the approved design.
 - [x] 2026-07-16 - Inspected the newest owner screenshot and confirmed the desired right-panned three-quarter watch composition.
 - [x] 2026-07-16 - Owner approved the two-second post-settle hat hold, practical Wings hints, normal confetti, and existing reduced-motion accessibility behavior.
-- [ ] Implement Tasks 1-4 sequentially with red/green evidence and update this section after every checkpoint.
+- [x] 2026-07-16 - Task 1 TDD passed: the focused reducer test failed on the old Part 121 copy, then passed 39/39 with the approved exact hint strings and preserved progress.
+- [x] 2026-07-16 - Task 2 added deterministic watch/hat poses and diagnostics; the real GLB watch frame was calibrated to the right-side owner-reference orbit and visually accepted for the local gate.
+- [x] 2026-07-16 - Task 3 added the transient `moving -> holding -> ready` finale, exact post-settle hold, direct fallback/reload paths, and hidden controls during the beat.
+- [x] 2026-07-16 - Task 4 passed project, asset, full locker-browser, responsive, and diff checks and produced nine durable actual-browser captures.
+- [x] Implement Tasks 1-4 sequentially with red/green evidence and update this section after every checkpoint.
 
 ## Discoveries
 
@@ -451,6 +456,10 @@ Expected: the checkpoint contains no GLB, Blender, DC-9, Airbus, Model Y, or unr
 - The durable `lockerHatRevealed` flag currently mounts the popup directly. A transient presentation stage is required so the first-run cinematic can be delayed without replaying after reload.
 - The real locker source places Watch at `(0.56, -0.48, 0.55)`, Wings at `(0.56, -0.06, 2.55)`, and the hat at `(0.56, -0.45, 2.92)`. The planned runtime hat target `(0.42, 1.00, -0.14)` follows the existing watch/Wings runtime camera mapping and must be visually confirmed against the real GLB.
 - The first Wings retry is difficult because it substitutes Part 121 jargon for actionable numerical guidance; the reducer's existing attempt ladder already supports the approved correction without rule changes.
+- The planned watch distance rounds to `3.492`, not `3.490`; the exact real-canvas diagnostic was corrected without changing the approved pose.
+- A pre-existing Playwright preview at port 4173 initially served a stale production bundle. Rebuilding after that unrelated run exited restored the current finale code at the test boundary.
+- SwiftShader can delay a nominal 2,000ms browser timer while decoding/rendering the 42 MiB GLB. Browser-side mutation timestamps keep the early-popup assertion authoritative; headed Brave measured the actual hold at 2,008.7ms.
+- The 375px celebration card had 31px of internal overflow because the 82vw hat image exceeded the card content width. `max-width: 100%` removed it while preserving the existing design.
 
 ## Decision Log
 
@@ -459,6 +468,9 @@ Expected: the checkpoint contains no GLB, Blender, DC-9, Airbus, Model Y, or unr
 - 2026-07-16 - Keep all normal-motion confetti and the existing reduced-motion no-animated-confetti behavior.
 - 2026-07-16 - Keep the finale stage transient. Persist only the existing revealed-hat completion flag so reload remains immediate and backward compatible.
 - 2026-07-16 - Skip the unavailable 3D beat in accessible fallback and open the popup directly.
+- 2026-07-16 - Use the final right-orbit watch position `(1.17, -0.38, 3.18)` aimed directly at `(0.42, -0.75, -0.21)` after comparing both left- and right-orbit candidates with the owner screenshot.
+- 2026-07-16 - Measure the hold from browser-observed `holding` and `ready` mutations rather than adding a second Playwright-side sleep after `holding`; this proves the popup is not early without making CPU starvation look like a product failure.
+- 2026-07-16 - Treat the narrow celebration overflow as part of this visual gate and constrain only the existing hat image; do not alter the popup layout or confetti implementation.
 
 ## Milestones
 
@@ -496,8 +508,18 @@ Repeat focused red test -> smallest coherent implementation -> focused green tes
 - Approved design commit: `759ab9a` (`docs: specify locker camera finale polish`).
 - Owner framing reference: `/home/user1/Pictures/Screenshots/Screenshot from 2026-07-16 01-02-55.png`.
 - Blender 5.1.2 read-only source inspection confirmed Watch `(0.56, -0.48, 0.55)`, Wings `(0.56, -0.06, 2.55)`, and captain's hat `(0.56, -0.45, 2.92)`.
-- Implementation commands and browser captures will be appended as they run; no unrun check is recorded as passing.
+- Task 1 red: `npm run test -- --run src/game/state.test.ts` failed 1/39 at the exact first-hint assertion because the old Part 121 message was still returned.
+- Task 1 green: the same command passed 39/39 after updating only the Wings retry and stronger-hint strings.
+- Task 2/3 red: the real-canvas Playwright case reached Wings completion but remained at `wings-focus`; after implementation it reached `hat-focus`, `settled`, `holding`, and `ready` with the popup absent during the hold.
+- Headed Brave timing: `moving` at 16,097.5ms, `holding` at 17,934.8ms, and `ready` at 19,943.5ms; post-settle hold 2,008.7ms.
+- Responsive red/green: the 375px accessible celebration first reported 31px internal card overflow, then passed after capping `.qualification-hat` at the content width.
+- `npm run check` passed ESLint, TypeScript, 62/62 Vitest tests, and the production Vite build.
+- `npm run assets:check` passed with the existing imported-asset validator information/warnings and no new locker asset changes.
+- Final `npm run test:e2e -- e2e/locker-room.spec.ts --workers=1` passed 6/6 in 3.8 minutes, including real locker GLB, fallback, reload, focus, normal/reduced motion, camera diagnostics, and the measured hold.
+- `git diff --check` passed.
+- Actual-browser captures: `preview-renders/locker-camera-finale/locker-watch-owner-framing-{1440,768,375}.png`, `locker-hat-hold-{1440,768,375}.png`, and `locker-hat-celebration-{1440,768,375}.png`.
+- The normal-motion capture reported `hat-focus`, `settled`, `ready`, and 24 confetti pieces. No page exceptions or failed HTTP responses were recorded; one generic Brave resource-console warning had no failed response, and Vite retained the existing upstream `THREE.Clock` deprecation warning.
 
 ## Outcome and Handoff
 
-Planning is complete and implementation has not started. Execute Tasks 1-4 sequentially, keep this document current, and pause only for a failed validation that does not shrink after the bounded repair loop or for final owner visual approval.
+Implementation and local verification are complete. The opening now settles on the owner-reference right-panned watch frame; correct Wings completion focuses the real captain's hat, holds for two seconds after settle, and then shows the unchanged normal confetti celebration. Practical first/repeated Wings hints and the 375px overflow repair are covered by tests. No Blender/GLB, persistence, dependency, or unrelated aircraft changes were made. The remaining external gate is owner review of the durable captures and, if requested, a Vercel preview; publication was not authorized in this pass.

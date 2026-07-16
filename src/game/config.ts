@@ -100,8 +100,8 @@ export const lockerFlow = {
         'In U.S. airline operations, what is the minimum amount of second-in-command experience commonly associated with qualifying to serve as captain?',
       acceptedAnswers: ['1000', '1000 hour', '1000 hours'] as const,
       feedback: 'Correct: 1,000 hours. The wings remember preparation, teamwork, and earned responsibility.',
-      retry: 'Not quite. Think of the Part 121 experience milestone commonly associated with a captain upgrade.',
-      strongerHint: 'It is a four-digit hour milestone below the 1,500-hour ATP total-time requirement.',
+      retry: 'Think in flight hours: it’s a round-number milestone between 500 and 1,500.',
+      strongerHint: 'It’s a four-digit milestone below the 1,500-hour ATP requirement.',
       inputLabel: 'Answer in hours',
       story:
         'With this deep history came powerful superstitions. One of the most famous military traditions is the “Breaking of the Wings.” Upon graduating from flight school, a new pilot receives their very first pair of wings but is told never to wear them. Instead, they deliberately break the badge into two halves. The pilot keeps one half, and the other is given to a loved one or best friend for good luck. Superstition dictates that the two halves must never be reunited while the pilot is alive, otherwise, it invites bad luck.',

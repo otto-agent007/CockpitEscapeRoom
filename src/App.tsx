@@ -35,7 +35,10 @@ const REDUCED_LOCKER_INTRO_TIMINGS = {
   wideHold: 0,
 } as const
 
+const LOCKER_HAT_HOLD_MS = 2_000
+
 type Dc9EntryStage = 'idle' | 'fade-out' | 'waiting-for-cockpit' | 'fade-in'
+type LockerHatFinaleStage = 'idle' | 'moving' | 'holding' | 'ready'
 
 function Dc9EntryTransition({
   stage,
@@ -152,15 +155,19 @@ export default function App() {
             : 'watch-focus',
   )
   const [lockerCameraImmediate, setLockerCameraImmediate] = useState(state.phase === 'locker' && reducedMotion)
+  const [lockerHatFinaleStage, setLockerHatFinaleStage] = useState<LockerHatFinaleStage>(() =>
+    state.phase === 'locker' && state.lockerHatRevealed ? 'ready' : 'idle',
+  )
   const [lockerIntroSkipRequested, setLockerIntroSkipRequested] = useState(false)
   const airbusSceneReady = airbusLoadState.status === 'ready' || airbusLoadState.status === 'accessible-fallback'
   const lockerIntroActive = lockerIntroStage !== 'idle'
-  const captainHatCelebrationActive = state.phase === 'locker' && state.lockerHatRevealed && !lockerIntroActive
+  const lockerHatFinaleActive = state.phase === 'locker' && state.lockerHatRevealed && lockerHatFinaleStage !== 'ready'
+  const captainHatCelebrationActive = state.phase === 'locker' && state.lockerHatRevealed && !lockerIntroActive && lockerHatFinaleStage === 'ready'
   const lockerIntroErrorVisible = lockerIntroStage === 'waiting-for-locker' && lockerLoadState.status === 'error'
   const lockerSceneReady = skipPrototypeScene || lockerLoadState.status === 'ready' || lockerLoadState.status === 'accessible-fallback'
-  const lockerInteractionEnabled = state.phase === 'locker' && state.lockerIntroCompleted && !lockerIntroActive && !captainHatCelebrationActive
+  const lockerInteractionEnabled = state.phase === 'locker' && state.lockerIntroCompleted && !lockerIntroActive && !captainHatCelebrationActive && !lockerHatFinaleActive
   const availableLockerMemories = lockerFlow.memoryIds.filter((memoryId) => isLockerMemoryAvailable(state, memoryId))
-  const viewerResetReady = !lockerIntroActive && (state.phase !== 'airbus' || airbusSceneReady)
+  const viewerResetReady = !lockerIntroActive && !lockerHatFinaleActive && (state.phase !== 'airbus' || airbusSceneReady)
   const finishDc9Entry = useCallback(() => setDc9EntryStage('idle'), [])
 
   useEffect(() => {
@@ -218,6 +225,28 @@ export default function App() {
     }, 0)
     return () => window.clearTimeout(fallbackTimeout)
   }, [lockerLoadState.status, pendingLockerMemoryFocus, skipPrototypeScene])
+
+  useEffect(() => {
+    if (state.phase !== 'locker' || !state.lockerHatRevealed || lockerHatFinaleStage !== 'idle') return
+    if (skipPrototypeScene || lockerLoadState.status === 'accessible-fallback') {
+      const timeout = window.setTimeout(() => setLockerHatFinaleStage('ready'), 0)
+      return () => window.clearTimeout(timeout)
+    }
+    const timeout = window.setTimeout(() => {
+      setSelectedLockerMemory(null)
+      setPendingLockerMemoryFocus(null)
+      setLockerCameraImmediate(reducedMotion)
+      setLockerCameraCue('hat-focus')
+      setLockerHatFinaleStage('moving')
+    }, 0)
+    return () => window.clearTimeout(timeout)
+  }, [lockerHatFinaleStage, lockerLoadState.status, reducedMotion, skipPrototypeScene, state.lockerHatRevealed, state.phase])
+
+  useEffect(() => {
+    if (lockerHatFinaleStage !== 'holding') return
+    const timeout = window.setTimeout(() => setLockerHatFinaleStage('ready'), LOCKER_HAT_HOLD_MS)
+    return () => window.clearTimeout(timeout)
+  }, [lockerHatFinaleStage])
 
   useEffect(() => {
     loaderStartedAtRef.current = performance.now()
@@ -390,11 +419,15 @@ export default function App() {
       setLockerIntroSkipRequested(false)
       return
     }
+    if (cue === 'hat-focus' && lockerHatFinaleStage === 'moving') {
+      setLockerHatFinaleStage('holding')
+      return
+    }
     const settledMemory = cue === 'baseball-focus' ? 'baseball' : cue === 'bull-focus' ? 'chargingBull' : cue === 'wings-focus' ? 'wings' : null
     if (!settledMemory || pendingLockerMemoryFocus !== settledMemory) return
     setSelectedLockerMemory(settledMemory)
     setPendingLockerMemoryFocus(null)
-  }, [dispatch, lockerIntroStage, pendingLockerMemoryFocus, state.lockerIntroCompleted])
+  }, [dispatch, lockerHatFinaleStage, lockerIntroStage, pendingLockerMemoryFocus, state.lockerIntroCompleted])
 
   const restart = () => {
     const confirmed = window.confirm(`Restart ${gameCopy.title} and clear saved progress?`)
@@ -410,6 +443,7 @@ export default function App() {
     setLockerIntroStage('idle')
     setLockerCameraCue('watch-focus')
     setLockerCameraImmediate(false)
+    setLockerHatFinaleStage('idle')
     setLockerIntroSkipRequested(false)
     dispatch({ type: 'RESET' })
   }
@@ -477,7 +511,11 @@ export default function App() {
   }
 
   return (
-    <main ref={shellRef} className={`game-shell${state.phase === 'airbus' ? ' airbus-shell' : ''}${state.phase === 'locker' ? ' locker-shell' : ''}${state.phase === 'dc9' ? ' captain-shell' : ''}`}>
+    <main
+      ref={shellRef}
+      data-locker-hat-finale-stage={state.phase === 'locker' ? lockerHatFinaleStage : undefined}
+      className={`game-shell${state.phase === 'airbus' ? ' airbus-shell' : ''}${state.phase === 'locker' ? ' locker-shell' : ''}${state.phase === 'dc9' ? ' captain-shell' : ''}`}
+    >
       {skipPrototypeScene || (state.phase === 'airbus' && airbusLoadState.status === 'accessible-fallback') || (state.phase === 'locker' && lockerLoadState.status === 'accessible-fallback') || (state.phase === 'dc9' && dc9LoadState.status === 'accessible-fallback') ? (
         state.phase === 'locker'
           ? <div className="scene scene--accessible scene--locker-accessible" aria-label="Static accessible captain's locker view"><div className="locker-accessible-mark">Captain's locker</div></div>
@@ -518,7 +556,7 @@ export default function App() {
           />
         </Suspense>
       )}
-      {!lockerIntroActive && !captainHatCelebrationActive && state.phase !== 'dc9' && (
+      {!lockerIntroActive && !captainHatCelebrationActive && !lockerHatFinaleActive && state.phase !== 'dc9' && (
         <Hud
           state={state}
           dispatch={dispatch}
@@ -560,7 +598,7 @@ export default function App() {
           <button type="button" className="secondary-button" onClick={() => setLockerLoadState({ status: 'accessible-fallback' })}>Continue with accessible controls</button>
         </section>
       )}
-      {!lockerIntroActive && !captainHatCelebrationActive && (
+      {!lockerIntroActive && !captainHatCelebrationActive && !lockerHatFinaleActive && (
         <div className="scene-tools">
           {state.phase === 'locker' && state.lockerIntroCompleted && (
             <button type="button" className="scene-tool-button" aria-label="Replay locker intro" onClick={beginLockerIntro}>↻</button>
@@ -569,8 +607,8 @@ export default function App() {
           <button type="button" className="scene-tool-button" aria-label="Toggle fullscreen" onClick={() => void toggleFullscreen()}>⛶</button>
         </div>
       )}
-      {!lockerIntroActive && !captainHatCelebrationActive && helpOpen && <button type="button" className="scene-help-dismiss" onClick={closeHelp} aria-label="Dismiss viewer help" tabIndex={-1} />}
-      {!lockerIntroActive && !captainHatCelebrationActive && <SceneHelp phase={state.phase} open={helpOpen} onClose={closeHelp} />}
+      {!lockerIntroActive && !captainHatCelebrationActive && !lockerHatFinaleActive && helpOpen && <button type="button" className="scene-help-dismiss" onClick={closeHelp} aria-label="Dismiss viewer help" tabIndex={-1} />}
+      {!lockerIntroActive && !captainHatCelebrationActive && !lockerHatFinaleActive && <SceneHelp phase={state.phase} open={helpOpen} onClose={closeHelp} />}
       {state.phase === 'airbus' && state.completedPuzzles.includes('airbus') && !lockerIntroActive && (
         <AirbusCompletionCelebration reducedMotion={reducedMotion} onContinue={continueToReward} />
       )}

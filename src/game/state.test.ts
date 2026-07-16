@@ -404,13 +404,12 @@ describe('gameReducer', () => {
     state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'chargingBull', response: 'Albert Einstein' })
     state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'wings', response: '500 hours' })
     expect(state.lockerCompleted).toEqual(['watch', 'baseball', 'chargingBull'])
-    expect(state.statusMessage).toContain('Part 121 experience milestone')
+    expect(state.statusMessage).toBe('Think in flight hours: it’s a round-number milestone between 500 and 1,500.')
 
     state = gameReducer(state, { type: 'SUBMIT_LOCKER_ANSWER', memoryId: 'wings', response: '1500 hours' })
     expect(state.lockerCompleted).toEqual(['watch', 'baseball', 'chargingBull'])
     expect(state.lockerAttempts.wings).toBe(2)
-    expect(state.statusMessage).toContain('four-digit hour milestone below the 1,500-hour ATP')
-    expect(state.statusMessage).not.toContain('one thousand')
+    expect(state.statusMessage).toBe('It’s a four-digit milestone below the 1,500-hour ATP requirement.')
   })
 
   it('returns from Mars without discarding completion', () => {
