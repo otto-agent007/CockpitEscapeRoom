@@ -14,18 +14,52 @@ if (models.length === 0) {
 
 let failed = false
 
-function glbJson(path) {
+function parseGlb(path) {
   const bytes = readFileSync(path)
   if (bytes.toString('utf8', 0, 4) !== 'glTF') throw new Error('invalid GLB magic')
-  const jsonLength = bytes.readUInt32LE(12)
-  const jsonType = bytes.toString('utf8', 16, 20)
-  if (jsonType !== 'JSON') throw new Error('first GLB chunk is not JSON')
-  return JSON.parse(bytes.toString('utf8', 20, 20 + jsonLength))
+  let json
+  let binary
+  let offset = 12
+  while (offset < bytes.length) {
+    const chunkLength = bytes.readUInt32LE(offset)
+    const chunkType = bytes.toString('utf8', offset + 4, offset + 8)
+    const chunk = bytes.subarray(offset + 8, offset + 8 + chunkLength)
+    if (chunkType === 'JSON') json = JSON.parse(chunk.toString('utf8'))
+    if (chunkType === 'BIN\u0000') binary = chunk
+    offset += 8 + chunkLength
+  }
+  if (!json) throw new Error('GLB has no JSON chunk')
+  if (!binary) throw new Error('GLB has no binary chunk')
+  return { json, binary }
+}
+
+function embeddedPngDimensions(json, binary, imageIndex) {
+  const image = json.images?.[imageIndex]
+  const view = image?.bufferView === undefined ? undefined : json.bufferViews?.[image.bufferView]
+  if (!view || image?.mimeType !== 'image/png') return undefined
+  const start = view.byteOffset ?? 0
+  const bytes = binary.subarray(start, start + view.byteLength)
+  const pngSignature = bytes.length >= 24
+    && bytes[0] === 0x89
+    && bytes.toString('ascii', 1, 4) === 'PNG'
+  return pngSignature ? [bytes.readUInt32BE(16), bytes.readUInt32BE(20)] : undefined
+}
+
+function pngDimensions(path) {
+  if (!existsSync(path)) return undefined
+  const bytes = readFileSync(path)
+  const pngSignature = bytes.length >= 24
+    && bytes[0] === 0x89
+    && bytes.toString('ascii', 1, 4) === 'PNG'
+  return pngSignature ? [bytes.readUInt32BE(16), bytes.readUInt32BE(20)] : undefined
 }
 
 const requiredModelContracts = {
   'dc9-cockpit.glb': [
     'DC9_ROOT',
+    'DC9_PROP_CAPTAINS_KEY',
+    'DC9_PROP_CAPTAINS_KEY_MESH',
+    'DC9_HITBOX_CAPTAINS_KEY',
     'CAM_DC9_FIRST_OFFICER_GAME',
     'CAM_DC9_FIRST_OFFICER_APPROVAL',
     'CAM_DC9_FIRST_OFFICER_ROUTE_APPROVAL',
@@ -57,7 +91,7 @@ for (const [model, requiredNodes] of Object.entries(requiredModelContracts)) {
     continue
   }
   try {
-    const json = glbJson(join(modelDir, model))
+    const { json, binary } = parseGlb(join(modelDir, model))
     const names = new Set((json.nodes ?? []).map((node) => node.name).filter(Boolean))
     const missing = requiredNodes.filter((name) => !names.has(name))
     if (missing.length > 0) {
@@ -76,7 +110,7 @@ for (const [model, requiredNodes] of Object.entries(requiredModelContracts)) {
       const routeTranslation = routeCard?.translation
       const centeredOnFirstOfficerYoke = Array.isArray(routeTranslation)
         && Math.abs(routeTranslation[0] - 0.4973) < 0.002
-        && Math.abs(routeTranslation[1] - 0.27) < 0.002
+        && Math.abs(routeTranslation[1] - 0.32) < 0.002
         && Math.abs(routeTranslation[2] - 2.775) < 0.002
       const routeContractNodes = nodes
         .map((node) => node.name)
@@ -87,9 +121,116 @@ for (const [model, requiredNodes] of Object.entries(requiredModelContracts)) {
       const routeContractParentedToFirstOfficerYoke = routeContractNodes.every(
         (name) => parentName(name) === 'OBJ8_DC9VC2_RANGE_014',
       )
-      if (!centeredOnFirstOfficerYoke || !routeContractParentedToFirstOfficerYoke) {
-        console.error('DC-9 route record and hitboxes must be centered on the first-officer yoke.')
+      const routePositionAccessorIndex = routeCard?.mesh === undefined
+        ? undefined
+        : json.meshes?.[routeCard.mesh]?.primitives?.[0]?.attributes?.POSITION
+      const routePositionAccessor = routePositionAccessorIndex === undefined
+        ? undefined
+        : json.accessors?.[routePositionAccessorIndex]
+      const routeCardHeight = Array.isArray(routePositionAccessor?.min) && Array.isArray(routePositionAccessor?.max)
+        ? routePositionAccessor.max[1] - routePositionAccessor.min[1]
+        : undefined
+      const routeCardIsHalfHeight = typeof routeCardHeight === 'number' && Math.abs(routeCardHeight - 0.15) < 0.002
+      if (!centeredOnFirstOfficerYoke || !routeContractParentedToFirstOfficerYoke || !routeCardIsHalfHeight) {
+        console.error(`DC-9 route record and hitboxes must be centered on the first-officer yoke at 0.15 scene-unit height; received ${routeCardHeight ?? 'none'}.`)
         failed = true
+      }
+
+      const key = nodes[nodeIndex('DC9_PROP_CAPTAINS_KEY')]
+      const keyMeshNode = nodes[nodeIndex('DC9_PROP_CAPTAINS_KEY_MESH')]
+      const keyHitbox = nodes[nodeIndex('DC9_HITBOX_CAPTAINS_KEY')]
+      if (key?.extras?.game_id !== 'dc9.key.open'
+        || key?.extras?.interaction !== 'open'
+        || keyHitbox?.extras?.collider_only !== true
+        || keyHitbox?.extras?.collider_target_game_id !== 'dc9.key.open') {
+        console.error('DC-9 Captain\'s Key must export its stable game_id and collider contract.')
+        failed = true
+      }
+
+      const keyPrimitives = keyMeshNode?.mesh === undefined ? [] : (json.meshes?.[keyMeshNode.mesh]?.primitives ?? [])
+      const keyTriangleCount = keyPrimitives.reduce((count, primitive) => {
+        const accessorIndex = primitive.indices ?? primitive.attributes?.POSITION
+        const accessorCount = accessorIndex === undefined ? 0 : (json.accessors?.[accessorIndex]?.count ?? 0)
+        return count + accessorCount / 3
+      }, 0)
+      const keyMaterials = new Set(keyPrimitives.map((primitive) => primitive.material).filter(Number.isInteger))
+      const keyHasTangents = keyPrimitives.length > 0 && keyPrimitives.every((primitive) => Number.isInteger(primitive.attributes?.TANGENT))
+      const keyMaterialIndex = [...keyMaterials][0]
+      const keyMaterial = Number.isInteger(keyMaterialIndex) ? json.materials?.[keyMaterialIndex] : undefined
+      const keyTextureIndices = [
+        keyMaterial?.pbrMetallicRoughness?.baseColorTexture?.index,
+        keyMaterial?.normalTexture?.index,
+        keyMaterial?.pbrMetallicRoughness?.metallicRoughnessTexture?.index,
+      ]
+      const keyTextureDimensions = keyTextureIndices.map((textureIndex) => {
+        const imageIndex = Number.isInteger(textureIndex) ? json.textures?.[textureIndex]?.source : undefined
+        return Number.isInteger(imageIndex) ? embeddedPngDimensions(json, binary, imageIndex) : undefined
+      })
+      const keyTexturesAreEmbedded1k = keyTextureDimensions.every(
+        (dimensions) => dimensions?.[0] === 1024 && dimensions?.[1] === 1024,
+      )
+      if (!keyHasTangents
+        || keyTriangleCount > 72_000
+        || keyTriangleCount <= 0
+        || keyMaterials.size !== 1
+        || keyMaterial?.doubleSided !== true
+        || !keyTexturesAreEmbedded1k) {
+        console.error(`DC-9 Captain's Key deployed GLB violates its runtime contract: ${keyTriangleCount} triangles, ${keyMaterials.size} materials, tangents=${keyHasTangents}, textures=${JSON.stringify(keyTextureDimensions)}.`)
+        failed = true
+      }
+
+      const reportPath = 'asset-reports/dc9-golden-key-intake.json'
+      if (!existsSync(reportPath)) {
+        console.error(`Missing DC-9 golden-key intake report: ${reportPath}`)
+        failed = true
+      } else {
+        const report = JSON.parse(readFileSync(reportPath, 'utf8'))
+        const textureRoles = new Set((report.textures ?? []).map((texture) => texture.role))
+        const completeTextures = ['baseColor', 'normal', 'metallicRoughness'].every((role) => textureRoles.has(role))
+        const location = report.stableContract?.location
+        const stagedSize = report.stagedBounds?.size
+        const stagedRotation = report.stableContract?.rotationXYZDegreesApplied
+        const restsLowerOnRightPanel = Array.isArray(location)
+          && Math.abs(location[0] - 1.168) < 0.002
+          && Math.abs(location[1] + 3.012) < 0.002
+          && Math.abs(location[2] - 0.122) < 0.002
+        const liesSideways = Array.isArray(stagedSize)
+          && stagedSize[0] > stagedSize[1] * 1.5
+          && stagedSize[0] > stagedSize[2] * 2
+        const facesPlayer = JSON.stringify(stagedRotation) === JSON.stringify([0, 90, 172])
+        if (report.sourceSha256 !== 'b243ec3571ef597048ad8ef08ae63eac8da6f9790f7552570921d08aff0a898d'
+          || report.sourceTextureGatePassed !== true
+          || !completeTextures
+          || !restsLowerOnRightPanel
+          || !liesSideways
+          || !facesPlayer
+          || (report.textures ?? []).some((texture) => texture.sourceDimensions?.[0] < 4096 || texture.sourceDimensions?.[1] < 4096)) {
+          console.error('DC-9 golden-key intake report violates the approved source provenance contract.')
+          failed = true
+        }
+      }
+
+      const celebrationReportPath = 'asset-reports/dc9-captains-key-celebration.json'
+      const celebrationImagePath = 'public/images/captains-key-celebration.png'
+      if (!existsSync(celebrationReportPath)) {
+        console.error(`Missing DC-9 key celebration report: ${celebrationReportPath}`)
+        failed = true
+      } else {
+        const celebrationReport = JSON.parse(readFileSync(celebrationReportPath, 'utf8'))
+        const celebrationSize = celebrationReport.bounds?.size
+        const celebrationDimensions = pngDimensions(celebrationImagePath)
+        const rendersUpright = Array.isArray(celebrationSize)
+          && celebrationSize[2] > celebrationSize[0] * 2
+          && celebrationSize[2] > celebrationSize[1] * 1.5
+        if (celebrationReport.sourceModel !== 'public/models/dc9-cockpit.glb'
+          || celebrationReport.node !== 'DC9_PROP_CAPTAINS_KEY'
+          || celebrationReport.output !== celebrationImagePath
+          || JSON.stringify(celebrationDimensions) !== JSON.stringify([1024, 1024])
+          || JSON.stringify(celebrationReport.presentationRotationDegrees) !== JSON.stringify([-90, 98, 67])
+          || !rendersUpright) {
+          console.error('Captain\'s Key celebration must be a tracked 1024px render presented upright with its engraved face toward the player.')
+          failed = true
+        }
       }
     }
     if (model === 'airbus-captain.glb') {

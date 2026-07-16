@@ -28,6 +28,8 @@ const DC9_LOOK_YAW_LEFT_LIMIT = 0.30
 const DC9_LOOK_YAW_RIGHT_LIMIT = 0.72
 const DC9_LOOK_PITCH_LIMIT = 0.18
 const DC9_LOOK_POINTER_SPEED = 0.0018
+const DC9_SHUTDOWN_INITIAL_YAW = 0.15
+const DC9_KEY_INITIAL_YAW = 0.28
 const LOCKER_CAMERA_MOVE_SECONDS = 4.5
 const LOCKER_MEMORY_CAMERA_MOVE_SECONDS = 1.8
 const LOCKER_CLOSE_FOCUS_FOV = 30
@@ -129,7 +131,7 @@ export type AirbusLoadState =
 
 export type LockerLoadState = { status: 'idle' | 'loading' | 'ready' | 'error' | 'accessible-fallback' }
 export type Dc9LoadState = { status: 'idle' | 'loading' | 'ready' | 'error' | 'accessible-fallback'; message?: string }
-export type Dc9HotspotScreenPositions = Record<string, { x: number; y: number; visible: boolean }>
+export type Dc9HotspotScreenPositions = Record<string, { x: number; y: number; visible: boolean; width?: number; height?: number }>
 
 interface PrototypeSceneProps {
   phase: Exclude<GamePhase, 'briefing'>
@@ -566,11 +568,13 @@ function Dc9SeatLookControls({
   cameraResetRevision,
   wideFov,
   narrowFov,
+  initialYaw,
 }: {
   sourceCamera: THREE.Camera
   cameraResetRevision: number
   wideFov: number
   narrowFov: number
+  initialYaw: number
 }) {
   const { camera, gl, size } = useThree()
   const basePositionRef = useRef(new THREE.Vector3())
@@ -600,10 +604,10 @@ function Dc9SeatLookControls({
     sourceCamera.getWorldQuaternion(baseQuaternionRef.current)
     fovRef.current = wideFov
     narrowFovRef.current = narrowFov
-    yawRef.current = 0
+    yawRef.current = initialYaw
     pitchRef.current = 0
     cameraDirtyRef.current = true
-  }, [cameraResetRevision, narrowFov, sourceCamera, wideFov])
+  }, [cameraResetRevision, initialYaw, narrowFov, sourceCamera, wideFov])
 
   useFrame(() => {
     if (!cameraDirtyRef.current) return
@@ -1341,6 +1345,7 @@ function Dc9RuntimeLighting({ secureSteps }: { secureSteps: number }) {
 const DC9_LEGACY_ROUTE_REGISTRY_CODES = ['BTR', 'STL', 'TYS', 'LAX', 'SEA', 'AMS'] as const
 const DC9_REQUIRED_NODES = [
   'DC9_ROOT', 'DC9_STATIC', 'DC9_INSTRUMENTS', 'DC9_INTERACTIVE', 'DC9_COLLIDERS', 'DC9_PUZZLE_PROPS',
+  'DC9_PROP_CAPTAINS_KEY', 'DC9_PROP_CAPTAINS_KEY_MESH', 'DC9_HITBOX_CAPTAINS_KEY',
   'DC9_CTRL_APU_BUSES', 'DC9_CTRL_APU_MASTER', 'DC9_CTRL_BATTERY', 'DC9_ROUTE_SUBMIT', DC9_GAME_CAMERA, DC9_ROUTE_CAMERA, DC9_SECURE_CAMERA,
   ...DC9_LEGACY_ROUTE_REGISTRY_CODES.map((code) => `DC9_ROUTE_ROW_${code}`),
 ] as const
@@ -1401,17 +1406,48 @@ function Dc9HotspotProjector({
   const { camera, size } = useThree()
   const lastPayload = useRef('')
   const point = useMemo(() => new THREE.Vector3(), [])
+  const bounds = useMemo(() => new THREE.Box3(), [])
+  const corner = useMemo(() => new THREE.Vector3(), [])
   useFrame(() => {
     if (!onChange) return
     const positions: Dc9HotspotScreenPositions = {}
     for (const [gameId, object] of targets) {
       object.getWorldPosition(point)
       point.project(camera)
-      positions[gameId] = {
+      let visibleInHierarchy = object.visible
+      for (let parent = object.parent; parent && visibleInHierarchy; parent = parent.parent) visibleInHierarchy = parent.visible
+      const position: Dc9HotspotScreenPositions[string] = {
         x: ((point.x + 1) / 2) * size.width,
         y: ((1 - point.y) / 2) * size.height,
-        visible: point.z >= -1 && point.z <= 1 && point.x >= -1 && point.x <= 1 && point.y >= -1 && point.y <= 1,
+        visible: visibleInHierarchy && point.z >= -1 && point.z <= 1 && point.x >= -1 && point.x <= 1 && point.y >= -1 && point.y <= 1,
       }
+      if (gameId === 'dc9.route.card' && position.visible) {
+        bounds.setFromObject(object)
+        let minX = Number.POSITIVE_INFINITY
+        let minY = Number.POSITIVE_INFINITY
+        let maxX = Number.NEGATIVE_INFINITY
+        let maxY = Number.NEGATIVE_INFINITY
+        for (const x of [bounds.min.x, bounds.max.x]) {
+          for (const y of [bounds.min.y, bounds.max.y]) {
+            for (const z of [bounds.min.z, bounds.max.z]) {
+              corner.set(x, y, z).project(camera)
+              const screenX = ((corner.x + 1) / 2) * size.width
+              const screenY = ((1 - corner.y) / 2) * size.height
+              minX = Math.min(minX, screenX)
+              minY = Math.min(minY, screenY)
+              maxX = Math.max(maxX, screenX)
+              maxY = Math.max(maxY, screenY)
+            }
+          }
+        }
+        if ([minX, minY, maxX, maxY].every(Number.isFinite)) {
+          position.x = (minX + maxX) / 2
+          position.y = (minY + maxY) / 2
+          position.width = maxX - minX
+          position.height = maxY - minY
+        }
+      }
+      positions[gameId] = position
     }
     const payload = JSON.stringify(positions)
     if (payload !== lastPayload.current) {
@@ -1651,13 +1687,25 @@ function Dc9Cockpit({
     if (!loaded) return
     const routeInteractive = phase === 'dc9' && (chapterStage === 'intro' || chapterStage === 'routeRecord')
     const shutdownInteractive = phase === 'dc9' && chapterStage === 'shutdown'
+    const keyInteractive = phase === 'dc9' && chapterStage === 'keyReveal'
     const routeProps = loaded.scene.getObjectByName('DC9_PUZZLE_PROPS')
-    if (routeProps) routeProps.visible = false
+    if (routeProps) routeProps.visible = true
+    const key = loaded.scene.getObjectByName('DC9_PROP_CAPTAINS_KEY')
+    if (key) key.visible = keyInteractive
+    for (const code of DC9_LEGACY_ROUTE_REGISTRY_CODES) {
+      const row = loaded.scene.getObjectByName(`DC9_ROUTE_ROW_${code}`)
+      if (row) row.visible = routeInteractive
+    }
+    const routeCard = loaded.scene.getObjectByName('DC9_PROP_MEM_ROUTE_CARD')
+    const routeSubmit = loaded.scene.getObjectByName('DC9_ROUTE_SUBMIT')
+    if (routeCard) routeCard.visible = routeInteractive
+    if (routeSubmit) routeSubmit.visible = routeInteractive
     loaded.scene.traverse((object) => {
       const gameId = object.userData.collider_target_game_id
       if (typeof gameId !== 'string') return
       if (gameId.startsWith('dc9.route.')) object.visible = routeInteractive
       else if (gameId.startsWith('dc9.secure.')) object.visible = shutdownInteractive
+      else if (gameId === 'dc9.key.open') object.visible = keyInteractive
     })
   }, [chapterStage, loaded, phase])
 
@@ -1677,6 +1725,11 @@ function Dc9Cockpit({
             cameraResetRevision={cameraResetRevision}
             wideFov={phase === 'dc9' && (chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations') ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV}
             narrowFov={phase === 'dc9' && (chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations') ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV}
+            initialYaw={phase === 'dc9' && chapterStage === 'keyReveal'
+              ? DC9_KEY_INITIAL_YAW
+              : phase === 'dc9' && chapterStage === 'shutdown'
+                ? DC9_SHUTDOWN_INITIAL_YAW
+                : 0}
           />
           <Dc9ControlAnimator controls={loaded.controls} activeControls={activeControls} reducedMotion={reducedMotion} />
           <Dc9HotspotProjector targets={loaded.targets} onChange={onHotspotsChange} />

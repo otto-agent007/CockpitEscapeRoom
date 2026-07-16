@@ -107,7 +107,27 @@ test('opening stays spoiler-safe, preloads the DC-9, and fades into the cockpit'
   await expect(page.locator('.dc9-entry-transition')).toHaveCount(0, { timeout: 5_000 })
 })
 
+test('saved DC-9 reload hides the route opener until loading settles', async ({ page }) => {
+  test.setTimeout(30_000)
+  await page.addInitScript(
+    ({ key, savedState }) => window.localStorage.setItem(key, JSON.stringify(savedState)),
+    { key: STORAGE_KEY, savedState: createDc9State() },
+  )
+  await page.route('**/models/dc9-cockpit.glb*', async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 1_500))
+    await route.abort()
+  })
+
+  await page.goto('/')
+  const canvas = page.locator('canvas')
+  await expect(canvas).toHaveAttribute('data-dc9-model-state', 'loading')
+  await expect(page.getByRole('button', { name: 'Open Legacy Route Record' })).toHaveCount(0)
+  await expect(canvas).toHaveAttribute('data-dc9-model-state', 'fallback', { timeout: 5_000 })
+  await expect(page.getByRole('button', { name: 'Open Legacy Route Record' })).toHaveAttribute('data-projection', 'fallback')
+})
+
 test('DC-9 Final Flight Log accessible flow', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/?skip3d=1')
   await seedGameState(page, {
     ...createInitialState(),
@@ -124,10 +144,22 @@ test('DC-9 Final Flight Log accessible flow', async ({ page }) => {
     await page.getByRole('button', { name: new RegExp(`^${code},`) }).click()
   }
   await page.getByRole('button', { name: 'Record selected routes' }).click()
-  const homeOperations = page.getByRole('dialog', { name: 'Home Operations Log — Momma Cheryl' })
+  const homeOperations = page.getByRole('dialog', { name: 'Home Operations Log' })
   await expect(homeOperations).toBeVisible()
   await expect(homeOperations.getByRole('textbox')).toHaveCount(0)
   await expect(homeOperations.getByText(/parallel operation/i)).toBeVisible()
+  const homeOperationsBounds = await homeOperations.boundingBox()
+  expect(homeOperationsBounds).not.toBeNull()
+  expect(homeOperationsBounds!.height).toBeGreaterThanOrEqual(360)
+  expect(homeOperationsBounds!.height).toBeLessThanOrEqual(430)
+  await page.setViewportSize({ width: 375, height: 812 })
+  await expect(homeOperations).toHaveCSS('max-height', 'none')
+  await expect(homeOperations).toHaveCSS('overflow-y', 'visible')
+  await expect(page.locator('.dc9-chapter--homeOperations')).toHaveCSS('overflow-y', 'auto')
+  await page.getByRole('button', { name: 'Next page' }).click()
+  await expect(homeOperations).toContainText('Momma Cheryl kept three kids fed, prepared, and on schedule')
+  const internalScroll = await homeOperations.evaluate((element) => element.scrollHeight - element.clientHeight)
+  expect(internalScroll).toBeLessThanOrEqual(1)
 })
 
 test('DC-9 route record uses the yoke hotspot and a compact dialog', async ({ page }) => {
@@ -145,6 +177,9 @@ test('DC-9 route record uses the yoke hotspot and a compact dialog', async ({ pa
 
   const routeDialog = page.getByRole('dialog', { name: 'Legacy Route Record' })
   await expect(routeDialog).toBeVisible()
+  await expect(routeDialog.locator('.dc9-document__question')).toHaveCSS('color', 'rgb(40, 33, 23)')
+  await expect(routeDialog.locator('.dc9-document__note')).toHaveText('Choose familiar stops from Pop T’s DC-9 years.')
+  await expect(routeDialog).not.toContainText('This record does not claim')
   const routeDialogBounds = await routeDialog.boundingBox()
   expect(routeDialogBounds?.height).toBeLessThan(650)
 })
@@ -159,7 +194,10 @@ test('DC-9 ATP gate accepts pointer typing and submits the visible answer', asyn
   await expect(answer).toHaveValue('1500 hours')
   await expect(answer).toHaveCSS('color', 'rgb(255, 255, 255)')
   await page.getByRole('button', { name: 'Verify' }).click()
-  await expect(page.getByRole('button', { name: "Open The Captain's Key" })).toBeVisible()
+  const keyTrigger = page.getByRole('button', { name: "Open The Captain's Key" })
+  await expect(keyTrigger).toHaveClass(/dc9-key-trigger/)
+  await expect(keyTrigger.getByRole('img', { name: "Golden Captain's Key" })).toBeVisible()
+  await expect(keyTrigger).not.toContainText("Open The Captain's Key")
 })
 
 test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
@@ -192,7 +230,9 @@ test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
 })
 
 test('DC-9 production cockpit stages the Final Flight Log with the existing registry', async ({ page }) => {
-  test.setTimeout(180_000)
+  // The complete real-GLB path can cross four minutes after neighboring asset
+  // decodes; retain every assertion while allowing bounded full-suite contention.
+  test.setTimeout(300_000)
   await page.emulateMedia({ reducedMotion: 'reduce' })
   const consoleErrors: string[] = []
   page.on('console', (message) => {
@@ -213,6 +253,7 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_FIRST_OFFICER_ROUTE_APPROVAL')
   await expect(canvas).toHaveAttribute('data-dc9-targets', /dc9\.route\.BTR/)
   await expect(canvas).toHaveAttribute('data-dc9-targets', /dc9\.secure\.apuBuses/)
+  await expect(canvas).toHaveAttribute('data-dc9-targets', /dc9\.key\.open/)
   await expect(page.locator('.prototype-badge')).toHaveText('GREYBOX — DC-9 FINAL FLIGHT LOG')
   await expect(page.locator('.hud')).toHaveCount(0)
   await expect(page.locator('.captain-interface')).toHaveCount(0)
@@ -221,6 +262,13 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   await expect(routeTrigger).toHaveClass(/dc9-route-record-trigger/)
   await expect(page.locator('.dc9-chapter__prompt')).toHaveCount(0)
   await expect(routeTrigger).toHaveAttribute('data-projection', 'mesh')
+  const projectionSize = await routeTrigger.getAttribute('data-projection-size')
+  expect(projectionSize).not.toBeNull()
+  const [projectedWidth, projectedHeight] = projectionSize!.split(',').map(Number)
+  const routeTriggerBounds = await routeTrigger.boundingBox()
+  expect(routeTriggerBounds).not.toBeNull()
+  expect(routeTriggerBounds!.width).toBeCloseTo(projectedWidth + 8, 0)
+  expect(routeTriggerBounds!.height).toBeCloseTo(projectedHeight + 8, 0)
   await routeTrigger.hover()
   await expect(routeTrigger).toHaveCSS('border-top-color', 'rgb(240, 200, 117)')
   const routePoint = await routeTrigger.getAttribute('data-projection-point')
@@ -235,13 +283,17 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
     await page.getByRole('button', { name: new RegExp(`^${code},`) }).press('Enter')
   }
   await page.getByRole('button', { name: 'Record selected routes' }).press('Enter')
-  await expect(page.getByRole('dialog', { name: 'Home Operations Log — Momma Cheryl' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Home Operations Log' })).toBeVisible()
   await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_FIRST_OFFICER_ROUTE_APPROVAL')
   for (let pageNumber = 1; pageNumber < dc9LegacyFlow.homeOperationsPages.length; pageNumber += 1) {
     await page.getByRole('button', { name: 'Next page' }).press('Enter')
   }
   await page.getByRole('button', { name: 'Record this legacy' }).press('Enter')
   await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_FIRST_OFFICER_OVERHEAD_APPROVAL')
+  await expect(canvas).toHaveAttribute(
+    'data-dc9-camera-state',
+    /0\.13868,0\.24849,-0\.01443,0\.95855,64\.00000$/,
+  )
 
   const apuBuses = page.getByRole('button', { name: /APU bus switches/ })
   const apuMaster = page.getByRole('button', { name: /APU master switch/ })
@@ -258,8 +310,23 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   const atpAnswer = page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })
   await atpAnswer.fill('1500 hours')
   await page.getByRole('button', { name: 'Verify' }).press('Enter')
-  await expect(page.getByRole('button', { name: "Open The Captain's Key" })).toBeVisible()
+  const keyTrigger = page.getByRole('button', { name: "Open The Captain's Key" })
+  await expect(keyTrigger).toHaveClass(/dc9-key-trigger/)
   await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_FIRST_OFFICER_GAME')
+  const scanCue = page.locator('.dc9-key-scan-cue')
+  await expect(scanCue).toBeVisible()
+  const scanCueFontSize = Number.parseFloat(await scanCue.evaluate((element) => getComputedStyle(element).fontSize))
+  expect(scanCueFontSize).toBeGreaterThanOrEqual(56)
+  const canvasBounds = await canvas.boundingBox()
+  expect(canvasBounds).not.toBeNull()
+  if (canvasBounds) {
+    await page.mouse.move(canvasBounds.x + canvasBounds.width * 0.38, canvasBounds.y + canvasBounds.height * 0.5)
+    await page.mouse.down()
+    await page.mouse.move(canvasBounds.x + canvasBounds.width * 0.8, canvasBounds.y + canvasBounds.height * 0.5, { steps: 8 })
+    await page.mouse.up()
+  }
+  await expect(keyTrigger).toHaveAttribute('data-projection', 'mesh')
+  await expect(page.locator('.dc9-key-scan-cue')).toHaveCount(0)
   expect(consoleErrors).toEqual([])
 })
 
@@ -305,11 +372,9 @@ test('complete reordered journey', async ({ page }) => {
 
   const keyReveal = page.getByRole('dialog', { name: "The Captain's Key" })
   await expect(keyReveal).toBeVisible()
-  const engravingFields = keyReveal.locator('.captains-key-reveal__engravings strong')
-  await expect(engravingFields).toHaveText([
-    dc9LegacyFlow.keyEngravings.front,
-    dc9LegacyFlow.keyEngravings.reverse,
-  ])
+  await expect(keyReveal.getByRole('img', { name: "Golden Captain's Key" })).toBeVisible()
+  await expect(keyReveal).toContainText('Legacy flight secured. The Captain’s Locker is ready.')
+  await expect(keyReveal).not.toContainText('Momma Cheryl')
   await keyReveal.getByRole('button', { name: "Take the Captain's Key" }).click()
   await page.getByRole('button', { name: 'Skip cinematic' }).click()
 

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { dc9LegacyFlow } from '../../game/config'
 import { DC9_SECURE_ORDER, type GameAction, type GameState } from '../../game/state'
 import { HomeOperationsLog } from './HomeOperationsLog'
@@ -21,9 +21,26 @@ interface Dc9ChapterProps {
 export function Dc9Chapter({ state, dispatch, onRestart, loadState, hotspots, onUseFallback, reducedMotion, onClaimKey }: Dc9ChapterProps) {
   const [routeRecordDismissed, setRouteRecordDismissed] = useState(false)
   const [keyRevealDismissed, setKeyRevealDismissed] = useState(false)
+  const [restoreKeyFocus, setRestoreKeyFocus] = useState(false)
+  const keyTriggerRef = useRef<HTMLButtonElement>(null)
   const routeRecordVisible = state.dc9.stage === 'routeRecord' && !routeRecordDismissed
   const keyRevealVisible = state.dc9.stage === 'keyReveal' && state.dc9.keyRevealed && !keyRevealDismissed
   const routeProjection = hotspots['dc9.route.card']
+  const keyProjection = hotspots['dc9.key.open']
+  const keyTriggerVisible = state.dc9.stage === 'keyReveal' && (!state.dc9.keyRevealed || keyRevealDismissed)
+  const routeTriggerStageVisible = state.dc9.stage === 'intro' || (state.dc9.stage === 'routeRecord' && routeRecordDismissed)
+  const routeProjected = loadState.status === 'ready' && routeProjection?.visible === true
+  const routeFallback = loadState.status === 'accessible-fallback' || loadState.status === 'error'
+  const routeKeyboardOnly = loadState.status === 'ready' && !routeProjected
+  const routeTriggerVisible = routeTriggerStageVisible && (routeProjected || routeFallback || routeKeyboardOnly)
+  const keyProjected = loadState.status === 'ready' && keyProjection?.visible === true
+  const keyFallback = loadState.status === 'accessible-fallback' || loadState.status === 'error'
+
+  useEffect(() => {
+    if (!restoreKeyFocus) return
+    const timeout = window.setTimeout(() => keyTriggerRef.current?.focus(), 0)
+    return () => window.clearTimeout(timeout)
+  }, [restoreKeyFocus])
 
   const openRouteRecord = () => {
     setRouteRecordDismissed(false)
@@ -31,8 +48,20 @@ export function Dc9Chapter({ state, dispatch, onRestart, loadState, hotspots, on
   }
 
   const openCaptainsKey = () => {
+    setRestoreKeyFocus(false)
     setKeyRevealDismissed(false)
     dispatch({ type: 'OPEN_CAPTAINS_KEY' })
+  }
+
+  const dismissCaptainsKey = () => {
+    setRestoreKeyFocus(true)
+    setKeyRevealDismissed(true)
+  }
+
+  const claimCaptainsKey = () => {
+    setRestoreKeyFocus(false)
+    setKeyRevealDismissed(true)
+    onClaimKey()
   }
 
   return (
@@ -45,14 +74,22 @@ export function Dc9Chapter({ state, dispatch, onRestart, loadState, hotspots, on
         <span className="dc9-chapter__greybox">GREYBOX</span>
       </header>
 
-      {(state.dc9.stage === 'intro' || (state.dc9.stage === 'routeRecord' && routeRecordDismissed)) ? (
+      {routeTriggerVisible ? (
         <button
           type="button"
-          className={`dc9-route-record-trigger${routeProjection?.visible ? ' is-projected' : ' is-fallback'}`}
+          className={`dc9-route-record-trigger${routeProjected ? ' is-projected' : routeFallback ? ' is-fallback' : ' is-keyboard-only'}`}
           aria-label="Open Legacy Route Record"
-          data-projection={routeProjection?.visible ? 'mesh' : 'fallback'}
-          data-projection-point={routeProjection?.visible ? `${routeProjection.x},${routeProjection.y}` : undefined}
-          style={routeProjection?.visible ? { left: routeProjection.x, top: routeProjection.y } : undefined}
+          data-projection={routeProjected ? 'mesh' : routeFallback ? 'fallback' : 'offscreen'}
+          data-projection-point={routeProjected ? `${routeProjection.x},${routeProjection.y}` : undefined}
+          data-projection-size={routeProjected && routeProjection.width !== undefined && routeProjection.height !== undefined
+            ? `${routeProjection.width},${routeProjection.height}`
+            : undefined}
+          style={routeProjected ? {
+            left: routeProjection.x,
+            top: routeProjection.y,
+            width: routeProjection.width !== undefined ? routeProjection.width + 8 : undefined,
+            height: routeProjection.height !== undefined ? routeProjection.height + 8 : undefined,
+          } : undefined}
           onClick={openRouteRecord}
         >
           <span className="dc9-route-record-trigger__fallback" aria-hidden="true">Open Legacy Route Record</span>
@@ -125,17 +162,30 @@ export function Dc9Chapter({ state, dispatch, onRestart, loadState, hotspots, on
         </section>
       ) : null}
 
-      {state.dc9.stage === 'keyReveal' && (!state.dc9.keyRevealed || keyRevealDismissed) ? (
-        <button type="button" className="dc9-key-glint" onClick={openCaptainsKey}>
-          Open The Captain&apos;s Key
+      {keyTriggerVisible && loadState.status === 'ready' && !keyProjected ? (
+        <div className="dc9-key-scan-cue" aria-hidden="true">&gt;&gt;&gt;</div>
+      ) : null}
+
+      {keyTriggerVisible ? (
+        <button
+          ref={keyTriggerRef}
+          type="button"
+          className={`dc9-key-trigger${keyProjected ? ' is-projected' : keyFallback ? ' is-fallback' : ' is-keyboard-only'}`}
+          aria-label="Open The Captain's Key"
+          data-projection={keyProjected ? 'mesh' : keyFallback ? 'fallback' : 'offscreen'}
+          data-projection-point={keyProjection ? `${keyProjection.x},${keyProjection.y},${keyProjection.visible}` : undefined}
+          style={keyProjected ? { left: keyProjection.x, top: keyProjection.y } : undefined}
+          onClick={openCaptainsKey}
+        >
+          <img src={`${import.meta.env.BASE_URL}images/captains-key-celebration.png`} alt="Golden Captain's Key" />
         </button>
       ) : null}
 
       {keyRevealVisible ? (
         <CaptainsKeyReveal
           reducedMotion={reducedMotion}
-          onClaim={onClaimKey}
-          onDismiss={() => setKeyRevealDismissed(true)}
+          onClaim={claimCaptainsKey}
+          onDismiss={dismissCaptainsKey}
         />
       ) : null}
 

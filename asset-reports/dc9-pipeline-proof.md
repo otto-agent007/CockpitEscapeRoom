@@ -5,11 +5,21 @@ Date: 2026-07-15
 - Authoritative source: `art-source/blender/dc9_master.blend`; deployable output: `public/models/dc9-cockpit.glb`.
 - Blender 5.1.2 rebuilt and validated the source with zero scene errors or warnings.
 - Canonical cameras: `CAM_DC9_FIRST_OFFICER_GAME`, `CAM_DC9_FIRST_OFFICER_APPROVAL`, and first-officer main-panel, overhead, route, and pedestal approval cameras.
-- The route strip, row colliders, and submit collider are parented to the actual first-officer yoke while their route/shutdown `game_id` values remain stable.
+- The compact 0.10 by 0.15 route strip, row colliders, and submit collider are centered on and parented to the actual first-officer yoke while their route/shutdown `game_id` values remain stable.
+- The owner-supplied Tripo golden key is staged on the right-side green ledge with `DC9_PROP_CAPTAINS_KEY`, `DC9_PROP_CAPTAINS_KEY_MESH`, `DC9_HITBOX_CAPTAINS_KEY`, and `dc9.key.open` contracts. Its preserved-source and optimization evidence is in `asset-reports/dc9-golden-key-intake.json`.
 - Deprecated captain game/approval cameras remain compatibility-only nodes with replacement metadata.
-- Current GLB: 30,338,056 bytes; SHA-256 `501e1bb65a7e025125edd26cba31aa7775cdf4c39e3a1c1e2efaf42ddc62635d`; 656 selected export objects; 11 interactive contract objects; 8 materials and 5 textures; no destructive optimization.
+- Current GLB: 36,050,728 bytes (34.38 MiB); SHA-256 `ddc7fa6a75f075666e983b17c89008728b419069030ed23c654919cd262802e3`; 659 selected export objects; 12 interactive contract objects; 267,701 uploaded vertices and 926,514 rendered triangles; no hierarchy flattening or destructive whole-scene optimization.
+- Key optimization: 498,186 source triangles to 72,000 runtime triangles; one material; BaseColor, normal, and metallic-roughness maps reduced from 4096 to 1024 pixels; MikkTSpace tangents generated only for the key mesh. The deployed 1024px celebration render is 622,864 bytes with SHA-256 `81ac311deabdbf7fab4da976c2dc0e3febdd60ae605a514f9459eb4d32d44983`.
 - Current approval still: `public/images/dc9-game-ready-first-officer.png`; SHA-256 `3ab21e6985c90e05d6ff1dc9097e60896fe101e4e78e1095adaaac76e6ff65ef`.
 - Browser visual evidence and the reopened owner gate are recorded in `plans/0013-dc9-fo-airbus-captain-seat-swap.md` and `TEST_REPORT.md`.
+
+## Golden-key finale browser proof
+
+- Initial 1440x900 first-officer view keeps the entire key outside the right edge and displays passive `>>>` chevrons. A manual rightward drag moves the real key and its projected native hit target into the center-right ledge view; the cue then disappears.
+- The key celebration reuses the milestone dialog, keyboard focus trap, 24-piece confetti treatment, and reduced-motion no-confetti behavior without the prior engraving or Momma Cheryl copy.
+- Claiming the key preserves the DC-9 phase through the 900ms fade. `CLAIM_CAPTAINS_KEY` commits only at the full-black boundary, then the existing locker title and watch-first reveal continue.
+- The Home Operations Log retains all five pages but now uses a compact dark-green cockpit record: 416px tall at 1440 and 768 widths, and 439px at 375x812 with its former empty lower region removed.
+- Inspected durable actual-browser screenshots under `preview-renders/dc9-golden-key-finale/`: key discovery, right-scan reveal, celebration, fade-to-locker, route-card centering, and Home Operations captures at 1440, 768, and 375 pixels.
 
 > **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
 

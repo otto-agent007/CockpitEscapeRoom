@@ -33,7 +33,7 @@ export function LegacyRouteRecord({ progress, dispatch, onClose }: LegacyRouteRe
       </header>
 
       <p className="dc9-document__question">{dc9LegacyFlow.routeQuestion}</p>
-      <p className="dc9-document__note">Choose familiar stops from Pop T’s DC-9 years. This record does not claim to reproduce a literal final itinerary.</p>
+      <p className="dc9-document__note">Choose familiar stops from Pop T’s DC-9 years.</p>
 
       <div className="dc9-route-grid" aria-label="Legacy route choices">
         {dc9LegacyFlow.routePuzzleOptions.map((route) => {

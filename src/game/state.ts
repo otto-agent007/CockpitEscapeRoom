@@ -589,7 +589,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         dc9: { ...state.dc9, keyRevealed: true },
-        statusMessage: "The Captain's Key is ready. Its engravings honor Pop T and Momma Cheryl.",
+        statusMessage: "The Captain's Key is ready. Take it to open the Captain's Locker.",
       }
 
     case 'CLAIM_CAPTAINS_KEY':

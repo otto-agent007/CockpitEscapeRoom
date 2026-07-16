@@ -66,6 +66,12 @@ describe('DC-9 Final Flight Log configuration', () => {
     ])
     expect(dc9LegacyFlow.homeOperationsPages.join(' ')).toContain('Momma Cheryl')
     expect(dc9LegacyFlow.homeOperationsPages.join(' ')).not.toMatch(/quiz|answer|correct/i)
+    expect(dc9LegacyFlow.homeOperationsPages[1]).toBe(
+      'The home crew — Momma Cheryl kept three kids fed, prepared, and on schedule while travel carried Pop T away and home again.',
+    )
+    expect(dc9LegacyFlow.homeOperationsPages[3]).toBe(
+      'The invisible record — School-clothes shopping, changing schedules, household needs, and unexpected problems were handled.',
+    )
     expect(dc9LegacyFlow.keyEngravings).toEqual({
       front: "THE CAPTAIN'S KEY",
       reverse: 'POP T & MOMMA CHERYL',
@@ -152,6 +158,8 @@ describe('DC-9 Final Flight Log reducer', () => {
     state = gameReducer(state, { type: 'SUBMIT_DC9_ATP_QUALIFICATION' })
     state = gameReducer(state, { type: 'OPEN_CAPTAINS_KEY' })
     expect(state.dc9.keyRevealed).toBe(true)
+    expect(state.statusMessage).toBe("The Captain's Key is ready. Take it to open the Captain's Locker.")
+    expect(state.statusMessage).not.toContain('Momma Cheryl')
 
     state = gameReducer(state, { type: 'CLAIM_CAPTAINS_KEY' })
     expect(state.dc9.keyClaimed).toBe(true)

@@ -1,0 +1,114 @@
+{
+  "asset": "dc9-golden-key",
+  "sceneGroup": "DC-9-32 First-Officer cockpit",
+  "sourceCreator": "Tripo AI owner-supplied candidate",
+  "sourcePath": ".cache/cockpit-pipeline/sources/dc9/golden-key/original/golden key 3d model.glb",
+  "downloadSourcePath": "/mnt/2TBHDD/Downloads/golden key 3d model.glb",
+  "sourceSha256": "b243ec3571ef597048ad8ef08ae63eac8da6f9790f7552570921d08aff0a898d",
+  "sourceFileSize": 16758976,
+  "sourceBounds": {
+    "minimum": [
+      -0.090538,
+      -0.272614,
+      -0.489899
+    ],
+    "maximum": [
+      0.091095,
+      0.272705,
+      0.489899
+    ],
+    "size": [
+      0.181633,
+      0.545319,
+      0.979797
+    ]
+  },
+  "sourceTriangleCount": 498186,
+  "runtimeTriangleCount": 72000,
+  "runtimeMaterialCount": 1,
+  "sourceTextureGatePassed": true,
+  "textures": [
+    {
+      "role": "baseColor",
+      "name": "TEX_DC9_CAPTAINS_KEY_BASECOLOR",
+      "sourceDimensions": [
+        4096,
+        4096
+      ],
+      "runtimeDimensions": [
+        1024,
+        1024
+      ],
+      "packed": true
+    },
+    {
+      "role": "normal",
+      "name": "TEX_DC9_CAPTAINS_KEY_NORMAL",
+      "sourceDimensions": [
+        4096,
+        4096
+      ],
+      "runtimeDimensions": [
+        1024,
+        1024
+      ],
+      "packed": true
+    },
+    {
+      "role": "metallicRoughness",
+      "name": "TEX_DC9_CAPTAINS_KEY_METALLICROUGHNESS",
+      "sourceDimensions": [
+        4096,
+        4096
+      ],
+      "runtimeDimensions": [
+        1024,
+        1024
+      ],
+      "packed": true
+    }
+  ],
+  "stableContract": {
+    "node": "DC9_PROP_CAPTAINS_KEY",
+    "meshNodes": [
+      "DC9_PROP_CAPTAINS_KEY_MESH"
+    ],
+    "colliderNodes": [
+      "DC9_HITBOX_CAPTAINS_KEY"
+    ],
+    "gameId": "dc9.key.open",
+    "interaction": "open",
+    "location": [
+      1.168,
+      -3.012,
+      0.122
+    ],
+    "rotationXYZDegreesApplied": [
+      0.0,
+      90.0,
+      172.0
+    ],
+    "targetLongestDimension": 0.18
+  },
+  "stagedBounds": {
+    "minimum": [
+      -0.090831,
+      -0.042349,
+      -0.016688
+    ],
+    "maximum": [
+      0.094247,
+      0.042128,
+      0.016688
+    ],
+    "size": [
+      0.185078,
+      0.084477,
+      0.033375
+    ]
+  },
+  "optimizedPath": ".cache/cockpit-pipeline/sources/dc9/golden-key/optimized/golden-key.optimized.glb",
+  "optimizedSha256": "edbdfb081623dfa75ceb709a87f0cb30f15b2eb8ecdf444ec1d2e8ce1498bd3c",
+  "blenderVersion": "5.1.2",
+  "status": "owner-review-candidate"
+}

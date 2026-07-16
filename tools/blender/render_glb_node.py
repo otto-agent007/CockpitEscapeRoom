@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -25,6 +26,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--source", required=True, type=Path)
     parser.add_argument("--node", required=True)
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--distance-factor", type=float, default=2.65)
+    parser.add_argument(
+        "--presentation-rotation-degrees",
+        type=float,
+        nargs=3,
+        default=(0.0, 0.0, 0.0),
+        metavar=("X", "Y", "Z"),
+    )
     script_args = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
     return parser.parse_args(script_args)
 
@@ -86,6 +95,10 @@ def main() -> None:
     if root is None:
         raise RuntimeError(f"GLB is missing required node: {args.node}")
 
+    root.rotation_mode = "XYZ"
+    root.rotation_euler = tuple(math.radians(value) for value in args.presentation_rotation_degrees)
+    bpy.context.view_layer.update()
+
     visible = descendants(root)
     for obj in bpy.data.objects:
         if obj.type in {"MESH", "CURVE", "SURFACE", "META", "FONT", "VOLUME"} and obj not in visible:
@@ -104,7 +117,7 @@ def main() -> None:
     camera_data.lens = 58
     camera = bpy.data.objects.new("CAM_WEB_NODE_PRESENTATION", camera_data)
     bpy.context.collection.objects.link(camera)
-    camera.location = center + Vector((span * 0.28, -span * 2.65, span * 0.48))
+    camera.location = center + Vector((span * 0.28, -span * args.distance_factor, span * 0.48))
     look_at(camera, center + Vector((0.0, 0.0, span * 0.04)))
 
     add_area_light(
@@ -166,6 +179,8 @@ def main() -> None:
         "meshObjectCount": len([obj for obj in visible if obj.type == "MESH"]),
         "materialCount": len({material.name for obj in visible if obj.type == "MESH" for material in obj.data.materials if material}),
         "resolution": [scene.render.resolution_x, scene.render.resolution_y],
+        "distanceFactor": args.distance_factor,
+        "presentationRotationDegrees": list(args.presentation_rotation_degrees),
         "bounds": {"min": list(minimum), "max": list(maximum), "size": list(size)},
     }
     report_path = output.with_suffix(".json")

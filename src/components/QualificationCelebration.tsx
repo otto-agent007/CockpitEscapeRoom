@@ -9,18 +9,20 @@ interface MilestoneCelebrationProps {
   actionLabel: string
   reducedMotion: boolean
   onContinue: () => void
+  onDismiss?: () => void
   visual: ReactNode
   fadeToBlack?: boolean
-  variant?: 'qualification' | 'captain'
+  variant?: 'qualification' | 'captain' | 'key'
 }
 
-function MilestoneCelebration({
+export function MilestoneCelebration({
   eyebrow,
   title,
   body,
   actionLabel,
   reducedMotion,
   onContinue,
+  onDismiss,
   visual,
   fadeToBlack = false,
   variant = 'qualification',
@@ -37,7 +39,11 @@ function MilestoneCelebration({
     return () => window.clearTimeout(timeout)
   }, [revealed])
 
-  const variantClass = variant === 'captain' ? ' qualification-celebration--captain' : ''
+  const variantClass = variant === 'captain'
+    ? ' qualification-celebration--captain'
+    : variant === 'key'
+      ? ' qualification-celebration--key'
+      : ''
   const fadeClass = fadeToBlack ? ' qualification-celebration--fade-to-black' : ''
 
   return (
@@ -48,6 +54,11 @@ function MilestoneCelebration({
       aria-modal="true"
       aria-labelledby="qualification-title"
       onKeyDown={(event) => {
+        if (event.key === 'Escape' && onDismiss) {
+          event.preventDefault()
+          onDismiss()
+          return
+        }
         if (event.key !== 'Tab' || !revealed) return
         event.preventDefault()
         continueRef.current?.focus()

@@ -9,6 +9,15 @@ const assets = {
     output: 'public/models/dc9-cockpit.glb',
     root: 'DC9_ROOT',
     prepare: 'tools/blender/build_dc9_production.py',
+    tangentMesh: 'DC9_PROP_CAPTAINS_KEY_MESH_GEOMETRY',
+    celebration: {
+      node: 'DC9_PROP_CAPTAINS_KEY',
+      output: 'public/images/captains-key-celebration.png',
+      cacheOutput: '.cache/assets/dc9/celebration/captains-key-celebration.png',
+      report: 'asset-reports/dc9-captains-key-celebration.json',
+      distanceFactor: 2.1,
+      presentationRotationDegrees: [-90, 98, 67],
+    },
   },
   airbus: {
     blend: 'art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend',
@@ -51,6 +60,7 @@ if (!existsSync(config.blend)) {
 
 const cacheDir = resolve('.cache', 'assets', assetName)
 const rawGlb = resolve(cacheDir, `${assetName}.raw.glb`)
+const deployableGlb = config.tangentMesh ? resolve(cacheDir, `${assetName}.tangents.glb`) : rawGlb
 const reportPath = resolve(cacheDir, 'asset-report.json')
 mkdirSync(cacheDir, { recursive: true })
 
@@ -81,11 +91,64 @@ if (config.prepare) {
 run(blender, ['--background', config.blend, '--python', 'tools/blender/validate_scene.py'], 'validate scene')
 run(blender, ['--background', config.blend, '--python', 'tools/blender/render_preview.py'], 'render approval views')
 run(blender, ['--background', config.blend, '--python', 'tools/blender/export_glb.py'], 'export raw GLB')
-run('npx', ['gltf-transform', 'validate', rawGlb], 'validate GLB')
-run('npx', ['gltf-transform', 'inspect', rawGlb], 'inspect GLB')
+if (config.tangentMesh) {
+  run('node', ['tools/assets/generate-node-tangents.mjs', rawGlb, deployableGlb, config.tangentMesh], 'generate required tangents')
+}
+run('npx', ['gltf-transform', 'validate', deployableGlb], 'validate GLB')
+run('npx', ['gltf-transform', 'inspect', deployableGlb], 'inspect GLB')
 
 mkdirSync(dirname(resolve(config.output)), { recursive: true })
-copyFileSync(rawGlb, config.output)
+copyFileSync(deployableGlb, config.output)
+
+if (config.celebration) {
+  run(
+    blender,
+    [
+      '--background',
+      '--factory-startup',
+      '--disable-autoexec',
+      '--python',
+      'tools/blender/render_glb_node.py',
+      '--',
+      '--source',
+      config.output,
+      '--node',
+      config.celebration.node,
+      '--output',
+      config.celebration.cacheOutput,
+      '--distance-factor',
+      String(config.celebration.distanceFactor ?? 2.65),
+      '--presentation-rotation-degrees',
+      ...config.celebration.presentationRotationDegrees.map(String),
+    ],
+    'render celebration image',
+  )
+  mkdirSync(dirname(resolve(config.celebration.output)), { recursive: true })
+  copyFileSync(resolve(config.celebration.cacheOutput), resolve(config.celebration.output))
+  const generatedReportPath = resolve(config.celebration.cacheOutput).replace(/\.png$/i, '.json')
+  const generatedReport = JSON.parse(readFileSync(generatedReportPath, 'utf8'))
+  mkdirSync(dirname(resolve(config.celebration.report)), { recursive: true })
+  writeFileSync(
+    resolve(config.celebration.report),
+    JSON.stringify(
+      {
+        asset: 'dc9-captains-key-celebration',
+        sourceModel: config.output,
+        node: generatedReport.node,
+        output: config.celebration.output,
+        blenderVersion: generatedReport.blenderVersion,
+        meshObjectCount: generatedReport.meshObjectCount,
+        materialCount: generatedReport.materialCount,
+        resolution: generatedReport.resolution,
+        distanceFactor: generatedReport.distanceFactor,
+        presentationRotationDegrees: generatedReport.presentationRotationDegrees,
+        bounds: generatedReport.bounds,
+      },
+      null,
+      2,
+    ) + '\n',
+  )
+}
 
 const validationPath = resolve(cacheDir, 'validation.json')
 const exportContractPath = resolve(cacheDir, 'export-contract-report.json')

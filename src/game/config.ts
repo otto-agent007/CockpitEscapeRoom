@@ -189,9 +189,9 @@ export const dc9LegacyFlow = {
   routeMileageHint: 'Think Michigan, Minnesota, and Missouri.',
   homeOperationsPages: [
     'The parallel operation — While Pop T kept passengers and crews on course, Momma Cheryl kept the family operation moving at home.',
-    'The home crew — Momma Cheryl cared for and fed three children, keeping everyone prepared while travel carried Pop T away and home again.',
+    'The home crew — Momma Cheryl kept three kids fed, prepared, and on schedule while travel carried Pop T away and home again.',
     'Keeping everyone moving — Sports practices and games, cheerleading practices and events, and the daily rhythm of three children all had to meet on time.',
-    'The invisible record — School-clothes shopping, changing schedules, household needs, and unexpected problems were handled with steady judgment.',
+    'The invisible record — School-clothes shopping, changing schedules, household needs, and unexpected problems were handled.',
     'Recognition — Pop T kept his passengers and crews on course. Momma Cheryl kept the family on course. Both were essential to bringing the crew home.',
   ] as const,
   keyEngravings: {
