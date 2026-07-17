@@ -340,7 +340,7 @@ Commit: `assets: add trimmed game intro audio`
 - Consumes: the complete intro implementation.
 - Produces: durable validation and owner-review evidence.
 
-- [ ] **Step 1: Run focused automated checks**
+- [x] **Step 1: Run focused automated checks**
 
 Run:
 
@@ -351,7 +351,7 @@ npm run test:e2e -- e2e/smoke.spec.ts -g "game intro|opening stays spoiler-safe"
 
 Expected: zero failures.
 
-- [ ] **Step 2: Run complete repository gates**
+- [x] **Step 2: Run complete repository gates**
 
 Run:
 
@@ -363,23 +363,23 @@ git diff --check
 
 Expected: every command exits 0.
 
-- [ ] **Step 3: Launch and inspect in a real browser**
+- [x] **Step 3: Launch and inspect in a real browser**
 
 Start `npm run dev -- --host 127.0.0.1`, then use `agent-browser` to verify the page has content, no Vite error overlay, the **Start Game** control renders, and the intro launches. Inspect boot, DC-9, key, hat, Airbus, and title beats; normal audio, mute/volume, skip, Escape, natural completion, rejected audio, retry, reload, and reduced-motion paths.
 
-- [ ] **Step 4: Capture responsive evidence**
+- [x] **Step 4: Capture responsive evidence**
 
 Capture the intro at approximately 375x812, 768x900, and 1440x900 under `preview-renders/genesis-game-intro/`. Use `view_image` to inspect each capture for cue copy, title scale, image crop, palette, scanlines, control overlap, focus visibility, and horizontal overflow.
 
-- [ ] **Step 5: Review the complete diff**
+- [x] **Step 5: Review the complete diff**
 
 Review against the approved spec. Reject duplicate completion dispatch, early `START`, autoplay before gesture, hidden controls, unsafe DOM insertion, spoiler text/images, unnecessary dependencies, media source drift, or staged unrelated files. Run the React best-practices checklist because `App.tsx` and `GameIntro.tsx` both change.
 
-- [ ] **Step 6: Record evidence and remaining delta**
+- [x] **Step 6: Record evidence and remaining delta**
 
 Update `TEST_REPORT.md` and this plan with actual commands, results, screenshot paths, source/output hashes, placeholder status, and any genuine owner-review limitation.
 
-- [ ] **Step 7: Run fresh final verification and commit**
+- [x] **Step 7: Run fresh final verification and commit**
 
 Re-run `npm run check`, focused intro Playwright tests, `npm run assets:check`, `git diff --check`, and `git status --short`. Commit only the milestone files with `docs: record game intro verification`.
 
@@ -412,13 +412,15 @@ For each failure, capture the exact command/browser evidence, identify one root 
 - [x] Task 2 — Intro launch, media clock, and one-shot handoff.
 - [x] Task 3 — Audio failure, cue boundaries, controls, and responsive paths.
 - [x] Task 4 — Trimmed audio asset and provenance.
-- [ ] Task 5 — Full browser gate, review, and evidence.
+- [x] Task 5 — Full browser gate, review, and evidence.
 
 ## Discoveries
 
 - `ffprobe` is not installed; GStreamer, `lamemp3enc`, and `id3v2mux` are available.
 - GStreamer 1.24.2 decodes the source into 24 ms raw-audio buffers, but `identity eos-after` did not emit EOS even at a three-buffer probe. An accurate pipeline seek with a 53-second stop produced a finalized 53.040-second MP3, within one MPEG frame of the requested boundary.
 - The first six-test Task 3 run proved all production behaviors were already present from the coherent Task 2 component; its only failure was a Playwright-runner scope error from referencing `HTMLMediaElement.NETWORK_NO_SOURCE` outside the browser. Returning that constant from `locator.evaluate` fixed the test itself; the rerun passed all six intro tests.
+- The first complete 25-case Playwright run passed 24/25 and stopped the complete-journey case on the new intro. The journey test still encoded the old immediate Start Game -> DC-9 boundary. Adding the same **Skip Intro** action a player uses made the focused case pass; a fresh full rerun passed 25/25 in 5.0 minutes.
+- `agent-browser` required the host-safe `--no-sandbox` flag. Its headless audio output rejected playback, which correctly exposed the designed silent fallback. Exact visual cue capture used a visual-only successful `play()` promise; repository Playwright independently proved real media decoding and playback behavior.
 - The current opening browser test takes roughly 40 seconds including its production build and real DC-9 asset request.
 - The approved public stills already cover the DC-9, Captain's Key, Captain's Hat, and Airbus beats without exposing the protected reward.
 
@@ -431,8 +433,16 @@ For each failure, capture the exact command/browser evidence, identify one root 
 
 ## Evidence
 
-- Pending implementation.
+- `npm run test -- src/game/introConfig.test.ts src/game/state.test.ts` — 43/43 passed.
+- `npm run test:e2e -- e2e/smoke.spec.ts -g "game intro|opening stays spoiler-safe"` — 6/6 passed.
+- `npm run check` — ESLint, TypeScript, 66/66 Vitest tests, and production build passed.
+- `npm run assets:check` — exit 0 with existing imported-model notices.
+- `npm run test:e2e -- --workers=1` — fresh final run passed 25/25 in 5.0 minutes.
+- Source MP3 SHA-256: `0c1864eb97762841b64c57229c07e70eb620724a02a53ddb69a7465a9eac704f`.
+- Runtime MP3 SHA-256: `be635257cce2ebb3e7e327cada37e09b4a3b4c292e5e385f280955a1d2843507`; duration `53.040` seconds.
+- Inspected captures: `preview-renders/genesis-game-intro/{boot-1440,dc9-1440,key-1440,hat-768,hat-reduced-motion-768,airbus-375,title-1440}.png`.
+- Actual-browser URL: `http://127.0.0.1:5173/`; meaningful content, no Vite overlay, no page errors, intro-to-DC-9 path verified. Existing Three.js `Clock` deprecation warning remains unrelated.
 
 ## Outcome and Handoff
 
-Pending implementation, validation, and owner review of the placeholder visual result.
+Implementation and local verification are complete. The placeholder intro plays the first 53 seconds of the supplied track, exposes accessible sound/skip controls and fallback behavior, respects reduced motion, and hands off once to the unchanged DC-9 chapter. The remaining external delta is owner review of the placeholder cue art/music and, if requested, a Vercel preview; no final-art approval is claimed.

@@ -474,6 +474,7 @@ test('complete reordered journey', async ({ page }) => {
   await expect(page.getByRole('heading', { name: "The Captain's Key" })).toBeVisible()
   await expect(page.getByText('DC-9-32 first-officer station')).toBeVisible()
   await page.getByRole('button', { name: 'Start Game' }).click()
+  await page.getByRole('button', { name: 'Skip Intro' }).click()
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Open Legacy Route Record' }).click()
