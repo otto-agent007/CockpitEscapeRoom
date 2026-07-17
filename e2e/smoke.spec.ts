@@ -101,6 +101,11 @@ test('opening stays spoiler-safe, preloads the DC-9, and fades into the cockpit'
   await expect(page.getByRole('heading', { name: "The Captain's Key" })).toBeVisible()
 
   await page.getByRole('button', { name: 'Start Game' }).click()
+  const intro = page.getByRole('region', { name: 'Game intro' })
+  await expect(intro).toHaveAttribute('data-intro-cue', 'boot')
+  await expect(intro.getByText('A FAMILY CREW PRODUCTION')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toHaveCount(0)
+  await intro.getByRole('button', { name: 'Skip Intro' }).click()
   await expect(page.locator('.dc9-entry-transition')).toHaveAttribute('data-stage', /fade-out|waiting-for-cockpit|fade-in/)
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toBeVisible({ timeout: 15_000 })
   await expect(page.locator('.dc9-entry-transition')).toHaveAttribute('data-stage', 'fade-in', { timeout: 20_000 })

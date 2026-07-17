@@ -62,11 +62,12 @@ export const introCues = [
 
 export function getIntroCue(timeSeconds: number): IntroCue {
   const safeTime = Number.isFinite(timeSeconds) ? Math.max(0, timeSeconds) : 0
+  let activeCue: IntroCue = introCues[0]
 
-  for (let index = introCues.length - 1; index >= 0; index -= 1) {
-    const cue = introCues[index]
-    if (safeTime >= cue.startSeconds) return cue
+  for (const cue of introCues) {
+    if (safeTime < cue.startSeconds) break
+    activeCue = cue
   }
 
-  return introCues[0]
+  return activeCue
 }

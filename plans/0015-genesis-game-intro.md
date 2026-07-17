@@ -145,7 +145,7 @@ Commit: `feat: define game intro timeline`
 - Consumes: `GameIntro({ reducedMotion: boolean, onComplete: () => void })`, `introCues`, `getIntroCue`, `INTRO_DURATION_SECONDS`, `gameCopy.title`.
 - Produces: an unchanged briefing state followed by `section[aria-label="Game intro"]`, `data-intro-cue`, native audio controls, and exactly one `onComplete()` call.
 
-- [ ] **Step 1: Change the opening browser test to require the intro**
+- [x] **Step 1: Change the opening browser test to require the intro**
 
 After clicking **Start Game**, assert the intro is visible and the DC-9 heading is not yet mounted. Then click **Skip Intro** and retain the existing transition/DC-9 assertions:
 
@@ -158,13 +158,13 @@ await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toHav
 await intro.getByRole('button', { name: 'Skip Intro' }).click()
 ```
 
-- [ ] **Step 2: Run the opening test and verify RED**
+- [x] **Step 2: Run the opening test and verify RED**
 
 Run: `npm run test:e2e -- e2e/smoke.spec.ts -g "opening stays spoiler-safe"`
 
 Expected: FAIL because clicking **Start Game** still begins the DC-9 transition directly and no `Game intro` region exists.
 
-- [ ] **Step 3: Implement `GameIntro` and integrate it**
+- [x] **Step 3: Implement `GameIntro` and integrate it**
 
 `GameIntro` must keep its `<audio>` mounted on the briefing so `audio.play()` is called synchronously in the **Start Game** handler. Use `requestAnimationFrame`, `audio.currentTime`, `performance.now()`, and a `completedRef` guard. Its public shape is:
 
@@ -187,17 +187,17 @@ In `App.tsx`, replace the inline briefing section with:
 
 Keep `Dc9EntryTransition`, the existing preloading effect, and the `START` dispatch timing unchanged.
 
-- [ ] **Step 4: Implement the approved visual system**
+- [x] **Step 4: Implement the approved visual system**
 
 Add `--intro-*` colors, a true-black full-bleed canvas, pixel-grid background, scanline overlay, hard-edged frame, stepped image scale, wipe/panel treatments, title shadow, and bottom control rail. Use existing local/system fonts only. At `max-width: 900px`, stack controls and reduce title scale. Under `prefers-reduced-motion: reduce`, disable stepped scale, scanline movement, and wipes while retaining crossfades.
 
-- [ ] **Step 5: Run the opening browser test and verify GREEN**
+- [x] **Step 5: Run the opening browser test and verify GREEN**
 
 Run: `npm run test:e2e -- e2e/smoke.spec.ts -g "opening stays spoiler-safe"`
 
 Expected: PASS; the test observes intro launch before the existing DC-9 transition.
 
-- [ ] **Step 6: Update Progress and commit Task 2**
+- [x] **Step 6: Update Progress and commit Task 2**
 
 Stage only the plan, `GameIntro.tsx`, `App.tsx`, `styles.css`, and `smoke.spec.ts`.
 
@@ -409,7 +409,7 @@ For each failure, capture the exact command/browser evidence, identify one root 
 - [x] 2026-07-16 — Approved design spec committed as `e553deb`.
 - [x] 2026-07-16 — Current opening reproduced in Playwright; baseline opening test passed before implementation.
 - [x] Task 1 — Immutable intro timeline.
-- [ ] Task 2 — Intro launch, media clock, and one-shot handoff.
+- [x] Task 2 — Intro launch, media clock, and one-shot handoff.
 - [ ] Task 3 — Audio failure, cue boundaries, controls, and responsive paths.
 - [ ] Task 4 — Trimmed audio asset and provenance.
 - [ ] Task 5 — Full browser gate, review, and evidence.
