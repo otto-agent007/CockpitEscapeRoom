@@ -99,7 +99,8 @@ def move_captain_radio_target() -> None:
             raise RuntimeError(f"{name} is missing")
         obj["puzzle_id"] = "airbus"
         obj["seat_role"] = "captain"
-        obj["visual_alignment_status"] = "pending_owner_browser_1440_captain"
+        obj["visual_alignment_status"] = "verified_browser_1440_captain"
+        obj["visual_alignment_evidence"] = "preview-renders/airbus-target-alignment/airbus-radio-thrust-aligned-1440.png"
 
 
 def move_captain_thrust_target() -> None:
@@ -114,7 +115,8 @@ def move_captain_thrust_target() -> None:
             raise RuntimeError(f"{name} is missing")
         obj["puzzle_id"] = "airbus"
         obj["seat_role"] = "captain"
-        obj["visual_alignment_status"] = "pending_owner_browser_1440_captain"
+        obj["visual_alignment_status"] = "verified_browser_1440_captain"
+        obj["visual_alignment_evidence"] = "preview-renders/airbus-target-alignment/airbus-radio-thrust-aligned-1440.png"
 
 
 def main() -> None:

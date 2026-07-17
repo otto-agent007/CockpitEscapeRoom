@@ -181,7 +181,7 @@ npx playwright test e2e/smoke.spec.ts --grep "Airbus production cockpit loads" -
 
 Expected: 1 passed; both projected positions land inside their new ranges, and radio/thrust mesh clicks produce `is-correct` target state.
 
-- [ ] **Step 6: Inspect the generated diff and commit the coherent target change**
+- [x] **Step 6: Inspect the generated diff and commit the coherent target change**
 
 Run:
 
@@ -213,7 +213,7 @@ git commit -m "Align Airbus radio and thrust targets"
 - Consumes: rebuilt target contract from Task 2.
 - Produces: inspected browser evidence and durable validation records tied to the current GLB hash.
 
-- [ ] **Step 1: Start or reuse the local production preview**
+- [x] **Step 1: Start or reuse the local production preview**
 
 Run:
 
@@ -223,7 +223,7 @@ npm run preview -- --host 127.0.0.1
 
 Expected: preview is reachable at `http://127.0.0.1:4173`.
 
-- [ ] **Step 2: Prove the browser serves the rebuilt bytes**
+- [x] **Step 2: Prove the browser serves the rebuilt bytes**
 
 Compare a `cache: no-store` response for `/models/airbus-captain.glb` against:
 
@@ -234,7 +234,7 @@ sha256sum public/models/airbus-captain.glb
 
 Expected: served content length equals the on-disk byte length. Record the current SHA-256.
 
-- [ ] **Step 3: Capture and inspect the 1440x900 owner proof**
+- [x] **Step 3: Capture and inspect the 1440x900 owner proof**
 
 Seed the Airbus phase in a fresh browser context, place the `RADIO` and `THRUST` cards through their mesh colliders, and save:
 
@@ -244,17 +244,17 @@ Seed the Airbus phase in a fresh browser context, place the `RADIO` and `THRUST`
 
 Expected visual result: the radio chip is farther left and centered on its intended panel; the thrust chip is farther right and centered between the paired levers; no other target moved.
 
-- [ ] **Step 4: Inspect responsive projection at 768 and 375 widths**
+- [x] **Step 4: Inspect responsive projection at 768 and 375 widths**
 
 At each width, select the radio and thrust cards and confirm the silhouettes remain attached to their controls, remain reachable, and do not collide with the status dock or card tray.
 
 Expected: projected positions remain usable at both widths with no CSS/runtime offset.
 
-- [ ] **Step 5: Stop at the owner visual gate if composition still needs judgment**
+- [x] **Step 5: Stop at the owner visual gate if composition still needs judgment**
 
 If the 1440 screenshot does not visibly resolve the request, change only one coordinate at a time and allow at most one additional local visual pass before requesting a precise owner decision. Do not update `TEST_REPORT.md`, the ExecPlan, or tracked screenshot evidence until the composition is accepted.
 
-- [ ] **Step 6: Present the inspected 1440 proof and pause at the owner gate**
+- [x] **Step 6: Present the inspected 1440 proof and pause at the owner gate**
 
 Present `/tmp/airbus-radio-thrust-aligned-1440.png` with the exact radio and thrust translations and request owner approval. Do not promote the screenshot, mark metadata verified, or update completion records until the owner accepts the composition.
 
@@ -274,7 +274,7 @@ Present `/tmp/airbus-radio-thrust-aligned-1440.png` with the exact radio and thr
 - Consumes: accepted browser composition and current generated asset.
 - Produces: final verified milestone evidence with no stale hashes or screenshots.
 
-- [ ] **Step 1: Mark the accepted visual contract and rebuild final metadata**
+- [x] **Step 1: Mark the accepted visual contract and rebuild final metadata**
 
 After owner acceptance, set `visual_alignment_status` to `verified_browser_1440_captain` and `visual_alignment_evidence` to `preview-renders/airbus-target-alignment/airbus-radio-thrust-aligned-1440.png` on each radio and thrust pivot, hitbox, and cue in `tools/blender/prepare_airbus_captain.py`.
 
@@ -286,7 +286,7 @@ BLENDER_BIN=/home/user1/.local/bin/blender npm run asset:airbus
 
 Expected: the final rebuilt GLB retains the approved coordinates and adds the accepted evidence metadata without changing the visible composition.
 
-- [ ] **Step 2: Promote evidence and update the living records**
+- [x] **Step 2: Promote evidence and update the living records**
 
 Promote the inspected proof to:
 
@@ -296,7 +296,7 @@ preview-renders/airbus-target-alignment/airbus-radio-thrust-aligned-1440.png
 
 Append the exact source path, Blender version, target translations, GLB byte size/hash, test commands/results, screenshot paths, and remaining limitations to `plans/0013-dc9-fo-airbus-captain-seat-swap.md` and `TEST_REPORT.md`.
 
-- [ ] **Step 3: Run the full relevant validation stack**
+- [x] **Step 3: Run the full relevant validation stack**
 
 Run:
 
@@ -309,7 +309,7 @@ git diff --check
 
 Expected: all commands exit 0 and all Airbus-focused Playwright cases pass.
 
-- [ ] **Step 4: Review the complete diff for scope and contract regressions**
+- [x] **Step 4: Review the complete diff for scope and contract regressions**
 
 Run:
 
@@ -320,13 +320,13 @@ git status --short
 
 Confirm no camera, puzzle, copy, material, unrelated target, dependency, or unrelated asset changed; confirm the `.blend` and GLB were generated through the recorded command.
 
-- [ ] **Step 5: Commit accepted evidence, final asset metadata, and records**
+- [x] **Step 5: Commit accepted evidence, final asset metadata, and records**
 
 ```bash
 git add tools/blender/prepare_airbus_captain.py art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend public/models/airbus-captain.glb preview-renders/airbus-target-alignment/airbus-radio-thrust-aligned-1440.png plans/0013-dc9-fo-airbus-captain-seat-swap.md TEST_REPORT.md
 git commit -m "Document Airbus target alignment proof"
 ```
 
-- [ ] **Step 6: Report the exact completion boundary**
+- [x] **Step 6: Report the exact completion boundary**
 
 Report files changed, source and deployable asset paths, Blender version, GLB byte size/SHA-256, commands actually run, pass/fail counts, inspected viewport evidence, and any remaining owner-review delta. Do not claim Vercel preview proof unless one was actually created and byte-checked.
