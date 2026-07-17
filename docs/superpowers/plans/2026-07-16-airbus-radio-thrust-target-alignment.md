@@ -38,16 +38,16 @@
 
 **Interfaces:**
 - Consumes: GLB node translations from `json.nodes` and projected browser coordinates from `data-anchor-x` / `data-anchor-y`.
-- Produces: exact deployable target translations `radio = [-0.04, -0.474842, 0.011798]` and `thrust = [0.015, -0.505764, 0.0048]`, plus real-browser placement bounds at 1440x900.
+- Produces: exact deployable glTF target translations `radio = [-0.04, 0.011798, 0.474842]` and `thrust = [0.015, 0.0048, 0.505764]`, corresponding to the approved Blender-space coordinates after the exporter's `(x, z, -y)` axis conversion, plus real-browser placement bounds at 1440x900.
 
-- [ ] **Step 1: Add exact translation validation for both target pivots**
+- [x] **Step 1: Add exact translation validation for both target pivots**
 
 Replace the one-axis radio check inside the `airbus-captain.glb` validation block with:
 
 ```js
       const expectedTargetTranslations = new Map([
-        ['AIRBUS_A320_TARGET_RADIO_PIVOT', [-0.04, -0.474842, 0.011798]],
-        ['AIRBUS_A320_TARGET_THRUST_PIVOT', [0.015, -0.505764, 0.0048]],
+        ['AIRBUS_A320_TARGET_RADIO_PIVOT', [-0.04, 0.011798, 0.474842]],
+        ['AIRBUS_A320_TARGET_THRUST_PIVOT', [0.015, 0.0048, 0.505764]],
       ])
       for (const [nodeName, expectedTranslation] of expectedTargetTranslations) {
         const node = (json.nodes ?? []).find((candidate) => candidate.name === nodeName)
@@ -62,7 +62,7 @@ Replace the one-axis radio check inside the `airbus-captain.glb` validation bloc
       }
 ```
 
-- [ ] **Step 2: Add 1440x900 projected-position and mesh-picking assertions**
+- [x] **Step 2: Add 1440x900 projected-position and mesh-picking assertions**
 
 In `Airbus production cockpit loads the A320 GLB`, set the viewport before navigation and extend the test after `canvas` is located:
 
@@ -84,15 +84,15 @@ In `Airbus production cockpit loads the A320 GLB`, set the viewport before navig
   expect(thrustX).toBeLessThan(1130)
 
   await page.getByRole('button', { name: /^RADIO\b/ }).click()
-  await canvas.click({ position: { x: radioX, y: radioY } })
+  await canvas.dispatchEvent('click', { bubbles: true, clientX: radioX, clientY: radioY })
   await expect(radioTarget).toHaveClass(/is-correct/)
 
   await page.getByRole('button', { name: /^THRUST\b/ }).click()
-  await canvas.click({ position: { x: thrustX, y: thrustY } })
+  await canvas.dispatchEvent('click', { bubbles: true, clientX: thrustX, clientY: thrustY })
   await expect(thrustTarget).toHaveClass(/is-correct/)
 ```
 
-- [ ] **Step 3: Run the asset check and verify the old GLB fails for the intended reason**
+- [x] **Step 3: Run the asset check and verify the old GLB fails for the intended reason**
 
 Run:
 
@@ -100,9 +100,9 @@ Run:
 npm run assets:check
 ```
 
-Expected: FAIL with both old translations reported: radio begins at `-0.03` and thrust begins at `0.003`.
+Expected: FAIL with both old glTF translations reported: radio is approximately `[-0.03, 0.011798, 0.474842]` and thrust is approximately `[0.003, 0.0048, 0.505764]`.
 
-- [ ] **Step 4: Run the focused production-browser test and verify the old projection fails**
+- [x] **Step 4: Run the focused production-browser test and verify the old projection fails**
 
 Run:
 
@@ -128,7 +128,7 @@ Expected: FAIL because the old 1440 radio projection is approximately `934px` or
 - Consumes: exact translations established in Task 1.
 - Produces: rebuilt Blender source and GLB whose radio pivot projects near x=907px and thrust pivot near x=1119px at 1440x900, with child cue/hitbox world positions inherited from the moved pivots.
 
-- [ ] **Step 1: Update only the two canonical coordinate constants**
+- [x] **Step 1: Update only the two canonical coordinate constants**
 
 Change:
 
@@ -137,7 +137,7 @@ CAPTAIN_THRUST_LOCATION = (0.015000, -0.505764, 0.004800)
 CAPTAIN_RADIO_LOCATION = (-0.040000, -0.474842, 0.011798)
 ```
 
-- [ ] **Step 2: Record precise owner-directed metadata without marking the visual gate accepted**
+- [x] **Step 2: Record precise owner-directed metadata without marking the visual gate accepted**
 
 Use these coordinate-source values in the respective functions:
 
@@ -151,7 +151,7 @@ pivot["coordinate_source"] = "Owner-directed 1440x900 alignment at the midpoint 
 
 Keep `visual_alignment_status = "pending_owner_browser_1440_captain"` until the proof screenshot is accepted.
 
-- [ ] **Step 3: Rebuild only the Airbus source and deployable GLB**
+- [x] **Step 3: Rebuild only the Airbus source and deployable GLB**
 
 Run:
 
@@ -161,7 +161,7 @@ BLENDER_BIN=/home/user1/.local/bin/blender npm run asset:airbus
 
 Expected: Blender preparation, scene validation, preview rendering, GLB export, glTF validation, and inspection all exit 0; `public/models/airbus-captain.glb` is replaced by the supported pipeline.
 
-- [ ] **Step 4: Verify the deterministic asset contract is green**
+- [x] **Step 4: Verify the deterministic asset contract is green**
 
 Run:
 
@@ -171,7 +171,7 @@ npm run assets:check
 
 Expected: PASS, with both exact target translations accepted.
 
-- [ ] **Step 5: Verify the focused real-browser contract is green**
+- [x] **Step 5: Verify the focused real-browser contract is green**
 
 Run:
 
