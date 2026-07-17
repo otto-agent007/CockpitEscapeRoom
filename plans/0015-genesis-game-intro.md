@@ -64,7 +64,7 @@
 - Produces: `INTRO_DURATION_SECONDS: 53`, `IntroCue`, `introCues`, and `getIntroCue(timeSeconds: number): IntroCue`.
 - Consumes: no DOM, React, storage, or media APIs.
 
-- [ ] **Step 1: Write the failing timeline tests**
+- [x] **Step 1: Write the failing timeline tests**
 
 Create tests that demand exact cue starts, boundary selection, and spoiler safety:
 
@@ -92,13 +92,13 @@ describe('intro timeline', () => {
 })
 ```
 
-- [ ] **Step 2: Run the test and verify RED**
+- [x] **Step 2: Run the test and verify RED**
 
 Run: `npm run test -- src/game/introConfig.test.ts`
 
 Expected: FAIL because `./introConfig` does not exist.
 
-- [ ] **Step 3: Implement the minimal pure configuration**
+- [x] **Step 3: Implement the minimal pure configuration**
 
 Define `IntroCue` with `id`, `startSeconds`, `image`, `caption`, `treatment`, and `objectPosition`. Use the approved six cues, these image paths, and exact copy:
 
@@ -117,17 +117,17 @@ export const introCues = [
 
 Implement `getIntroCue` by clamping invalid/negative time to zero and walking backward from the final cue until `timeSeconds >= startSeconds`.
 
-- [ ] **Step 4: Run focused and nearby tests and verify GREEN**
+- [x] **Step 4: Run focused and nearby tests and verify GREEN**
 
 Run: `npm run test -- src/game/introConfig.test.ts src/game/state.test.ts`
 
 Expected: both test files pass.
 
-- [ ] **Step 5: Generate the local audio prerequisite**
+- [x] **Step 5: Generate the local audio prerequisite**
 
 Before browser work, generate `public/audio/intro-audio-53s.mp3` with the bounded GStreamer pipeline documented in Task 4 and verify its duration is within `52.9..53.1` seconds. Leave it uncommitted until its provenance and final audio test are complete in Task 4.
 
-- [ ] **Step 6: Update Progress and commit Task 1**
+- [x] **Step 6: Update Progress and commit Task 1**
 
 Stage only `plans/0015-genesis-game-intro.md`, `src/game/introConfig.ts`, and `src/game/introConfig.test.ts`.
 
@@ -268,16 +268,39 @@ Record the hash and byte count in `public/audio/README.md`.
 
 - [ ] **Step 2: Confirm or regenerate the cut without modifying the source**
 
-Use the installed GStreamer decoder and LAME encoder. A decoded MPEG Layer III frame at 48 kHz contains 1,152 samples, so 2,208 buffers produce 52.992 seconds:
+Use the installed GStreamer decoder and LAME encoder through an accurate bounded seek. The pipeline is paused before setting the `0..53 seconds` segment, then played through EOS so the output is finalized cleanly:
 
 ```bash
-gst-launch-1.0 -e filesrc location=/mnt/2TBHDD/Downloads/IntroAudio.mp3 \
-  ! decodebin ! audioconvert ! audioresample ! audio/x-raw,rate=48000,channels=2 \
-  ! identity eos-after=2208 ! lamemp3enc target=bitrate bitrate=192 cbr=true \
-  ! id3v2mux ! filesink location=public/audio/intro-audio-53s.mp3
+INTRO_OUTPUT=/mnt/2TBHDD/CockpitEscapeRoom/public/audio/intro-audio-53s.mp3 python3 - <<'PY'
+import os
+import gi
+gi.require_version('Gst', '1.0')
+from gi.repository import Gst
+Gst.init(None)
+source = '/mnt/2TBHDD/Downloads/IntroAudio.mp3'
+target = os.environ['INTRO_OUTPUT']
+pipeline = Gst.parse_launch(
+    f'filesrc location="{source}" ! decodebin ! audioconvert ! audioresample '
+    f'! audio/x-raw,rate=48000,channels=2 ! lamemp3enc target=bitrate bitrate=192 cbr=true '
+    f'! id3v2mux ! filesink location="{target}"'
+)
+pipeline.set_state(Gst.State.PAUSED)
+pipeline.get_state(Gst.CLOCK_TIME_NONE)
+flags = Gst.SeekFlags.FLUSH | Gst.SeekFlags.ACCURATE
+if not pipeline.seek(1.0, Gst.Format.TIME, flags, Gst.SeekType.SET, 0, Gst.SeekType.SET, 53 * Gst.SECOND):
+    raise SystemExit('bounded seek failed')
+pipeline.set_state(Gst.State.PLAYING)
+message = pipeline.get_bus().timed_pop_filtered(
+    Gst.CLOCK_TIME_NONE, Gst.MessageType.ERROR | Gst.MessageType.EOS
+)
+if message.type == Gst.MessageType.ERROR:
+    error, debug = message.parse_error()
+    raise SystemExit(f'{error}: {debug}')
+pipeline.set_state(Gst.State.NULL)
+PY
 ```
 
-If the Task 1 prerequisite already produced an in-tolerance file, retain it. If decoder buffer sizing differs from 1,152 samples, stop and use measured duration evidence to adjust the bounded buffer count; do not accept an arbitrary timeout-truncated file.
+If the Task 1 prerequisite already produced an in-tolerance file, retain it. Do not use a wall-clock timeout or `identity eos-after`; the installed GStreamer 1.24.2 build did not honor that EOS property during measured decoding.
 
 - [ ] **Step 3: Verify the output boundary**
 
@@ -385,7 +408,7 @@ For each failure, capture the exact command/browser evidence, identify one root 
 
 - [x] 2026-07-16 — Approved design spec committed as `e553deb`.
 - [x] 2026-07-16 — Current opening reproduced in Playwright; baseline opening test passed before implementation.
-- [ ] Task 1 — Immutable intro timeline.
+- [x] Task 1 — Immutable intro timeline.
 - [ ] Task 2 — Intro launch, media clock, and one-shot handoff.
 - [ ] Task 3 — Audio failure, cue boundaries, controls, and responsive paths.
 - [ ] Task 4 — Trimmed audio asset and provenance.
@@ -394,6 +417,7 @@ For each failure, capture the exact command/browser evidence, identify one root 
 ## Discoveries
 
 - `ffprobe` is not installed; GStreamer, `lamemp3enc`, and `id3v2mux` are available.
+- GStreamer 1.24.2 decodes the source into 24 ms raw-audio buffers, but `identity eos-after` did not emit EOS even at a three-buffer probe. An accurate pipeline seek with a 53-second stop produced a finalized 53.040-second MP3, within one MPEG frame of the requested boundary.
 - The current opening browser test takes roughly 40 seconds including its production build and real DC-9 asset request.
 - The approved public stills already cover the DC-9, Captain's Key, Captain's Hat, and Airbus beats without exposing the protected reward.
 
