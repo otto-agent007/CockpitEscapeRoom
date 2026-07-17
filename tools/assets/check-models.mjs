@@ -241,11 +241,20 @@ for (const [model, requiredNodes] of Object.entries(requiredModelContracts)) {
         console.error(`Airbus captain gameplay camera must export a 68-degree vertical field of view; received ${verticalFov ?? 'none'}.`)
         failed = true
       }
-      const radioPivot = (json.nodes ?? []).find((node) => node.name === 'AIRBUS_A320_TARGET_RADIO_PIVOT')
-      const radioLateral = radioPivot?.translation?.[0]
-      if (typeof radioLateral !== 'number' || radioLateral >= 0) {
-        console.error(`Airbus captain radio target must be on the captain/left side; received lateral coordinate ${radioLateral ?? 'none'}.`)
-        failed = true
+      const expectedTargetTranslations = new Map([
+        ['AIRBUS_A320_TARGET_RADIO_PIVOT', [-0.04, 0.011798, 0.474842]],
+        ['AIRBUS_A320_TARGET_THRUST_PIVOT', [0.015, 0.0048, 0.505764]],
+      ])
+      for (const [nodeName, expectedTranslation] of expectedTargetTranslations) {
+        const node = (json.nodes ?? []).find((candidate) => candidate.name === nodeName)
+        const translation = node?.translation
+        const aligned = Array.isArray(translation)
+          && translation.length === expectedTranslation.length
+          && translation.every((value, index) => Math.abs(value - expectedTranslation[index]) <= 0.00001)
+        if (!aligned) {
+          console.error(`${nodeName} must export at ${JSON.stringify(expectedTranslation)}; received ${JSON.stringify(translation ?? null)}.`)
+          failed = true
+        }
       }
     }
   } catch (error) {
