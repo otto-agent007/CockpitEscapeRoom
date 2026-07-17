@@ -214,7 +214,7 @@ Commit: `feat: add synchronized game intro shell`
 - Consumes: the Task 2 DOM contract.
 - Produces: deterministic test hooks through native `HTMLMediaElement` events and `data-intro-cue`; no production-only query parameter.
 
-- [ ] **Step 1: Add failing browser tests for the remaining behavior**
+- [x] **Step 1: Add failing browser tests for the remaining behavior**
 
 Add focused tests that:
 
@@ -227,25 +227,25 @@ Add focused tests that:
 7. At 375x812, 768x900, and 1440x900, assert the intro region and control rail fit inside the viewport without horizontal overflow.
 8. Load `audio/intro-audio-53s.mp3`, wait for `loadedmetadata`, and assert `duration` is between `52.9` and `53.1` with `networkState !== HTMLMediaElement.NETWORK_NO_SOURCE`.
 
-- [ ] **Step 2: Run the new intro tests and verify RED**
+- [x] **Step 2: Run the new intro tests and verify RED**
 
 Run: `npm run test:e2e -- e2e/smoke.spec.ts -g "game intro|opening stays spoiler-safe"`
 
 Expected: at least the cue, audio failure/retry, or control assertion fails until Task 3 behavior is complete.
 
-- [ ] **Step 3: Implement minimal behavior to satisfy the tests**
+- [x] **Step 3: Implement minimal behavior to satisfy the tests**
 
 Add a `timeupdate` listener/handler that updates the visible cue immediately in addition to the rAF loop. On playback rejection, retain the original `performance.now()` start, show the live-region message, and reveal **Retry sound**. Retry must set `audio.currentTime` to the current fallback elapsed time before calling `play()`, then return cue authority to media time. Clamp volume to `0..1` and keep mute independent from volume.
 
 Use a one-shot completion function guarded by `completedRef`. Remove the global Escape listener during cleanup, cancel the current animation frame, and pause audio on unmount.
 
-- [ ] **Step 4: Run focused tests and verify GREEN**
+- [x] **Step 4: Run focused tests and verify GREEN**
 
 Run: `npm run test:e2e -- e2e/smoke.spec.ts -g "game intro|opening stays spoiler-safe"`
 
 Expected: every selected Playwright test passes with no browser error.
 
-- [ ] **Step 5: Update Progress and commit Task 3**
+- [x] **Step 5: Update Progress and commit Task 3**
 
 Commit: `test: cover game intro controls and fallbacks`
 
@@ -410,7 +410,7 @@ For each failure, capture the exact command/browser evidence, identify one root 
 - [x] 2026-07-16 — Current opening reproduced in Playwright; baseline opening test passed before implementation.
 - [x] Task 1 — Immutable intro timeline.
 - [x] Task 2 — Intro launch, media clock, and one-shot handoff.
-- [ ] Task 3 — Audio failure, cue boundaries, controls, and responsive paths.
+- [x] Task 3 — Audio failure, cue boundaries, controls, and responsive paths.
 - [ ] Task 4 — Trimmed audio asset and provenance.
 - [ ] Task 5 — Full browser gate, review, and evidence.
 
@@ -418,6 +418,7 @@ For each failure, capture the exact command/browser evidence, identify one root 
 
 - `ffprobe` is not installed; GStreamer, `lamemp3enc`, and `id3v2mux` are available.
 - GStreamer 1.24.2 decodes the source into 24 ms raw-audio buffers, but `identity eos-after` did not emit EOS even at a three-buffer probe. An accurate pipeline seek with a 53-second stop produced a finalized 53.040-second MP3, within one MPEG frame of the requested boundary.
+- The first six-test Task 3 run proved all production behaviors were already present from the coherent Task 2 component; its only failure was a Playwright-runner scope error from referencing `HTMLMediaElement.NETWORK_NO_SOURCE` outside the browser. Returning that constant from `locator.evaluate` fixed the test itself; the rerun passed all six intro tests.
 - The current opening browser test takes roughly 40 seconds including its production build and real DC-9 asset request.
 - The approved public stills already cover the DC-9, Captain's Key, Captain's Hat, and Airbus beats without exposing the protected reward.
 
