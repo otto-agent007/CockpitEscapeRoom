@@ -86,6 +86,15 @@ async function seedGameState(page: Page, state: GameState): Promise<void> {
   await page.reload()
 }
 
+async function openGameIntro(page: Page) {
+  await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Start Game' }).click()
+  const intro = page.getByRole('region', { name: 'Game intro' })
+  await expect(intro).toBeVisible()
+  return intro
+}
+
 test('opening stays spoiler-safe, preloads the DC-9, and fades into the cockpit', async ({ page }) => {
   test.setTimeout(45_000)
   const dc9Request = page.waitForRequest(
@@ -101,10 +110,125 @@ test('opening stays spoiler-safe, preloads the DC-9, and fades into the cockpit'
   await expect(page.getByRole('heading', { name: "The Captain's Key" })).toBeVisible()
 
   await page.getByRole('button', { name: 'Start Game' }).click()
+  const intro = page.getByRole('region', { name: 'Game intro' })
+  await expect(intro).toHaveAttribute('data-intro-cue', 'boot')
+  await expect(intro.getByText('A FAMILY CREW PRODUCTION')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toHaveCount(0)
+  await intro.getByRole('button', { name: 'Skip Intro' }).click()
   await expect(page.locator('.dc9-entry-transition')).toHaveAttribute('data-stage', /fade-out|waiting-for-cockpit|fade-in/)
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toBeVisible({ timeout: 15_000 })
   await expect(page.locator('.dc9-entry-transition')).toHaveAttribute('data-stage', 'fade-in', { timeout: 20_000 })
   await expect(page.locator('.dc9-entry-transition')).toHaveCount(0, { timeout: 5_000 })
+})
+
+test('game intro follows media cue boundaries and completes once', async ({ page }) => {
+  const intro = await openGameIntro(page)
+  const audio = page.locator('audio')
+  await audio.evaluate(async (media) => {
+    if (media.readyState >= HTMLMediaElement.HAVE_METADATA) return
+    await new Promise<void>((resolve, reject) => {
+      media.addEventListener('loadedmetadata', () => resolve(), { once: true })
+      media.addEventListener('error', () => reject(new Error('Intro audio metadata failed')), { once: true })
+    })
+  })
+
+  const cues = [
+    { time: 16, id: 'key', copy: 'LEGACY UNLOCKED' },
+    { time: 27, id: 'hat', copy: 'THE JOURNEY CONTINUES' },
+    { time: 38, id: 'airbus', copy: 'FROM FIRST OFFICER TO CAPTAIN' },
+    { time: 49, id: 'title', copy: 'MISSION READY' },
+  ] as const
+
+  for (const cue of cues) {
+    await audio.evaluate((media, time) => {
+      media.currentTime = time
+      media.dispatchEvent(new Event('timeupdate'))
+    }, cue.time)
+    await expect(intro).toHaveAttribute('data-intro-cue', cue.id)
+    await expect(intro.getByText(cue.copy)).toBeVisible()
+  }
+
+  await audio.evaluate((media) => {
+    media.dispatchEvent(new Event('ended'))
+    media.dispatchEvent(new Event('ended'))
+  })
+  await expect(page.locator('.dc9-entry-transition')).toHaveCount(1)
+  await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toBeVisible({ timeout: 15_000 })
+})
+
+test('game intro exposes working sound controls and Escape skip', async ({ page }) => {
+  const intro = await openGameIntro(page)
+  const audio = page.locator('audio')
+
+  await intro.getByRole('button', { name: 'Mute intro' }).click()
+  await expect(audio).toHaveJSProperty('muted', true)
+  await intro.getByLabel('Intro volume').fill('0.35')
+  await expect.poll(() => audio.evaluate((media) => media.volume)).toBeCloseTo(0.35)
+
+  await page.keyboard.press('Escape')
+  await expect(page.locator('.dc9-entry-transition')).toHaveCount(1)
+})
+
+test('game intro continues silently and retries rejected audio', async ({ page }) => {
+  await page.addInitScript(() => {
+    let attempts = 0
+    HTMLMediaElement.prototype.play = function play() {
+      attempts += 1
+      return attempts === 1
+        ? Promise.reject(new DOMException('Playback blocked for test', 'NotAllowedError'))
+        : Promise.resolve()
+    }
+  })
+
+  const intro = await openGameIntro(page)
+  await expect(intro.getByText('The intro is continuing without sound.')).toBeVisible()
+  await intro.getByRole('button', { name: 'Retry sound' }).click()
+  await expect(intro.getByText('Intro audio playing.')).toBeVisible()
+  await intro.getByRole('button', { name: 'Skip Intro' }).click()
+  await expect(page.locator('.dc9-entry-transition')).toHaveCount(1)
+})
+
+test('game intro honors reduced motion and fits required viewports', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.setViewportSize({ width: 375, height: 812 })
+  const intro = await openGameIntro(page)
+  await expect(intro).toHaveAttribute('data-reduced-motion', 'true')
+
+  for (const viewport of [
+    { width: 375, height: 812 },
+    { width: 768, height: 900 },
+    { width: 1440, height: 900 },
+  ]) {
+    await page.setViewportSize(viewport)
+    const bounds = await intro.locator('.game-intro__controls').boundingBox()
+    expect(bounds).not.toBeNull()
+    expect(bounds!.x).toBeGreaterThanOrEqual(0)
+    expect(bounds!.y).toBeGreaterThanOrEqual(0)
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(viewport.width)
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(viewport.height)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width)
+  }
+})
+
+test('game intro uses the deployable 53-second audio', async ({ page }) => {
+  await page.goto('/')
+  const metadata = await page.locator('audio').evaluate(async (media) => {
+    if (media.readyState < HTMLMediaElement.HAVE_METADATA) {
+      await new Promise<void>((resolve, reject) => {
+        media.addEventListener('loadedmetadata', () => resolve(), { once: true })
+        media.addEventListener('error', () => reject(new Error('Intro audio metadata failed')), { once: true })
+      })
+    }
+    return {
+      duration: media.duration,
+      networkState: media.networkState,
+      noSourceState: HTMLMediaElement.NETWORK_NO_SOURCE,
+    }
+  })
+
+  expect(metadata.duration).toBeGreaterThanOrEqual(52.9)
+  expect(metadata.duration).toBeLessThanOrEqual(53.1)
+  expect(metadata.networkState).not.toBe(metadata.noSourceState)
 })
 
 test('saved DC-9 reload hides the route opener until loading settles', async ({ page }) => {
@@ -350,6 +474,7 @@ test('complete reordered journey', async ({ page }) => {
   await expect(page.getByRole('heading', { name: "The Captain's Key" })).toBeVisible()
   await expect(page.getByText('DC-9-32 first-officer station')).toBeVisible()
   await page.getByRole('button', { name: 'Start Game' }).click()
+  await page.getByRole('button', { name: 'Skip Intro' }).click()
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Open Legacy Route Record' }).click()
