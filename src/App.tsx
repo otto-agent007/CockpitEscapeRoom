@@ -1,5 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Hud } from './components/Hud'
+import { GameIntro } from './components/GameIntro'
 import { Dc9Chapter } from './components/dc9/Dc9Chapter'
 import { LockerTransition, type LockerIntroStage } from './components/LockerTransition'
 import { AirbusCompletionCelebration, CaptainHatCelebration } from './components/QualificationCelebration'
@@ -169,6 +170,7 @@ export default function App() {
   const lockerInteractionEnabled = state.phase === 'locker' && state.lockerIntroCompleted && !lockerIntroActive && !captainHatCelebrationActive && !lockerHatFinaleActive
   const availableLockerMemories = lockerFlow.memoryIds.filter((memoryId) => isLockerMemoryAvailable(state, memoryId))
   const viewerResetReady = !lockerIntroActive && !lockerHatFinaleActive && (state.phase !== 'airbus' || airbusSceneReady)
+  const beginDc9Entry = useCallback(() => setDc9EntryStage((stage) => stage === 'idle' ? 'fade-out' : stage), [])
   const finishDc9Entry = useCallback(() => setDc9EntryStage('idle'), [])
 
   useEffect(() => {
@@ -490,29 +492,7 @@ export default function App() {
   if (state.phase === 'briefing') {
     return (
       <main className="briefing-shell">
-        <section className="briefing-hero" aria-labelledby="game-title">
-          <div className="briefing-visual" aria-hidden="true">
-            <img src={`${import.meta.env.BASE_URL}images/dc9-game-ready-first-officer.png`} alt="" />
-            <div className="briefing-visual__label">DC-9-32 first-officer station</div>
-          </div>
-
-          <div className="briefing-panel">
-            <p className="briefing-route">DC-9-32 · First-Officer onboarding</p>
-            <h1 id="game-title">{gameCopy.title}</h1>
-            <p className="lede">
-              Take the right seat and complete the Final Flight Log.
-            </p>
-
-            <button
-              type="button"
-              className="primary-button primary-button--large"
-              disabled={dc9EntryStage !== 'idle'}
-              onClick={() => setDc9EntryStage('fade-out')}
-            >
-              Start Game
-            </button>
-          </div>
-        </section>
+        <GameIntro reducedMotion={reducedMotion} onComplete={beginDc9Entry} />
         {dc9EntryStage !== 'idle' && <Dc9EntryTransition stage={dc9EntryStage} reducedMotion={reducedMotion} onFadeInComplete={finishDc9Entry} />}
       </main>
     )
