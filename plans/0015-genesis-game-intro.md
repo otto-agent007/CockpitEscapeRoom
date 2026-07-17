@@ -260,13 +260,13 @@ Commit: `test: cover game intro controls and fallbacks`
 - Consumes: `/mnt/2TBHDD/Downloads/IntroAudio.mp3`.
 - Produces: browser-decodable 48 kHz stereo MP3 at the exact component URL `audio/intro-audio-53s.mp3`.
 
-- [ ] **Step 1: Record the immutable source hash**
+- [x] **Step 1: Record the immutable source hash**
 
 Run: `sha256sum /mnt/2TBHDD/Downloads/IntroAudio.mp3`
 
 Record the hash and byte count in `public/audio/README.md`.
 
-- [ ] **Step 2: Confirm or regenerate the cut without modifying the source**
+- [x] **Step 2: Confirm or regenerate the cut without modifying the source**
 
 Use the installed GStreamer decoder and LAME encoder through an accurate bounded seek. The pipeline is paused before setting the `0..53 seconds` segment, then played through EOS so the output is finalized cleanly:
 
@@ -302,7 +302,7 @@ PY
 
 If the Task 1 prerequisite already produced an in-tolerance file, retain it. Do not use a wall-clock timeout or `identity eos-after`; the installed GStreamer 1.24.2 build did not honor that EOS property during measured decoding.
 
-- [ ] **Step 3: Verify the output boundary**
+- [x] **Step 3: Verify the output boundary**
 
 Run:
 
@@ -315,17 +315,17 @@ gst-discoverer-1.0 public/audio/intro-audio-53s.mp3 | rg 'Duration|audio/mpeg|ra
 
 Expected: MPEG Layer III audio, nonzero bytes, a stable SHA-256 hash, 48 kHz stereo, and duration between `0:00:52.900000000` and `0:00:53.100000000`. The Task 3 browser metadata test independently verifies browser decoding and `networkState`.
 
-- [ ] **Step 4: Document provenance and controls**
+- [x] **Step 4: Document provenance and controls**
 
 Update `public/audio/README.md` with source path/hash, output hash, trim duration, GStreamer pipeline, and playback constraints. Add an owner-supplied intro-audio row to `LICENSES/ASSET_MANIFEST.md` stating private CockpitEscapeRoom use and first-53-second modification.
 
-- [ ] **Step 5: Run the opening audio browser test**
+- [x] **Step 5: Run the opening audio browser test**
 
-Run: `npm run test:e2e -- e2e/smoke.spec.ts -g "game intro uses the deployable audio"`
+Run: `npm run test:e2e -- e2e/smoke.spec.ts -g "deployable 53-second audio"`
 
 Expected: PASS with duration in tolerance and `networkState !== HTMLMediaElement.NETWORK_NO_SOURCE`.
 
-- [ ] **Step 6: Update Progress and commit Task 4**
+- [x] **Step 6: Update Progress and commit Task 4**
 
 Commit: `assets: add trimmed game intro audio`
 
@@ -411,7 +411,7 @@ For each failure, capture the exact command/browser evidence, identify one root 
 - [x] Task 1 — Immutable intro timeline.
 - [x] Task 2 — Intro launch, media clock, and one-shot handoff.
 - [x] Task 3 — Audio failure, cue boundaries, controls, and responsive paths.
-- [ ] Task 4 — Trimmed audio asset and provenance.
+- [x] Task 4 — Trimmed audio asset and provenance.
 - [ ] Task 5 — Full browser gate, review, and evidence.
 
 ## Discoveries
