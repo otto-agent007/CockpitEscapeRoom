@@ -10,7 +10,7 @@ GameIntro uses native audio, a media/fallback clock, the 320 x 224 placeholder C
 This ExecPlan covers the Canvas runtime, placeholder animatic, final cinematic assets, final scene choreography, and removal of the temporary legacy-intro switch. It excludes cockpit changes, mobile-specific composition, and downstream game chapters.
 
 ## Progress
-- [ ] Runtime and placeholder animatic complete (implementation is present; actual-browser runtime gate remains blocked by local Chromium provisioning)
+- [ ] Runtime and placeholder animatic complete (implementation and the full 27-case Chromium suite are green in draft-PR CI; representative captures, an unattended 53.04-second playback, and owner visual approval remain open)
 - [ ] Cinematic assets approved
 - [ ] Final scenes and DC-9 unlock transition approved
 - [ ] Full validation and owner visual gate complete
@@ -42,6 +42,13 @@ Repeat review, focused repair, validation, and remaining-delta review. Stop afte
 
 ## Evidence
 Record commands, counts, screenshots, durations, hashes, preview URLs, and unresolved findings here as work proceeds.
+
+### 2026-07-20 draft-PR Chromium validation
+
+- Draft PR #49 published the reviewed 19-file intro tree at GitHub commit `b5b89a3f297920c030f13476699346510d13591d` on branch `agent/tmb2-intro-runtime`, based on `main` commit `40c4f34f83d1fb6f7952e84f542afdeb3ecedf94`.
+- GitHub Actions CI run 131 (`29709058449`) completed successfully. `quality` passed dependency install, `npm run check`, and `npm run assets:check`.
+- `browser-smoke` installed Playwright Chromium and passed the full `npm run test:e2e` command. The same suite selected 27 Chromium cases in local launch attempts; CI executed it successfully, including the intro asset gate/retry, timeline and loop-reset assertions, pointer/Enter/Space/Escape/gamepad Start paths, reduced-motion and integer-geometry checks, audio fallback/retry, spoiler guard, and existing DC-9 transition contract.
+- This closes the prior browser-execution blocker. The CI workflow did not create the 12 representative cue screenshots, and it did not supply owner visual approval or a separately observed unattended 53.04-second playback; those gates remain open and the milestone checkbox stays unchecked.
 
 ### 2026-07-19 untouched baseline
 - Pre-edit inspection found a clean task worktree on branch `agent/tmb2-intro-runtime` at starting HEAD `0afc6b5` (`chore: ignore local worktrees`); no unrelated user changes were present or overwritten. Recent context: `40c4f34` merged the Airbus radio/thrust alignment PR, preceded by `ba2a6f1` and `387395a` alignment/proof commits.
@@ -87,4 +94,4 @@ Record commands, counts, screenshots, durations, hashes, preview URLs, and unres
 - Focused Playwright built and served, selected 10 Chromium tests, and exited 1 in 8.23 seconds because every case stopped at the same missing Chromium executable before its body. No browser or visual claim is added; the actual-browser/owner gate remains open.
 
 ## Outcome and handoff
-The broad-review runtime repairs are executable under Vitest and build/type/lint validation. Actual-browser behavior, responsive geometry, screenshots, uninterrupted looping, and the owner visual gate remain open until a Chromium-capable environment runs the retained Playwright coverage.
+The broad-review runtime repairs pass Vitest, lint, typecheck, production build, asset validation, and the full Chromium Playwright suite in draft-PR CI. Representative cue screenshots, a separately observed uninterrupted 53.04-second playback, and the owner visual gate remain open before final acceptance and removal of the legacy comparison path.

@@ -1,5 +1,12 @@
 # Test report
 
+## 2026-07-20 TMB2 draft-PR Chromium validation
+
+- Draft PR #49 published the reviewed 19-file intro tree at GitHub commit `b5b89a3f297920c030f13476699346510d13591d`, based on `main` commit `40c4f34f83d1fb6f7952e84f542afdeb3ecedf94`.
+- GitHub Actions CI run 131 (`29709058449`) completed successfully. The `quality` job passed `npm ci`, `npm run check`, and `npm run assets:check`.
+- The `browser-smoke` job successfully installed Playwright Chromium and passed `npm run test:e2e`. The same full suite selected 27 Chromium cases locally; CI executed it to a successful conclusion, covering the retained intro asset gate/retry, cue/loop reset, pointer/keyboard/gamepad input, reduced-motion and integer-geometry checks, audio retry, spoiler guard, and existing DC-9 handoff alongside the repository's cockpit flows.
+- This closes the environment-blocked browser-execution gate. No representative cue screenshots were captured by the workflow, and a truly unattended 53.04-second playback plus owner visual approval were not performed; those visual/experiential gates remain open.
+
 ## 2026-07-19 TMB2 retry-race and publishing-hygiene re-review
 
 - Replaced the eager retry switch with the tested `runIntroAudioRetry` lifecycle consumed by `GameIntro`. Runtime stays on the monotonic fallback clock while `audio.play()` is pending. A guarded success resamples current fallback time, seeks media to that time, then switches the authoritative runtime to media and clears the failure UI in the same promise turn.
