@@ -166,6 +166,36 @@ a:focus-visible {
   color: var(--intro-ink);
 }
 
+.game-intro__stage-shell {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+.game-intro__stage {
+  position: absolute;
+  width: 320px;
+  height: 224px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  transform-origin: top left;
+}
+
+.game-intro__press-start {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: 12%;
+  transform: translateX(-50%);
+  border: 0;
+  background: transparent;
+  color: #fff5c4;
+  font: 900 14px/1 "Courier New", monospace;
+  animation: intro-start-blink 900ms steps(1, end) infinite;
+  cursor: pointer;
+}
+
 .game-intro::before,
 .game-intro::after {
   position: absolute;
@@ -428,6 +458,10 @@ a:focus-visible {
   to { clip-path: inset(0); letter-spacing: -0.055em; }
 }
 
+@keyframes intro-start-blink {
+  50% { opacity: 0; }
+}
+
 .briefing-panel {
   align-self: center;
   width: min(100%, 34rem);
@@ -465,6 +499,17 @@ p {
 .lede {
   color: #eef0e6;
   font-size: clamp(1.08rem, 2.1vw, 1.35rem);
+}
+
+.briefing-asset-status {
+  margin: 0.7rem 0 0;
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.briefing-asset-error .text-button {
+  margin-top: 0.35rem;
 }
 
 .mode-grid,
@@ -2579,6 +2624,9 @@ progress {
   .game-intro__image,
   .game-intro__copy h1 {
     animation: none !important;
+  }
+  .game-intro__press-start {
+    animation: none;
   }
   *,
   *::before,

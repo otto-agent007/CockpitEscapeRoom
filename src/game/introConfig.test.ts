@@ -1,26 +1,42 @@
 import { describe, expect, it } from 'vitest'
-import { INTRO_DURATION_SECONDS, getIntroCue, introCues } from './introConfig'
+import {
+  INTRO_DURATION_SECONDS,
+  START_AVAILABLE_SECONDS,
+  getIntroScene,
+  introScenes,
+} from './introConfig'
 
-describe('intro timeline', () => {
-  it('defines the approved 53-second cue sequence', () => {
-    expect(INTRO_DURATION_SECONDS).toBe(53)
-    expect(introCues.map((cue) => cue.startSeconds)).toEqual([0, 4, 16, 27, 38, 49])
-    expect(introCues.map((cue) => cue.id)).toEqual(['boot', 'dc9', 'key', 'hat', 'airbus', 'title'])
+describe('TMB2 intro timeline', () => {
+  it('freezes the approved 53.04-second scene order', () => {
+    expect(INTRO_DURATION_SECONDS).toBe(53.04)
+    expect(START_AVAILABLE_SECONDS).toBe(6)
+    expect(introScenes.map(({ id, startSeconds, endSeconds }) => ({ id, startSeconds, endSeconds }))).toEqual([
+      { id: 'tmb2-ident', startSeconds: 0, endSeconds: 6 },
+      { id: 'duffel', startSeconds: 6, endSeconds: 12 },
+      { id: 'key-escape', startSeconds: 12, endSeconds: 16 },
+      { id: 'runway', startSeconds: 16, endSeconds: 22 },
+      { id: 'ballpark', startSeconds: 22, endSeconds: 28 },
+      { id: 'city-finance', startSeconds: 28, endSeconds: 35 },
+      { id: 'sky', startSeconds: 35, endSeconds: 42 },
+      { id: 'final-pursuit', startSeconds: 42, endSeconds: 48 },
+      { id: 'catch', startSeconds: 48, endSeconds: 51 },
+      { id: 'loop-reset', startSeconds: 51, endSeconds: 53.04 },
+    ])
   })
 
-  it('selects cues at their exact boundaries', () => {
-    expect(getIntroCue(0).id).toBe('boot')
-    expect(getIntroCue(15.999).id).toBe('dc9')
-    expect(getIntroCue(16).id).toBe('key')
-    expect(getIntroCue(52.999).id).toBe('title')
+  it('selects half-open scene boundaries deterministically', () => {
+    expect(getIntroScene(-1).id).toBe('tmb2-ident')
+    expect(getIntroScene(5.999).id).toBe('tmb2-ident')
+    expect(getIntroScene(6).id).toBe('duffel')
+    expect(getIntroScene(52.999).id).toBe('loop-reset')
+    expect(getIntroScene(53.04).id).toBe('tmb2-ident')
+    expect(getIntroScene(Number.NaN).id).toBe('tmb2-ident')
   })
 
-  it('clamps invalid or negative time to the boot cue', () => {
-    expect(getIntroCue(-1).id).toBe('boot')
-    expect(getIntroCue(Number.NaN).id).toBe('boot')
-  })
-
-  it('contains no protected reward spoiler', () => {
-    expect(JSON.stringify(introCues)).not.toMatch(/tesla|model y|flight mode|mars/i)
+  it('has contiguous coverage and no protected reward spoiler', () => {
+    introScenes.forEach((scene, index) => {
+      if (index > 0) expect(scene.startSeconds).toBe(introScenes[index - 1]!.endSeconds)
+    })
+    expect(JSON.stringify(introScenes)).not.toMatch(/tesla|model y|flight mode|mars/i)
   })
 })
