@@ -95,6 +95,49 @@ async function openGameIntro(page: Page) {
   return intro
 }
 
+test('game intro waits for every cinematic image to decode before playback', async ({ page }) => {
+  await page.addInitScript(() => {
+    const decode = HTMLImageElement.prototype.decode
+    HTMLImageElement.prototype.decode = function controlledDecode() {
+      return new Promise<void>((resolve, reject) => {
+        window.addEventListener('release-intro-images', () => {
+          void decode.call(this).then(resolve, reject)
+        }, { once: true })
+      })
+    }
+  })
+
+  await page.goto('/')
+  const startGame = page.getByRole('button', { name: 'Start Game' })
+  await expect(startGame).toBeDisabled()
+  await expect(page.getByText('Preparing the TMB2 cinematic…')).toBeVisible()
+  await page.evaluate(() => window.dispatchEvent(new Event('release-intro-images')))
+  await expect(startGame).toBeEnabled()
+  await startGame.click()
+  await expect(page.getByRole('region', { name: 'Game intro' })).toBeVisible()
+})
+
+test('game intro exposes production retry after a named image decode failure', async ({ page }) => {
+  await page.addInitScript(() => {
+    let rejectRunSheetOnce = true
+    HTMLImageElement.prototype.decode = function controlledDecode() {
+      if (rejectRunSheetOnce && this.src.includes('/popt/run-sheet.png')) {
+        rejectRunSheetOnce = false
+        return Promise.reject(new Error('decode rejected for test'))
+      }
+      return Promise.resolve()
+    }
+  })
+
+  await page.goto('/')
+  const startGame = page.getByRole('button', { name: 'Start Game' })
+  await expect(startGame).toBeDisabled()
+  await expect(page.getByRole('status')).toContainText('popt-run-sheet')
+  await expect(page.getByRole('status')).toContainText('images/intro/popt/run-sheet.png')
+  await page.getByRole('button', { name: 'Retry cinematic assets' }).click()
+  await expect(startGame).toBeEnabled()
+})
+
 test('opening stays spoiler-safe, preloads the DC-9, and fades into the cockpit', async ({ page }) => {
   test.setTimeout(45_000)
   const dc9Request = page.waitForRequest(
@@ -111,8 +154,9 @@ test('opening stays spoiler-safe, preloads the DC-9, and fades into the cockpit'
 
   await page.getByRole('button', { name: 'Start Game' }).click()
   const intro = page.getByRole('region', { name: 'Game intro' })
-  await expect(intro).toHaveAttribute('data-intro-cue', 'boot')
-  await expect(intro.getByText('A FAMILY CREW PRODUCTION')).toBeVisible()
+  await expect(intro).toHaveAttribute('data-intro-cue', 'tmb2-ident')
+  await expect(intro.locator('canvas')).toHaveAttribute('width', '320')
+  await expect(intro.locator('canvas')).toHaveAttribute('height', '224')
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toHaveCount(0)
   await intro.getByRole('button', { name: 'Skip Intro' }).click()
   await expect(page.locator('.dc9-entry-transition')).toHaveAttribute('data-stage', /fade-out|waiting-for-cockpit|fade-in/)
@@ -121,7 +165,7 @@ test('opening stays spoiler-safe, preloads the DC-9, and fades into the cockpit'
   await expect(page.locator('.dc9-entry-transition')).toHaveCount(0, { timeout: 5_000 })
 })
 
-test('game intro follows media cue boundaries and completes once', async ({ page }) => {
+test('game intro follows media cue boundaries, loops on ended, and starts on request', async ({ page }) => {
   const intro = await openGameIntro(page)
   const audio = page.locator('audio')
   await audio.evaluate(async (media) => {
@@ -132,11 +176,15 @@ test('game intro follows media cue boundaries and completes once', async ({ page
     })
   })
 
+  await expect(intro.locator('canvas')).toHaveAttribute('width', '320')
+  await expect(intro.locator('canvas')).toHaveAttribute('height', '224')
+  await expect(intro.getByRole('button', { name: 'Start game' })).toHaveCount(0)
+
   const cues = [
-    { time: 16, id: 'key', copy: 'LEGACY UNLOCKED' },
-    { time: 27, id: 'hat', copy: 'THE JOURNEY CONTINUES' },
-    { time: 38, id: 'airbus', copy: 'FROM FIRST OFFICER TO CAPTAIN' },
-    { time: 49, id: 'title', copy: 'MISSION READY' },
+    { time: 6, id: 'duffel' },
+    { time: 16, id: 'runway' },
+    { time: 28, id: 'city-finance' },
+    { time: 48, id: 'catch' },
   ] as const
 
   for (const cue of cues) {
@@ -145,18 +193,23 @@ test('game intro follows media cue boundaries and completes once', async ({ page
       media.dispatchEvent(new Event('timeupdate'))
     }, cue.time)
     await expect(intro).toHaveAttribute('data-intro-cue', cue.id)
-    await expect(intro.getByText(cue.copy)).toBeVisible()
+    await expect(intro.locator('canvas')).toHaveAttribute('data-scene', cue.id)
   }
+  await expect(intro.getByRole('button', { name: 'Start game' })).toBeVisible()
 
   await audio.evaluate((media) => {
-    media.dispatchEvent(new Event('ended'))
+    Object.defineProperty(media, 'currentTime', { configurable: true, writable: true, value: 53.04 })
     media.dispatchEvent(new Event('ended'))
   })
+  await expect(intro).toHaveAttribute('data-intro-cue', 'tmb2-ident')
+  await expect(intro.getByRole('button', { name: 'Start game' })).toBeVisible()
+  await expect(page.locator('.dc9-entry-transition')).toHaveCount(0)
+
+  await intro.getByRole('button', { name: 'Start game' }).click()
   await expect(page.locator('.dc9-entry-transition')).toHaveCount(1)
-  await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toBeVisible({ timeout: 15_000 })
 })
 
-test('game intro exposes working sound controls and Escape skip', async ({ page }) => {
+test('game intro exposes working sound controls and gates keyboard start aliases', async ({ page }) => {
   const intro = await openGameIntro(page)
   const audio = page.locator('audio')
 
@@ -165,8 +218,80 @@ test('game intro exposes working sound controls and Escape skip', async ({ page 
   await intro.getByLabel('Intro volume').fill('0.35')
   await expect.poll(() => audio.evaluate((media) => media.volume)).toBeCloseTo(0.35)
 
-  await page.keyboard.press('Escape')
+  await page.keyboard.press('Enter')
+  await expect(page.locator('.dc9-entry-transition')).toHaveCount(0)
+
+  await audio.evaluate((media) => {
+    media.currentTime = 6
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  const muteButton = intro.getByRole('button', { name: 'Unmute intro' })
+  await muteButton.press('Enter')
+  await expect(audio).toHaveJSProperty('muted', false)
+  await expect(page.locator('.dc9-entry-transition')).toHaveCount(0)
+  await intro.getByRole('button', { name: 'Mute intro' }).press('Space')
+  await expect(audio).toHaveJSProperty('muted', true)
+  await expect(page.locator('.dc9-entry-transition')).toHaveCount(0)
+  await intro.getByLabel('Intro volume').press('Space')
+  await expect(page.locator('.dc9-entry-transition')).toHaveCount(0)
+
+  for (const key of ['Enter', 'Space', 'Escape']) {
+    await page.evaluate(() => window.localStorage.clear())
+    const currentIntro = await openGameIntro(page)
+    const currentAudio = page.locator('audio')
+    await currentAudio.evaluate((media) => {
+      media.currentTime = 6
+      media.dispatchEvent(new Event('timeupdate'))
+    })
+    await page.keyboard.press(key)
+    await expect(page.locator('.dc9-entry-transition')).toHaveCount(1)
+    await expect(currentIntro).toHaveCount(0)
+  }
+})
+
+test('game intro Start button retains native keyboard activation', async ({ page }) => {
+  const intro = await openGameIntro(page)
+  await page.locator('audio').evaluate((media) => {
+    media.currentTime = 6
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+
+  await intro.getByRole('button', { name: 'Start game' }).press('Enter')
   await expect(page.locator('.dc9-entry-transition')).toHaveCount(1)
+})
+
+test('game intro accepts a newly pressed standard gamepad Start button', async ({ page }) => {
+  await page.addInitScript(() => {
+    const buttons = Array.from({ length: 10 }, () => ({ pressed: false, touched: false, value: 0 }))
+    const gamepad = {
+      axes: [],
+      buttons,
+      connected: true,
+      hapticActuators: [],
+      id: 'Intro test controller',
+      index: 0,
+      mapping: 'standard',
+      timestamp: 0,
+      vibrationActuator: null,
+    }
+    Object.defineProperty(navigator, 'getGamepads', {
+      configurable: true,
+      value: () => [gamepad],
+    })
+    window.addEventListener('test-gamepad-start-at-six', () => {
+      const audio = document.querySelector('audio')
+      if (audio) {
+        audio.currentTime = 6
+        audio.dispatchEvent(new Event('timeupdate'))
+      }
+      buttons[9].pressed = true
+    })
+  })
+
+  const intro = await openGameIntro(page)
+  await page.evaluate(() => window.dispatchEvent(new Event('test-gamepad-start-at-six')))
+  await expect(page.locator('.dc9-entry-transition')).toHaveCount(1)
+  await expect(intro).toHaveCount(0)
 })
 
 test('game intro continues silently and retries rejected audio', async ({ page }) => {
@@ -200,6 +325,27 @@ test('game intro honors reduced motion and fits required viewports', async ({ pa
     { width: 1440, height: 900 },
   ]) {
     await page.setViewportSize(viewport)
+    const scale = Math.max(1, Math.floor(Math.min(viewport.width / 320, viewport.height / 224)))
+    const expectedGeometry = {
+      left: Math.floor((viewport.width - 320 * scale) / 2),
+      top: Math.floor((viewport.height - 224 * scale) / 2),
+      width: 320 * scale,
+      height: 224 * scale,
+    }
+    const readStageGeometry = () => intro.locator('.game-intro__stage').evaluate((stage) => {
+      const stageBounds = stage.getBoundingClientRect()
+      const shellBounds = stage.parentElement!.getBoundingClientRect()
+      return {
+        left: stageBounds.left - shellBounds.left,
+        top: stageBounds.top - shellBounds.top,
+        width: stageBounds.width,
+        height: stageBounds.height,
+      }
+    })
+    await expect.poll(readStageGeometry).toEqual(expectedGeometry)
+    const stageGeometry = await readStageGeometry()
+    expect(Object.values(stageGeometry).every(Number.isInteger)).toBe(true)
+    await expect(intro.locator('.game-intro__stage')).toHaveCSS('transform-origin', '0px 0px')
     const bounds = await intro.locator('.game-intro__controls').boundingBox()
     expect(bounds).not.toBeNull()
     expect(bounds!.x).toBeGreaterThanOrEqual(0)
