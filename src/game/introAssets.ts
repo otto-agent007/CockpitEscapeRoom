@@ -11,7 +11,7 @@ export type IntroAssetLoadState =
   | { status: 'ready'; attempt: number }
   | { status: 'error'; attempt: number; failure: IntroAssetFailure }
 
-export type IntroPlaybackMode = 'blocked' | 'cinematic' | 'legacy'
+export type IntroPlaybackMode = 'blocked' | 'cinematic'
 
 export class IntroAssetPreloadError extends Error {
   readonly assetId: string
@@ -53,14 +53,8 @@ export function failIntroAssetLoad(state: IntroAssetLoadState, error: unknown): 
   return { status: 'error', attempt: state.attempt, failure }
 }
 
-export function getIntroPlaybackMode(
-  state: IntroAssetLoadState,
-  options: { development: boolean; legacyRequested: boolean },
-): IntroPlaybackMode {
-  if (options.development && options.legacyRequested) return 'legacy'
-  if (state.status === 'ready') return 'cinematic'
-  if (options.development && state.status === 'error') return 'legacy'
-  return 'blocked'
+export function getIntroPlaybackMode(state: IntroAssetLoadState): IntroPlaybackMode {
+  return state.status === 'ready' ? 'cinematic' : 'blocked'
 }
 
 export function validateIntroAssets(assets: readonly IntroAsset[]): void {

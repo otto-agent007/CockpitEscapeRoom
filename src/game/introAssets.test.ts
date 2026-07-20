@@ -96,13 +96,13 @@ describe('intro asset contract', () => {
     await expect(preload).rejects.toThrow(new RegExp(`${introAssets[1].id}.*${introAssets[1].path}`))
   })
 
-  it('blocks normal playback until ready and limits failure fallback to development', () => {
+  it('blocks playback until every production asset is ready', () => {
     const initial = createIntroAssetLoadState()
     const loading = beginIntroAssetLoad(initial)
-    expect(getIntroPlaybackMode(loading, { development: false, legacyRequested: false })).toBe('blocked')
+    expect(getIntroPlaybackMode(loading)).toBe('blocked')
 
     const ready = completeIntroAssetLoad(loading)
-    expect(getIntroPlaybackMode(ready, { development: false, legacyRequested: false })).toBe('cinematic')
+    expect(getIntroPlaybackMode(ready)).toBe('cinematic')
 
     const failure = new IntroAssetPreloadError(introAssets[0], new Error('decode rejected'))
     const failed = failIntroAssetLoad(loading, failure)
@@ -110,8 +110,6 @@ describe('intro asset contract', () => {
       status: 'error',
       failure: { assetId: introAssets[0].id, assetPath: introAssets[0].path },
     })
-    expect(getIntroPlaybackMode(failed, { development: false, legacyRequested: false })).toBe('blocked')
-    expect(getIntroPlaybackMode(failed, { development: true, legacyRequested: false })).toBe('legacy')
-    expect(getIntroPlaybackMode(loading, { development: true, legacyRequested: true })).toBe('legacy')
+    expect(getIntroPlaybackMode(failed)).toBe('blocked')
   })
 })

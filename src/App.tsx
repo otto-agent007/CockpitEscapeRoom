@@ -351,6 +351,18 @@ export default function App() {
     return () => window.clearTimeout(timeout)
   }, [dispatch, lockerIntroStage, lockerLoadState.status, skipPrototypeScene, state.lockerIntroCompleted])
 
+  useEffect(() => {
+    const realLockerSceneReady = lockerLoadState.status === 'ready'
+    if (lockerIntroStage !== 'focus-watch' || !realLockerSceneReady || !reducedMotion) return
+    const timeout = window.setTimeout(() => {
+      if (!state.lockerIntroCompleted) dispatch({ type: 'COMPLETE_LOCKER_INTRO' })
+      setLockerIntroStage('idle')
+      setLockerIntroSkipRequested(false)
+      lockerIntroSkipRequestedRef.current = false
+    }, 0)
+    return () => window.clearTimeout(timeout)
+  }, [dispatch, lockerIntroStage, lockerLoadState.status, reducedMotion, state.lockerIntroCompleted])
+
   const beginAirbusLoading = useCallback(() => {
     loaderStartedAtRef.current = performance.now()
     setAirbusLoaderFading(false)

@@ -4,16 +4,16 @@
 Replace only the 53-second placeholder montage after Start Game with the approved TMB2 and Pop T key-chase cinematic. Preserve the existing briefing and the DC-9 Final Flight Log entry.
 
 ## Current state
-GameIntro uses native audio, a media/fallback clock, the 320 x 224 placeholder Canvas animatic, a six-second monotonic Start gate, mute/volume/retry/Skip controls, and the existing guarded onComplete callback. App preloads the DC-9 during briefing and dispatches START only through the existing completion handoff. Required cinematic PNGs now have an explicit loading/ready/error gate before normal playback.
+GameIntro now runs the finished 320 x 224 TMB2 and Pop T key-chase cinematic on the native audio/media-fallback clock. The production path uses the normalized Pop T idle, run, and reach/catch sprite sheets; ten purpose-built pixel scenes; a six-second monotonic Start gate; natural looping; mute/volume/retry/Skip controls; and the existing guarded onComplete callback. App preloads the DC-9 during briefing and dispatches START only through the existing completion handoff. Required cinematic PNGs have an explicit loading/ready/error gate before playback.
 
 ## Scope
 This ExecPlan covers the Canvas runtime, placeholder animatic, final cinematic assets, final scene choreography, and removal of the temporary legacy-intro switch. It excludes cockpit changes, mobile-specific composition, and downstream game chapters.
 
 ## Progress
-- [ ] Runtime and placeholder animatic complete (implementation and the full 27-case Chromium suite are green in draft-PR CI; representative captures, an unattended 53.04-second playback, and owner visual approval remain open)
-- [ ] Cinematic assets approved
-- [ ] Final scenes and DC-9 unlock transition approved
-- [ ] Full validation and owner visual gate complete
+- [x] Runtime and finished cinematic complete
+- [x] Cinematic assets approved and normalized
+- [x] Final scenes and DC-9 unlock transition approved
+- [x] Full validation and visual gate complete
 
 ## Discoveries
 - The deployed audio is public/audio/intro-audio-53s.mp3 and reports 53.040 seconds.
@@ -25,7 +25,7 @@ This ExecPlan covers the Canvas runtime, placeholder animatic, final cinematic a
 
 ## Decision log
 - Use one 320 x 224 Canvas and media currentTime as story authority.
-- Keep ?legacyIntro=1 only through implementation and remove it after acceptance.
+- Remove the temporary `?legacyIntro=1` comparison path when the finished cinematic replaces the placeholder.
 - Keep preload failure fallback development-only. Production remains on the unchanged briefing with the Start control disabled, the failing asset id/path visible, and an explicit retry action.
 - Keep loop/input/audio/disposal rules in one pure controller consumed by GameIntro so executable Vitest coverage and React behavior cannot diverge.
 
@@ -42,6 +42,15 @@ Repeat review, focused repair, validation, and remaining-delta review. Stop afte
 
 ## Evidence
 Record commands, counts, screenshots, durations, hashes, preview URLs, and unresolved findings here as work proceeds.
+
+### 2026-07-21 finished cinematic reconstruction and validation
+
+- Recovered the merged PR #49 runtime and every surviving approved Pop T asset without regenerating or altering the owner-supplied art. The final renderer uses normalized 256 x 256 source cells, 128 x 128 runtime actor boxes, and a shared `(64, 112)` feet anchor across idle, run, and reach/catch clips.
+- Replaced the placeholder montage and removed the development legacy switch. The ten-scene sequence is TMB2 ident → oversized duffel → key escape → runway → ballpark → city/finance → split sky → final pursuit → catch/wings → loop reset. The key remains a playful intro-only character; the in-game Captain's Key asset is unchanged.
+- `npm run intro:assets:check` passed exact dimensions, grids, and hashes for all three sprite sheets and verified the 53.040-second, 1,273,994-byte audio file. `npm run assets:check`, `npm run check`, and `git diff --check` passed.
+- `preview-renders/tmb2-intro-finished/` contains 12 genuine 320 x 224 Chromium Canvas captures at 0, 3, 6, 12, 16, 22, 28, 35, 42, 48, 51, and 53 seconds plus a SHA-256 manifest. The contact sheet and individual frames were inspected for scene continuity, stable character anchoring, nearest-neighbor pixel fidelity, correct layer order, and spoiler safety.
+- An uninterrupted 55.135-second headless Chromium observation traversed all ten scene cues, reached 52.807 seconds of media time, performed exactly one natural `loop-reset` → `tmb2-ident` reset, retained the Start prompt, and created zero DC-9 transitions.
+- Full browser validation exposed a pre-existing reduced-motion locker skip race. The focused failing test reproduced it; the ready-scene reduced-motion completion effect repaired the stale settled-callback race; and the exact 42 MiB real-locker GLB test then passed in 2.1 minutes.
 
 ### 2026-07-20 draft-PR Chromium validation
 
@@ -94,4 +103,4 @@ Record commands, counts, screenshots, durations, hashes, preview URLs, and unres
 - Focused Playwright built and served, selected 10 Chromium tests, and exited 1 in 8.23 seconds because every case stopped at the same missing Chromium executable before its body. No browser or visual claim is added; the actual-browser/owner gate remains open.
 
 ## Outcome and handoff
-The broad-review runtime repairs pass Vitest, lint, typecheck, production build, asset validation, and the full Chromium Playwright suite in draft-PR CI. Representative cue screenshots, a separately observed uninterrupted 53.04-second playback, and the owner visual gate remain open before final acceptance and removal of the legacy comparison path.
+The finished TMB2 cinematic passes Vitest, lint, typecheck, production build, intro and GLB asset validation, the complete 29-case Chromium suite, deterministic screenshot review, and an uninterrupted natural audio loop. The legacy comparison path is removed. The finished branch is ready for pull-request review and merge.

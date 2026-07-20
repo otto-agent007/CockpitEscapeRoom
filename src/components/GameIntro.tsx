@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { gameCopy, PROJECT_NAME } from '../game/config'
+import { gameCopy } from '../game/config'
 import {
   beginIntroAssetLoad,
   completeIntroAssetLoad,
@@ -31,64 +31,8 @@ interface GameIntroProps {
   onComplete: () => void
 }
 
-type LegacyIntroCue = {
-  id: 'boot' | 'dc9' | 'key' | 'hat' | 'airbus' | 'title'
-  startSeconds: number
-  image: string | null
-  caption: string
-  treatment: 'boot' | 'push' | 'wipe' | 'poster' | 'panel' | 'title'
-  objectPosition: string
-}
-
 const DEFAULT_VOLUME = 0.72
 const EMPTY_INTRO_ASSETS: IntroRenderAssets = new Map()
-
-const legacyIntroCues = [
-  { id: 'boot', startSeconds: 0, image: null, caption: 'A FAMILY CREW PRODUCTION', treatment: 'boot', objectPosition: 'center' },
-  { id: 'dc9', startSeconds: 4, image: 'images/dc9-game-ready-first-officer.png', caption: 'THE FINAL FLIGHT LOG', treatment: 'push', objectPosition: '74% center' },
-  { id: 'key', startSeconds: 16, image: 'images/captains-key-celebration.png', caption: 'LEGACY UNLOCKED', treatment: 'wipe', objectPosition: 'center' },
-  { id: 'hat', startSeconds: 27, image: 'images/captains-hat-celebration.png', caption: 'THE JOURNEY CONTINUES', treatment: 'poster', objectPosition: 'center' },
-  { id: 'airbus', startSeconds: 38, image: 'images/a320-game-ready-captain.png', caption: 'FROM FIRST OFFICER TO CAPTAIN', treatment: 'panel', objectPosition: 'center' },
-  { id: 'title', startSeconds: 49, image: null, caption: 'MISSION READY', treatment: 'title', objectPosition: 'center' },
-] as const satisfies readonly LegacyIntroCue[]
-
-function getLegacyIntroCue(timeSeconds: number): LegacyIntroCue {
-  const safeTime = Number.isFinite(timeSeconds) ? Math.max(0, timeSeconds) : 0
-  let activeCue: LegacyIntroCue = legacyIntroCues[0]
-  for (const cue of legacyIntroCues) {
-    if (safeTime < cue.startSeconds) break
-    activeCue = cue
-  }
-  return activeCue
-}
-
-function LegacyGameIntro({ cue }: { cue: LegacyIntroCue }) {
-  return (
-    <div key={cue.id} className={`game-intro__beat game-intro__beat--${cue.treatment}`}>
-      {cue.image ? (
-        <img
-          className="game-intro__image"
-          src={`${import.meta.env.BASE_URL}${cue.image}`}
-          style={{ objectPosition: cue.objectPosition }}
-          alt=""
-          aria-hidden="true"
-        />
-      ) : null}
-      <div className="game-intro__color" aria-hidden="true" />
-      <div className="game-intro__frame" aria-hidden="true" />
-      <div className="game-intro__copy">
-        {cue.id === 'title' ? (
-          <>
-            <h1>{PROJECT_NAME}</h1>
-            <p>{cue.caption}</p>
-          </>
-        ) : (
-          <h1>{cue.caption}</h1>
-        )}
-      </div>
-    </div>
-  )
-}
 
 export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
@@ -105,13 +49,7 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
   const [audioFailed, setAudioFailed] = useState(false)
   const [muted, setMuted] = useState(false)
   const [volume, setVolume] = useState(DEFAULT_VOLUME)
-  const legacyRequested = import.meta.env.DEV
-    && new URLSearchParams(window.location.search).get('legacyIntro') === '1'
-  const playbackMode = getIntroPlaybackMode(assetLoadState, {
-    development: import.meta.env.DEV,
-    legacyRequested,
-  })
-  const legacyIntro = playbackMode === 'legacy'
+  const playbackMode = getIntroPlaybackMode(assetLoadState)
   const cue = getIntroScene(timeSeconds)
 
   const syncRuntimeForRender = useCallback((runtime: IntroRuntimeState) => {
@@ -162,10 +100,7 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
   const startIntro = useCallback(() => {
     const audio = audioRef.current
     if (!audio) return
-    const currentPlaybackMode = getIntroPlaybackMode(assetLoadStateRef.current, {
-      development: import.meta.env.DEV,
-      legacyRequested,
-    })
+    const currentPlaybackMode = getIntroPlaybackMode(assetLoadStateRef.current)
     if (currentPlaybackMode === 'blocked') return
 
     runtimeRef.current = createIntroRuntimeState()
@@ -178,7 +113,7 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
     setAudioFailed(false)
     syncRuntimeForRender(runtimeRef.current)
     void playback.catch(markAudioFailed)
-  }, [legacyRequested, markAudioFailed, muted, syncRuntimeForRender, volume])
+  }, [markAudioFailed, muted, syncRuntimeForRender, volume])
 
   const retrySound = useCallback(() => {
     const audio = audioRef.current
@@ -262,8 +197,7 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
       runtimeRef.current = sample.state
       syncRuntimeForRender(sample.state)
       if (sample.didLoop) {
-        if (legacyIntro) completeIntro()
-        else resetLoop()
+        resetLoop()
       }
       if (isIntroRuntimeActive(runtimeRef.current)) {
         animationFrameRef.current = requestAnimationFrame(tick)
@@ -272,10 +206,10 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
 
     animationFrameRef.current = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(animationFrameRef.current)
-  }, [completeIntro, legacyIntro, resetLoop, started, syncRuntimeForRender])
+  }, [resetLoop, started, syncRuntimeForRender])
 
   useEffect(() => {
-    if (!started || legacyIntro) return
+    if (!started) return
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.repeat) return
       const isSpace = event.key === ' ' || event.code === 'Space'
@@ -291,10 +225,10 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [legacyIntro, requestStart, started])
+  }, [requestStart, started])
 
   useEffect(() => {
-    if (!started || legacyIntro) return
+    if (!started) return
 
     const hasPressedStart = () => Array.from(navigator.getGamepads?.() ?? [])
       .some((gamepad) => gamepad?.mapping === 'standard' && gamepad.buttons[9]?.pressed)
@@ -310,7 +244,7 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
 
     gamepadAnimationFrameRef.current = requestAnimationFrame(pollGamepad)
     return () => cancelAnimationFrame(gamepadAnimationFrameRef.current)
-  }, [legacyIntro, requestStart, started])
+  }, [requestStart, started])
 
   useEffect(() => {
     runtimeRef.current = activateIntroRuntime(runtimeRef.current)
@@ -321,22 +255,17 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
     }
   }, [])
 
-  const legacyCue = getLegacyIntroCue(timeSeconds)
-
   return (
     <>
       <audio
         ref={audioRef}
         preload="auto"
         src={`${import.meta.env.BASE_URL}audio/intro-audio-53s.mp3`}
-        onEnded={legacyIntro ? completeIntro : resetLoop}
+        onEnded={resetLoop}
         onError={markAudioFailed}
         onTimeUpdate={(event) => {
           const didLoop = updatePlaybackTime(event.currentTarget.currentTime)
-          if (didLoop) {
-            if (legacyIntro) completeIntro()
-            else resetLoop()
-          }
+          if (didLoop) resetLoop()
         }}
       />
 
@@ -370,7 +299,6 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
               <div className="briefing-asset-error">
                 <p id="intro-asset-status" className="briefing-asset-status" role="status" aria-live="polite">
                   Cinematic art failed: {assetLoadState.failure.assetId} ({assetLoadState.failure.assetPath}).
-                  {playbackMode === 'legacy' ? ' Development fallback ready.' : ''}
                 </p>
                 <button type="button" className="text-button" onClick={loadIntroAssets}>
                   Retry cinematic assets
@@ -381,20 +309,16 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
         </section>
       ) : (
         <section
-          className={`game-intro${legacyIntro ? ' game-intro--legacy' : ''}`}
+          className="game-intro"
           aria-label="Game intro"
-          data-intro-cue={legacyIntro ? legacyCue.id : cue.id}
+          data-intro-cue={cue.id}
           data-reduced-motion={reducedMotion ? 'true' : 'false'}
         >
-          {legacyIntro ? (
-            <LegacyGameIntro cue={legacyCue} />
-          ) : (
-            <div className="game-intro__stage-shell">
-              <IntroCanvas timeSeconds={timeSeconds} assets={assets} reducedMotion={reducedMotion} />
-            </div>
-          )}
+          <div className="game-intro__stage-shell">
+            <IntroCanvas timeSeconds={timeSeconds} assets={assets} reducedMotion={reducedMotion} />
+          </div>
 
-          {!legacyIntro && startAvailable ? (
+          {startAvailable ? (
             <button
               type="button"
               className="game-intro__press-start"

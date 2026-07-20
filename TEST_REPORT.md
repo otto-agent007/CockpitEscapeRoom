@@ -1,5 +1,16 @@
 # Test report
 
+## 2026-07-21 finished TMB2 cinematic intro
+
+- Replaced the generic still montage with one spoiler-safe 320 x 224 Canvas cinematic: TMB2 ident, oversized duffel, cartoon-key escape, runway, ballpark, city/finance, split sky, final pursuit, catch/wings, and loop reset. The production renderer uses the approved blonde Pop T sheets without regenerating them, with normalized 256 x 256 cells, a 128 x 128 runtime box, shared feet anchor, nearest-neighbor scaling, integer motion, and fixed backdrop/ground/actors/foreground/effects layering.
+- Removed `?legacyIntro=1` and its duplicate React path. Required assets still block playback until decoded and preserve production retry diagnostics. Start remains unavailable for the first six seconds, stays available across loops, and hands off exactly once through the existing DC-9 transition.
+- Added asset/choreography/sprite/evidence tests, exact deployable asset validation, and deterministic Chromium capture tooling. `preview-renders/tmb2-intro-finished/` contains 12 actual 320 x 224 PNGs and a SHA-256 manifest.
+- `npm run intro:assets:check` — pass: three exact sprite-sheet grid/hash contracts and the 53.040-second, 1,273,994-byte MP3 contract.
+- `npm run check` — pass: ESLint, TypeScript, 121/121 Vitest tests across 11 files, and the 58-module production build. `npm run assets:check` and `git diff --check` also passed; the model validator retained only its existing informational notices.
+- `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/tmp/chromium npm run test:e2e -- --workers=1` — pass: all 29 Chromium cases in 6.2 minutes, including all ten intro cases and the real locker, DC-9, and Airbus GLBs.
+- Natural-loop observation — pass: 55.135 uninterrupted seconds, all ten cues in order, maximum observed media time 52.807 seconds, exactly one natural reset to `tmb2-ident`, Start still visible, and zero DC-9 transitions.
+- A full-suite run found one unrelated reduced-motion locker race: the real canvas had already settled while the transition callback still held the preceding stage. The existing E2E reproduced the failure; a ready-scene reduced-motion completion effect repaired it; and the exact real-locker GLB test passed in 2.1 minutes after the fix.
+
 ## 2026-07-20 TMB2 draft-PR Chromium validation
 
 - Draft PR #49 published the reviewed 19-file intro tree at GitHub commit `b5b89a3f297920c030f13476699346510d13591d`, based on `main` commit `40c4f34f83d1fb6f7952e84f542afdeb3ecedf94`.

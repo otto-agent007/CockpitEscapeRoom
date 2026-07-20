@@ -1,0 +1,101 @@
+{
+  "generatedBy": "tools/intro/capture-frames.mjs",
+  "captures": [
+    {
+      "filename": "00-00.00-tmb2-ident.png",
+      "timeSeconds": 0,
+      "scene": "tmb2-ident",
+      "width": 320,
+      "height": 224,
+      "sha256": "842551f003afeb7dd5d7b527e4ac33811e9e4a585724d5407c262c3b8a8b5887"
+    },
+    {
+      "filename": "01-03.00-tmb2-ident.png",
+      "timeSeconds": 3,
+      "scene": "tmb2-ident",
+      "width": 320,
+      "height": 224,
+      "sha256": "0481f6f1185a0a6b2af0ba8fc5fcbc4a6a4b422b7bec210c33a5b6c15784e613"
+    },
+    {
+      "filename": "02-06.00-duffel.png",
+      "timeSeconds": 6,
+      "scene": "duffel",
+      "width": 320,
+      "height": 224,
+      "sha256": "96cadb0e8115a39a15ca8b2552baf0686f71f3f42ef5903cc182c1589e67f35c"
+    },
+    {
+      "filename": "03-12.00-key-escape.png",
+      "timeSeconds": 12,
+      "scene": "key-escape",
+      "width": 320,
+      "height": 224,
+      "sha256": "15de8cc12cc51a5a33b86ede4f3407859c5a818c306deb3d2fc9ed8e9cdc58ff"
+    },
+    {
+      "filename": "04-16.00-runway.png",
+      "timeSeconds": 16,
+      "scene": "runway",
+      "width": 320,
+      "height": 224,
+      "sha256": "80423760f62ab951f24616ba416dd139ff11b94e27979940953fdccbeb00bc32"
+    },
+    {
+      "filename": "05-22.00-ballpark.png",
+      "timeSeconds": 22,
+      "scene": "ballpark",
+      "width": 320,
+      "height": 224,
+      "sha256": "23fe2c54c8e8b38584c1aaa471e2e17197adb9b4873743abddac2ba0e29b2c84"
+    },
+    {
+      "filename": "06-28.00-city-finance.png",
+      "timeSeconds": 28,
+      "scene": "city-finance",
+      "width": 320,
+      "height": 224,
+      "sha256": "359c3f5a9fa88edd5e4712658ed871b8ecfb954955fc6da151241f33d26c6da8"
+    },
+    {
+      "filename": "07-35.00-sky.png",
+      "timeSeconds": 35,
+      "scene": "sky",
+      "width": 320,
+      "height": 224,
+      "sha256": "460f89e4bb15ebc0d071fbd8515c424dd9eca655053fe9e7b0914795ddc01a19"
+    },
+    {
+      "filename": "08-42.00-final-pursuit.png",
+      "timeSeconds": 42,
+      "scene": "final-pursuit",
+      "width": 320,
+      "height": 224,
+      "sha256": "cec9a1789cb97997e3e9061eed9b7f565d904063efa13ac1b41f19568ac5c5f0"
+    },
+    {
+      "filename": "09-48.00-catch.png",
+      "timeSeconds": 48,
+      "scene": "catch",
+      "width": 320,
+      "height": 224,
+      "sha256": "a0e19aa3f67de51fe988c66c52ef1ee98b5f8b3faa38dd96b195eebd3d94a01c"
+    },
+    {
+      "filename": "10-51.00-loop-reset.png",
+      "timeSeconds": 51,
+      "scene": "loop-reset",
+      "width": 320,
+      "height": 224,
+      "sha256": "cd75b05aa924d2888f3051689dec50edc7ca9e8c2e2bdb804ba5e7bffc69b3ee"
+    },
+    {
+      "filename": "11-53.00-loop-reset.png",
+      "timeSeconds": 53,
+      "scene": "loop-reset",
+      "width": 320,
+      "height": 224,
+      "sha256": "0523975a60686ecac5b3187253f38eb36867604fcde3ff6d6a40aedd886da693"
+    }
+  ]
+}
