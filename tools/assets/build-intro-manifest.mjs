@@ -58,7 +58,11 @@ const duplicates = [
 })
 
 const preload = [
+  'backgrounds/duffel-terminal.png',
   'backgrounds/runway-night.png',
+  'backgrounds/ballpark-night.png',
+  'backgrounds/finance-city.png',
+  'backgrounds/cloud-chase.png',
   'key/key-mascot-poses-00.png',
   'popt/animation-contract-export.json',
   'popt/duffel-pull/duffel-pull.webp',

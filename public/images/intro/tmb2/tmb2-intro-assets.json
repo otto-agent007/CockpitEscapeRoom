@@ -10,6 +10,42 @@
   },
   "assets": [
     {
+      "id": "backgrounds-ballpark-night-png",
+      "path": "backgrounds/ballpark-night.png",
+      "sha256": "5dd5fafe9e3947ad1c5214ea696ba50c50d333d27369ec00824f0cdf587bede6",
+      "bytes": 2029221,
+      "width": 1586,
+      "height": 992,
+      "hasAlpha": false
+    },
+    {
+      "id": "backgrounds-cloud-chase-png",
+      "path": "backgrounds/cloud-chase.png",
+      "sha256": "d8e659c818cf2a09332f1bc3dfdc1fbcfeeb715b1636b0942978fa83d8c622b4",
+      "bytes": 2054015,
+      "width": 1586,
+      "height": 992,
+      "hasAlpha": false
+    },
+    {
+      "id": "backgrounds-duffel-terminal-png",
+      "path": "backgrounds/duffel-terminal.png",
+      "sha256": "aaab36e5196c95a3b98cd9ff82a56f604ea2de461cf00864b3efcf41ec258a02",
+      "bytes": 1835798,
+      "width": 1586,
+      "height": 992,
+      "hasAlpha": false
+    },
+    {
+      "id": "backgrounds-finance-city-png",
+      "path": "backgrounds/finance-city.png",
+      "sha256": "db6c8f5778e9bbec6103520d606f05c5b7f46b35e207fd2ea519933bc55e629f",
+      "bytes": 2378398,
+      "width": 1586,
+      "height": 992,
+      "hasAlpha": false
+    },
+    {
       "id": "backgrounds-runway-night-png",
       "path": "backgrounds/runway-night.png",
       "sha256": "982aa882c316a4dd047c812589dae0a5e4a27ae38d36eec797a10d89986ac762",
@@ -21,10 +57,10 @@
     {
       "id": "contact-sheet-png",
       "path": "contact-sheet.png",
-      "sha256": "ce2c65d046d10f066d9c7127574ada0def79701020e1fc0369d0d11b1d1916cf",
-      "bytes": 1076832,
-      "width": 2016,
-      "height": 730,
+      "sha256": "0bc45be8caf496abc900f17a42ab2a2d9cded99c75c0b0c845ff0bbb61a050b1",
+      "bytes": 3341513,
+      "width": 1776,
+      "height": 1021,
       "hasAlpha": true
     },
     {
@@ -565,7 +601,11 @@
     }
   ],
   "preload": [
+    "backgrounds/duffel-terminal.png",
     "backgrounds/runway-night.png",
+    "backgrounds/ballpark-night.png",
+    "backgrounds/finance-city.png",
+    "backgrounds/cloud-chase.png",
     "key/key-mascot-poses-00.png",
     "popt/animation-contract-export.json",
     "popt/duffel-pull/duffel-pull.webp"

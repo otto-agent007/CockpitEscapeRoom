@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "asset": "tmb2-intro",
-  "status": "recovered-runtime-package-validated",
+  "status": "generated-scene-plates-validated",
   "authoritativeStoryboard": "art-source/intro/tmb2/recovered/2026-07-19-storyboards/pilot Pop T with golden blond hair and blue eyes.png",
   "secondaryStoryboard": "art-source/intro/tmb2/recovered/2026-07-19-storyboards/pop t chasing the brass key.png",
   "recoveredSources": [
@@ -123,16 +123,80 @@
       "height": 941
     }
   },
-  "generatedAssets": [],
+  "generationPrompts": [
+    {
+      "id": "duffel-terminal-v1",
+      "taxonomy": "illustration-story",
+      "prompt": "Create a wide 16:10 pixel-art illustration-story background plate for the TMB2 browser-game intro, using the authoritative blonde-haired Pop T storyboard only for its polished cinematic pixel language, midnight navy palette, electric-blue highlights, crisp stepped edges, and warm gold accents. Show a safely parked airport terminal or hangar threshold at night with an enormous premium navy pilot duffel resting on the floor in the right half of frame, gold piping and small wing insignia, subtle blue square particles and runway glow, generous clear action space on the left for a separately composited character, and clean crop-safe margins. Background/prop plate only: no person, no pilot, no Pop T, no cartoon key, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery."
+    },
+    {
+      "id": "ballpark-night-v1",
+      "taxonomy": "illustration-story",
+      "prompt": "Create a wide 16:10 pixel-art illustration-story background plate for the TMB2 browser-game intro, matching the authoritative blonde-haired Pop T storyboard's cinematic 16-bit-inspired finish, midnight blues, electric-blue chase glow, crisp pixel clusters, and restrained warm stadium lights. Show a dramatic night baseball park from field level near home plate, rich infield dirt, chalk line, green outfield edge, low stands, and bright floodlights with open action space across the center for separately composited sprites; keep the composition energetic but uncluttered and crop-safe at narrow and wide viewports. Environment only: no person, no pilot, no Pop T, no cartoon key, no baseball in flight, no mascot, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery."
+    },
+    {
+      "id": "finance-city-v1",
+      "taxonomy": "illustration-story",
+      "prompt": "Create a wide 16:10 pixel-art illustration-story background plate for the TMB2 browser-game intro, using the authoritative blonde-haired Pop T storyboard as the style reference for glossy cinematic pixel art, deep navy night, electric cyan and restrained red market-light accents, strong silhouettes, and clean stepped highlights. Show a fictional financial-district skyline at night with reflective pavement and a bronze Charging Bull-inspired statue anchored in the lower right, abstract rising cyan/red light bars and graph-like energy trails integrated into the architecture, and open chase space through the lower center for separately composited sprites. No brands or readable market data. Environment only: no person, no pilot, no Pop T, no cartoon key, no readable text, no numbers, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery."
+    },
+    {
+      "id": "cloud-chase-v1",
+      "taxonomy": "illustration-story",
+      "prompt": "Create a wide 16:10 pixel-art illustration-story background plate for the TMB2 browser-game intro, matching the authoritative blonde-haired Pop T storyboard's polished cinematic pixel work, layered cobalt and midnight-blue clouds, electric-blue star particles, crisp stepped cloud edges, luminous depth, and a joyful high-altitude adventure tone. Compose sweeping cloud banks and diagonal speed corridors with a clear central flight path for separately composited sprites, brighter blue horizon light toward the upper right, and crop-safe detail at both edges; the sky must feel dynamic without depicting danger or an emergency. Sky only: no person, no pilot, no Pop T, no cartoon key, no aircraft, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, planet, vehicle, or reward imagery."
+    }
+  ],
+  "generatedAssets": [
+    {
+      "id": "duffel-terminal-v1",
+      "source": "art-source/intro/tmb2/generated/backgrounds/duffel-terminal-v1.png",
+      "runtime": "public/images/intro/tmb2/backgrounds/duffel-terminal.png",
+      "sha256": "aaab36e5196c95a3b98cd9ff82a56f604ea2de461cf00864b3efcf41ec258a02",
+      "bytes": 1835798,
+      "width": 1586,
+      "height": 992,
+      "review": "Selected: character-free and key-free, oversized duffel on the right, clear left action space, no readable text or protected reward imagery."
+    },
+    {
+      "id": "ballpark-night-v1",
+      "source": "art-source/intro/tmb2/generated/backgrounds/ballpark-night-v1.png",
+      "runtime": "public/images/intro/tmb2/backgrounds/ballpark-night.png",
+      "sha256": "5dd5fafe9e3947ad1c5214ea696ba50c50d333d27369ec00824f0cdf587bede6",
+      "bytes": 2029221,
+      "width": 1586,
+      "height": 992,
+      "review": "Selected: centered crop-safe field-level composition, no character, key, ball in flight, readable text, or protected reward imagery."
+    },
+    {
+      "id": "finance-city-v1",
+      "source": "art-source/intro/tmb2/generated/backgrounds/finance-city-v1.png",
+      "runtime": "public/images/intro/tmb2/backgrounds/finance-city.png",
+      "sha256": "db6c8f5778e9bbec6103520d606f05c5b7f46b35e207fd2ea519933bc55e629f",
+      "bytes": 2378398,
+      "width": 1586,
+      "height": 992,
+      "review": "Selected: fictional finance skyline and bull composition, abstract graph lighting without readable market data, no character, key, branding, or protected reward imagery."
+    },
+    {
+      "id": "cloud-chase-v1",
+      "source": "art-source/intro/tmb2/generated/backgrounds/cloud-chase-v1.png",
+      "runtime": "public/images/intro/tmb2/backgrounds/cloud-chase.png",
+      "sha256": "d8e659c818cf2a09332f1bc3dfdc1fbcfeeb715b1636b0942978fa83d8c622b4",
+      "bytes": 2054015,
+      "width": 1586,
+      "height": 992,
+      "review": "Selected: open diagonal flight corridor, no character, key, aircraft, text, planet, danger framing, or protected reward imagery."
+    }
+  ],
   "validation": {
     "sourceCopiesByteIdentical": true,
     "archiveIntegrity": "pass",
     "runtimeManifest": {
       "status": "pass",
-      "assets": 65,
-      "preloads": 4,
+      "assets": 69,
+      "preloads": 8,
       "path": "public/images/intro/tmb2/tmb2-intro-assets.json"
     },
+    "generatedBackgrounds": "four selected 1586x992 ImageGen plates preserved byte-identically between versioned source and runtime paths",
     "assetGate": "pass; existing GLB notices remain non-fatal",
     "contactSheet": "public/images/intro/tmb2/contact-sheet.png",
     "browser": "pending"

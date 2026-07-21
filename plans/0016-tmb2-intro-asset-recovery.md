@@ -237,23 +237,23 @@ Commit message: `assets: preserve recovered TMB2 intro sources`.
 - Consumes the authoritative storyboard as a reference image.
 - Produces four character-free, key-free, text-free 16:10 scene plates.
 
-- [ ] **Step 1: Write four production prompts before generation**
+- [x] **Step 1: Write four production prompts before generation**
 
 Each prompt uses taxonomy `illustration-story`, identifies the output as a TMB2 browser-game background, names the authoritative storyboard as the style/composition reference, requests wide 16:10 framing, and repeats: no Pop T, no cartoon key, no text, no logo, no watermark, no UI, no Tesla/Model Y/Flight Mode/Mars imagery.
 
-- [ ] **Step 2: Generate one scene plate per ImageGen call**
+- [x] **Step 2: Generate one scene plate per ImageGen call**
 
 Generate duffel terminal, ballpark night, finance city/Charging Bull, and cloud chase separately. Do not use one composite sheet as a substitute for four independent runtime assets.
 
-- [ ] **Step 3: Inspect and select non-destructively**
+- [x] **Step 3: Inspect and select non-destructively**
 
 Inspect full-resolution outputs for subject placement, coherent pixel-illustration style, clean responsive crop zones, absence of baked characters/text, and consistency with the authoritative storyboard. Save selected sources with versioned filenames; retain no rejected output as a runtime file.
 
-- [ ] **Step 4: Create runtime copies and update manifests**
+- [x] **Step 4: Create runtime copies and update manifests**
 
 Create web-sized PNGs without changing aspect ratio, record exact generation prompts and hashes, refresh the contact sheet, and ensure all four paths are preloaded.
 
-- [ ] **Step 5: Verify and commit generated art**
+- [x] **Step 5: Verify and commit generated art**
 
 Run `npm run assets:check` and `git diff --check`. Visually inspect the contact sheet before committing `assets: add TMB2 storyboard scene plates`.
 
@@ -391,7 +391,7 @@ Publish the complete milestone, include the asset/package hashes and proof scree
 - [x] 2026-07-20 — Design approved and committed as `1479580`.
 - [x] Task 1 — Canonical intro asset contract (70/70 unit tests passed).
 - [x] Task 2 — Recovered source preservation and sprite normalization (65 runtime assets; source/runtime gate passed).
-- [ ] Task 3 — Missing storyboard scene plates.
+- [x] Task 3 — Four missing storyboard scene plates (69 runtime assets; 8 preloads).
 - [ ] Task 4 — Data-driven chase timeline.
 - [ ] Task 5 — Layered browser intro.
 - [ ] Task 6 — Full verification, evidence, remote persistence, and owner gate.
@@ -406,6 +406,7 @@ Publish the complete milestone, include the asset/package hashes and proof scree
 - The workstation default `umask 0002` creates group-writable pipeline state that GameDevStuff intentionally rejects. Running its suite and stateful commands under `umask 0077` produced 357 passing tests, 0 failures, and 1 platform skip.
 - A tolerance of 18 left background-edge noise in four recovered key plates. Raising the configured tolerance to 45 removed the noise without clipping the subjects; all 17 unique key poses then inspected as one foreground component.
 - GameDevStuff's pinned managed standalone `snap` path currently supplies a null manifest hash to signed-receipt validation. The recovery used the tool's manual-handoff path plus the installed hash-verified Pixel Snapper binary with explicit argv, then returned to `prepare`, `normalize`, and `export`; the pinned checkout was not modified.
+- ImageGen returned four 1586x992 plates, an effectively 16:10 composition. All four passed full-resolution inspection for clear sprite space, responsive crop safety, forbidden-character/text absence, and visual consistency, so the runtime copies retain the selected source bytes without a destructive crop or resample.
 
 ## Decision Log
 
@@ -415,6 +416,7 @@ Publish the complete milestone, include the asset/package hashes and proof scree
 - 2026-07-20 — Use ImageGen only for four missing scene plates; retain recovered sprites and runway art.
 - 2026-07-20 — Execute inline and sequentially because the user requested work and did not request delegation.
 - 2026-07-20 — Preserve all 17 unique normalized key poses as a reusable runtime library even though the initial intro may display only a subset.
+- 2026-07-20 — Keep the selected ImageGen source and runtime plates byte-identical at 1586x992; browser `object-fit` supplies responsive framing without baking separate destructive crops.
 
 ## Validation Plan
 
@@ -433,6 +435,9 @@ At each failure, capture the exact command and output, identify one root cause, 
 - `npm run assets:check`: passed, including `TMB2 intro asset contract passed (64 assets, 4 preloads)` before the final contact sheet; existing GLB notices remained non-fatal.
 - `node tools/assets/check-intro-assets.mjs` after adding the contact sheet: passed with 65 assets and 4 preloads.
 - `git diff --check`: passed at the Task 2 checkpoint.
+- Four ImageGen calls produced and preserved duffel terminal, ballpark night, finance city, and cloud chase plates; full-resolution visual inspection found no Pop T, cartoon key, readable text, protected reward, or unsafe emergency framing.
+- `node tools/assets/check-intro-assets.mjs` after generated-art integration: passed with 69 assets and 8 preloads.
+- `public/images/intro/tmb2/contact-sheet.png` was visually reviewed with all five environments, all 17 key poses, and all six recovered Pop T clips represented.
 
 ## Outcome and Handoff
 
