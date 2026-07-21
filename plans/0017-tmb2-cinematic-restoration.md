@@ -69,7 +69,7 @@
 - [x] 2026-07-20 — Owner supplied and approved the exact 53.04-second sequence and clarified that the generic renderer is non-authoritative.
 - [x] 2026-07-20 — Root causes recorded: animated WebP misuse, CSS stepped travel, static key poses, visible captions, wrong ident, and approximate boundaries.
 - [x] Task 1 — Exact timing and animation contracts are green.
-- [ ] Task 2 — Runtime clock, Start latch, loop, and handoff are green.
+- [x] Task 2 — Runtime clock, Start latch, loop, and handoff are green.
 - [ ] Task 3 — Asset preload tiers and integer Canvas are green.
 - [ ] Task 4 — Full recovered-art choreography renders in the browser.
 - [ ] Task 5 — Browser proof, review, and owner gate complete.
@@ -151,21 +151,21 @@ Commit message: `feat: restore exact TMB2 animation contract`
 - `requestIntroHandoff` accepts only when Start is latched; it moves to `handoff` without immediately dispatching game completion.
 - `sampleIntroHandoff` reports audio gain `1 -> 0` across 0.3 seconds and completion at 0.65 seconds.
 
-- [ ] **Step 1: Write failing runtime tests**
+- [x] **Step 1: Write failing runtime tests**
 
 Test the six-second monotonic latch across a natural loop, fallback loop reset, pending retry races, simultaneous pointer/gamepad requests, 300 ms gain curve, 650 ms completion, and rejection before six seconds.
 
-- [ ] **Step 2: Run RED**
+- [x] **Step 2: Run RED**
 
 Run: `npm run test -- src/game/introRuntime.test.ts`
 
 Expected: FAIL because the runtime module is absent on this branch.
 
-- [ ] **Step 3: Implement minimal runtime and rerun GREEN**
+- [x] **Step 3: Implement minimal runtime and rerun GREEN**
 
 Reuse the behavior contract proven by PR #49, extended with a distinct handoff phase. Do not make React state the authority.
 
-- [ ] **Step 4: Record Task 2 evidence and commit**
+- [x] **Step 4: Record Task 2 evidence and commit**
 
 Commit message: `feat: restore TMB2 media clock and handoff`
 
@@ -310,6 +310,9 @@ For each task: write one failing test, verify the expected failure, implement th
 - 2026-07-20 Task 1 animation RED: `npm run test -- src/game/introAnimation.test.ts` failed because the animation-contract module did not exist.
 - 2026-07-20 Task 1 GREEN: `npm run test -- src/game/introAnimation.test.ts src/game/introConfig.test.ts` passed 12/12 tests. `npm run typecheck` passed after adding a temporary compile-only bridge for the rejected DOM renderer; Task 4 removes that bridge with the renderer.
 - `git diff --check` passed before the Task 1 checkpoint.
+- 2026-07-20 Task 2 runtime RED: `npm run test -- src/game/introRuntime.test.ts` failed because the runtime controller did not exist on the recovery branch.
+- 2026-07-20 Task 2 first implementation pass exposed one overly exact floating-point progress assertion at 150 ms; the behavioral assertion was corrected to `toBeCloseTo` without weakening the 300 ms/650 ms contract.
+- 2026-07-20 Task 2 GREEN: the three focused files passed 19/19 tests, `npm run typecheck` passed, and `git diff --check` passed. Coverage includes drift-free media/fallback loops, the monotonic Start latch, retry races, simultaneous Start rejection, the audio fade, and exactly-once handoff completion.
 
 ## Outcome and Handoff
 
