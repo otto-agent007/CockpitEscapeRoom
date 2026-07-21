@@ -162,7 +162,7 @@ function poptActor(
   elapsedMs: number,
   x: number,
   y: number,
-  scale = 0.55,
+  scale = 1.12,
   rotation = 0,
   flipX = false,
 ): SpriteActorFrame {
@@ -248,7 +248,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
       return {
         ...base,
         popt: poptActor('duffel-pull', elapsedMs, 58 + eased * 86, 190),
-        props: [prop('duffel', 185 + eased * 42, 190, 1, Math.sin(elapsedMs / 55) * 0.025)],
+        props: [prop('duffel', 205 + eased * 22, 156, 1, Math.sin(elapsedMs / 55) * 0.025)],
       }
     case 'key-escape': {
       const taunting = sceneProgress < 0.55
@@ -263,7 +263,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
           0.38,
           taunting ? Math.sin(elapsedMs / 120) * 0.08 : sceneProgress * 0.8,
         ),
-        props: [prop('duffel', 182, 190, 1, -0.1)],
+        props: [prop('duffel', 206, 154, 1, -0.1)],
       }
     }
     case 'runway':
@@ -271,54 +271,56 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         ...base,
         popt: poptActor('run', elapsedMs, 76 + Math.sin(sceneProgress * Math.PI * 6) * 4, 190),
         key: keyActor('run', elapsedMs, 190 - sceneProgress * 18 + Math.sin(sceneProgress * Math.PI * 4) * 5, 174),
-        props: [prop('runway-cart', 350 - sceneProgress * 430, 184, 1)],
+        props: [prop('runway-cart', 350 - sceneProgress * 430, 184, 0.68)],
       }
     case 'ballpark':
       return {
         ...base,
-        popt: poptActor('baseball-slide', elapsedMs, 42 + eased * 176, 194, 0.58, -0.05),
+        popt: poptActor('baseball-slide', elapsedMs, 42 + eased * 176, 194, 1.18, -0.05),
         key: keyActor('fly', elapsedMs, 176 + Math.sin(sceneProgress * Math.PI * 2) * 42, 104),
         props: [
-          prop('baseball', 70 + sceneProgress * 200, 82 + Math.sin(sceneProgress * Math.PI) * 76, 1),
-          prop('base', 230, 192, 1),
+          prop('baseball', 70 + sceneProgress * 200, 82 + Math.sin(sceneProgress * Math.PI) * 76, 0.8),
+          prop('base', 230, 192, 0.65),
         ],
       }
     case 'city-finance':
       return {
         ...base,
-        popt: poptActor('bull-spin', elapsedMs, 54 + eased * 156, 188, 0.56, sceneProgress * Math.PI * 0.35),
+        popt: poptActor('bull-spin', elapsedMs, 54 + eased * 156, 188, 1.14, sceneProgress * Math.PI * 0.35),
         key: keyActor('run', elapsedMs, 106 + sceneProgress * 150, 172 - sceneProgress * 72, 0.36),
         props: [
           prop('graph', 160, 152, 1),
-          prop('bull-impact', 222, 178, 0.8 + Math.sin(sceneProgress * Math.PI) * 0.25, 0, Math.sin(sceneProgress * Math.PI)),
+          prop('bull-impact', 222, 178, 0.3 + Math.sin(sceneProgress * Math.PI) * 0.08, 0, Math.sin(sceneProgress * Math.PI)),
         ],
       }
     case 'sky':
       return {
         ...base,
-        popt: poptActor('pilot-glide', elapsedMs, 46 + eased * 92, 166 - Math.sin(sceneProgress * Math.PI) * 26, 0.54),
+        popt: poptActor('pilot-glide', elapsedMs, 46 + eased * 92, 166 - Math.sin(sceneProgress * Math.PI) * 26, 1.08),
         key: keyActor('fly', elapsedMs, 202 + Math.sin(sceneProgress * Math.PI * 2) * 22, 108 - sceneProgress * 18, 0.36),
-        props: [prop('cloud-puff', 340 - sceneProgress * 410, 132, 1.2)],
+        props: [prop('cloud-puff', 340 - sceneProgress * 410, 132, 0.55, 0, 0.72)],
       }
     case 'final-pursuit': {
       const missArc = Math.sin(sceneProgress * Math.PI * 2)
+      const poptX = 72 + eased * 112
+      const poptY = 158 - missArc * 20
       return {
         ...base,
-        popt: poptActor('pilot-glide', elapsedMs, 72 + eased * 112, 158 - missArc * 20, 0.56, missArc * 0.08),
+        popt: poptActor('pilot-glide', elapsedMs, poptX, poptY, 1.1, missArc * 0.08),
         key: keyActor('fly', elapsedMs, 220 - eased * 28, 116 + missArc * 16, 0.36),
-        props: [prop('pilot-wings', 128 + eased * 54, 152 - missArc * 20, 1, missArc * 0.08)],
+        props: [prop('pilot-wings', poptX, poptY - 38, 0.52, missArc * 0.08)],
       }
     }
     case 'catch':
       return {
         ...base,
-        popt: poptActor('victory-recovery', elapsedMs, 150, 190, 0.58),
+        popt: poptActor('victory-recovery', elapsedMs, 150, 190, 1.16),
         key: keyActor('taunt', elapsedMs, 214 + Math.sin(elapsedMs / 150) * 8, 126, 0.36, Math.sin(elapsedMs / 120) * 0.12),
       }
     case 'loop-reset':
       return {
         ...base,
-        popt: poptActor('victory-recovery', elapsedMs, 124 + eased * 260, 190, 0.58, eased * 0.18),
+        popt: poptActor('victory-recovery', elapsedMs, 124 + eased * 260, 190, 1.16, eased * 0.18),
         key: keyActor('tug', elapsedMs, 190 + eased * 260, 154, 0.38, eased * 0.24),
         pixelCollapse: clamp01((sceneProgress - 0.48) / 0.52),
       }

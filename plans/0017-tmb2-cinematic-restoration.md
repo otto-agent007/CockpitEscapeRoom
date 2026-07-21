@@ -71,7 +71,7 @@
 - [x] Task 1 — Exact timing and animation contracts are green.
 - [x] Task 2 — Runtime clock, Start latch, loop, and handoff are green.
 - [x] Task 3 — Asset preload tiers and integer Canvas are green.
-- [ ] Task 4 — Full recovered-art choreography renders in the browser.
+- [x] Task 4 — Full recovered-art choreography renders in the browser.
 - [ ] Task 5 — Browser proof, review, and owner gate complete.
 
 ## Discoveries
@@ -217,25 +217,25 @@ Commit message: `feat: render TMB2 on an integer canvas`
 - `GameIntro` keeps the briefing and `onComplete` boundary unchanged.
 - Canvas `data-scene`, `data-time`, `data-popt-frame`, `data-key-frame`, `data-start-available`, and `data-transition-state` expose deterministic browser evidence without visible debug UI.
 
-- [ ] **Step 1: Write failing browser assertions**
+- [x] **Step 1: Write failing browser assertions**
 
 Assert Start Game begins at ident time zero, no visible scene headings exist, exact boundary scenes are reported, PRESS START is absent at 5.999 and present at 6.000, natural end loops rather than completes, and pointer/Enter/Space/gamepad each produce one 650 ms handoff.
 
-- [ ] **Step 2: Run browser RED**
+- [x] **Step 2: Run browser RED**
 
 Run: `npm run test:e2e -- e2e/smoke.spec.ts -g "TMB2 cinematic" --workers=1`
 
 Expected: FAIL on current headings, approximate scenes, auto-completion, and missing Start prompt/handoff.
 
-- [ ] **Step 3: Integrate runtime, Canvas, and controls**
+- [x] **Step 3: Integrate runtime, Canvas, and controls**
 
 Replace cue `<img>` rendering. Keydown ignores repeat and native controls. Poll standard gamepad button 9 edge transitions. During handoff, set audio volume from runtime gain, add a CRT-release class, and call `onComplete` only when runtime reports the 650 ms transition complete.
 
-- [ ] **Step 4: Replace intro CSS**
+- [x] **Step 4: Replace intro CSS**
 
 Keep only black letterbox, integer Canvas, restrained CRT overlays, accessible controls, blue PRESS START, and handoff release. Remove `.game-intro__copy`, `.game-intro__popt`, `.game-intro__key`, and all `intro-*-chase ... steps()` rules.
 
-- [ ] **Step 5: Run focused GREEN and nearby regressions**
+- [x] **Step 5: Run focused GREEN and nearby regressions**
 
 Run:
 
@@ -246,7 +246,7 @@ npm run lint
 npm run typecheck
 ```
 
-- [ ] **Step 6: Record Task 4 evidence and commit**
+- [x] **Step 6: Record Task 4 evidence and commit**
 
 Commit message: `feat: play the complete TMB2 chase intro`
 
@@ -316,6 +316,10 @@ For each task: write one failing test, verify the expected failure, implement th
 - 2026-07-20 Task 3 asset RED: `npm run test -- src/game/introAssets.test.ts` failed because the PNG-only tiered preload module did not exist.
 - 2026-07-20 Task 3 geometry/renderer RED: both focused suites failed because the integer placement and Canvas draw-command modules did not exist.
 - 2026-07-20 Task 3 GREEN: six focused files passed 31/31 tests. The renderer registers 15 actual PNG images, decodes only four opening assets before playback, uses the exact 320 x 224 integer placements at 1440/768/375 widths, and emits no visible-title command. `npm run typecheck`, `npm run lint`, and `git diff --check` passed.
+- 2026-07-20 Task 4 browser RED: nine of eleven new cinematic cases failed against the rejected renderer for the intended reasons: visible heading, no Canvas, no asset gate, no transition state, no PRESS START, and no reduced-motion frame evidence. The existing audio duration and silent-retry cases remained green.
+- The first React/Canvas integration made 9/11 cases green. The two remaining failures were test-order/resource issues: a deliberately unconsumed 36 MB model request delayed decoded intro art, and a test incorrectly expected the monotonic Start latch to turn off after later-scene seeks. The harness now aborts the observed model request and checks 5.999/6.000 before later scenes.
+- First 1440 x 900 visual contact sheet found the blue striped TMB2 ident correct but Pop T too small and the procedural accent props oversized. A new RED scale/staging test captured that defect. Pop T now renders at readable lead scale, key scale remains restrained, and cart/impact/cloud/wing accents were reduced and redrawn. The second eight-scene contact sheet was visually inspected with no title overlay, no cockpit spoiler, and coherent character scale.
+- 2026-07-20 Task 4 GREEN: six focused unit files passed 32/32 tests; the focused Chromium run passed 11/11 cases; `npm run lint`, `npm run typecheck`, and `git diff --check` passed. Browser evidence confirms exact scenes, initial asset failure/retry, focused-control key safety, sound retry, all four Start inputs, one handoff, reduced-motion held poses, integer scales, and 53.04-second audio.
 
 ## Outcome and Handoff
 

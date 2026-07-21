@@ -95,8 +95,9 @@ async function openGameIntro(page: Page) {
   return intro
 }
 
-test('opening stays spoiler-safe, preloads the DC-9, and fades into the cockpit', async ({ page }) => {
+test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the TMB2 handoff', async ({ page }) => {
   test.setTimeout(45_000)
+  await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
   const dc9Request = page.waitForRequest(
     (request) => request.url().includes('/models/dc9-cockpit.glb'),
     { timeout: 15_000 },
@@ -111,17 +112,23 @@ test('opening stays spoiler-safe, preloads the DC-9, and fades into the cockpit'
 
   await page.getByRole('button', { name: 'Start Game' }).click()
   const intro = page.getByRole('region', { name: 'Game intro' })
-  await expect(intro).toHaveAttribute('data-intro-cue', 'boot')
-  await expect(intro.getByRole('heading', { name: 'TMB2' })).toBeVisible()
+  await expect(intro).toHaveAttribute('data-intro-cue', 'tmb2-ident')
+  await expect(intro.locator('h1')).toHaveCount(0)
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toHaveCount(0)
-  await intro.getByRole('button', { name: 'Skip Intro' }).click()
+  const audio = page.locator('audio')
+  await audio.evaluate((media) => {
+    media.currentTime = 6
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await intro.getByRole('button', { name: 'Start game' }).click()
+  await expect(intro).toHaveAttribute('data-transition-state', 'handoff')
   await expect(page.locator('.dc9-entry-transition')).toHaveAttribute('data-stage', /fade-out|waiting-for-cockpit|fade-in/)
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toBeVisible({ timeout: 15_000 })
   await expect(page.locator('.dc9-entry-transition')).toHaveAttribute('data-stage', 'fade-in', { timeout: 20_000 })
   await expect(page.locator('.dc9-entry-transition')).toHaveCount(0, { timeout: 5_000 })
 })
 
-test('game intro follows media cue boundaries and completes once', async ({ page }) => {
+test('TMB2 cinematic follows exact boundaries and loops without entering gameplay', async ({ page }) => {
   const intro = await openGameIntro(page)
   const audio = page.locator('audio')
   await audio.evaluate(async (media) => {
@@ -132,135 +139,103 @@ test('game intro follows media cue boundaries and completes once', async ({ page
     })
   })
 
-  const cues = [
+  await audio.evaluate((media) => {
+    media.currentTime = 5.999
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await expect(intro.getByRole('button', { name: 'Start game' })).toHaveCount(0)
+  await audio.evaluate((media) => {
+    media.currentTime = 6
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await expect(intro.getByRole('button', { name: 'Start game' })).toBeVisible()
+
+  const scenes = [
     {
-      time: 4,
+      time: 0,
+      id: 'tmb2-ident',
+      summary: 'Blue pixels assemble the TMB2 console logo before a bright gold-white overload.',
+    },
+    {
+      time: 6,
       id: 'duffel',
-      copy: 'THE OVERSIZED DUFFEL',
-      background: 'backgrounds/duffel-terminal.png',
-      backgroundWidth: 1586,
-      popt: 'duffel-pull',
-      key: 'key-mascot-poses-10',
-      summary: 'Pop T pulls an oversized pilot duffel as a lively brass key appears.',
+      summary: 'Pop T enters confidently and struggles with an oversized rattling duffel bag.',
     },
     {
-      time: 11,
+      time: 12,
+      id: 'key-escape',
+      summary: 'A living golden key bursts from the luggage, startles Pop T, taunts him, and escapes.',
+    },
+    {
+      time: 16,
       id: 'runway',
-      copy: 'RUNWAY CHASE',
-      background: 'backgrounds/runway-night.png',
-      backgroundWidth: 1672,
-      popt: 'startle-stumble',
-      key: 'key-mascot-poses-01',
-      summary: 'Pop T follows the brass key across a safely parked airport runway at night.',
+      summary: 'Pop T chases the key past airport equipment and narrowly avoids a runway cart.',
     },
     {
-      time: 19,
+      time: 22,
       id: 'ballpark',
-      copy: 'BALLPARK DETOUR',
-      background: 'backgrounds/ballpark-night.png',
-      backgroundWidth: 1586,
-      popt: 'baseball-slide',
-      key: 'key-mascot-poses-08',
-      summary: 'The chase takes a playful field-level detour through a night ballpark.',
+      summary: 'The key redirects a baseball while Pop T performs a dramatic slide past the base.',
     },
     {
-      time: 27,
-      id: 'finance',
-      copy: 'BULL MARKET LAUNCH',
-      background: 'backgrounds/finance-city.png',
-      backgroundWidth: 1586,
-      popt: 'bull-spin',
-      key: 'key-mascot-poses-09',
-      summary: 'Pop T and the brass key race past a bright fictional finance skyline and bronze bull.',
+      time: 28,
+      id: 'city-finance',
+      summary: 'The key runs along a rising neon graph and Pop T collides with comic bull imagery.',
     },
     {
       time: 35,
-      id: 'clouds',
-      copy: 'CLOUD CHASE',
-      background: 'backgrounds/cloud-chase.png',
-      backgroundWidth: 1586,
-      popt: 'pilot-glide',
-      key: 'key-mascot-poses-13',
-      summary: 'The joyful chase glides through bright cobalt clouds and sparkling blue trails.',
+      id: 'sky',
+      summary: 'Clouds and a red digital horizon launch the chase into the sky.',
     },
     {
-      time: 43,
+      time: 42,
+      id: 'final-pursuit',
+      summary: 'Pop T glides on pilot wings, misses the key once, recovers, and catches it.',
+    },
+    {
+      time: 48,
       id: 'catch',
-      copy: 'THE CATCH',
-      background: 'backgrounds/cloud-chase.png',
-      backgroundWidth: 1586,
-      popt: 'victory-recovery',
-      key: 'key-mascot-poses-03',
-      summary: 'Pop T reaches the brass key and recovers with a triumphant pilot salute.',
+      summary: 'Pop T holds a brief victory pose before the key delivers one last joke.',
     },
     {
-      time: 49,
-      id: 'title',
-      copy: 'MISSION READY',
-      background: null,
-      backgroundWidth: 0,
-      popt: null,
-      key: null,
-      summary: 'The CockpitEscapeRoom title appears before the DC-9 First-Officer Final Flight Log.',
+      time: 51,
+      id: 'loop-reset',
+      summary: 'The key drags Pop T away and the picture collapses into blue pixels.',
     },
   ] as const
 
-  for (const cue of cues) {
+  for (const scene of scenes) {
     await audio.evaluate((media, time) => {
       media.currentTime = time
       media.dispatchEvent(new Event('timeupdate'))
-    }, cue.time)
-    await expect(intro).toHaveAttribute('data-intro-cue', cue.id)
-    await expect(intro.getByText(cue.copy)).toBeVisible()
-    await expect(intro.locator('.game-intro__summary')).toHaveText(cue.summary)
-    await expect(intro.locator('.game-intro__prop')).toHaveAttribute('data-clip', `${cue.id}-accent`)
-
-    const background = intro.locator('.game-intro__background')
-    const popt = intro.locator('.game-intro__popt')
-    const key = intro.locator('.game-intro__key')
-    if (cue.background) {
-      await expect(background).toHaveAttribute('src', new RegExp(`/images/intro/tmb2/${cue.background}$`))
-      await expect(background).toHaveJSProperty('naturalWidth', cue.backgroundWidth)
-      await expect(popt).toHaveAttribute('data-clip', cue.popt)
-      await expect(key).toHaveAttribute('data-clip', cue.key)
-      await expect.poll(() => popt.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0)
-      await expect.poll(() => key.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0)
-    } else {
-      await expect(background).toHaveCount(0)
-      await expect(popt).toHaveCount(0)
-      await expect(key).toHaveCount(0)
-    }
+    }, scene.time)
+    await expect(intro).toHaveAttribute('data-intro-cue', scene.id)
+    await expect(intro.locator('.game-intro__stage')).toHaveAttribute('data-scene', scene.id)
+    await expect(intro.locator('.game-intro__summary')).toHaveText(scene.summary)
+    await expect(intro.locator('h1')).toHaveCount(0)
   }
 
   await audio.evaluate((media) => {
     media.dispatchEvent(new Event('ended'))
-    media.dispatchEvent(new Event('ended'))
   })
-  await expect(page.locator('.dc9-entry-transition')).toHaveCount(1)
-  await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toBeVisible({ timeout: 15_000 })
+  await expect(intro).toBeVisible()
+  await expect(intro.locator('.game-intro__stage')).toHaveAttribute('data-scene', 'tmb2-ident')
+  await expect(intro.getByRole('button', { name: 'Start game' })).toBeVisible()
+  await expect(page.locator('.dc9-entry-transition')).toHaveCount(0)
 })
 
-test('game intro keeps story and controls usable when a scene plate fails', async ({ page }) => {
+test('TMB2 cinematic blocks playback with an exact retry when opening art fails', async ({ page }) => {
   await page.route('**/images/intro/tmb2/backgrounds/duffel-terminal.png', (route) => route.abort())
-  const intro = await openGameIntro(page)
-  const audio = page.locator('audio')
-
-  await audio.evaluate((media) => {
-    media.currentTime = 4
-    media.dispatchEvent(new Event('timeupdate'))
-  })
-
-  await expect(intro).toHaveAttribute('data-intro-cue', 'duffel')
-  await expect(intro).toHaveAttribute('data-visual-fallback', 'true')
-  await expect(intro.locator('.game-intro__background')).toHaveCount(0)
-  await expect(intro.locator('.game-intro__summary')).toHaveText(
-    'Pop T pulls an oversized pilot duffel as a lively brass key appears.',
+  await page.goto('/')
+  await expect(page.getByRole('button', { name: 'Start Game' })).toBeDisabled()
+  await expect(page.getByRole('status')).toContainText(
+    'background-duffel (images/intro/tmb2/backgrounds/duffel-terminal.png)',
   )
-  await expect(intro.getByRole('heading', { name: 'THE OVERSIZED DUFFEL' })).toBeVisible()
-  await expect(intro.getByRole('button', { name: 'Skip Intro' })).toBeVisible()
+  await page.unroute('**/images/intro/tmb2/backgrounds/duffel-terminal.png')
+  await page.getByRole('button', { name: 'Retry cinematic assets' }).click()
+  await expect(page.getByRole('button', { name: 'Start Game' })).toBeEnabled()
 })
 
-test('game intro exposes working sound controls and Escape skip', async ({ page }) => {
+test('TMB2 cinematic sound controls do not trigger Start while focused', async ({ page }) => {
   const intro = await openGameIntro(page)
   const audio = page.locator('audio')
 
@@ -268,12 +243,11 @@ test('game intro exposes working sound controls and Escape skip', async ({ page 
   await expect(audio).toHaveJSProperty('muted', true)
   await intro.getByLabel('Intro volume').fill('0.35')
   await expect.poll(() => audio.evaluate((media) => media.volume)).toBeCloseTo(0.35)
-
-  await page.keyboard.press('Escape')
-  await expect(page.locator('.dc9-entry-transition')).toHaveCount(1)
+  await intro.getByLabel('Intro volume').press('Space')
+  await expect(intro).toHaveAttribute('data-transition-state', 'playing')
 })
 
-test('game intro continues silently and retries rejected audio', async ({ page }) => {
+test('TMB2 cinematic continues silently and retries rejected audio', async ({ page }) => {
   await page.addInitScript(() => {
     let attempts = 0
     HTMLMediaElement.prototype.play = function play() {
@@ -288,22 +262,79 @@ test('game intro continues silently and retries rejected audio', async ({ page }
   await expect(intro.getByText('The intro is continuing without sound.')).toBeVisible()
   await intro.getByRole('button', { name: 'Retry sound' }).click()
   await expect(intro.getByText('Intro audio playing.')).toBeVisible()
-  await intro.getByRole('button', { name: 'Skip Intro' }).click()
-  await expect(page.locator('.dc9-entry-transition')).toHaveCount(1)
 })
 
-test('game intro honors reduced motion and fits required viewports', async ({ page }) => {
+for (const input of ['pointer', 'Enter', 'Space', 'controller'] as const) {
+  test(`TMB2 cinematic accepts ${input} Start and completes one handoff`, async ({ page }) => {
+    if (input === 'controller') {
+      await page.addInitScript(() => {
+        let pressed = false
+        Object.defineProperty(navigator, 'getGamepads', {
+          configurable: true,
+          value: () => [{
+            mapping: 'standard',
+            buttons: Array.from({ length: 16 }, (_, index) => ({ pressed: pressed && index === 9 })),
+          }],
+        })
+        Object.defineProperty(window, '__pressIntroControllerStart', {
+          value: () => { pressed = true },
+        })
+      })
+    }
+    const intro = await openGameIntro(page)
+    await page.locator('audio').evaluate((media) => {
+      media.currentTime = 6
+      media.dispatchEvent(new Event('timeupdate'))
+    })
+    await expect(intro.getByRole('button', { name: 'Start game' })).toBeVisible()
+
+    if (input === 'pointer') await intro.getByRole('button', { name: 'Start game' }).click()
+    if (input === 'Enter' || input === 'Space') await page.keyboard.press(input)
+    if (input === 'controller') {
+      await page.evaluate(() => {
+        (window as typeof window & { __pressIntroControllerStart: () => void }).__pressIntroControllerStart()
+      })
+    }
+
+    await expect(intro).toHaveAttribute('data-transition-state', 'handoff')
+    await expect(page.locator('.dc9-entry-transition')).toHaveCount(1, { timeout: 2_000 })
+    await expect(page.locator('.dc9-entry-transition')).toHaveCount(1)
+  })
+}
+
+test('TMB2 cinematic holds scene poses for reduced motion and fits required viewports', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.setViewportSize({ width: 375, height: 812 })
   const intro = await openGameIntro(page)
   await expect(intro).toHaveAttribute('data-reduced-motion', 'true')
 
+  const canvas = intro.locator('.game-intro__stage')
+  const audio = page.locator('audio')
+  await audio.evaluate((media) => {
+    media.currentTime = 17
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  const firstPose = await canvas.evaluate((element) => ({
+    popt: element.getAttribute('data-popt-frame'),
+    key: element.getAttribute('data-key-frame'),
+  }))
+  await audio.evaluate((media) => {
+    media.currentTime = 21
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await expect(canvas).toHaveAttribute('data-scene', 'runway')
+  expect(await canvas.evaluate((element) => ({
+    popt: element.getAttribute('data-popt-frame'),
+    key: element.getAttribute('data-key-frame'),
+  }))).toEqual(firstPose)
+
   for (const viewport of [
-    { width: 375, height: 812 },
-    { width: 768, height: 900 },
-    { width: 1440, height: 900 },
+    { width: 375, height: 812, scale: '1' },
+    { width: 768, height: 900, scale: '2' },
+    { width: 1440, height: 900, scale: '4' },
   ]) {
     await page.setViewportSize(viewport)
+    await expect(canvas).toHaveAttribute('data-presentation-scale', viewport.scale)
     const bounds = await intro.locator('.game-intro__controls').boundingBox()
     expect(bounds).not.toBeNull()
     expect(bounds!.x).toBeGreaterThanOrEqual(0)
@@ -314,7 +345,7 @@ test('game intro honors reduced motion and fits required viewports', async ({ pa
   }
 })
 
-test('game intro uses the deployable 53-second audio', async ({ page }) => {
+test('TMB2 cinematic uses the deployable 53.04-second audio', async ({ page }) => {
   await page.goto('/')
   const metadata = await page.locator('audio').evaluate(async (media) => {
     if (media.readyState < HTMLMediaElement.HAVE_METADATA) {

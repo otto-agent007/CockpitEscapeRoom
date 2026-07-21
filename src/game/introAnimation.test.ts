@@ -99,6 +99,24 @@ describe('TMB2 sprite animation contract', () => {
     expect(second.key).toEqual(first.key)
   })
 
+  it('stages Pop T as the readable comedy lead and keeps accent props restrained', () => {
+    for (const time of [8, 13, 18, 24, 31, 38, 44, 49]) {
+      const frame = deriveIntroAnimation(time, false)
+      expect(frame.popt?.scale).toBeGreaterThanOrEqual(1.05)
+      if (frame.key) expect(frame.key.scale).toBeLessThanOrEqual(0.4)
+    }
+    expect(deriveIntroAnimation(18, false).props.find((prop) => prop.id === 'runway-cart')?.scale)
+      .toBeLessThanOrEqual(0.7)
+    expect(deriveIntroAnimation(31, false).props.find((prop) => prop.id === 'bull-impact')?.scale)
+      .toBeLessThanOrEqual(0.4)
+    expect(deriveIntroAnimation(44, false).props.find((prop) => prop.id === 'pilot-wings')?.scale)
+      .toBeLessThanOrEqual(0.6)
+    const pursuit = deriveIntroAnimation(44, false)
+    const wings = pursuit.props.find((prop) => prop.id === 'pilot-wings')
+    expect(wings?.x).toBeCloseTo(pursuit.popt!.x)
+    expect(wings!.y).toBeLessThan(pursuit.popt!.y)
+  })
+
   it('flies and rotates the key into the lock during the 650ms handoff', () => {
     expect(deriveHandoffAnimation(0)).toEqual({
       progress: 0,

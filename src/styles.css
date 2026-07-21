@@ -14,6 +14,207 @@
   --text-soft: #bfc9bb;
 }
 
+/* Authoritative 320 x 224 TMB2 Canvas presentation. */
+.game-intro.game-intro {
+  --intro-ink: #f8fbff;
+  --intro-gold: #f5c424;
+  --intro-blue: #1761e8;
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+  background: #000;
+  color: var(--intro-ink);
+}
+
+.game-intro .game-intro__stage-shell {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+.game-intro .game-intro__stage {
+  position: absolute;
+  width: 320px;
+  height: 224px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  transform-origin: top left;
+}
+
+.game-intro.game-intro::before,
+.game-intro.game-intro::after {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+}
+
+.game-intro.game-intro::before {
+  background:
+    radial-gradient(circle at center, transparent 48%, rgba(0, 0, 10, 0.5) 100%),
+    linear-gradient(90deg, rgba(255, 35, 35, 0.025), transparent 35%, rgba(30, 90, 255, 0.03));
+}
+
+.game-intro.game-intro::after {
+  opacity: 0.24;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.5) 0 1px, transparent 1px 3px);
+  animation: tmb2-scanlines 720ms steps(4, end) infinite;
+}
+
+.game-intro.game-intro--handoff::before,
+.game-intro.game-intro--handoff::after {
+  display: none;
+}
+
+.game-intro .game-intro__press-start {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: clamp(5.5rem, 13vh, 7.5rem);
+  border: 0;
+  padding: 0.4rem 0.7rem;
+  background: rgba(0, 0, 18, 0.72);
+  color: #f8fbff;
+  font: 900 clamp(0.85rem, 1.4vw, 1.1rem)/1 "Courier New", monospace;
+  letter-spacing: 0.12em;
+  text-shadow: 2px 0 #1761e8, -2px 0 #a41724;
+  transform: translateX(-50%);
+  animation: tmb2-start-blink 900ms steps(1, end) infinite;
+  cursor: pointer;
+}
+
+.game-intro .game-intro__press-start:focus-visible {
+  outline: 3px solid var(--intro-gold);
+  outline-offset: 4px;
+}
+
+.game-intro .game-intro__controls {
+  position: absolute;
+  z-index: 5;
+  right: clamp(0.75rem, 2vw, 1.5rem);
+  bottom: clamp(0.75rem, 2vw, 1.5rem);
+  left: clamp(0.75rem, 2vw, 1.5rem);
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 3.5rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid rgba(117, 196, 255, 0.72);
+  background: rgba(0, 0, 14, 0.9);
+  box-shadow: 3px 3px 0 rgba(23, 97, 232, 0.55);
+  font-family: "Courier New", ui-monospace, monospace;
+}
+
+.game-intro.game-intro--handoff .game-intro__controls,
+.game-intro.game-intro--handoff .game-intro__press-start {
+  visibility: hidden;
+}
+
+.game-intro .game-intro__sound-status,
+.game-intro .game-intro__visual-status {
+  margin: 0;
+  color: #c8dbff;
+  font-size: 0.75rem;
+  line-height: 1.25;
+}
+
+.game-intro .game-intro__visual-status {
+  grid-column: 1 / -1;
+  color: #fff0a8;
+}
+
+.game-intro .game-intro__audio-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.game-intro .game-intro__control {
+  min-height: 2.4rem;
+  border: 1px solid #75c4ff;
+  border-radius: 0;
+  padding: 0.45rem 0.7rem;
+  background: #071a50;
+  color: #fff;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.game-intro .game-intro__control:hover,
+.game-intro .game-intro__control:focus-visible {
+  background: #123a9c;
+}
+
+.game-intro .game-intro__volume {
+  display: grid;
+  grid-template-columns: auto minmax(5rem, 8vw);
+  align-items: center;
+  gap: 0.45rem;
+  color: #f8fbff;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.game-intro .game-intro__volume input {
+  width: 100%;
+  accent-color: var(--intro-blue);
+}
+
+.briefing-asset-status {
+  margin: 0.85rem 0 0;
+  color: #c8dbff;
+  font-size: 0.84rem;
+}
+
+.briefing-asset-error {
+  display: grid;
+  gap: 0.6rem;
+}
+
+@keyframes tmb2-scanlines {
+  to { transform: translateY(3px); }
+}
+
+@keyframes tmb2-start-blink {
+  0%, 54% { opacity: 1; }
+  55%, 100% { opacity: 0.22; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-intro.game-intro::after,
+  .game-intro .game-intro__press-start {
+    animation: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .game-intro .game-intro__controls {
+    right: 0.6rem;
+    bottom: 0.6rem;
+    left: 0.6rem;
+    grid-template-columns: 1fr;
+  }
+
+  .game-intro .game-intro__audio-controls {
+    display: grid;
+    grid-template-columns: auto 1fr;
+  }
+
+  .game-intro .game-intro__volume {
+    grid-template-columns: auto 1fr;
+  }
+}
+
 * {
   box-sizing: border-box;
 }

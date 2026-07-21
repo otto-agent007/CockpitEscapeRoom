@@ -231,20 +231,21 @@ function drawProp(context: CanvasRenderingContext2D, prop: IntroPropFrame): void
   context.scale(prop.scale, prop.scale)
   switch (prop.id) {
     case 'duffel':
-      context.fillStyle = '#080b1f'
-      context.fillRect(-26, -19, 52, 19)
-      context.fillStyle = '#1a294e'
-      context.fillRect(-24, -17, 48, 15)
       context.fillStyle = '#f5c424'
-      context.fillRect(-10, -24, 20, 3)
-      context.fillRect(-13, -23, 3, 7)
-      context.fillRect(10, -23, 3, 7)
+      context.fillRect(-32, -12, 10, 2)
+      context.fillRect(-38, -4, 12, 2)
+      context.fillRect(-34, 4, 9, 2)
+      context.fillRect(24, -10, 9, 2)
+      context.fillRect(28, -2, 12, 2)
+      context.fillRect(24, 6, 8, 2)
       break
     case 'runway-cart':
-      context.fillStyle = '#f1eff0'
-      context.fillRect(-24, -18, 48, 15)
-      context.fillStyle = '#e54835'
-      context.fillRect(-18, -15, 16, 7)
+      context.fillStyle = '#d8e7ff'
+      context.fillRect(-26, -17, 52, 13)
+      context.fillStyle = '#1761e8'
+      context.fillRect(-22, -14, 18, 6)
+      context.fillStyle = '#f5c424'
+      context.fillRect(6, -12, 14, 3)
       context.fillStyle = '#151b32'
       context.fillRect(-20, -3, 9, 6)
       context.fillRect(11, -3, 9, 6)
@@ -281,23 +282,32 @@ function drawProp(context: CanvasRenderingContext2D, prop: IntroPropFrame): void
       }
       break
     case 'cloud-puff':
-      context.fillStyle = '#f1eff0'
-      context.fillRect(-24, -8, 48, 14)
-      context.fillRect(-12, -15, 26, 14)
-      context.fillStyle = '#8bbcff'
-      context.fillRect(-20, 6, 40, 4)
+      context.fillStyle = '#d8e7ff'
+      context.fillRect(-28, -3, 56, 9)
+      context.fillRect(-18, -10, 17, 7)
+      context.fillRect(2, -14, 20, 11)
+      context.fillStyle = '#75a8ff'
+      context.fillRect(-24, 6, 46, 3)
+      context.fillRect(5, -6, 17, 3)
       break
     case 'pilot-wings':
+      context.fillStyle = '#fffbe4'
+      context.save()
+      context.rotate(-0.18)
+      context.fillRect(-56, -7, 45, 6)
+      context.fillRect(-48, 2, 37, 5)
+      context.fillRect(-38, 10, 27, 4)
+      context.restore()
+      context.save()
+      context.rotate(0.18)
+      context.fillRect(11, -7, 45, 6)
+      context.fillRect(11, 2, 37, 5)
+      context.fillRect(11, 10, 27, 4)
+      context.restore()
       context.fillStyle = '#f5c424'
-      context.beginPath()
-      context.moveTo(0, 0)
-      context.lineTo(-42, -12)
-      context.lineTo(-20, 8)
-      context.lineTo(0, 12)
-      context.lineTo(20, 8)
-      context.lineTo(42, -12)
-      context.closePath()
-      context.fill()
+      context.fillRect(-14, -4, 28, 8)
+      context.fillStyle = '#1761e8'
+      context.fillRect(-5, -2, 10, 4)
       break
   }
   context.restore()
