@@ -429,7 +429,10 @@ test('DC-9 ATP gate accepts pointer typing and submits the visible answer', asyn
 })
 
 test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
-  test.setTimeout(75_000)
+  // SwiftShader can take longer to tear down the real 38 MiB cockpit page after
+  // the final WebGL assertion; keep the boundary bounded without weakening checks.
+  test.setTimeout(180_000)
+  await page.setViewportSize({ width: 1440, height: 900 })
   const consoleErrors: string[] = []
   page.on('console', (message) => {
     if (message.type() === 'error') consoleErrors.push(message.text())
@@ -453,7 +456,26 @@ test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
   await expect(sidestickTarget).toHaveAttribute('style', /px/)
   await expect(page.locator('.airbus-target-layer')).toHaveClass(/airbus-target-layer--mesh-picking/)
   const canvas = page.locator('canvas')
-  await expect(canvas).toHaveAttribute('data-airbus-camera-state', /,68\.00000$/)
+  const radioTarget = page.getByRole('button', { name: 'Cockpit drop zone 4' })
+  const thrustTarget = page.getByRole('button', { name: 'Cockpit drop zone 2' })
+  const radioX = Number(await radioTarget.getAttribute('data-anchor-x'))
+  const radioY = Number(await radioTarget.getAttribute('data-anchor-y'))
+  const thrustX = Number(await thrustTarget.getAttribute('data-anchor-x'))
+  const thrustY = Number(await thrustTarget.getAttribute('data-anchor-y'))
+
+  expect(radioX).toBeGreaterThan(895)
+  expect(radioX).toBeLessThan(920)
+  expect(thrustX).toBeGreaterThan(1105)
+  expect(thrustX).toBeLessThan(1130)
+
+  await page.getByRole('button', { name: /^RADIO\b/ }).click()
+  await canvas.dispatchEvent('click', { bubbles: true, clientX: radioX, clientY: radioY })
+  await expect(radioTarget).toHaveClass(/is-correct/, { timeout: 15_000 })
+
+  await page.getByRole('button', { name: /^THRUST\b/ }).click()
+  await canvas.dispatchEvent('click', { bubbles: true, clientX: thrustX, clientY: thrustY })
+  await expect(thrustTarget).toHaveClass(/is-correct/, { timeout: 15_000 })
+  await expect(canvas).toHaveAttribute('data-airbus-camera-state', /,68\.00000$/, { timeout: 15_000 })
   expect(consoleErrors).toEqual([])
 })
 

@@ -407,6 +407,7 @@ Publish the complete milestone, include the asset/package hashes and proof scree
 - A tolerance of 18 left background-edge noise in four recovered key plates. Raising the configured tolerance to 45 removed the noise without clipping the subjects; all 17 unique key poses then inspected as one foreground component.
 - GameDevStuff's pinned managed standalone `snap` path currently supplies a null manifest hash to signed-receipt validation. The recovery used the tool's manual-handoff path plus the installed hash-verified Pixel Snapper binary with explicit argv, then returned to `prepare`, `normalize`, and `export`; the pinned checkout was not modified.
 - ImageGen returned four 1586x992 plates, an effectively 16:10 composition. All four passed full-resolution inspection for clear sprite space, responsive crop safety, forbidden-character/text absence, and visual consistency, so the runtime copies retain the selected source bytes without a destructive crop or resample.
+- `main` advanced during publication with an independent Airbus alignment milestone and the earlier three-sheet TMB2 Canvas animatic. The merge resolution retained all Airbus work, preserved the three earlier sprite sheets, and removed only the superseded Canvas/runtime modules so the approved 69-asset recovered sequence remains the single shipped intro authority.
 
 ## Decision Log
 
@@ -454,6 +455,7 @@ At each failure, capture the exact command and output, identify one root cause, 
 - Pushed commit `a69dba8e83edfa17c406e26d3e76c61ffe961111` matched `origin/agent/genesis-placeholder-intro`; the source vault, runtime package, asset report, license record, test report, and plan each had identical local/remote Git object identities.
 - A detached clean checkout of that remote commit passed `npm ci`, `npm run assets:check`, 11/11 focused intro/asset tests, and `npm run build`. The checkout stayed clean and the shipped intro paths contained no Downloads or `.cache` dependency.
 - Draft PR #51 opened with the package hashes and all ten approval captures. The PR is intentionally not mergeable by this handoff until the owner visual gate is complete.
+- After merging current `main`, the combined tree passed `npm run check` (73/73 unit tests and build), `npm run assets:check`, and all 26 Chromium cases in 6.3 minutes, including the newly retained Airbus radio/thrust alignment assertions.
 
 ## Outcome and Handoff
 
