@@ -1,26 +1,26 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { gameCopy, PROJECT_NAME } from '../game/config'
+import { gameCopy } from '../game/config'
 import {
   beginIntroAssetLoad,
   completeIntroAssetLoad,
   createIntroAssetLoadState,
   failIntroAssetLoad,
-  getIntroPlaybackMode,
+  mergeIntroAssets,
   preloadIntroAssets,
   type IntroAssetLoadState,
+  type IntroRenderAssets,
 } from '../game/introAssets'
 import { getIntroScene } from '../game/introConfig'
-import type { IntroRenderAssets } from '../game/introRenderer'
 import {
-  activateIntroRuntime,
   createIntroRuntimeState,
   disposeIntroRuntime,
   enterIntroFallback,
   isIntroRuntimeActive,
-  requestIntroCompletion,
+  requestIntroHandoff,
   resetIntroRuntimeLoop,
   runIntroAudioRetry,
   sampleIntroClock,
+  sampleIntroHandoff,
   sampleIntroRuntime,
   type IntroRuntimeState,
 } from '../game/introRuntime'
@@ -31,64 +31,8 @@ interface GameIntroProps {
   onComplete: () => void
 }
 
-type LegacyIntroCue = {
-  id: 'boot' | 'dc9' | 'key' | 'hat' | 'airbus' | 'title'
-  startSeconds: number
-  image: string | null
-  caption: string
-  treatment: 'boot' | 'push' | 'wipe' | 'poster' | 'panel' | 'title'
-  objectPosition: string
-}
-
 const DEFAULT_VOLUME = 0.72
 const EMPTY_INTRO_ASSETS: IntroRenderAssets = new Map()
-
-const legacyIntroCues = [
-  { id: 'boot', startSeconds: 0, image: null, caption: 'A FAMILY CREW PRODUCTION', treatment: 'boot', objectPosition: 'center' },
-  { id: 'dc9', startSeconds: 4, image: 'images/dc9-game-ready-first-officer.png', caption: 'THE FINAL FLIGHT LOG', treatment: 'push', objectPosition: '74% center' },
-  { id: 'key', startSeconds: 16, image: 'images/captains-key-celebration.png', caption: 'LEGACY UNLOCKED', treatment: 'wipe', objectPosition: 'center' },
-  { id: 'hat', startSeconds: 27, image: 'images/captains-hat-celebration.png', caption: 'THE JOURNEY CONTINUES', treatment: 'poster', objectPosition: 'center' },
-  { id: 'airbus', startSeconds: 38, image: 'images/a320-game-ready-captain.png', caption: 'FROM FIRST OFFICER TO CAPTAIN', treatment: 'panel', objectPosition: 'center' },
-  { id: 'title', startSeconds: 49, image: null, caption: 'MISSION READY', treatment: 'title', objectPosition: 'center' },
-] as const satisfies readonly LegacyIntroCue[]
-
-function getLegacyIntroCue(timeSeconds: number): LegacyIntroCue {
-  const safeTime = Number.isFinite(timeSeconds) ? Math.max(0, timeSeconds) : 0
-  let activeCue: LegacyIntroCue = legacyIntroCues[0]
-  for (const cue of legacyIntroCues) {
-    if (safeTime < cue.startSeconds) break
-    activeCue = cue
-  }
-  return activeCue
-}
-
-function LegacyGameIntro({ cue }: { cue: LegacyIntroCue }) {
-  return (
-    <div key={cue.id} className={`game-intro__beat game-intro__beat--${cue.treatment}`}>
-      {cue.image ? (
-        <img
-          className="game-intro__image"
-          src={`${import.meta.env.BASE_URL}${cue.image}`}
-          style={{ objectPosition: cue.objectPosition }}
-          alt=""
-          aria-hidden="true"
-        />
-      ) : null}
-      <div className="game-intro__color" aria-hidden="true" />
-      <div className="game-intro__frame" aria-hidden="true" />
-      <div className="game-intro__copy">
-        {cue.id === 'title' ? (
-          <>
-            <h1>{PROJECT_NAME}</h1>
-            <p>{cue.caption}</p>
-          </>
-        ) : (
-          <h1>{cue.caption}</h1>
-        )}
-      </div>
-    </div>
-  )
-}
 
 export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
@@ -100,51 +44,66 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
   const [started, setStarted] = useState(false)
   const [timeSeconds, setTimeSeconds] = useState(0)
   const [startAvailable, setStartAvailable] = useState(false)
+  const [phase, setPhase] = useState<IntroRuntimeState['phase']>('playing')
+  const [handoffProgress, setHandoffProgress] = useState<number | null>(null)
   const [assetLoadState, setAssetLoadState] = useState<IntroAssetLoadState>(createIntroAssetLoadState)
   const [assets, setAssets] = useState<IntroRenderAssets>(EMPTY_INTRO_ASSETS)
+  const [visualFailure, setVisualFailure] = useState<string | null>(null)
   const [audioFailed, setAudioFailed] = useState(false)
   const [muted, setMuted] = useState(false)
   const [volume, setVolume] = useState(DEFAULT_VOLUME)
-  const legacyRequested = import.meta.env.DEV
-    && new URLSearchParams(window.location.search).get('legacyIntro') === '1'
-  const playbackMode = getIntroPlaybackMode(assetLoadState, {
-    development: import.meta.env.DEV,
-    legacyRequested,
-  })
-  const legacyIntro = playbackMode === 'legacy'
-  const cue = getIntroScene(timeSeconds)
+  const scene = getIntroScene(timeSeconds)
 
   const syncRuntimeForRender = useCallback((runtime: IntroRuntimeState) => {
     setTimeSeconds(runtime.timeSeconds)
     setStartAvailable(runtime.startAvailable)
+    setPhase(runtime.phase)
   }, [])
 
-  const finishIntro = useCallback((source: 'start' | 'skip') => {
-    const request = requestIntroCompletion(runtimeRef.current, source)
-    runtimeRef.current = request.state
-    if (!request.accepted) return false
-    audioRef.current?.pause()
-    onComplete()
-    return true
-  }, [onComplete])
+  const loadIntroAssets = useCallback(() => {
+    const generation = ++assetLoadGenerationRef.current
+    const loadingState = beginIntroAssetLoad(assetLoadStateRef.current)
+    assetLoadStateRef.current = loadingState
+    setAssetLoadState(loadingState)
+    setAssets(EMPTY_INTRO_ASSETS)
+    setVisualFailure(null)
 
-  const completeIntro = useCallback(() => {
-    finishIntro('skip')
-  }, [finishIntro])
+    void preloadIntroAssets(import.meta.env.BASE_URL, 'initial')
+      .then((initialAssets) => {
+        if (generation !== assetLoadGenerationRef.current) return
+        const readyState = completeIntroAssetLoad(loadingState)
+        assetLoadStateRef.current = readyState
+        setAssets(initialAssets)
+        setAssetLoadState(readyState)
 
-  const requestStart = useCallback(() => finishIntro('start'), [finishIntro])
-
-  const updatePlaybackTime = useCallback((sampledTimeSeconds: number) => {
-    const sample = sampleIntroRuntime(runtimeRef.current, sampledTimeSeconds)
-    runtimeRef.current = sample.state
-    syncRuntimeForRender(sample.state)
-    return sample.didLoop
-  }, [syncRuntimeForRender])
+        void preloadIntroAssets(import.meta.env.BASE_URL, 'full')
+          .then((fullAssets) => {
+            if (generation !== assetLoadGenerationRef.current) return
+            setAssets((current) => mergeIntroAssets(current, fullAssets))
+            setVisualFailure(null)
+          })
+          .catch((error: unknown) => {
+            if (generation !== assetLoadGenerationRef.current) return
+            setVisualFailure(error instanceof Error ? error.message : String(error))
+          })
+      })
+      .catch((error: unknown) => {
+        if (generation !== assetLoadGenerationRef.current) return
+        const failedState = failIntroAssetLoad(loadingState, error)
+        assetLoadStateRef.current = failedState
+        setAssetLoadState(failedState)
+        setAssets(EMPTY_INTRO_ASSETS)
+      })
+  }, [])
 
   const markAudioFailed = useCallback(() => {
-    if (!isIntroRuntimeActive(runtimeRef.current)) return
-    const currentTime = audioRef.current?.currentTime ?? 0
-    runtimeRef.current = enterIntroFallback(runtimeRef.current, performance.now(), currentTime)
+    const audio = audioRef.current
+    if (!audio || runtimeRef.current.phase !== 'playing') return
+    runtimeRef.current = enterIntroFallback(
+      runtimeRef.current,
+      performance.now(),
+      audio.currentTime,
+    )
     syncRuntimeForRender(runtimeRef.current)
     setAudioFailed(true)
   }, [syncRuntimeForRender])
@@ -153,37 +112,44 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
     const audio = audioRef.current
     runtimeRef.current = resetIntroRuntimeLoop(runtimeRef.current, performance.now())
     syncRuntimeForRender(runtimeRef.current)
-    if (!isIntroRuntimeActive(runtimeRef.current)) return
-    if (!audio || runtimeRef.current.audioMode === 'fallback') return
+    if (!audio || runtimeRef.current.phase !== 'playing') return
     audio.currentTime = 0
-    void audio.play().catch(markAudioFailed)
+    if (runtimeRef.current.audioMode === 'media') void audio.play().catch(markAudioFailed)
   }, [markAudioFailed, syncRuntimeForRender])
+
+  const updatePlaybackTime = useCallback((sampledTimeSeconds: number) => {
+    const sample = sampleIntroRuntime(runtimeRef.current, sampledTimeSeconds)
+    runtimeRef.current = sample.state
+    syncRuntimeForRender(sample.state)
+    if (sample.didLoop) resetLoop()
+  }, [resetLoop, syncRuntimeForRender])
 
   const startIntro = useCallback(() => {
     const audio = audioRef.current
-    if (!audio) return
-    const currentPlaybackMode = getIntroPlaybackMode(assetLoadStateRef.current, {
-      development: import.meta.env.DEV,
-      legacyRequested,
-    })
-    if (currentPlaybackMode === 'blocked') return
-
+    if (!audio || assetLoadStateRef.current.status !== 'ready') return
     runtimeRef.current = createIntroRuntimeState()
     audio.currentTime = 0
     audio.volume = volume
     audio.muted = muted
-
-    const playback = audio.play()
     setStarted(true)
     setAudioFailed(false)
+    setHandoffProgress(null)
     syncRuntimeForRender(runtimeRef.current)
-    void playback.catch(markAudioFailed)
-  }, [legacyRequested, markAudioFailed, muted, syncRuntimeForRender, volume])
+    void audio.play().catch(markAudioFailed)
+  }, [markAudioFailed, muted, syncRuntimeForRender, volume])
+
+  const requestStart = useCallback(() => {
+    const request = requestIntroHandoff(runtimeRef.current, performance.now())
+    runtimeRef.current = request.state
+    if (!request.accepted) return false
+    syncRuntimeForRender(request.state)
+    setHandoffProgress(0)
+    return true
+  }, [syncRuntimeForRender])
 
   const retrySound = useCallback(() => {
     const audio = audioRef.current
-    if (!audio || !isIntroRuntimeActive(runtimeRef.current)) return
-
+    if (!audio) return
     runIntroAudioRetry({
       getState: () => runtimeRef.current,
       setState: (nextState) => {
@@ -195,9 +161,7 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
         audio.muted = muted
         return audio.play()
       },
-      seek: (timeSeconds) => {
-        audio.currentTime = timeSeconds
-      },
+      seek: (nextTimeSeconds) => { audio.currentTime = nextTimeSeconds },
       nowMs: () => performance.now(),
       onSuccess: () => setAudioFailed(false),
       onRejected: () => setAudioFailed(true),
@@ -213,89 +177,68 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
   const changeVolume = useCallback((nextVolume: number) => {
     const clampedVolume = Math.min(1, Math.max(0, nextVolume))
     setVolume(clampedVolume)
-    if (audioRef.current) audioRef.current.volume = clampedVolume
-  }, [])
-
-  const loadIntroAssets = useCallback(() => {
-    const generation = ++assetLoadGenerationRef.current
-    const loadingState = beginIntroAssetLoad(assetLoadStateRef.current)
-    assetLoadStateRef.current = loadingState
-    setAssetLoadState(loadingState)
-    setAssets(EMPTY_INTRO_ASSETS)
-
-    void preloadIntroAssets(import.meta.env.BASE_URL)
-      .then((loadedAssets) => {
-        if (generation !== assetLoadGenerationRef.current) return
-        const readyState = completeIntroAssetLoad(loadingState)
-        assetLoadStateRef.current = readyState
-        setAssets(loadedAssets)
-        setAssetLoadState(readyState)
-      })
-      .catch((error: unknown) => {
-        if (generation !== assetLoadGenerationRef.current) return
-        const failedState = failIntroAssetLoad(loadingState, error)
-        assetLoadStateRef.current = failedState
-        setAssets(EMPTY_INTRO_ASSETS)
-        setAssetLoadState(failedState)
-        if (failedState.status === 'error') {
-          console.error(`[TMB2 intro assets] ${failedState.failure.message}`)
-        }
-      })
+    if (audioRef.current && runtimeRef.current.phase === 'playing') {
+      audioRef.current.volume = clampedVolume
+    }
   }, [])
 
   useEffect(() => {
     loadIntroAssets()
-    return () => {
-      assetLoadGenerationRef.current += 1
-    }
+    return () => { assetLoadGenerationRef.current += 1 }
   }, [loadIntroAssets])
 
   useEffect(() => {
     if (!started) return
-
     const tick = () => {
       const audio = audioRef.current
-      const sample = sampleIntroClock(runtimeRef.current, {
-        nowMs: performance.now(),
-        mediaTimeSeconds: audio?.currentTime ?? 0,
-      })
-      runtimeRef.current = sample.state
-      syncRuntimeForRender(sample.state)
-      if (sample.didLoop) {
-        if (legacyIntro) completeIntro()
-        else resetLoop()
+      if (runtimeRef.current.phase === 'playing') {
+        const sample = sampleIntroClock(runtimeRef.current, {
+          nowMs: performance.now(),
+          mediaTimeSeconds: audio?.currentTime ?? 0,
+        })
+        runtimeRef.current = sample.state
+        syncRuntimeForRender(sample.state)
+        if (sample.didLoop) resetLoop()
+      } else if (runtimeRef.current.phase === 'handoff') {
+        const sample = sampleIntroHandoff(runtimeRef.current, performance.now())
+        runtimeRef.current = sample.state
+        syncRuntimeForRender(sample.state)
+        setHandoffProgress(sample.progress)
+        if (audio) audio.volume = volume * sample.audioGain
+        if (sample.shouldComplete) {
+          audio?.pause()
+          onComplete()
+        }
       }
       if (isIntroRuntimeActive(runtimeRef.current)) {
         animationFrameRef.current = requestAnimationFrame(tick)
       }
     }
-
     animationFrameRef.current = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(animationFrameRef.current)
-  }, [completeIntro, legacyIntro, resetLoop, started, syncRuntimeForRender])
+  }, [onComplete, resetLoop, started, syncRuntimeForRender, volume])
 
   useEffect(() => {
-    if (!started || legacyIntro) return
+    if (!started) return
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.repeat) return
       const isSpace = event.key === ' ' || event.code === 'Space'
-      if (event.key !== 'Enter' && event.key !== 'Escape' && !isSpace) return
+      if (event.key !== 'Enter' && !isSpace) return
       const target = event.target instanceof Element ? event.target : null
       const interactiveTarget = target?.closest(
         'button, input, select, textarea, a, [contenteditable]:not([contenteditable="false"])',
       )
       const startButtonTarget = target?.closest('.game-intro__press-start[aria-label="Start game"]')
-      if ((event.key === 'Enter' || isSpace) && interactiveTarget && !startButtonTarget) return
+      if (interactiveTarget && !startButtonTarget) return
       const accepted = requestStart()
       if (isSpace && accepted) event.preventDefault()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [legacyIntro, requestStart, started])
+  }, [requestStart, started])
 
   useEffect(() => {
-    if (!started || legacyIntro) return
-
+    if (!started) return
     const hasPressedStart = () => Array.from(navigator.getGamepads?.() ?? [])
       .some((gamepad) => gamepad?.mapping === 'standard' && gamepad.buttons[9]?.pressed)
     let startWasPressed = hasPressedStart()
@@ -307,13 +250,11 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
         gamepadAnimationFrameRef.current = requestAnimationFrame(pollGamepad)
       }
     }
-
     gamepadAnimationFrameRef.current = requestAnimationFrame(pollGamepad)
     return () => cancelAnimationFrame(gamepadAnimationFrameRef.current)
-  }, [legacyIntro, requestStart, started])
+  }, [requestStart, started])
 
   useEffect(() => {
-    runtimeRef.current = activateIntroRuntime(runtimeRef.current)
     const audio = audioRef.current
     return () => {
       runtimeRef.current = disposeIntroRuntime(runtimeRef.current)
@@ -321,23 +262,15 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
     }
   }, [])
 
-  const legacyCue = getLegacyIntroCue(timeSeconds)
-
   return (
     <>
       <audio
         ref={audioRef}
         preload="auto"
         src={`${import.meta.env.BASE_URL}audio/intro-audio-53s.mp3`}
-        onEnded={legacyIntro ? completeIntro : resetLoop}
+        onEnded={resetLoop}
         onError={markAudioFailed}
-        onTimeUpdate={(event) => {
-          const didLoop = updatePlaybackTime(event.currentTarget.currentTime)
-          if (didLoop) {
-            if (legacyIntro) completeIntro()
-            else resetLoop()
-          }
-        }}
+        onTimeUpdate={(event) => updatePlaybackTime(event.currentTarget.currentTime)}
       />
 
       {!started ? (
@@ -356,7 +289,7 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
               type="button"
               className="primary-button primary-button--large"
               aria-describedby={assetLoadState.status === 'ready' ? undefined : 'intro-asset-status'}
-              disabled={playbackMode === 'blocked'}
+              disabled={assetLoadState.status !== 'ready'}
               onClick={startIntro}
             >
               Start Game
@@ -370,7 +303,6 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
               <div className="briefing-asset-error">
                 <p id="intro-asset-status" className="briefing-asset-status" role="status" aria-live="polite">
                   Cinematic art failed: {assetLoadState.failure.assetId} ({assetLoadState.failure.assetPath}).
-                  {playbackMode === 'legacy' ? ' Development fallback ready.' : ''}
                 </p>
                 <button type="button" className="text-button" onClick={loadIntroAssets}>
                   Retry cinematic assets
@@ -381,20 +313,24 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
         </section>
       ) : (
         <section
-          className={`game-intro${legacyIntro ? ' game-intro--legacy' : ''}`}
+          className={`game-intro${phase === 'handoff' ? ' game-intro--handoff' : ''}`}
           aria-label="Game intro"
-          data-intro-cue={legacyIntro ? legacyCue.id : cue.id}
+          data-intro-cue={scene.id}
           data-reduced-motion={reducedMotion ? 'true' : 'false'}
+          data-start-available={startAvailable ? 'true' : 'false'}
+          data-transition-state={phase}
         >
-          {legacyIntro ? (
-            <LegacyGameIntro cue={legacyCue} />
-          ) : (
-            <div className="game-intro__stage-shell">
-              <IntroCanvas timeSeconds={timeSeconds} assets={assets} reducedMotion={reducedMotion} />
-            </div>
-          )}
+          <div className="game-intro__stage-shell">
+            <IntroCanvas
+              timeSeconds={timeSeconds}
+              assets={assets}
+              reducedMotion={reducedMotion}
+              handoffProgress={handoffProgress}
+            />
+          </div>
+          <p className="game-intro__summary sr-only">{scene.summary}</p>
 
-          {!legacyIntro && startAvailable ? (
+          {startAvailable && phase === 'playing' ? (
             <button
               type="button"
               className="game-intro__press-start"
@@ -409,6 +345,7 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
             <p className="game-intro__sound-status" role="status" aria-live="polite">
               {audioFailed ? 'The intro is continuing without sound.' : muted ? 'Intro muted.' : 'Intro audio playing.'}
             </p>
+            {visualFailure ? <p className="game-intro__visual-status">{visualFailure}</p> : null}
             <div className="game-intro__audio-controls">
               {audioFailed ? (
                 <button type="button" className="game-intro__control" onClick={retrySound}>Retry sound</button>
@@ -429,7 +366,6 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
                 />
               </label>
             </div>
-            <button type="button" className="game-intro__skip" onClick={completeIntro}>Skip Intro</button>
           </div>
         </section>
       )}

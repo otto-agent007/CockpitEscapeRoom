@@ -1,26 +1,22 @@
 import { describe, expect, it } from 'vitest'
 import { computeIntroStagePlacement } from './introGeometry'
 
-describe('intro stage geometry', () => {
+describe('TMB2 integer stage placement', () => {
   it.each([
-    {
-      shell: { width: 1_440, height: 900 },
-      expected: { scale: 4, left: 80, top: 2, width: 1_280, height: 896 },
-    },
-    {
-      shell: { width: 768, height: 900 },
-      expected: { scale: 2, left: 64, top: 226, width: 640, height: 448 },
-    },
-    {
-      shell: { width: 375, height: 812 },
-      expected: { scale: 1, left: 27, top: 294, width: 320, height: 224 },
-    },
-  ])('places a whole-pixel stage inside $shell.width x $shell.height', ({ shell, expected }) => {
-    const placement = computeIntroStagePlacement(shell.width, shell.height)
+    { width: 1440, height: 900, expected: { scale: 4, left: 80, top: 2, width: 1280, height: 896 } },
+    { width: 768, height: 900, expected: { scale: 2, left: 64, top: 226, width: 640, height: 448 } },
+    { width: 375, height: 812, expected: { scale: 1, left: 27, top: 294, width: 320, height: 224 } },
+  ])('places 320x224 at integer scale inside $width x $height', ({ width, height, expected }) => {
+    expect(computeIntroStagePlacement(width, height)).toEqual(expected)
+  })
 
-    expect(placement).toEqual(expected)
-    expect(Object.values(placement).every(Number.isInteger)).toBe(true)
-    expect(placement.width).toBe(320 * placement.scale)
-    expect(placement.height).toBe(224 * placement.scale)
+  it('clamps invalid or undersized shells to a one-times stage', () => {
+    expect(computeIntroStagePlacement(Number.NaN, -1)).toEqual({
+      scale: 1,
+      left: -160,
+      top: -112,
+      width: 320,
+      height: 224,
+    })
   })
 })

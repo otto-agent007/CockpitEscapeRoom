@@ -14,6 +14,207 @@
   --text-soft: #bfc9bb;
 }
 
+/* Authoritative 320 x 224 TMB2 Canvas presentation. */
+.game-intro.game-intro {
+  --intro-ink: #f8fbff;
+  --intro-gold: #f5c424;
+  --intro-blue: #1761e8;
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+  background: #000;
+  color: var(--intro-ink);
+}
+
+.game-intro .game-intro__stage-shell {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+.game-intro .game-intro__stage {
+  position: absolute;
+  width: 320px;
+  height: 224px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  transform-origin: top left;
+}
+
+.game-intro.game-intro::before,
+.game-intro.game-intro::after {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+}
+
+.game-intro.game-intro::before {
+  background:
+    radial-gradient(circle at center, transparent 48%, rgba(0, 0, 10, 0.5) 100%),
+    linear-gradient(90deg, rgba(255, 35, 35, 0.025), transparent 35%, rgba(30, 90, 255, 0.03));
+}
+
+.game-intro.game-intro::after {
+  opacity: 0.24;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.5) 0 1px, transparent 1px 3px);
+  animation: tmb2-scanlines 720ms steps(4, end) infinite;
+}
+
+.game-intro.game-intro--handoff::before,
+.game-intro.game-intro--handoff::after {
+  display: none;
+}
+
+.game-intro .game-intro__press-start {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: clamp(5.5rem, 13vh, 7.5rem);
+  border: 0;
+  padding: 0.4rem 0.7rem;
+  background: rgba(0, 0, 18, 0.72);
+  color: #f8fbff;
+  font: 900 clamp(0.85rem, 1.4vw, 1.1rem)/1 "Courier New", monospace;
+  letter-spacing: 0.12em;
+  text-shadow: 2px 0 #1761e8, -2px 0 #a41724;
+  transform: translateX(-50%);
+  animation: tmb2-start-blink 900ms steps(1, end) infinite;
+  cursor: pointer;
+}
+
+.game-intro .game-intro__press-start:focus-visible {
+  outline: 3px solid var(--intro-gold);
+  outline-offset: 4px;
+}
+
+.game-intro .game-intro__controls {
+  position: absolute;
+  z-index: 5;
+  right: clamp(0.75rem, 2vw, 1.5rem);
+  bottom: clamp(0.75rem, 2vw, 1.5rem);
+  left: clamp(0.75rem, 2vw, 1.5rem);
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 3.5rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid rgba(117, 196, 255, 0.72);
+  background: rgba(0, 0, 14, 0.9);
+  box-shadow: 3px 3px 0 rgba(23, 97, 232, 0.55);
+  font-family: "Courier New", ui-monospace, monospace;
+}
+
+.game-intro.game-intro--handoff .game-intro__controls,
+.game-intro.game-intro--handoff .game-intro__press-start {
+  visibility: hidden;
+}
+
+.game-intro .game-intro__sound-status,
+.game-intro .game-intro__visual-status {
+  margin: 0;
+  color: #c8dbff;
+  font-size: 0.75rem;
+  line-height: 1.25;
+}
+
+.game-intro .game-intro__visual-status {
+  grid-column: 1 / -1;
+  color: #fff0a8;
+}
+
+.game-intro .game-intro__audio-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.game-intro .game-intro__control {
+  min-height: 2.4rem;
+  border: 1px solid #75c4ff;
+  border-radius: 0;
+  padding: 0.45rem 0.7rem;
+  background: #071a50;
+  color: #fff;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.game-intro .game-intro__control:hover,
+.game-intro .game-intro__control:focus-visible {
+  background: #123a9c;
+}
+
+.game-intro .game-intro__volume {
+  display: grid;
+  grid-template-columns: auto minmax(5rem, 8vw);
+  align-items: center;
+  gap: 0.45rem;
+  color: #f8fbff;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.game-intro .game-intro__volume input {
+  width: 100%;
+  accent-color: var(--intro-blue);
+}
+
+.briefing-asset-status {
+  margin: 0.85rem 0 0;
+  color: #c8dbff;
+  font-size: 0.84rem;
+}
+
+.briefing-asset-error {
+  display: grid;
+  gap: 0.6rem;
+}
+
+@keyframes tmb2-scanlines {
+  to { transform: translateY(3px); }
+}
+
+@keyframes tmb2-start-blink {
+  0%, 54% { opacity: 1; }
+  55%, 100% { opacity: 0.22; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-intro.game-intro::after,
+  .game-intro .game-intro__press-start {
+    animation: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .game-intro .game-intro__controls {
+    right: 0.6rem;
+    bottom: 0.6rem;
+    left: 0.6rem;
+    grid-template-columns: 1fr;
+  }
+
+  .game-intro .game-intro__audio-controls {
+    display: grid;
+    grid-template-columns: auto 1fr;
+  }
+
+  .game-intro .game-intro__volume {
+    grid-template-columns: auto 1fr;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -166,36 +367,6 @@ a:focus-visible {
   color: var(--intro-ink);
 }
 
-.game-intro__stage-shell {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  background: #000;
-}
-
-.game-intro__stage {
-  position: absolute;
-  width: 320px;
-  height: 224px;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-  transform-origin: top left;
-}
-
-.game-intro__press-start {
-  position: absolute;
-  z-index: 5;
-  left: 50%;
-  bottom: 12%;
-  transform: translateX(-50%);
-  border: 0;
-  background: transparent;
-  color: #fff5c4;
-  font: 900 14px/1 "Courier New", monospace;
-  animation: intro-start-blink 900ms steps(1, end) infinite;
-  cursor: pointer;
-}
-
 .game-intro::before,
 .game-intro::after {
   position: absolute;
@@ -231,41 +402,126 @@ a:focus-visible {
   animation: intro-beat-in 420ms steps(6, end) both;
 }
 
-.game-intro__image,
+.game-intro__background,
 .game-intro__color,
 .game-intro__frame {
   position: absolute;
   inset: 0;
 }
 
-.game-intro__image {
+.game-intro__background {
   width: 100%;
   height: 100%;
   display: block;
   object-fit: cover;
-  filter: saturate(0.92) contrast(1.16) brightness(0.72);
+  filter: saturate(0.96) contrast(1.12) brightness(0.7);
+  animation: intro-background-drift 8s steps(16, end) both;
 }
 
-.game-intro__beat--push .game-intro__image,
-.game-intro__beat--panel .game-intro__image {
-  animation: intro-step-push 12s steps(12, end) both;
+.game-intro__sprite-stage {
+  position: absolute;
+  z-index: 1;
+  inset: 0 0 clamp(8rem, 18vh, 10rem);
+  overflow: hidden;
+  pointer-events: none;
 }
 
-.game-intro__beat--wipe .game-intro__image,
-.game-intro__beat--poster .game-intro__image {
-  inset: 7vh 8vw 18vh;
-  width: calc(100% - 16vw);
-  height: calc(100% - 25vh);
+.game-intro__popt,
+.game-intro__key {
+  position: absolute;
+  z-index: 2;
   object-fit: contain;
-  filter: saturate(0.88) contrast(1.18) drop-shadow(12px 12px 0 rgba(12, 21, 64, 0.82));
+  image-rendering: pixelated;
+  filter: drop-shadow(10px 12px 0 rgba(2, 5, 20, 0.58));
 }
 
-.game-intro__beat--wipe .game-intro__image {
-  animation: intro-pixel-wipe 800ms steps(10, end) both;
+.game-intro__popt {
+  bottom: 5%;
+  left: 8%;
+  width: clamp(26rem, 56vw, 56rem);
+  height: clamp(26rem, 68vh, 56rem);
+  animation: intro-popt-chase 6s steps(12, end) both;
 }
 
-.game-intro__beat--poster .game-intro__image {
-  animation: intro-poster 11s steps(10, end) both;
+.game-intro__key {
+  right: 14%;
+  bottom: 28%;
+  width: clamp(8rem, 16vw, 14rem);
+  height: clamp(8rem, 25vh, 14rem);
+  animation: intro-key-chase 5s steps(10, end) both;
+}
+
+.game-intro__prop {
+  position: absolute;
+  z-index: 1;
+  top: 42%;
+  right: 12%;
+  left: 18%;
+  height: 6px;
+  opacity: 0.72;
+  background: linear-gradient(90deg, transparent, #2b74ff 28%, #b9e9ff 55%, transparent);
+  box-shadow: 0 0 18px #2076ff, 0 0 42px rgba(32, 118, 255, 0.62);
+  transform: rotate(-7deg);
+  transform-origin: center;
+  animation: intro-prop-streak 1.2s steps(8, end) infinite;
+}
+
+.game-intro__beat--duffel .game-intro__popt {
+  left: 1%;
+  bottom: 1%;
+  animation-name: intro-popt-pull;
+}
+
+.game-intro__beat--duffel .game-intro__key {
+  right: 38%;
+  bottom: 30%;
+}
+
+.game-intro__beat--runway .game-intro__popt,
+.game-intro__beat--ballpark .game-intro__popt,
+.game-intro__beat--finance .game-intro__popt {
+  left: 3%;
+}
+
+.game-intro__beat--clouds .game-intro__popt {
+  left: 4%;
+  bottom: 14%;
+  transform: rotate(-8deg);
+}
+
+.game-intro__beat--clouds .game-intro__key {
+  right: 12%;
+  bottom: 46%;
+}
+
+.game-intro__beat--catch .game-intro__popt {
+  left: 25%;
+  bottom: 10%;
+  animation-name: intro-popt-catch;
+}
+
+.game-intro__beat--catch .game-intro__key {
+  right: 25%;
+  bottom: 42%;
+  animation-name: intro-key-catch;
+}
+
+.game-intro__beat--boot .game-intro__prop,
+.game-intro__beat--title .game-intro__prop {
+  top: 50%;
+  right: 22%;
+  left: 22%;
+  height: 3px;
+  transform: none;
+}
+
+.game-intro__beat--title .game-intro__prop {
+  height: clamp(4rem, 12vw, 9rem);
+  opacity: 0.52;
+  background:
+    linear-gradient(155deg, transparent 46%, var(--intro-gold) 47% 52%, transparent 53%) left center / 50% 100% no-repeat,
+    linear-gradient(25deg, transparent 46%, var(--intro-gold) 47% 52%, transparent 53%) right center / 50% 100% no-repeat;
+  box-shadow: none;
 }
 
 .game-intro__color {
@@ -310,9 +566,9 @@ a:focus-visible {
   z-index: 2;
   inset: 0;
   display: grid;
-  place-content: center;
+  place-content: start center;
   justify-items: center;
-  padding: clamp(4rem, 10vw, 10rem) clamp(1.75rem, 8vw, 8rem) clamp(10rem, 24vh, 14rem);
+  padding: clamp(4rem, 9vh, 7rem) clamp(1.75rem, 8vw, 8rem) clamp(10rem, 24vh, 14rem);
   text-align: center;
 }
 
@@ -337,6 +593,11 @@ a:focus-visible {
   max-width: 13ch;
   font-size: clamp(2.1rem, 6vw, 5.8rem);
   animation: intro-title-build 900ms steps(8, end) both;
+}
+
+.game-intro__beat--boot .game-intro__copy,
+.game-intro__beat--title .game-intro__copy {
+  place-content: center;
 }
 
 .game-intro__beat--title .game-intro__copy h1 {
@@ -438,28 +699,45 @@ a:focus-visible {
   to { opacity: 1; filter: brightness(1); }
 }
 
-@keyframes intro-step-push {
+@keyframes intro-background-drift {
   from { transform: scale(1); }
-  to { transform: scale(1.12); }
+  to { transform: scale(1.06) translate3d(-1%, -1%, 0); }
 }
 
-@keyframes intro-pixel-wipe {
-  from { clip-path: inset(0 100% 0 0); transform: translateX(-3rem); }
-  to { clip-path: inset(0); transform: translateX(0); }
+@keyframes intro-popt-chase {
+  from { transform: translate3d(-12vw, 2vh, 0); }
+  to { transform: translate3d(20vw, -1vh, 0); }
 }
 
-@keyframes intro-poster {
-  from { transform: scale(0.94) rotate(-1deg); }
-  to { transform: scale(1.05) rotate(1deg); }
+@keyframes intro-key-chase {
+  from { transform: translate3d(10vw, -3vh, 0) rotate(-4deg); }
+  to { transform: translate3d(-18vw, 2vh, 0) rotate(5deg); }
+}
+
+@keyframes intro-popt-pull {
+  from { transform: translate3d(-8vw, 0, 0) rotate(-3deg); }
+  to { transform: translate3d(8vw, 0, 0) rotate(2deg); }
+}
+
+@keyframes intro-popt-catch {
+  from { transform: translate3d(-12vw, 4vh, 0) rotate(-8deg); }
+  to { transform: translate3d(8vw, -3vh, 0) rotate(3deg); }
+}
+
+@keyframes intro-key-catch {
+  from { transform: translate3d(10vw, -4vh, 0) rotate(8deg); }
+  to { transform: translate3d(-11vw, 5vh, 0) rotate(-4deg); }
+}
+
+@keyframes intro-prop-streak {
+  0% { opacity: 0.18; transform: translate3d(8vw, 0, 0) rotate(-7deg) scaleX(0.55); }
+  50% { opacity: 0.78; }
+  100% { opacity: 0.18; transform: translate3d(-8vw, 0, 0) rotate(-7deg) scaleX(1); }
 }
 
 @keyframes intro-title-build {
   from { clip-path: inset(0 50%); letter-spacing: 0.12em; }
   to { clip-path: inset(0); letter-spacing: -0.055em; }
-}
-
-@keyframes intro-start-blink {
-  50% { opacity: 0; }
 }
 
 .briefing-panel {
@@ -499,17 +777,6 @@ p {
 .lede {
   color: #eef0e6;
   font-size: clamp(1.08rem, 2.1vw, 1.35rem);
-}
-
-.briefing-asset-status {
-  margin: 0.7rem 0 0;
-  color: var(--text-soft);
-  font-size: 0.82rem;
-  line-height: 1.45;
-}
-
-.briefing-asset-error .text-button {
-  margin-top: 0.35rem;
 }
 
 .mode-grid,
@@ -2621,12 +2888,21 @@ progress {
   }
   .game-intro::after,
   .game-intro__beat,
-  .game-intro__image,
+  .game-intro__background,
+  .game-intro__popt,
+  .game-intro__key,
+  .game-intro__prop,
   .game-intro__copy h1 {
     animation: none !important;
   }
-  .game-intro__press-start {
-    animation: none;
+
+  .game-intro__popt,
+  .game-intro__key {
+    transform: none !important;
+  }
+
+  .game-intro__prop {
+    display: none;
   }
   *,
   *::before,
@@ -2649,11 +2925,30 @@ progress {
     display: none;
   }
 
-  .game-intro__beat--wipe .game-intro__image,
-  .game-intro__beat--poster .game-intro__image {
-    inset: 8vh 4vw 28vh;
-    width: calc(100% - 8vw);
-    height: calc(100% - 36vh);
+  .game-intro__sprite-stage {
+    bottom: 13.5rem;
+  }
+
+  .game-intro__popt {
+    bottom: -2rem;
+    left: -5rem;
+    width: 30rem;
+    height: 30rem;
+  }
+
+  .game-intro__key {
+    right: 0.5rem;
+    bottom: 30%;
+    width: 8.5rem;
+    height: 8.5rem;
+  }
+
+  .game-intro__beat--catch .game-intro__popt {
+    left: -1rem;
+  }
+
+  .game-intro__beat--catch .game-intro__key {
+    right: 1rem;
   }
 
   .game-intro__copy {

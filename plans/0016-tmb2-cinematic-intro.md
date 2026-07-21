@@ -1,5 +1,7 @@
 # TMB2 16-Bit Cinematic Intro
 
+> Superseded on 2026-07-20 by `plans/0016-tmb2-intro-asset-recovery.md`. The earlier three-sheet Canvas animatic and its evidence remain in history, while the shipped intro now uses the repository-owned 69-asset recovered package and layered eight-beat sequence. The three earlier sprite sheets remain preserved under `public/images/intro/popt` and were not discarded.
+
 ## Purpose
 Replace only the 53-second placeholder montage after Start Game with the approved TMB2 and Pop T key-chase cinematic. Preserve the existing briefing and the DC-9 Final Flight Log entry.
 

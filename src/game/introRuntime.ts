@@ -1,4 +1,11 @@
-import { INTRO_DURATION_SECONDS, START_AVAILABLE_SECONDS } from './introConfig'
+import {
+  INTRO_AUDIO_FADE_SECONDS,
+  INTRO_DURATION_SECONDS,
+  INTRO_HANDOFF_SECONDS,
+  START_AVAILABLE_SECONDS,
+} from './introConfig'
+
+export type IntroRuntimePhase = 'playing' | 'handoff' | 'completed'
 
 export type IntroRuntimeState = {
   timeSeconds: number
@@ -6,7 +13,8 @@ export type IntroRuntimeState = {
   audioMode: 'media' | 'fallback'
   fallbackStartedAtMs: number
   retryGeneration: number
-  completed: boolean
+  phase: IntroRuntimePhase
+  handoffStartedAtMs: number | null
   disposed: boolean
 }
 
@@ -15,8 +23,19 @@ export type IntroRuntimeSample = {
   didLoop: boolean
 }
 
+export type IntroHandoffSample = {
+  state: IntroRuntimeState
+  progress: number
+  audioGain: number
+  shouldComplete: boolean
+}
+
 function safeNonNegative(value: number): number {
   return Number.isFinite(value) ? Math.max(0, value) : 0
+}
+
+function clamp01(value: number): number {
+  return Math.max(0, Math.min(1, value))
 }
 
 export function createIntroRuntimeState(): IntroRuntimeState {
@@ -26,24 +45,23 @@ export function createIntroRuntimeState(): IntroRuntimeState {
     audioMode: 'media',
     fallbackStartedAtMs: 0,
     retryGeneration: 0,
-    completed: false,
+    phase: 'playing',
+    handoffStartedAtMs: null,
     disposed: false,
   }
 }
 
-export function activateIntroRuntime(state: IntroRuntimeState): IntroRuntimeState {
-  return state.disposed ? { ...state, disposed: false } : state
-}
-
 export function isIntroRuntimeActive(state: IntroRuntimeState): boolean {
-  return !state.completed && !state.disposed
+  return !state.disposed && state.phase !== 'completed'
 }
 
 export function sampleIntroRuntime(
   state: IntroRuntimeState,
   sampledTimeSeconds: number,
 ): IntroRuntimeSample {
-  if (state.completed || state.disposed) return { state, didLoop: false }
+  if (!isIntroRuntimeActive(state) || state.phase !== 'playing') {
+    return { state, didLoop: false }
+  }
 
   const safeTimeSeconds = safeNonNegative(sampledTimeSeconds)
   const didLoop = safeTimeSeconds >= INTRO_DURATION_SECONDS
@@ -68,7 +86,7 @@ export function sampleIntroClock(
 }
 
 export function resetIntroRuntimeLoop(state: IntroRuntimeState, nowMs: number): IntroRuntimeState {
-  if (state.completed || state.disposed) return state
+  if (!isIntroRuntimeActive(state) || state.phase !== 'playing') return state
   return {
     ...state,
     timeSeconds: 0,
@@ -83,13 +101,11 @@ export function enterIntroFallback(
   nowMs: number,
   mediaTimeSeconds: number,
 ): IntroRuntimeState {
-  if (state.completed || state.disposed) return state
+  if (!isIntroRuntimeActive(state) || state.phase !== 'playing') return state
   const sample = state.audioMode === 'fallback'
     ? sampleIntroClock(state, { nowMs, mediaTimeSeconds })
     : sampleIntroRuntime(state, mediaTimeSeconds)
-  const sampled = sample.didLoop
-    ? resetIntroRuntimeLoop(sample.state, nowMs)
-    : sample.state
+  const sampled = sample.didLoop ? resetIntroRuntimeLoop(sample.state, nowMs) : sample.state
   return {
     ...sampled,
     audioMode: 'fallback',
@@ -116,6 +132,7 @@ function settleIntroAudioRetry(
   const currentState = options.getState()
   if (
     !isIntroRuntimeActive(currentState)
+    || currentState.phase !== 'playing'
     || currentState.audioMode !== 'fallback'
     || currentState.retryGeneration !== generation
   ) return
@@ -125,17 +142,15 @@ function settleIntroAudioRetry(
     nowMs,
     mediaTimeSeconds: currentState.timeSeconds,
   })
-  const sampledState = sample.didLoop
-    ? resetIntroRuntimeLoop(sample.state, nowMs)
-    : sample.state
+  const sampled = sample.didLoop ? resetIntroRuntimeLoop(sample.state, nowMs) : sample.state
   if (outcome === 'rejected') {
-    options.setState({ ...sampledState, retryGeneration: generation + 1 })
+    options.setState({ ...sampled, retryGeneration: generation + 1 })
     options.onRejected?.()
     return
   }
 
   const mediaState = {
-    ...sampledState,
+    ...sampled,
     audioMode: 'media' as const,
     retryGeneration: generation + 1,
   }
@@ -146,18 +161,20 @@ function settleIntroAudioRetry(
 
 export function runIntroAudioRetry(options: IntroAudioRetryOptions): boolean {
   const currentState = options.getState()
-  if (!isIntroRuntimeActive(currentState) || currentState.audioMode !== 'fallback') return false
+  if (
+    !isIntroRuntimeActive(currentState)
+    || currentState.phase !== 'playing'
+    || currentState.audioMode !== 'fallback'
+  ) return false
 
   const nowMs = options.nowMs()
   const sample = sampleIntroClock(currentState, {
     nowMs,
     mediaTimeSeconds: currentState.timeSeconds,
   })
-  const sampledState = sample.didLoop
-    ? resetIntroRuntimeLoop(sample.state, nowMs)
-    : sample.state
-  const generation = sampledState.retryGeneration + 1
-  const pendingState = { ...sampledState, retryGeneration: generation }
+  const sampled = sample.didLoop ? resetIntroRuntimeLoop(sample.state, nowMs) : sample.state
+  const generation = sampled.retryGeneration + 1
+  const pendingState = { ...sampled, retryGeneration: generation }
   options.setState(pendingState)
   options.seek(pendingState.timeSeconds)
 
@@ -174,15 +191,47 @@ export function runIntroAudioRetry(options: IntroAudioRetryOptions): boolean {
   return true
 }
 
-export function requestIntroCompletion(
+export function requestIntroHandoff(
   state: IntroRuntimeState,
-  source: 'start' | 'skip',
+  nowMs: number,
 ): { state: IntroRuntimeState; accepted: boolean } {
   const accepted = isIntroRuntimeActive(state)
-    && (source === 'skip' || state.startAvailable)
-  return accepted
-    ? { state: { ...state, completed: true, retryGeneration: state.retryGeneration + 1 }, accepted: true }
-    : { state, accepted: false }
+    && state.phase === 'playing'
+    && state.startAvailable
+  if (!accepted) return { state, accepted: false }
+  return {
+    state: {
+      ...state,
+      phase: 'handoff',
+      handoffStartedAtMs: safeNonNegative(nowMs),
+      retryGeneration: state.retryGeneration + 1,
+    },
+    accepted: true,
+  }
+}
+
+export function sampleIntroHandoff(
+  state: IntroRuntimeState,
+  nowMs: number,
+): IntroHandoffSample {
+  if (state.phase === 'completed') {
+    return { state, progress: 1, audioGain: 0, shouldComplete: false }
+  }
+  if (state.phase !== 'handoff' || state.handoffStartedAtMs === null || state.disposed) {
+    return { state, progress: 0, audioGain: 1, shouldComplete: false }
+  }
+
+  const elapsedSeconds = Math.max(0, safeNonNegative(nowMs) - state.handoffStartedAtMs) / 1_000
+  const progress = clamp01(elapsedSeconds / INTRO_HANDOFF_SECONDS)
+  const audioGain = clamp01(1 - elapsedSeconds / INTRO_AUDIO_FADE_SECONDS)
+  if (progress < 1) return { state, progress, audioGain, shouldComplete: false }
+
+  return {
+    state: { ...state, phase: 'completed' },
+    progress: 1,
+    audioGain: 0,
+    shouldComplete: true,
+  }
 }
 
 export function disposeIntroRuntime(state: IntroRuntimeState): IntroRuntimeState {

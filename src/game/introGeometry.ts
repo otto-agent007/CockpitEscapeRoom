@@ -25,7 +25,6 @@ export function computeIntroStagePlacement(
   )))
   const width = INTRO_STAGE_WIDTH * scale
   const height = INTRO_STAGE_HEIGHT * scale
-
   return {
     scale,
     left: Math.floor((availableWidth - width) / 2),

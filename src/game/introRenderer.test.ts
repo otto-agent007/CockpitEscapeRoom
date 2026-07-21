@@ -1,31 +1,44 @@
 import { describe, expect, it } from 'vitest'
-import { deriveIntroFrame } from './introRenderer'
+import { deriveHandoffAnimation, deriveIntroAnimation } from './introAnimation'
+import { deriveIntroDrawCommands } from './introRenderer'
 
-describe('intro frame derivation', () => {
-  it.each([0, 3, 6, 12, 16, 22, 28, 35, 42, 48, 51, 53])('keeps authored geometry integral at %s seconds', (time) => {
-    const frame = deriveIntroFrame(time)
-    for (const actor of frame.actors) {
-      expect(Number.isInteger(actor.x)).toBe(true)
-      expect(Number.isInteger(actor.y)).toBe(true)
-    }
+describe('TMB2 Canvas draw commands', () => {
+  it('builds the blue ident without any visible title or chapter-caption command', () => {
+    const commands = deriveIntroDrawCommands(deriveIntroAnimation(3, false), null)
+    expect(commands.map((command) => command.kind)).toEqual(['clear', 'logo'])
+    expect(JSON.stringify(commands)).not.toMatch(/title|caption|chapter/i)
   })
 
-  it('derives the scene from media time rather than frame deltas', () => {
-    expect(deriveIntroFrame(21.999).scene.id).toBe('runway')
-    expect(deriveIntroFrame(22).scene.id).toBe('ballpark')
+  it('orders recovered runway art, independent props, and pivot-stable actors', () => {
+    const commands = deriveIntroDrawCommands(deriveIntroAnimation(18, false), null)
+    expect(commands[0]).toEqual({ kind: 'clear', color: '#02030a' })
+    expect(commands[1]).toMatchObject({ kind: 'background', assetId: 'background-runway' })
+    expect(commands.some((command) => command.kind === 'prop' && command.prop.id === 'runway-cart')).toBe(true)
+
+    const sprites = commands.filter((command) => command.kind === 'sprite')
+    expect(sprites).toHaveLength(2)
+    expect(sprites).toEqual(expect.arrayContaining([
+      expect.objectContaining({ actor: 'popt', assetId: 'popt-run', pivot: { x: 128, y: 224 } }),
+      expect.objectContaining({ actor: 'key', assetId: 'key-poses', pivot: { x: 128, y: 224 } }),
+    ]))
   })
 
-  it.each([
-    { time: 53.04, scene: 'tmb2-ident', progress: 0 },
-    { time: 53.04 * 3, scene: 'tmb2-ident', progress: 0 },
-    { time: Number.NaN, scene: 'tmb2-ident', progress: 0 },
-    { time: 59.04, scene: 'duffel', progress: 0 },
-    { time: 60.54, scene: 'duffel', progress: 0.25 },
-  ])('normalizes $time before scene-relative progress', ({ time, scene, progress }) => {
-    const frame = deriveIntroFrame(time)
+  it('adds pixel collapse only during the reset beat', () => {
+    expect(deriveIntroDrawCommands(deriveIntroAnimation(50, false), null)
+      .some((command) => command.kind === 'pixel-collapse')).toBe(false)
+    expect(deriveIntroDrawCommands(deriveIntroAnimation(52.5, false), null)
+      .some((command) => command.kind === 'pixel-collapse')).toBe(true)
+  })
 
-    expect(frame.scene.id).toBe(scene)
-    expect(frame.progress).toBeCloseTo(progress)
-    expect(frame.actors.every((actor) => Number.isInteger(actor.x) && Number.isInteger(actor.y))).toBe(true)
+  it('draws the Start handoff key over the frozen story frame', () => {
+    const handoff = deriveHandoffAnimation(1)
+    const commands = deriveIntroDrawCommands(deriveIntroAnimation(24, false), handoff)
+    expect(commands.at(-2)).toMatchObject({
+      kind: 'handoff-key',
+      assetId: 'key-poses',
+      scale: 4.5,
+      rotation: Math.PI * 2,
+    })
+    expect(commands.at(-1)).toEqual({ kind: 'handoff-flash', opacity: 1 })
   })
 })

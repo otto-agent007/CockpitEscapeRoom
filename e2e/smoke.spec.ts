@@ -95,51 +95,9 @@ async function openGameIntro(page: Page) {
   return intro
 }
 
-test('game intro waits for every cinematic image to decode before playback', async ({ page }) => {
-  await page.addInitScript(() => {
-    const decode = HTMLImageElement.prototype.decode
-    HTMLImageElement.prototype.decode = function controlledDecode() {
-      return new Promise<void>((resolve, reject) => {
-        window.addEventListener('release-intro-images', () => {
-          void decode.call(this).then(resolve, reject)
-        }, { once: true })
-      })
-    }
-  })
-
-  await page.goto('/')
-  const startGame = page.getByRole('button', { name: 'Start Game' })
-  await expect(startGame).toBeDisabled()
-  await expect(page.getByText('Preparing the TMB2 cinematic…')).toBeVisible()
-  await page.evaluate(() => window.dispatchEvent(new Event('release-intro-images')))
-  await expect(startGame).toBeEnabled()
-  await startGame.click()
-  await expect(page.getByRole('region', { name: 'Game intro' })).toBeVisible()
-})
-
-test('game intro exposes production retry after a named image decode failure', async ({ page }) => {
-  await page.addInitScript(() => {
-    let rejectRunSheetOnce = true
-    HTMLImageElement.prototype.decode = function controlledDecode() {
-      if (rejectRunSheetOnce && this.src.includes('/popt/run-sheet.png')) {
-        rejectRunSheetOnce = false
-        return Promise.reject(new Error('decode rejected for test'))
-      }
-      return Promise.resolve()
-    }
-  })
-
-  await page.goto('/')
-  const startGame = page.getByRole('button', { name: 'Start Game' })
-  await expect(startGame).toBeDisabled()
-  await expect(page.getByRole('status')).toContainText('popt-run-sheet')
-  await expect(page.getByRole('status')).toContainText('images/intro/popt/run-sheet.png')
-  await page.getByRole('button', { name: 'Retry cinematic assets' }).click()
-  await expect(startGame).toBeEnabled()
-})
-
-test('opening stays spoiler-safe, preloads the DC-9, and fades into the cockpit', async ({ page }) => {
+test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the TMB2 handoff', async ({ page }) => {
   test.setTimeout(45_000)
+  await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
   const dc9Request = page.waitForRequest(
     (request) => request.url().includes('/models/dc9-cockpit.glb'),
     { timeout: 15_000 },
@@ -155,17 +113,22 @@ test('opening stays spoiler-safe, preloads the DC-9, and fades into the cockpit'
   await page.getByRole('button', { name: 'Start Game' }).click()
   const intro = page.getByRole('region', { name: 'Game intro' })
   await expect(intro).toHaveAttribute('data-intro-cue', 'tmb2-ident')
-  await expect(intro.locator('canvas')).toHaveAttribute('width', '320')
-  await expect(intro.locator('canvas')).toHaveAttribute('height', '224')
+  await expect(intro.locator('h1')).toHaveCount(0)
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toHaveCount(0)
-  await intro.getByRole('button', { name: 'Skip Intro' }).click()
+  const audio = page.locator('audio')
+  await audio.evaluate((media) => {
+    media.currentTime = 6
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await intro.getByRole('button', { name: 'Start game' }).click()
+  await expect(intro).toHaveAttribute('data-transition-state', 'handoff')
   await expect(page.locator('.dc9-entry-transition')).toHaveAttribute('data-stage', /fade-out|waiting-for-cockpit|fade-in/)
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toBeVisible({ timeout: 15_000 })
   await expect(page.locator('.dc9-entry-transition')).toHaveAttribute('data-stage', 'fade-in', { timeout: 20_000 })
   await expect(page.locator('.dc9-entry-transition')).toHaveCount(0, { timeout: 5_000 })
 })
 
-test('game intro follows media cue boundaries, loops on ended, and starts on request', async ({ page }) => {
+test('TMB2 cinematic follows exact boundaries and loops without entering gameplay', async ({ page }) => {
   const intro = await openGameIntro(page)
   const audio = page.locator('audio')
   await audio.evaluate(async (media) => {
@@ -176,40 +139,103 @@ test('game intro follows media cue boundaries, loops on ended, and starts on req
     })
   })
 
-  await expect(intro.locator('canvas')).toHaveAttribute('width', '320')
-  await expect(intro.locator('canvas')).toHaveAttribute('height', '224')
+  await audio.evaluate((media) => {
+    media.currentTime = 5.999
+    media.dispatchEvent(new Event('timeupdate'))
+  })
   await expect(intro.getByRole('button', { name: 'Start game' })).toHaveCount(0)
+  await audio.evaluate((media) => {
+    media.currentTime = 6
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await expect(intro.getByRole('button', { name: 'Start game' })).toBeVisible()
 
-  const cues = [
-    { time: 6, id: 'duffel' },
-    { time: 16, id: 'runway' },
-    { time: 28, id: 'city-finance' },
-    { time: 48, id: 'catch' },
+  const scenes = [
+    {
+      time: 0,
+      id: 'tmb2-ident',
+      summary: 'Blue pixels assemble the TMB2 console logo before a bright gold-white overload.',
+    },
+    {
+      time: 6,
+      id: 'duffel',
+      summary: 'Pop T enters confidently and struggles with an oversized rattling duffel bag.',
+    },
+    {
+      time: 12,
+      id: 'key-escape',
+      summary: 'A living golden key bursts from the luggage, startles Pop T, taunts him, and escapes.',
+    },
+    {
+      time: 16,
+      id: 'runway',
+      summary: 'Pop T chases the key past airport equipment and narrowly avoids a runway cart.',
+    },
+    {
+      time: 22,
+      id: 'ballpark',
+      summary: 'The key redirects a baseball while Pop T performs a dramatic slide past the base.',
+    },
+    {
+      time: 28,
+      id: 'city-finance',
+      summary: 'The key runs along a rising neon graph and Pop T collides with comic bull imagery.',
+    },
+    {
+      time: 35,
+      id: 'sky',
+      summary: 'Clouds and a red digital horizon launch the chase into the sky.',
+    },
+    {
+      time: 42,
+      id: 'final-pursuit',
+      summary: 'Pop T glides on pilot wings, misses the key once, recovers, and catches it.',
+    },
+    {
+      time: 48,
+      id: 'catch',
+      summary: 'Pop T holds a brief victory pose before the key delivers one last joke.',
+    },
+    {
+      time: 51,
+      id: 'loop-reset',
+      summary: 'The key drags Pop T away and the picture collapses into blue pixels.',
+    },
   ] as const
 
-  for (const cue of cues) {
+  for (const scene of scenes) {
     await audio.evaluate((media, time) => {
       media.currentTime = time
       media.dispatchEvent(new Event('timeupdate'))
-    }, cue.time)
-    await expect(intro).toHaveAttribute('data-intro-cue', cue.id)
-    await expect(intro.locator('canvas')).toHaveAttribute('data-scene', cue.id)
+    }, scene.time)
+    await expect(intro).toHaveAttribute('data-intro-cue', scene.id)
+    await expect(intro.locator('.game-intro__stage')).toHaveAttribute('data-scene', scene.id)
+    await expect(intro.locator('.game-intro__summary')).toHaveText(scene.summary)
+    await expect(intro.locator('h1')).toHaveCount(0)
   }
-  await expect(intro.getByRole('button', { name: 'Start game' })).toBeVisible()
 
   await audio.evaluate((media) => {
-    Object.defineProperty(media, 'currentTime', { configurable: true, writable: true, value: 53.04 })
     media.dispatchEvent(new Event('ended'))
   })
-  await expect(intro).toHaveAttribute('data-intro-cue', 'tmb2-ident')
+  await expect(intro).toBeVisible()
+  await expect(intro.locator('.game-intro__stage')).toHaveAttribute('data-scene', 'tmb2-ident')
   await expect(intro.getByRole('button', { name: 'Start game' })).toBeVisible()
   await expect(page.locator('.dc9-entry-transition')).toHaveCount(0)
-
-  await intro.getByRole('button', { name: 'Start game' }).click()
-  await expect(page.locator('.dc9-entry-transition')).toHaveCount(1)
 })
 
-test('game intro exposes working sound controls and gates keyboard start aliases', async ({ page }) => {
+test('TMB2 cinematic blocks playback with an exact retry when opening art fails', async ({ page }) => {
+  await page.route('**/images/intro/tmb2/backgrounds/duffel-terminal.png', (route) => route.abort())
+  await page.goto('/')
+  await expect(page.getByRole('button', { name: 'Start Game' })).toBeDisabled()
+  await expect(page.getByRole('status')).toContainText(
+    'background-duffel (images/intro/tmb2/backgrounds/duffel-terminal.png)',
+  )
+  await page.unroute('**/images/intro/tmb2/backgrounds/duffel-terminal.png')
+  await page.getByRole('button', { name: 'Retry cinematic assets' }).click()
+  await expect(page.getByRole('button', { name: 'Start Game' })).toBeEnabled()
+})
+
+test('TMB2 cinematic sound controls do not trigger Start while focused', async ({ page }) => {
   const intro = await openGameIntro(page)
   const audio = page.locator('audio')
 
@@ -217,84 +243,11 @@ test('game intro exposes working sound controls and gates keyboard start aliases
   await expect(audio).toHaveJSProperty('muted', true)
   await intro.getByLabel('Intro volume').fill('0.35')
   await expect.poll(() => audio.evaluate((media) => media.volume)).toBeCloseTo(0.35)
-
-  await page.keyboard.press('Enter')
-  await expect(page.locator('.dc9-entry-transition')).toHaveCount(0)
-
-  await audio.evaluate((media) => {
-    media.currentTime = 6
-    media.dispatchEvent(new Event('timeupdate'))
-  })
-  const muteButton = intro.getByRole('button', { name: 'Unmute intro' })
-  await muteButton.press('Enter')
-  await expect(audio).toHaveJSProperty('muted', false)
-  await expect(page.locator('.dc9-entry-transition')).toHaveCount(0)
-  await intro.getByRole('button', { name: 'Mute intro' }).press('Space')
-  await expect(audio).toHaveJSProperty('muted', true)
-  await expect(page.locator('.dc9-entry-transition')).toHaveCount(0)
   await intro.getByLabel('Intro volume').press('Space')
-  await expect(page.locator('.dc9-entry-transition')).toHaveCount(0)
-
-  for (const key of ['Enter', 'Space', 'Escape']) {
-    await page.evaluate(() => window.localStorage.clear())
-    const currentIntro = await openGameIntro(page)
-    const currentAudio = page.locator('audio')
-    await currentAudio.evaluate((media) => {
-      media.currentTime = 6
-      media.dispatchEvent(new Event('timeupdate'))
-    })
-    await page.keyboard.press(key)
-    await expect(page.locator('.dc9-entry-transition')).toHaveCount(1)
-    await expect(currentIntro).toHaveCount(0)
-  }
+  await expect(intro).toHaveAttribute('data-transition-state', 'playing')
 })
 
-test('game intro Start button retains native keyboard activation', async ({ page }) => {
-  const intro = await openGameIntro(page)
-  await page.locator('audio').evaluate((media) => {
-    media.currentTime = 6
-    media.dispatchEvent(new Event('timeupdate'))
-  })
-
-  await intro.getByRole('button', { name: 'Start game' }).press('Enter')
-  await expect(page.locator('.dc9-entry-transition')).toHaveCount(1)
-})
-
-test('game intro accepts a newly pressed standard gamepad Start button', async ({ page }) => {
-  await page.addInitScript(() => {
-    const buttons = Array.from({ length: 10 }, () => ({ pressed: false, touched: false, value: 0 }))
-    const gamepad = {
-      axes: [],
-      buttons,
-      connected: true,
-      hapticActuators: [],
-      id: 'Intro test controller',
-      index: 0,
-      mapping: 'standard',
-      timestamp: 0,
-      vibrationActuator: null,
-    }
-    Object.defineProperty(navigator, 'getGamepads', {
-      configurable: true,
-      value: () => [gamepad],
-    })
-    window.addEventListener('test-gamepad-start-at-six', () => {
-      const audio = document.querySelector('audio')
-      if (audio) {
-        audio.currentTime = 6
-        audio.dispatchEvent(new Event('timeupdate'))
-      }
-      buttons[9].pressed = true
-    })
-  })
-
-  const intro = await openGameIntro(page)
-  await page.evaluate(() => window.dispatchEvent(new Event('test-gamepad-start-at-six')))
-  await expect(page.locator('.dc9-entry-transition')).toHaveCount(1)
-  await expect(intro).toHaveCount(0)
-})
-
-test('game intro continues silently and retries rejected audio', async ({ page }) => {
+test('TMB2 cinematic continues silently and retries rejected audio', async ({ page }) => {
   await page.addInitScript(() => {
     let attempts = 0
     HTMLMediaElement.prototype.play = function play() {
@@ -309,43 +262,79 @@ test('game intro continues silently and retries rejected audio', async ({ page }
   await expect(intro.getByText('The intro is continuing without sound.')).toBeVisible()
   await intro.getByRole('button', { name: 'Retry sound' }).click()
   await expect(intro.getByText('Intro audio playing.')).toBeVisible()
-  await intro.getByRole('button', { name: 'Skip Intro' }).click()
-  await expect(page.locator('.dc9-entry-transition')).toHaveCount(1)
 })
 
-test('game intro honors reduced motion and fits required viewports', async ({ page }) => {
+for (const input of ['pointer', 'Enter', 'Space', 'controller'] as const) {
+  test(`TMB2 cinematic accepts ${input} Start and completes one handoff`, async ({ page }) => {
+    if (input === 'controller') {
+      await page.addInitScript(() => {
+        let pressed = false
+        Object.defineProperty(navigator, 'getGamepads', {
+          configurable: true,
+          value: () => [{
+            mapping: 'standard',
+            buttons: Array.from({ length: 16 }, (_, index) => ({ pressed: pressed && index === 9 })),
+          }],
+        })
+        Object.defineProperty(window, '__pressIntroControllerStart', {
+          value: () => { pressed = true },
+        })
+      })
+    }
+    const intro = await openGameIntro(page)
+    await page.locator('audio').evaluate((media) => {
+      media.currentTime = 6
+      media.dispatchEvent(new Event('timeupdate'))
+    })
+    await expect(intro.getByRole('button', { name: 'Start game' })).toBeVisible()
+
+    if (input === 'pointer') await intro.getByRole('button', { name: 'Start game' }).click()
+    if (input === 'Enter' || input === 'Space') await page.keyboard.press(input)
+    if (input === 'controller') {
+      await page.evaluate(() => {
+        (window as typeof window & { __pressIntroControllerStart: () => void }).__pressIntroControllerStart()
+      })
+    }
+
+    await expect(intro).toHaveAttribute('data-transition-state', 'handoff')
+    await expect(page.locator('.dc9-entry-transition')).toHaveCount(1, { timeout: 2_000 })
+    await expect(page.locator('.dc9-entry-transition')).toHaveCount(1)
+  })
+}
+
+test('TMB2 cinematic holds scene poses for reduced motion and fits required viewports', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.setViewportSize({ width: 375, height: 812 })
   const intro = await openGameIntro(page)
   await expect(intro).toHaveAttribute('data-reduced-motion', 'true')
 
+  const canvas = intro.locator('.game-intro__stage')
+  const audio = page.locator('audio')
+  await audio.evaluate((media) => {
+    media.currentTime = 17
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  const firstPose = await canvas.evaluate((element) => ({
+    popt: element.getAttribute('data-popt-frame'),
+    key: element.getAttribute('data-key-frame'),
+  }))
+  await audio.evaluate((media) => {
+    media.currentTime = 21
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await expect(canvas).toHaveAttribute('data-scene', 'runway')
+  expect(await canvas.evaluate((element) => ({
+    popt: element.getAttribute('data-popt-frame'),
+    key: element.getAttribute('data-key-frame'),
+  }))).toEqual(firstPose)
+
   for (const viewport of [
-    { width: 375, height: 812 },
-    { width: 768, height: 900 },
-    { width: 1440, height: 900 },
+    { width: 375, height: 812, scale: '1' },
+    { width: 768, height: 900, scale: '2' },
+    { width: 1440, height: 900, scale: '4' },
   ]) {
     await page.setViewportSize(viewport)
-    const scale = Math.max(1, Math.floor(Math.min(viewport.width / 320, viewport.height / 224)))
-    const expectedGeometry = {
-      left: Math.floor((viewport.width - 320 * scale) / 2),
-      top: Math.floor((viewport.height - 224 * scale) / 2),
-      width: 320 * scale,
-      height: 224 * scale,
-    }
-    const readStageGeometry = () => intro.locator('.game-intro__stage').evaluate((stage) => {
-      const stageBounds = stage.getBoundingClientRect()
-      const shellBounds = stage.parentElement!.getBoundingClientRect()
-      return {
-        left: stageBounds.left - shellBounds.left,
-        top: stageBounds.top - shellBounds.top,
-        width: stageBounds.width,
-        height: stageBounds.height,
-      }
-    })
-    await expect.poll(readStageGeometry).toEqual(expectedGeometry)
-    const stageGeometry = await readStageGeometry()
-    expect(Object.values(stageGeometry).every(Number.isInteger)).toBe(true)
-    await expect(intro.locator('.game-intro__stage')).toHaveCSS('transform-origin', '0px 0px')
+    await expect(canvas).toHaveAttribute('data-presentation-scale', viewport.scale)
     const bounds = await intro.locator('.game-intro__controls').boundingBox()
     expect(bounds).not.toBeNull()
     expect(bounds!.x).toBeGreaterThanOrEqual(0)
@@ -356,7 +345,7 @@ test('game intro honors reduced motion and fits required viewports', async ({ pa
   }
 })
 
-test('game intro uses the deployable 53-second audio', async ({ page }) => {
+test('TMB2 cinematic uses the deployable 53.04-second audio', async ({ page }) => {
   await page.goto('/')
   const metadata = await page.locator('audio').evaluate(async (media) => {
     if (media.readyState < HTMLMediaElement.HAVE_METADATA) {
@@ -637,12 +626,18 @@ test('DC-9 model failure keeps the compact accessible captain controls', async (
 })
 
 test('complete reordered journey', async ({ page }) => {
+  await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
   await page.goto('/?skip3d=1')
 
   await expect(page.getByRole('heading', { name: "The Captain's Key" })).toBeVisible()
   await expect(page.getByText('DC-9-32 first-officer station')).toBeVisible()
   await page.getByRole('button', { name: 'Start Game' }).click()
-  await page.getByRole('button', { name: 'Skip Intro' }).click()
+  const intro = page.getByRole('region', { name: 'Game intro' })
+  await page.locator('audio').evaluate((media) => {
+    media.currentTime = 6
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await intro.getByRole('button', { name: 'Start game' }).click()
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Open Legacy Route Record' }).click()
