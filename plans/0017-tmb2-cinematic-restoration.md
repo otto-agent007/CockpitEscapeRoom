@@ -68,7 +68,7 @@
 
 - [x] 2026-07-20 — Owner supplied and approved the exact 53.04-second sequence and clarified that the generic renderer is non-authoritative.
 - [x] 2026-07-20 — Root causes recorded: animated WebP misuse, CSS stepped travel, static key poses, visible captions, wrong ident, and approximate boundaries.
-- [ ] Task 1 — Exact timing and animation contracts are green.
+- [x] Task 1 — Exact timing and animation contracts are green.
 - [ ] Task 2 — Runtime clock, Start latch, loop, and handoff are green.
 - [ ] Task 3 — Asset preload tiers and integer Canvas are green.
 - [ ] Task 4 — Full recovered-art choreography renders in the browser.
@@ -103,21 +103,21 @@
 - Produces `INTRO_DURATION_SECONDS = 53.04`, `START_AVAILABLE_SECONDS = 6`, `INTRO_AUDIO_FADE_SECONDS = 0.3`, `INTRO_HANDOFF_SECONDS = 0.65`, `introScenes`, `getIntroScene(time)`, and `normalizeIntroTime(time)`.
 - Produces `getSpriteFrame(clip, elapsedMs): number`, `deriveIntroAnimation(timeSeconds, reducedMotion): IntroAnimationFrame`, and `deriveHandoffAnimation(progress): HandoffFrame`.
 
-- [ ] **Step 1: Write failing exact-timeline tests**
+- [x] **Step 1: Write failing exact-timeline tests**
 
 Assert exact starts/ends, scene IDs, `53.04`, the six-second Start gate, visually hidden summaries, and no visible captions/spoilers. Existing tests must fail on the current approximate eight-cue contract.
 
-- [ ] **Step 2: Run RED**
+- [x] **Step 2: Run RED**
 
 Run: `npm run test -- src/game/introConfig.test.ts`
 
 Expected: FAIL showing `53 !== 53.04` and incorrect boundaries.
 
-- [ ] **Step 3: Implement the minimal exact timeline**
+- [x] **Step 3: Implement the minimal exact timeline**
 
 Use IDs `tmb2-ident`, `duffel`, `key-escape`, `runway`, `ballpark`, `city-finance`, `sky`, `final-pursuit`, `catch`, and `loop-reset` with the exact table in the approved design.
 
-- [ ] **Step 4: Write failing sprite-selection tests**
+- [x] **Step 4: Write failing sprite-selection tests**
 
 Cover variable durations and all loop modes with concrete samples:
 
@@ -130,13 +130,13 @@ expect(getSpriteFrame({ durations: [80, 80, 80], loopMode: 'once' }, 999)).toBe(
 
 Also assert all Pop T frames use pivot `(128,224)`, key groups contain exactly `4+6+4+2`, and world positions vary continuously rather than in 10/12-step jumps.
 
-- [ ] **Step 5: Run animation RED, implement, and rerun GREEN**
+- [x] **Step 5: Run animation RED, implement, and rerun GREEN**
 
 Run: `npm run test -- src/game/introAnimation.test.ts`
 
 Expected RED: module/API missing. Implement the smallest pure metadata and derivation module, then rerun both Task 1 files expecting PASS.
 
-- [ ] **Step 6: Record Task 1 evidence and commit**
+- [x] **Step 6: Record Task 1 evidence and commit**
 
 Commit message: `feat: restore exact TMB2 animation contract`
 
@@ -306,7 +306,10 @@ For each task: write one failing test, verify the expected failure, implement th
 
 ## Evidence
 
-- Pending implementation.
+- 2026-07-20 Task 1 timeline RED: `npm run test -- src/game/introConfig.test.ts` failed 5/5 tests against `53`, the approximate eight-cue boundaries, missing normalized-time API, and visible-caption-shaped data.
+- 2026-07-20 Task 1 animation RED: `npm run test -- src/game/introAnimation.test.ts` failed because the animation-contract module did not exist.
+- 2026-07-20 Task 1 GREEN: `npm run test -- src/game/introAnimation.test.ts src/game/introConfig.test.ts` passed 12/12 tests. `npm run typecheck` passed after adding a temporary compile-only bridge for the rejected DOM renderer; Task 4 removes that bridge with the renderer.
+- `git diff --check` passed before the Task 1 checkpoint.
 
 ## Outcome and Handoff
 
