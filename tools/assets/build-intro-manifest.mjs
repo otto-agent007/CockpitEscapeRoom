@@ -59,13 +59,22 @@ const duplicates = [
 
 const preload = [
   'backgrounds/duffel-terminal.png',
-  'backgrounds/runway-night.png',
-  'backgrounds/ballpark-night.png',
-  'backgrounds/finance-city.png',
-  'backgrounds/cloud-chase.png',
-  'key/key-mascot-poses-00.png',
-  'popt/animation-contract-export.json',
   'popt/duffel-pull/duffel-pull.webp',
+  'key/key-mascot-poses-10.png',
+  'backgrounds/runway-night.png',
+  'popt/startle-stumble/startle-stumble.webp',
+  'key/key-mascot-poses-01.png',
+  'backgrounds/ballpark-night.png',
+  'popt/baseball-slide/baseball-slide.webp',
+  'key/key-mascot-poses-08.png',
+  'backgrounds/finance-city.png',
+  'popt/bull-spin/bull-spin.webp',
+  'key/key-mascot-poses-09.png',
+  'backgrounds/cloud-chase.png',
+  'popt/pilot-glide/pilot-glide.webp',
+  'key/key-mascot-poses-13.png',
+  'popt/victory-recovery/victory-recovery.webp',
+  'key/key-mascot-poses-03.png',
 ]
 
 const manifest = {

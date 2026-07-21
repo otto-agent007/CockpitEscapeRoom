@@ -150,10 +150,10 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
           data-reduced-motion={reducedMotion ? 'true' : 'false'}
         >
           <div key={cue.id} className={`game-intro__beat game-intro__beat--${cue.treatment}`}>
-            {cue.image && (
+            {cue.background && (
               <img
                 className="game-intro__image"
-                src={`${import.meta.env.BASE_URL}${cue.image}`}
+                src={`${import.meta.env.BASE_URL}${cue.background}`}
                 style={{ objectPosition: cue.objectPosition }}
                 alt=""
                 aria-hidden="true"

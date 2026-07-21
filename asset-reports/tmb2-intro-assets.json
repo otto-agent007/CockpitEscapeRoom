@@ -193,7 +193,7 @@
     "runtimeManifest": {
       "status": "pass",
       "assets": 69,
-      "preloads": 8,
+      "preloads": 17,
       "path": "public/images/intro/tmb2/tmb2-intro-assets.json"
     },
     "generatedBackgrounds": "four selected 1586x992 ImageGen plates preserved byte-identically between versioned source and runtime paths",

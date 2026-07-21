@@ -267,27 +267,27 @@ Run `npm run assets:check` and `git diff --check`. Visually inspect the contact 
 - Produces `IntroCue` records with `id`, `startSeconds`, `background`, `caption`, `treatment`, `poptClip`, `keyClip`, `fallbackImage`, and `objectPosition`.
 - Preserves `INTRO_DURATION_SECONDS` and `getIntroCue(timeSeconds)`.
 
-- [ ] **Step 1: Replace the timeline assertions and verify RED**
+- [x] **Step 1: Replace the timeline assertions and verify RED**
 
 Require starts `[0, 4, 11, 19, 27, 35, 43, 49]`, IDs `['boot','duffel','runway','ballpark','finance','clouds','catch','title']`, all runtime background paths, all Pop T clip references, preload coverage, no duplicate paths, and spoiler exclusion.
 
-- [ ] **Step 2: Run the focused test and verify RED**
+- [x] **Step 2: Run the focused test and verify RED**
 
 Run: `npm run test -- src/game/introConfig.test.ts`
 
 Expected: FAIL because the existing six placeholder cues remain.
 
-- [ ] **Step 3: Implement the eight approved cues**
+- [x] **Step 3: Implement the eight approved cues**
 
 Use captions `TMB2`, `THE OVERSIZED DUFFEL`, `RUNWAY CHASE`, `BALLPARK DETOUR`, `BULL MARKET LAUNCH`, `CLOUD CHASE`, `THE CATCH`, and `MISSION READY`. Reference only manifest-backed paths under `images/intro/tmb2/`.
 
-- [ ] **Step 4: Run focused tests and verify GREEN**
+- [x] **Step 4: Run focused tests and verify GREEN**
 
 Run: `npm run test -- src/game/introConfig.test.ts tools/assets/intro-asset-contract.test.mjs`
 
 Expected: all timeline and contract tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 Commit message: `feat: define TMB2 chase intro timeline`.
 
@@ -392,7 +392,7 @@ Publish the complete milestone, include the asset/package hashes and proof scree
 - [x] Task 1 — Canonical intro asset contract (70/70 unit tests passed).
 - [x] Task 2 — Recovered source preservation and sprite normalization (65 runtime assets; source/runtime gate passed).
 - [x] Task 3 — Four missing storyboard scene plates (69 runtime assets; 8 preloads).
-- [ ] Task 4 — Data-driven chase timeline.
+- [x] Task 4 — Data-driven eight-beat chase timeline (11 focused tests passed; typecheck passed).
 - [ ] Task 5 — Layered browser intro.
 - [ ] Task 6 — Full verification, evidence, remote persistence, and owner gate.
 
@@ -438,6 +438,9 @@ At each failure, capture the exact command and output, identify one root cause, 
 - Four ImageGen calls produced and preserved duffel terminal, ballpark night, finance city, and cloud chase plates; full-resolution visual inspection found no Pop T, cartoon key, readable text, protected reward, or unsafe emergency framing.
 - `node tools/assets/check-intro-assets.mjs` after generated-art integration: passed with 69 assets and 8 preloads.
 - `public/images/intro/tmb2/contact-sheet.png` was visually reviewed with all five environments, all 17 key poses, and all six recovered Pop T clips represented.
+- Timeline RED: `npm run test -- src/game/introConfig.test.ts` failed 4/6 tests against the former six placeholder cues and missing package bindings.
+- Timeline GREEN: `npm run test -- src/game/introConfig.test.ts tools/assets/intro-asset-contract.test.mjs` passed 11/11 tests across two files.
+- `npm run typecheck` and `node tools/assets/check-intro-assets.mjs` passed after binding all 17 unique cue visuals into the manifest preload list.
 
 ## Outcome and Handoff
 
