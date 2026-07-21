@@ -257,23 +257,23 @@ Commit message: `feat: play the complete TMB2 chase intro`
 - Modify: `TEST_REPORT.md`
 - Modify: `plans/0017-tmb2-cinematic-restoration.md`
 
-- [ ] **Step 1: Launch production build in the actual browser**
+- [x] **Step 1: Launch production build in the actual browser**
 
 Run the production preview at 1440 x 900. Confirm no console errors, failed runtime asset requests, HTTP errors, or horizontal overflow.
 
-- [ ] **Step 2: Record one uninterrupted proof**
+- [x] **Step 2: Record one uninterrupted proof**
 
 Capture briefing -> Start Game -> full 53.04-second unattended loop -> second-loop PRESS START -> 650 ms handoff -> interactive DC-9. Use a browser recording format that is actually viewable; if native WebM again records only the GPU background, use deterministic screenshot capture assembled into an animated WebP/MP4 and verify the output visually before presenting it.
 
-- [ ] **Step 3: Inspect the full recording**
+- [x] **Step 3: Inspect the full recording**
 
 Reject and repair if the logo is not blue/striped, any visible chapter title appears, Pop T or key pivots twitch, actor travel jumps, a comedy beat is missing, CRT persists into DC-9, or the cockpit appears before Start.
 
-- [ ] **Step 4: Run full relevant verification**
+- [x] **Step 4: Run full relevant verification**
 
 After visual acceptance locally, run `npm run check`, `npm run assets:check`, and `npm run test:e2e -- --workers=1`. Never claim an unrun check passed.
 
-- [ ] **Step 5: Full-diff review and evidence update**
+- [x] **Step 5: Full-diff review and evidence update**
 
 Inspect for unsafe DOM insertion, duplicate timing logic, unmanifested assets, reward spoilers, dependency additions, stale CSS, and downstream reducer changes. Update `TEST_REPORT.md` and this plan with actual commands/results and the historic 104/52 inventory delta.
 
@@ -320,6 +320,10 @@ For each task: write one failing test, verify the expected failure, implement th
 - The first React/Canvas integration made 9/11 cases green. The two remaining failures were test-order/resource issues: a deliberately unconsumed 36 MB model request delayed decoded intro art, and a test incorrectly expected the monotonic Start latch to turn off after later-scene seeks. The harness now aborts the observed model request and checks 5.999/6.000 before later scenes.
 - First 1440 x 900 visual contact sheet found the blue striped TMB2 ident correct but Pop T too small and the procedural accent props oversized. A new RED scale/staging test captured that defect. Pop T now renders at readable lead scale, key scale remains restrained, and cart/impact/cloud/wing accents were reduced and redrawn. The second eight-scene contact sheet was visually inspected with no title overlay, no cockpit spoiler, and coherent character scale.
 - 2026-07-20 Task 4 GREEN: six focused unit files passed 32/32 tests; the focused Chromium run passed 11/11 cases; `npm run lint`, `npm run typecheck`, and `git diff --check` passed. Browser evidence confirms exact scenes, initial asset failure/retry, focused-control key safety, sound retry, all four Start inputs, one handoff, reduced-motion held poses, integer scales, and 53.04-second audio.
+- 2026-07-20 Task 5 motion proof: native Playwright WebM capture was rejected as evidence because the GPU Canvas recorded dark. A deterministic real-browser screenshot capture instead sampled 248 full 1440 x 900 frames at 4 fps across one uninterrupted loop and produced the valid 244-frame `preview-renders/tmb2-cinematic-restoration/intro-proof-1440x900-4fps.webp`; browser capture failures were empty. Representative full-logo and handoff contact sheets were visually inspected. The handoff proof shows the six-second duffel scene, rotating key-to-camera lock motion, gold/white CRT release, and the actual DC-9 view.
+- 2026-07-20 Task 5 manifest repair: replaced the rejected renderer's 17 WebP/still preload entries with the 12 PNG environment/sprite-sheet assets actually consumed from the TMB2 package. The renderer registers 15 images total and gates playback on only four opening images. Historic 104/52 counts remain explicitly unrecovered rather than fabricated.
+- 2026-07-20 Task 5 verification: `npm run assets:check` passed the corrected 69-asset/12-preload package, and `npm run check` passed ESLint, TypeScript, 99/99 Vitest tests, and the production build. The first broad Chromium run passed 29/30 and exposed a stale complete-journey test still waiting for the rejected **Skip Intro** control; that harness also left the irrelevant 36 MB model request competing with opening-image decode. The corrected journey uses the approved six-second **PRESS START** handoff and aborts that model request under `skip3d=1`. Its focused rerun passed 1/1 in 6.8 seconds, then the fresh full suite passed 30/30 in 6.4 minutes.
+- 2026-07-20 Task 5 diff review: no unsafe DOM insertion, production dependency addition, protected reward image/copy, visible intro heading, or downstream reducer change was found. Timing remains centralized in the pure intro modules. The later legacy intro CSS selectors are dead because no current component emits their class names; the authoritative higher-specificity Canvas block is the only active intro presentation. Removing those dormant rules is optional cleanup and is not part of the owner visual gate.
 
 ## Outcome and Handoff
 

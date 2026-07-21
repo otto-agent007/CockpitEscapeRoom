@@ -120,26 +120,21 @@ describe('TMB2 intro asset contract', () => {
     ]))
   })
 
-  it('binds the committed package preload list to every chase visual', () => {
+  it('binds the committed package preload list to the Canvas runtime sheets and plates', () => {
     const manifest = JSON.parse(readFileSync('public/images/intro/tmb2/tmb2-intro-assets.json', 'utf8'))
     expect(manifest.preload).toEqual([
       'backgrounds/duffel-terminal.png',
-      'popt/duffel-pull/duffel-pull.webp',
-      'key/key-mascot-poses-10.png',
       'backgrounds/runway-night.png',
-      'popt/startle-stumble/startle-stumble.webp',
-      'key/key-mascot-poses-01.png',
       'backgrounds/ballpark-night.png',
-      'popt/baseball-slide/baseball-slide.webp',
-      'key/key-mascot-poses-08.png',
       'backgrounds/finance-city.png',
-      'popt/bull-spin/bull-spin.webp',
-      'key/key-mascot-poses-09.png',
       'backgrounds/cloud-chase.png',
-      'popt/pilot-glide/pilot-glide.webp',
-      'key/key-mascot-poses-13.png',
-      'popt/victory-recovery/victory-recovery.webp',
-      'key/key-mascot-poses-03.png',
+      'popt/duffel-pull/duffel-pull-sheet.png',
+      'popt/startle-stumble/startle-stumble-sheet.png',
+      'popt/baseball-slide/baseball-slide-sheet.png',
+      'popt/bull-spin/bull-spin-sheet.png',
+      'popt/pilot-glide/pilot-glide-sheet.png',
+      'popt/victory-recovery/victory-recovery-sheet.png',
+      'key/key-mascot-poses-sheet.png',
     ])
   })
 })

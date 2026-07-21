@@ -626,12 +626,18 @@ test('DC-9 model failure keeps the compact accessible captain controls', async (
 })
 
 test('complete reordered journey', async ({ page }) => {
+  await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
   await page.goto('/?skip3d=1')
 
   await expect(page.getByRole('heading', { name: "The Captain's Key" })).toBeVisible()
   await expect(page.getByText('DC-9-32 first-officer station')).toBeVisible()
   await page.getByRole('button', { name: 'Start Game' }).click()
-  await page.getByRole('button', { name: 'Skip Intro' }).click()
+  const intro = page.getByRole('region', { name: 'Game intro' })
+  await page.locator('audio').evaluate((media) => {
+    media.currentTime = 6
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await intro.getByRole('button', { name: 'Start game' }).click()
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Open Legacy Route Record' }).click()
