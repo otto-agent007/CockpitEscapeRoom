@@ -1,0 +1,1353 @@
+{
+  "version": 1,
+  "animationContractSha256": "ee79610510df36c5d73c98103a4cb1be563b0a936d8d48d8304c33854e165e01",
+  "animationContract": {
+    "version": 1,
+    "anchor": {
+      "sha256": "129433ebfbe3fdb478db11f458711e24f35d0ee9e74bd8a891ba588ac321d83f",
+      "traitReferenceSha256": [
+        "0b3edc6a0dfd08f581a6fec16651e5b0b8083a79942099b3a6122adbb610edfe",
+        "5b5a0556c3b9a581697fbacd7fba8913959d0cf65fbf986412960b2eae9b9870"
+      ]
+    },
+    "sizes": {
+      "canonical": [
+        128,
+        128
+      ],
+      "generation": [
+        1024,
+        1024
+      ],
+      "runtime": [
+        256,
+        256
+      ],
+      "pixelSize": 8
+    },
+    "pivot": {
+      "x": 64,
+      "y": 112
+    },
+    "baseline": 111,
+    "palette": {
+      "rgba": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          6,
+          253,
+          8,
+          255
+        ],
+        [
+          4,
+          6,
+          20,
+          255
+        ],
+        [
+          26,
+          32,
+          63,
+          255
+        ],
+        [
+          241,
+          239,
+          240,
+          255
+        ],
+        [
+          248,
+          172,
+          117,
+          255
+        ],
+        [
+          40,
+          11,
+          2,
+          255
+        ],
+        [
+          213,
+          119,
+          63,
+          255
+        ],
+        [
+          58,
+          71,
+          114,
+          255
+        ],
+        [
+          186,
+          183,
+          203,
+          255
+        ],
+        [
+          163,
+          86,
+          22,
+          255
+        ],
+        [
+          32,
+          37,
+          30,
+          255
+        ],
+        [
+          106,
+          50,
+          10,
+          255
+        ],
+        [
+          245,
+          196,
+          36,
+          255
+        ],
+        [
+          203,
+          138,
+          6,
+          255
+        ],
+        [
+          130,
+          129,
+          154,
+          255
+        ]
+      ],
+      "sha256": "ecee56a72be8db02e12d605f9db6b199456c7f134ac582831c031fc2963a1879",
+      "snapperPaletteHex": [
+        "06fd08",
+        "040614",
+        "1a203f",
+        "f1eff0",
+        "f8ac75",
+        "280b02",
+        "d5773f",
+        "3a4772",
+        "bab7cb",
+        "a35616",
+        "20251e",
+        "6a320a",
+        "f5c424",
+        "cb8a06",
+        "82819a"
+      ]
+    },
+    "clips": [
+      {
+        "id": "duffel-pull",
+        "loopMode": "loop",
+        "loopTransition": {
+          "fromFrameId": "duffel-pull-04",
+          "toFrameId": "duffel-pull-01",
+          "reviewCheckpoint": "duffel-pull-loop"
+        },
+        "frames": [
+          {
+            "id": "duffel-pull-01",
+            "pose": "grip-and-brace",
+            "duration": 140,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          },
+          {
+            "id": "duffel-pull-02",
+            "pose": "lean-back",
+            "duration": 120,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          },
+          {
+            "id": "duffel-pull-03",
+            "pose": "maximum-strain",
+            "duration": 160,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          },
+          {
+            "id": "duffel-pull-04",
+            "pose": "recoil-reset",
+            "duration": 180,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "startle-stumble",
+        "loopMode": "hold-last",
+        "loopTransition": null,
+        "frames": [
+          {
+            "id": "startle-stumble-01",
+            "pose": "key-burst-reaction",
+            "duration": 90,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          },
+          {
+            "id": "startle-stumble-02",
+            "pose": "backward-stumble",
+            "duration": 110,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          },
+          {
+            "id": "startle-stumble-03",
+            "pose": "off-balance-hold",
+            "duration": 260,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "baseball-slide",
+        "loopMode": "hold-last",
+        "loopTransition": null,
+        "frames": [
+          {
+            "id": "baseball-slide-01",
+            "pose": "drop-into-slide",
+            "duration": 90,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          },
+          {
+            "id": "baseball-slide-02",
+            "pose": "extended-slide",
+            "duration": 90,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          },
+          {
+            "id": "baseball-slide-03",
+            "pose": "reach-across-base",
+            "duration": 120,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          },
+          {
+            "id": "baseball-slide-04",
+            "pose": "overshoot-hold",
+            "duration": 220,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "bull-spin",
+        "loopMode": "once",
+        "loopTransition": null,
+        "frames": [
+          {
+            "id": "bull-spin-01",
+            "pose": "impact",
+            "duration": 80,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          },
+          {
+            "id": "bull-spin-02",
+            "pose": "quarter-turn",
+            "duration": 80,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          },
+          {
+            "id": "bull-spin-03",
+            "pose": "half-turn",
+            "duration": 80,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          },
+          {
+            "id": "bull-spin-04",
+            "pose": "three-quarter-turn",
+            "duration": 80,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          },
+          {
+            "id": "bull-spin-05",
+            "pose": "full-turn",
+            "duration": 80,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          },
+          {
+            "id": "bull-spin-06",
+            "pose": "launched-recovery",
+            "duration": 160,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "pilot-glide",
+        "loopMode": "loop",
+        "loopTransition": {
+          "fromFrameId": "pilot-glide-04",
+          "toFrameId": "pilot-glide-01",
+          "reviewCheckpoint": "pilot-glide-loop"
+        },
+        "frames": [
+          {
+            "id": "pilot-glide-01",
+            "pose": "wings-level",
+            "duration": 120,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          },
+          {
+            "id": "pilot-glide-02",
+            "pose": "bank-up",
+            "duration": 120,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          },
+          {
+            "id": "pilot-glide-03",
+            "pose": "wings-level-return",
+            "duration": 120,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          },
+          {
+            "id": "pilot-glide-04",
+            "pose": "bank-down",
+            "duration": 120,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "victory-recovery",
+        "loopMode": "hold-last",
+        "loopTransition": null,
+        "frames": [
+          {
+            "id": "victory-recovery-01",
+            "pose": "secure-catch",
+            "duration": 140,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          },
+          {
+            "id": "victory-recovery-02",
+            "pose": "victory-pose",
+            "duration": 180,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          },
+          {
+            "id": "victory-recovery-03",
+            "pose": "key-gag-reaction",
+            "duration": 300,
+            "landmarkSemantic": {
+              "name": "character-root",
+              "target": {
+                "x": 64,
+                "y": 112
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "review": {
+      "checkpoints": [
+        "identity",
+        "palette",
+        "baseline",
+        "duffel-pull-loop",
+        "pilot-glide-loop"
+      ],
+      "approvers": [
+        "otto-agent007"
+      ]
+    }
+  },
+  "frameApprovalSha256": "27c904a91f23ba3eeb40f318fdcbc9d5302eeab441a8e8cb1b4722b5f6c2a34d",
+  "palette": {
+    "rgba": [
+      [
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        6,
+        253,
+        8,
+        255
+      ],
+      [
+        4,
+        6,
+        20,
+        255
+      ],
+      [
+        26,
+        32,
+        63,
+        255
+      ],
+      [
+        241,
+        239,
+        240,
+        255
+      ],
+      [
+        248,
+        172,
+        117,
+        255
+      ],
+      [
+        40,
+        11,
+        2,
+        255
+      ],
+      [
+        213,
+        119,
+        63,
+        255
+      ],
+      [
+        58,
+        71,
+        114,
+        255
+      ],
+      [
+        186,
+        183,
+        203,
+        255
+      ],
+      [
+        163,
+        86,
+        22,
+        255
+      ],
+      [
+        32,
+        37,
+        30,
+        255
+      ],
+      [
+        106,
+        50,
+        10,
+        255
+      ],
+      [
+        245,
+        196,
+        36,
+        255
+      ],
+      [
+        203,
+        138,
+        6,
+        255
+      ],
+      [
+        130,
+        129,
+        154,
+        255
+      ]
+    ],
+    "sha256": "ecee56a72be8db02e12d605f9db6b199456c7f134ac582831c031fc2963a1879",
+    "snapperPaletteHex": [
+      "06fd08",
+      "040614",
+      "1a203f",
+      "f1eff0",
+      "f8ac75",
+      "280b02",
+      "d5773f",
+      "3a4772",
+      "bab7cb",
+      "a35616",
+      "20251e",
+      "6a320a",
+      "f5c424",
+      "cb8a06",
+      "82819a"
+    ]
+  },
+  "clips": [
+    {
+      "id": "duffel-pull",
+      "loopMode": "loop",
+      "frames": [
+        {
+          "id": "duffel-pull-01",
+          "duration": 140,
+          "file": "duffel-pull/duffel-pull-00.png"
+        },
+        {
+          "id": "duffel-pull-02",
+          "duration": 120,
+          "file": "duffel-pull/duffel-pull-01.png"
+        },
+        {
+          "id": "duffel-pull-03",
+          "duration": 160,
+          "file": "duffel-pull/duffel-pull-02.png"
+        },
+        {
+          "id": "duffel-pull-04",
+          "duration": 180,
+          "file": "duffel-pull/duffel-pull-03.png"
+        }
+      ],
+      "sheet": "duffel-pull/duffel-pull-sheet.png",
+      "metadata": "duffel-pull/duffel-pull.json",
+      "preview": "duffel-pull/duffel-pull.webp"
+    },
+    {
+      "id": "startle-stumble",
+      "loopMode": "hold-last",
+      "frames": [
+        {
+          "id": "startle-stumble-01",
+          "duration": 90,
+          "file": "startle-stumble/startle-stumble-00.png"
+        },
+        {
+          "id": "startle-stumble-02",
+          "duration": 110,
+          "file": "startle-stumble/startle-stumble-01.png"
+        },
+        {
+          "id": "startle-stumble-03",
+          "duration": 260,
+          "file": "startle-stumble/startle-stumble-02.png"
+        }
+      ],
+      "sheet": "startle-stumble/startle-stumble-sheet.png",
+      "metadata": "startle-stumble/startle-stumble.json",
+      "preview": "startle-stumble/startle-stumble.webp"
+    },
+    {
+      "id": "baseball-slide",
+      "loopMode": "hold-last",
+      "frames": [
+        {
+          "id": "baseball-slide-01",
+          "duration": 90,
+          "file": "baseball-slide/baseball-slide-00.png"
+        },
+        {
+          "id": "baseball-slide-02",
+          "duration": 90,
+          "file": "baseball-slide/baseball-slide-01.png"
+        },
+        {
+          "id": "baseball-slide-03",
+          "duration": 120,
+          "file": "baseball-slide/baseball-slide-02.png"
+        },
+        {
+          "id": "baseball-slide-04",
+          "duration": 220,
+          "file": "baseball-slide/baseball-slide-03.png"
+        }
+      ],
+      "sheet": "baseball-slide/baseball-slide-sheet.png",
+      "metadata": "baseball-slide/baseball-slide.json",
+      "preview": "baseball-slide/baseball-slide.webp"
+    },
+    {
+      "id": "bull-spin",
+      "loopMode": "once",
+      "frames": [
+        {
+          "id": "bull-spin-01",
+          "duration": 80,
+          "file": "bull-spin/bull-spin-00.png"
+        },
+        {
+          "id": "bull-spin-02",
+          "duration": 80,
+          "file": "bull-spin/bull-spin-01.png"
+        },
+        {
+          "id": "bull-spin-03",
+          "duration": 80,
+          "file": "bull-spin/bull-spin-02.png"
+        },
+        {
+          "id": "bull-spin-04",
+          "duration": 80,
+          "file": "bull-spin/bull-spin-03.png"
+        },
+        {
+          "id": "bull-spin-05",
+          "duration": 80,
+          "file": "bull-spin/bull-spin-04.png"
+        },
+        {
+          "id": "bull-spin-06",
+          "duration": 160,
+          "file": "bull-spin/bull-spin-05.png"
+        }
+      ],
+      "sheet": "bull-spin/bull-spin-sheet.png",
+      "metadata": "bull-spin/bull-spin.json",
+      "preview": "bull-spin/bull-spin.webp"
+    },
+    {
+      "id": "pilot-glide",
+      "loopMode": "loop",
+      "frames": [
+        {
+          "id": "pilot-glide-01",
+          "duration": 120,
+          "file": "pilot-glide/pilot-glide-00.png"
+        },
+        {
+          "id": "pilot-glide-02",
+          "duration": 120,
+          "file": "pilot-glide/pilot-glide-01.png"
+        },
+        {
+          "id": "pilot-glide-03",
+          "duration": 120,
+          "file": "pilot-glide/pilot-glide-02.png"
+        },
+        {
+          "id": "pilot-glide-04",
+          "duration": 120,
+          "file": "pilot-glide/pilot-glide-03.png"
+        }
+      ],
+      "sheet": "pilot-glide/pilot-glide-sheet.png",
+      "metadata": "pilot-glide/pilot-glide.json",
+      "preview": "pilot-glide/pilot-glide.webp"
+    },
+    {
+      "id": "victory-recovery",
+      "loopMode": "hold-last",
+      "frames": [
+        {
+          "id": "victory-recovery-01",
+          "duration": 140,
+          "file": "victory-recovery/victory-recovery-00.png"
+        },
+        {
+          "id": "victory-recovery-02",
+          "duration": 180,
+          "file": "victory-recovery/victory-recovery-01.png"
+        },
+        {
+          "id": "victory-recovery-03",
+          "duration": 300,
+          "file": "victory-recovery/victory-recovery-02.png"
+        }
+      ],
+      "sheet": "victory-recovery/victory-recovery-sheet.png",
+      "metadata": "victory-recovery/victory-recovery.json",
+      "preview": "victory-recovery/victory-recovery.webp"
+    }
+  ],
+  "measurements": [
+    {
+      "frameId": "duffel-pull-01",
+      "normalizedSha256": "e884f5e082f471e00ddc583001333828c105a66d9f3f1bab086c2dc3647a1b2b",
+      "sourceLandmark": {
+        "x": 34,
+        "y": 54
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 48,
+        "top": 67,
+        "width": 31,
+        "height": 45,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "duffel-pull-02",
+      "normalizedSha256": "c470c427b8f6af6f8966cdeaf7cf4dff3b050088004968204f7d87a0ca21124b",
+      "sourceLandmark": {
+        "x": 33,
+        "y": 56
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 45,
+        "top": 66,
+        "width": 37,
+        "height": 46,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "duffel-pull-03",
+      "normalizedSha256": "7bbe523604a0ba1738c1e64ff4bcc31b9698f63acaac6d6776c68baa753e3fd7",
+      "sourceLandmark": {
+        "x": 33,
+        "y": 54
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 43,
+        "top": 70,
+        "width": 41,
+        "height": 42,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "duffel-pull-04",
+      "normalizedSha256": "d4b646bfacdede3ffcba79327371294b55305e3af01aed7c6203d1f0d7bdbe70",
+      "sourceLandmark": {
+        "x": 33,
+        "y": 54
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 54,
+        "top": 69,
+        "width": 21,
+        "height": 43,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "startle-stumble-01",
+      "normalizedSha256": "eae986dc0a76ccd1564071187b398d9e24641a822f11e320e1ed17db6f55432a",
+      "sourceLandmark": {
+        "x": 33,
+        "y": 54
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 49,
+        "top": 66,
+        "width": 30,
+        "height": 46,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "startle-stumble-02",
+      "normalizedSha256": "a2303dda1f724504d72cf8bdd45bf4fa913d50cb6807f205313415a477d36692",
+      "sourceLandmark": {
+        "x": 30,
+        "y": 53
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 45,
+        "top": 70,
+        "width": 39,
+        "height": 42,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "startle-stumble-03",
+      "normalizedSha256": "c1e4730c01330f012daa30f5ebcbe26b246a352e511391f807c42ae763aa2a44",
+      "sourceLandmark": {
+        "x": 33,
+        "y": 53
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 45,
+        "top": 68,
+        "width": 39,
+        "height": 44,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "baseball-slide-01",
+      "normalizedSha256": "15c12a5ffdbe9f375ed065e57f7fdc78cc73b07d68f2c85d4cf5d198b97811d1",
+      "sourceLandmark": {
+        "x": 32,
+        "y": 54
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 45,
+        "top": 78,
+        "width": 38,
+        "height": 34,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "baseball-slide-02",
+      "normalizedSha256": "ff81c6aac307f90009f636182a37cb0c060585adb79bfe79dc7967fc68a73ed6",
+      "sourceLandmark": {
+        "x": 32,
+        "y": 49
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 38,
+        "top": 80,
+        "width": 51,
+        "height": 32,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "baseball-slide-03",
+      "normalizedSha256": "40634d3138844d99d637ba1c8449832a75b6ecc5d493e2492da21b5fa3b7d55e",
+      "sourceLandmark": {
+        "x": 31,
+        "y": 47
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 37,
+        "top": 82,
+        "width": 54,
+        "height": 30,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "baseball-slide-04",
+      "normalizedSha256": "37d766a568189b6ddec51550f51b90e30cc5a2cfadda923a8fd29c608e7ff2d3",
+      "sourceLandmark": {
+        "x": 33,
+        "y": 52
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 42,
+        "top": 81,
+        "width": 43,
+        "height": 31,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "bull-spin-01",
+      "normalizedSha256": "895b3fc30be77ef2f6cb76fdfe77d2e1070a64d26a810a1a5edbacdf12123506",
+      "sourceLandmark": {
+        "x": 33,
+        "y": 47
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 46,
+        "top": 74,
+        "width": 35,
+        "height": 38,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "bull-spin-02",
+      "normalizedSha256": "84cbb9ccc43a8b1ae10e41ebccdb78f644a250177a79bdde272eb74ca56dcc76",
+      "sourceLandmark": {
+        "x": 31,
+        "y": 54
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 44,
+        "top": 68,
+        "width": 39,
+        "height": 44,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "bull-spin-03",
+      "normalizedSha256": "6c2022804941ab634fdf65a8dbc7fba1e467a675341c69e9e4171814e57b5abe",
+      "sourceLandmark": {
+        "x": 33,
+        "y": 43
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 45,
+        "top": 82,
+        "width": 37,
+        "height": 30,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "bull-spin-04",
+      "normalizedSha256": "5ed6a1f1df784b704daf8356f4b0c2e7a00fe65a63593749e797824a4137acd9",
+      "sourceLandmark": {
+        "x": 35,
+        "y": 44
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 44,
+        "top": 76,
+        "width": 40,
+        "height": 36,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "bull-spin-05",
+      "normalizedSha256": "498542eb50f3536f968125ac44a451e58478de07f7f7eeded6579ec4a8786e60",
+      "sourceLandmark": {
+        "x": 31,
+        "y": 49
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 53,
+        "top": 72,
+        "width": 21,
+        "height": 40,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "bull-spin-06",
+      "normalizedSha256": "b04ca6c37fe3a0eaf42eef29ba483dc31d2cddb3fcbba0995e9f92626a94cb99",
+      "sourceLandmark": {
+        "x": 32,
+        "y": 48
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 42,
+        "top": 74,
+        "width": 43,
+        "height": 38,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "pilot-glide-01",
+      "normalizedSha256": "f50ab82f3c3d00cd2966a2c17d73ed59dae210aecc00f103d138359a3a9f3796",
+      "sourceLandmark": {
+        "x": 32,
+        "y": 46
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 43,
+        "top": 80,
+        "width": 41,
+        "height": 32,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "pilot-glide-02",
+      "normalizedSha256": "99f81ec301d9e23fe80f4167680b6140e76c09ca82b35d841e5260e8cefeb613",
+      "sourceLandmark": {
+        "x": 33,
+        "y": 51
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 48,
+        "top": 70,
+        "width": 33,
+        "height": 42,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "pilot-glide-03",
+      "normalizedSha256": "44184a54b0c8b810afbcc6d687991039826ae98be84301994a047908cf4cb72d",
+      "sourceLandmark": {
+        "x": 30,
+        "y": 41
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 45,
+        "top": 89,
+        "width": 38,
+        "height": 23,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "pilot-glide-04",
+      "normalizedSha256": "e0f6b5d75cc665eda23b34ec5c167d289cf05b080d9b01f5c44ed904e3b69576",
+      "sourceLandmark": {
+        "x": 32,
+        "y": 51
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 47,
+        "top": 72,
+        "width": 33,
+        "height": 40,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "victory-recovery-01",
+      "normalizedSha256": "2c2e1e280fc3428bf4f673bdf56d0be9a43f166a5c065e6d473d91ef2c8e181a",
+      "sourceLandmark": {
+        "x": 35,
+        "y": 54
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 52,
+        "top": 69,
+        "width": 23,
+        "height": 43,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "victory-recovery-02",
+      "normalizedSha256": "aeccaa02095a346fbaaee0a3e5a7b5d03b32cee0d3dab1b08a55502ab1c4377a",
+      "sourceLandmark": {
+        "x": 33,
+        "y": 55
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 53,
+        "top": 66,
+        "width": 22,
+        "height": 46,
+        "bottom": 111
+      }
+    },
+    {
+      "frameId": "victory-recovery-03",
+      "normalizedSha256": "aa085655afcd0f68d1862ea3060cafb7f3d19ab521308e8103781f089bc1b74a",
+      "sourceLandmark": {
+        "x": 32,
+        "y": 53
+      },
+      "canonicalLandmark": {
+        "x": 64,
+        "y": 112
+      },
+      "landmarkDrift": {
+        "x": 0,
+        "y": 0
+      },
+      "bounds": {
+        "left": 48,
+        "top": 68,
+        "width": 32,
+        "height": 44,
+        "bottom": 111
+      }
+    }
+  ]
+}

@@ -1,0 +1,573 @@
+{
+  "schemaVersion": 1,
+  "packageId": "tmb2-intro-v1",
+  "sourceAuthority": "blonde-haired Pop T storyboard",
+  "tooling": {
+    "repository": "https://github.com/otto-agent007/GameDevStuff",
+    "commit": "22722eabc8f09a706013305a0911a9d322ca9f4f",
+    "pixelSnapperRelease": "pixel-snapper-v1.0.0-commit.5743009",
+    "pixelSnapperSha256": "bd03110406efc2efc0b094c0442a2265cb44f935a3f418fc30fdc20e77eb3f96"
+  },
+  "assets": [
+    {
+      "id": "backgrounds-runway-night-png",
+      "path": "backgrounds/runway-night.png",
+      "sha256": "982aa882c316a4dd047c812589dae0a5e4a27ae38d36eec797a10d89986ac762",
+      "bytes": 2112799,
+      "width": 1672,
+      "height": 941,
+      "hasAlpha": false
+    },
+    {
+      "id": "contact-sheet-png",
+      "path": "contact-sheet.png",
+      "sha256": "ce2c65d046d10f066d9c7127574ada0def79701020e1fc0369d0d11b1d1916cf",
+      "bytes": 1076832,
+      "width": 2016,
+      "height": 730,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-00-png",
+      "path": "key/key-mascot-poses-00.png",
+      "sha256": "cee6d458f187d7c225ba52854df9a124c0cd8ba7c03c8d51f29ffca89db8f4ae",
+      "bytes": 2810,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-01-png",
+      "path": "key/key-mascot-poses-01.png",
+      "sha256": "7f8e092deb2f4bc2f5c466b81dcaa1314f31194c47825f5d9256af8ce2424761",
+      "bytes": 2755,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-02-png",
+      "path": "key/key-mascot-poses-02.png",
+      "sha256": "9a1257e497a730e8b2d53b3f2640633d067dac1c06c3bdbc3e375081882e4bbb",
+      "bytes": 2232,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-03-png",
+      "path": "key/key-mascot-poses-03.png",
+      "sha256": "36db8e3c69f2149dbe2688e4906dd3f3b2339c8d12a6267d89c07b03b446176b",
+      "bytes": 2593,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-04-png",
+      "path": "key/key-mascot-poses-04.png",
+      "sha256": "64c2dbec3783e4601d692c750ce3ab2980bf280c005b6fec10faf422dff5f4ab",
+      "bytes": 2368,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-05-png",
+      "path": "key/key-mascot-poses-05.png",
+      "sha256": "d5615bead15924c652f5f7120fed2a74fb6a56bf50d0c02c34e737ec26828865",
+      "bytes": 2331,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-06-png",
+      "path": "key/key-mascot-poses-06.png",
+      "sha256": "32e14266ddf31c7f1486480ce6dcbc6a4d104ba30f7657e279b2dfb076a979e3",
+      "bytes": 2329,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-07-png",
+      "path": "key/key-mascot-poses-07.png",
+      "sha256": "39f48bea001df630a932979776d6c7edc6a0f1d47a9d1579fd676b71e908e763",
+      "bytes": 2443,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-08-png",
+      "path": "key/key-mascot-poses-08.png",
+      "sha256": "8bb38e36c9f4f30630a3cc740ddfc71ffdf355a0f56b0186b9d9d21c134422ac",
+      "bytes": 2351,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-09-png",
+      "path": "key/key-mascot-poses-09.png",
+      "sha256": "66adf24eb19cc56d9ded0a5bc79a46d740e4b126d135fe95b1a01f535b493411",
+      "bytes": 2490,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-10-png",
+      "path": "key/key-mascot-poses-10.png",
+      "sha256": "1cf28c0c76c2e7b8ab2c85c55a84c9f0a93a822673e6021060f2c3b92ca59a26",
+      "bytes": 2309,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-11-png",
+      "path": "key/key-mascot-poses-11.png",
+      "sha256": "7ff837605d298f259ae0cdb7e99cd6dac07f0f0f3551fd465e48b80c86cb26b4",
+      "bytes": 3246,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-12-png",
+      "path": "key/key-mascot-poses-12.png",
+      "sha256": "06f1bdee6c154c49531a50849482eeee12fae3dd7cb8c6375b9e2a3e60b05a94",
+      "bytes": 2759,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-13-png",
+      "path": "key/key-mascot-poses-13.png",
+      "sha256": "304ba12af3635adf91b0f7fee4d2cbafa38e812e265f16f4032da96e61e54181",
+      "bytes": 2554,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-14-png",
+      "path": "key/key-mascot-poses-14.png",
+      "sha256": "dfed2e3f01a46663dbfdbdf8e3abd4d9e9ccdec5ff009ba6fc8b83ae335e4df5",
+      "bytes": 2557,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-15-png",
+      "path": "key/key-mascot-poses-15.png",
+      "sha256": "60fef86bbe646ea7fa44d397734cc73b9e5dfc692c79e8c148e885a6aef0d9e0",
+      "bytes": 2436,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-16-png",
+      "path": "key/key-mascot-poses-16.png",
+      "sha256": "63405c7d594149d29164d4ca8ea4c21f75b005c3956af73badebeb0c2d8783fe",
+      "bytes": 2484,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-sheet-png",
+      "path": "key/key-mascot-poses-sheet.png",
+      "sha256": "3f2c73c750aca635b82fb9a3b9c8b7cf1ff009f9bba9ed0f9a6637ac5f5af76d",
+      "bytes": 44836,
+      "width": 1280,
+      "height": 1024,
+      "hasAlpha": true
+    },
+    {
+      "id": "key-key-mascot-poses-json",
+      "path": "key/key-mascot-poses.json",
+      "sha256": "261ef3f815d06737e5fc9fdce15bd66fb11ca78891a275c1a080cfb7956f9c87",
+      "bytes": 27472
+    },
+    {
+      "id": "key-key-mascot-poses-webp",
+      "path": "key/key-mascot-poses.webp",
+      "sha256": "849736e25d7985b22ec53411522a43ec1f2acf5d58d84d63630556e9d6822c3c",
+      "bytes": 17620
+    },
+    {
+      "id": "popt-animation-contract-export-json",
+      "path": "popt/animation-contract-export.json",
+      "sha256": "03635e8b07ed3337db092eb71c553b6f8c48b7a5ada247c7ec82e74cd9851154",
+      "bytes": 29028
+    },
+    {
+      "id": "popt-baseball-slide-baseball-slide-00-png",
+      "path": "popt/baseball-slide/baseball-slide-00.png",
+      "sha256": "eed5a81fbb4a2974422ef32af1a08fce504169c705cb22feadccd07ad7fb35eb",
+      "bytes": 1021,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-baseball-slide-baseball-slide-01-png",
+      "path": "popt/baseball-slide/baseball-slide-01.png",
+      "sha256": "a1a26616e917a0681311181ad7bf1845ac2591cccc2149fdc05818eda5677d21",
+      "bytes": 1074,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-baseball-slide-baseball-slide-02-png",
+      "path": "popt/baseball-slide/baseball-slide-02.png",
+      "sha256": "9f238e1ca2b1f8bd8dcc39d9a212e74efa269e4b76c488ec340851d0d5470736",
+      "bytes": 1065,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-baseball-slide-baseball-slide-03-png",
+      "path": "popt/baseball-slide/baseball-slide-03.png",
+      "sha256": "64ff6803f56b7f4e475ceec88e29aaa20959c364dfa19b15dfcf332366365343",
+      "bytes": 1014,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-baseball-slide-baseball-slide-sheet-png",
+      "path": "popt/baseball-slide/baseball-slide-sheet.png",
+      "sha256": "f6ba60abcb9cc1f6dc43ea378da7ec953d4bd5046035fbb4cbfc34e69f1b5ad3",
+      "bytes": 3467,
+      "width": 1024,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-baseball-slide-baseball-slide-json",
+      "path": "popt/baseball-slide/baseball-slide.json",
+      "sha256": "7cc39a7505140a83f06026dce3b915b03ffe7cf68f8a1b7be68cd77ec0584283",
+      "bytes": 4221
+    },
+    {
+      "id": "popt-baseball-slide-baseball-slide-webp",
+      "path": "popt/baseball-slide/baseball-slide.webp",
+      "sha256": "c6e91930cbc3c38efa4e7ef6a440f749b687b403bc46e6788636b244c49e05ea",
+      "bytes": 1618
+    },
+    {
+      "id": "popt-bull-spin-bull-spin-00-png",
+      "path": "popt/bull-spin/bull-spin-00.png",
+      "sha256": "a08d08d8f4f7f5b0268f76903039d377e3ffe521e79d62a381ff211465fb9ef0",
+      "bytes": 1046,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-bull-spin-bull-spin-01-png",
+      "path": "popt/bull-spin/bull-spin-01.png",
+      "sha256": "81ed3d73ca8ca4c45c974d6c2dedb974f834fb3794f9687de4ff54e9599da9e3",
+      "bytes": 1107,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-bull-spin-bull-spin-02-png",
+      "path": "popt/bull-spin/bull-spin-02.png",
+      "sha256": "36e281dc1dee601a2aae816f8e5b9e7af3e7d4accd662044e981f456cbe129ad",
+      "bytes": 1055,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-bull-spin-bull-spin-03-png",
+      "path": "popt/bull-spin/bull-spin-03.png",
+      "sha256": "02b3342b6e719bd738a962974af03566441494253d21d42b17e05e76bc45ffb4",
+      "bytes": 1069,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-bull-spin-bull-spin-04-png",
+      "path": "popt/bull-spin/bull-spin-04.png",
+      "sha256": "a0a99d505be2981d7ee2649307f96fda0e56cb6908712c295337b52fe9baf992",
+      "bytes": 887,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-bull-spin-bull-spin-05-png",
+      "path": "popt/bull-spin/bull-spin-05.png",
+      "sha256": "49f572e49450bcc76f2ac89e8b263f72c0a432b6c7296b5e1c233aff15b75239",
+      "bytes": 1076,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-bull-spin-bull-spin-sheet-png",
+      "path": "popt/bull-spin/bull-spin-sheet.png",
+      "sha256": "26a29f3dc4a9dc3eef55bd30801681a71db20a1942078b4acdabea24837ce5fd",
+      "bytes": 5946,
+      "width": 1024,
+      "height": 512,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-bull-spin-bull-spin-json",
+      "path": "popt/bull-spin/bull-spin.json",
+      "sha256": "b66c02e17e91b55d9e7e83d3c70e4e3f3740c514b1f85bd9a621f7414ee92678",
+      "bytes": 4795
+    },
+    {
+      "id": "popt-bull-spin-bull-spin-webp",
+      "path": "popt/bull-spin/bull-spin.webp",
+      "sha256": "4561ece6076aebd3ccf7b32e460302dc4b4d09f8c3fe416916cb60c5f0b77442",
+      "bytes": 2410
+    },
+    {
+      "id": "popt-duffel-pull-duffel-pull-00-png",
+      "path": "popt/duffel-pull/duffel-pull-00.png",
+      "sha256": "b0b31c73701b35ca14a97500facb6fd5f4ddff00e9d17d4cbf08fab50ce047ca",
+      "bytes": 1088,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-duffel-pull-duffel-pull-01-png",
+      "path": "popt/duffel-pull/duffel-pull-01.png",
+      "sha256": "dbdc2d5ea36e5586aef808b301e694b6508b4e5f135e0889a6faea94767fd47c",
+      "bytes": 1097,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-duffel-pull-duffel-pull-02-png",
+      "path": "popt/duffel-pull/duffel-pull-02.png",
+      "sha256": "6e6d3e6528cf5e0debe7bae3c0f14f4d3bc3c97e71797893c7acb72bded0300c",
+      "bytes": 1149,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-duffel-pull-duffel-pull-03-png",
+      "path": "popt/duffel-pull/duffel-pull-03.png",
+      "sha256": "b328222d01fd78b38738ac9171a8bb0578b0c52bfa06d4b98f8e0c79642f31d9",
+      "bytes": 1077,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-duffel-pull-duffel-pull-sheet-png",
+      "path": "popt/duffel-pull/duffel-pull-sheet.png",
+      "sha256": "9b570c593e2919b914f700b738af6e38b473de25d6fe2bfe3de239a3afa545df",
+      "bytes": 3721,
+      "width": 1024,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-duffel-pull-duffel-pull-json",
+      "path": "popt/duffel-pull/duffel-pull.json",
+      "sha256": "31518df0c3edf4b2dbbf38df3d99597d6b52888c90239735765cbda40a847923",
+      "bytes": 4204
+    },
+    {
+      "id": "popt-duffel-pull-duffel-pull-webp",
+      "path": "popt/duffel-pull/duffel-pull.webp",
+      "sha256": "50f5f10684cb185a4b3d829a7bb8658780727467f9d52611244fe1c21589f703",
+      "bytes": 1720
+    },
+    {
+      "id": "popt-pilot-glide-pilot-glide-00-png",
+      "path": "popt/pilot-glide/pilot-glide-00.png",
+      "sha256": "295a4a45b0e87196f8894b42256abff30eed1a0413230959a9bed9ebe11d0d41",
+      "bytes": 946,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-pilot-glide-pilot-glide-01-png",
+      "path": "popt/pilot-glide/pilot-glide-01.png",
+      "sha256": "9371cbaf129d9fe1f7ff4a20191e166da42d4ef7f9702bb78ff2bfb9d908de00",
+      "bytes": 1017,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-pilot-glide-pilot-glide-02-png",
+      "path": "popt/pilot-glide/pilot-glide-02.png",
+      "sha256": "9910e04518dac3998e600151bd6b03f1346d87406f5e4b2152518367b7a0e5cd",
+      "bytes": 841,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-pilot-glide-pilot-glide-03-png",
+      "path": "popt/pilot-glide/pilot-glide-03.png",
+      "sha256": "16fdc3adc7909de31555d62b9ffe8efbb240ff94323df777779ddd5f914b534b",
+      "bytes": 1063,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-pilot-glide-pilot-glide-sheet-png",
+      "path": "popt/pilot-glide/pilot-glide-sheet.png",
+      "sha256": "43a64f30f979f5c154271ca84e40f5890ac577d863ebb1d06b5968ac502339c3",
+      "bytes": 3287,
+      "width": 1024,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-pilot-glide-pilot-glide-json",
+      "path": "popt/pilot-glide/pilot-glide.json",
+      "sha256": "1e4bd506c1d1fc487b25a3c87860c6ec66538d39e4277ed17120c0131e818bcd",
+      "bytes": 4202
+    },
+    {
+      "id": "popt-pilot-glide-pilot-glide-webp",
+      "path": "popt/pilot-glide/pilot-glide.webp",
+      "sha256": "63843fe0ee6954424d8f2ed8266aef9d2b41e98ce2ebf8c10df704b8ef99acfd",
+      "bytes": 1506
+    },
+    {
+      "id": "popt-startle-stumble-startle-stumble-00-png",
+      "path": "popt/startle-stumble/startle-stumble-00.png",
+      "sha256": "d723028cef1d51d899f2a757f80aeee29bec192cec83acebd4ff0254d7c7ba7c",
+      "bytes": 1163,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-startle-stumble-startle-stumble-01-png",
+      "path": "popt/startle-stumble/startle-stumble-01.png",
+      "sha256": "1f5b40f4bbcc7774a9113872743900035b07a92f6f19d0d1415a5e7682a3c535",
+      "bytes": 1136,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-startle-stumble-startle-stumble-02-png",
+      "path": "popt/startle-stumble/startle-stumble-02.png",
+      "sha256": "9caacd017febf475ec0aad0c2d4024950808ccadeb556487486456de1e931b01",
+      "bytes": 1106,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-startle-stumble-startle-stumble-sheet-png",
+      "path": "popt/startle-stumble/startle-stumble-sheet.png",
+      "sha256": "bd1f0e062436066b80e90be342b19b8d8f92e0bfea5a0332dfa8889e0bfebdae",
+      "bytes": 3241,
+      "width": 1024,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-startle-stumble-startle-stumble-json",
+      "path": "popt/startle-stumble/startle-stumble.json",
+      "sha256": "cffd655637b32f3d0c0a4de260bc325c9787b13603d80a8203c6f2f70fa3f5ed",
+      "bytes": 3917
+    },
+    {
+      "id": "popt-startle-stumble-startle-stumble-webp",
+      "path": "popt/startle-stumble/startle-stumble.webp",
+      "sha256": "1d065cce080508ced13ef1da1dbda2c890953db917387f1145bb9a4f4ca9650c",
+      "bytes": 1352
+    },
+    {
+      "id": "popt-victory-recovery-victory-recovery-00-png",
+      "path": "popt/victory-recovery/victory-recovery-00.png",
+      "sha256": "f47dc9f74d172e9fd4d88f0b6cf0175071ad4baef85e124687ff8fa7e1673475",
+      "bytes": 1063,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-victory-recovery-victory-recovery-01-png",
+      "path": "popt/victory-recovery/victory-recovery-01.png",
+      "sha256": "f5f69ce26563081a49b23ed7a5386ca04090fc7dc4ca1fbf0dd56f8deb2c35f4",
+      "bytes": 1128,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-victory-recovery-victory-recovery-02-png",
+      "path": "popt/victory-recovery/victory-recovery-02.png",
+      "sha256": "7f56ec8a89aff6002c5f1a4aeb50bf099337430651fafff659dda82069099d54",
+      "bytes": 1130,
+      "width": 256,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-victory-recovery-victory-recovery-sheet-png",
+      "path": "popt/victory-recovery/victory-recovery-sheet.png",
+      "sha256": "ac05f977c388e5c55c53dc20197c392591631bb53c70bbe4519e64e55758c35d",
+      "bytes": 3252,
+      "width": 1024,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-victory-recovery-victory-recovery-json",
+      "path": "popt/victory-recovery/victory-recovery.json",
+      "sha256": "43fff312ec76129d2482424d94633dbcf2c21400f5aa96edbb854045f7021029",
+      "bytes": 3924
+    },
+    {
+      "id": "popt-victory-recovery-victory-recovery-webp",
+      "path": "popt/victory-recovery/victory-recovery.webp",
+      "sha256": "5e6d69676dff5195c178de9283e55db98ffca21bd126b1c9b38c65eeaeb6389d",
+      "bytes": 1252
+    }
+  ],
+  "duplicates": [
+    {
+      "source": "ChatGPT Image Jul 20, 2026, 04_51_23 PM.png",
+      "canonical": "key-key-mascot-poses-01-png",
+      "sha256": "7f8e092deb2f4bc2f5c466b81dcaa1314f31194c47825f5d9256af8ce2424761",
+      "sourceSha256": "cf63e5a292f18346e1228002c3c45e1ab1891f628b94d68e4fc89bb504a8dc2f"
+    },
+    {
+      "source": "ChatGPT Image Jul 20, 2026, 04_51_41 PM.png",
+      "canonical": "key-key-mascot-poses-05-png",
+      "sha256": "d5615bead15924c652f5f7120fed2a74fb6a56bf50d0c02c34e737ec26828865",
+      "sourceSha256": "f421ff5b333cb213a7945e508ab167eabf01a39e6f1a276e2ba583034f09dd19"
+    }
+  ],
+  "preload": [
+    "backgrounds/runway-night.png",
+    "key/key-mascot-poses-00.png",
+    "popt/animation-contract-export.json",
+    "popt/duffel-pull/duffel-pull.webp"
+  ]
+}

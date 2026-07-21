@@ -165,23 +165,23 @@ git commit -m "test: define TMB2 intro asset contract"
 - Consumes the recovered Downloads files and GameDevStuff commit `22722eabc8f09a706013305a0911a9d322ca9f4f`.
 - Produces a runtime manifest that passes Task 1 and stable paths used by Task 4.
 
-- [ ] **Step 1: Copy byte-identical source inputs**
+- [x] **Step 1: Copy byte-identical source inputs**
 
 Preserve both storyboard PNGs, the Pop T ZIP, every one of the 20 new PNG downloads, and the ZIP's extracted tree. Do not modify the Downloads files. Use dated directories from the File Map and verify copied hashes against the source before continuing.
 
-- [ ] **Step 2: Record the exact source inventory**
+- [x] **Step 2: Record the exact source inventory**
 
 Write `asset-reports/tmb2-intro-assets.json` with `schemaVersion`, `authoritativeStoryboard`, `secondaryStoryboard`, `recoveredSources`, `excludedReferences`, `duplicates`, `tooling`, `generatedAssets`, and `validation` fields. Record the MP4 and full MP3 hashes above as excluded references, not committed assets.
 
-- [ ] **Step 3: Extract and validate the Pop T archive**
+- [x] **Step 3: Extract and validate the Pop T archive**
 
 Run `unzip -t` on the committed ZIP, extract it beside the archive, and verify its `animation-contract-export.json` names exactly these six clips: `duffel-pull`, `startle-stumble`, `baseball-slide`, `bull-spin`, `pilot-glide`, and `victory-recovery`. Copy runtime PNG/WebP/JSON files to `public/images/intro/tmb2/popt/` without altering bytes.
 
-- [ ] **Step 4: Pin and prepare GameDevStuff**
+- [x] **Step 4: Pin and prepare GameDevStuff**
 
 Clone GameDevStuff into ignored `.cache/tools/GameDevStuff`, detach at the pinned commit, run `npm ci --omit=dev` inside `skills/pixel-sprite-animation-pipeline`, run its tests, and record the commit plus test result. Never consume mutable `main` after the detach.
 
-- [ ] **Step 5: Inspect and normalize the 18 unique cartoon-key/runway files**
+- [x] **Step 5: Inspect and normalize the 18 unique cartoon-key/runway files**
 
 Use the explicit profile:
 
@@ -194,7 +194,7 @@ palette: { mode: preserve-anchor }
 background:
   mode: configured
   color: { r: 5, g: 248, b: 9, a: 255 }
-  tolerance: 18
+  tolerance: 45
 foreground: { retentionPolicy: all, minimumComponentPixels: 1 }
 snapper: { executable: spritefusion-pixel-snapper, args: ['16'] }
 correction: { generativeAttempts: 2, skillProposalEvidence: 3 }
@@ -202,15 +202,15 @@ correction: { generativeAttempts: 2, skillProposalEvidence: 3 }
 
 Run `inspect` on every source, then `prepare`, `snap`, `normalize`, and `export` on coherent key pose groups. Preserve one global integer scale and shared pivot. Stop if objective validation returns nonzero or chroma remains visible; do not handwave a failed pipeline result.
 
-- [ ] **Step 6: Promote the recovered runway plate**
+- [x] **Step 6: Promote the recovered runway plate**
 
 Copy the unique 1672x941 runway PNG to `public/images/intro/tmb2/backgrounds/runway-night.png`. Preserve its source hash and record that it is the only recovered standalone environment.
 
-- [ ] **Step 7: Build the initial runtime manifest and contact sheet**
+- [x] **Step 7: Build the initial runtime manifest and contact sheet**
 
 List every runtime asset with real hash, byte count, dimensions, alpha state, role, scene, and source relationship. Include preload entries only for shipped intro files. Build a contact sheet with ImageMagick using nearest-neighbor treatment for sprites.
 
-- [ ] **Step 8: Verify the source/runtime gate and commit**
+- [x] **Step 8: Verify the source/runtime gate and commit**
 
 Run:
 
@@ -390,7 +390,7 @@ Publish the complete milestone, include the asset/package hashes and proof scree
 - [x] 2026-07-20 — Recovery evidence, Downloads inventory, GameDevStuff PR #7/#8 boundaries, and lost-package facts verified.
 - [x] 2026-07-20 — Design approved and committed as `1479580`.
 - [x] Task 1 — Canonical intro asset contract (70/70 unit tests passed).
-- [ ] Task 2 — Recovered source preservation and sprite normalization.
+- [x] Task 2 — Recovered source preservation and sprite normalization (65 runtime assets; source/runtime gate passed).
 - [ ] Task 3 — Missing storyboard scene plates.
 - [ ] Task 4 — Data-driven chase timeline.
 - [ ] Task 5 — Layered browser intro.
@@ -403,6 +403,9 @@ Publish the complete milestone, include the asset/package hashes and proof scree
 - The recovered Pop T ZIP already contains six transparent runtime clips plus per-clip PNG frames, sprite sheets, WebP previews, JSON metadata, and an aggregate animation contract.
 - GameDevStuff main at `22722eabc8f09a706013305a0911a9d322ca9f4f` contains 33 pipeline scripts and 29 tests. The shipped product must not depend on its mutable branch state.
 - Vitest originally discovered only `src/**/*.test.ts`; the first Task 1 command correctly failed with no matching test files. Adding `tools/**/*.test.mjs` to the existing Node test environment exposed the intended RED failure (`intro-asset-contract.mjs` missing), after which 4/4 contract tests passed.
+- The workstation default `umask 0002` creates group-writable pipeline state that GameDevStuff intentionally rejects. Running its suite and stateful commands under `umask 0077` produced 357 passing tests, 0 failures, and 1 platform skip.
+- A tolerance of 18 left background-edge noise in four recovered key plates. Raising the configured tolerance to 45 removed the noise without clipping the subjects; all 17 unique key poses then inspected as one foreground component.
+- GameDevStuff's pinned managed standalone `snap` path currently supplies a null manifest hash to signed-receipt validation. The recovery used the tool's manual-handoff path plus the installed hash-verified Pixel Snapper binary with explicit argv, then returned to `prepare`, `normalize`, and `export`; the pinned checkout was not modified.
 
 ## Decision Log
 
@@ -411,6 +414,7 @@ Publish the complete milestone, include the asset/package hashes and proof scree
 - 2026-07-20 — Keep GameDevStuff as pinned build tooling and CockpitEscapeRoom as durable asset authority.
 - 2026-07-20 — Use ImageGen only for four missing scene plates; retain recovered sprites and runway art.
 - 2026-07-20 — Execute inline and sequentially because the user requested work and did not request delegation.
+- 2026-07-20 — Preserve all 17 unique normalized key poses as a reusable runtime library even though the initial intro may display only a subset.
 
 ## Validation Plan
 
@@ -422,7 +426,13 @@ At each failure, capture the exact command and output, identify one root cause, 
 
 ## Evidence
 
-Record actual commands, exit codes, counts, generated prompts, hashes, screenshots, browser console/network findings, remote commit, PR URL, and unresolved visual decisions here as Tasks 1-6 complete. Predicted results are not evidence.
+- `umask 0077 && npm test` in pinned GameDevStuff pipeline: 357 passed, 0 failed, 1 skipped.
+- Pinned Pixel Snapper: `spritefusion-pixel-snapper 1.0.0`, SHA-256 `bd03110406efc2efc0b094c0442a2265cb44f935a3f418fc30fdc20e77eb3f96`.
+- Key processing: 17 unique source poses inspected, snapped, normalized to 128x128 at pivot 64,112, and exported to 256x256 runtime frames; every normalized source had exactly one retained foreground component.
+- `npm run test -- --run tools/assets/intro-asset-contract.test.mjs`: 4 passed.
+- `npm run assets:check`: passed, including `TMB2 intro asset contract passed (64 assets, 4 preloads)` before the final contact sheet; existing GLB notices remained non-fatal.
+- `node tools/assets/check-intro-assets.mjs` after adding the contact sheet: passed with 65 assets and 4 preloads.
+- `git diff --check`: passed at the Task 2 checkpoint.
 
 ## Outcome and Handoff
 

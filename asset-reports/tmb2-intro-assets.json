@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "asset": "tmb2-intro",
+  "status": "recovered-runtime-package-validated",
+  "authoritativeStoryboard": "art-source/intro/tmb2/recovered/2026-07-19-storyboards/pilot Pop T with golden blond hair and blue eyes.png",
+  "secondaryStoryboard": "art-source/intro/tmb2/recovered/2026-07-19-storyboards/pop t chasing the brass key.png",
+  "recoveredSources": [
+    {
+      "group": "storyboards",
+      "directory": "art-source/intro/tmb2/recovered/2026-07-19-storyboards",
+      "files": [
+        { "name": "pilot Pop T with golden blond hair and blue eyes.png", "sha256": "0f9b2fed22597380c926028d39bf1c33470b32c42a7a59bbba335f1642f8b7d2", "bytes": 2109024, "width": 1672, "height": 941 },
+        { "name": "pop t chasing the brass key.png", "sha256": "c5b8dad0ceb9bf5ce083946e1691b63458d1e90e0c59d58748ef78c1649cc6db", "bytes": 2059109, "width": 1672, "height": 941 }
+      ]
+    },
+    {
+      "group": "popt-runtime-archive",
+      "directory": "art-source/intro/tmb2/recovered/2026-07-19-popt-runtime-archive",
+      "files": [
+        { "name": "PopT-cinematic-runtime-assets.zip", "sha256": "a1c16a73da1462c1ca980fe7c4f60ce341519a097098979a2a058428094acc0e", "bytes": 70814 }
+      ],
+      "extractedFileCount": 43,
+      "archiveValidation": "unzip -t passed with no errors"
+    },
+    {
+      "group": "cartoon-key-and-runway",
+      "directory": "art-source/intro/tmb2/recovered/2026-07-20-cartoon-key-and-runway/originals",
+      "files": [
+        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (1).png", "sha256": "bfd7338197c5f1b8272d937dd57ddef6ae023fefa9a8dc2dd65c3214f325c0f2", "bytes": 1073319, "width": 1254, "height": 1254 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (10).png", "sha256": "cf63e5a292f18346e1228002c3c45e1ab1891f628b94d68e4fc89bb504a8dc2f", "bytes": 1080376, "width": 1254, "height": 1254 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (2).png", "sha256": "bed47d528c50c521b1b613c3fae9bdaec225d46309906389793d1f365370c247", "bytes": 1070197, "width": 1254, "height": 1254 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (3).png", "sha256": "ab5a3addb6b35179f81fd6f0bad186eb7959dd7f6c0a6eb9be1d75d6e811e60d", "bytes": 1066050, "width": 1254, "height": 1254 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (4).png", "sha256": "c34801dd73b61755051fcd2d74cbbe28b43e9206e6d91e92f9245990871c5567", "bytes": 1065283, "width": 1254, "height": 1254 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (5).png", "sha256": "f421ff5b333cb213a7945e508ab167eabf01a39e6f1a276e2ba583034f09dd19", "bytes": 1067196, "width": 1254, "height": 1254 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (6).png", "sha256": "d00c637613fc5d424a01387f4661d73e543c1ac08c40a93e4f633ec0f237d426", "bytes": 1071266, "width": 1254, "height": 1254 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (7).png", "sha256": "753534f06ec14ed78b8704fc3a31397621e3bffcbda3f3836afb57f179934f7b", "bytes": 1064119, "width": 1254, "height": 1254 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (8).png", "sha256": "da9d5c84f04b2df59de48164397af9afc2a2320749b895ec9b64d1016271b64f", "bytes": 1068502, "width": 1254, "height": 1254 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (9).png", "sha256": "c0dd9ee1e4004d8bf16943ded69fca1c3891a2a8e71789980636ebead0229e07", "bytes": 1078479, "width": 1254, "height": 1254 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_49_17 PM.png", "sha256": "982aa882c316a4dd047c812589dae0a5e4a27ae38d36eec797a10d89986ac762", "bytes": 2112799, "width": 1672, "height": 941 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_50_20 PM.png", "sha256": "79df23e5d7d8eb5361d81a96e7b2510fe71d7d4409735738806d6418024ddffc", "bytes": 1076803, "width": 1254, "height": 1254 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_50_29 PM.png", "sha256": "12ec1116cd1de31d6dbcb59c3fdc514b020cdec96c3b14de55e0e996a6f50624", "bytes": 1089444, "width": 1254, "height": 1254 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_50_42 PM.png", "sha256": "0bba34c94262afada9cb81cb97694a7872b72ebff26a923fc84fba2597c6a2a4", "bytes": 1071845, "width": 1254, "height": 1254 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_50_49 PM.png", "sha256": "aa8ef5889709a94d0619ac646cd996b6abe8f064933ac64b797f1d9cd724a9d2", "bytes": 1061282, "width": 1254, "height": 1254 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_51_00 PM.png", "sha256": "679eee391b1e8ffbd7a2b0bc6d0c0c4933006d551ea131811c0bc9e27c561da0", "bytes": 1080505, "width": 1254, "height": 1254 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_51_07 PM.png", "sha256": "f8aa7563110803dedd0067c96a2964be408ae6dc3d384a7de73ff277393f4bd0", "bytes": 1045074, "width": 1254, "height": 1254 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_51_14 PM.png", "sha256": "4eafe0d3ace9130d3d3940906ae4bf352748c4b27ec2f1c38a4e5d7360ac6732", "bytes": 1079407, "width": 1254, "height": 1254 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_51_23 PM.png", "sha256": "cf63e5a292f18346e1228002c3c45e1ab1891f628b94d68e4fc89bb504a8dc2f", "bytes": 1080376, "width": 1254, "height": 1254 },
+        { "name": "ChatGPT Image Jul 20, 2026, 04_51_41 PM.png", "sha256": "f421ff5b333cb213a7945e508ab167eabf01a39e6f1a276e2ba583034f09dd19", "bytes": 1067196, "width": 1254, "height": 1254 }
+      ]
+    }
+  ],
+  "duplicates": [
+    {
+      "source": "ChatGPT Image Jul 20, 2026, 04_51_23 PM.png",
+      "canonical": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (10).png",
+      "sha256": "cf63e5a292f18346e1228002c3c45e1ab1891f628b94d68e4fc89bb504a8dc2f"
+    },
+    {
+      "source": "ChatGPT Image Jul 20, 2026, 04_51_41 PM.png",
+      "canonical": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (5).png",
+      "sha256": "f421ff5b333cb213a7945e508ab167eabf01a39e6f1a276e2ba583034f09dd19"
+    }
+  ],
+  "excludedReferences": [
+    {
+      "path": "/mnt/2TBHDD/Downloads/IntroAudio.mp3",
+      "sha256": "0c1864eb97762841b64c57229c07e70eb620724a02a53ddb69a7465a9eac704f",
+      "bytes": 5015659,
+      "reason": "Full owner-supplied audio remains outside the public repository; the tracked 53.040-second runtime cut is already deployed."
+    },
+    {
+      "path": "/mnt/2TBHDD/Downloads/TMB2-current-intro.mp4",
+      "sha256": "2bf496258a8c2d597c9d2de63bc4c9a63419d7e284ea9256754e881fe5d28b7e",
+      "bytes": 7299283,
+      "width": 1440,
+      "height": 900,
+      "durationSeconds": 53,
+      "reason": "Timing evidence embeds the owner-supplied audio and is not required to rebuild or run the intro."
+    }
+  ],
+  "tooling": {
+    "repository": "https://github.com/otto-agent007/GameDevStuff",
+    "commit": "22722eabc8f09a706013305a0911a9d322ca9f4f",
+    "profile": "art-source/intro/tmb2/pipeline/key-profile.yaml",
+    "environment": "Commands that create authenticated pipeline state run under umask 0077 because the workstation default is 0002 and the tool rejects group-writable state.",
+    "tests": {
+      "command": "umask 0077 && npm test",
+      "passed": 357,
+      "failed": 0,
+      "skipped": 1
+    },
+    "pixelSnapper": {
+      "release": "pixel-snapper-v1.0.0-commit.5743009",
+      "upstreamCommit": "5743009265051098831ad7298092072325d1149b",
+      "sha256": "bd03110406efc2efc0b094c0442a2265cb44f935a3f418fc30fdc20e77eb3f96",
+      "version": "spritefusion-pixel-snapper 1.0.0"
+    },
+    "standaloneSnapLimitation": "The pinned CLI's managed standalone snap path supplies a null manifest hash to signed receipt validation. The documented manual handoff was retained and executed with the verified pinned binary using explicit argv; the pinned repository was not modified."
+  },
+  "processedRuntime": {
+    "cartoonKey": {
+      "uniqueSourceFrames": 17,
+      "backgroundTolerance": 45,
+      "canonicalSize": [128, 128],
+      "runtimeSize": [256, 256],
+      "canonicalPivot": [64, 112],
+      "runtimePivot": [128, 224],
+      "normalizedFrames": 17,
+      "componentCountPerFrame": 1,
+      "path": "public/images/intro/tmb2/key",
+      "contactSheet": "public/images/intro/tmb2/key/key-mascot-poses-sheet.png"
+    },
+    "popt": {
+      "clipCount": 6,
+      "runtimeFileCount": 43,
+      "path": "public/images/intro/tmb2/popt"
+    },
+    "runway": {
+      "path": "public/images/intro/tmb2/backgrounds/runway-night.png",
+      "sha256": "982aa882c316a4dd047c812589dae0a5e4a27ae38d36eec797a10d89986ac762",
+      "bytes": 2112799,
+      "width": 1672,
+      "height": 941
+    }
+  },
+  "generatedAssets": [],
+  "validation": {
+    "sourceCopiesByteIdentical": true,
+    "archiveIntegrity": "pass",
+    "runtimeManifest": {
+      "status": "pass",
+      "assets": 65,
+      "preloads": 4,
+      "path": "public/images/intro/tmb2/tmb2-intro-assets.json"
+    },
+    "assetGate": "pass; existing GLB notices remain non-fatal",
+    "contactSheet": "public/images/intro/tmb2/contact-sheet.png",
+    "browser": "pending"
+  }
+}
