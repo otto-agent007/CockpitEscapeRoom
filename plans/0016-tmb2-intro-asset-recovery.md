@@ -373,15 +373,15 @@ Check for protected reward leakage, unmanifested binaries, duplicate runtime fil
 
 Update source/license provenance, actual commands/results, screenshot paths, known visual deviations, tool commit, package counts, and final hashes. Commit message: `docs: record TMB2 intro recovery evidence`.
 
-- [ ] **Step 6: Push and verify remote bytes**
+- [x] **Step 6: Push and verify remote bytes**
 
 Push the feature branch. Fetch the remote commit, verify it equals local HEAD, and compare the remote tree/blob identities for the source vault, manifests, runtime package, and reports.
 
-- [ ] **Step 7: Prove clean-checkout restoration**
+- [x] **Step 7: Prove clean-checkout restoration**
 
 Create a temporary clean checkout from the pushed remote commit, run `npm ci`, `npm run assets:check`, focused intro tests, and a production build. Confirm no command reads Downloads, `.cache`, or a temporary GameDevStuff checkout for shipped bytes.
 
-- [ ] **Step 8: Open or update the draft PR and hand off the visual gate**
+- [x] **Step 8: Open or update the draft PR and hand off the visual gate**
 
 Publish the complete milestone, include the asset/package hashes and proof screenshots, check CI once, and stop for owner visual approval rather than merging.
 
@@ -394,7 +394,7 @@ Publish the complete milestone, include the asset/package hashes and proof scree
 - [x] Task 3 — Four missing storyboard scene plates (69 runtime assets; 8 preloads).
 - [x] Task 4 — Data-driven eight-beat chase timeline (11 focused tests passed; typecheck passed).
 - [x] Task 5 — Layered accessible browser intro (7 focused Chromium flows passed).
-- [ ] Task 6 — Full verification, evidence, remote persistence, and owner gate (local gate and approval captures passed; remote persistence remains).
+- [x] Task 6 — Full verification, evidence, remote persistence, and draft PR #51 visual-gate handoff; owner approval remains open.
 
 ## Discoveries
 
@@ -451,7 +451,10 @@ At each failure, capture the exact command and output, identify one root cause, 
 - Ten durable actual-browser captures under `preview-renders/tmb2-intro-recovery/` were visually inspected. The capture recorded zero console errors, page exceptions, failed requests, HTTP errors, or horizontal overflow.
 - A keyboard-only actual-browser pass reloaded before Start Game, activated the entry with Enter, traversed Mute intro, Intro volume, and Skip Intro in DOM order, exercised them with Space, ArrowLeft, and Enter, and reached the DC-9 handoff.
 - Complete-diff review found no protected reward leakage, unsafe HTML, dependency addition, progress-rule change, unmanifested runtime file, shipped cache/Downloads dependency, or unrelated work. The source-vault duplicates are intentional and declared by hash; the runtime package uses one canonical copy per duplicate.
+- Pushed commit `a69dba8e83edfa17c406e26d3e76c61ffe961111` matched `origin/agent/genesis-placeholder-intro`; the source vault, runtime package, asset report, license record, test report, and plan each had identical local/remote Git object identities.
+- A detached clean checkout of that remote commit passed `npm ci`, `npm run assets:check`, 11/11 focused intro/asset tests, and `npm run build`. The checkout stayed clean and the shipped intro paths contained no Downloads or `.cache` dependency.
+- Draft PR #51 opened with the package hashes and all ten approval captures. The PR is intentionally not mergeable by this handoff until the owner visual gate is complete.
 
 ## Outcome and Handoff
 
-The local milestone has 69 hash-bound runtime assets, 17 exact preloads, ten inspected approval captures, and a fully passing local acceptance stack. Remote restoration proof, draft PR publication, Vercel preview inspection, and owner visual approval remain before Task 6 can close. The only retained placeholder is the existing private-use 53.040-second intro audio; the visual package is fully repository-owned and rebuildable without Downloads, `.cache`, or mutable GameDevStuff state.
+The milestone has 69 hash-bound runtime assets, 17 exact preloads, ten inspected approval captures, a fully passing acceptance stack, verified remote persistence, clean-checkout restoration proof, and draft PR #51. The only retained placeholder is the existing private-use 53.040-second intro audio; the visual package is fully repository-owned and rebuildable without Downloads, `.cache`, or mutable GameDevStuff state. The implementation is complete and stopped at the required owner visual/Vercel approval gate rather than merging.
