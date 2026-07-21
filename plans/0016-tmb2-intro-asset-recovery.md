@@ -54,6 +54,7 @@
 - Create `tools/assets/intro-asset-contract.mjs`: hash, PNG metadata, manifest, duplicate, and spoiler validation.
 - Create `tools/assets/intro-asset-contract.test.mjs`: focused contract tests.
 - Create `tools/assets/check-intro-assets.mjs`: validate the committed canonical package.
+- Modify `vitest.config.ts`: discover focused Node-side asset contract tests under `tools/**/*.test.mjs`.
 - Modify `package.json`: include intro validation in `assets:check` without a production dependency.
 - Create `asset-reports/tmb2-intro-assets.json`: source provenance, tool version, generation prompts, exclusions, validation, and package evidence.
 - Create `public/images/intro/tmb2/tmb2-intro-assets.json`: browser package contract and preload list.
@@ -76,13 +77,14 @@
 - Create: `tools/assets/intro-asset-contract.test.mjs`
 - Create: `tools/assets/check-intro-assets.mjs`
 - Modify: `package.json`
+- Modify: `vitest.config.ts`
 
 **Interfaces:**
 - Produces `sha256File(path): string`, `pngMetadata(path): { width: number; height: number; hasAlpha: boolean }`, and `validateIntroManifest(manifest, root): string[]`.
 - `check-intro-assets.mjs` exits nonzero when any source/runtime path, hash, dimension, duplicate target, preload path, or spoiler rule fails.
 - `npm run assets:check` runs the existing GLB gate and the new intro gate.
 
-- [ ] **Step 1: Write the failing validator tests**
+- [x] **Step 1: Write the failing validator tests**
 
 Create table-driven Vitest cases that construct temporary fixtures and require missing-file, hash, dimension, duplicate, preload, and spoiler failures:
 
@@ -116,17 +118,17 @@ describe('TMB2 intro asset contract', () => {
 })
 ```
 
-- [ ] **Step 2: Run the validator test and verify RED**
+- [x] **Step 2: Run the validator test and verify RED**
 
 Run: `npm run test -- tools/assets/intro-asset-contract.test.mjs`
 
 Expected: FAIL because `intro-asset-contract.mjs` does not exist.
 
-- [ ] **Step 3: Implement the minimal validator**
+- [x] **Step 3: Implement the minimal validator**
 
 Use Node `crypto`, `fs`, and PNG signature/IHDR/color-type bytes. Require schema version 1, unique asset IDs and paths, lowercase 64-character SHA-256 values, exact byte counts, exact PNG dimensions when declared, alpha when `hasAlpha: true`, valid duplicate targets, preload paths present in `assets`, and a case-insensitive `/tesla|model[- ]?y|flight mode|mars/` exclusion across IDs and paths.
 
-- [ ] **Step 4: Add the repository gate**
+- [x] **Step 4: Add the repository gate**
 
 `check-intro-assets.mjs` loads `public/images/intro/tmb2/tmb2-intro-assets.json`, calls `validateIntroManifest`, prints every error, and exits 1 on failure. Change the script to:
 
@@ -136,13 +138,13 @@ Use Node `crypto`, `fs`, and PNG signature/IHDR/color-type bytes. Require schema
 
 Before Task 2 creates the manifest, the gate must fail with `Missing TMB2 intro manifest`.
 
-- [ ] **Step 5: Run focused tests and verify GREEN for fixtures**
+- [x] **Step 5: Run focused tests and verify GREEN for fixtures**
 
 Run: `npm run test -- tools/assets/intro-asset-contract.test.mjs`
 
 Expected: all contract fixture tests pass.
 
-- [ ] **Step 6: Commit the contract checkpoint**
+- [x] **Step 6: Commit the contract checkpoint**
 
 ```bash
 git add package.json tools/assets/intro-asset-contract.mjs tools/assets/intro-asset-contract.test.mjs tools/assets/check-intro-assets.mjs plans/0016-tmb2-intro-asset-recovery.md
@@ -387,7 +389,7 @@ Publish the complete milestone, include the asset/package hashes and proof scree
 
 - [x] 2026-07-20 — Recovery evidence, Downloads inventory, GameDevStuff PR #7/#8 boundaries, and lost-package facts verified.
 - [x] 2026-07-20 — Design approved and committed as `1479580`.
-- [ ] Task 1 — Canonical intro asset contract.
+- [x] Task 1 — Canonical intro asset contract (70/70 unit tests passed).
 - [ ] Task 2 — Recovered source preservation and sprite normalization.
 - [ ] Task 3 — Missing storyboard scene plates.
 - [ ] Task 4 — Data-driven chase timeline.
@@ -400,6 +402,7 @@ Publish the complete milestone, include the asset/package hashes and proof scree
 - The generated green backgrounds are not exact `#00ff00`; dominant values cluster around `#05f809`, so cleanup requires configured-key tolerance and validation rather than exact-color deletion.
 - The recovered Pop T ZIP already contains six transparent runtime clips plus per-clip PNG frames, sprite sheets, WebP previews, JSON metadata, and an aggregate animation contract.
 - GameDevStuff main at `22722eabc8f09a706013305a0911a9d322ca9f4f` contains 33 pipeline scripts and 29 tests. The shipped product must not depend on its mutable branch state.
+- Vitest originally discovered only `src/**/*.test.ts`; the first Task 1 command correctly failed with no matching test files. Adding `tools/**/*.test.mjs` to the existing Node test environment exposed the intended RED failure (`intro-asset-contract.mjs` missing), after which 4/4 contract tests passed.
 
 ## Decision Log
 
