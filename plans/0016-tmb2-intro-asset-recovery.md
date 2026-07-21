@@ -346,7 +346,7 @@ Commit message: `feat: render the Pop T intro chase`.
 **Interfaces:**
 - Produces the owner visual gate, full local verification record, pushed branch, and clean-checkout proof.
 
-- [ ] **Step 1: Run the complete local gate**
+- [x] **Step 1: Run the complete local gate**
 
 Run, stopping at the first failure:
 
@@ -357,19 +357,19 @@ npm run test:e2e -- --workers=1
 git diff --check
 ```
 
-- [ ] **Step 2: Exercise the actual browser**
+- [x] **Step 2: Exercise the actual browser**
 
 Verify natural completion, Skip Intro, Escape, repeated completion, audio rejection/retry, mute, volume, keyboard-only controls, reload before Start Game, reduced motion, and viewport widths 375, 768, and 1440. Record console and network errors.
 
-- [ ] **Step 3: Capture the approval proof set**
+- [x] **Step 3: Capture the approval proof set**
 
 Capture consistent images for boot, duffel, runway, ballpark, finance, clouds, catch, title, reduced motion, and narrow width under `preview-renders/tmb2-intro-recovery/`.
 
-- [ ] **Step 4: Review the complete diff**
+- [x] **Step 4: Review the complete diff**
 
 Check for protected reward leakage, unmanifested binaries, duplicate runtime files, missing accessible equivalents, unsafe HTML, altered progress rules, new dependencies, temporary/cache paths, and unrelated work. Resolve all critical/high findings.
 
-- [ ] **Step 5: Record evidence and commit**
+- [x] **Step 5: Record evidence and commit**
 
 Update source/license provenance, actual commands/results, screenshot paths, known visual deviations, tool commit, package counts, and final hashes. Commit message: `docs: record TMB2 intro recovery evidence`.
 
@@ -394,7 +394,7 @@ Publish the complete milestone, include the asset/package hashes and proof scree
 - [x] Task 3 — Four missing storyboard scene plates (69 runtime assets; 8 preloads).
 - [x] Task 4 — Data-driven eight-beat chase timeline (11 focused tests passed; typecheck passed).
 - [x] Task 5 — Layered accessible browser intro (7 focused Chromium flows passed).
-- [ ] Task 6 — Full verification, evidence, remote persistence, and owner gate.
+- [ ] Task 6 — Full verification, evidence, remote persistence, and owner gate (local gate and approval captures passed; remote persistence remains).
 
 ## Discoveries
 
@@ -445,7 +445,13 @@ At each failure, capture the exact command and output, identify one root cause, 
 - Layered renderer GREEN: `npm run test:e2e -- e2e/smoke.spec.ts -g 'game intro|opening stays spoiler-safe'` passed 7/7 Chromium flows, including an aborted duffel background with story and controls preserved.
 - `npm run lint`, `npm run typecheck`, and the 11 focused unit/asset tests passed after renderer implementation.
 - Live Chromium screenshots at 375, 768, and 1440 px were visually inspected. Controls stayed in bounds, reduced-motion framing remained static, captions were readable, and Pop T/key scaling was corrected from measured transparent-canvas bounds.
+- Final `npm run check` passed ESLint, TypeScript, 73/73 Vitest tests, and the production build.
+- Final `npm run assets:check` passed with 69 hash-bound runtime assets and 17 exact preloads; existing nonfatal GLB notices were unchanged.
+- Full `npm run test:e2e -- --workers=1` passed 26/26 Chromium tests in 5.1 minutes, including the complete reordered journey and both production cockpit boundaries.
+- Ten durable actual-browser captures under `preview-renders/tmb2-intro-recovery/` were visually inspected. The capture recorded zero console errors, page exceptions, failed requests, HTTP errors, or horizontal overflow.
+- A keyboard-only actual-browser pass reloaded before Start Game, activated the entry with Enter, traversed Mute intro, Intro volume, and Skip Intro in DOM order, exercised them with Space, ArrowLeft, and Enter, and reached the DC-9 handoff.
+- Complete-diff review found no protected reward leakage, unsafe HTML, dependency addition, progress-rule change, unmanifested runtime file, shipped cache/Downloads dependency, or unrelated work. The source-vault duplicates are intentional and declared by hash; the runtime package uses one canonical copy per duplicate.
 
 ## Outcome and Handoff
 
-This section will state the final package counts, hashes, behavior, remote restoration proof, remaining placeholders, and owner approval status after Task 6. Until then, this plan is active and the intro recovery milestone is not complete.
+The local milestone has 69 hash-bound runtime assets, 17 exact preloads, ten inspected approval captures, and a fully passing local acceptance stack. Remote restoration proof, draft PR publication, Vercel preview inspection, and owner visual approval remain before Task 6 can close. The only retained placeholder is the existing private-use 53.040-second intro audio; the visual package is fully repository-owned and rebuildable without Downloads, `.cache`, or mutable GameDevStuff state.

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "asset": "tmb2-intro",
-  "status": "layered-intro-focused-browser-validated",
+  "status": "full-local-gate-passed-owner-visual-approval-open",
   "authoritativeStoryboard": "art-source/intro/tmb2/recovered/2026-07-19-storyboards/pilot Pop T with golden blond hair and blue eyes.png",
   "secondaryStoryboard": "art-source/intro/tmb2/recovered/2026-07-19-storyboards/pop t chasing the brass key.png",
   "recoveredSources": [
@@ -200,9 +200,17 @@
     "assetGate": "pass; existing GLB notices remain non-fatal",
     "contactSheet": "public/images/intro/tmb2/contact-sheet.png",
     "browser": {
-      "status": "focused-pass",
-      "tests": 7,
-      "coverage": "cue boundaries, asset decoding, visual fallback, natural completion, one-shot handoff, skip, Escape, audio retry, volume, reduced motion, and 375/768/1440 viewport bounds"
+      "status": "full-pass",
+      "focusedTests": 7,
+      "fullSuiteTests": 26,
+      "coverage": "cue boundaries, asset decoding, visual fallback, natural completion, one-shot handoff, skip, Escape, audio retry, mute, volume, reduced motion, 375/768/1440 viewport bounds, and the complete reordered journey",
+      "approvalProof": "preview-renders/tmb2-intro-recovery",
+      "captureErrors": {
+        "console": 0,
+        "page": 0,
+        "request": 0,
+        "http": 0
+      }
     }
   }
 }
