@@ -70,7 +70,7 @@
 - [x] 2026-07-20 — Root causes recorded: animated WebP misuse, CSS stepped travel, static key poses, visible captions, wrong ident, and approximate boundaries.
 - [x] Task 1 — Exact timing and animation contracts are green.
 - [x] Task 2 — Runtime clock, Start latch, loop, and handoff are green.
-- [ ] Task 3 — Asset preload tiers and integer Canvas are green.
+- [x] Task 3 — Asset preload tiers and integer Canvas are green.
 - [ ] Task 4 — Full recovered-art choreography renders in the browser.
 - [ ] Task 5 — Browser proof, review, and owner gate complete.
 
@@ -186,23 +186,23 @@ Commit message: `feat: restore TMB2 media clock and handoff`
 - `computeIntroStagePlacement(width,height)` returns integer scale/left/top/width/height.
 - `deriveIntroDrawCommands(animationFrame, assets)` returns stable ordered background, actor, prop, pixel-effect, and CRT commands.
 
-- [ ] **Step 1: Write and run asset RED tests**
+- [x] **Step 1: Write and run asset RED tests**
 
 Assert safe local paths, unique IDs, no protected spoilers, initial-vs-full tiers, and decode errors that identify the exact asset. Run `npm run test -- src/game/introAssets.test.ts`; expect missing module/API failure.
 
-- [ ] **Step 2: Implement preload tiers and run GREEN**
+- [x] **Step 2: Implement preload tiers and run GREEN**
 
 Use current manifest-backed PNGs. Do not decode animated WebP previews. Record current actual preload counts rather than forcing 52.
 
-- [ ] **Step 3: Write and run geometry/renderer RED tests**
+- [x] **Step 3: Write and run geometry/renderer RED tests**
 
 Assert 1440 x 900 produces integer 4x scale with a 1280 x 896 stage at `(80,2)`, 768 x 900 produces 2x at `(64,226)`, and 375 x 812 produces 1x at `(27,294)`. Assert the renderer emits no visible title command and maintains actor pivot alignment.
 
-- [ ] **Step 4: Implement geometry, draw commands, Canvas component, and run GREEN**
+- [x] **Step 4: Implement geometry, draw commands, Canvas component, and run GREEN**
 
 Set `context.imageSmoothingEnabled = false`, clear to black, draw scene art/props/sprites in deterministic order, and contain CRT treatment inside the Canvas/intro shell.
 
-- [ ] **Step 5: Record Task 3 evidence and commit**
+- [x] **Step 5: Record Task 3 evidence and commit**
 
 Commit message: `feat: render TMB2 on an integer canvas`
 
@@ -313,6 +313,9 @@ For each task: write one failing test, verify the expected failure, implement th
 - 2026-07-20 Task 2 runtime RED: `npm run test -- src/game/introRuntime.test.ts` failed because the runtime controller did not exist on the recovery branch.
 - 2026-07-20 Task 2 first implementation pass exposed one overly exact floating-point progress assertion at 150 ms; the behavioral assertion was corrected to `toBeCloseTo` without weakening the 300 ms/650 ms contract.
 - 2026-07-20 Task 2 GREEN: the three focused files passed 19/19 tests, `npm run typecheck` passed, and `git diff --check` passed. Coverage includes drift-free media/fallback loops, the monotonic Start latch, retry races, simultaneous Start rejection, the audio fade, and exactly-once handoff completion.
+- 2026-07-20 Task 3 asset RED: `npm run test -- src/game/introAssets.test.ts` failed because the PNG-only tiered preload module did not exist.
+- 2026-07-20 Task 3 geometry/renderer RED: both focused suites failed because the integer placement and Canvas draw-command modules did not exist.
+- 2026-07-20 Task 3 GREEN: six focused files passed 31/31 tests. The renderer registers 15 actual PNG images, decodes only four opening assets before playback, uses the exact 320 x 224 integer placements at 1440/768/375 widths, and emits no visible-title command. `npm run typecheck`, `npm run lint`, and `git diff --check` passed.
 
 ## Outcome and Handoff
 
