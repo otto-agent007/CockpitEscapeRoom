@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { gameCopy, PROJECT_NAME } from '../game/config'
-import { getIntroCue, INTRO_DURATION_SECONDS, type IntroCue } from '../game/introConfig'
+import {
+  getIntroCue,
+  INTRO_DURATION_SECONDS,
+  INTRO_PRELOAD_PATHS,
+  type IntroCue,
+} from '../game/introConfig'
 
 interface GameIntroProps {
   reducedMotion: boolean
@@ -8,6 +13,14 @@ interface GameIntroProps {
 }
 
 const DEFAULT_VOLUME = 0.72
+
+function assetUrl(path: string) {
+  return `${import.meta.env.BASE_URL}${path}`
+}
+
+function clipId(path: string) {
+  return path.split('/').at(-1)?.replace(/\.(png|webp)$/i, '') ?? path
+}
 
 export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
@@ -17,6 +30,7 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
   const [started, setStarted] = useState(false)
   const [cue, setCue] = useState<IntroCue>(() => getIntroCue(0))
   const [audioFailed, setAudioFailed] = useState(false)
+  const [failedAssets, setFailedAssets] = useState<ReadonlySet<string>>(() => new Set())
   const [muted, setMuted] = useState(false)
   const [volume, setVolume] = useState(DEFAULT_VOLUME)
 
@@ -82,6 +96,20 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
     if (audioRef.current) audioRef.current.volume = clampedVolume
   }, [])
 
+  const markAssetFailed = useCallback((path: string) => {
+    setFailedAssets((current) => new Set(current).add(path))
+  }, [])
+
+  useEffect(() => {
+    const images = INTRO_PRELOAD_PATHS.map((path) => {
+      const image = new Image()
+      image.decoding = 'async'
+      image.src = assetUrl(path)
+      return image
+    })
+    return () => images.forEach((image) => { image.src = '' })
+  }, [])
+
   useEffect(() => {
     if (!started) return
 
@@ -113,6 +141,19 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
     const audio = audioRef.current
     return () => audio?.pause()
   }, [])
+
+  const background = cue.background && !failedAssets.has(cue.background)
+    ? cue.background
+    : cue.fallbackImage && cue.fallbackImage !== cue.background && !failedAssets.has(cue.fallbackImage)
+      ? cue.fallbackImage
+      : null
+  const poptClip = cue.poptClip && !failedAssets.has(cue.poptClip) ? cue.poptClip : null
+  const keyClip = cue.keyClip && !failedAssets.has(cue.keyClip) ? cue.keyClip : null
+  const hasVisualFallback = Boolean(
+    (cue.background && !background) ||
+    (cue.poptClip && !poptClip) ||
+    (cue.keyClip && !keyClip),
+  )
 
   return (
     <>
@@ -148,19 +189,43 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
           aria-label="Game intro"
           data-intro-cue={cue.id}
           data-reduced-motion={reducedMotion ? 'true' : 'false'}
+          data-visual-fallback={hasVisualFallback ? 'true' : 'false'}
         >
           <div key={cue.id} className={`game-intro__beat game-intro__beat--${cue.treatment}`}>
-            {cue.background && (
+            {background && (
               <img
-                className="game-intro__image"
-                src={`${import.meta.env.BASE_URL}${cue.background}`}
+                className="game-intro__background"
+                src={assetUrl(background)}
                 style={{ objectPosition: cue.objectPosition }}
                 alt=""
                 aria-hidden="true"
+                onError={() => markAssetFailed(background)}
               />
             )}
             <div className="game-intro__color" aria-hidden="true" />
+            <div className="game-intro__sprite-stage" aria-hidden="true">
+              {poptClip && (
+                <img
+                  className="game-intro__popt"
+                  src={assetUrl(poptClip)}
+                  alt=""
+                  data-clip={clipId(poptClip)}
+                  onError={() => markAssetFailed(poptClip)}
+                />
+              )}
+              {keyClip && (
+                <img
+                  className="game-intro__key"
+                  src={assetUrl(keyClip)}
+                  alt=""
+                  data-clip={clipId(keyClip)}
+                  onError={() => markAssetFailed(keyClip)}
+                />
+              )}
+              <div className="game-intro__prop" data-clip={`${cue.id}-accent`} />
+            </div>
             <div className="game-intro__frame" aria-hidden="true" />
+            <p className="game-intro__summary sr-only">{cue.summary}</p>
             <div className="game-intro__copy">
               {cue.id === 'title' ? (
                 <>

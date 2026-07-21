@@ -302,25 +302,25 @@ Commit message: `feat: define TMB2 chase intro timeline`.
 - Consumes the Task 4 cue contract.
 - Produces DOM layers `.game-intro__background`, `.game-intro__popt`, `.game-intro__key`, and `.game-intro__prop` with `data-clip` attributes for browser assertions.
 
-- [ ] **Step 1: Write failing browser assertions**
+- [x] **Step 1: Write failing browser assertions**
 
 At cue boundaries 4, 11, 19, 27, 35, 43, and 49 seconds, assert the expected cue ID, caption, background request/path, Pop T clip, key layer, and accessible story summary. Assert that all images resolve with `naturalWidth > 0`.
 
-- [ ] **Step 2: Run the focused browser test and verify RED**
+- [x] **Step 2: Run the focused browser test and verify RED**
 
 Run: `npm run test:e2e -- e2e/smoke.spec.ts -g "game intro follows media cue boundaries"`
 
 Expected: FAIL because the placeholder renderer has one image layer and old cue IDs.
 
-- [ ] **Step 3: Implement the minimal layered renderer**
+- [x] **Step 3: Implement the minimal layered renderer**
 
 Render decorative layers with empty alt text and `aria-hidden`, keep the cue caption and a visually hidden `cue.summary` as the semantic equivalent, and preserve every existing audio/control callback unchanged. Use keyed cue containers so clip changes restart only presentation animation, not the media clock.
 
-- [ ] **Step 4: Implement responsive motion**
+- [x] **Step 4: Implement responsive motion**
 
 Use CSS transforms and stepped keyframes for layered movement. Do not animate layout properties. At reduced motion, show static approved frame/scene composition, hide nonessential travel, and retain the same captions and controls.
 
-- [ ] **Step 5: Run focused browser coverage and repair**
+- [x] **Step 5: Run focused browser coverage and repair**
 
 Run:
 
@@ -331,7 +331,7 @@ npm run test -- src/game/introConfig.test.ts tools/assets/intro-asset-contract.t
 
 Expected: intro launch, boundaries, controls, failure/retry, reduced motion, responsive bounds, audio duration, skip, Escape, and DC-9 handoff pass.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 Commit message: `feat: render the Pop T intro chase`.
 
@@ -393,7 +393,7 @@ Publish the complete milestone, include the asset/package hashes and proof scree
 - [x] Task 2 — Recovered source preservation and sprite normalization (65 runtime assets; source/runtime gate passed).
 - [x] Task 3 — Four missing storyboard scene plates (69 runtime assets; 8 preloads).
 - [x] Task 4 — Data-driven eight-beat chase timeline (11 focused tests passed; typecheck passed).
-- [ ] Task 5 — Layered browser intro.
+- [x] Task 5 — Layered accessible browser intro (7 focused Chromium flows passed).
 - [ ] Task 6 — Full verification, evidence, remote persistence, and owner gate.
 
 ## Discoveries
@@ -441,6 +441,10 @@ At each failure, capture the exact command and output, identify one root cause, 
 - Timeline RED: `npm run test -- src/game/introConfig.test.ts` failed 4/6 tests against the former six placeholder cues and missing package bindings.
 - Timeline GREEN: `npm run test -- src/game/introConfig.test.ts tools/assets/intro-asset-contract.test.mjs` passed 11/11 tests across two files.
 - `npm run typecheck` and `node tools/assets/check-intro-assets.mjs` passed after binding all 17 unique cue visuals into the manifest preload list.
+- Layered renderer RED: focused Playwright failed because `.game-intro__summary` and layered scene elements did not exist in the placeholder renderer.
+- Layered renderer GREEN: `npm run test:e2e -- e2e/smoke.spec.ts -g 'game intro|opening stays spoiler-safe'` passed 7/7 Chromium flows, including an aborted duffel background with story and controls preserved.
+- `npm run lint`, `npm run typecheck`, and the 11 focused unit/asset tests passed after renderer implementation.
+- Live Chromium screenshots at 375, 768, and 1440 px were visually inspected. Controls stayed in bounds, reduced-motion framing remained static, captions were readable, and Pop T/key scaling was corrected from measured transparent-canvas bounds.
 
 ## Outcome and Handoff
 

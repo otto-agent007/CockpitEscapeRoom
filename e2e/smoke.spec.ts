@@ -112,7 +112,7 @@ test('opening stays spoiler-safe, preloads the DC-9, and fades into the cockpit'
   await page.getByRole('button', { name: 'Start Game' }).click()
   const intro = page.getByRole('region', { name: 'Game intro' })
   await expect(intro).toHaveAttribute('data-intro-cue', 'boot')
-  await expect(intro.getByText('A FAMILY CREW PRODUCTION')).toBeVisible()
+  await expect(intro.getByRole('heading', { name: 'TMB2' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toHaveCount(0)
   await intro.getByRole('button', { name: 'Skip Intro' }).click()
   await expect(page.locator('.dc9-entry-transition')).toHaveAttribute('data-stage', /fade-out|waiting-for-cockpit|fade-in/)
@@ -133,10 +133,76 @@ test('game intro follows media cue boundaries and completes once', async ({ page
   })
 
   const cues = [
-    { time: 16, id: 'key', copy: 'LEGACY UNLOCKED' },
-    { time: 27, id: 'hat', copy: 'THE JOURNEY CONTINUES' },
-    { time: 38, id: 'airbus', copy: 'FROM FIRST OFFICER TO CAPTAIN' },
-    { time: 49, id: 'title', copy: 'MISSION READY' },
+    {
+      time: 4,
+      id: 'duffel',
+      copy: 'THE OVERSIZED DUFFEL',
+      background: 'backgrounds/duffel-terminal.png',
+      backgroundWidth: 1586,
+      popt: 'duffel-pull',
+      key: 'key-mascot-poses-10',
+      summary: 'Pop T pulls an oversized pilot duffel as a lively brass key appears.',
+    },
+    {
+      time: 11,
+      id: 'runway',
+      copy: 'RUNWAY CHASE',
+      background: 'backgrounds/runway-night.png',
+      backgroundWidth: 1672,
+      popt: 'startle-stumble',
+      key: 'key-mascot-poses-01',
+      summary: 'Pop T follows the brass key across a safely parked airport runway at night.',
+    },
+    {
+      time: 19,
+      id: 'ballpark',
+      copy: 'BALLPARK DETOUR',
+      background: 'backgrounds/ballpark-night.png',
+      backgroundWidth: 1586,
+      popt: 'baseball-slide',
+      key: 'key-mascot-poses-08',
+      summary: 'The chase takes a playful field-level detour through a night ballpark.',
+    },
+    {
+      time: 27,
+      id: 'finance',
+      copy: 'BULL MARKET LAUNCH',
+      background: 'backgrounds/finance-city.png',
+      backgroundWidth: 1586,
+      popt: 'bull-spin',
+      key: 'key-mascot-poses-09',
+      summary: 'Pop T and the brass key race past a bright fictional finance skyline and bronze bull.',
+    },
+    {
+      time: 35,
+      id: 'clouds',
+      copy: 'CLOUD CHASE',
+      background: 'backgrounds/cloud-chase.png',
+      backgroundWidth: 1586,
+      popt: 'pilot-glide',
+      key: 'key-mascot-poses-13',
+      summary: 'The joyful chase glides through bright cobalt clouds and sparkling blue trails.',
+    },
+    {
+      time: 43,
+      id: 'catch',
+      copy: 'THE CATCH',
+      background: 'backgrounds/cloud-chase.png',
+      backgroundWidth: 1586,
+      popt: 'victory-recovery',
+      key: 'key-mascot-poses-03',
+      summary: 'Pop T reaches the brass key and recovers with a triumphant pilot salute.',
+    },
+    {
+      time: 49,
+      id: 'title',
+      copy: 'MISSION READY',
+      background: null,
+      backgroundWidth: 0,
+      popt: null,
+      key: null,
+      summary: 'The CockpitEscapeRoom title appears before the DC-9 First-Officer Final Flight Log.',
+    },
   ] as const
 
   for (const cue of cues) {
@@ -146,6 +212,24 @@ test('game intro follows media cue boundaries and completes once', async ({ page
     }, cue.time)
     await expect(intro).toHaveAttribute('data-intro-cue', cue.id)
     await expect(intro.getByText(cue.copy)).toBeVisible()
+    await expect(intro.locator('.game-intro__summary')).toHaveText(cue.summary)
+    await expect(intro.locator('.game-intro__prop')).toHaveAttribute('data-clip', `${cue.id}-accent`)
+
+    const background = intro.locator('.game-intro__background')
+    const popt = intro.locator('.game-intro__popt')
+    const key = intro.locator('.game-intro__key')
+    if (cue.background) {
+      await expect(background).toHaveAttribute('src', new RegExp(`/images/intro/tmb2/${cue.background}$`))
+      await expect(background).toHaveJSProperty('naturalWidth', cue.backgroundWidth)
+      await expect(popt).toHaveAttribute('data-clip', cue.popt)
+      await expect(key).toHaveAttribute('data-clip', cue.key)
+      await expect.poll(() => popt.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0)
+      await expect.poll(() => key.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0)
+    } else {
+      await expect(background).toHaveCount(0)
+      await expect(popt).toHaveCount(0)
+      await expect(key).toHaveCount(0)
+    }
   }
 
   await audio.evaluate((media) => {
@@ -154,6 +238,26 @@ test('game intro follows media cue boundaries and completes once', async ({ page
   })
   await expect(page.locator('.dc9-entry-transition')).toHaveCount(1)
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toBeVisible({ timeout: 15_000 })
+})
+
+test('game intro keeps story and controls usable when a scene plate fails', async ({ page }) => {
+  await page.route('**/images/intro/tmb2/backgrounds/duffel-terminal.png', (route) => route.abort())
+  const intro = await openGameIntro(page)
+  const audio = page.locator('audio')
+
+  await audio.evaluate((media) => {
+    media.currentTime = 4
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+
+  await expect(intro).toHaveAttribute('data-intro-cue', 'duffel')
+  await expect(intro).toHaveAttribute('data-visual-fallback', 'true')
+  await expect(intro.locator('.game-intro__background')).toHaveCount(0)
+  await expect(intro.locator('.game-intro__summary')).toHaveText(
+    'Pop T pulls an oversized pilot duffel as a lively brass key appears.',
+  )
+  await expect(intro.getByRole('heading', { name: 'THE OVERSIZED DUFFEL' })).toBeVisible()
+  await expect(intro.getByRole('button', { name: 'Skip Intro' })).toBeVisible()
 })
 
 test('game intro exposes working sound controls and Escape skip', async ({ page }) => {
