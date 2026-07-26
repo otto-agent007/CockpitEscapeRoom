@@ -847,3 +847,116 @@ the established clock, controls, reduced motion, spoiler protection, and DC-9
 handoff. Asset, code, browser, deployment-byte, and responsive visual evidence
 are recorded above. Draft PR #54 and the READY Vercel preview are published;
 final owner visual approval of the rendered checkpoint remains open.
+
+---
+
+## Follow-up: 50% Productions caption
+
+**Goal:** Apply the owner-requested 0.5 scale factor to the visible
+`PRODUCTIONS` caption without changing the TMB2 logo, caption center, styling,
+timing, or any other intro behavior.
+
+**Architecture:** Keep the 320x224 transparent runtime layer and deterministic
+5x7 bitmap alphabet. Halve the caption cell and tracking values from two stage
+pixels to one, move its top anchor from y=164 to y=168 to preserve the prior
+visual center within half a stage pixel, and regenerate the manifest-backed
+asset. Prove the actual PNG alpha bounds through Pillow in the existing Node
+asset-contract test.
+
+**Files:**
+
+- Modify: `tools/assets/intro-asset-contract.test.mjs`
+- Modify: `tools/assets/build-tmb2-ident-assets.py`
+- Regenerate: `public/images/intro/tmb2/logo/tmb2-productions.png`
+- Regenerate: `public/images/intro/tmb2/tmb2-intro-assets.json`
+- Regenerate: `preview-renders/tmb2-productions-ident/*.png`
+- Modify: `asset-reports/tmb2-intro-assets.json`
+- Modify: `TEST_REPORT.md`
+- Modify: `docs/superpowers/specs/2026-07-26-tmb2-productions-ident-design.md`
+- Modify: `plans/0020-tmb2-productions-ident.md`
+
+### Task 6: Half-size Productions owner revision
+
+- [ ] **Step 1: Write the failing alpha-bounds test**
+
+In `tools/assets/intro-asset-contract.test.mjs`, execute a read-only Pillow
+probe against the committed runtime caption and assert:
+
+```js
+expect(productionsAlphaBounds()).toEqual([127, 168, 193, 176])
+```
+
+The helper must invoke Python with argument-vector inputs, parse the alpha
+channel bounding box as JSON, and fail clearly if Pillow or the PNG is absent.
+Also retain the existing assertion that the stage image remains 320x224 RGBA.
+
+- [ ] **Step 2: Run the focused test and verify RED**
+
+```bash
+npm run test -- --run tools/assets/intro-asset-contract.test.mjs
+```
+
+Expected: FAIL because the current alpha bounds are `[95,164,226,179]`.
+
+- [ ] **Step 3: Implement the minimal deterministic scale change**
+
+In `tools/assets/build-tmb2-ident-assets.py`:
+
+```py
+PRODUCTIONS_Y = 168
+PRODUCTIONS_CELL = 1
+PRODUCTIONS_TRACKING = 1
+```
+
+Use those constants in `build_productions_layer()` instead of the current
+two-pixel local values. Preserve `PRODUCTIONS_COLOR`,
+`PRODUCTIONS_SHADOW`, the 320x224 stage, label text, centering equation, PNG
+compression, and every TMB2-logo derivation.
+
+- [ ] **Step 4: Rebuild and verify GREEN**
+
+```bash
+npm run asset:tmb2-ident
+npm run test -- --run tools/assets/intro-asset-contract.test.mjs
+npm run assets:check
+```
+
+Expected: alpha bounds `[127,168,193,176]`; source/base/blue/highlight hashes
+unchanged; only the Productions PNG and manifest hashes change.
+
+- [ ] **Step 5: Refresh and inspect browser evidence**
+
+```bash
+CAPTURE_TMB2_IDENT=1 \
+  npm run test:e2e -- --grep "captures TMB2 Productions owner-review proof"
+npm run test:e2e -- --grep \
+  "opening stays spoiler-safe|blocks playback with an exact retry|holds scene poses"
+```
+
+Inspect all four `preview-renders/tmb2-productions-ident/*.png` images. Confirm
+the caption is visibly half-size, centered, readable, subordinate, and clear of
+controls at 1440, 768, 375, and reduced-motion 375 widths.
+
+- [ ] **Step 6: Record, verify, commit, and update PR #54**
+
+Update the exact Productions hash, byte size, alpha bounds, owner decision,
+test output, screenshots, and remaining visual gate in the report and plan.
+Then run:
+
+```bash
+npm run check
+git diff --check
+python3 -m py_compile tools/assets/build-tmb2-ident-assets.py
+git add tools/assets/intro-asset-contract.test.mjs \
+  tools/assets/build-tmb2-ident-assets.py \
+  public/images/intro/tmb2/logo/tmb2-productions.png \
+  public/images/intro/tmb2/tmb2-intro-assets.json \
+  preview-renders/tmb2-productions-ident \
+  asset-reports/tmb2-intro-assets.json TEST_REPORT.md \
+  docs/superpowers/specs/2026-07-26-tmb2-productions-ident-design.md \
+  plans/0020-tmb2-productions-ident.md
+git commit -m "fix: reduce Productions caption"
+git push
+```
+
+Check PR #54 status once after the push and do not poll.
