@@ -44,6 +44,20 @@ compete with the Start prompt.
 Reduced-motion presentation shows the complete logo and `PRODUCTIONS` treatment
 without animated assembly or highlight travel.
 
+### Owner follow-up: half-size caption
+
+After reviewing the implemented ident, the owner approved one focused visual
+revision: apply a 0.5 scale factor to the current generated `PRODUCTIONS`
+artwork in both axes. Preserve its visual center beneath the unchanged TMB2
+logo, gold and shadow colors, fade timing, Canvas stage size, and responsive
+integer scaling.
+
+The current alpha bounds are `(95, 164, 226, 179)`, or 131x15 stage pixels.
+After integer raster rounding, the rebuilt caption must have alpha bounds no
+larger than 66x8 stage pixels and retain the prior center within one-half stage
+pixel. No other ident layer, position, animation threshold, control, or scene
+may change.
+
 ## Asset design
 
 A deterministic build step derives runtime assets from the approved source:
