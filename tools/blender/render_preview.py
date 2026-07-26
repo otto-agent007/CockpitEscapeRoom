@@ -35,6 +35,8 @@ for obj in bpy.data.objects:
         obj.hide_render = True
 
 for camera in cameras:
+    if ASSET_NAME == "tesla":
+        scene.frame_set(scene.frame_end if "FLIGHT_MODE" in camera.name else 114)
     scene.camera = camera
     fill = None
     if ASSET_NAME == "airbus":
@@ -49,3 +51,21 @@ for camera in cameras:
     print(f"Rendered {output}")
     if fill is not None:
         bpy.data.objects.remove(fill, do_unlink=True)
+
+if ASSET_NAME == "tesla":
+    narrow_camera = bpy.data.objects.get("CAM_TESLA_REWARD_NARROW_GAME")
+    if narrow_camera is None:
+        print("ERROR: CAM_TESLA_REWARD_NARROW_GAME is required for portrait evidence.")
+        sys.exit(1)
+    scene.camera = narrow_camera
+    scene.render.resolution_x = 768
+    scene.render.resolution_y = 900
+    for frame, filename in (
+        (114, "model-y-narrow-static.png"),
+        (scene.frame_end, "model-y-narrow-final.png"),
+    ):
+        scene.frame_set(frame)
+        output = PREVIEW_DIR / filename
+        scene.render.filepath = str(output)
+        bpy.ops.render.render(write_still=True)
+        print(f"Rendered {output}")

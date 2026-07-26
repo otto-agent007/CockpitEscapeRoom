@@ -1,0 +1,155 @@
+{
+  "asset": "model-y-hangar-reward",
+  "source": "/mnt/2TBHDD/Downloads/red electric car 3d model.glb",
+  "preservedSource": ".cache/cockpit-pipeline/sources/model-y-hangar/red-electric-car/original/red electric car 3d model.glb",
+  "optimizedSource": ".cache/cockpit-pipeline/sources/model-y-hangar/red-electric-car/extracted/optimized/red-electric-car.optimized.glb",
+  "sourceSha256": "d88769d9c66bdeca46bf239c9baa2a295afc82ffb24005733d9374b9c7782bee",
+  "sourceByteLength": 16060928,
+  "generator": "Tripo",
+  "blenderVersion": "5.1.2",
+  "sceneGroup": "Model Y hangar reward and Flight Mode transformation",
+  "sourceObjectCount": 1,
+  "sourceMeshCount": 1,
+  "sourceTriangleCount": 480305,
+  "runtimeVehicleTriangleCount": 180000,
+  "runtimeTotalTriangleCount": 205644,
+  "runtimeMaterialCount": 8,
+  "runtimeDrawCallCount": 25,
+  "sourceBounds": {
+    "minimum": [
+      -0.490265,
+      -0.230377,
+      -0.172134
+    ],
+    "maximum": [
+      0.48996,
+      0.231079,
+      0.172028
+    ],
+    "size": [
+      0.980225,
+      0.461456,
+      0.344162
+    ]
+  },
+  "stagedBounds": {
+    "minimum": [
+      -2.375,
+      -1.118123,
+      0.120261
+    ],
+    "maximum": [
+      2.375,
+      1.118123,
+      1.788153
+    ],
+    "size": [
+      4.75,
+      2.236246,
+      1.667892
+    ]
+  },
+  "orientation": {
+    "sourceFrontAxis": "+X",
+    "sourceUpAxisAfterBlenderImport": "+Z",
+    "finalRotationDegrees": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "targetVehicleLengthMeters": 4.75
+  },
+  "sourceTextureGatePassed": true,
+  "sourceTextures": [
+    {
+      "role": "baseColor",
+      "name": "red+electric+car+3d+model_basecolor.jpg",
+      "dimensions": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "role": "normal",
+      "name": "red+electric+car+3d+model_normal.jpg",
+      "dimensions": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "role": "metallicRoughness",
+      "name": "red+electric+car+3d+model_rm.jpg",
+      "dimensions": [
+        4096,
+        4096
+      ]
+    }
+  ],
+  "runtimeTextures": [
+    {
+      "role": "baseColor",
+      "name": "TEX_MODEL_Y_BASECOLOR",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "packed": true
+    },
+    {
+      "role": "normal",
+      "name": "TEX_MODEL_Y_NORMAL",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "packed": true
+    },
+    {
+      "role": "metallicRoughness",
+      "name": "TEX_MODEL_Y_METALLICROUGHNESS",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "packed": true
+    }
+  ],
+  "rootObject": "TESLA_ROOT",
+  "requiredNodes": [
+    "TESLA_ROOT",
+    "TESLA_HANGAR",
+    "TESLA_HANGAR_DOOR_LEFT",
+    "TESLA_HANGAR_DOOR_RIGHT",
+    "TESLA_VEHICLE",
+    "TESLA_MODEL_Y_BODY",
+    "TESLA_PLATE_POP_T",
+    "TESLA_FLIGHT_MODE_ROOT",
+    "TESLA_WING_LEFT_PIVOT",
+    "TESLA_WING_RIGHT_PIVOT",
+    "TESLA_STABILIZER_LEFT_PIVOT",
+    "TESLA_STABILIZER_RIGHT_PIVOT",
+    "TESLA_LIFT_FAN_FRONT_DOOR_PIVOT",
+    "TESLA_LIFT_FAN_REAR_DOOR_PIVOT",
+    "TESLA_LIFT_FAN_FRONT_ROTOR",
+    "TESLA_LIFT_FAN_REAR_ROTOR",
+    "TESLA_EMISSIVE",
+    "CAM_TESLA_REWARD_GAME",
+    "CAM_TESLA_REWARD_NARROW_GAME",
+    "CAM_TESLA_REWARD_APPROVAL",
+    "CAM_TESLA_FLIGHT_MODE_APPROVAL"
+  ],
+  "animation": {
+    "name": "TESLA_FLIGHT_MODE_REVEAL",
+    "durationSeconds": 11.5,
+    "frameStart": 0,
+    "frameEnd": 345,
+    "fps": 30
+  },
+  "zeroSizeMeshes": [],
+  "visibleProxyReplacement": "The old browser red-box reward proxy must be removed when this GLB is integrated.",
+  "knownDeviations": [
+    "The owner-supplied Tripo vehicle is a private reward candidate rather than exact manufacturer CAD.",
+    "Flight Mode is a fictional non-operational articulated kit built around the untouched one-piece vehicle body."
+  ]
+}

@@ -1,5 +1,5 @@
 import { useMemo, useState, type DragEvent } from 'react'
-import { airbusCaptainFlow, gameCopy, type AirbusControl, type LockerMemoryId } from '../game/config'
+import { airbusCaptainFlow, type AirbusControl, type LockerMemoryId } from '../game/config'
 import { gameProgress, type GameAction, type GameState } from '../game/state'
 import type { AirbusHotspotScreenPositions } from '../scenes/PrototypeScene'
 import { LockerHud } from './LockerHud'
@@ -205,11 +205,7 @@ export function Hud({
   return (
     <aside className="hud" aria-label="Game controls">
       <div className="hud__topline">
-        <span className="eyebrow">
-          {state.phase === 'reward'
-                  ? 'Hangar access'
-                  : 'Completion beat'}
-        </span>
+        <span className="eyebrow">Completion beat</span>
         <span>{gameProgress(state)}% complete</span>
       </div>
 
@@ -218,32 +214,6 @@ export function Hud({
       <div className="status" aria-live="polite" aria-atomic="true">
         {state.statusMessage}
       </div>
-
-      {state.phase === 'reward' && (
-        <section aria-labelledby="reward-heading">
-          <h2 id="reward-heading">Ground transport release</h2>
-          <p>{gameCopy.rewardTitle}</p>
-          <p>{gameCopy.rewardVehicleLine}</p>
-          <p>{gameCopy.finalMessage}</p>
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={() => dispatch({ type: 'UNLOCK_MARS' })}
-          >
-            Request Mars option
-          </button>
-        </section>
-      )}
-
-      {state.phase === 'mars' && (
-        <section aria-labelledby="mars-heading">
-          <h2 id="mars-heading">{gameCopy.marsRank}</h2>
-          <p>{gameCopy.hiddenEasterEgg.message}</p>
-          <button type="button" className="primary-button" onClick={() => dispatch({ type: 'RETURN_TO_REWARD' })}>
-            Return to hangar
-          </button>
-        </section>
-      )}
 
       <button type="button" className="text-button" onClick={onRestart}>
         Restart game

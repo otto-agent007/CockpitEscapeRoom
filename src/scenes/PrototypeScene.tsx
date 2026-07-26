@@ -134,12 +134,11 @@ export type Dc9LoadState = { status: 'idle' | 'loading' | 'ready' | 'error' | 'a
 export type Dc9HotspotScreenPositions = Record<string, { x: number; y: number; visible: boolean; width?: number; height?: number }>
 
 interface PrototypeSceneProps {
-  phase: Exclude<GamePhase, 'briefing'>
+  phase: Exclude<GamePhase, 'briefing' | 'reward' | 'mars'>
   activeDc9Controls: Dc9SecureControlId[]
   dc9ChapterStage: Dc9ChapterStage
   reducedMotion: boolean
   lockerHatRevealed: boolean
-  rewardUnlocked: boolean
   selectedAirbusCard: string | null
   airbusRetryToken: number
   lockerRetryToken: number
@@ -156,7 +155,6 @@ interface PrototypeSceneProps {
   onAirbusTarget: (control: AirbusControl) => void
   onLockerCameraSettled: (cue: LockerCameraCue) => void
   onDc9Interaction: (gameId: string) => void
-  onMars: () => void
   onLockerMemory: (memoryId: LockerMemoryId) => void
   onLockerHat: () => void
 }
@@ -206,48 +204,6 @@ function applyAirbusGameplayCameraTransform(runtimeCamera: THREE.Camera, sourceC
     runtimeCamera.updateProjectionMatrix()
   }
   runtimeCamera.updateMatrixWorld(true)
-}
-
-function LimitedOrbitControls({
-  airbusCameraRevision,
-}: {
-  airbusCameraRevision: number
-}) {
-  const { camera, gl } = useThree()
-  const controlsRef = useRef<ThreeOrbitControls | null>(null)
-
-  useEffect(() => {
-    const controls = new ThreeOrbitControls(camera, gl.domElement)
-    controls.enablePan = false
-    controls.enableZoom = true
-    controls.enableRotate = true
-    controls.screenSpacePanning = false
-    controls.minDistance = 4.2
-    controls.maxDistance = 7.2
-    controls.minPolarAngle = Math.PI / 2.5
-    controls.maxPolarAngle = Math.PI / 1.75
-    controls.minAzimuthAngle = -0.42
-    controls.maxAzimuthAngle = 0.42
-    controls.enableDamping = true
-    controls.dampingFactor = 0.08
-    controls.saveState()
-    controlsRef.current = controls
-
-    return () => {
-      controlsRef.current = null
-      controls.dispose()
-    }
-  }, [camera, gl])
-
-  useEffect(() => {
-    const controls = controlsRef.current
-    if (!controls) return
-    controls.reset()
-    controls.update()
-  }, [airbusCameraRevision])
-
-  useFrame(() => controlsRef.current?.update())
-  return null
 }
 
 function lockerPoseVectors(cue: LockerCameraCue) {
@@ -1544,7 +1500,6 @@ function Dc9Cockpit({
   cameraResetRevision,
   activeControls,
   chapterStage,
-  phase,
   reducedMotion,
   interactionEnabled,
   onLoadState,
@@ -1555,7 +1510,6 @@ function Dc9Cockpit({
   cameraResetRevision: number
   activeControls: Dc9SecureControlId[]
   chapterStage: Dc9ChapterStage
-  phase: 'dc9' | 'reward' | 'mars'
   reducedMotion: boolean
   interactionEnabled: boolean
   onLoadState: (state: Dc9LoadState) => void
@@ -1669,8 +1623,8 @@ function Dc9Cockpit({
 
   useLayoutEffect(() => {
     if (!loaded) return
-    const routeStage = phase === 'dc9' && (chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations')
-    const shutdownStage = phase === 'dc9' && chapterStage === 'shutdown'
+    const routeStage = chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations'
+    const shutdownStage = chapterStage === 'shutdown'
     const sourceCamera = routeStage ? loaded.routeCamera : shutdownStage ? loaded.secureCamera : loaded.camera
     const wideFov = routeStage ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV
     const narrowFov = routeStage ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV
@@ -1681,13 +1635,13 @@ function Dc9Cockpit({
       size.width < 900 ? narrowFov : wideFov,
     )
     canvasRef.current.dataset.dc9CameraNode = sourceCamera.name
-  }, [camera, chapterStage, loaded, phase, size.width])
+  }, [camera, chapterStage, loaded, size.width])
 
   useLayoutEffect(() => {
     if (!loaded) return
-    const routeInteractive = phase === 'dc9' && (chapterStage === 'intro' || chapterStage === 'routeRecord')
-    const shutdownInteractive = phase === 'dc9' && chapterStage === 'shutdown'
-    const keyInteractive = phase === 'dc9' && chapterStage === 'keyReveal'
+    const routeInteractive = chapterStage === 'intro' || chapterStage === 'routeRecord'
+    const shutdownInteractive = chapterStage === 'shutdown'
+    const keyInteractive = chapterStage === 'keyReveal'
     const routeProps = loaded.scene.getObjectByName('DC9_PUZZLE_PROPS')
     if (routeProps) routeProps.visible = true
     const key = loaded.scene.getObjectByName('DC9_PROP_CAPTAINS_KEY')
@@ -1707,7 +1661,7 @@ function Dc9Cockpit({
       else if (gameId.startsWith('dc9.secure.')) object.visible = shutdownInteractive
       else if (gameId === 'dc9.key.open') object.visible = keyInteractive
     })
-  }, [chapterStage, loaded, phase])
+  }, [chapterStage, loaded])
 
   return (
     <>
@@ -1717,17 +1671,17 @@ function Dc9Cockpit({
         <>
           <primitive object={loaded.scene} dispose={null} />
           <Dc9SeatLookControls
-            sourceCamera={phase === 'dc9' && (chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations')
+            sourceCamera={(chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations')
               ? loaded.routeCamera
-              : phase === 'dc9' && chapterStage === 'shutdown'
+              : chapterStage === 'shutdown'
                 ? loaded.secureCamera
                 : loaded.camera}
             cameraResetRevision={cameraResetRevision}
-            wideFov={phase === 'dc9' && (chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations') ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV}
-            narrowFov={phase === 'dc9' && (chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations') ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV}
-            initialYaw={phase === 'dc9' && chapterStage === 'keyReveal'
+            wideFov={(chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations') ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV}
+            narrowFov={(chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations') ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV}
+            initialYaw={chapterStage === 'keyReveal'
               ? DC9_KEY_INITIAL_YAW
-              : phase === 'dc9' && chapterStage === 'shutdown'
+              : chapterStage === 'shutdown'
                 ? DC9_SHUTDOWN_INITIAL_YAW
                 : 0}
           />
@@ -1754,23 +1708,19 @@ function CaptainCockpit({
   activeControls,
   chapterStage,
   reducedMotion,
-  phase,
   cameraResetRevision,
   onLoadState,
   onHotspotsChange,
   onInteraction,
-  onMars,
   onHoverInteractive,
 }: {
   activeControls: Dc9SecureControlId[]
   chapterStage: Dc9ChapterStage
   reducedMotion: boolean
-  phase: 'dc9' | 'reward' | 'mars'
   cameraResetRevision: number
   onLoadState: (state: Dc9LoadState) => void
   onHotspotsChange?: (positions: Dc9HotspotScreenPositions) => void
   onInteraction: (gameId: string) => void
-  onMars: () => void
   onHoverInteractive: HoverHandler
 }) {
   return (
@@ -1779,35 +1729,13 @@ function CaptainCockpit({
         cameraResetRevision={cameraResetRevision}
         activeControls={activeControls}
         chapterStage={chapterStage}
-        phase={phase}
         reducedMotion={reducedMotion}
-        interactionEnabled={phase === 'dc9'}
+        interactionEnabled
         onLoadState={onLoadState}
         onHotspotsChange={onHotspotsChange}
         onInteraction={onInteraction}
         onHoverInteractive={onHoverInteractive}
       />
-      {phase !== 'dc9' && <mesh
-        position={[-1.2, 0.9, 0.21]}
-        onClick={(event) => {
-          event.stopPropagation()
-          if (phase === 'reward' || phase === 'mars') onMars()
-        }}
-        onPointerOver={() => {
-          onHoverInteractive(phase === 'reward' || phase === 'mars')
-        }}
-        onPointerOut={() => onHoverInteractive(false)}
-        onPointerLeave={() => onHoverInteractive(false)}
-      >
-        <sphereGeometry args={[0.08, 20, 20]} />
-        <meshStandardMaterial color={phase === 'reward' || phase === 'mars' ? '#bf2b20' : '#321612'} />
-      </mesh>}
-      {phase !== 'dc9' && (
-        <mesh position={[0, -1.05, -0.6]} castShadow>
-          <boxGeometry args={[1.9, 0.42, 0.72]} />
-          <meshStandardMaterial color="#a4161b" roughness={0.35} />
-        </mesh>
-      )}
     </>
   )
 }
@@ -1818,7 +1746,6 @@ export function PrototypeScene({
   dc9ChapterStage,
   reducedMotion,
   lockerHatRevealed,
-  rewardUnlocked,
   selectedAirbusCard,
   airbusRetryToken,
   lockerRetryToken,
@@ -1835,7 +1762,6 @@ export function PrototypeScene({
   onAirbusTarget,
   onLockerCameraSettled,
   onDc9Interaction,
-  onMars,
   onLockerMemory,
   onLockerHat,
 }: PrototypeSceneProps) {
@@ -1884,33 +1810,22 @@ export function PrototypeScene({
             />
           </>
         )}
-        {(phase === 'dc9' || phase === 'reward' || phase === 'mars') && (
+        {phase === 'dc9' && (
           <CaptainCockpit
             activeControls={activeDc9Controls}
             chapterStage={dc9ChapterStage}
             reducedMotion={reducedMotion}
-            phase={phase}
             cameraResetRevision={cameraResetRevision}
             onLoadState={onDc9LoadState}
             onHotspotsChange={onDc9HotspotsChange}
             onInteraction={onDc9Interaction}
-            onMars={onMars}
             onHoverInteractive={onInteractiveHover}
           />
-        )}
-        {rewardUnlocked && phase === 'reward' && (
-          <mesh position={[0, -1.12, -0.58]} rotation={[0, -0.35, 0]}>
-            <boxGeometry args={[1.55, 0.38, 0.72]} />
-            <meshStandardMaterial color="#a41419" roughness={0.25} metalness={0.55} />
-          </mesh>
-        )}
-        {(phase === 'reward' || phase === 'mars') && (
-          <LimitedOrbitControls airbusCameraRevision={cameraResetRevision} />
         )}
       </Canvas>
       {phase !== 'airbus' && phase !== 'locker' && (
         <div className="prototype-badge">
-          {phase === 'dc9' ? 'GREYBOX — DC-9 FINAL FLIGHT LOG' : 'HANGAR VIEW'}
+          GREYBOX — DC-9 FINAL FLIGHT LOG
         </div>
       )}
     </div>

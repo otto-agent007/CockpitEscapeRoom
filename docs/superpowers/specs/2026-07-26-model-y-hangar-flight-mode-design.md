@@ -80,6 +80,7 @@ The stable exported contract is:
 - `TESLA_LIFT_FAN_REAR_ROTOR`
 - `TESLA_EMISSIVE`
 - `CAM_TESLA_REWARD_GAME`
+- `CAM_TESLA_REWARD_NARROW_GAME`
 - `CAM_TESLA_REWARD_APPROVAL`
 - `CAM_TESLA_FLIGHT_MODE_APPROVAL`
 - animation `TESLA_FLIGHT_MODE_REVEAL`, exactly 11.5 seconds
@@ -112,6 +113,12 @@ cinematic. A legacy `mars` save remains recoverable and can return to reward.
 The HTML reward overlay owns headings, captions, live status, the final message,
 Skip, Retry, accessible fallback, and Replay. The Canvas is enhancement only.
 Once the final pose is static, the scene stops continuous rendering.
+
+At widths of 768 pixels and below, the wide deployed wings cannot retain a clean
+portrait composition in live perspective. The build therefore emits static and
+deployed 768×900 portrait presentations from the same Blender master. Narrow
+layouts show those real-asset renders while keeping the GLB timeline, native
+controls, and accessible copy authoritative.
 
 ## Validation and approval
 

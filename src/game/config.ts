@@ -217,7 +217,7 @@ export const gameCopy = {
   rewardTitle: 'Ground Transport Upgrade Authorized',
   rewardVehicleLine: 'The red Tesla Model Y is unlocked.',
   finalMessage:
-    'Happy Father’s Day, Pop T. Built for calm hands, strong memory, and the joy of flying forward together.',
+    'Happy Father’s Day, Pop T. From the baseball field to the captain’s seat, from the DC-9 to the Airbus, you showed us how preparation, calm judgment, teamwork, and leadership can carry a family anywhere. This game was built from the lessons you gave us. Your crew loves you.',
   captainReward: 'Legacy hangar release authorized.',
   marsRank: 'Commander, Mars Transport Division',
   progressLabel: 'Stage',

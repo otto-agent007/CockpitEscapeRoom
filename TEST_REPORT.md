@@ -1,5 +1,19 @@
 # Test report
 
+## 2026-07-26 Model Y hangar and Flight Mode reward — owner visual gate open
+
+- Replaced the reward-phase DC-9/red-box greybox with a dedicated, spoiler-protected hangar that lazy-loads only after DC-9, locker, and Airbus completion. The real red owner-supplied car carries a readable `POP T` plate; visible Mars controls and the proxy sphere are removed, while legacy Mars saves recover safely to the reward.
+- Deterministically imported `/mnt/2TBHDD/Downloads/red electric car 3d model.glb` at source SHA-256 `d88769d9c66bdeca46bf239c9baa2a295afc82ffb24005733d9374b9c7782bee`. The source gate records 480,305 triangles, one material, and three wired 4096 maps.
+- Generated `art-source/blender/tesla_reward.blend` at 14,785,786 bytes, SHA-256 `3f51c4ce8b44bf673e3f2b55e3ebc9795cee56e83f9f2599263db8477f12e805`, and `public/models/model-y-reward.glb` at 15,359,004 bytes, SHA-256 `4f4ebc095f5a4ea5ba4ab0480a7d99596171abf5663d0ac45a483934e02c5250`.
+- The runtime asset contains 180,000 vehicle triangles and 205,644 total triangles, eight materials, 25 draw calls, three packed 2048 maps, stable vehicle/door/plate/flight-kit/camera nodes, and one exact 11.5-second `TESLA_FLIGHT_MODE_REVEAL` action. Blender source validation records five expected stowed-pivot scale warnings; deployable glTF validation has no errors or warnings.
+- The browser plays only Blender-authored transforms and supports captions, native keyboard focus, Skip, Replay, exact final-frame seeking, reduced motion, reload, retry, and an accessible non-WebGL presentation. A failed GLB cannot erase journey progress or hide the final tribute.
+- Desktop uses the live authored camera. At 768 and 375 pixels, deterministic 768x900 static/final renders from the same Blender master preserve a recognizable vehicle and wing pose without horizontal overflow; the protected GLB and timeline remain loaded and authoritative.
+- `BLENDER_BIN=/home/user1/.local/bin/blender BLENDER_EXPECTED_VERSION=5.1 npm run asset:tesla` passed deterministic build, source/master validation, export, tangent repair, glTF validation/reimport, budget checks, and preview rendering.
+- `npm run assets:check` passed all deployable assets and both Model Y portrait images. `npm run pipeline:evals` passed 6/6.
+- `npm run check` passed ESLint, TypeScript, 118/118 Vitest tests, and the production build.
+- `CAPTURE_REWARD_EVIDENCE=1 npm run test:e2e -- --workers=1` passed 36/36 Chromium tests in 6.7 minutes, including spoiler protection, actual stowed/deployed transform checks, reduced motion, failure/retry/fallback, legacy-save recovery, complete reordered journey, and both existing production cockpits. The focused reward keyboard-focus follow-up passed 1/1.
+- Actual browser evidence is tracked under `preview-renders/model-y-reward/`: 1440 static/final, 768 final, 375 final, and accessible final captures at all three widths. These are implementation proof, not owner approval. The owner must still approve the vehicle likeness, hangar composition, articulated Flight Mode design, and final tribute presentation on the Vercel preview.
+
 ## 2026-07-20 authoritative TMB2 cinematic restoration — owner visual gate open
 
 - Supersedes the generic layered-image result below without rewriting its historical evidence. The current implementation follows the owner-supplied 53.04-second contract: blue pixel-built TMB2 ident, duffel struggle, living-key escape, runway near miss, ballpark slide, finance/bull collision, sky/glide/catch, victory joke, key tug, and pixel-loop reset. There are no visible scene titles or cockpit spoilers.

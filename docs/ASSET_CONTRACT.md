@@ -60,6 +60,29 @@ LOCKER_ROOT
 
 The baseball, Charging Bull, Wings, and hat nodes and colliders are exported at all times. Runtime availability is reducer-controlled: locked keepsakes render as unreadable silhouettes and do not activate. The watch is followed by the baseball question, then the Charging Bull question, then the Wings question. The Wings node exports `interaction = question`; correct completion of all four questions reveals the hat.
 
+The Model Y reward uses:
+
+```text
+TESLA_ROOT
+├── TESLA_HANGAR
+├── TESLA_VEHICLE                          game_id = reward.modelY
+│   └── TESLA_VEHICLE_MOTION
+│       ├── TESLA_MODEL_Y_BODY
+│       ├── TESLA_PLATE_POP_T
+│       └── TESLA_FLIGHT_MODE_ROOT         game_id = reward.flightMode
+│           ├── TESLA_WING_*_PIVOT
+│           ├── TESLA_STABILIZER_*_PIVOT
+│           ├── TESLA_LIFT_FAN_*_PIVOT
+│           ├── TESLA_LIFT_FAN_*_ROTOR
+│           └── TESLA_EMISSIVE
+├── CAM_TESLA_REWARD_GAME
+└── CAM_TESLA_REWARD_NARROW_GAME
+```
+
+`TESLA_FLIGHT_MODE_REVEAL` is a single 11.5-second shared object-transform
+animation. Runtime playback must use `LoopOnce` with a clamped final frame so an
+exact seek to 11.5 seconds cannot wrap back to the closed-hangar pose.
+
 ## Naming
 
 Names are runtime contracts. Use stable, descriptive names such as:
@@ -120,3 +143,11 @@ Do not run a flattening, joining, or destructive deduplication optimization unle
 The active DC-9 camera family is `CAM_DC9_FIRST_OFFICER_GAME`, `CAM_DC9_FIRST_OFFICER_APPROVAL`, and the `CAM_DC9_FIRST_OFFICER_*_APPROVAL` route, main-panel, overhead, and pedestal cameras. The active Airbus cameras are `CAM_AIRBUS_CAPTAIN_GAME_VIEW` and `AIRBUS_A320_CAM_CAPTAIN_APPROVAL`. Old seat cameras may remain only with explicit `deprecated`, `compatibility_only`, and `replacement_camera` metadata.
 
 The deployable Airbus path is `public/models/airbus-captain.glb`. React Three Fiber consumes its exported captain camera transform and 68° vertical field of view directly. The DC-9 route strip and colliders are children of the actual first-officer yoke while retaining their stable route and shutdown `game_id` values.
+
+The deployable Model Y path is `public/models/model-y-reward.glb`. It is loaded
+only in the protected reward phase after DC-9, locker, and Airbus completion.
+React Three Fiber consumes `CAM_TESLA_REWARD_GAME` and the Blender-authored
+animation directly; native HTML provides Skip, Replay, retry, reduced-motion,
+and no-WebGL paths. The deterministic build also emits
+`public/images/model-y-reward-narrow-{static,final}.png` at 768×900 from
+`CAM_TESLA_REWARD_NARROW_GAME` for the portrait presentation.

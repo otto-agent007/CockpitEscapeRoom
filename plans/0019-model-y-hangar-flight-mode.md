@@ -83,11 +83,16 @@ Optimus escort, Mars gameplay, analytics, new audio, and production dependencies
 - [x] 2026-07-26 — Preserved the unrelated TMB2 WIP and exact approved logo in
   local commit `6e4124c` on `agent/tmb2-intro-production-polish`; no push or merge.
 - [x] 2026-07-26 — Created clean `feature/model-y-reward` from `origin/main`.
-- [ ] Add failing asset-contract tests and deterministic source intake/build.
-- [ ] Produce and inspect the static hangar/Model Y approval checkpoint.
-- [ ] Add failing timeline/runtime/browser tests and implement the reward scene.
-- [ ] Produce and inspect the completed Flight Mode browser checkpoint.
-- [ ] Run full validation, review, update evidence, and publish the Vercel gate.
+- [x] 2026-07-26 — Added asset-contract and tangent-safety tests plus the
+  deterministic Blender intake/build/export path.
+- [x] 2026-07-26 — Produced and inspected the static hangar/Model Y checkpoint
+  in Blender and the actual 1440-pixel browser runtime.
+- [x] 2026-07-26 — Added timeline/runtime/browser tests and implemented the
+  dedicated protected reward experience.
+- [x] 2026-07-26 — Produced and inspected the completed Flight Mode checkpoint
+  at 1440, 768, and 375 pixels, including deterministic narrow presentations.
+- [ ] Finish full-diff review, commit the validated tree, publish the Vercel
+  owner gate, and record its URL.
 
 ## Discoveries
 
@@ -97,6 +102,19 @@ Optimus escort, Mars gameplay, analytics, new audio, and production dependencies
   uses the optional unsupported `FB_ngon_encoding` extension.
 - The car is a single mesh with no animation-ready body panels, so the approved
   external articulated kit avoids destructive UV/topology edits.
+- Blender's glTF exporter flattened child objects that were attached to animated
+  bones, so the stable runtime contract uses directly animated object pivots.
+- `AnimationAction.paused` at the clip boundary prevented the glTF mixer from
+  applying the final sample. `LoopOnce` plus `clampWhenFinished` preserves the
+  authored 11.5-second pose and makes Skip/reduced motion exact.
+- The shared `.game-shell` grid declaration constrained the reward Canvas to one
+  column until the reward-specific selector took precedence.
+- The wide authored wing pose dominated portrait perspective. The same Blender
+  master now generates deterministic 768x900 static/final portrait
+  presentations while desktop retains the live three-dimensional camera.
+- Fully metallic blue flight surfaces read nearly black without an environment
+  map. A restrained 0.28 metallic value keeps the premium blue finish legible
+  under the hangar's authored lighting.
 
 ## Decision log
 
@@ -110,6 +128,11 @@ Optimus escort, Mars gameplay, analytics, new audio, and production dependencies
   compatibility.
 - 2026-07-26 — Treat the source as owner-supplied private-use authority but keep
   it at candidate status until browser visual approval.
+- 2026-07-26 — Animate stable object pivots directly instead of depending on
+  exporter-flattened bone attachments.
+- 2026-07-26 — Use same-master deterministic portrait renders at widths up to
+  768 pixels; keep the loaded GLB, authored timeline, and final-pose validation
+  authoritative in every mode.
 
 ## Milestones
 
@@ -238,9 +261,36 @@ or when the next step requires owner visual judgment.
   `.cache/assets/intake/red-electric-car/inspection.json`.
 - Planning contact sheet:
   `.cache/assets/intake/red-electric-car/contact-sheet.png`.
-- No reward implementation validation recorded yet.
+- Blender master: `art-source/blender/tesla_reward.blend`, 14,785,786 bytes,
+  SHA-256 `3f51c4ce8b44bf673e3f2b55e3ebc9795cee56e83f9f2599263db8477f12e805`.
+- Deployable GLB: `public/models/model-y-reward.glb`, 15,359,004 bytes,
+  SHA-256 `4f4ebc095f5a4ea5ba4ab0480a7d99596171abf5663d0ac45a483934e02c5250`.
+- Intake and runtime report:
+  `asset-reports/model-y-reward-intake.json`.
+- Browser evidence: `preview-renders/model-y-reward/`, including static reveal
+  and final pose at 1440 plus final and accessible presentations at 768 and 375.
+- `npm run asset:tesla` passed Blender 5.1.2 source validation, exact animation
+  duration checks, GLB validation/reimport, budget checks, and preview output.
+  Five expected stowed-pivot scale warnings remain documented; the GLB has no
+  validation errors or warnings.
+- `npm run assets:check` passed all deployable models and the 768x900 portrait
+  images; `npm run pipeline:evals` passed 6/6.
+- `npm run check` passed ESLint, TypeScript, 118/118 Vitest tests, and the
+  production build.
+- `CAPTURE_REWARD_EVIDENCE=1 npm run test:e2e -- --workers=1` passed 36/36
+  Chromium cases in 6.7 minutes. A focused keyboard-focus follow-up passed 1/1
+  after the full run.
+- `git diff --check` passed.
 
 ## Outcome and handoff
 
-Implementation is active. This section will record delivered behavior, actual
-verification, known limitations, preview URL, and the remaining owner decision.
+The real red owner-supplied car now appears only after DC-9, locker, and Airbus
+completion in a dedicated lazy-loaded hangar. It carries the `POP T` plate,
+plays the one Blender-authored 11.5-second transformation, and supports captions,
+keyboard focus, Skip, Replay, reduced motion, reload, retry, and a genuine
+accessible fallback without exposing Mars.
+
+The asset remains an owner-review candidate: its vehicle is a Tripo interpretation
+rather than manufacturer CAD, and Flight Mode is intentionally fictional and
+non-operational. Automated and agent inspection are complete; the Vercel URL and
+formal owner visual decision remain to be recorded.
