@@ -290,6 +290,13 @@
         "page": 0,
         "request": 0,
         "http": 0
+      },
+      "deployment": {
+        "id": "dpl_3YadJHKb7X3eodXtmAHnbVS8Q3u2",
+        "url": "https://cockpit-escape-room-74mtq68zd-ottoagent007-gmailcoms-projects.vercel.app",
+        "status": "READY",
+        "verification": "Authenticated HTTP 200 for the app and all five ident files. Deployed logo files are byte-identical to the committed assets; the deployed JS and CSS bundle hashes match the local production build.",
+        "browserAccessLimitation": "The connected Vercel share-link tool returned 403, so protected-preview browser rendering was not separately captured. Local actual-browser captures plus deployed byte equality prove the reviewed runtime payload."
       }
     }
   }

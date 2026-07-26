@@ -41,8 +41,17 @@
   bounded runs all 36 executable cases passed; the 37th evidence-refresh case
   is intentionally skipped unless `CAPTURE_TMB2_IDENT=1`, and its flagged
   five-repeat run passed 5/5.
-- Vercel preview verification and owner visual approval are recorded below when
-  complete.
+- Vercel preview deployment `dpl_3YadJHKb7X3eodXtmAHnbVS8Q3u2` reached
+  `READY` at
+  `https://cockpit-escape-room-74mtq68zd-ottoagent007-gmailcoms-projects.vercel.app`.
+  Authenticated requests returned HTTP 200 for the app and all five ident
+  files. Every deployed ident file is byte-identical to the committed asset;
+  the deployed JS and CSS hashes also match the local production build.
+- The connected Vercel share-link flow returned 403 for this protected
+  deployment, so a second browser capture directly from the preview was not
+  available. The owner-review images are actual local Chromium captures, and
+  deployed byte equality proves the preview serves the same renderer and
+  artwork. Owner visual approval remains open on the preview.
 
 ## 2026-07-26 Model Y hangar and Flight Mode reward — owner visual gate open
 

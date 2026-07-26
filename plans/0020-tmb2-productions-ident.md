@@ -750,7 +750,7 @@ git add asset-reports/tmb2-intro-assets.json \
 git commit -m "docs: record TMB2 Productions owner gate"
 ```
 
-- [ ] **Step 5: Deploy and verify**
+- [x] **Step 5: Deploy and verify**
 
 Publish a Vercel preview from the committed tree. Verify:
 
@@ -758,6 +758,12 @@ Publish a Vercel preview from the committed tree. Verify:
 - HTTP 200 for the app and all five ident assets through authenticated access;
 - deployed source hash matches the approved source; and
 - actual preview renders the same ident as local evidence.
+
+Deployment `dpl_3YadJHKb7X3eodXtmAHnbVS8Q3u2` reached `READY`. Authenticated
+HTTP checks proved byte equality for the deployed JS/CSS runtime and all five
+ident files. The protected-preview share-link connector returned 403, so local
+actual-browser captures plus deployed byte equality are the recorded
+equivalent; no direct protected-preview screenshot is claimed.
 
 - [ ] **Step 6: Push and open a draft PR**
 
