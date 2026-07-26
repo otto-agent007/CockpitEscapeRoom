@@ -1,5 +1,82 @@
 # Test report
 
+## 2026-07-26 TMB2 Productions approved-logo ident — owner visual gate open
+
+- Owner follow-up: reduced only the generated `PRODUCTIONS` caption to 50% in
+  both axes. Its alpha bounds changed from 131x15 at
+  `[95,164,226,179]` to 66x8 at `[127,168,193,176]`; its gold/shadow
+  treatment, center, fade timing, approved TMB2 artwork, and all other intro
+  behavior remain unchanged. The new 642-byte caption SHA-256 is
+  `d50b44997a07f0dc1f7d1aacdae49d4193b240bfcae3f7c9eff9d5428564e2fc`.
+- The alpha-bounds regression failed against the prior committed caption, then
+  passed after the one-pixel cell/tracking rebuild. The final probe decodes the
+  RGBA PNG with Node built-ins, so clean GitHub quality runners do not require
+  an undeclared Pillow installation. `npm run assets:check` passed the
+  unchanged 74-asset/17-preload contract. Fresh-build Chromium capture passed,
+  as did the three focused request/retry/reduced-motion checks. All four
+  responsive captures were regenerated and inspected with the half-size
+  caption present, centered, readable, and clear of controls.
+- PR #54's pre-follow-up `browser-smoke` run exposed a pre-existing Model Y
+  reward test race that also failed on the unchanged `main` merge run. The test
+  tried a Playwright pointer click while the real-time Skip control was being
+  removed, then required Replay to be observed only during its first
+  1.2-second stage. The repair uses the already-focused keyboard path for Skip
+  and Replay, requires the replay clock to return below five seconds, and
+  accepts any active replay stage while still requiring the Skip control. The
+  focused CI-style case passed three consecutive runs with retries disabled;
+  the complete CI-style browser suite passed 36 executable cases in 6.6
+  minutes with the capture-only case intentionally skipped.
+- Replaced the procedural `T`, `M`, `B`, and `2` Canvas glyphs with the exact
+  owner-approved `TMB2logo.png` authority and added centered restrained-gold
+  `PRODUCTIONS` beneath it. The existing 53.04-second clock, blue assembly,
+  gold-white highlight, Start inputs, sound controls, spoiler rules, and
+  650-millisecond DC-9 handoff remain unchanged.
+- The 811,581-byte 1659x948 source and runtime copy are byte-identical at
+  SHA-256
+  `673d13b96bc19b35b508630d1d662d16672ac4bb6ad665a7f6b1b7cee992ce17`.
+  Deterministic blue, base, highlight, and Productions layer hashes are recorded
+  in `asset-reports/tmb2-intro-assets.json`; the package now contains 74 assets
+  and 17 preloads.
+- Focused TDD covered source drift, missing layers, runtime registry/decode
+  order, image-backed command thresholds, exact-source fallback, and the
+  complete reduced-motion pose. TypeScript and focused unit checks pass.
+- Focused Chromium checks prove all five logo requests, non-background pixels
+  inside both logo and Productions bounds, exact failure/retry reporting,
+  reduced motion, and responsive bounds. Five fresh-browser capture repeats
+  passed after serializing the nine-image opening decode gate; instrumentation
+  had shown Chromium intermittently resolving all five logo images while
+  leaving the four existing large story sheets pending under concurrent
+  `decode()` calls.
+- Actual-browser proof was inspected at
+  `preview-renders/tmb2-productions-ident/ident-{1440x900,768x900,375x812}.png`
+  and
+  `preview-renders/tmb2-productions-ident/ident-reduced-motion-375x812.png`.
+  The exact logo is recognizable and uncropped, Productions is centered and
+  subordinate, controls do not overlap, and the reduced-motion pose is complete.
+- Full local validation passed: two consecutive `npm run asset:tmb2-ident`
+  rebuilds produced identical hashes; `npm run assets:check` passed the
+  74-asset/17-preload contract with only documented existing GLB notices;
+  `npm run pipeline:evals` passed 6/6; and `npm run check` passed ESLint,
+  TypeScript, 121/121 Vitest tests, and the production build.
+- A monolithic single-worker Chromium run reached 29/29 executed cases green
+  before the command session was externally terminated with exit 143 after
+  roughly four minutes. The five unreached smoke cases then passed 5/5 in 2.2
+  minutes, and the remaining viewer-control file passed 3/3. Across those
+  bounded runs all 36 executable cases passed; the 37th evidence-refresh case
+  is intentionally skipped unless `CAPTURE_TMB2_IDENT=1`, and its flagged
+  five-repeat run passed 5/5.
+- Vercel preview deployment `dpl_3YadJHKb7X3eodXtmAHnbVS8Q3u2` reached
+  `READY` at
+  `https://cockpit-escape-room-74mtq68zd-ottoagent007-gmailcoms-projects.vercel.app`.
+  Authenticated requests returned HTTP 200 for the app and all five ident
+  files. Every deployed ident file is byte-identical to the committed asset;
+  the deployed JS and CSS hashes also match the local production build.
+- The connected Vercel share-link flow returned 403 for this protected
+  deployment, so a second browser capture directly from the preview was not
+  available. The owner-review images are actual local Chromium captures, and
+  deployed byte equality proves the preview serves the same renderer and
+  artwork. Owner visual approval remains open on the preview.
+
 ## 2026-07-26 Model Y hangar and Flight Mode reward — owner visual gate open
 
 - Replaced the reward-phase DC-9/red-box greybox with a dedicated, spoiler-protected hangar that lazy-loads only after DC-9, locker, and Airbus completion. The real red owner-supplied car carries a readable `POP T` plate; visible Mars controls and the proxy sphere are removed, while legacy Mars saves recover safely to the reward.

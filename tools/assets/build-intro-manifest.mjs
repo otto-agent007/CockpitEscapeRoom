@@ -4,6 +4,14 @@ import { pngMetadata, sha256File } from './intro-asset-contract.mjs'
 
 const packageRoot = 'public/images/intro/tmb2'
 const manifestName = 'tmb2-intro-assets.json'
+const logoSource = 'art-source/intro/tmb2/owner-approved/TMB2logo.png'
+const logoMetadata = new Map([
+  ['logo/tmb2-ident-source.png', 'logo-source'],
+  ['logo/tmb2-ident-blue-mask.png', 'logo-blue-mask'],
+  ['logo/tmb2-ident-base.png', 'logo-base'],
+  ['logo/tmb2-ident-highlight-mask.png', 'logo-highlight-mask'],
+  ['logo/tmb2-productions.png', 'logo-productions'],
+])
 
 function portable(path) {
   return path.split(sep).join('/')
@@ -34,9 +42,19 @@ const assets = paths.map((path) => {
     sha256: sha256File(absolutePath),
     bytes: statSync(absolutePath).size,
   }
-  return extname(path).toLowerCase() === '.png'
+  const pngRecord = extname(path).toLowerCase() === '.png'
     ? { ...record, ...pngMetadata(absolutePath) }
     : record
+  const runtimeId = logoMetadata.get(path)
+  return runtimeId
+    ? {
+        ...pngRecord,
+        runtimeId,
+        role: 'logo-layer',
+        sceneGroup: 'ident',
+        source: logoSource,
+      }
+    : pngRecord
 })
 
 const assetsById = new Map(assets.map((asset) => [asset.id, asset]))
@@ -58,29 +76,36 @@ const duplicates = [
 })
 
 const preload = [
+  'logo/tmb2-ident-source.png',
+  'logo/tmb2-ident-blue-mask.png',
+  'logo/tmb2-ident-base.png',
+  'logo/tmb2-ident-highlight-mask.png',
+  'logo/tmb2-productions.png',
   'backgrounds/duffel-terminal.png',
-  'popt/duffel-pull/duffel-pull.webp',
-  'key/key-mascot-poses-10.png',
   'backgrounds/runway-night.png',
-  'popt/startle-stumble/startle-stumble.webp',
-  'key/key-mascot-poses-01.png',
   'backgrounds/ballpark-night.png',
-  'popt/baseball-slide/baseball-slide.webp',
-  'key/key-mascot-poses-08.png',
   'backgrounds/finance-city.png',
-  'popt/bull-spin/bull-spin.webp',
-  'key/key-mascot-poses-09.png',
   'backgrounds/cloud-chase.png',
-  'popt/pilot-glide/pilot-glide.webp',
-  'key/key-mascot-poses-13.png',
-  'popt/victory-recovery/victory-recovery.webp',
-  'key/key-mascot-poses-03.png',
+  'popt/duffel-pull/duffel-pull-sheet.png',
+  'popt/startle-stumble/startle-stumble-sheet.png',
+  'popt/baseball-slide/baseball-slide-sheet.png',
+  'popt/bull-spin/bull-spin-sheet.png',
+  'popt/pilot-glide/pilot-glide-sheet.png',
+  'popt/victory-recovery/victory-recovery-sheet.png',
+  'key/key-mascot-poses-sheet.png',
 ]
 
 const manifest = {
   schemaVersion: 1,
   packageId: 'tmb2-intro-v1',
-  sourceAuthority: 'blonde-haired Pop T storyboard',
+  sourceAuthority: 'owner-approved TMB2 logo and blonde-haired Pop T storyboard',
+  logoAuthority: {
+    source: logoSource,
+    sha256: '673d13b96bc19b35b508630d1d662d16672ac4bb6ad665a7f6b1b7cee992ce17',
+    bytes: 811581,
+    width: 1659,
+    height: 948,
+  },
   tooling: {
     repository: 'https://github.com/otto-agent007/GameDevStuff',
     commit: '22722eabc8f09a706013305a0911a9d322ca9f4f',

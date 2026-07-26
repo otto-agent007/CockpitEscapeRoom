@@ -1,7 +1,7 @@
 export type IntroAsset = {
   id: string
   path: string
-  role: 'background' | 'sprite'
+  role: 'background' | 'sprite' | 'logo-layer'
 }
 
 export type IntroAssetTier = 'initial' | 'full'
@@ -32,6 +32,11 @@ export class IntroAssetPreloadError extends Error {
 }
 
 export const introAssets = [
+  { id: 'logo-source', path: 'images/intro/tmb2/logo/tmb2-ident-source.png', role: 'logo-layer' },
+  { id: 'logo-blue-mask', path: 'images/intro/tmb2/logo/tmb2-ident-blue-mask.png', role: 'logo-layer' },
+  { id: 'logo-base', path: 'images/intro/tmb2/logo/tmb2-ident-base.png', role: 'logo-layer' },
+  { id: 'logo-highlight-mask', path: 'images/intro/tmb2/logo/tmb2-ident-highlight-mask.png', role: 'logo-layer' },
+  { id: 'logo-productions', path: 'images/intro/tmb2/logo/tmb2-productions.png', role: 'logo-layer' },
   { id: 'background-duffel', path: 'images/intro/tmb2/backgrounds/duffel-terminal.png', role: 'background' },
   { id: 'popt-duffel-pull', path: 'images/intro/tmb2/popt/duffel-pull/duffel-pull-sheet.png', role: 'sprite' },
   { id: 'popt-startle-stumble', path: 'images/intro/tmb2/popt/startle-stumble/startle-stumble-sheet.png', role: 'sprite' },
@@ -50,6 +55,11 @@ export const introAssets = [
 ] as const satisfies readonly IntroAsset[]
 
 export const INTRO_INITIAL_ASSET_IDS = [
+  'logo-source',
+  'logo-blue-mask',
+  'logo-base',
+  'logo-highlight-mask',
+  'logo-productions',
   'background-duffel',
   'popt-duffel-pull',
   'popt-startle-stumble',
@@ -90,7 +100,8 @@ export async function preloadIntroAssets(
 ): Promise<Map<string, HTMLImageElement>> {
   validateIntroAssets(introAssets)
   const selected = getIntroAssetsForTier(tier)
-  const entries = await Promise.all(selected.map(async (asset) => {
+  const entries: Array<readonly [string, HTMLImageElement]> = []
+  for (const asset of selected) {
     const image = new Image()
     image.decoding = 'async'
     image.src = `${baseUrl}${asset.path}`
@@ -99,8 +110,8 @@ export async function preloadIntroAssets(
     } catch (error) {
       throw new IntroAssetPreloadError(asset, error)
     }
-    return [asset.id, image] as const
-  }))
+    entries.push([asset.id, image] as const)
+  }
   return new Map(entries)
 }
 

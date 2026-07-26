@@ -238,11 +238,13 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
     case 'tmb2-ident':
       return {
         ...base,
-        logo: {
-          visible: true,
-          buildProgress: clamp01(sceneProgress / 0.72),
-          highlightOpacity: clamp01((sceneProgress - 0.78) / 0.22),
-        },
+        logo: reducedMotion
+          ? { visible: true, buildProgress: 1, highlightOpacity: 0 }
+          : {
+              visible: true,
+              buildProgress: clamp01(sceneProgress / 0.72),
+              highlightOpacity: clamp01((sceneProgress - 0.78) / 0.22),
+            },
       }
     case 'duffel':
       return {

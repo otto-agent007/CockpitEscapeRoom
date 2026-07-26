@@ -1,12 +1,61 @@
 import { describe, expect, it } from 'vitest'
 import { deriveHandoffAnimation, deriveIntroAnimation } from './introAnimation'
-import { deriveIntroDrawCommands } from './introRenderer'
+import { deriveIntroDrawCommands, shouldUseExactLogoFallback } from './introRenderer'
 
 describe('TMB2 Canvas draw commands', () => {
-  it('builds the blue ident without any visible title or chapter-caption command', () => {
-    const commands = deriveIntroDrawCommands(deriveIntroAnimation(3, false), null)
-    expect(commands.map((command) => command.kind)).toEqual(['clear', 'logo'])
-    expect(JSON.stringify(commands)).not.toMatch(/title|caption|chapter/i)
+  it('assembles the approved TMB2 Productions layers without procedural typography', () => {
+    const commands = deriveIntroDrawCommands(deriveIntroAnimation(4.8, false), null)
+    expect(commands.map((command) => command.kind)).toEqual([
+      'clear',
+      'logo-layer',
+      'logo-layer',
+      'logo-layer',
+      'logo-layer',
+    ])
+    expect(commands.filter((command) => command.kind === 'logo-layer')).toEqual([
+      expect.objectContaining({ assetId: 'logo-blue-mask' }),
+      expect.objectContaining({ assetId: 'logo-base' }),
+      expect.objectContaining({ assetId: 'logo-highlight-mask' }),
+      expect.objectContaining({ assetId: 'logo-productions' }),
+    ])
+    expect(JSON.stringify(commands)).not.toMatch(/glyph|procedural|title|caption|chapter/i)
+  })
+
+  it('reveals base, productions, and highlight layers only at their thresholds', () => {
+    const early = deriveIntroDrawCommands(deriveIntroAnimation(1, false), null)
+    expect(early.filter((command) => command.kind === 'logo-layer').map((command) => command.assetId))
+      .toEqual(['logo-blue-mask'])
+
+    const base = deriveIntroDrawCommands(deriveIntroAnimation(2.4, false), null)
+    expect(base.filter((command) => command.kind === 'logo-layer').map((command) => command.assetId))
+      .toEqual(['logo-blue-mask', 'logo-base'])
+
+    const productions = deriveIntroDrawCommands(deriveIntroAnimation(3.5, false), null)
+    expect(productions.filter((command) => command.kind === 'logo-layer').map((command) => command.assetId))
+      .toEqual(['logo-blue-mask', 'logo-base', 'logo-productions'])
+
+    const highlighted = deriveIntroDrawCommands(deriveIntroAnimation(4.8, false), null)
+    expect(highlighted.some((command) => (
+      command.kind === 'logo-layer' && command.assetId === 'logo-highlight-mask'
+    ))).toBe(true)
+  })
+
+  it('uses the exact approved source when a commanded derived logo layer is missing', () => {
+    const commands = deriveIntroDrawCommands(deriveIntroAnimation(4.8, false), null)
+      .filter((command) => command.kind === 'logo-layer')
+    const image = {} as CanvasImageSource
+
+    expect(shouldUseExactLogoFallback(commands, new Map([
+      ['logo-blue-mask', image],
+      ['logo-highlight-mask', image],
+      ['logo-productions', image],
+    ]))).toBe(true)
+    expect(shouldUseExactLogoFallback(commands, new Map([
+      ['logo-blue-mask', image],
+      ['logo-base', image],
+      ['logo-highlight-mask', image],
+      ['logo-productions', image],
+    ]))).toBe(false)
   })
 
   it('orders recovered runway art, independent props, and pivot-stable actors', () => {

@@ -34,7 +34,7 @@ describe('TMB2 runtime image tiers', () => {
   it('registers every rendered sheet and background as a safe local PNG', () => {
     expect(() => validateIntroAssets(introAssets)).not.toThrow()
     expect(new Set(introAssets.map((asset) => asset.id)).size).toBe(introAssets.length)
-    expect(introAssets).toHaveLength(15)
+    expect(introAssets).toHaveLength(20)
     expect(introAssets.every((asset) => asset.path.endsWith('.png'))).toBe(true)
     expect(JSON.stringify(introAssets)).not.toMatch(/\.webp|tesla|model[- ]?y|flight mode|mars/i)
 
@@ -45,21 +45,34 @@ describe('TMB2 runtime image tiers', () => {
     expect(renderedSpriteIds).toEqual(new Set(
       introAssets.filter((asset) => asset.role === 'sprite').map((asset) => asset.id),
     ))
+    expect(introAssets.filter((asset) => asset.role === 'logo-layer').map((asset) => asset.id))
+      .toEqual([
+        'logo-source',
+        'logo-blue-mask',
+        'logo-base',
+        'logo-highlight-mask',
+        'logo-productions',
+      ])
   })
 
   it('decodes only the opening tier before allowing playback', () => {
     expect(INTRO_INITIAL_ASSET_IDS).toEqual([
+      'logo-source',
+      'logo-blue-mask',
+      'logo-base',
+      'logo-highlight-mask',
+      'logo-productions',
       'background-duffel',
       'popt-duffel-pull',
       'popt-startle-stumble',
       'key-poses',
     ])
-    expect(INTRO_FULL_ASSET_IDS).toHaveLength(15)
+    expect(INTRO_FULL_ASSET_IDS).toHaveLength(20)
     expect(getIntroAssetsForTier('initial').map((asset) => asset.id)).toEqual(INTRO_INITIAL_ASSET_IDS)
     expect(getIntroAssetsForTier('full')).toEqual(introAssets)
   })
 
-  it('waits for every selected image to decode and returns stable ids', async () => {
+  it('decodes selected images sequentially and returns stable ids', async () => {
     const deferred = INTRO_INITIAL_ASSET_IDS.map(createDeferred)
     let imageIndex = 0
     class DecodeControlledImage {
@@ -76,10 +89,13 @@ describe('TMB2 runtime image tiers', () => {
     })
     await Promise.resolve()
     expect(settled).toBe(false)
+    expect(imageIndex).toBe(1)
 
-    for (const pending of deferred.slice(0, -1)) pending.resolve()
-    await Promise.resolve()
-    expect(settled).toBe(false)
+    for (let index = 0; index < deferred.length - 1; index += 1) {
+      deferred[index]!.resolve()
+      await vi.waitFor(() => expect(imageIndex).toBe(index + 2))
+      expect(settled).toBe(false)
+    }
 
     deferred.at(-1)!.resolve()
     const assets = await preload
@@ -97,8 +113,8 @@ describe('TMB2 runtime image tiers', () => {
 
     await expect(preloadIntroAssets('/cockpit/', 'initial')).rejects.toMatchObject({
       name: 'IntroAssetPreloadError',
-      assetId: 'background-duffel',
-      assetPath: 'images/intro/tmb2/backgrounds/duffel-terminal.png',
+      assetId: 'logo-source',
+      assetPath: 'images/intro/tmb2/logo/tmb2-ident-source.png',
     } satisfies Partial<IntroAssetPreloadError>)
   })
 })

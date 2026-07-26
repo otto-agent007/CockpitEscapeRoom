@@ -1,6 +1,9 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname } from 'node:path'
-import { validateIntroManifest } from './intro-asset-contract.mjs'
+import {
+  validateIntroManifest,
+  validateTmb2LogoAuthority,
+} from './intro-asset-contract.mjs'
 
 const manifestPath = 'public/images/intro/tmb2/tmb2-intro-assets.json'
 
@@ -17,7 +20,14 @@ try {
   process.exit(1)
 }
 
-const errors = validateIntroManifest(manifest, dirname(manifestPath))
+const errors = [
+  ...validateIntroManifest(manifest, dirname(manifestPath)),
+  ...validateTmb2LogoAuthority({
+    sourcePath: 'art-source/intro/tmb2/owner-approved/TMB2logo.png',
+    packageRoot: dirname(manifestPath),
+    manifest,
+  }),
+]
 if (errors.length > 0) {
   errors.forEach((error) => console.error(error))
   process.exit(1)

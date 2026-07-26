@@ -1,10 +1,21 @@
 import { createHash } from 'node:crypto'
 import { existsSync, readFileSync, statSync } from 'node:fs'
 import { isAbsolute, resolve, sep } from 'node:path'
+import { inflateSync } from 'node:zlib'
 
 const SHA256_PATTERN = /^[0-9a-f]{64}$/
 const PROTECTED_REWARD_PATTERN = /tesla|model[- ]?y|flight mode|mars/i
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+export const TMB2_LOGO_SHA256 = '673d13b96bc19b35b508630d1d662d16672ac4bb6ad665a7f6b1b7cee992ce17'
+const TMB2_LOGO_BYTES = 811_581
+const TMB2_LOGO_SIZE = [1659, 948]
+const TMB2_IDENT_LAYERS = [
+  ['logo/tmb2-ident-source.png', 'logo-source', 1659, 948],
+  ['logo/tmb2-ident-blue-mask.png', 'logo-blue-mask', 288, 79],
+  ['logo/tmb2-ident-base.png', 'logo-base', 288, 79],
+  ['logo/tmb2-ident-highlight-mask.png', 'logo-highlight-mask', 288, 79],
+  ['logo/tmb2-productions.png', 'logo-productions', 320, 224],
+]
 
 export function sha256File(path) {
   return createHash('sha256').update(readFileSync(path)).digest('hex')
@@ -22,6 +33,157 @@ export function pngMetadata(path) {
     height: bytes.readUInt32BE(20),
     hasAlpha: colorType === 4 || colorType === 6 || hasTransparencyChunk,
   }
+}
+
+function paethPredictor(left, up, upperLeft) {
+  const estimate = left + up - upperLeft
+  const leftDistance = Math.abs(estimate - left)
+  const upDistance = Math.abs(estimate - up)
+  const upperLeftDistance = Math.abs(estimate - upperLeft)
+  if (leftDistance <= upDistance && leftDistance <= upperLeftDistance) return left
+  return upDistance <= upperLeftDistance ? up : upperLeft
+}
+
+export function pngAlphaBounds(path) {
+  const bytes = readFileSync(path)
+  if (bytes.length < 33 || !bytes.subarray(0, 8).equals(PNG_SIGNATURE)) {
+    throw new Error(`${path} is not a PNG`)
+  }
+
+  let header
+  const imageData = []
+  for (let offset = 8; offset + 12 <= bytes.length;) {
+    const length = bytes.readUInt32BE(offset)
+    const type = bytes.toString('ascii', offset + 4, offset + 8)
+    const dataStart = offset + 8
+    const dataEnd = dataStart + length
+    if (dataEnd + 4 > bytes.length) throw new Error(`${path} has a truncated PNG chunk`)
+    if (type === 'IHDR') header = bytes.subarray(dataStart, dataEnd)
+    if (type === 'IDAT') imageData.push(bytes.subarray(dataStart, dataEnd))
+    offset = dataEnd + 4
+    if (type === 'IEND') break
+  }
+
+  if (!header || header.length !== 13 || imageData.length === 0) {
+    throw new Error(`${path} is missing required PNG data`)
+  }
+  const width = header.readUInt32BE(0)
+  const height = header.readUInt32BE(4)
+  const bitDepth = header[8]
+  const colorType = header[9]
+  const compression = header[10]
+  const filterMethod = header[11]
+  const interlace = header[12]
+  if (bitDepth !== 8 || colorType !== 6 || compression !== 0 || filterMethod !== 0 || interlace !== 0) {
+    throw new Error(`${path} must be a non-interlaced 8-bit RGBA PNG`)
+  }
+
+  const bytesPerPixel = 4
+  const stride = width * bytesPerPixel
+  const decoded = inflateSync(Buffer.concat(imageData))
+  if (decoded.length !== height * (stride + 1)) {
+    throw new Error(`${path} has an unexpected decoded PNG size`)
+  }
+
+  let minX = width
+  let minY = height
+  let maxX = -1
+  let maxY = -1
+  let sourceOffset = 0
+  let previous = Buffer.alloc(stride)
+  for (let y = 0; y < height; y += 1) {
+    const filter = decoded[sourceOffset]
+    sourceOffset += 1
+    const current = Buffer.allocUnsafe(stride)
+    for (let index = 0; index < stride; index += 1) {
+      const encoded = decoded[sourceOffset + index]
+      const left = index >= bytesPerPixel ? current[index - bytesPerPixel] : 0
+      const up = previous[index]
+      const upperLeft = index >= bytesPerPixel ? previous[index - bytesPerPixel] : 0
+      const predictor = filter === 0
+        ? 0
+        : filter === 1
+          ? left
+          : filter === 2
+            ? up
+            : filter === 3
+              ? Math.floor((left + up) / 2)
+              : filter === 4
+                ? paethPredictor(left, up, upperLeft)
+                : undefined
+      if (predictor === undefined) throw new Error(`${path} uses unsupported PNG filter ${filter}`)
+      current[index] = (encoded + predictor) & 0xff
+    }
+    sourceOffset += stride
+
+    for (let x = 0; x < width; x += 1) {
+      if (current[x * bytesPerPixel + 3] === 0) continue
+      minX = Math.min(minX, x)
+      minY = Math.min(minY, y)
+      maxX = Math.max(maxX, x)
+      maxY = Math.max(maxY, y)
+    }
+    previous = current
+  }
+
+  return maxX < 0 ? null : [minX, minY, maxX + 1, maxY + 1]
+}
+
+export function validateTmb2LogoAuthority({ sourcePath, packageRoot, manifest }) {
+  const errors = []
+  if (!existsSync(sourcePath) || !statSync(sourcePath).isFile()) {
+    errors.push('approved TMB2 logo source is missing')
+  } else {
+    if (sha256File(sourcePath) !== TMB2_LOGO_SHA256) {
+      errors.push('approved TMB2 logo hash does not match')
+    }
+    if (statSync(sourcePath).size !== TMB2_LOGO_BYTES) {
+      errors.push('approved TMB2 logo byte count does not match')
+    }
+    try {
+      const metadata = pngMetadata(sourcePath)
+      if (metadata.width !== TMB2_LOGO_SIZE[0] || metadata.height !== TMB2_LOGO_SIZE[1]) {
+        errors.push('approved TMB2 logo dimensions do not match')
+      }
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : String(error))
+    }
+  }
+
+  const authority = manifest?.logoAuthority
+  if (authority?.sha256 !== TMB2_LOGO_SHA256
+    || authority?.bytes !== TMB2_LOGO_BYTES
+    || authority?.width !== TMB2_LOGO_SIZE[0]
+    || authority?.height !== TMB2_LOGO_SIZE[1]) {
+    errors.push('manifest TMB2 logo authority does not match the approved source')
+  }
+
+  const assetsByPath = new Map((manifest?.assets ?? []).map((asset) => [asset.path, asset]))
+  for (const [path, runtimeId, width, height] of TMB2_IDENT_LAYERS) {
+    const asset = assetsByPath.get(path)
+    if (!asset) {
+      errors.push(`missing ident layer: ${path}`)
+      continue
+    }
+    if (asset.runtimeId !== runtimeId
+      || asset.role !== 'logo-layer'
+      || asset.sceneGroup !== 'ident'
+      || asset.source !== 'art-source/intro/tmb2/owner-approved/TMB2logo.png') {
+      errors.push(`invalid ident contract: ${path}`)
+    }
+    if (asset.width !== width || asset.height !== height) {
+      errors.push(`invalid ident dimensions: ${path}`)
+    }
+  }
+
+  const runtimeSource = resolveContained(packageRoot, 'logo/tmb2-ident-source.png')
+  if (runtimeSource && existsSync(runtimeSource)) {
+    if (sha256File(runtimeSource) !== TMB2_LOGO_SHA256
+      || statSync(runtimeSource).size !== TMB2_LOGO_BYTES) {
+      errors.push('runtime TMB2 logo source is not byte-identical')
+    }
+  }
+  return errors
 }
 
 function resolveContained(root, relativePath) {

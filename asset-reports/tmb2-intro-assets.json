@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "asset": "tmb2-intro",
-  "status": "restored-cinematic-local-gate-passed-owner-visual-approval-open",
+  "status": "tmb2-productions-ident-local-gate-passed-owner-visual-approval-open",
   "authoritativeStoryboard": "art-source/intro/tmb2/recovered/2026-07-19-storyboards/pilot Pop T with golden blond hair and blue eyes.png",
   "secondaryStoryboard": "art-source/intro/tmb2/recovered/2026-07-19-storyboards/pop t chasing the brass key.png",
   "ownerApprovedLogo": {
@@ -11,6 +11,65 @@
     "width": 1659,
     "height": 948,
     "authority": "Preserve byte-for-byte. Runtime derivatives may crop, resize, or mask this source but must not redraw or infer the typography."
+  },
+  "runtimeIdent": {
+    "builder": "tools/assets/build-tmb2-ident-assets.py",
+    "command": "npm run asset:tmb2-ident",
+    "crop": [105, 261, 1573, 663],
+    "identPosition": [16, 72],
+    "productionsY": 168,
+    "productionsScale": 0.5,
+    "productionsAlphaBounds": [127, 168, 193, 176],
+    "derivation": "The exact approved artwork is cropped and resized with Pillow LANCZOS, then separated into base, blue, and gold-white highlight RGBA layers. PRODUCTIONS uses an embedded deterministic 5x7 uppercase bitmap alphabet in restrained gold; its owner-approved follow-up uses one-pixel cells and tracking for a 0.5 scale factor without inferring or redrawing the TMB2 typography.",
+    "assets": [
+      {
+        "id": "logo-source",
+        "path": "public/images/intro/tmb2/logo/tmb2-ident-source.png",
+        "sha256": "673d13b96bc19b35b508630d1d662d16672ac4bb6ad665a7f6b1b7cee992ce17",
+        "bytes": 811581,
+        "width": 1659,
+        "height": 948,
+        "mode": "RGB",
+        "byteIdenticalToApprovedSource": true
+      },
+      {
+        "id": "logo-blue-mask",
+        "path": "public/images/intro/tmb2/logo/tmb2-ident-blue-mask.png",
+        "sha256": "fe79bcf0abf84382d72ae8b0f8ba9aa8084a47613d3bb0b12ac879eb4967acad",
+        "bytes": 36134,
+        "width": 288,
+        "height": 79,
+        "mode": "RGBA"
+      },
+      {
+        "id": "logo-base",
+        "path": "public/images/intro/tmb2/logo/tmb2-ident-base.png",
+        "sha256": "dcac4baae7e15a927ff825934c96f394174d7ff9d8e75160a88bc2428ebcdbfd",
+        "bytes": 36124,
+        "width": 288,
+        "height": 79,
+        "mode": "RGBA"
+      },
+      {
+        "id": "logo-highlight-mask",
+        "path": "public/images/intro/tmb2/logo/tmb2-ident-highlight-mask.png",
+        "sha256": "f233ac383018c099704c280e5c73463603155d4053cd18f5e5ac99c40ed6e6df",
+        "bytes": 31864,
+        "width": 288,
+        "height": 79,
+        "mode": "RGBA"
+      },
+      {
+        "id": "logo-productions",
+        "path": "public/images/intro/tmb2/logo/tmb2-productions.png",
+        "sha256": "d50b44997a07f0dc1f7d1aacdae49d4193b240bfcae3f7c9eff9d5428564e2fc",
+        "bytes": 642,
+        "width": 320,
+        "height": 224,
+        "mode": "RGBA",
+        "color": [224, 175, 74, 255]
+      }
+    ]
   },
   "recoveredSources": [
     {
@@ -200,15 +259,15 @@
     "archiveIntegrity": "pass",
     "runtimeManifest": {
       "status": "pass",
-      "assets": 69,
-      "preloads": 12,
+      "assets": 74,
+      "preloads": 17,
       "path": "public/images/intro/tmb2/tmb2-intro-assets.json"
     },
     "runtimeDecodeContract": {
-      "initialImages": 4,
-      "totalRenderedImages": 15,
-      "packagePreloads": 12,
-      "note": "The Canvas renderer uses five environment plates, nine Pop T sprite sheets (including three existing sheets outside this package), and one key sheet. Only the opening four images gate playback; the rest decode lazily."
+      "initialImages": 9,
+      "totalRenderedImages": 20,
+      "packagePreloads": 17,
+      "note": "The five ident images and four opening story images decode sequentially before Start enables; remaining story images decode lazily. Sequential decoding avoids an observed Chromium stall when the existing large sheets decode concurrently."
     },
     "historicContractDelta": {
       "historicAuditedAssets": 104,
@@ -222,15 +281,25 @@
     "contactSheet": "public/images/intro/tmb2/contact-sheet.png",
     "browser": {
       "status": "full-pass",
-      "focusedTests": 11,
-      "fullSuiteTests": 30,
-      "coverage": "exact 53.04-second cue boundaries and loop, initial asset decoding and retry, focused-control key safety, pointer/Enter/Space/controller Start, 300-millisecond audio fade, 650-millisecond one-shot DC-9 handoff, audio retry, mute, volume, reduced motion, and integer scaling at 375/768/1440 widths",
-      "approvalProof": "preview-renders/tmb2-cinematic-restoration",
+      "focusedTests": 3,
+      "captureRepeatTests": 5,
+      "fullSuiteTests": 36,
+      "fullSuiteSkipped": 1,
+      "coverage": "exact owner-logo requests and pixels, Productions pixels, exact 53.04-second cue boundaries and loop, initial asset decoding and retry, focused-control key safety, pointer/Enter/Space/controller Start, 300-millisecond audio fade, 650-millisecond one-shot DC-9 handoff, audio retry, mute, volume, reduced motion, integer scaling at 375/768/1440 widths, and complete downstream cockpit/reward regressions",
+      "approvalProof": "preview-renders/tmb2-productions-ident",
       "captureErrors": {
         "console": 0,
         "page": 0,
         "request": 0,
         "http": 0
+      },
+      "deployment": {
+        "id": "dpl_3YadJHKb7X3eodXtmAHnbVS8Q3u2",
+        "url": "https://cockpit-escape-room-74mtq68zd-ottoagent007-gmailcoms-projects.vercel.app",
+        "status": "READY (pre-follow-up)",
+        "verification": "Authenticated HTTP 200 for the app and all five ident files. Deployed logo files are byte-identical to the committed assets; the deployed JS and CSS bundle hashes match the local production build.",
+        "browserAccessLimitation": "The connected Vercel share-link tool returned 403, so protected-preview browser rendering was not separately captured. Local actual-browser captures plus deployed byte equality proved the reviewed pre-follow-up runtime payload.",
+        "supersededByOwnerFollowUp": "The 50% Productions revision is validated locally and will receive a new Git-integrated preview after the PR branch update."
       }
     }
   }
