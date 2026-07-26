@@ -8,6 +8,11 @@ This directory is the durable source of truth for the Pop T chase intro.
 - Secondary reference: `recovered/2026-07-19-storyboards/pop t chasing the brass key.png`.
 - Recovered Pop T animation package: `recovered/2026-07-19-popt-runtime-archive/PopT-cinematic-runtime-assets.zip`.
 - Recovered cartoon-key poses and runway plate: `recovered/2026-07-20-cartoon-key-and-runway/originals/`.
+- Owner-approved TMB2 logo authority: `owner-approved/TMB2logo.png`, preserved
+  byte-for-byte at SHA-256
+  `673d13b96bc19b35b508630d1d662d16672ac4bb6ad665a7f6b1b7cee992ce17`.
+  Derivatives may crop, resize, or mask this source but must never redraw or
+  infer its typography.
 
 All recovered files retain their original bytes and filenames. See `asset-reports/tmb2-intro-assets.json` for hashes, dimensions, duplicate relationships, exclusions, and processing provenance.
 
