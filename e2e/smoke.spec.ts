@@ -129,6 +129,7 @@ test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the 
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toHaveCount(0)
   const audio = page.locator('audio')
   await audio.evaluate((media) => {
+    media.pause()
     media.currentTime = 4.8
     media.dispatchEvent(new Event('timeupdate'))
   })
@@ -297,6 +298,7 @@ test('captures TMB2 Productions owner-review proof', async ({ page }) => {
   await expect(intro).toBeVisible()
   const audio = page.locator('audio')
   await audio.evaluate((media) => {
+    media.pause()
     media.currentTime = 4.8
     media.dispatchEvent(new Event('timeupdate'))
   })
@@ -317,6 +319,7 @@ test('captures TMB2 Productions owner-review proof', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.setViewportSize({ width: 375, height: 812 })
   await audio.evaluate((media) => {
+    media.pause()
     media.currentTime = 3
     media.dispatchEvent(new Event('timeupdate'))
   })

@@ -1,5 +1,49 @@
 # Test report
 
+## 2026-07-26 TMB2 Productions approved-logo ident — owner visual gate open
+
+- Replaced the procedural `T`, `M`, `B`, and `2` Canvas glyphs with the exact
+  owner-approved `TMB2logo.png` authority and added centered restrained-gold
+  `PRODUCTIONS` beneath it. The existing 53.04-second clock, blue assembly,
+  gold-white highlight, Start inputs, sound controls, spoiler rules, and
+  650-millisecond DC-9 handoff remain unchanged.
+- The 811,581-byte 1659x948 source and runtime copy are byte-identical at
+  SHA-256
+  `673d13b96bc19b35b508630d1d662d16672ac4bb6ad665a7f6b1b7cee992ce17`.
+  Deterministic blue, base, highlight, and Productions layer hashes are recorded
+  in `asset-reports/tmb2-intro-assets.json`; the package now contains 74 assets
+  and 17 preloads.
+- Focused TDD covered source drift, missing layers, runtime registry/decode
+  order, image-backed command thresholds, exact-source fallback, and the
+  complete reduced-motion pose. TypeScript and focused unit checks pass.
+- Focused Chromium checks prove all five logo requests, non-background pixels
+  inside both logo and Productions bounds, exact failure/retry reporting,
+  reduced motion, and responsive bounds. Five fresh-browser capture repeats
+  passed after serializing the nine-image opening decode gate; instrumentation
+  had shown Chromium intermittently resolving all five logo images while
+  leaving the four existing large story sheets pending under concurrent
+  `decode()` calls.
+- Actual-browser proof was inspected at
+  `preview-renders/tmb2-productions-ident/ident-{1440x900,768x900,375x812}.png`
+  and
+  `preview-renders/tmb2-productions-ident/ident-reduced-motion-375x812.png`.
+  The exact logo is recognizable and uncropped, Productions is centered and
+  subordinate, controls do not overlap, and the reduced-motion pose is complete.
+- Full local validation passed: two consecutive `npm run asset:tmb2-ident`
+  rebuilds produced identical hashes; `npm run assets:check` passed the
+  74-asset/17-preload contract with only documented existing GLB notices;
+  `npm run pipeline:evals` passed 6/6; and `npm run check` passed ESLint,
+  TypeScript, 121/121 Vitest tests, and the production build.
+- A monolithic single-worker Chromium run reached 29/29 executed cases green
+  before the command session was externally terminated with exit 143 after
+  roughly four minutes. The five unreached smoke cases then passed 5/5 in 2.2
+  minutes, and the remaining viewer-control file passed 3/3. Across those
+  bounded runs all 36 executable cases passed; the 37th evidence-refresh case
+  is intentionally skipped unless `CAPTURE_TMB2_IDENT=1`, and its flagged
+  five-repeat run passed 5/5.
+- Vercel preview verification and owner visual approval are recorded below when
+  complete.
+
 ## 2026-07-26 Model Y hangar and Flight Mode reward — owner visual gate open
 
 - Replaced the reward-phase DC-9/red-box greybox with a dedicated, spoiler-protected hangar that lazy-loads only after DC-9, locker, and Airbus completion. The real red owner-supplied car carries a readable `POP T` plate; visible Mars controls and the proxy sphere are removed, while legacy Mars saves recover safely to the reward.

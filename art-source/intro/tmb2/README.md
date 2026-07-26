@@ -16,6 +16,19 @@ This directory is the durable source of truth for the Pop T chase intro.
 
 All recovered files retain their original bytes and filenames. See `asset-reports/tmb2-intro-assets.json` for hashes, dimensions, duplicate relationships, exclusions, and processing provenance.
 
+## TMB2 Productions runtime ident
+
+Run `npm run asset:tmb2-ident` to verify the immutable source and rebuild the
+five runtime files under `public/images/intro/tmb2/logo/`. The builder crops the
+approved mark at `(105, 261, 1573, 663)`, resizes only that exact artwork to
+288x79, and derives blue, base, and gold-white highlight layers. The runtime
+source copy remains byte-identical to the approved file.
+
+`PRODUCTIONS` is a separate 320x224 transparent stage layer. It uses an
+embedded deterministic 5x7 uppercase bitmap alphabet, centered at stage y=164
+in restrained gold `(224, 175, 74, 255)`. This caption does not recreate,
+trace, or infer the protected TMB2 letterforms.
+
 ## Processing boundary
 
 GameDevStuff is build tooling only. Sprite processing is pinned to repository `https://github.com/otto-agent007/GameDevStuff` at commit `22722eabc8f09a706013305a0911a9d322ca9f4f`. Runtime files remain committed under `public/images/intro/tmb2/`; the browser never depends on GameDevStuff or a local cache.

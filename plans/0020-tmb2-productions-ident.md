@@ -696,7 +696,7 @@ git commit -m "test: prove TMB2 Productions ident"
 - Consumes: all generated hashes, test output, screenshots, and deployment URL.
 - Produces: auditable owner gate and draft PR.
 
-- [ ] **Step 1: Update evidence records**
+- [x] **Step 1: Update evidence records**
 
 Record:
 
@@ -708,7 +708,7 @@ Record:
 - screenshot paths;
 - known limitations and owner visual decision.
 
-- [ ] **Step 2: Run the full validation stack**
+- [x] **Step 2: Run the full validation stack**
 
 ```bash
 npm run asset:tmb2-ident
@@ -722,7 +722,14 @@ python3 -m py_compile tools/assets/build-tmb2-ident-assets.py
 
 Expected: every command passes. Do not describe unrun checks as passing.
 
-- [ ] **Step 3: Review the complete diff**
+Actual: deterministic build, assets, pipeline, code, compile, and diff gates
+passed. The monolithic Chromium command was externally terminated with exit 143
+after 29 green cases at the command-session ceiling; the five unreached smoke
+cases and three viewer-control cases passed in bounded continuations. All 36
+executable cases passed across the recorded runs, with the capture-only case
+intentionally skipped unless its evidence flag is set.
+
+- [x] **Step 3: Review the complete diff**
 
 Check:
 
@@ -734,7 +741,7 @@ Check:
 - generated assets match the deterministic rebuild; and
 - no critical/high-severity finding remains.
 
-- [ ] **Step 4: Commit records**
+- [x] **Step 4: Commit records**
 
 ```bash
 git add asset-reports/tmb2-intro-assets.json \
