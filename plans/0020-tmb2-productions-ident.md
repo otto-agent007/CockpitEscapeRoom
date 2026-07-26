@@ -85,7 +85,8 @@ font/runtime dependency.
   focused animation, renderer, and TypeScript checks pass.
 - [x] 2026-07-26 — Completed responsive browser proof at 1440, 768, and
   375 pixels plus reduced motion; focused Chromium checks pass.
-- [ ] Review, report, deploy, and publish the owner gate.
+- [x] 2026-07-26 — Reviewed, reported, deployed, and published draft PR #54
+  with the owner-review evidence and preview.
 
 ## Discoveries
 
@@ -765,7 +766,7 @@ ident files. The protected-preview share-link connector returned 403, so local
 actual-browser captures plus deployed byte equality are the recorded
 equivalent; no direct protected-preview screenshot is claimed.
 
-- [ ] **Step 6: Push and open a draft PR**
+- [x] **Step 6: Push and open a draft PR**
 
 ```bash
 git push -u origin agent/tmb2-productions-ident
@@ -831,10 +832,18 @@ recovered safely.
   `docs/superpowers/specs/2026-07-26-tmb2-productions-ident-design.md`.
 - Approved source:
   `art-source/intro/tmb2/owner-approved/TMB2logo.png`.
-- Implementation evidence will be recorded as each checkbox completes.
+- Browser captures:
+  `preview-renders/tmb2-productions-ident/`.
+- Vercel preview:
+  `https://cockpit-escape-room-74mtq68zd-ottoagent007-gmailcoms-projects.vercel.app`.
+- Draft PR:
+  `https://github.com/otto-agent007/CockpitEscapeRoom/pull/54`.
 
 ## Outcome and handoff
 
-Implementation has not started. The final handoff will record delivered visual
-behavior, generated hashes, actual validation, Vercel preview, draft PR, and the
-remaining owner visual decision.
+The opening now renders the exact owner-approved TMB2 artwork with deterministic
+blue/base/highlight layers and centered gold `PRODUCTIONS`, while preserving
+the established clock, controls, reduced motion, spoiler protection, and DC-9
+handoff. Asset, code, browser, deployment-byte, and responsive visual evidence
+are recorded above. Draft PR #54 and the READY Vercel preview are published;
+final owner visual approval of the rendered checkpoint remains open.
