@@ -79,7 +79,8 @@ font/runtime dependency.
   and restrained gold `PRODUCTIONS` small caps.
 - [x] 2026-07-26 — Recorded and approved
   `docs/superpowers/specs/2026-07-26-tmb2-productions-ident-design.md`.
-- [ ] Complete deterministic asset generation and manifest contract.
+- [x] 2026-07-26 — Completed deterministic asset generation and manifest
+  contract; focused tests pass with 74 assets and 17 preloads.
 - [ ] Complete runtime asset loading and image-backed renderer.
 - [ ] Complete responsive browser proof and regression validation.
 - [ ] Review, report, deploy, and publish the owner gate.
@@ -165,7 +166,7 @@ font/runtime dependency.
   five runtime asset ids `logo-source`, `logo-base`, `logo-blue-mask`,
   `logo-highlight-mask`, and `logo-productions`.
 
-- [ ] **Step 1: Write failing contract tests**
+- [x] **Step 1: Write failing contract tests**
 
 Add fixtures and committed-package assertions:
 
@@ -194,7 +195,7 @@ Add a negative fixture that supplies the wrong source hash and omits
 `logo-productions`; assert errors containing `approved TMB2 logo hash` and
 `missing ident layer`.
 
-- [ ] **Step 2: Run the focused test and verify RED**
+- [x] **Step 2: Run the focused test and verify RED**
 
 Run:
 
@@ -205,7 +206,7 @@ npm run test -- --run tools/assets/intro-asset-contract.test.mjs
 Expected: FAIL because `validateTmb2LogoAuthority` and runtime ident files do not
 exist.
 
-- [ ] **Step 3: Implement the contract validator**
+- [x] **Step 3: Implement the contract validator**
 
 Add:
 
@@ -245,7 +246,7 @@ The implementation must also check:
 - 320x224 alpha dimensions for productions;
 - valid SHA-256/byte metadata already enforced by `validateIntroManifest`.
 
-- [ ] **Step 4: Implement the deterministic builder**
+- [x] **Step 4: Implement the deterministic builder**
 
 Use Pillow with constants:
 
@@ -270,7 +271,7 @@ The builder must:
    cells and two-pixel tracking, centered within 320 pixels; and
 8. write deterministic PNGs with `optimize=False, compress_level=9`.
 
-- [ ] **Step 5: Repair and regenerate the manifest**
+- [x] **Step 5: Repair and regenerate the manifest**
 
 Make each PNG record carry optional metadata:
 
@@ -293,7 +294,7 @@ Add:
 "asset:tmb2-ident": "python3 tools/assets/build-tmb2-ident-assets.py && node tools/assets/build-intro-manifest.mjs"
 ```
 
-- [ ] **Step 6: Build assets and verify GREEN**
+- [x] **Step 6: Build assets and verify GREEN**
 
 Run:
 

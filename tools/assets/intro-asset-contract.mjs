@@ -5,6 +5,16 @@ import { isAbsolute, resolve, sep } from 'node:path'
 const SHA256_PATTERN = /^[0-9a-f]{64}$/
 const PROTECTED_REWARD_PATTERN = /tesla|model[- ]?y|flight mode|mars/i
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+export const TMB2_LOGO_SHA256 = '673d13b96bc19b35b508630d1d662d16672ac4bb6ad665a7f6b1b7cee992ce17'
+const TMB2_LOGO_BYTES = 811_581
+const TMB2_LOGO_SIZE = [1659, 948]
+const TMB2_IDENT_LAYERS = [
+  ['logo/tmb2-ident-source.png', 'logo-source', 1659, 948],
+  ['logo/tmb2-ident-blue-mask.png', 'logo-blue-mask', 288, 79],
+  ['logo/tmb2-ident-base.png', 'logo-base', 288, 79],
+  ['logo/tmb2-ident-highlight-mask.png', 'logo-highlight-mask', 288, 79],
+  ['logo/tmb2-productions.png', 'logo-productions', 320, 224],
+]
 
 export function sha256File(path) {
   return createHash('sha256').update(readFileSync(path)).digest('hex')
@@ -22,6 +32,63 @@ export function pngMetadata(path) {
     height: bytes.readUInt32BE(20),
     hasAlpha: colorType === 4 || colorType === 6 || hasTransparencyChunk,
   }
+}
+
+export function validateTmb2LogoAuthority({ sourcePath, packageRoot, manifest }) {
+  const errors = []
+  if (!existsSync(sourcePath) || !statSync(sourcePath).isFile()) {
+    errors.push('approved TMB2 logo source is missing')
+  } else {
+    if (sha256File(sourcePath) !== TMB2_LOGO_SHA256) {
+      errors.push('approved TMB2 logo hash does not match')
+    }
+    if (statSync(sourcePath).size !== TMB2_LOGO_BYTES) {
+      errors.push('approved TMB2 logo byte count does not match')
+    }
+    try {
+      const metadata = pngMetadata(sourcePath)
+      if (metadata.width !== TMB2_LOGO_SIZE[0] || metadata.height !== TMB2_LOGO_SIZE[1]) {
+        errors.push('approved TMB2 logo dimensions do not match')
+      }
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : String(error))
+    }
+  }
+
+  const authority = manifest?.logoAuthority
+  if (authority?.sha256 !== TMB2_LOGO_SHA256
+    || authority?.bytes !== TMB2_LOGO_BYTES
+    || authority?.width !== TMB2_LOGO_SIZE[0]
+    || authority?.height !== TMB2_LOGO_SIZE[1]) {
+    errors.push('manifest TMB2 logo authority does not match the approved source')
+  }
+
+  const assetsByPath = new Map((manifest?.assets ?? []).map((asset) => [asset.path, asset]))
+  for (const [path, runtimeId, width, height] of TMB2_IDENT_LAYERS) {
+    const asset = assetsByPath.get(path)
+    if (!asset) {
+      errors.push(`missing ident layer: ${path}`)
+      continue
+    }
+    if (asset.runtimeId !== runtimeId
+      || asset.role !== 'logo-layer'
+      || asset.sceneGroup !== 'ident'
+      || asset.source !== 'art-source/intro/tmb2/owner-approved/TMB2logo.png') {
+      errors.push(`invalid ident contract: ${path}`)
+    }
+    if (asset.width !== width || asset.height !== height) {
+      errors.push(`invalid ident dimensions: ${path}`)
+    }
+  }
+
+  const runtimeSource = resolveContained(packageRoot, 'logo/tmb2-ident-source.png')
+  if (runtimeSource && existsSync(runtimeSource)) {
+    if (sha256File(runtimeSource) !== TMB2_LOGO_SHA256
+      || statSync(runtimeSource).size !== TMB2_LOGO_BYTES) {
+      errors.push('runtime TMB2 logo source is not byte-identical')
+    }
+  }
+  return errors
 }
 
 function resolveContained(root, relativePath) {

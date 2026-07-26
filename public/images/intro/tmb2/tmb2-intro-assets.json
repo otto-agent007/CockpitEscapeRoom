@@ -1,7 +1,14 @@
 {
   "schemaVersion": 1,
   "packageId": "tmb2-intro-v1",
-  "sourceAuthority": "blonde-haired Pop T storyboard",
+  "sourceAuthority": "owner-approved TMB2 logo and blonde-haired Pop T storyboard",
+  "logoAuthority": {
+    "source": "art-source/intro/tmb2/owner-approved/TMB2logo.png",
+    "sha256": "673d13b96bc19b35b508630d1d662d16672ac4bb6ad665a7f6b1b7cee992ce17",
+    "bytes": 811581,
+    "width": 1659,
+    "height": 948
+  },
   "tooling": {
     "repository": "https://github.com/otto-agent007/GameDevStuff",
     "commit": "22722eabc8f09a706013305a0911a9d322ca9f4f",
@@ -236,6 +243,71 @@
       "path": "key/key-mascot-poses.webp",
       "sha256": "849736e25d7985b22ec53411522a43ec1f2acf5d58d84d63630556e9d6822c3c",
       "bytes": 17620
+    },
+    {
+      "id": "logo-tmb2-ident-base-png",
+      "path": "logo/tmb2-ident-base.png",
+      "sha256": "dcac4baae7e15a927ff825934c96f394174d7ff9d8e75160a88bc2428ebcdbfd",
+      "bytes": 36124,
+      "width": 288,
+      "height": 79,
+      "hasAlpha": true,
+      "runtimeId": "logo-base",
+      "role": "logo-layer",
+      "sceneGroup": "ident",
+      "source": "art-source/intro/tmb2/owner-approved/TMB2logo.png"
+    },
+    {
+      "id": "logo-tmb2-ident-blue-mask-png",
+      "path": "logo/tmb2-ident-blue-mask.png",
+      "sha256": "fe79bcf0abf84382d72ae8b0f8ba9aa8084a47613d3bb0b12ac879eb4967acad",
+      "bytes": 36134,
+      "width": 288,
+      "height": 79,
+      "hasAlpha": true,
+      "runtimeId": "logo-blue-mask",
+      "role": "logo-layer",
+      "sceneGroup": "ident",
+      "source": "art-source/intro/tmb2/owner-approved/TMB2logo.png"
+    },
+    {
+      "id": "logo-tmb2-ident-highlight-mask-png",
+      "path": "logo/tmb2-ident-highlight-mask.png",
+      "sha256": "f233ac383018c099704c280e5c73463603155d4053cd18f5e5ac99c40ed6e6df",
+      "bytes": 31864,
+      "width": 288,
+      "height": 79,
+      "hasAlpha": true,
+      "runtimeId": "logo-highlight-mask",
+      "role": "logo-layer",
+      "sceneGroup": "ident",
+      "source": "art-source/intro/tmb2/owner-approved/TMB2logo.png"
+    },
+    {
+      "id": "logo-tmb2-ident-source-png",
+      "path": "logo/tmb2-ident-source.png",
+      "sha256": "673d13b96bc19b35b508630d1d662d16672ac4bb6ad665a7f6b1b7cee992ce17",
+      "bytes": 811581,
+      "width": 1659,
+      "height": 948,
+      "hasAlpha": false,
+      "runtimeId": "logo-source",
+      "role": "logo-layer",
+      "sceneGroup": "ident",
+      "source": "art-source/intro/tmb2/owner-approved/TMB2logo.png"
+    },
+    {
+      "id": "logo-tmb2-productions-png",
+      "path": "logo/tmb2-productions.png",
+      "sha256": "bf04f1512e43253f2716c28174c9328ac999ed3b438bcfbf2b0dd19d4200dfac",
+      "bytes": 749,
+      "width": 320,
+      "height": 224,
+      "hasAlpha": true,
+      "runtimeId": "logo-productions",
+      "role": "logo-layer",
+      "sceneGroup": "ident",
+      "source": "art-source/intro/tmb2/owner-approved/TMB2logo.png"
     },
     {
       "id": "popt-animation-contract-export-json",
@@ -601,6 +673,11 @@
     }
   ],
   "preload": [
+    "logo/tmb2-ident-source.png",
+    "logo/tmb2-ident-blue-mask.png",
+    "logo/tmb2-ident-base.png",
+    "logo/tmb2-ident-highlight-mask.png",
+    "logo/tmb2-productions.png",
     "backgrounds/duffel-terminal.png",
     "backgrounds/runway-night.png",
     "backgrounds/ballpark-night.png",

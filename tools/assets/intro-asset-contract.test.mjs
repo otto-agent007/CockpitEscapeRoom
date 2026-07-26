@@ -2,11 +2,13 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import {
+import * as introAssetContract from './intro-asset-contract.mjs'
+
+const {
   pngMetadata,
   sha256File,
   validateIntroManifest,
-} from './intro-asset-contract.mjs'
+} = introAssetContract
 
 const ONE_PIXEL_RGBA_PNG = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAF/gL+AvzZ4QAAAABJRU5ErkJggg==',
@@ -120,9 +122,23 @@ describe('TMB2 intro asset contract', () => {
     ]))
   })
 
-  it('binds the committed package preload list to the Canvas runtime sheets and plates', () => {
+  it('binds the approved source and five manifest-backed ident layers', () => {
+    const validateTmb2LogoAuthority = introAssetContract.validateTmb2LogoAuthority
+    expect(validateTmb2LogoAuthority).toBeTypeOf('function')
+    if (typeof validateTmb2LogoAuthority !== 'function') return
+
     const manifest = JSON.parse(readFileSync('public/images/intro/tmb2/tmb2-intro-assets.json', 'utf8'))
+    expect(validateTmb2LogoAuthority({
+      sourcePath: 'art-source/intro/tmb2/owner-approved/TMB2logo.png',
+      packageRoot: 'public/images/intro/tmb2',
+      manifest,
+    })).toEqual([])
     expect(manifest.preload).toEqual([
+      'logo/tmb2-ident-source.png',
+      'logo/tmb2-ident-blue-mask.png',
+      'logo/tmb2-ident-base.png',
+      'logo/tmb2-ident-highlight-mask.png',
+      'logo/tmb2-productions.png',
       'backgrounds/duffel-terminal.png',
       'backgrounds/runway-night.png',
       'backgrounds/ballpark-night.png',
@@ -136,5 +152,34 @@ describe('TMB2 intro asset contract', () => {
       'popt/victory-recovery/victory-recovery-sheet.png',
       'key/key-mascot-poses-sheet.png',
     ])
+  })
+
+  it('rejects source drift and a missing Productions layer', () => {
+    const validateTmb2LogoAuthority = introAssetContract.validateTmb2LogoAuthority
+    expect(validateTmb2LogoAuthority).toBeTypeOf('function')
+    if (typeof validateTmb2LogoAuthority !== 'function') return
+
+    const root = createRoot()
+    const sourcePath = join(root, 'TMB2logo.png')
+    const packageRoot = join(root, 'package')
+    mkdirSync(packageRoot)
+    writeFileSync(sourcePath, ONE_PIXEL_RGBA_PNG)
+
+    expect(validateTmb2LogoAuthority({
+      sourcePath,
+      packageRoot,
+      manifest: {
+        logoAuthority: {
+          sha256: '0'.repeat(64),
+          bytes: ONE_PIXEL_RGBA_PNG.length,
+          width: 1,
+          height: 1,
+        },
+        assets: [],
+      },
+    })).toEqual(expect.arrayContaining([
+      expect.stringContaining('approved TMB2 logo hash'),
+      expect.stringContaining('missing ident layer'),
+    ]))
   })
 })
