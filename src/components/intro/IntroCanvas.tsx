@@ -39,6 +39,7 @@ export function IntroCanvas({
       const next = computeIntroStagePlacement(width, height)
       setPlacement((current) => (
         current.scale === next.scale
+        && current.renderScale === next.renderScale
         && current.left === next.left
         && current.top === next.top
           ? current
@@ -56,28 +57,36 @@ export function IntroCanvas({
 
   useEffect(() => {
     const context = canvasRef.current?.getContext('2d')
-    if (context) renderIntroFrame(context, frame, assets, handoff)
-  }, [assets, frame, handoff])
+    if (context) renderIntroFrame(context, frame, assets, handoff, placement.renderScale)
+  }, [assets, frame, handoff, placement.renderScale])
+
+  const stageBox = {
+    left: placement.left,
+    top: placement.top,
+    width: placement.width,
+    height: placement.height,
+  }
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="game-intro__stage"
-      width={INTRO_STAGE_WIDTH}
-      height={INTRO_STAGE_HEIGHT}
-      style={{
-        left: placement.left,
-        top: placement.top,
-        transform: `scale(${placement.scale})`,
-      }}
-      aria-hidden="true"
-      data-scene={frame.sceneId}
-      data-time={timeSeconds.toFixed(3)}
-      data-popt-frame={frame.popt?.sourceFrame ?? ''}
-      data-key-frame={frame.key?.sourceFrame ?? ''}
-      data-presentation-scale={placement.scale}
-      data-reduced-motion={reducedMotion ? 'true' : 'false'}
-      data-handoff-progress={handoffProgress === null ? '' : handoffProgress.toFixed(3)}
-    />
+    <>
+      <div className="game-intro__stage-glow" aria-hidden="true" style={stageBox} />
+      <canvas
+        ref={canvasRef}
+        className="game-intro__stage"
+        width={INTRO_STAGE_WIDTH * placement.renderScale}
+        height={INTRO_STAGE_HEIGHT * placement.renderScale}
+        style={stageBox}
+        aria-hidden="true"
+        data-scene={frame.sceneId}
+        data-time={timeSeconds.toFixed(3)}
+        data-popt-frame={frame.popt?.sourceFrame ?? ''}
+        data-key-frame={frame.key?.sourceFrame ?? ''}
+        data-presentation-scale={placement.scale}
+        data-render-scale={placement.renderScale}
+        data-reduced-motion={reducedMotion ? 'true' : 'false'}
+        data-handoff-progress={handoffProgress === null ? '' : handoffProgress.toFixed(3)}
+      />
+      <div className="game-intro__stage-crt" aria-hidden="true" style={stageBox} />
+    </>
   )
 }

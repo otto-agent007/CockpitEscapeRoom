@@ -91,12 +91,20 @@ export type SpriteActorFrame = {
 }
 
 export type IntroPropFrame = {
-  id: 'duffel' | 'runway-cart' | 'baseball' | 'base' | 'graph' | 'bull-impact' | 'cloud-puff' | 'pilot-wings'
+  id: 'shadow' | 'duffel' | 'runway-cart' | 'baseball' | 'base' | 'graph' | 'bull-impact' | 'cloud-puff' | 'pilot-wings'
   x: number
   y: number
   scale: number
   rotation: number
   opacity: number
+  /**
+   * `back` props sit behind the actors so painted plates, contact shadows, and the
+   * key's neon trace read as staging. `front` props are impact and weather accents
+   * that must land on top of the characters to sell the hit.
+   */
+  layer: 'back' | 'front'
+  /** Extra choreography value: trail length, rattle phase, or burst intensity. */
+  phase: number
 }
 
 export type IntroAnimationFrame = {
@@ -129,6 +137,9 @@ const BACKGROUNDS: Partial<Record<IntroSceneId, string>> = {
   sky: 'background-clouds',
   'final-pursuit': 'background-clouds',
   catch: 'background-clouds',
+  // The reset beat keeps the sky plate and dissolves over it, instead of hard-cutting
+  // to a bare black frame with two half-clipped actors in it.
+  'loop-reset': 'background-clouds',
 }
 
 function clamp01(value: number): number {
@@ -210,8 +221,15 @@ function prop(
   scale = 1,
   rotation = 0,
   opacity = 1,
+  layer: IntroPropFrame['layer'] = 'back',
+  phase = 0,
 ): IntroPropFrame {
-  return { id, x, y, scale, rotation, opacity }
+  return { id, x, y, scale, rotation, opacity, layer, phase }
+}
+
+/** Contact shadow keeping Pop T planted on the ground plates instead of floating. */
+function groundShadow(x: number, groundY: number, scale = 1, opacity = 0.42): IntroPropFrame {
+  return prop('shadow', x, groundY, scale, 0, opacity, 'back')
 }
 
 export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean): IntroAnimationFrame {
@@ -244,17 +262,25 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
           highlightOpacity: clamp01((sceneProgress - 0.78) / 0.22),
         },
       }
-    case 'duffel':
+    case 'duffel': {
+      const poptX = 58 + eased * 86
       return {
         ...base,
-        popt: poptActor('duffel-pull', elapsedMs, 58 + eased * 86, 190),
-        props: [prop('duffel', 205 + eased * 22, 156, 1, Math.sin(elapsedMs / 55) * 0.025)],
+        popt: poptActor('duffel-pull', elapsedMs, poptX, 190),
+        props: [
+          groundShadow(poptX, 192, 0.9),
+          // Rattle ticks ride the painted bag's handle so the shake reads as cargo,
+          // not as stray gold dashes floating over the artwork.
+          prop('duffel', 252, 68, 1, 0, 0.9, 'front', elapsedMs / 55),
+        ],
       }
+    }
     case 'key-escape': {
       const taunting = sceneProgress < 0.55
+      const poptX = 84 - eased * 14
       return {
         ...base,
-        popt: poptActor('startle-stumble', elapsedMs, 84 - eased * 14, 190),
+        popt: poptActor('startle-stumble', elapsedMs, poptX, 190),
         key: keyActor(
           taunting ? 'taunt' : 'fly',
           elapsedMs,
@@ -263,42 +289,74 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
           0.38,
           taunting ? Math.sin(elapsedMs / 120) * 0.08 : sceneProgress * 0.8,
         ),
-        props: [prop('duffel', 206, 154, 1, -0.1)],
+        props: [
+          groundShadow(poptX, 192, 0.9),
+          prop('duffel', 252, 68, 1.5, 0, clamp01(1 - sceneProgress * 1.6), 'front', elapsedMs / 40),
+        ],
       }
     }
-    case 'runway':
+    case 'runway': {
+      const poptX = 76 + Math.sin(sceneProgress * Math.PI * 6) * 4
+      const keyX = 190 - sceneProgress * 18 + Math.sin(sceneProgress * Math.PI * 4) * 5
       return {
         ...base,
-        popt: poptActor('run', elapsedMs, 76 + Math.sin(sceneProgress * Math.PI * 6) * 4, 190),
-        key: keyActor('run', elapsedMs, 190 - sceneProgress * 18 + Math.sin(sceneProgress * Math.PI * 4) * 5, 174),
-        props: [prop('runway-cart', 350 - sceneProgress * 430, 184, 0.68)],
+        popt: poptActor('run', elapsedMs, poptX, 190),
+        key: keyActor('run', elapsedMs, keyX, 174),
+        props: [
+          prop('runway-cart', 350 - sceneProgress * 430, 186, 0.68),
+          groundShadow(poptX, 192, 0.85),
+          groundShadow(keyX, 176, 0.4, 0.32),
+        ],
       }
-    case 'ballpark':
+    }
+    case 'ballpark': {
+      const poptX = 42 + eased * 176
       return {
         ...base,
-        popt: poptActor('baseball-slide', elapsedMs, 42 + eased * 176, 194, 1.18, -0.05),
+        popt: poptActor('baseball-slide', elapsedMs, poptX, 194, 1.18, -0.05),
         key: keyActor('fly', elapsedMs, 176 + Math.sin(sceneProgress * Math.PI * 2) * 42, 104),
         props: [
-          prop('baseball', 70 + sceneProgress * 200, 82 + Math.sin(sceneProgress * Math.PI) * 76, 0.8),
-          prop('base', 230, 192, 0.65),
+          // The base Pop T is sliding into, planted at the end of his travel.
+          prop('base', 250, 198, 0.65),
+          // Wide, low slide smear rather than a round standing shadow.
+          groundShadow(poptX - 12, 196, 1.7, 0.34),
+          prop(
+            'baseball',
+            70 + sceneProgress * 200,
+            82 + Math.sin(sceneProgress * Math.PI) * 76,
+            1,
+            0,
+            1,
+            'front',
+            sceneProgress,
+          ),
         ],
       }
-    case 'city-finance':
+    }
+    case 'city-finance': {
+      const poptX = 54 + eased * 156
+      // Fire the burst when Pop T actually reaches the bull, not at the mid-scene
+      // peak of a sine that left it flashing in empty street.
+      const impact = Math.sin(clamp01((sceneProgress - 0.58) / 0.34) * Math.PI)
       return {
         ...base,
-        popt: poptActor('bull-spin', elapsedMs, 54 + eased * 156, 188, 1.14, sceneProgress * Math.PI * 0.35),
+        popt: poptActor('bull-spin', elapsedMs, poptX, 188, 1.14, sceneProgress * Math.PI * 0.35),
         key: keyActor('run', elapsedMs, 106 + sceneProgress * 150, 172 - sceneProgress * 72, 0.36),
         props: [
-          prop('graph', 160, 152, 1),
-          prop('bull-impact', 222, 178, 0.3 + Math.sin(sceneProgress * Math.PI) * 0.08, 0, Math.sin(sceneProgress * Math.PI)),
+          // Neon trace drawn progressively under the key's own path instead of a
+          // second flat chart line laid across the painted skyline.
+          prop('graph', 106, 172, 1, 0, 0.85, 'back', sceneProgress),
+          groundShadow(poptX, 190, 0.9),
+          prop('bull-impact', poptX + 38, 152, 0.24 + impact * 0.14, 0, impact, 'front', impact),
         ],
       }
+    }
     case 'sky':
       return {
         ...base,
         popt: poptActor('pilot-glide', elapsedMs, 46 + eased * 92, 166 - Math.sin(sceneProgress * Math.PI) * 26, 1.08),
         key: keyActor('fly', elapsedMs, 202 + Math.sin(sceneProgress * Math.PI * 2) * 22, 108 - sceneProgress * 18, 0.36),
-        props: [prop('cloud-puff', 340 - sceneProgress * 410, 132, 0.55, 0, 0.72)],
+        props: [prop('cloud-puff', 340 - sceneProgress * 410, 132, 0.55, 0, 0.72, 'front')],
       }
     case 'final-pursuit': {
       const missArc = Math.sin(sceneProgress * Math.PI * 2)
@@ -308,7 +366,9 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         ...base,
         popt: poptActor('pilot-glide', elapsedMs, poptX, poptY, 1.1, missArc * 0.08),
         key: keyActor('fly', elapsedMs, 220 - eased * 28, 116 + missArc * 16, 0.36),
-        props: [prop('pilot-wings', poptX, poptY - 38, 0.52, missArc * 0.08)],
+        // Behind Pop T so the wings read as deployed from his back rather than as
+        // pale bars painted across his uniform.
+        props: [prop('pilot-wings', poptX, poptY - 38, 0.52, missArc * 0.08, 1, 'back')],
       }
     }
     case 'catch':
@@ -316,14 +376,19 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         ...base,
         popt: poptActor('victory-recovery', elapsedMs, 150, 190, 1.16),
         key: keyActor('taunt', elapsedMs, 214 + Math.sin(elapsedMs / 150) * 8, 126, 0.36, Math.sin(elapsedMs / 120) * 0.12),
+        // A cloud bank to stand on, so the victory pose is not floating on nothing.
+        props: [prop('cloud-puff', 150, 200, 1.15, 0, 0.9)],
       }
-    case 'loop-reset':
+    case 'loop-reset': {
+      const poptX = 124 + eased * 260
       return {
         ...base,
-        popt: poptActor('victory-recovery', elapsedMs, 124 + eased * 260, 190, 1.16, eased * 0.18),
+        popt: poptActor('victory-recovery', elapsedMs, poptX, 190, 1.16, eased * 0.18),
         key: keyActor('tug', elapsedMs, 190 + eased * 260, 154, 0.38, eased * 0.24),
+        props: [prop('cloud-puff', poptX - 6, 200, 1.15, 0, 0.9 * clamp01(1 - sceneProgress))],
         pixelCollapse: clamp01((sceneProgress - 0.48) / 0.52),
       }
+    }
   }
 }
 

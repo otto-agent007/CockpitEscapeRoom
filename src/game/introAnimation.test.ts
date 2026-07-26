@@ -115,6 +115,56 @@ describe('TMB2 sprite animation contract', () => {
     const wings = pursuit.props.find((prop) => prop.id === 'pilot-wings')
     expect(wings?.x).toBeCloseTo(pursuit.popt!.x)
     expect(wings!.y).toBeLessThan(pursuit.popt!.y)
+    // Wings deploy from Pop T's back, so they must never paint over his uniform.
+    expect(wings!.layer).toBe('back')
+  })
+
+  it('plants Pop T on every ground plate with a contact shadow at his feet', () => {
+    for (const time of [8, 13, 18, 24, 31]) {
+      const frame = deriveIntroAnimation(time, false)
+      const shadow = frame.props.find((prop) => prop.id === 'shadow')
+      expect(shadow, `scene at ${time}s`).toBeDefined()
+      expect(shadow!.layer).toBe('back')
+      expect(Math.abs(shadow!.x - frame.popt!.x)).toBeLessThanOrEqual(12)
+      expect(Math.abs(shadow!.y - frame.popt!.y)).toBeLessThanOrEqual(6)
+    }
+  })
+
+  it('lays the finance trace along the key path instead of a second painted chart', () => {
+    for (const progress of [0.2, 0.6, 0.95]) {
+      const time = 28 + 7 * progress
+      const frame = deriveIntroAnimation(time, false)
+      const graph = frame.props.find((prop) => prop.id === 'graph')!
+      expect(graph.layer).toBe('back')
+      // The trace starts at the key's own origin and extends by its scene progress.
+      expect(graph.x).toBe(106)
+      expect(graph.y).toBe(172)
+      expect(graph.phase).toBeCloseTo(progress, 2)
+      expect(graph.x + 150 * graph.phase).toBeCloseTo(frame.key!.x, 5)
+      expect(graph.y - 72 * graph.phase).toBeCloseTo(frame.key!.y, 5)
+    }
+  })
+
+  it('lands impact and weather accents in front of the actors', () => {
+    const finance = deriveIntroAnimation(31, false)
+    expect(finance.props.find((prop) => prop.id === 'bull-impact')?.layer).toBe('front')
+    expect(deriveIntroAnimation(24, false).props.find((prop) => prop.id === 'baseball')?.layer)
+      .toBe('front')
+    expect(deriveIntroAnimation(38, false).props.find((prop) => prop.id === 'cloud-puff')?.layer)
+      .toBe('front')
+  })
+
+  it('keeps a plate under the reset beat instead of cutting to a bare black frame', () => {
+    for (const time of [51.2, 52, 52.9]) {
+      expect(deriveIntroAnimation(time, false).backgroundAssetId).toBe('background-clouds')
+    }
+  })
+
+  it('gives the sky victory pose something to stand on', () => {
+    const catchFrame = deriveIntroAnimation(49, false)
+    const cloud = catchFrame.props.find((prop) => prop.id === 'cloud-puff')!
+    expect(Math.abs(cloud.x - catchFrame.popt!.x)).toBeLessThanOrEqual(8)
+    expect(cloud.y).toBeGreaterThanOrEqual(catchFrame.popt!.y)
   })
 
   it('flies and rotates the key into the lock during the 650ms handoff', () => {

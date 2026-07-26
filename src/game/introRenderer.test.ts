@@ -23,6 +23,19 @@ describe('TMB2 Canvas draw commands', () => {
     ]))
   })
 
+  it('splits props around the actors so staging sits behind and impacts sit in front', () => {
+    const commands = deriveIntroDrawCommands(deriveIntroAnimation(31, false), null)
+    const firstSprite = commands.findIndex((command) => command.kind === 'sprite')
+    const lastSprite = commands.map((command) => command.kind).lastIndexOf('sprite')
+    const propIndex = (id: string) => commands.findIndex(
+      (command) => command.kind === 'prop' && command.prop.id === id,
+    )
+
+    expect(propIndex('graph')).toBeLessThan(firstSprite)
+    expect(propIndex('shadow')).toBeLessThan(firstSprite)
+    expect(propIndex('bull-impact')).toBeGreaterThan(lastSprite)
+  })
+
   it('adds pixel collapse only during the reset beat', () => {
     expect(deriveIntroDrawCommands(deriveIntroAnimation(50, false), null)
       .some((command) => command.kind === 'pixel-collapse')).toBe(false)

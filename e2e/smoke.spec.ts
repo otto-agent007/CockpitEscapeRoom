@@ -329,12 +329,27 @@ test('TMB2 cinematic holds scene poses for reduced motion and fits required view
   }))).toEqual(firstPose)
 
   for (const viewport of [
-    { width: 375, height: 812, scale: '1' },
-    { width: 768, height: 900, scale: '2' },
-    { width: 1440, height: 900, scale: '4' },
+    { width: 375, height: 812, renderScale: '1' },
+    { width: 768, height: 900, renderScale: '2' },
+    { width: 1440, height: 900, renderScale: '4' },
   ]) {
     await page.setViewportSize(viewport)
-    await expect(canvas).toHaveAttribute('data-presentation-scale', viewport.scale)
+    // The raster stays on a whole-number multiple of the 320 x 224 stage...
+    await expect(canvas).toHaveAttribute('data-render-scale', viewport.renderScale)
+
+    // ...while the picture itself fills the shell it is given. Narrow windows used to
+    // strand a one-times 320 x 224 stage in the middle of a field of black.
+    const shell = await intro.locator('.game-intro__stage-shell').boundingBox()
+    const stage = await canvas.boundingBox()
+    expect(shell).not.toBeNull()
+    expect(stage).not.toBeNull()
+    const fillsAnAxis = stage!.width >= shell!.width - 1 || stage!.height >= shell!.height - 1
+    expect(fillsAnAxis, `stage fills an axis at ${viewport.width}x${viewport.height}`).toBe(true)
+    expect(stage!.width).toBeLessThanOrEqual(shell!.width + 1)
+    expect(stage!.height).toBeLessThanOrEqual(shell!.height + 1)
+    // Same composition everywhere: the stage keeps the 320 x 224 aspect.
+    expect(stage!.width / stage!.height).toBeCloseTo(320 / 224, 1)
+
     const bounds = await intro.locator('.game-intro__controls').boundingBox()
     expect(bounds).not.toBeNull()
     expect(bounds!.x).toBeGreaterThanOrEqual(0)

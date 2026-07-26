@@ -49,12 +49,15 @@ The existing briefing screen remains first. Its **Start Game** button unlocks br
 ## Visual contract
 
 - Native logical resolution: 320 x 224.
-- Desktop-only composition; narrower windows may letterbox the same composition but do not receive a redesigned mobile scene.
-- Integer nearest-neighbor scaling with black letterboxing.
+- Desktop-only composition; narrower windows letterbox the same composition but do not receive a redesigned mobile scene.
+- Integer nearest-neighbor rasterization: the canvas backing store is always a whole-number multiple of 320 x 224 and every sprite, prop, and ident pixel is drawn with nearest-neighbour sampling inside it.
+- The rasterized stage is then fitted to the shell so the picture fills the available box at its native aspect. **Superseded 2026-07-26:** this previously required the *CSS presentation* to be an integer multiple as well, which stranded a one-times 320 x 224 stage in a field of black on narrow windows — at 375 px the picture occupied under a sixth of the screen. The backing-store multiple is chosen nearest the display size, so compositing stays within a few percent of 1:1 and remains on the nearest-neighbour path.
+- Background plates are filtered once per backing-store scale into a cached surface and blitted 1:1 per frame. Point-sampling a ~1586 px plate straight down to 320 px discarded roughly four fifths of the source columns and made skylines and star fields crawl during the parallax pan; resampling per frame instead cost two thirds of the frame budget at large window sizes.
 - Deep navy, electric blue, white, gold, and restrained red palette.
 - A large blue, striped, original TMB2 ident evokes 1990s console presentation. It must not be the gold serif placeholder and must not copy the SEGA wordmark exactly.
 - No visible scene titles or chapter captions appear over the animation. A visually hidden scene summary remains for assistive technology.
-- CRT scanlines, vignette, and restrained RGB separation exist only during the intro and disappear during the Start handoff.
+- CRT scanlines, vignette, and restrained RGB separation exist only during the intro, are bound to the picture rather than the window so they never fall across the letterbox bars, and disappear during the Start handoff.
+- Sound and volume controls sit in a compact, recessive corner cluster. They must not span the stage: a full-width control slab covered the bottom band of every plate.
 - Locations are symbolic comedy backdrops, not playable airport, baseball, finance, or sky levels.
 - No cockpit image, cockpit title, vehicle reward, Flight Mode, or Mars spoiler appears in the cinematic.
 
@@ -81,6 +84,8 @@ The cartoon key uses 16 selected frames from the recovered pose set, grouped as:
 The seventeenth recovered key image remains preserved but is not part of the approved 16-frame runtime choreography. The cartoon key remains visually distinct from the realistic engraved Captain's Key awarded during DC-9 gameplay.
 
 The duffel, runway equipment/cart, baseball/base, graph line, bull impact, cloud puffs, and pilot wings are independent choreography layers. Existing recovered scene plates may supply environmental art, but character sprites and props must move independently. Far, middle, ground, and foreground motion is driven by the story clock rather than CSS animation start time.
+
+Each prop layer declares whether it sits behind or in front of the actors. Staging (contact shadows, the base, the key's neon trace, the deployed wings) draws behind; impact and weather accents (the bull hit, the thrown ball, foreground cloud) draw in front. Every prop must be anchored to something in its plate or to an actor, and must not restate art the plate already paints — the earlier flat versions read as debug overlays: a second chart line laid across the painted skyline and through the character, a white diamond floating clear of the painted home plate, pale bars crossing Pop T's uniform where wings were intended, and an impact star flashing in empty street mid-scene rather than on contact.
 
 The lost final integration contract described 104 audited deployable artifacts and 52 preload entries, with fewer images decoded at startup. The current recovered package contains 69 manifest assets and 17 preload entries. Do not fabricate missing files merely to match the historic counts. Restore semantic preload tiers now and record the remaining inventory delta until additional authoritative artifacts are recovered or recreated.
 
