@@ -1,6 +1,69 @@
 import { describe, expect, it } from 'vitest'
 import { deriveHandoffAnimation, deriveIntroAnimation } from './introAnimation'
-import { deriveIntroDrawCommands } from './introRenderer'
+import { deriveIntroDrawCommands, renderIntroFrame } from './introRenderer'
+import { INTRO_STAGE_HEIGHT, INTRO_STAGE_WIDTH } from './introGeometry'
+
+/** Minimal 2D context recorder: enough to observe smoothing state at each draw. */
+function recordingContext() {
+  const smoothingAtDraw: boolean[] = []
+  const context = {
+    imageSmoothingEnabled: false,
+    imageSmoothingQuality: 'low',
+    globalAlpha: 1,
+    fillStyle: '',
+    strokeStyle: '',
+    lineWidth: 1,
+    lineCap: 'butt',
+    setTransform() {},
+    save() {},
+    restore() {},
+    translate() {},
+    rotate() {},
+    scale() {},
+    beginPath() {},
+    closePath() {},
+    moveTo() {},
+    lineTo() {},
+    arc() {},
+    ellipse() {},
+    fill() {},
+    stroke() {},
+    fillRect() {},
+    clearRect() {},
+    createLinearGradient: () => ({ addColorStop() {} }),
+    createRadialGradient: () => ({ addColorStop() {} }),
+    drawImage() {
+      smoothingAtDraw.push(context.imageSmoothingEnabled)
+    },
+  }
+  return { context: context as unknown as CanvasRenderingContext2D, smoothingAtDraw }
+}
+
+describe('TMB2 raster fidelity', () => {
+  it('draws sprite art with smoothing off so the pixel grid survives', () => {
+    const { context, smoothingAtDraw } = recordingContext()
+    // A scene with no background plate, so every drawImage is sprite art.
+    const identFrame = deriveIntroAnimation(3, false)
+    renderIntroFrame(context, identFrame, new Map(), null, 4)
+
+    const sprite = new Map<string, CanvasImageSource>([
+      ['popt-run', { width: 1024, height: 512 } as unknown as CanvasImageSource],
+      ['key-poses', { width: 1280, height: 1024 } as unknown as CanvasImageSource],
+    ])
+    const chaseFrame = deriveIntroAnimation(18, false)
+    renderIntroFrame(context, chaseFrame, sprite, null, 4)
+
+    expect(smoothingAtDraw.length).toBeGreaterThan(0)
+    expect(smoothingAtDraw.every((enabled) => enabled === false)).toBe(true)
+  })
+
+  it('rasterizes on the logical stage regardless of backing-store scale', () => {
+    const { context } = recordingContext()
+    expect(() => renderIntroFrame(context, deriveIntroAnimation(3, false), new Map(), null, 5)).not.toThrow()
+    expect(INTRO_STAGE_WIDTH).toBe(320)
+    expect(INTRO_STAGE_HEIGHT).toBe(224)
+  })
+})
 
 describe('TMB2 Canvas draw commands', () => {
   it('builds the blue ident without any visible title or chapter-caption command', () => {

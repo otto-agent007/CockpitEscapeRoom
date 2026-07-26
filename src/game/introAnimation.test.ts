@@ -99,12 +99,11 @@ describe('TMB2 sprite animation contract', () => {
     expect(second.key).toEqual(first.key)
   })
 
-  it('stages Pop T as the readable comedy lead and keeps accent props restrained', () => {
-    for (const time of [8, 13, 18, 24, 31, 38, 44, 49]) {
-      const frame = deriveIntroAnimation(time, false)
-      expect(frame.popt?.scale).toBeGreaterThanOrEqual(1.05)
-      if (frame.key) expect(frame.key.scale).toBeLessThanOrEqual(0.4)
-    }
+  it('keeps accent props restrained beside the actors', () => {
+    // Pop T's prominence used to be asserted here as a runtime scale floor of 1.05. That
+    // scale was illegal against the stage grid — see introGrid.test.ts. On-screen size is a
+    // property of the canonical art now, so it is owned by the asset pipeline, not by a
+    // multiplier at draw time.
     expect(deriveIntroAnimation(18, false).props.find((prop) => prop.id === 'runway-cart')?.scale)
       .toBeLessThanOrEqual(0.7)
     expect(deriveIntroAnimation(31, false).props.find((prop) => prop.id === 'bull-impact')?.scale)
