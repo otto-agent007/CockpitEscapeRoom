@@ -60,7 +60,7 @@ test('plays the authored reward and provides Skip and Replay', async ({ page }) 
   await expect(skipButton).toBeFocused()
   await page.waitForTimeout(1_250)
   await captureEvidence(page, '1440-static-reveal')
-  await skipButton.click()
+  await page.keyboard.press('Enter')
 
   await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible()
   await expect(page.locator('canvas')).toHaveAttribute('data-reward-clip-time', '11.500')
@@ -90,8 +90,11 @@ test('plays the authored reward and provides Skip and Replay', async ({ page }) 
   }
 
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.getByRole('button', { name: 'Replay Flight Mode' }).click()
-  await expect(page.locator('[data-reward-stage="hangar-open"]')).toBeVisible()
+  await page.getByRole('button', { name: 'Replay Flight Mode' }).press('Enter')
+  await expect.poll(async () => Number(
+    await page.locator('canvas').getAttribute('data-reward-clip-time'),
+  )).toBeLessThan(5)
+  await expect(page.locator('[data-reward-stage]')).not.toHaveAttribute('data-reward-stage', 'complete')
   await expect(page.getByRole('button', { name: 'Skip cinematic' })).toBeVisible()
 })
 

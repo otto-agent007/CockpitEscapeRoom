@@ -19,7 +19,9 @@ SOURCE_SIZE = (1659, 948)
 LOGO_CROP = (105, 261, 1573, 663)
 IDENT_SIZE = (288, 79)
 STAGE_SIZE = (320, 224)
-PRODUCTIONS_Y = 164
+PRODUCTIONS_Y = 168
+PRODUCTIONS_CELL = 1
+PRODUCTIONS_TRACKING = 1
 PRODUCTIONS_COLOR = (224, 175, 74, 255)
 PRODUCTIONS_SHADOW = (61, 42, 14, 190)
 
@@ -101,9 +103,9 @@ def build_logo_layers() -> None:
 
 def build_productions_layer() -> None:
     label = "PRODUCTIONS"
-    cell = 2
+    cell = PRODUCTIONS_CELL
     glyph_width = 5 * cell
-    tracking = 2
+    tracking = PRODUCTIONS_TRACKING
     label_width = len(label) * glyph_width + (len(label) - 1) * tracking
     origin_x = (STAGE_SIZE[0] - label_width) // 2
     layer = Image.new("RGBA", STAGE_SIZE, (0, 0, 0, 0))

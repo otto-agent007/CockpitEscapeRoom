@@ -25,9 +25,11 @@ approved mark at `(105, 261, 1573, 663)`, resizes only that exact artwork to
 source copy remains byte-identical to the approved file.
 
 `PRODUCTIONS` is a separate 320x224 transparent stage layer. It uses an
-embedded deterministic 5x7 uppercase bitmap alphabet, centered at stage y=164
-in restrained gold `(224, 175, 74, 255)`. This caption does not recreate,
-trace, or infer the protected TMB2 letterforms.
+embedded deterministic 5x7 uppercase bitmap alphabet with one-pixel cells and
+tracking, centered at stage y=168 in restrained gold `(224, 175, 74, 255)`.
+Its owner-approved follow-up is 50% of the initial caption treatment, with
+alpha bounds `[127, 168, 193, 176]`. This caption does not recreate, trace, or
+infer the protected TMB2 letterforms.
 
 ## Processing boundary
 

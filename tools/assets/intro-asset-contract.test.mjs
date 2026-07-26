@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import * as introAssetContract from './intro-asset-contract.mjs'
 
 const {
+  pngAlphaBounds,
   pngMetadata,
   sha256File,
   validateIntroManifest,
@@ -152,6 +153,11 @@ describe('TMB2 intro asset contract', () => {
       'popt/victory-recovery/victory-recovery-sheet.png',
       'key/key-mascot-poses-sheet.png',
     ])
+  })
+
+  it('keeps the owner-approved Productions revision at half-size and centered', () => {
+    expect(pngAlphaBounds('public/images/intro/tmb2/logo/tmb2-productions.png'))
+      .toEqual([127, 168, 193, 176])
   })
 
   it('rejects source drift and a missing Productions layer', () => {

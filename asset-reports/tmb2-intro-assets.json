@@ -17,8 +17,10 @@
     "command": "npm run asset:tmb2-ident",
     "crop": [105, 261, 1573, 663],
     "identPosition": [16, 72],
-    "productionsY": 164,
-    "derivation": "The exact approved artwork is cropped and resized with Pillow LANCZOS, then separated into base, blue, and gold-white highlight RGBA layers. PRODUCTIONS uses an embedded deterministic 5x7 uppercase bitmap alphabet in restrained gold; it does not infer or redraw the TMB2 typography.",
+    "productionsY": 168,
+    "productionsScale": 0.5,
+    "productionsAlphaBounds": [127, 168, 193, 176],
+    "derivation": "The exact approved artwork is cropped and resized with Pillow LANCZOS, then separated into base, blue, and gold-white highlight RGBA layers. PRODUCTIONS uses an embedded deterministic 5x7 uppercase bitmap alphabet in restrained gold; its owner-approved follow-up uses one-pixel cells and tracking for a 0.5 scale factor without inferring or redrawing the TMB2 typography.",
     "assets": [
       {
         "id": "logo-source",
@@ -60,8 +62,8 @@
       {
         "id": "logo-productions",
         "path": "public/images/intro/tmb2/logo/tmb2-productions.png",
-        "sha256": "bf04f1512e43253f2716c28174c9328ac999ed3b438bcfbf2b0dd19d4200dfac",
-        "bytes": 749,
+        "sha256": "d50b44997a07f0dc1f7d1aacdae49d4193b240bfcae3f7c9eff9d5428564e2fc",
+        "bytes": 642,
         "width": 320,
         "height": 224,
         "mode": "RGBA",
@@ -294,9 +296,10 @@
       "deployment": {
         "id": "dpl_3YadJHKb7X3eodXtmAHnbVS8Q3u2",
         "url": "https://cockpit-escape-room-74mtq68zd-ottoagent007-gmailcoms-projects.vercel.app",
-        "status": "READY",
+        "status": "READY (pre-follow-up)",
         "verification": "Authenticated HTTP 200 for the app and all five ident files. Deployed logo files are byte-identical to the committed assets; the deployed JS and CSS bundle hashes match the local production build.",
-        "browserAccessLimitation": "The connected Vercel share-link tool returned 403, so protected-preview browser rendering was not separately captured. Local actual-browser captures plus deployed byte equality prove the reviewed runtime payload."
+        "browserAccessLimitation": "The connected Vercel share-link tool returned 403, so protected-preview browser rendering was not separately captured. Local actual-browser captures plus deployed byte equality proved the reviewed pre-follow-up runtime payload.",
+        "supersededByOwnerFollowUp": "The 50% Productions revision is validated locally and will receive a new Git-integrated preview after the PR branch update."
       }
     }
   }

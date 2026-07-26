@@ -2,6 +2,30 @@
 
 ## 2026-07-26 TMB2 Productions approved-logo ident — owner visual gate open
 
+- Owner follow-up: reduced only the generated `PRODUCTIONS` caption to 50% in
+  both axes. Its alpha bounds changed from 131x15 at
+  `[95,164,226,179]` to 66x8 at `[127,168,193,176]`; its gold/shadow
+  treatment, center, fade timing, approved TMB2 artwork, and all other intro
+  behavior remain unchanged. The new 642-byte caption SHA-256 is
+  `d50b44997a07f0dc1f7d1aacdae49d4193b240bfcae3f7c9eff9d5428564e2fc`.
+- The alpha-bounds regression failed against the prior committed caption, then
+  passed after the one-pixel cell/tracking rebuild. The final probe decodes the
+  RGBA PNG with Node built-ins, so clean GitHub quality runners do not require
+  an undeclared Pillow installation. `npm run assets:check` passed the
+  unchanged 74-asset/17-preload contract. Fresh-build Chromium capture passed,
+  as did the three focused request/retry/reduced-motion checks. All four
+  responsive captures were regenerated and inspected with the half-size
+  caption present, centered, readable, and clear of controls.
+- PR #54's pre-follow-up `browser-smoke` run exposed a pre-existing Model Y
+  reward test race that also failed on the unchanged `main` merge run. The test
+  tried a Playwright pointer click while the real-time Skip control was being
+  removed, then required Replay to be observed only during its first
+  1.2-second stage. The repair uses the already-focused keyboard path for Skip
+  and Replay, requires the replay clock to return below five seconds, and
+  accepts any active replay stage while still requiring the Skip control. The
+  focused CI-style case passed three consecutive runs with retries disabled;
+  the complete CI-style browser suite passed 36 executable cases in 6.6
+  minutes with the capture-only case intentionally skipped.
 - Replaced the procedural `T`, `M`, `B`, and `2` Canvas glyphs with the exact
   owner-approved `TMB2logo.png` authority and added centered restrained-gold
   `PRODUCTIONS` beneath it. The existing 53.04-second clock, blue assembly,

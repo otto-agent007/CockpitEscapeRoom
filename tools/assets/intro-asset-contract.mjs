@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { existsSync, readFileSync, statSync } from 'node:fs'
 import { isAbsolute, resolve, sep } from 'node:path'
+import { inflateSync } from 'node:zlib'
 
 const SHA256_PATTERN = /^[0-9a-f]{64}$/
 const PROTECTED_REWARD_PATTERN = /tesla|model[- ]?y|flight mode|mars/i
@@ -32,6 +33,100 @@ export function pngMetadata(path) {
     height: bytes.readUInt32BE(20),
     hasAlpha: colorType === 4 || colorType === 6 || hasTransparencyChunk,
   }
+}
+
+function paethPredictor(left, up, upperLeft) {
+  const estimate = left + up - upperLeft
+  const leftDistance = Math.abs(estimate - left)
+  const upDistance = Math.abs(estimate - up)
+  const upperLeftDistance = Math.abs(estimate - upperLeft)
+  if (leftDistance <= upDistance && leftDistance <= upperLeftDistance) return left
+  return upDistance <= upperLeftDistance ? up : upperLeft
+}
+
+export function pngAlphaBounds(path) {
+  const bytes = readFileSync(path)
+  if (bytes.length < 33 || !bytes.subarray(0, 8).equals(PNG_SIGNATURE)) {
+    throw new Error(`${path} is not a PNG`)
+  }
+
+  let header
+  const imageData = []
+  for (let offset = 8; offset + 12 <= bytes.length;) {
+    const length = bytes.readUInt32BE(offset)
+    const type = bytes.toString('ascii', offset + 4, offset + 8)
+    const dataStart = offset + 8
+    const dataEnd = dataStart + length
+    if (dataEnd + 4 > bytes.length) throw new Error(`${path} has a truncated PNG chunk`)
+    if (type === 'IHDR') header = bytes.subarray(dataStart, dataEnd)
+    if (type === 'IDAT') imageData.push(bytes.subarray(dataStart, dataEnd))
+    offset = dataEnd + 4
+    if (type === 'IEND') break
+  }
+
+  if (!header || header.length !== 13 || imageData.length === 0) {
+    throw new Error(`${path} is missing required PNG data`)
+  }
+  const width = header.readUInt32BE(0)
+  const height = header.readUInt32BE(4)
+  const bitDepth = header[8]
+  const colorType = header[9]
+  const compression = header[10]
+  const filterMethod = header[11]
+  const interlace = header[12]
+  if (bitDepth !== 8 || colorType !== 6 || compression !== 0 || filterMethod !== 0 || interlace !== 0) {
+    throw new Error(`${path} must be a non-interlaced 8-bit RGBA PNG`)
+  }
+
+  const bytesPerPixel = 4
+  const stride = width * bytesPerPixel
+  const decoded = inflateSync(Buffer.concat(imageData))
+  if (decoded.length !== height * (stride + 1)) {
+    throw new Error(`${path} has an unexpected decoded PNG size`)
+  }
+
+  let minX = width
+  let minY = height
+  let maxX = -1
+  let maxY = -1
+  let sourceOffset = 0
+  let previous = Buffer.alloc(stride)
+  for (let y = 0; y < height; y += 1) {
+    const filter = decoded[sourceOffset]
+    sourceOffset += 1
+    const current = Buffer.allocUnsafe(stride)
+    for (let index = 0; index < stride; index += 1) {
+      const encoded = decoded[sourceOffset + index]
+      const left = index >= bytesPerPixel ? current[index - bytesPerPixel] : 0
+      const up = previous[index]
+      const upperLeft = index >= bytesPerPixel ? previous[index - bytesPerPixel] : 0
+      const predictor = filter === 0
+        ? 0
+        : filter === 1
+          ? left
+          : filter === 2
+            ? up
+            : filter === 3
+              ? Math.floor((left + up) / 2)
+              : filter === 4
+                ? paethPredictor(left, up, upperLeft)
+                : undefined
+      if (predictor === undefined) throw new Error(`${path} uses unsupported PNG filter ${filter}`)
+      current[index] = (encoded + predictor) & 0xff
+    }
+    sourceOffset += stride
+
+    for (let x = 0; x < width; x += 1) {
+      if (current[x * bytesPerPixel + 3] === 0) continue
+      minX = Math.min(minX, x)
+      minY = Math.min(minY, y)
+      maxX = Math.max(maxX, x)
+      maxY = Math.max(maxY, y)
+    }
+    previous = current
+  }
+
+  return maxX < 0 ? null : [minX, minY, maxX + 1, maxY + 1]
 }
 
 export function validateTmb2LogoAuthority({ sourcePath, packageRoot, manifest }) {

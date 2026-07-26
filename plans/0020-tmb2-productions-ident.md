@@ -867,6 +867,7 @@ asset-contract test.
 
 - Modify: `tools/assets/intro-asset-contract.test.mjs`
 - Modify: `tools/assets/build-tmb2-ident-assets.py`
+- Modify: `e2e/reward.spec.ts` only if the existing CI reward race recurs
 - Regenerate: `public/images/intro/tmb2/logo/tmb2-productions.png`
 - Regenerate: `public/images/intro/tmb2/tmb2-intro-assets.json`
 - Regenerate: `preview-renders/tmb2-productions-ident/*.png`
@@ -877,7 +878,7 @@ asset-contract test.
 
 ### Task 6: Half-size Productions owner revision
 
-- [ ] **Step 1: Write the failing alpha-bounds test**
+- [x] **Step 1: Write the failing alpha-bounds test**
 
 In `tools/assets/intro-asset-contract.test.mjs`, execute a read-only Pillow
 probe against the committed runtime caption and assert:
@@ -890,7 +891,7 @@ The helper must invoke Python with argument-vector inputs, parse the alpha
 channel bounding box as JSON, and fail clearly if Pillow or the PNG is absent.
 Also retain the existing assertion that the stage image remains 320x224 RGBA.
 
-- [ ] **Step 2: Run the focused test and verify RED**
+- [x] **Step 2: Run the focused test and verify RED**
 
 ```bash
 npm run test -- --run tools/assets/intro-asset-contract.test.mjs
@@ -898,7 +899,7 @@ npm run test -- --run tools/assets/intro-asset-contract.test.mjs
 
 Expected: FAIL because the current alpha bounds are `[95,164,226,179]`.
 
-- [ ] **Step 3: Implement the minimal deterministic scale change**
+- [x] **Step 3: Implement the minimal deterministic scale change**
 
 In `tools/assets/build-tmb2-ident-assets.py`:
 
@@ -913,7 +914,7 @@ two-pixel local values. Preserve `PRODUCTIONS_COLOR`,
 `PRODUCTIONS_SHADOW`, the 320x224 stage, label text, centering equation, PNG
 compression, and every TMB2-logo derivation.
 
-- [ ] **Step 4: Rebuild and verify GREEN**
+- [x] **Step 4: Rebuild and verify GREEN**
 
 ```bash
 npm run asset:tmb2-ident
@@ -924,7 +925,7 @@ npm run assets:check
 Expected: alpha bounds `[127,168,193,176]`; source/base/blue/highlight hashes
 unchanged; only the Productions PNG and manifest hashes change.
 
-- [ ] **Step 5: Refresh and inspect browser evidence**
+- [x] **Step 5: Refresh and inspect browser evidence**
 
 ```bash
 CAPTURE_TMB2_IDENT=1 \
@@ -937,7 +938,7 @@ Inspect all four `preview-renders/tmb2-productions-ident/*.png` images. Confirm
 the caption is visibly half-size, centered, readable, subordinate, and clear of
 controls at 1440, 768, 375, and reduced-motion 375 widths.
 
-- [ ] **Step 6: Record, verify, commit, and update PR #54**
+- [x] **Step 6: Record, verify, commit, and update PR #54**
 
 Update the exact Productions hash, byte size, alpha bounds, owner decision,
 test output, screenshots, and remaining visual gate in the report and plan.
@@ -949,6 +950,7 @@ git diff --check
 python3 -m py_compile tools/assets/build-tmb2-ident-assets.py
 git add tools/assets/intro-asset-contract.test.mjs \
   tools/assets/build-tmb2-ident-assets.py \
+  e2e/reward.spec.ts e2e/smoke.spec.ts \
   public/images/intro/tmb2/logo/tmb2-productions.png \
   public/images/intro/tmb2/tmb2-intro-assets.json \
   preview-renders/tmb2-productions-ident \
@@ -960,3 +962,23 @@ git push
 ```
 
 Check PR #54 status once after the push and do not poll.
+
+Actual on 2026-07-26: the regenerated caption is 642 bytes at SHA-256
+`d50b44997a07f0dc1f7d1aacdae49d4193b240bfcae3f7c9eff9d5428564e2fc`
+with alpha bounds `[127,168,193,176]`. All four responsive captures were
+regenerated and inspected. Fresh verification passed the 7-case asset
+contract, 74-asset/17-preload asset gate, 6/6 pipeline evals, ESLint,
+TypeScript, 122 Vitest cases, production build, Python compile, and diff
+check. The alpha-bounds contract uses a dependency-free Node PNG decoder so
+the GitHub quality job does not inherit an undeclared Pillow dependency.
+
+The pre-follow-up PR run `30220489687` failed only the pre-existing Model Y
+reward browser test; the same race had failed unchanged `main` run
+`30218618608`, while the immediately preceding PR run was green. The failure
+combined pointer actionability against a real-time disappearing Skip control
+with an assertion limited to Replay's first 1.2-second stage. The focused
+test-only repair uses its already-proven keyboard path, requires the replay
+clock to return below five seconds, and asserts any active replay stage plus
+the durable Skip control. It passed three CI-style repeats with retries
+disabled, followed by the complete CI-style browser suite: 36 passed,
+1 intentional capture-only skip, 0 failures in 6.6 minutes.

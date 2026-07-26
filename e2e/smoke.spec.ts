@@ -302,6 +302,9 @@ test('captures TMB2 Productions owner-review proof', async ({ page }) => {
     media.currentTime = 4.8
     media.dispatchEvent(new Event('timeupdate'))
   })
+  await page.evaluate(() => new Promise<void>((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+  }))
   await expect(intro.locator('.game-intro__stage')).toHaveAttribute('data-scene', 'tmb2-ident')
 
   for (const viewport of [
@@ -317,12 +320,16 @@ test('captures TMB2 Productions owner-review proof', async ({ page }) => {
   }
 
   await page.emulateMedia({ reducedMotion: 'reduce' })
+  await expect(intro).toHaveAttribute('data-reduced-motion', 'true')
   await page.setViewportSize({ width: 375, height: 812 })
   await audio.evaluate((media) => {
     media.pause()
     media.currentTime = 3
     media.dispatchEvent(new Event('timeupdate'))
   })
+  await page.evaluate(() => new Promise<void>((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+  }))
   await page.screenshot({
     path: 'preview-renders/tmb2-productions-ident/ident-reduced-motion-375x812.png',
     animations: 'disabled',
