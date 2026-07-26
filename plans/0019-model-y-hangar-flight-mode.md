@@ -91,8 +91,8 @@ Optimus escort, Mars gameplay, analytics, new audio, and production dependencies
   dedicated protected reward experience.
 - [x] 2026-07-26 — Produced and inspected the completed Flight Mode checkpoint
   at 1440, 768, and 375 pixels, including deterministic narrow presentations.
-- [ ] Finish full-diff review, commit the validated tree, publish the Vercel
-  owner gate, and record its URL.
+- [x] 2026-07-26 — Completed the full-diff review, committed the validated tree,
+  published the Vercel owner gate, and verified its deployed asset bytes.
 
 ## Discoveries
 
@@ -281,6 +281,10 @@ or when the next step requires owner visual judgment.
   Chromium cases in 6.7 minutes. A focused keyboard-focus follow-up passed 1/1
   after the full run.
 - `git diff --check` passed.
+- Vercel preview deployment `dpl_FQX8oiDxf8exjmvcnqWRuFjiXRdk` is `READY` at
+  `https://cockpit-escape-room-g8dj4nuho-ottoagent007-gmailcoms-projects.vercel.app`.
+  Authenticated fetches returned HTTP 200 for the app and the 15,359,004-byte
+  Model Y GLB; its deployed SHA-256 exactly matches the local artifact.
 
 ## Outcome and handoff
 
@@ -292,5 +296,6 @@ accessible fallback without exposing Mars.
 
 The asset remains an owner-review candidate: its vehicle is a Tripo interpretation
 rather than manufacturer CAD, and Flight Mode is intentionally fictional and
-non-operational. Automated and agent inspection are complete; the Vercel URL and
-formal owner visual decision remain to be recorded.
+non-operational. Automated inspection, actual-browser evidence, and the Vercel
+preview are complete. The remaining action is the formal owner decision on the
+vehicle likeness, hangar composition, Flight Mode design, and tribute.

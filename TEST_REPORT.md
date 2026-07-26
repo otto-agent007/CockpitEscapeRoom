@@ -13,6 +13,7 @@
 - `npm run check` passed ESLint, TypeScript, 118/118 Vitest tests, and the production build.
 - `CAPTURE_REWARD_EVIDENCE=1 npm run test:e2e -- --workers=1` passed 36/36 Chromium tests in 6.7 minutes, including spoiler protection, actual stowed/deployed transform checks, reduced motion, failure/retry/fallback, legacy-save recovery, complete reordered journey, and both existing production cockpits. The focused reward keyboard-focus follow-up passed 1/1.
 - Actual browser evidence is tracked under `preview-renders/model-y-reward/`: 1440 static/final, 768 final, 375 final, and accessible final captures at all three widths. These are implementation proof, not owner approval. The owner must still approve the vehicle likeness, hangar composition, articulated Flight Mode design, and final tribute presentation on the Vercel preview.
+- Vercel preview deployment `dpl_FQX8oiDxf8exjmvcnqWRuFjiXRdk` reached `READY` at `https://cockpit-escape-room-g8dj4nuho-ottoagent007-gmailcoms-projects.vercel.app`. Authenticated deployment checks returned HTTP 200 for the app and `/models/model-y-reward.glb`; the deployed GLB is 15,359,004 bytes and its SHA-256 exactly matches the validated local artifact.
 
 ## 2026-07-20 authoritative TMB2 cinematic restoration — owner visual gate open
 
