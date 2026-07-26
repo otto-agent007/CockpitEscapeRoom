@@ -307,7 +307,7 @@ npm run assets:check
 Expected: all pass; the exact runtime source hash equals the owner source; the
 manifest count increases from 69 to 74 and preload count from 12 to 17.
 
-- [ ] **Step 7: Commit Task 1**
+- [x] **Step 7: Commit Task 1**
 
 ```bash
 git add package.json tools/assets/build-tmb2-ident-assets.py \
@@ -334,7 +334,7 @@ git commit -m "assets: build approved TMB2 ident layers"
 - Produces: `IntroAsset['role']` including `logo-layer`; initial assets containing
   all five ident images; full assets containing twenty total images.
 
-- [ ] **Step 1: Write failing registry tests**
+- [x] **Step 1: Write failing registry tests**
 
 Update assertions:
 
@@ -364,7 +364,7 @@ expect(introAssets.filter((asset) => asset.role === 'logo-layer')
 Update the decode-controlled test to use the nine initial assets. Preserve the
 exact failure-id/path assertion by failing `logo-source` first.
 
-- [ ] **Step 2: Run and verify RED**
+- [x] **Step 2: Run and verify RED**
 
 ```bash
 npm run test -- --run src/game/introAssets.test.ts
@@ -372,7 +372,7 @@ npm run test -- --run src/game/introAssets.test.ts
 
 Expected: FAIL with the old fifteen/four counts and missing logo ids.
 
-- [ ] **Step 3: Implement the runtime registry**
+- [x] **Step 3: Implement the runtime registry**
 
 Extend:
 
@@ -383,7 +383,7 @@ role: 'background' | 'sprite' | 'logo-layer'
 Register the five logo records at the start of `introAssets`, using paths from
 Task 1, and prepend their ids to `INTRO_INITIAL_ASSET_IDS`.
 
-- [ ] **Step 4: Run and verify GREEN**
+- [x] **Step 4: Run and verify GREEN**
 
 ```bash
 npm run test -- --run src/game/introAssets.test.ts
