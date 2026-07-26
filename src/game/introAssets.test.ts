@@ -72,7 +72,7 @@ describe('TMB2 runtime image tiers', () => {
     expect(getIntroAssetsForTier('full')).toEqual(introAssets)
   })
 
-  it('waits for every selected image to decode and returns stable ids', async () => {
+  it('decodes selected images sequentially and returns stable ids', async () => {
     const deferred = INTRO_INITIAL_ASSET_IDS.map(createDeferred)
     let imageIndex = 0
     class DecodeControlledImage {
@@ -89,10 +89,13 @@ describe('TMB2 runtime image tiers', () => {
     })
     await Promise.resolve()
     expect(settled).toBe(false)
+    expect(imageIndex).toBe(1)
 
-    for (const pending of deferred.slice(0, -1)) pending.resolve()
-    await Promise.resolve()
-    expect(settled).toBe(false)
+    for (let index = 0; index < deferred.length - 1; index += 1) {
+      deferred[index]!.resolve()
+      await vi.waitFor(() => expect(imageIndex).toBe(index + 2))
+      expect(settled).toBe(false)
+    }
 
     deferred.at(-1)!.resolve()
     const assets = await preload

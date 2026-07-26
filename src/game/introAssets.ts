@@ -100,7 +100,8 @@ export async function preloadIntroAssets(
 ): Promise<Map<string, HTMLImageElement>> {
   validateIntroAssets(introAssets)
   const selected = getIntroAssetsForTier(tier)
-  const entries = await Promise.all(selected.map(async (asset) => {
+  const entries: Array<readonly [string, HTMLImageElement]> = []
+  for (const asset of selected) {
     const image = new Image()
     image.decoding = 'async'
     image.src = `${baseUrl}${asset.path}`
@@ -109,8 +110,8 @@ export async function preloadIntroAssets(
     } catch (error) {
       throw new IntroAssetPreloadError(asset, error)
     }
-    return [asset.id, image] as const
-  }))
+    entries.push([asset.id, image] as const)
+  }
   return new Map(entries)
 }
 

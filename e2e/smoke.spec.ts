@@ -97,6 +97,11 @@ async function openGameIntro(page: Page) {
 
 test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the TMB2 handoff', async ({ page }) => {
   test.setTimeout(45_000)
+  const requestedPaths: string[] = []
+  page.on('request', (request) => {
+    const path = new URL(request.url()).pathname
+    if (path.includes('/images/intro/tmb2/logo/')) requestedPaths.push(path)
+  })
   await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
   const dc9Request = page.waitForRequest(
     (request) => request.url().includes('/models/dc9-cockpit.glb'),
@@ -114,8 +119,53 @@ test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the 
   const intro = page.getByRole('region', { name: 'Game intro' })
   await expect(intro).toHaveAttribute('data-intro-cue', 'tmb2-ident')
   await expect(intro.locator('h1')).toHaveCount(0)
+  await expect.poll(() => requestedPaths).toEqual(expect.arrayContaining([
+    '/images/intro/tmb2/logo/tmb2-ident-source.png',
+    '/images/intro/tmb2/logo/tmb2-ident-base.png',
+    '/images/intro/tmb2/logo/tmb2-ident-blue-mask.png',
+    '/images/intro/tmb2/logo/tmb2-ident-highlight-mask.png',
+    '/images/intro/tmb2/logo/tmb2-productions.png',
+  ]))
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toHaveCount(0)
   const audio = page.locator('audio')
+  await audio.evaluate((media) => {
+    media.currentTime = 4.8
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await expect.poll(async () => intro.locator('.game-intro__stage').evaluate((element) => {
+    const canvas = element as HTMLCanvasElement
+    const context = canvas.getContext('2d')
+    if (!context) return { logo: 0, productions: 0 }
+    const countNonBackgroundPixels = (x: number, y: number, width: number, height: number) => {
+      const pixels = context.getImageData(x, y, width, height).data
+      let count = 0
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (
+          pixels[index] !== 2
+          || pixels[index + 1] !== 3
+          || pixels[index + 2] !== 10
+        ) count += 1
+      }
+      return count
+    }
+    return countNonBackgroundPixels(16, 72, 288, 79) > 1_000
+      && countNonBackgroundPixels(0, 164, 320, 15) > 100
+  })).toBe(true)
+  const identPixels = await intro.locator('.game-intro__stage').evaluate((element) => {
+    const context = (element as HTMLCanvasElement).getContext('2d')!
+    const count = (x: number, y: number, width: number, height: number) => {
+      const pixels = context.getImageData(x, y, width, height).data
+      let total = 0
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (pixels[index] !== 2 || pixels[index + 1] !== 3 || pixels[index + 2] !== 10) total += 1
+      }
+      return total
+    }
+    return { logo: count(16, 72, 288, 79), productions: count(0, 164, 320, 15) }
+  })
+  expect(identPixels.logo).toBeGreaterThan(1_000)
+  expect(identPixels.productions).toBeGreaterThan(100)
+
   await audio.evaluate((media) => {
     media.currentTime = 6
     media.dispatchEvent(new Event('timeupdate'))
@@ -224,15 +274,56 @@ test('TMB2 cinematic follows exact boundaries and loops without entering gamepla
 })
 
 test('TMB2 cinematic blocks playback with an exact retry when opening art fails', async ({ page }) => {
-  await page.route('**/images/intro/tmb2/backgrounds/duffel-terminal.png', (route) => route.abort())
+  await page.route('**/images/intro/tmb2/logo/tmb2-ident-base.png', (route) => route.abort())
   await page.goto('/')
   await expect(page.getByRole('button', { name: 'Start Game' })).toBeDisabled()
   await expect(page.getByRole('status')).toContainText(
-    'background-duffel (images/intro/tmb2/backgrounds/duffel-terminal.png)',
+    'logo-base (images/intro/tmb2/logo/tmb2-ident-base.png)',
   )
-  await page.unroute('**/images/intro/tmb2/backgrounds/duffel-terminal.png')
+  await page.unroute('**/images/intro/tmb2/logo/tmb2-ident-base.png')
   await page.getByRole('button', { name: 'Retry cinematic assets' }).click()
   await expect(page.getByRole('button', { name: 'Start Game' })).toBeEnabled()
+})
+
+test('captures TMB2 Productions owner-review proof', async ({ page }) => {
+  test.skip(process.env.CAPTURE_TMB2_IDENT !== '1', 'Set CAPTURE_TMB2_IDENT=1 to refresh owner proof.')
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
+  await page.goto('/')
+  const startButton = page.getByRole('button', { name: 'Start Game' })
+  await expect(startButton).toBeEnabled({ timeout: 15_000 })
+  await startButton.click()
+  const intro = page.getByRole('region', { name: 'Game intro' })
+  await expect(intro).toBeVisible()
+  const audio = page.locator('audio')
+  await audio.evaluate((media) => {
+    media.currentTime = 4.8
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await expect(intro.locator('.game-intro__stage')).toHaveAttribute('data-scene', 'tmb2-ident')
+
+  for (const viewport of [
+    { width: 1440, height: 900, file: 'ident-1440x900.png' },
+    { width: 768, height: 900, file: 'ident-768x900.png' },
+    { width: 375, height: 812, file: 'ident-375x812.png' },
+  ]) {
+    await page.setViewportSize(viewport)
+    await page.screenshot({
+      path: `preview-renders/tmb2-productions-ident/${viewport.file}`,
+      animations: 'disabled',
+    })
+  }
+
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.setViewportSize({ width: 375, height: 812 })
+  await audio.evaluate((media) => {
+    media.currentTime = 3
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await page.screenshot({
+    path: 'preview-renders/tmb2-productions-ident/ident-reduced-motion-375x812.png',
+    animations: 'disabled',
+  })
 })
 
 test('TMB2 cinematic sound controls do not trigger Start while focused', async ({ page }) => {

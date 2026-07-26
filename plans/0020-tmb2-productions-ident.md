@@ -83,7 +83,8 @@ font/runtime dependency.
   contract; focused tests pass with 74 assets and 17 preloads.
 - [x] 2026-07-26 — Completed runtime asset loading and image-backed renderer;
   focused animation, renderer, and TypeScript checks pass.
-- [ ] Complete responsive browser proof and regression validation.
+- [x] 2026-07-26 — Completed responsive browser proof at 1440, 768, and
+  375 pixels plus reduced motion; focused Chromium checks pass.
 - [ ] Review, report, deploy, and publish the owner gate.
 
 ## Discoveries
@@ -97,6 +98,11 @@ font/runtime dependency.
 - The manifest generator's historical WebP preload list differs from the
   current twelve PNG assets consumed by Canvas. The generator must become
   authoritative again instead of preserving this drift.
+- Chromium intermittently left the four existing large opening sheets pending
+  when all nine initial images called `decode()` concurrently. Instrumented
+  repeat runs proved that all five ident layers resolved while the sheets
+  stalled; serializing the initial decode gate removed the flake across five
+  fresh-browser repeats.
 
 ## Decision log
 
@@ -107,6 +113,12 @@ font/runtime dependency.
   failure never falls back to inferred glyphs.
 - 2026-07-26 — Add all five ident images to the initial decode gate because the
   ident is the first cinematic scene.
+- 2026-07-26 — Decode the initial tier sequentially. This preserves the
+  decode-before-Start contract while avoiding Chromium's concurrent large-sheet
+  decode stall.
+- 2026-07-26 — A missing initial logo layer remains a blocking, exact retry
+  error. The renderer's exact-source fallback protects post-decode asset-map
+  loss; it does not weaken the opening gate.
 
 ## File map
 
@@ -575,7 +587,7 @@ npm run test -- --run src/game/introAnimation.test.ts src/game/introRenderer.tes
 
 Expected: all timeline and renderer tests pass with unchanged cue boundaries.
 
-- [ ] **Step 7: Commit Task 3**
+- [x] **Step 7: Commit Task 3**
 
 ```bash
 git add src/game/introAnimation.ts src/game/introAnimation.test.ts \
@@ -601,7 +613,7 @@ git commit -m "feat: render approved TMB2 Productions ident"
 - Consumes: complete Tasks 1–3 runtime.
 - Produces: browser assertions and owner-review screenshots.
 
-- [ ] **Step 1: Write failing browser assertions**
+- [x] **Step 1: Write browser assertions**
 
 In the existing TMB2 opening test:
 
@@ -619,23 +631,27 @@ At the ident hold, use a Canvas pixel probe to prove non-background pixels exist
 inside both the logo bounds `(16,72,288,79)` and productions band y=164..178.
 Keep the existing no-visible-title/spoiler assertions.
 
-Add a derived-layer failure route for `tmb2-ident-base.png`; assert playback
-still starts and the Canvas remains non-empty from the exact-source fallback.
+Add a derived-layer failure route for `tmb2-ident-base.png`; assert playback is
+blocked with the exact asset id/path and succeeds after Retry. The pure renderer
+test proves the exact-source fallback independently of the stricter decode gate.
 
-- [ ] **Step 2: Run focused browser tests and verify RED**
+- [x] **Step 2: Run focused browser tests**
 
 ```bash
 npm run test:e2e -- e2e/smoke.spec.ts --grep "TMB2 cinematic" --workers=1
 ```
 
-Expected: new logo requests/pixels are absent.
+The new request, pixel, retry, and responsive assertions passed after Tasks
+1–3. A screenshot-only repeat then exposed a pre-existing concurrent image
+decode stall, which received a focused failing unit regression and serial
+loader repair.
 
-- [ ] **Step 3: Run focused browser tests and verify GREEN**
+- [x] **Step 3: Run focused browser tests and verify GREEN**
 
 After Tasks 1–3 implementation:
 
 ```bash
-CAPTURE_TMB2_IDENT_EVIDENCE=1 \
+CAPTURE_TMB2_IDENT=1 \
   npm run test:e2e -- e2e/smoke.spec.ts --grep "TMB2 cinematic" --workers=1
 ```
 
@@ -643,7 +659,7 @@ Capture the ident hold at 1440x900, 768x900, and 375x812 plus the reduced-motion
 375x812 view. Record console errors, page errors, failed requests, and
 horizontal overflow; all counts must be zero.
 
-- [ ] **Step 4: Inspect the images**
+- [x] **Step 4: Inspect the images**
 
 Use image inspection to verify:
 
@@ -656,7 +672,7 @@ Use image inspection to verify:
 Perform at most three evidence-driven repair cycles. Stop if the delta stops
 shrinking or owner visual judgment is required.
 
-- [ ] **Step 5: Commit Task 4**
+- [x] **Step 5: Commit Task 4**
 
 ```bash
 git add e2e/smoke.spec.ts preview-renders/tmb2-productions-ident
