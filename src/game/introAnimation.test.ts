@@ -91,6 +91,11 @@ describe('TMB2 sprite animation contract', () => {
   })
 
   it('holds a representative pose in reduced motion while preserving scene time', () => {
+    expect(deriveIntroAnimation(3, true).logo).toEqual({
+      visible: true,
+      buildProgress: 1,
+      highlightOpacity: 0,
+    })
     const first = deriveIntroAnimation(17, true)
     const second = deriveIntroAnimation(21, true)
     expect(first.sceneId).toBe('runway')

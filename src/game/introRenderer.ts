@@ -26,10 +26,24 @@ type SpriteCommand = {
   flipX: boolean
 }
 
+export type LogoLayerId =
+  | 'logo-blue-mask'
+  | 'logo-base'
+  | 'logo-highlight-mask'
+  | 'logo-productions'
+
+export type LogoLayerCommand = {
+  kind: 'logo-layer'
+  assetId: LogoLayerId
+  revealProgress: number
+  opacity: number
+  blendMode: GlobalCompositeOperation
+}
+
 export type IntroDrawCommand =
   | { kind: 'clear'; color: '#02030a' }
   | { kind: 'background'; assetId: string; offsetX: number }
-  | { kind: 'logo'; buildProgress: number; highlightOpacity: number }
+  | LogoLayerCommand
   | { kind: 'prop'; prop: IntroPropFrame }
   | SpriteCommand
   | { kind: 'pixel-collapse'; progress: number }
@@ -71,10 +85,39 @@ export function deriveIntroDrawCommands(
   }
   if (frame.logo.visible) {
     commands.push({
-      kind: 'logo',
-      buildProgress: frame.logo.buildProgress,
-      highlightOpacity: frame.logo.highlightOpacity,
+      kind: 'logo-layer',
+      assetId: 'logo-blue-mask',
+      revealProgress: frame.logo.buildProgress,
+      opacity: 1,
+      blendMode: 'source-over',
     })
+    if (frame.logo.buildProgress > 0.45) {
+      commands.push({
+        kind: 'logo-layer',
+        assetId: 'logo-base',
+        revealProgress: frame.logo.buildProgress,
+        opacity: Math.min(1, (frame.logo.buildProgress - 0.45) / 0.35),
+        blendMode: 'source-over',
+      })
+    }
+    if (frame.logo.highlightOpacity > 0) {
+      commands.push({
+        kind: 'logo-layer',
+        assetId: 'logo-highlight-mask',
+        revealProgress: 1,
+        opacity: frame.logo.highlightOpacity,
+        blendMode: 'screen',
+      })
+    }
+    if (frame.logo.buildProgress > 0.72) {
+      commands.push({
+        kind: 'logo-layer',
+        assetId: 'logo-productions',
+        revealProgress: 1,
+        opacity: Math.min(1, (frame.logo.buildProgress - 0.72) / 0.22),
+        blendMode: 'source-over',
+      })
+    }
   }
   for (const sceneProp of frame.props) commands.push({ kind: 'prop', prop: sceneProp })
   if (frame.popt) commands.push(spriteCommand('popt', frame.popt))
@@ -170,57 +213,68 @@ function drawSprite(
   context.restore()
 }
 
-const LOGO_GLYPHS: Record<string, readonly string[]> = {
-  T: ['11111', '00100', '00100', '00100', '00100', '00100', '00100'],
-  M: ['10001', '11011', '10101', '10101', '10001', '10001', '10001'],
-  B: ['11110', '10001', '10001', '11110', '10001', '10001', '11110'],
-  2: ['11110', '00001', '00001', '01110', '10000', '10000', '11111'],
+const IDENT_SOURCE_CROP = { x: 105, y: 261, width: 1468, height: 402 } as const
+const IDENT_TARGET = { x: 16, y: 72, width: 288, height: 79 } as const
+
+function drawLogoLayer(
+  context: CanvasRenderingContext2D,
+  image: CanvasImageSource,
+  command: LogoLayerCommand,
+): void {
+  const revealProgress = Math.max(0, Math.min(1, command.revealProgress))
+  if (revealProgress <= 0 || command.opacity <= 0) return
+  context.save()
+  context.globalAlpha = command.opacity
+  context.globalCompositeOperation = command.blendMode
+  if (command.assetId === 'logo-productions') {
+    context.drawImage(image, 0, 0, INTRO_STAGE_WIDTH, INTRO_STAGE_HEIGHT)
+  } else {
+    context.beginPath()
+    context.rect(
+      IDENT_TARGET.x,
+      IDENT_TARGET.y,
+      IDENT_TARGET.width * revealProgress,
+      IDENT_TARGET.height,
+    )
+    context.clip()
+    context.drawImage(
+      image,
+      IDENT_TARGET.x,
+      IDENT_TARGET.y,
+      IDENT_TARGET.width,
+      IDENT_TARGET.height,
+    )
+  }
+  context.restore()
 }
 
-function drawLogo(
+function drawExactLogoFallback(
   context: CanvasRenderingContext2D,
-  buildProgress: number,
-  highlightOpacity: number,
+  image: CanvasImageSource,
+  revealProgress: number,
 ): void {
-  const label = 'TMB2'
-  const cell = 7
-  const glyphWidth = 5 * cell
-  const gap = cell
-  const logoWidth = label.length * glyphWidth + (label.length - 1) * gap
-  const originX = Math.floor((INTRO_STAGE_WIDTH - logoWidth) / 2)
-  const originY = 78
-  const pixels = [...label].flatMap((character, characterIndex) => (
-    LOGO_GLYPHS[character]!.flatMap((row, rowIndex) => (
-      [...row].flatMap((value, columnIndex) => value === '1' ? [{
-        x: originX + characterIndex * (glyphWidth + gap) + columnIndex * cell,
-        y: originY + rowIndex * cell,
-      }] : [])
-    ))
-  ))
-  const visiblePixels = Math.floor(pixels.length * Math.max(0, Math.min(1, buildProgress)))
-  for (const [index, pixel] of pixels.entries()) {
-    if (index >= visiblePixels) break
-    context.fillStyle = '#061b66'
-    context.fillRect(pixel.x + 2, pixel.y + 2, cell, cell)
-    context.fillStyle = '#1761e8'
-    context.fillRect(pixel.x, pixel.y, cell, cell)
-    context.fillStyle = '#75c4ff'
-    context.fillRect(pixel.x, pixel.y, cell, 2)
-    context.fillStyle = '#092978'
-    context.fillRect(pixel.x, pixel.y + 4, cell, 1)
-  }
-  if (highlightOpacity > 0) {
-    context.save()
-    context.globalAlpha = highlightOpacity
-    const highlight = context.createLinearGradient(originX, 0, originX + logoWidth, 0)
-    highlight.addColorStop(0, 'rgba(255,255,255,0)')
-    highlight.addColorStop(0.52, '#fffbe4')
-    highlight.addColorStop(0.66, '#f5c424')
-    highlight.addColorStop(1, 'rgba(255,255,255,0)')
-    context.fillStyle = highlight
-    context.fillRect(originX, originY - 8, logoWidth, 7 * cell + 16)
-    context.restore()
-  }
+  const reveal = Math.max(0, Math.min(1, revealProgress))
+  if (reveal <= 0) return
+  context.drawImage(
+    image,
+    IDENT_SOURCE_CROP.x,
+    IDENT_SOURCE_CROP.y,
+    IDENT_SOURCE_CROP.width * reveal,
+    IDENT_SOURCE_CROP.height,
+    IDENT_TARGET.x,
+    IDENT_TARGET.y,
+    IDENT_TARGET.width * reveal,
+    IDENT_TARGET.height,
+  )
+}
+
+export function shouldUseExactLogoFallback(
+  commands: readonly LogoLayerCommand[],
+  assets: IntroRenderAssets,
+): boolean {
+  return commands
+    .filter((command) => command.assetId !== 'logo-productions')
+    .some((command) => !assets.has(command.assetId))
 }
 
 function drawProp(context: CanvasRenderingContext2D, prop: IntroPropFrame): void {
@@ -331,7 +385,20 @@ export function renderIntroFrame(
   handoff: HandoffFrame | null,
 ): void {
   context.imageSmoothingEnabled = false
-  for (const command of deriveIntroDrawCommands(frame, handoff)) {
+  const commands = deriveIntroDrawCommands(frame, handoff)
+  const logoCommands = commands.filter(
+    (command): command is LogoLayerCommand => command.kind === 'logo-layer',
+  )
+  const useExactLogoFallback = shouldUseExactLogoFallback(logoCommands, assets)
+  const exactLogoReveal = Math.max(
+    0,
+    ...logoCommands
+      .filter((command) => command.assetId !== 'logo-productions')
+      .map((command) => command.revealProgress),
+  )
+  let drewExactLogoFallback = false
+
+  for (const command of commands) {
     switch (command.kind) {
       case 'clear':
         context.clearRect(0, 0, INTRO_STAGE_WIDTH, INTRO_STAGE_HEIGHT)
@@ -343,9 +410,24 @@ export function renderIntroFrame(
         if (image) drawBackground(context, image, command.offsetX)
         break
       }
-      case 'logo':
-        drawLogo(context, command.buildProgress, command.highlightOpacity)
+      case 'logo-layer': {
+        if (command.assetId === 'logo-productions') {
+          const productions = assets.get(command.assetId)
+          if (productions) drawLogoLayer(context, productions, command)
+          break
+        }
+        if (useExactLogoFallback) {
+          if (!drewExactLogoFallback) {
+            const source = assets.get('logo-source')
+            if (source) drawExactLogoFallback(context, source, exactLogoReveal)
+            drewExactLogoFallback = true
+          }
+          break
+        }
+        const image = assets.get(command.assetId)
+        if (image) drawLogoLayer(context, image, command)
         break
+      }
       case 'prop':
         drawProp(context, command.prop)
         break

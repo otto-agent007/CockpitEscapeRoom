@@ -81,7 +81,8 @@ font/runtime dependency.
   `docs/superpowers/specs/2026-07-26-tmb2-productions-ident-design.md`.
 - [x] 2026-07-26 — Completed deterministic asset generation and manifest
   contract; focused tests pass with 74 assets and 17 preloads.
-- [ ] Complete runtime asset loading and image-backed renderer.
+- [x] 2026-07-26 — Completed runtime asset loading and image-backed renderer;
+  focused animation, renderer, and TypeScript checks pass.
 - [ ] Complete responsive browser proof and regression validation.
 - [ ] Review, report, deploy, and publish the owner gate.
 
@@ -391,7 +392,7 @@ npm run test -- --run src/game/introAssets.test.ts
 
 Expected: all intro asset registry/load tests pass.
 
-- [ ] **Step 5: Commit Task 2**
+- [x] **Step 5: Commit Task 2**
 
 ```bash
 git add src/game/introAssets.ts src/game/introAssets.test.ts
@@ -431,7 +432,7 @@ type LogoLayerCommand = {
 }
 ```
 
-- [ ] **Step 1: Write failing command and reduced-motion tests**
+- [x] **Step 1: Write failing command and reduced-motion tests**
 
 At 4.8 seconds, assert command order:
 
@@ -471,7 +472,7 @@ expect(deriveIntroAnimation(3, true).logo).toEqual({
 })
 ```
 
-- [ ] **Step 2: Run and verify RED**
+- [x] **Step 2: Run and verify RED**
 
 ```bash
 npm run test -- --run src/game/introRenderer.test.ts
@@ -479,7 +480,7 @@ npm run test -- --run src/game/introRenderer.test.ts
 
 Expected: FAIL because the command kind is still `logo`.
 
-- [ ] **Step 3: Replace the command model**
+- [x] **Step 3: Replace the command model**
 
 Delete `LOGO_GLYPHS` and `drawLogo`. Emit:
 
@@ -520,7 +521,7 @@ if (frame.logo.buildProgress > 0.72) {
 }
 ```
 
-- [ ] **Step 4: Resolve the reduced-motion ident to its complete pose**
+- [x] **Step 4: Resolve the reduced-motion ident to its complete pose**
 
 In only the `tmb2-ident` case:
 
@@ -536,7 +537,7 @@ logo: reducedMotion
 
 Do not change scene start/end times or any other reduced-motion scene.
 
-- [ ] **Step 5: Implement exact-source drawing fallback**
+- [x] **Step 5: Implement exact-source drawing fallback**
 
 Add constants:
 
@@ -565,7 +566,7 @@ export function shouldUseExactLogoFallback(
 
 Test the helper with maps missing base/highlight and with all layers present.
 
-- [ ] **Step 6: Run and verify GREEN**
+- [x] **Step 6: Run and verify GREEN**
 
 ```bash
 npm run test -- --run src/game/introRenderer.test.ts
