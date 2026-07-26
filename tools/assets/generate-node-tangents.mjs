@@ -3,6 +3,8 @@ import { ALL_EXTENSIONS } from '@gltf-transform/extensions'
 import { unweldPrimitive, weldPrimitive } from '@gltf-transform/functions'
 import { generateTangents } from 'mikktspace'
 
+import { sanitizeTangents } from './tangent-safety.mjs'
+
 const [input, output, meshName] = process.argv.slice(2)
 if (!input || !output || !meshName) {
   console.error('Usage: node tools/assets/generate-node-tangents.mjs <input.glb> <output.glb> <mesh-name>')
@@ -32,7 +34,7 @@ for (const primitive of mesh.listPrimitives()) {
     new Float32Array(normal.getArray()),
     new Float32Array(texcoord.getArray()),
   )
-  for (let index = 3; index < tangentArray.length; index += 4) tangentArray[index] *= -1
+  sanitizeTangents(tangentArray, normal.getArray())
   const tangent = document
     .createAccessor(`${meshName}_TANGENT`)
     .setBuffer(position.getBuffer())

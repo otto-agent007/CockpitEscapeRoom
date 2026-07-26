@@ -29,6 +29,18 @@ const assets = {
     blend: 'art-source/blender/tesla_reward.blend',
     output: 'public/models/model-y-reward.glb',
     root: 'TESLA_ROOT',
+    build: 'tools/blender/build_tesla_reward.py',
+    tangentMesh: 'TESLA_MODEL_Y_BODY_GEOMETRY',
+    presentationImages: [
+      {
+        cacheOutput: '.cache/assets/tesla/previews/model-y-narrow-static.png',
+        output: 'public/images/model-y-reward-narrow-static.png',
+      },
+      {
+        cacheOutput: '.cache/assets/tesla/previews/model-y-narrow-final.png',
+        output: 'public/images/model-y-reward-narrow-final.png',
+      },
+    ],
   },
   locker: {
     blend: 'art-source/blender/locker_room_master.blend',
@@ -53,11 +65,6 @@ if (!existsSync(blender)) {
   console.error(`BLENDER_BIN does not exist: ${blender}`)
   process.exit(2)
 }
-if (!existsSync(config.blend)) {
-  console.error(`Missing Blender source file: ${config.blend}`)
-  process.exit(2)
-}
-
 const cacheDir = resolve('.cache', 'assets', assetName)
 const rawGlb = resolve(cacheDir, `${assetName}.raw.glb`)
 const deployableGlb = config.tangentMesh ? resolve(cacheDir, `${assetName}.tangents.glb`) : rawGlb
@@ -80,6 +87,18 @@ function run(command, args, label) {
   if (result.status !== 0) process.exit(result.status ?? 1)
 }
 
+if (config.build) {
+  run(
+    blender,
+    ['--background', '--factory-startup', '--disable-autoexec', '--python', config.build],
+    'build deterministic source',
+  )
+}
+if (!existsSync(config.blend)) {
+  console.error(`Missing Blender source file: ${config.blend}`)
+  process.exit(2)
+}
+
 if (config.prepare) {
   run(
     blender,
@@ -99,6 +118,14 @@ run('npx', ['gltf-transform', 'inspect', deployableGlb], 'inspect GLB')
 
 mkdirSync(dirname(resolve(config.output)), { recursive: true })
 copyFileSync(deployableGlb, config.output)
+for (const image of config.presentationImages ?? []) {
+  if (!existsSync(image.cacheOutput)) {
+    console.error(`Missing generated presentation image: ${image.cacheOutput}`)
+    process.exit(2)
+  }
+  mkdirSync(dirname(resolve(image.output)), { recursive: true })
+  copyFileSync(resolve(image.cacheOutput), resolve(image.output))
+}
 
 if (config.celebration) {
   run(

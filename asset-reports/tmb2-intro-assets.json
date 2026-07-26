@@ -4,6 +4,14 @@
   "status": "restored-cinematic-local-gate-passed-owner-visual-approval-open",
   "authoritativeStoryboard": "art-source/intro/tmb2/recovered/2026-07-19-storyboards/pilot Pop T with golden blond hair and blue eyes.png",
   "secondaryStoryboard": "art-source/intro/tmb2/recovered/2026-07-19-storyboards/pop t chasing the brass key.png",
+  "ownerApprovedLogo": {
+    "source": "art-source/intro/tmb2/owner-approved/TMB2logo.png",
+    "sha256": "673d13b96bc19b35b508630d1d662d16672ac4bb6ad665a7f6b1b7cee992ce17",
+    "bytes": 811581,
+    "width": 1659,
+    "height": 948,
+    "authority": "Preserve byte-for-byte. Runtime derivatives may crop, resize, or mask this source but must not redraw or infer the typography."
+  },
   "recoveredSources": [
     {
       "group": "storyboards",

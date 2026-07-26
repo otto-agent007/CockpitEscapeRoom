@@ -16,6 +16,11 @@ const PrototypeScene = lazy(async () => {
   return { default: module.PrototypeScene }
 })
 
+const RewardExperience = lazy(async () => {
+  const module = await import('./components/RewardExperience')
+  return { default: module.RewardExperience }
+})
+
 const LOCKER_INTRO_TIMINGS = {
   fadeToBlack: 900,
   blackPause: 600,
@@ -177,6 +182,10 @@ export default function App() {
     if (state.phase !== 'briefing' || skipPrototypeScene) return
     void import('./scenes/cockpitModelLoader').then(({ preloadDc9Cockpit }) => preloadDc9Cockpit()).catch(() => undefined)
   }, [skipPrototypeScene, state.phase])
+
+  useEffect(() => {
+    if (state.phase === 'mars' && state.marsUnlocked) dispatch({ type: 'RETURN_TO_REWARD' })
+  }, [dispatch, state.marsUnlocked, state.phase])
 
   useEffect(() => {
     if (dc9EntryStage !== 'fade-out') return
@@ -498,6 +507,20 @@ export default function App() {
     )
   }
 
+  if (state.phase === 'reward' || state.phase === 'mars') {
+    return (
+      <main ref={shellRef} className="game-shell reward-shell">
+        <Suspense fallback={<div className="reward-module-loading" role="status">Preparing the legacy hangar…</div>}>
+          <RewardExperience
+            reducedMotion={reducedMotion}
+            forceAccessible={skipPrototypeScene}
+            onRestart={restart}
+          />
+        </Suspense>
+      </main>
+    )
+  }
+
   return (
     <main
       ref={shellRef}
@@ -518,7 +541,6 @@ export default function App() {
             dc9ChapterStage={state.dc9.stage}
             reducedMotion={reducedMotion}
             lockerHatRevealed={state.lockerHatRevealed}
-            rewardUnlocked={state.rewardUnlocked}
             selectedAirbusCard={activeSelectedAirbusCard}
             airbusRetryToken={airbusRetryToken}
             lockerRetryToken={lockerRetryToken}
@@ -535,7 +557,6 @@ export default function App() {
             onAirbusTarget={placeSelectedAirbusCard}
             onLockerCameraSettled={handleLockerCameraSettled}
             onDc9Interaction={handleDc9Interaction}
-            onMars={() => dispatch({ type: 'UNLOCK_MARS' })}
             onLockerMemory={(memoryId) => {
               if (!lockerInteractionEnabled || !availableLockerMemories.includes(memoryId)) return
               setSelectedLockerMemory(memoryId)

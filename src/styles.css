@@ -215,6 +215,261 @@
   }
 }
 
+.game-shell.reward-shell {
+  position: relative;
+  display: block;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #03070a;
+}
+
+.reward-experience {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 68% 35%, rgba(34, 103, 142, 0.22), transparent 38rem),
+    #03070a;
+}
+
+.reward-scene {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  min-height: 100vh;
+}
+
+.reward-scene canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+}
+
+.reward-narrow-presentation {
+  display: none;
+}
+
+.reward-scene--accessible {
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(135deg, transparent 48%, rgba(212, 172, 83, 0.32) 49% 49.3%, transparent 50%),
+    radial-gradient(circle at center, rgba(48, 117, 153, 0.34), transparent 46%),
+    #061018;
+}
+
+.reward-accessible-silhouette {
+  width: min(62vw, 48rem);
+  aspect-ratio: 2.35;
+  border: 1px solid rgba(255, 216, 179, 0.54);
+  border-radius: 42% 48% 18% 18% / 60% 62% 26% 28%;
+  background:
+    radial-gradient(circle at 20% 88%, #111 0 7%, #bbb 7.5% 11%, #111 11.5% 15%, transparent 15.5%),
+    radial-gradient(circle at 80% 88%, #111 0 7%, #bbb 7.5% 11%, #111 11.5% 15%, transparent 15.5%),
+    linear-gradient(145deg, #9b0812 10%, #e8272d 46%, #4b0208 82%);
+  box-shadow: 0 2rem 5rem rgba(0, 0, 0, 0.62), inset 0 0 2.5rem rgba(255, 255, 255, 0.18);
+  transform: translate(12vw, -5vh) perspective(45rem) rotateY(-12deg);
+}
+
+.reward-experience::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(2, 6, 9, 0.96) 0%, rgba(2, 6, 9, 0.72) 32%, transparent 68%);
+  content: "";
+  pointer-events: none;
+}
+
+.reward-overlay {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: min(31rem, calc(100% - 3rem));
+  align-content: end;
+  gap: 0.8rem;
+  min-height: 100vh;
+  margin-left: clamp(1rem, 5vw, 5rem);
+  padding: clamp(2rem, 7vh, 6rem) 0;
+}
+
+.reward-overlay .eyebrow,
+.reward-overlay h1,
+.reward-overlay p,
+.reward-overlay blockquote {
+  margin: 0;
+}
+
+.reward-overlay .eyebrow {
+  color: #e8bd68;
+  font-size: 0.74rem;
+  font-weight: 850;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.reward-overlay h1 {
+  max-width: 13ch;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.2rem, 5.2vw, 5.4rem);
+  font-weight: 500;
+  line-height: 0.96;
+  text-wrap: balance;
+}
+
+.reward-caption {
+  max-width: 42rem;
+  color: #cbd9df;
+  font-size: clamp(0.94rem, 1.4vw, 1.08rem);
+  line-height: 1.55;
+}
+
+.reward-release-summary {
+  display: grid;
+  gap: 0.18rem;
+  color: #f1d69d;
+}
+
+.reward-release-summary span {
+  color: #cbd9df;
+}
+
+.reward-loader,
+.reward-load-error {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(125, 183, 214, 0.34);
+  border-radius: 0.7rem;
+  background: rgba(5, 16, 23, 0.86);
+  backdrop-filter: blur(12px);
+}
+
+.reward-loader > div,
+.reward-load-error > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.reward-loader progress {
+  width: 100%;
+  accent-color: #62bce7;
+}
+
+.reward-loader small,
+.reward-load-error span {
+  color: #acc2cc;
+}
+
+.reward-load-error .primary-button,
+.reward-load-error .secondary-button {
+  width: auto;
+  margin: 0;
+}
+
+.reward-tribute {
+  padding-left: 1rem;
+  border-left: 2px solid #e0b85d;
+  color: #f3ead5;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1rem, 1.45vw, 1.15rem);
+  line-height: 1.58;
+}
+
+.reward-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.reward-actions .primary-button,
+.reward-actions .secondary-button,
+.reward-actions .text-button {
+  width: auto;
+  margin: 0;
+}
+
+.reward-module-loading {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  color: #cbd9df;
+  background: #03070a;
+}
+
+@media (max-width: 768px) {
+  .reward-scene canvas {
+    opacity: 0;
+  }
+
+  .reward-narrow-presentation {
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  .reward-experience::after {
+    background: linear-gradient(0deg, rgba(2, 6, 9, 0.98) 0%, rgba(2, 6, 9, 0.73) 48%, transparent 78%);
+  }
+
+  .reward-overlay {
+    width: auto;
+    align-content: end;
+    gap: 0.65rem;
+    margin: 0;
+    padding: 2rem 1rem 1rem;
+  }
+
+  .reward-overlay h1 {
+    max-width: 16ch;
+    font-size: clamp(2rem, 8vw, 3.4rem);
+  }
+
+  .reward-tribute {
+    max-height: 9.5rem;
+    overflow-y: auto;
+  }
+
+  .reward-accessible-silhouette {
+    width: 86vw;
+    transform: translate(0, -18vh) perspective(45rem) rotateY(-10deg);
+  }
+}
+
+@media (max-width: 420px) {
+  .reward-overlay {
+    max-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .reward-overlay h1 {
+    font-size: clamp(1.75rem, 10vw, 2.6rem);
+  }
+
+  .reward-caption,
+  .reward-tribute {
+    font-size: 0.9rem;
+  }
+
+  .reward-actions {
+    align-items: stretch;
+  }
+
+  .reward-actions .primary-button,
+  .reward-actions .secondary-button {
+    flex: 1 1 auto;
+  }
+}
+
 * {
   box-sizing: border-box;
 }

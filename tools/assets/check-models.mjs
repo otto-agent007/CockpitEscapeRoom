@@ -2,6 +2,8 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
 
+import { MODEL_Y_REQUIRED_NODES, validateModelYContract } from './model-y-contract.mjs'
+
 const modelDir = 'public/models'
 const models = existsSync(modelDir)
   ? readdirSync(modelDir).filter((name) => name.toLowerCase().endsWith('.glb'))
@@ -77,6 +79,7 @@ const requiredModelContracts = {
     'AIRBUS_A320_TARGET_RADIO_PIVOT',
     'AIRBUS_A320_TARGET_ALTITUDE_PIVOT',
   ],
+  'model-y-reward.glb': MODEL_Y_REQUIRED_NODES,
 }
 
 if (models.includes('airbus-first-officer.glb')) {
@@ -253,6 +256,30 @@ for (const [model, requiredNodes] of Object.entries(requiredModelContracts)) {
           && translation.every((value, index) => Math.abs(value - expectedTranslation[index]) <= 0.00001)
         if (!aligned) {
           console.error(`${nodeName} must export at ${JSON.stringify(expectedTranslation)}; received ${JSON.stringify(translation ?? null)}.`)
+          failed = true
+        }
+      }
+    }
+    if (model === 'model-y-reward.glb') {
+      const reportPath = 'asset-reports/model-y-reward-intake.json'
+      const intakeReport = existsSync(reportPath)
+        ? JSON.parse(readFileSync(reportPath, 'utf8'))
+        : undefined
+      const errors = validateModelYContract({
+        json,
+        byteLength: statSync(join(modelDir, model)).size,
+        intakeReport,
+      })
+      for (const error of errors) {
+        console.error(error)
+        failed = true
+      }
+      for (const path of [
+        'public/images/model-y-reward-narrow-static.png',
+        'public/images/model-y-reward-narrow-final.png',
+      ]) {
+        if (JSON.stringify(pngDimensions(path)) !== JSON.stringify([768, 900])) {
+          console.error(`${path} must be a generated 768x900 portrait presentation from the Blender master.`)
           failed = true
         }
       }
