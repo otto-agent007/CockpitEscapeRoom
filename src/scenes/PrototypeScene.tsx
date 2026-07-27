@@ -40,7 +40,7 @@ const LOCKER_WATCH_CAMERA_POSITION = [1.17, -0.38, 3.18] as const
 const LOCKER_BASEBALL_POSITION = [0.54, -0.48, 0.58] as const
 const LOCKER_BULL_POSITION = [0.31, 0.04, 1.44] as const
 const LOCKER_WINGS_POSITION = [0.42, 0.73, 0.73] as const
-const LOCKER_HAT_POSITION = [0.42, 1.00, -0.14] as const
+const LOCKER_HAT_POSITION = [0.42, 1.02, -0.14] as const
 export type LockerCameraCue = 'entry-wide' | 'watch-focus' | 'baseball-focus' | 'bull-focus' | 'wings-focus' | 'hat-focus'
 type LockerCameraPose = { position: [number, number, number]; target: [number, number, number]; fov: number; duration: number }
 

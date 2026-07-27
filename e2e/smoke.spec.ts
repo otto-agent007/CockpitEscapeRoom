@@ -86,6 +86,28 @@ async function seedGameState(page: Page, state: GameState): Promise<void> {
   await page.reload()
 }
 
+async function capturePlacementEvidence(page: Page, scene: 'airbus' | 'locker'): Promise<void> {
+  const evidenceDirectory = process.env.PLACEMENT_EVIDENCE_DIR
+  if (!evidenceDirectory) return
+
+  const radioCard = page.getByRole('button', { name: /^RADIO\b/ })
+  await radioCard.click()
+  await expect(page.locator('.airbus-target-layer')).toHaveClass(/is-placing-card/)
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 768, height: 900 },
+    { width: 375, height: 812 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await page.waitForTimeout(300)
+    await page.screenshot({
+      path: `${evidenceDirectory}/${scene}-${viewport.width}.png`,
+      fullPage: true,
+    })
+  }
+  await radioCard.click()
+}
+
 async function openGameIntro(page: Page) {
   await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
   await page.goto('/')
@@ -595,10 +617,18 @@ test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
   const thrustX = Number(await thrustTarget.getAttribute('data-anchor-x'))
   const thrustY = Number(await thrustTarget.getAttribute('data-anchor-y'))
 
-  expect(radioX).toBeGreaterThan(895)
-  expect(radioX).toBeLessThan(920)
-  expect(thrustX).toBeGreaterThan(1105)
-  expect(thrustX).toBeLessThan(1130)
+  expect(radioX).toBeGreaterThan(868)
+  expect(radioX).toBeLessThan(890)
+  expect(radioY).toBeGreaterThan(658)
+  expect(radioY).toBeLessThan(680)
+  expect(thrustX).toBeGreaterThan(1080)
+  expect(thrustX).toBeLessThan(1105)
+  expect(thrustY).toBeGreaterThan(720)
+  expect(thrustY).toBeLessThan(748)
+
+  await capturePlacementEvidence(page, 'airbus')
+  if (process.env.PLACEMENT_EVIDENCE_DIR) return
+  await page.setViewportSize({ width: 1440, height: 900 })
 
   await page.getByRole('button', { name: /^RADIO\b/ }).click()
   await canvas.dispatchEvent('click', { bubbles: true, clientX: radioX, clientY: radioY })

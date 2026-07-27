@@ -32,6 +32,28 @@ async function seed(page: Page, state: GameState, suffix = '?skip3d=1') {
   await page.reload()
 }
 
+async function capturePlacementEvidence(page: Page): Promise<void> {
+  const evidenceDirectory = process.env.PLACEMENT_EVIDENCE_DIR
+  if (!evidenceDirectory) return
+
+  // The finale card intentionally covers the close-up once the camera settles.
+  // Suppress only that overlay in opt-in evidence captures so the rendered hat
+  // and shelf remain inspectable without changing player-facing behavior.
+  await page.addStyleTag({ content: '.qualification-celebration { display: none !important; }' })
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 768, height: 900 },
+    { width: 375, height: 812 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await page.waitForTimeout(300)
+    await page.screenshot({
+      path: `${evidenceDirectory}/locker-${viewport.width}.png`,
+      fullPage: true,
+    })
+  }
+}
+
 test("Captain's Key plays the narrative handoff and settles on the watch-first gate", async ({ page }) => {
   await seed(page, {
     ...createInitialState(),
@@ -309,6 +331,7 @@ test('locker GLB loads into the real canvas and the directed camera settles on t
   await page.getByRole('button', { name: 'Submit answer' }).click()
   await expect(canvas).toHaveAttribute('data-locker-camera-cue', 'hat-focus')
   await expect(canvas).toHaveAttribute('data-locker-camera-state', 'settled')
+  await expect(canvas).toHaveAttribute('data-locker-camera-target', '0.42,1.02,-0.14')
   await expect(page.locator('main')).toHaveAttribute('data-locker-hat-finale-stage', 'holding')
   await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })).toHaveCount(0)
   await expect(page.locator('main')).toHaveAttribute('data-locker-hat-finale-stage', 'ready', { timeout: 10_000 })
@@ -323,6 +346,8 @@ test('locker GLB loads into the real canvas and the directed camera settles on t
   await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })).toBeVisible()
   await expect(page.locator('.qualification-confetti')).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Enter Pop T Captain Mode' })).toBeFocused()
+  await capturePlacementEvidence(page)
+  if (process.env.PLACEMENT_EVIDENCE_DIR) return
 
   await page.reload()
   await expect(page.locator('canvas')).toHaveAttribute('data-locker-hat-visual', 'revealed', { timeout: 30_000 })

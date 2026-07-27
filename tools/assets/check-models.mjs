@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 
 import { MODEL_Y_REQUIRED_NODES, validateModelYContract } from './model-y-contract.mjs'
 
@@ -245,8 +246,8 @@ for (const [model, requiredNodes] of Object.entries(requiredModelContracts)) {
         failed = true
       }
       const expectedTargetTranslations = new Map([
-        ['AIRBUS_A320_TARGET_RADIO_PIVOT', [-0.04, 0.011798, 0.474842]],
-        ['AIRBUS_A320_TARGET_THRUST_PIVOT', [0.015, 0.0048, 0.505764]],
+        ['AIRBUS_A320_TARGET_RADIO_PIVOT', [-0.045, 0.011798, 0.464842]],
+        ['AIRBUS_A320_TARGET_THRUST_PIVOT', [0.005, 0.0048, 0.505764]],
       ])
       for (const [nodeName, expectedTranslation] of expectedTargetTranslations) {
         const node = (json.nodes ?? []).find((candidate) => candidate.name === nodeName)
@@ -256,6 +257,10 @@ for (const [model, requiredNodes] of Object.entries(requiredModelContracts)) {
           && translation.every((value, index) => Math.abs(value - expectedTranslation[index]) <= 0.00001)
         if (!aligned) {
           console.error(`${nodeName} must export at ${JSON.stringify(expectedTranslation)}; received ${JSON.stringify(translation ?? null)}.`)
+          failed = true
+        }
+        if (node?.extras?.visual_alignment_status !== 'pending_owner_browser_1440_captain') {
+          console.error(`${nodeName} must remain pending owner browser review after repositioning; received ${JSON.stringify(node?.extras?.visual_alignment_status ?? null)}.`)
           failed = true
         }
       }
@@ -292,8 +297,33 @@ for (const [model, requiredNodes] of Object.entries(requiredModelContracts)) {
 
 if (models.includes('locker-room.glb')) {
   const reportPath = 'asset-reports/locker-room-prop-intake.json'
+  const loaderPath = 'src/scenes/cockpitModelLoader.ts'
   const requiredProps = new Set(['baseball', 'pilot-watch', 'pilot-wings', 'charging-bull', 'captains-hat'])
   const requiredTextureRoles = new Set(['baseColor', 'normal', 'metallicRoughness'])
+  try {
+    const lockerPath = join(modelDir, 'locker-room.glb')
+    const lockerBytes = readFileSync(lockerPath)
+    const { json } = parseGlb(lockerPath)
+    const hat = (json.nodes ?? []).find((node) => node.name === 'LOCKER_PROP_CAPTAINS_HAT')
+    const expectedHatTranslation = [0.56, 2.94, 0.45]
+    const hatTranslation = hat?.translation
+    const hatRestsOnShelf = Array.isArray(hatTranslation)
+      && hatTranslation.length === expectedHatTranslation.length
+      && hatTranslation.every((value, index) => Math.abs(value - expectedHatTranslation[index]) <= 0.00001)
+    if (!hatRestsOnShelf) {
+      console.error(`LOCKER_PROP_CAPTAINS_HAT must export at ${JSON.stringify(expectedHatTranslation)}; received ${JSON.stringify(hatTranslation ?? null)}.`)
+      failed = true
+    }
+    const expectedCacheVersion = `locker-shelf-${createHash('sha256').update(lockerBytes).digest('hex').slice(0, 8)}`
+    const loaderSource = readFileSync(loaderPath, 'utf8')
+    if (!loaderSource.includes(`models/locker-room.glb?v=${expectedCacheVersion}`)) {
+      console.error(`LOCKER_MODEL_URL must use cache version ${expectedCacheVersion} for the current GLB bytes.`)
+      failed = true
+    }
+  } catch (error) {
+    console.error(`Could not inspect locker hat placement: ${error instanceof Error ? error.message : String(error)}`)
+    failed = true
+  }
   if (!existsSync(reportPath)) {
     console.error(`Missing locker Tripo intake report: ${reportPath}`)
     failed = true
@@ -326,6 +356,11 @@ if (models.includes('locker-room.glb')) {
         const gateIsComplete = [...requiredTextureRoles].every((role) => gateRoles.has(role))
         if (!requiredProps.has(prop.asset) || !sourceIs4k || !gateIsComplete || prop.textureQualityGate?.passed !== true) {
           console.error(`${prop.asset ?? 'Unknown locker prop'} failed the required 4K Tripo source gate.`)
+          failed = true
+        }
+        if (prop.asset === 'captains-hat'
+          && JSON.stringify(prop.stableContract?.placement) !== JSON.stringify([0.56, -0.45, 2.94])) {
+          console.error(`Captain's hat intake placement must be [0.56,-0.45,2.94]; received ${JSON.stringify(prop.stableContract?.placement ?? null)}.`)
           failed = true
         }
       }

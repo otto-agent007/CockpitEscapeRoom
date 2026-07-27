@@ -77,6 +77,19 @@
   deployed byte equality proves the preview serves the same renderer and
   artwork. Owner visual approval remains open on the preview.
 
+## 2026-07-26 Locker hat and Airbus target-placement polish — owner visual gate open
+
+- Created `agent/locker-airbus-placement-polish` from clean `origin/main` commit `08b0843`; no unrelated TMB2 branch changes were carried over.
+- Raised the Blender-authored captain's hat root from Z `2.92` to `2.94` and moved only its close-focus target from Y `1.00` to `1.02`. The visible mesh and exported collider remain under `LOCKER_PROP_CAPTAINS_HAT`.
+- Moved the Airbus Radio target family to `(-0.045000, -0.464842, 0.011798)` and Thrust to `(0.005000, -0.505764, 0.004800)`. Pivot, cue, hitbox, stable names, and `game_id` values remain aligned; all other Airbus targets and gameplay contracts are unchanged.
+- TDD red proved the old locker GLB/report/camera values and old Airbus GLB/status/projection values failed the new exact contracts before source edits.
+- Rebuilt through the supported Blender 5.1.2 commands. Locker GLB: 44,288,740 bytes, SHA-256 `0ab0062470ec4eb1230d288761f95581e38e277ad11e97998ebcd5c94e492f56`. Airbus GLB: 39,878,172 bytes, SHA-256 `b9cc41acb69064fd178f90f107b6014facc5030e767af3273aa81131d823cd47`.
+- `npm run assets:check` passed. The focused production Airbus test passed projected-position assertions and real canvas clicks; the focused real-GLB locker test passed the hat focus, hold, persistence, and Airbus handoff path.
+- Opt-in actual-browser evidence capture passed at 1440x900, 768x900, and 375x812 for both scenes. Inspected frames are tracked under `preview-renders/placement-polish/`; the locker evidence suppresses only the finale card after its normal appearance so the settled hat-focus scene is visible.
+- Local no-cache HTTP checks returned exact GLB byte counts and hashes. `npm run pipeline:evals` passed 6/6; `npm run check` passed lint, TypeScript, 118/118 Vitest tests, and production build; full `npm run test:e2e -- --workers=1` passed 36/36 in 7.4 minutes; Python compile and `git diff --check` passed.
+- Full-diff review found and repaired the stale manual locker cache key. A new hash-bound `assets:check` assertion failed against `locker-seams-cf212389`, then passed with `locker-shelf-0ab00624`; `npm run check` and the real-locker case passed again after the repair.
+- Final Vercel deployment `dpl_HqH9iEh14ZqqNeArL6EVVifRHsZE` reached `READY` at `https://cockpit-escape-room-3l9bqa4wd-ottoagent007-gmailcoms-projects.vercel.app`. Authenticated HTTP/2 checks returned 200 for the shell and both GLBs; deployed hashes match local, and the deployed loader bundle contains the new cache key.
+- Airbus `visual_alignment_status` remains `pending_owner_browser_1440_captain` by design. Owner visual acceptance remains required before metadata is marked verified; no PR or merge was created.
 ## 2026-07-26 Model Y hangar and Flight Mode reward — owner visual gate open
 
 - Replaced the reward-phase DC-9/red-box greybox with a dedicated, spoiler-protected hangar that lazy-loads only after DC-9, locker, and Airbus completion. The real red owner-supplied car carries a readable `POP T` plate; visible Mars controls and the proxy sphere are removed, while legacy Mars saves recover safely to the reward.
