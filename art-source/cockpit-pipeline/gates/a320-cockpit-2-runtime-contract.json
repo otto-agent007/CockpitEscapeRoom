@@ -1,7 +1,7 @@
 {
   "gate": "runtime-contract",
   "artifactId": "a320-cockpit-2-captain-runtime-contract-002",
-  "createdAt": "2026-07-15T10:13:34Z",
+  "createdAt": "2026-07-27T04:20:06Z",
   "sceneGroup": "Airbus A320 Pop T Captain cockpit",
   "assetPath": "public/models/airbus-captain.glb",
   "rootObject": "AIRBUS_ROOT",
@@ -233,7 +233,7 @@
   "reimportValidation": "pass",
   "visualAlignmentValidation": {
     "status": "verified",
-    "evidence": "The real captain-seat GLB was inspected at 1440x900 with five projected targets active in preview-renders/seat-role-swap/airbus-captain-targets-initial-1440.png and after seated head-look drag in preview-renders/seat-role-swap/airbus-captain-targets-dragged-1440.png. Both states reported five projected targets; Playwright verifies reachability."
+    "evidence": "The real captain-seat GLB was inspected at 1440x900 with the owner-approved Radio and Thrust placements in preview-renders/placement-polish/airbus-radio-thrust-1440.png and after seated head-look drag in preview-renders/seat-role-swap/airbus-captain-targets-dragged-1440.png. Both states reported five projected targets; Playwright verifies reachability."
   },
   "scaleAndCameraAssumptions": "Source model is kept in imported Blender scale. The browser starts from CAM_AIRBUS_CAPTAIN_GAME_VIEW, consumes its exported 68-degree vertical FOV, uses restrained seated head-look, raycasts exported colliders, and projects accessible HTML cues from exported pivots.",
   "knownReferenceDeviations": [

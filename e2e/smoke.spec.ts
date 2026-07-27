@@ -93,15 +93,19 @@ async function capturePlacementEvidence(page: Page, scene: 'airbus' | 'locker'):
   const radioCard = page.getByRole('button', { name: /^RADIO\b/ })
   await radioCard.click()
   await expect(page.locator('.airbus-target-layer')).toHaveClass(/is-placing-card/)
-  for (const viewport of [
-    { width: 1440, height: 900 },
-    { width: 768, height: 900 },
-    { width: 375, height: 812 },
-  ]) {
+  const viewports = process.env.PLACEMENT_EVIDENCE_DESKTOP_ONLY === '1'
+    ? [{ width: 1440, height: 900 }]
+    : [
+        { width: 1440, height: 900 },
+        { width: 768, height: 900 },
+        { width: 375, height: 812 },
+      ]
+  for (const viewport of viewports) {
     await page.setViewportSize(viewport)
     await page.waitForTimeout(300)
+    const evidenceName = scene === 'airbus' ? 'airbus-radio-thrust' : 'locker-hat-shelf'
     await page.screenshot({
-      path: `${evidenceDirectory}/${scene}-${viewport.width}.png`,
+      path: `${evidenceDirectory}/${evidenceName}-${viewport.width}.png`,
       fullPage: true,
     })
   }
@@ -621,8 +625,8 @@ test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
   expect(radioX).toBeLessThan(890)
   expect(radioY).toBeGreaterThan(658)
   expect(radioY).toBeLessThan(680)
-  expect(thrustX).toBeGreaterThan(1080)
-  expect(thrustX).toBeLessThan(1105)
+  expect(thrustX).toBeGreaterThan(1130)
+  expect(thrustX).toBeLessThan(1155)
   expect(thrustY).toBeGreaterThan(720)
   expect(thrustY).toBeLessThan(748)
 

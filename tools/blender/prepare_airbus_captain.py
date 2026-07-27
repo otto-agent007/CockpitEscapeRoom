@@ -10,8 +10,9 @@ import bpy
 CAPTAIN_LOCATION = (-0.153815, -0.647877, 0.130133)
 CAPTAIN_ROTATION = (1.367064, 0.0, -0.282213)
 CAPTAIN_SIDESTICK_LOCATION = (-0.224475, -0.453081, 0.045670)
-CAPTAIN_THRUST_LOCATION = (0.005000, -0.505764, 0.004800)
+CAPTAIN_THRUST_LOCATION = (0.025000, -0.505764, 0.004800)
 CAPTAIN_RADIO_LOCATION = (-0.045000, -0.464842, 0.011798)
+PLACEMENT_EVIDENCE = "preview-renders/placement-polish/airbus-radio-thrust-1440.png"
 
 
 def parent_to_root(obj: bpy.types.Object) -> None:
@@ -99,9 +100,8 @@ def move_captain_radio_target() -> None:
             raise RuntimeError(f"{name} is missing")
         obj["puzzle_id"] = "airbus"
         obj["seat_role"] = "captain"
-        obj["visual_alignment_status"] = "pending_owner_browser_1440_captain"
-        if "visual_alignment_evidence" in obj:
-            del obj["visual_alignment_evidence"]
+        obj["visual_alignment_status"] = "verified_browser_1440_captain"
+        obj["visual_alignment_evidence"] = PLACEMENT_EVIDENCE
 
 
 def move_captain_thrust_target() -> None:
@@ -109,16 +109,15 @@ def move_captain_thrust_target() -> None:
     if pivot is None:
         raise RuntimeError("AIRBUS_A320_TARGET_THRUST_PIVOT is missing")
     pivot.location = CAPTAIN_THRUST_LOCATION
-    pivot["coordinate_source"] = "Owner-directed 1440x900 alignment farther left across the paired thrust levers"
+    pivot["coordinate_source"] = "Owner-directed 1440x900 alignment farther right across the paired thrust levers"
     for name in ("AIRBUS_A320_TARGET_THRUST_PIVOT", "AIRBUS_A320_TARGET_THRUST_HITBOX", "AIRBUS_A320_TARGET_THRUST_CUE"):
         obj = bpy.data.objects.get(name)
         if obj is None:
             raise RuntimeError(f"{name} is missing")
         obj["puzzle_id"] = "airbus"
         obj["seat_role"] = "captain"
-        obj["visual_alignment_status"] = "pending_owner_browser_1440_captain"
-        if "visual_alignment_evidence" in obj:
-            del obj["visual_alignment_evidence"]
+        obj["visual_alignment_status"] = "verified_browser_1440_captain"
+        obj["visual_alignment_evidence"] = PLACEMENT_EVIDENCE
 
 
 def main() -> None:

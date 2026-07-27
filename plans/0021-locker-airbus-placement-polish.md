@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Make the captain's hat read as resting on its locker shelf, move the Airbus radio drop area higher and left, and move the Airbus thrust drop area left while preserving the existing player journey and interaction contracts.
+Make the captain's hat read as resting on its locker shelf, move the Airbus radio drop area higher and left, and place the Airbus thrust drop area farther right over the paired thrust levers while preserving the existing player journey and interaction contracts.
 
 ## Current state
 
@@ -43,20 +43,20 @@ Excluded:
 - [x] 2026-07-26 — Moved only the Airbus radio/thrust authored contracts, rebuilt the master/GLB through `asset:airbus`, and passed asset validation plus the focused production-cockpit browser case.
 - [x] 2026-07-26 — Captured and inspected actual-browser 1440/768/375 locker and Airbus placement proof; promoted the accepted local evidence to `preview-renders/placement-polish/`.
 - [x] 2026-07-26 — Verified local and Vercel-served bytes, updated reports, passed the full validation stack, deployed the final preview, and completed the diff review.
-- [ ] Pause for owner visual acceptance; after approval, finalize the Airbus alignment metadata and rebuild/revalidate the GLB.
+- [x] 2026-07-26 — Owner accepted the final desktop composition after two focused Thrust corrections; promoted Radio and Thrust alignment metadata, refreshed responsive proof, and rebuilt/revalidated the GLB.
 
 ## Discoveries
 
 - The locker hat placement is canonical in `tools/blender/import_locker_room_props.py`; the root owns the visible mesh and hitbox, so moving the root preserves collider alignment.
 - The locker shelf surface measured through read-only Blender inspection is Z `2.765262`.
 - The Airbus browser does not apply CSS offsets. It projects Blender pivot nodes and uses the matching exported colliders for mesh raycasting.
-- Read-only camera projection gives the planned radio position near `(878, 669)` and thrust position near `(1092, 734)` at 1440x900.
+- Owner review rejected the first Thrust X `0.005` candidate and the restored X `0.015` midpoint, then accepted X `0.025`; the focused browser contract now places it in the 1440 X band `1130–1155`.
 
 ## Decision log
 
 - 2026-07-26 — Raise the hat root from Z `2.92` to `2.94`, leaving about 9 mm measured shelf clearance, and move the runtime hat-focus Y from `1.00` to `1.02`.
 - 2026-07-26 — Move the radio to `(-0.045000, -0.464842, 0.011798)` so it moves left and higher along the pedestal composition.
-- 2026-07-26 — Move only thrust X from `0.015000` to `0.005000`.
+- 2026-07-26 — Owner-directed correction supersedes the rejected leftward candidate: move only Thrust X from `0.015000` through the rejected `0.005000` and `0.015000` review candidates to the accepted `0.025000`, leaving Y/Z unchanged.
 - 2026-07-26 — Use asset-authoritative movement; do not introduce runtime-only or CSS-only target offsets.
 - 2026-07-26 — Keep opt-in evidence capture in the focused Playwright cases behind `PLACEMENT_EVIDENCE_DIR`; normal test runs retain the complete interaction/reload paths without writing screenshots.
 - 2026-07-26 — Suppress only the post-focus celebration card during opt-in locker evidence capture because it intentionally covers the rendered shelf. Player-facing behavior and the normal browser test remain unchanged.
@@ -65,7 +65,7 @@ Excluded:
 ## Milestones
 
 1. The rebuilt locker GLB exports the captain's hat at `[0.56, 2.94, 0.45]` and the browser shows it resting above the shelf with its collider and close-focus sequence intact.
-2. The rebuilt Airbus GLB exports radio at `[-0.045, 0.011798, 0.464842]` and thrust at `[0.005, 0.0048, 0.505764]`; projected HTML targets and mesh clicks still agree.
+2. The rebuilt Airbus GLB exports radio at `[-0.045, 0.011798, 0.464842]` and thrust at `[0.025, 0.0048, 0.505764]`; projected HTML targets and mesh clicks still agree.
 3. Focused and full automated checks pass, responsive browser evidence is inspected, served GLB bytes match disk, and the owner receives a Vercel preview plus consistent screenshots.
 
 ## Implementation steps
@@ -88,7 +88,7 @@ Excluded:
 ## Acceptance criteria
 
 - The hat visually rests on the upper shelf and no longer reads low or embedded.
-- Radio is visibly higher and left; thrust is visibly farther left.
+- Radio is visibly higher and left; Thrust is visibly farther right over the paired thrust levers.
 - No other cockpit target, camera, puzzle behavior, copy, progression, or accessibility path changes.
 - All moved visible nodes retain matching colliders and stable metadata.
 - Generated source/report/GLB evidence stays synchronized and all required checks pass.
@@ -109,15 +109,15 @@ Repeat failing check -> smallest source change -> focused rebuild/check -> actua
 - Airbus TDD red: `npm run assets:check` reported the old radio `[-0.04,0.011798,0.474842]`, old thrust `[0.015,0.0048,0.505764]`, and stale verified metadata; the focused browser case reported radio X `907` against the new `< 890` bound.
 - Airbus build: `python3 -m py_compile tools/blender/prepare_airbus_captain.py` and `BLENDER_BIN=/home/user1/.local/bin/blender npm run asset:airbus` exited 0. The documented 124 imported-source warnings/candidate notes and glTF unused-data notices remain non-fatal.
 - Airbus green: `npm run assets:check` exited 0; `npx playwright test e2e/smoke.spec.ts --grep "Airbus production cockpit loads" --workers=1` passed 1/1 in 1.7 minutes with projected bounds plus real canvas clicks.
-- Airbus master: 24,415,001 bytes, SHA-256 `7dc407dd0c6de638cba257c2f31ab8e3f5ed9c31feea328fb4b2b7d9804f56ff`.
-- Airbus GLB: 39,878,172 bytes, SHA-256 `b9cc41acb69064fd178f90f107b6014facc5030e767af3273aa81131d823cd47`.
+- Airbus master after owner approval: 24,414,712 bytes, SHA-256 `1f7aaa0f453393b884b1fc6e2e6fcac2e1e52c11e9756a92e703e138afac879a`.
+- Airbus GLB after owner approval: 39,878,692 bytes, SHA-256 `4c44468fe3d492e3839407f97c8d7b7286a295f12df1ee376425ee32df55621f`.
 - Responsive evidence capture: both opt-in focused Playwright cases passed, Airbus 1/1 in 1.6 minutes and locker 1/1 in 2.1 minutes.
-- Actual-browser evidence inspected: `preview-renders/placement-polish/{airbus-radio-thrust,locker-hat-shelf}-{1440,768,375}.png`. Airbus frames show the projected silhouettes with Radio selected; locker frames suppress only the finale card so the settled hat-focus scene remains visible.
-- Served-byte proof: fresh local no-cache requests returned HTTP 200, `model/gltf-binary`, 44,288,740 locker bytes and 39,878,172 Airbus bytes; both SHA-256 values matched disk.
-- Broad validation: `npm run pipeline:evals` passed 6/6; `npm run check` passed lint, TypeScript, 118/118 tests, and the production build; `npm run test:e2e -- --workers=1` passed 36/36 in 7.4 minutes; Python compile and `git diff --check` passed.
+- Actual-browser evidence inspected: `preview-renders/placement-polish/{airbus-radio-thrust,locker-hat-shelf}-{1440,768,375}.png`. The final Airbus 1440 frame shows the owner-approved Radio and Thrust silhouettes with Radio selected. At 768/375, native card controls remain readable and the page does not overflow; the existing narrow-camera crop keeps the Thrust silhouette outside the visible frame.
+- Served-byte proof: fresh local no-cache requests returned 44,288,740 locker bytes and 39,878,692 Airbus bytes; SHA-256 values `0ab0062470ec4eb1230d288761f95581e38e277ad11e97998ebcd5c94e492f56` and `4c44468fe3d492e3839407f97c8d7b7286a295f12df1ee376425ee32df55621f` matched disk.
+- Final validation after rebasing onto `origin/main` `900b471`: `npm run pipeline:evals` passed 6/6; `npm run check` passed lint, TypeScript, 122/122 tests, and the production build; `npm run test:e2e -- --workers=1` passed 36 executable cases with one intentional capture-only skip in 6.4 minutes; Python compile and runtime-gate validation passed.
 - Diff-review repair: the first review found the locker loader's stale `locker-seams-cf212389` query. A hash-bound `assets:check` assertion failed red, the loader changed to `locker-shelf-0ab00624`, and `assets:check`, `npm run check`, and the real-locker browser case passed again.
-- Final preview: deployment `dpl_HqH9iEh14ZqqNeArL6EVVifRHsZE` reached `READY` at `https://cockpit-escape-room-3l9bqa4wd-ottoagent007-gmailcoms-projects.vercel.app`. Authenticated HTTP/2 checks returned 200 for the app and both models; model hashes matched local, and the deployed loader bundle contained `locker-shelf-0ab00624`.
+- Final rebased owner-approved preview: deployment `dpl_DMobaCFK1haNNAaunEPUifm2b5dG` reached `READY` at `https://cockpit-escape-room-kdno3fzlf-ottoagent007-gmailcoms-projects.vercel.app`. Authenticated checks returned 200 for the loader; deployed Airbus and locker bytes matched the final local hashes, and the loader contained `locker-shelf-0ab00624`.
 
 ## Outcome and handoff
 
-Implementation and automated verification are complete. The owner visual decision remains open, so Airbus alignment metadata intentionally stays pending and no PR or merge was created.
+The owner accepted the final desktop composition. Radio and Thrust export `verified_browser_1440_captain` with the tracked 1440 evidence path; final validation and the byte-verified Vercel preview pass. PR publication is the remaining handoff.

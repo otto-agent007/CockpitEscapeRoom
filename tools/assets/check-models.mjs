@@ -247,7 +247,7 @@ for (const [model, requiredNodes] of Object.entries(requiredModelContracts)) {
       }
       const expectedTargetTranslations = new Map([
         ['AIRBUS_A320_TARGET_RADIO_PIVOT', [-0.045, 0.011798, 0.464842]],
-        ['AIRBUS_A320_TARGET_THRUST_PIVOT', [0.005, 0.0048, 0.505764]],
+        ['AIRBUS_A320_TARGET_THRUST_PIVOT', [0.025, 0.0048, 0.505764]],
       ])
       for (const [nodeName, expectedTranslation] of expectedTargetTranslations) {
         const node = (json.nodes ?? []).find((candidate) => candidate.name === nodeName)
@@ -259,8 +259,9 @@ for (const [model, requiredNodes] of Object.entries(requiredModelContracts)) {
           console.error(`${nodeName} must export at ${JSON.stringify(expectedTranslation)}; received ${JSON.stringify(translation ?? null)}.`)
           failed = true
         }
-        if (node?.extras?.visual_alignment_status !== 'pending_owner_browser_1440_captain') {
-          console.error(`${nodeName} must remain pending owner browser review after repositioning; received ${JSON.stringify(node?.extras?.visual_alignment_status ?? null)}.`)
+        if (node?.extras?.visual_alignment_status !== 'verified_browser_1440_captain'
+          || node?.extras?.visual_alignment_evidence !== 'preview-renders/placement-polish/airbus-radio-thrust-1440.png') {
+          console.error(`${nodeName} must carry the owner-approved browser alignment status and evidence; received ${JSON.stringify(node?.extras ?? null)}.`)
           failed = true
         }
       }
