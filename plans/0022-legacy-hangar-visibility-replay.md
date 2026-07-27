@@ -78,7 +78,8 @@ changes, Mars, new audio, new dependencies, and unrelated cleanup.
   PR publication.
 - [x] 2026-07-27 — Completed broad validation and resolved all three Important
   independent-review findings; no Critical or High findings were reported.
-- [ ] Publish the branch and open the draft PR.
+- [x] 2026-07-27 — Published commit `ef4f758` and opened draft PR
+  [#56](https://github.com/otto-agent007/CockpitEscapeRoom/pull/56).
 
 ## Discoveries
 
@@ -189,4 +190,4 @@ Current focused evidence:
 
 The owner approved the selected-hangar browser composition after the two
 decorative floor lines were removed. Broad validation and independent review
-are complete; draft PR publication remains.
+are complete, and draft PR #56 contains the milestone for review.
