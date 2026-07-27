@@ -126,7 +126,7 @@ PROP_CONFIGS = (
         "texture_size": 1_024,
         "scale": 0.46,
         "rotation_euler": (0.0, 0.0, math.radians(-45.0)),
-        "location": (0.56, -0.45, 2.92),
+        "location": (0.56, -0.45, 2.94),
     },
 )
 
@@ -706,7 +706,7 @@ def configure_approval_scene() -> None:
     ensure_camera("CAM_LOCKER_APPROVAL_BASEBALL", (0.40, -4.0, 1.7), (0.64, -0.48, 1.34), 68)
     ensure_camera("CAM_LOCKER_APPROVAL_WINGS", (0.72, -4.0, 2.64), (0.56, -0.06, 2.55), 68)
     ensure_camera("CAM_LOCKER_APPROVAL_BULL", (0.72, -4.0, 2.2), (0.42, 0.48, 2.03), 68)
-    ensure_camera("CAM_LOCKER_APPROVAL_HAT", (0.72, -4.0, 3.04), (0.56, -0.45, 2.98), 68)
+    ensure_camera("CAM_LOCKER_APPROVAL_HAT", (0.72, -4.0, 3.04), (0.56, -0.45, 3.00), 68)
     scene.camera = hero
 
     ensure_area_light("LOCKER_APPROVAL_KEY", (3.1, -3.7, 4.8), (0.2, -0.1, 1.8), 920, 4.2, (1.0, 0.72, 0.46))

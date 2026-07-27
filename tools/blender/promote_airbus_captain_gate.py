@@ -14,6 +14,7 @@ GLB_PATH = ROOT / "public/models/airbus-captain.glb"
 GATE_PATH = ROOT / "art-source/cockpit-pipeline/gates/a320-cockpit-2-runtime-contract.json"
 INITIAL_EVIDENCE = ROOT / "preview-renders/seat-role-swap/airbus-captain-targets-initial-1440.png"
 DRAGGED_EVIDENCE = ROOT / "preview-renders/seat-role-swap/airbus-captain-targets-dragged-1440.png"
+PLACEMENT_EVIDENCE = ROOT / "preview-renders/placement-polish/airbus-radio-thrust-1440.png"
 
 BASE_NODES = [
     "AIRBUS_ROOT",
@@ -76,7 +77,7 @@ def runtime_node(name: str, node: dict[str, object], role: str | None = None) ->
 
 
 def main() -> None:
-    for required in (GLB_PATH, INITIAL_EVIDENCE, DRAGGED_EVIDENCE):
+    for required in (GLB_PATH, INITIAL_EVIDENCE, DRAGGED_EVIDENCE, PLACEMENT_EVIDENCE):
         if not required.is_file() or required.stat().st_size == 0:
             raise FileNotFoundError(f"Required captain-view gate input is missing: {required}")
 
@@ -110,7 +111,7 @@ def main() -> None:
         "reimportValidation": "pass",
         "visualAlignmentValidation": {
             "status": "verified",
-            "evidence": "The real captain-seat GLB was inspected at 1440x900 with five projected targets active in preview-renders/seat-role-swap/airbus-captain-targets-initial-1440.png and after seated head-look drag in preview-renders/seat-role-swap/airbus-captain-targets-dragged-1440.png. Both states reported five projected targets; Playwright verifies reachability.",
+            "evidence": "The real captain-seat GLB was inspected at 1440x900 with the owner-approved Radio and Thrust placements in preview-renders/placement-polish/airbus-radio-thrust-1440.png and after seated head-look drag in preview-renders/seat-role-swap/airbus-captain-targets-dragged-1440.png. Both states reported five projected targets; Playwright verifies reachability.",
         },
         "scaleAndCameraAssumptions": "Source model is kept in imported Blender scale. The browser starts from CAM_AIRBUS_CAPTAIN_GAME_VIEW, consumes its exported 68-degree vertical FOV, uses restrained seated head-look, raycasts exported colliders, and projects accessible HTML cues from exported pivots.",
         "knownReferenceDeviations": [

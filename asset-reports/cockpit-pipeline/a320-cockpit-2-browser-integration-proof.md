@@ -7,11 +7,22 @@ Date: 2026-07-15
 - Canonical cameras: `CAM_AIRBUS_CAPTAIN_GAME_VIEW` and `AIRBUS_A320_CAM_CAPTAIN_APPROVAL`. The exported gameplay camera owns its transform and 68-degree vertical FOV; the browser no longer supplies a hard-coded first-officer transform.
 - The sidestick pivot/collider/cue moved to the captain-side sidestick. All five target families retain stable names, pivots, and `game_id` values with `puzzle_id = airbus`.
 - Deprecated first-officer cameras remain compatibility-only nodes with explicit replacement metadata. The deprecated `public/models/airbus-first-officer.glb` deployable file was removed.
-- Current GLB: 39,878,544 bytes; SHA-256 `8ede97bc91e1ad6ca88f7abbced7c7d7e43483fc99ea1f266687f982bde89899`; 157 selected export objects; 15 interactive target contract objects; 10 materials and 10 textures; no destructive optimization.
+- Current GLB: 39,878,692 bytes; SHA-256 `4c44468fe3d492e3839407f97c8d7b7286a295f12df1ee376425ee32df55621f`; 157 selected export objects; 15 interactive target contract objects; 10 materials and 10 textures; no destructive optimization.
 
 Current browser evidence is durable at `preview-renders/seat-role-swap/airbus-captain-targets-initial-1440.png` and `preview-renders/seat-role-swap/airbus-captain-targets-dragged-1440.png`. Both captures use the captain camera with the SIDESTICK card selected and report five projected target controls before and after seated head-look drag.
 - Current approval still: `public/images/a320-game-ready-captain.png`; SHA-256 `2d3cfae76008f6cf713bd37d0af0622cbf34beed66b0b30ae6955a73214f6479`.
 - Browser visual evidence and the reopened owner gate are recorded in `plans/0013-dc9-fo-airbus-captain-seat-swap.md` and `TEST_REPORT.md`.
+
+## 2026-07-26 Radio and thrust drop-area placement polish
+
+- Moved the Blender-authoritative Radio target family from `(-0.040000, -0.474842, 0.011798)` to `(-0.045000, -0.464842, 0.011798)`, shifting its projected drop area higher and left from the captain view.
+- After owner-directed desktop review, moved the Thrust target family only on X from `(0.015000, -0.505764, 0.004800)` to the accepted `(0.025000, -0.505764, 0.004800)`, shifting it farther right over the paired thrust levers without changing height or depth.
+- Each pivot, cue, and hitbox remains co-located under the existing stable names and `game_id` contracts. Sidestick, Gear, Altitude, camera/FOV, puzzle rules, copy, save schema, native HTML controls, materials, and textures are unchanged.
+- Blender 5.1.2 rebuilt the 157-object export with 156 `game_id` nodes. The source master is 24,414,712 bytes, SHA-256 `1f7aaa0f453393b884b1fc6e2e6fcac2e1e52c11e9756a92e703e138afac879a`; the deployable GLB is 39,878,692 bytes, SHA-256 `4c44468fe3d492e3839407f97c8d7b7286a295f12df1ee376425ee32df55621f`.
+- `npm run assets:check` requires exact new translations, `verified_browser_1440_captain` alignment status, and the tracked owner-proof path. The focused production-cockpit Playwright case passed the new 1440 projection bands—Radio X 868–890/Y 658–680 and Thrust X 1130–1155/Y 720–748—then placed both cards through real canvas raycasting.
+- Actual-browser frames with Radio selected are tracked at `preview-renders/placement-polish/airbus-radio-thrust-{1440,768,375}.png`. The owner accepted the 1440 composition. The 768/375 frames retain readable native controls without page overflow; the known narrow-camera crop keeps Thrust outside the visible cockpit frame.
+- Final rebased owner-approved Vercel preview: `https://cockpit-escape-room-kdno3fzlf-ottoagent007-gmailcoms-projects.vercel.app` (`dpl_DMobaCFK1haNNAaunEPUifm2b5dG`). Authenticated delivery returned the 39,878,692-byte Airbus GLB with SHA-256 `4c44468fe3d492e3839407f97c8d7b7286a295f12df1ee376425ee32df55621f`, exactly matching local.
+- Owner approval on 2026-07-26 promoted the Radio and Thrust target families to `verified_browser_1440_captain`; the runtime-contract gate was regenerated and validated from the metadata-bearing GLB.
 
 > **Seat-role supersession notice (2026-07-15):** This historical record preserves the then-current DC-9 captain / A320 first-officer assignment. The active production contract now uses DC-9 first-officer/right-seat and Airbus A320 Pop T captain/left-seat roles. Historical evidence below is unchanged.
 

@@ -3,7 +3,7 @@
   "sceneGroup": "locker room scene",
   "blenderVersion": "5.1.2",
   "masterPath": "art-source/blender/locker_room_master.blend",
-  "masterSha256": "648a63df7a95de0cda11cf2c2ba2dcb988b621ab6ab04388f3ae460d0fc63f42",
+  "masterSha256": "209353516fcf52bc69933b9ede5bb17bb4af69f83f2c6ddc00daad3b217cd697",
   "sourcePolicy": "Original owner-supplied Tripo GLBs preserved untouched; edited copies pass through Blender before runtime export.",
   "sourceAuthority": "Owner-supplied Tripo candidates from /mnt/2TBHDD/Downloads; no third-party aircraft reference authority is inferred from these personal props.",
   "sourceQualityRule": "Tripo runtime candidates require one material with complete 4096px BaseColor, Normal, and metallic-roughness source maps.",
@@ -708,7 +708,7 @@
         "placement": [
           0.56,
           -0.45,
-          2.92
+          2.94
         ],
         "scaleApplied": 0.46,
         "rotationXYZDegreesApplied": [

@@ -14,8 +14,8 @@ All five personal props are cleaned candidates, not owner-approved final product
 - Source-candidate preview tool: `tools/blender/render_source_candidate.py`.
 - Environment intake: `asset-reports/locker-room-source-intake.json`.
 - Prop intake and optimization record: `asset-reports/locker-room-prop-intake.json`.
-- Master: `art-source/blender/locker_room_master.blend` (50,237,876 bytes; SHA-256 `648a63df7a95de0cda11cf2c2ba2dcb988b621ab6ab04388f3ae460d0fc63f42`).
-- Deployable GLB: `public/models/locker-room.glb` (44,288,740 bytes; SHA-256 `cf212389e0d04aa34a528cbc2af07e59b4acc9d4e98e386f725c78da43279c5c`).
+- Master: `art-source/blender/locker_room_master.blend` (50,237,871 bytes; SHA-256 `209353516fcf52bc69933b9ede5bb17bb4af69f83f2c6ddc00daad3b217cd697`).
+- Deployable GLB: `public/models/locker-room.glb` (44,288,740 bytes; SHA-256 `0ab0062470ec4eb1230d288761f95581e38e277ad11e97998ebcd5c94e492f56`).
 - Export root: `LOCKER_ROOT`; regenerated export includes five exported `game_id` nodes and their Blender-owned colliders.
 
 ## Preserved sources
@@ -155,3 +155,15 @@ The GLB contains the environment materials plus the imported prop materials and 
 - The promotion presentation is derived from the unchanged deployed GLB node `LOCKER_PROP_CAPTAINS_HAT` through `tools/blender/render_glb_node.py`. Blender 5.1.2 produced a 1024×1024 RGBA image with two subtree meshes and two materials; the published 563,765-byte PNG has SHA-256 `e426b329b273fcd593ed7bace8848a2573f8ed8bfb198b3063df63beb05d4f8c`. A repeat render decoded to identical RGBA pixels.
 - The locker master and GLB hashes remain `648a63df7a95de0cda11cf2c2ba2dcb988b621ab6ab04388f3ae460d0fc63f42` and `cf212389e0d04aa34a528cbc2af07e59b4acc9d4e98e386f725c78da43279c5c`; stable hierarchy, metadata, materials, textures, and interaction contracts did not change.
 - Final browser evidence is `/tmp/captain-hat-celebration-final-{1440,768,375}.png`; all widths showed the upright real hat, readable copy, unobstructed CTA, zero horizontal overflow, and no console/page errors. Confetti is suppressed under reduced motion. Visual acceptance remains with the owner.
+
+## 2026-07-26 Captain's Hat shelf-placement polish
+
+- Raised only `LOCKER_PROP_CAPTAINS_HAT` from `(0.56, -0.45, 2.92)` to `(0.56, -0.45, 2.94)`. Its Blender-owned mesh and `LOCKER_HITBOX_CAPTAINS_HAT` remain parented to the stable root, so visible geometry and picking stay aligned.
+- The measured shelf surface is Z `2.765262`; the prior hat mesh minimum was `2.754038`. The 0.02 m authored lift leaves approximately 9 mm of clearance and makes the brim read as resting on the shelf.
+- The matching runtime close-focus target moved from `(0.42, 1.00, -0.14)` to `(0.42, 1.02, -0.14)`. No other locker camera, prop, puzzle rule, copy, save field, material, or texture changed.
+- Blender 5.1.2 rebuilt 50 selected objects, five `game_id` nodes, nine materials, and 21 textures through `npm run asset:locker`. The five documented environment-transform warnings and glTF tangent-space/unused-UV notices remain unchanged and non-fatal.
+- Current master: 50,237,871 bytes, SHA-256 `209353516fcf52bc69933b9ede5bb17bb4af69f83f2c6ddc00daad3b217cd697`. Current GLB: 44,288,740 bytes, SHA-256 `0ab0062470ec4eb1230d288761f95581e38e277ad11e97998ebcd5c94e492f56`.
+- `npm run assets:check` and the focused real-GLB locker Playwright path passed. Actual-browser evidence was inspected at `preview-renders/placement-polish/locker-hat-shelf-{1440,768,375}.png`; the opt-in capture suppresses only the finale card after it appears so the settled hat-focus pixels remain visible.
+- The manual runtime URL now uses `v=locker-shelf-0ab00624`, and `assets:check` derives the required prefix from the current GLB hash. The post-repair real-locker Playwright case passed 1/1 in 2.1 minutes.
+- Final rebased owner-approved Vercel preview: `https://cockpit-escape-room-kdno3fzlf-ottoagent007-gmailcoms-projects.vercel.app` (`dpl_DMobaCFK1haNNAaunEPUifm2b5dG`). Authenticated delivery returned the 44,288,740-byte locker GLB with SHA-256 `0ab0062470ec4eb1230d288761f95581e38e277ad11e97998ebcd5c94e492f56`; the deployed loader carries `locker-shelf-0ab00624`.
+- This is defect-screened evidence for the locker approval gate, not owner acceptance.
