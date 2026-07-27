@@ -79,6 +79,7 @@ export function RewardExperience({
       {!showAccessibleScene && (
         <RewardScene
           clipTimeSeconds={frame.clipTimeSeconds}
+          playbackRevision={replayRevision}
           retryToken={retryToken}
           onLoadState={setLoadState}
         />
@@ -144,7 +145,7 @@ export function RewardExperience({
               Skip cinematic
             </button>
           )}
-          {frame.stage === 'complete' && ready && (
+          {frame.stage === 'complete' && ready && !reducedMotion && (
             <button type="button" className="primary-button" onClick={replay}>
               Replay Flight Mode
             </button>

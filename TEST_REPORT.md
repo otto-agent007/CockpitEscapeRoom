@@ -1,5 +1,60 @@
 # Test report
 
+## 2026-07-27 Legacy Hangar visibility, source replacement, and Replay — owner approved
+
+- Replaced the featureless procedural hangar walls with the owner-selected
+  Sketchfab `Hangar` source by nermin under CC BY 4.0. The exact 8,276,403-byte
+  archive is preserved at SHA-256
+  `8ec631f27e40f6f1f3ac3448c96374c315a4874f2c8e4bdbe307f284fdf6e1fe`;
+  license, creator, source URL, geometry, materials, textures, four inspection
+  views, and normalization evidence are recorded in
+  `asset-reports/model-y-hangar-source-intake.json`.
+- The source is a closed Quonset exterior. The first 17 m interior attempt
+  intersected the diagonal camera, so the intact shell is scaled to 24 m wide
+  and 34.3 m long around the car, apron, lights, and desktop/narrow camera
+  family. Seven source materials are deterministically remapped into one 2048
+  atlas. The runtime keeps all 9,640 hangar triangles while the complete reward
+  remains within budget at 215,212 triangles, six materials, and 20 draw calls.
+- The Blender master is 22,082,575 bytes at SHA-256
+  `6aee4a6694f025779aa11b61ba2e9b6816d844d2ea7a3756c45dd96a45455e1a`.
+  The deployable GLB is 22,873,044 bytes at SHA-256
+  `53b51f9a4cb600e0487eeb3268795ea59a8f93d3699a6401a10e950d5c94d7a7`.
+  Blender source validation passed with the five expected stowed-pivot scale
+  warnings; glTF validation and reimport passed.
+- Flight Mode wing and stabilizer panels now use a red-dominant metallic
+  finish, while fan housings, rotors, hinges, and concealed mechanisms remain
+  dark. Desktop rendering uses a procedural showroom environment plus a
+  rebalanced key/fill setup and narrower text scrim; no HDR or production
+  dependency was added.
+- Replay now resets and restarts the clamped Blender `AnimationAction` before
+  the new clock seeks from zero. The regression requires stowed pose after
+  Replay and deployed pose at `11.500` after the second completion.
+  Reduced-motion presentation remains immediately deployed and no longer
+  offers an inert Replay control.
+- The focused contract test passed 6/6. The first real-browser run exposed a
+  production-preview readiness timeout for the new 22.9 MB GLB; instrumented
+  Chromium proved HTTP 200, exact 22,873,044-byte delivery, no page error, and
+  ready state at about four seconds. Real-model readiness assertions now allow
+  15 seconds without weakening pose or interaction checks.
+- The evidence run also exposed a pointer-actionability race on the second Skip
+  while the real-time 11.5-second control was being removed. The final proof no
+  longer skips the Replay: it observes stowed pose and then waits for the second
+  run to reach its natural `11.500` deployed completion. The six-case reward
+  file passed in 1.2 minutes.
+- Broad validation passed: `npm run check` (lint, typecheck, 125/125 unit tests,
+  production build), `npm run assets:check`, 6/6 pipeline evaluations, and
+  `git diff --check`. The complete browser matrix passed all 36 executable
+  cases, with its one capture-only case intentionally skipped. Because the
+  command harness sends SIGTERM to long foreground jobs, identical serial
+  Playwright settings were split into bounded groups; the isolated 42 MB locker
+  and DC-9 model cases passed in 2.0 and 2.1 minutes.
+- Fresh actual-browser evidence is tracked at
+  `preview-renders/model-y-reward/{1440-static-reveal,1440-flight-mode-final,768-flight-mode-final,375-flight-mode-final}.png`.
+  The vehicle, `POP T` plate, selected hangar interior, and red Flight Mode
+  surfaces are readable. The owner approved the composition after both white
+  decorative floor guide meshes were removed; the asset contract now rejects
+  either guide node if it returns.
+
 ## 2026-07-26 TMB2 Productions approved-logo ident — owner visual gate open
 
 - Owner follow-up: reduced only the generated `PRODUCTIONS` caption to 50% in
