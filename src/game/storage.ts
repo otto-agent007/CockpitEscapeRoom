@@ -1,9 +1,11 @@
 import {
+  createInitialAirbusSimulatorProgress,
   createInitialState,
   DC9_SECURE_ORDER,
   GAME_SCHEMA_VERSION,
   type Dc9ChapterProgress,
   type Dc9SecureControlId,
+  type AirbusSimulatorProgress,
   type GamePhase,
   type GameState,
   type PuzzleId,
@@ -46,6 +48,7 @@ interface LegacyCommonState {
 
 type LegacyV6State = LegacyCommonState & { schemaVersion: 6 }
 type LegacyV7State = LegacyCommonState & { schemaVersion: 7; dc9: unknown }
+type CanonicalV8State = Omit<GameState, 'schemaVersion' | 'airbusSimulator'> & { schemaVersion: 8 }
 
 const APPROVED_ROUTE_CODES = [...dc9LegacyFlow.routePuzzleAnswers] as string[]
 const ALL_ROUTE_CODES = dc9LegacyFlow.routePuzzleOptions.map((route) => route.code) as string[]
@@ -278,7 +281,7 @@ function mapLegacyPhase(value: LegacyPhase): GamePhase {
   return value === 'captain' ? 'dc9' : value
 }
 
-export function migrateV7ToV8(value: unknown): GameState | null {
+export function migrateV7ToV8(value: unknown): CanonicalV8State | null {
   if (!isLegacyV7State(value)) return null
   const phase = mapLegacyPhase(value.phase)
   const completedPuzzles = mapLegacyPuzzles(value.completedPuzzles)
@@ -292,7 +295,7 @@ export function migrateV7ToV8(value: unknown): GameState | null {
   )
 
   return {
-    schemaVersion: GAME_SCHEMA_VERSION,
+    schemaVersion: 8,
     phase,
     airbusAssignments: value.airbusAssignments,
     airbusDecoyAssignments: value.airbusDecoyAssignments,
@@ -332,10 +335,36 @@ function hasSafeCanonicalCommonState(candidate: Record<string, unknown>): boolea
   )
 }
 
+function allAirbusAssignmentsCorrect(value: unknown): boolean {
+  if (!isSafeAssignments(value)) return false
+  return airbusCaptainFlow.controlIds.every((control) => value[control] === airbusCaptainFlow.controlMatch[control])
+}
+
+function simulatorProgressForV8(candidate: Record<string, unknown>, completedPuzzles: PuzzleId[]): AirbusSimulatorProgress {
+  const completed = completedPuzzles.includes('airbus')
+  const familiarizationComplete = completed || allAirbusAssignmentsCorrect(candidate.airbusAssignments)
+  const progress = createInitialAirbusSimulatorProgress()
+  if (!familiarizationComplete) return progress
+  return {
+    ...progress,
+    familiarization: 'completed',
+    cameraPhase: 'qualified',
+    location: 'hub',
+    stormLine: {
+      ...progress.stormLine,
+      status: completed ? 'completed' : 'not_started',
+    },
+    engineOut: {
+      ...progress.engineOut,
+      status: completed ? 'completed' : 'locked',
+    },
+  }
+}
+
 function normalizeV8(value: unknown): GameState | null {
   if (!value || typeof value !== 'object') return null
   const candidate = value as Record<string, unknown>
-  if (candidate.schemaVersion !== GAME_SCHEMA_VERSION || !hasSafeCanonicalCommonState(candidate)) return null
+  if (candidate.schemaVersion !== 8 || !hasSafeCanonicalCommonState(candidate)) return null
   const phase = candidate.phase as GamePhase
   const completedPuzzles = candidate.completedPuzzles as PuzzleId[]
   const rewardUnlocked = candidate.rewardUnlocked === true || phase === 'reward' || phase === 'mars'
@@ -347,6 +376,7 @@ function normalizeV8(value: unknown): GameState | null {
     airbusAssignments: candidate.airbusAssignments as GameState['airbusAssignments'],
     airbusDecoyAssignments: candidate.airbusDecoyAssignments as GameState['airbusDecoyAssignments'],
     airbusQualificationAnswer: candidate.airbusQualificationAnswer as string,
+    airbusSimulator: simulatorProgressForV8(candidate, completedPuzzles),
     lockerCompleted: candidate.lockerCompleted as LockerMemoryId[],
     lockerAttempts: candidate.lockerAttempts as GameState['lockerAttempts'],
     lockerIntroCompleted: candidate.lockerIntroCompleted as boolean,
@@ -359,6 +389,212 @@ function normalizeV8(value: unknown): GameState | null {
     marsUnlocked: candidate.marsUnlocked as boolean,
     statusMessage: candidate.statusMessage as string,
   }
+}
+
+const STORM_CHECKPOINTS = ['stormEntry', 'stormCore', 'clearAir'] as const
+const STORM_TRAITS = ['calmControl', 'weatherJudgment', 'energyManagement'] as const
+const ENGINE_OUT_CHECKPOINTS = ['recognition', 'stabilization', 'diversion'] as const
+const ENGINE_OUT_TRAITS = ['directionalControl', 'energyDiscipline', 'calmDiversion'] as const
+
+function normalizeAirbusSimulatorProgress(
+  value: unknown,
+  completed: boolean,
+  assignmentsCorrect: boolean,
+): AirbusSimulatorProgress {
+  const fallback = createInitialAirbusSimulatorProgress()
+  const qualificationProven = completed || assignmentsCorrect
+  if (!qualificationProven) return fallback
+  if (!value || typeof value !== 'object') {
+    return {
+      ...fallback,
+      familiarization: 'completed',
+      cameraPhase: 'qualified',
+      location: 'hub',
+      stormLine: { ...fallback.stormLine, status: completed ? 'completed' : 'not_started' },
+      engineOut: { ...fallback.engineOut, status: completed ? 'completed' : 'locked' },
+    }
+  }
+  const candidate = value as Record<string, unknown>
+  const stormLine = candidate.stormLine && typeof candidate.stormLine === 'object'
+    ? candidate.stormLine as Record<string, unknown>
+    : null
+  const attemptsCandidate = stormLine?.attempts && typeof stormLine.attempts === 'object'
+    ? stormLine.attempts as Record<string, unknown>
+    : null
+  const attempts = {
+    stormEntry: attemptsCandidate && isSafeNonNegativeInteger(attemptsCandidate.stormEntry)
+      ? attemptsCandidate.stormEntry
+      : 0,
+    stormCore: attemptsCandidate && isSafeNonNegativeInteger(attemptsCandidate.stormCore)
+      ? attemptsCandidate.stormCore
+      : 0,
+    clearAir: attemptsCandidate && isSafeNonNegativeInteger(attemptsCandidate.clearAir)
+      ? attemptsCandidate.clearAir
+      : 0,
+  }
+  const checkpoint = STORM_CHECKPOINTS.includes(stormLine?.checkpoint as typeof STORM_CHECKPOINTS[number])
+    ? stormLine?.checkpoint as typeof STORM_CHECKPOINTS[number]
+    : 'stormEntry'
+  const status = stormLine?.status === 'in_progress' || stormLine?.status === 'completed'
+    ? stormLine.status
+    : 'not_started'
+  const savedTraits = Array.isArray(stormLine?.bestTraits)
+    ? stormLine.bestTraits.filter(isString)
+    : []
+  const bestTraits = STORM_TRAITS.filter((trait) => savedTraits.includes(trait))
+  const normalizedStatus = completed ? 'completed' : status
+  const engineOut = candidate.engineOut && typeof candidate.engineOut === 'object'
+    ? candidate.engineOut as Record<string, unknown>
+    : null
+  const engineAttemptsCandidate = engineOut?.attempts && typeof engineOut.attempts === 'object'
+    ? engineOut.attempts as Record<string, unknown>
+    : null
+  const hasSafeEngineCheckpoint = ENGINE_OUT_CHECKPOINTS.includes(
+    engineOut?.checkpoint as typeof ENGINE_OUT_CHECKPOINTS[number],
+  )
+  const hasSafeEngineAttempts = engineAttemptsCandidate !== null &&
+    ENGINE_OUT_CHECKPOINTS.every((entry) => isSafeNonNegativeInteger(engineAttemptsCandidate[entry]))
+  const hasSafeEngineStatus = engineOut?.status === 'not_started' ||
+    engineOut?.status === 'in_progress' ||
+    engineOut?.status === 'completed' ||
+    engineOut?.status === 'locked'
+  const hasConsistentEngineCompletion = engineOut?.status !== 'completed' || completed
+  const engineProgressValid = engineOut !== null &&
+    hasSafeEngineStatus &&
+    hasConsistentEngineCompletion &&
+    hasSafeEngineCheckpoint &&
+    hasSafeEngineAttempts
+  const engineAttempts = engineProgressValid
+    ? {
+        recognition: engineAttemptsCandidate.recognition as number,
+        stabilization: engineAttemptsCandidate.stabilization as number,
+        diversion: engineAttemptsCandidate.diversion as number,
+      }
+    : { recognition: 0, stabilization: 0, diversion: 0 }
+  const engineCheckpoint = engineProgressValid
+    ? engineOut.checkpoint as typeof ENGINE_OUT_CHECKPOINTS[number]
+    : 'recognition'
+  const savedEngineTraits = Array.isArray(engineOut?.bestTraits)
+    ? engineOut.bestTraits.filter(isString)
+    : []
+  const engineTraits = engineProgressValid
+    ? ENGINE_OUT_TRAITS.filter((trait) => savedEngineTraits.includes(trait))
+    : []
+  const engineStatus = completed
+    ? 'completed'
+    : normalizedStatus !== 'completed'
+      ? 'locked'
+      : engineProgressValid && (engineOut.status === 'completed' || engineOut.status === 'in_progress')
+        ? engineOut.status
+        : 'not_started'
+  const cameraPhase = normalizedStatus === 'in_progress'
+    ? 'storm'
+    : candidate.cameraPhase === 'transitioning'
+      ? 'transitioning'
+      : 'qualified'
+  const location = completed
+    ? 'hub'
+    : engineStatus === 'in_progress'
+      ? 'engineOut'
+      : normalizedStatus === 'in_progress'
+        ? 'stormLine'
+        : candidate.location === 'stormLine'
+          ? 'stormLine'
+          : candidate.location === 'engineOut' && engineProgressValid && engineStatus !== 'locked'
+            ? 'engineOut'
+            : 'hub'
+
+  return {
+    familiarization: 'completed',
+    cameraPhase,
+    location,
+    stormLine: {
+      status: normalizedStatus,
+      checkpoint,
+      attempts,
+      bestTraits,
+    },
+    engineOut: {
+      status: engineStatus,
+      checkpoint: engineCheckpoint,
+      attempts: engineAttempts,
+      bestTraits: engineTraits,
+    },
+  }
+}
+
+function normalizeV9(value: unknown): GameState | null {
+  if (!value || typeof value !== 'object') return null
+  const candidate = value as Record<string, unknown>
+  if (candidate.schemaVersion !== 9 || !hasSafeCanonicalCommonState(candidate)) return null
+  const phase = candidate.phase as GamePhase
+  const completedPuzzles = candidate.completedPuzzles as PuzzleId[]
+  const rewardUnlocked = candidate.rewardUnlocked === true || phase === 'reward' || phase === 'mars'
+  const completed = completedPuzzles.includes('airbus')
+  return {
+    schemaVersion: GAME_SCHEMA_VERSION,
+    phase,
+    airbusAssignments: candidate.airbusAssignments as GameState['airbusAssignments'],
+    airbusDecoyAssignments: candidate.airbusDecoyAssignments as GameState['airbusDecoyAssignments'],
+    airbusQualificationAnswer: candidate.airbusQualificationAnswer as string,
+    airbusSimulator: normalizeAirbusSimulatorProgress(
+      candidate.airbusSimulator,
+      completed,
+      allAirbusAssignmentsCorrect(candidate.airbusAssignments),
+    ),
+    lockerCompleted: candidate.lockerCompleted as LockerMemoryId[],
+    lockerAttempts: candidate.lockerAttempts as GameState['lockerAttempts'],
+    lockerIntroCompleted: candidate.lockerIntroCompleted as boolean,
+    lockerHatRevealed: candidate.lockerHatRevealed as boolean,
+    dc9: normalizeDc9Progress(candidate.dc9, completedPuzzles.includes('dc9') || rewardUnlocked),
+    airbusCaptainModeUnlocked: candidate.airbusCaptainModeUnlocked as boolean,
+    completedPuzzles,
+    hintsUsed: candidate.hintsUsed as number,
+    rewardUnlocked,
+    marsUnlocked: candidate.marsUnlocked as boolean,
+    statusMessage: candidate.statusMessage as string,
+  }
+}
+
+function normalizeCanonicalScenarioState(value: unknown, schemaVersion: 10 | 11): GameState | null {
+  if (!value || typeof value !== 'object') return null
+  const candidate = value as Record<string, unknown>
+  if (candidate.schemaVersion !== schemaVersion || !hasSafeCanonicalCommonState(candidate)) return null
+  const phase = candidate.phase as GamePhase
+  const completedPuzzles = candidate.completedPuzzles as PuzzleId[]
+  const rewardUnlocked = candidate.rewardUnlocked === true || phase === 'reward' || phase === 'mars'
+  const completed = completedPuzzles.includes('airbus')
+  return {
+    schemaVersion: GAME_SCHEMA_VERSION,
+    phase,
+    airbusAssignments: candidate.airbusAssignments as GameState['airbusAssignments'],
+    airbusDecoyAssignments: candidate.airbusDecoyAssignments as GameState['airbusDecoyAssignments'],
+    airbusQualificationAnswer: candidate.airbusQualificationAnswer as string,
+    airbusSimulator: normalizeAirbusSimulatorProgress(
+      candidate.airbusSimulator,
+      completed,
+      allAirbusAssignmentsCorrect(candidate.airbusAssignments),
+    ),
+    lockerCompleted: candidate.lockerCompleted as LockerMemoryId[],
+    lockerAttempts: candidate.lockerAttempts as GameState['lockerAttempts'],
+    lockerIntroCompleted: candidate.lockerIntroCompleted as boolean,
+    lockerHatRevealed: candidate.lockerHatRevealed as boolean,
+    dc9: normalizeDc9Progress(candidate.dc9, completedPuzzles.includes('dc9') || rewardUnlocked),
+    airbusCaptainModeUnlocked: candidate.airbusCaptainModeUnlocked as boolean,
+    completedPuzzles,
+    hintsUsed: candidate.hintsUsed as number,
+    rewardUnlocked,
+    marsUnlocked: candidate.marsUnlocked as boolean,
+    statusMessage: candidate.statusMessage as string,
+  }
+}
+
+function migrateV10(value: unknown): GameState | null {
+  return normalizeCanonicalScenarioState(value, 10)
+}
+
+function normalizeV11(value: unknown): GameState | null {
+  return normalizeCanonicalScenarioState(value, GAME_SCHEMA_VERSION)
 }
 
 function migrateV6ToV7(value: unknown): LegacyV7State | null {
@@ -485,7 +721,12 @@ export function loadGameState(storage: Pick<Storage, 'getItem' | 'removeItem'> =
       ? normalizedParsed
       : migrateV5(normalizedParsed) ?? migrateV4(normalizedParsed) ?? migrateV3(normalizedParsed)
     const legacyV7 = isLegacyV7State(normalizedParsed) ? normalizedParsed : legacyV6 ? migrateV6ToV7(legacyV6) : null
-    const state = normalizeV8(normalizedParsed) ?? (legacyV7 ? migrateV7ToV8(legacyV7) : null)
+    const migratedV8 = legacyV7 ? migrateV7ToV8(legacyV7) : null
+    const state = normalizeV11(normalizedParsed)
+      ?? migrateV10(normalizedParsed)
+      ?? normalizeV9(normalizedParsed)
+      ?? normalizeV8(normalizedParsed)
+      ?? (migratedV8 ? normalizeV8(migratedV8) : null)
     if (state) return state
     storage.removeItem(STORAGE_KEY)
   } catch {
