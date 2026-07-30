@@ -589,6 +589,7 @@ Allow at most three repair attempts for the same unchanged root cause before pau
 - 2026-07-30: `npx playwright test e2e/airbus-engine-out.spec.ts --project=chromium` passes the four then-current cases in 2.5 minutes, including the production Airbus GLB. The added clock-controlled Diversion completion case passes 1/1 in 17.5 seconds and proves Airbus completion while `rewardUnlocked` remains false.
 - 2026-07-30: Inspected production-browser evidence: `preview-renders/airbus-scenarios/airbus-simulator-hub-1440.png`, `airbus-engine-out-briefing-1440.png`, and `airbus-engine-out-recognition-1440.png`. The PFD, ND, and ECAM fit their physical bezels; the premature windshield corridor was removed.
 - 2026-07-30: Inspected responsive evidence at 768×900 and 375×812. Browser assertions prove no horizontal overflow, no topbar/telemetry overlap, no scene-tools/control-deck overlap, and all eight native controls inside the 375 px viewport.
+- 2026-07-30: Vercel preview deployment `dpl_8ueJ8NdvyWcJTx2FBom8vcpPMggi` reached `READY` at `https://cockpit-escape-room-iztt8224x-ottoagent007-gmailcoms-projects.vercel.app`. Authenticated checks returned HTTP 200 for the 581-byte app shell and the 39,884,060-byte Airbus GLB. Deployment protection requires the owner’s Vercel team login; the disconnected Vercel app could not create a temporary public share link.
 
 ## Outcome and handoff
 
