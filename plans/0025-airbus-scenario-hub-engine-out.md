@@ -103,7 +103,7 @@ The player can complete the mandatory Airbus qualification, choose the ready Sto
 - [x] 2026-07-30 — ExecPlan created from the approved design and current repository contracts.
 - [x] 2026-07-30 — Scenario progression and reducer tests pass (55 focused tests across scenario and reducer files).
 - [x] 2026-07-30 — Schema 11 migration and persistence tests pass; focused state/storage/scenario suite has 89 passing tests and typecheck is green.
-- [ ] Pure Engine-Out simulation tests pass.
+- [x] 2026-07-30 — Pure Engine-Out simulation tests pass (14 focused Engine-Out tests; 103 focused gameplay tests total).
 - [ ] Shared input and scenario runtime tests pass.
 - [ ] Simulator Hub and Engine-Out HUD are integrated.
 - [ ] Cockpit displays and 3D response are scenario-aware.
@@ -121,6 +121,7 @@ The player can complete the mandatory Airbus qualification, choose the ready Sto
 - Existing paired thrust-handle animation is sufficient. Engine asymmetry belongs in the fictional ECAM display and simulation rules, not in independent physical lever remodeling.
 - Task 1’s focused tests pass, while typecheck now fails only where schema 10 storage normalizers still construct the old Storm-only shape. Task 2 must migrate that boundary before the first implementation commit so the branch does not record a knowingly non-typechecking intermediate state.
 - Schema 11 treats an Engine-Out `completed` flag without canonical Airbus completion as corrupt instead of inventing reward eligibility; it resets that exercise to ready while preserving completed Storm progress.
+- Full lint currently reports two hook-immutability errors at `src/scenes/PrototypeScene.tsx:478` and `:501`, where the existing Storm camera frame callback writes canvas dataset evidence through `gl`. Task 6 owns that already-dirty renderer and must repair the root cause before the final lint gate.
 
 ## Decision log
 
@@ -576,6 +577,7 @@ Allow at most three repair attempts for the same unchanged root cause before pau
 - 2026-07-30: Current renderer inspection confirms it accepts Storm-specific state/input refs; Task 6 owns the discriminated-frame boundary.
 - 2026-07-30: `npm test -- --run src/game/airbusScenario.test.ts src/game/state.test.ts` passes 55 tests. The following `npm run typecheck` reports three expected missing `location`/`engineOut` errors in `src/game/storage.ts`.
 - 2026-07-30: `npm test -- --run src/game/storage.test.ts src/game/state.test.ts src/game/airbusScenario.test.ts` passes 89 tests; `npm run typecheck` passes after the schema 11 migration.
+- 2026-07-30: `npm test -- --run src/game/airbusEngineOut.test.ts src/game/airbusScenario.test.ts src/game/state.test.ts src/game/storage.test.ts` passes 103 tests and `npm run typecheck` passes. `npm run lint` fails only on the recorded existing `PrototypeScene.tsx` dataset writes.
 
 ## Outcome and handoff
 
