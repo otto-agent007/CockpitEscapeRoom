@@ -1578,6 +1578,10 @@ p {
   transform: none;
 }
 
+.airbus-shell.airbus-simulator-active .scene-tools {
+  bottom: 5.2rem;
+}
+
 .scene-tool-button,
 .scene-help-close {
   display: grid;
@@ -2083,8 +2087,12 @@ p {
   border-radius: 0.62rem;
   background: rgba(5, 12, 13, 0.82);
   box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.34);
-  pointer-events: auto;
+  pointer-events: none;
   transform: translateX(-50%);
+}
+
+.airbus-dock button {
+  pointer-events: auto;
 }
 
 .airbus-dock--atp {
@@ -2095,6 +2103,316 @@ p {
 
 .airbus-dock--atp .airbus-status {
   grid-column: 1 / -1;
+}
+
+.airbus-skip-familiarization {
+  grid-column: 1 / -1;
+  justify-self: end;
+}
+
+.airbus-simulator {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.airbus-simulator button {
+  pointer-events: auto;
+}
+
+.airbus-simulator--briefing {
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: radial-gradient(circle at 50% 28%, rgba(18, 42, 49, 0.34), rgba(2, 8, 10, 0.72));
+  pointer-events: auto;
+}
+
+.storm-briefing-card {
+  width: min(34rem, calc(100vw - 2rem));
+  border: 1px solid rgba(134, 224, 230, 0.3);
+  border-radius: 1rem;
+  padding: clamp(1.2rem, 3vw, 2.2rem);
+  background: rgba(5, 15, 18, 0.94);
+  box-shadow: 0 1.8rem 6rem rgba(0, 0, 0, 0.58);
+}
+
+.storm-briefing-card h2 {
+  margin: 0.18rem 0 0.65rem;
+  color: #f4f8f4;
+  font-size: clamp(2rem, 6vw, 3.8rem);
+}
+
+.storm-briefing-card p,
+.storm-briefing-card li {
+  color: #c4d2cf;
+  line-height: 1.55;
+}
+
+.storm-briefing-card ul {
+  margin: 1rem 0 1.25rem;
+  padding-left: 1.3rem;
+}
+
+.storm-briefing-card .text-button {
+  margin-left: 0.8rem;
+}
+
+.airbus-scenario-hub {
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 4vw, 3rem);
+  background: radial-gradient(circle at 50% 38%, rgba(8, 24, 28, 0.18), rgba(2, 8, 10, 0.48));
+  pointer-events: auto;
+}
+
+.scenario-hub-panel {
+  width: min(58rem, calc(100vw - 2rem));
+  border: 1px solid rgba(134, 224, 230, 0.28);
+  border-radius: 1rem;
+  padding: clamp(1rem, 2.5vw, 1.8rem);
+  background: rgba(4, 14, 17, 0.9);
+  box-shadow: 0 1.8rem 6rem rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(14px);
+}
+
+.scenario-hub-panel h2 {
+  margin: 0.15rem 0 0.35rem;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+}
+
+.scenario-hub-panel > p:not(.eyebrow) {
+  max-width: 50rem;
+  color: #c4d2cf;
+}
+
+.scenario-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin: 1rem 0;
+}
+
+.scenario-card {
+  display: flex;
+  min-height: 16.5rem;
+  flex-direction: column;
+  align-items: start;
+  border: 1px solid rgba(126, 215, 222, 0.22);
+  border-radius: 0.8rem;
+  padding: 1rem;
+  background: linear-gradient(145deg, rgba(14, 39, 44, 0.9), rgba(6, 18, 21, 0.92));
+}
+
+.scenario-card[data-status='locked'] {
+  border-color: rgba(170, 181, 180, 0.2);
+  filter: saturate(0.55);
+}
+
+.scenario-card h3 {
+  margin: 0.35rem 0;
+  font-size: 1.45rem;
+}
+
+.scenario-card p {
+  margin: 0.25rem 0;
+  color: #b9cac7;
+  line-height: 1.45;
+}
+
+.scenario-card-status {
+  color: #78e1e7;
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.scenario-card-traits {
+  color: #f1d889 !important;
+  font-size: 0.75rem;
+}
+
+.scenario-card .primary-button {
+  width: 100%;
+  margin-top: auto;
+}
+
+.scenario-card .primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.airbus-engine-out .storm-instrument-mirror {
+  width: 11.5rem;
+}
+
+.storm-topbar {
+  position: absolute;
+  top: 0.65rem;
+  left: 50%;
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  width: min(70rem, calc(100vw - 7rem));
+  gap: 1rem;
+  border: 1px solid rgba(126, 215, 222, 0.2);
+  border-radius: 0.7rem;
+  padding: 0.55rem 0.7rem;
+  background: rgba(3, 12, 15, 0.8);
+  box-shadow: 0 0.8rem 2.4rem rgba(0, 0, 0, 0.3);
+  transform: translateX(-50%);
+}
+
+.storm-crew-caption {
+  margin: 0.2rem 0 0;
+  color: #e9f1ed;
+  font-size: 0.88rem;
+}
+
+.storm-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #f1d889;
+}
+
+.storm-topbar-actions button,
+.storm-hold-control {
+  min-height: 2.45rem;
+  border: 1px solid rgba(139, 224, 230, 0.32);
+  border-radius: 0.48rem;
+  padding: 0.42rem 0.62rem;
+  background: rgba(13, 36, 41, 0.9);
+  color: #ecf7f4;
+  font: inherit;
+  white-space: nowrap;
+}
+
+.storm-topbar-actions button:hover,
+.storm-hold-control:hover,
+.storm-hold-control:focus-visible {
+  border-color: rgba(139, 224, 230, 0.86);
+  background: rgba(23, 62, 69, 0.95);
+}
+
+.storm-instrument-mirror {
+  position: absolute;
+  top: 6.2rem;
+  left: 0.7rem;
+  display: grid;
+  width: 8.5rem;
+  gap: 0.35rem;
+}
+
+.storm-instrument-mirror > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.35rem;
+  border-left: 3px solid #69d9df;
+  border-radius: 0.4rem;
+  padding: 0.38rem 0.5rem;
+  background: rgba(3, 12, 15, 0.78);
+  color: #b8c9c6;
+  font-size: 0.75rem;
+}
+
+.storm-instrument-mirror strong {
+  color: #f4f8f4;
+}
+
+.storm-instrument-mirror .is-in-range {
+  border-left-color: #75e69c;
+}
+
+.storm-instrument-mirror .is-outside {
+  border-left-color: #ffb05d;
+}
+
+.storm-progress {
+  position: absolute;
+  top: 5.1rem;
+  left: 50%;
+  width: min(42rem, calc(100vw - 12rem));
+  height: 0.35rem;
+  accent-color: #77dfe5;
+  transform: translateX(-50%);
+}
+
+.storm-control-deck {
+  position: absolute;
+  right: auto;
+  bottom: 0.65rem;
+  left: 50%;
+  display: flex;
+  align-items: end;
+  width: min(55rem, calc(100vw - 5.5rem));
+  gap: 0.55rem;
+  border: 1px solid rgba(126, 215, 222, 0.2);
+  border-radius: 0.7rem;
+  padding: 0.48rem;
+  background: rgba(3, 12, 15, 0.82);
+  transform: translateX(-50%);
+}
+
+.storm-control-group {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.storm-control-group > span {
+  padding-inline: 0.3rem;
+  color: #9eb3af;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.storm-control-deck small {
+  margin-left: auto;
+  color: #9eb3af;
+  white-space: nowrap;
+}
+
+.storm-hold-control {
+  flex: 1 1 auto;
+  touch-action: none;
+  user-select: none;
+}
+
+.storm-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: min(30rem, calc(100vw - 2rem));
+  gap: 0.6rem;
+  border: 1px solid rgba(255, 190, 104, 0.52);
+  border-radius: 0.85rem;
+  padding: 1.25rem;
+  background: rgba(6, 13, 15, 0.96);
+  box-shadow: 0 1.6rem 5rem rgba(0, 0, 0, 0.62);
+  color: #edf5f1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+}
+
+.storm-modal h3,
+.storm-modal p {
+  margin: 0;
+}
+
+.storm-modal span,
+.storm-modal p {
+  color: #c3d0cd;
+}
+
+.airbus-simulator.is-paused .storm-control-deck,
+.airbus-simulator--failed .storm-control-deck {
+  opacity: 0.42;
 }
 
 .airbus-qualification-form {
@@ -3125,6 +3443,159 @@ progress {
   .airbus-dock-button {
     min-width: 0;
     padding-inline: 0.75rem;
+  }
+
+  .storm-topbar {
+    top: 0.4rem;
+    align-items: center;
+    width: calc(100vw - 4.5rem);
+    padding: 0.42rem 0.5rem;
+  }
+
+  .storm-topbar .eyebrow {
+    max-width: 10rem;
+    font-size: 0.58rem;
+  }
+
+  .storm-crew-caption {
+    max-width: 10rem;
+    font-size: 0.67rem;
+  }
+
+  .storm-topbar-actions {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 0.25rem;
+    font-size: 0.7rem;
+  }
+
+  .storm-topbar-actions > span {
+    grid-column: 1 / -1;
+    text-align: right;
+  }
+
+  .storm-topbar-actions button {
+    min-height: 2rem;
+    padding: 0.28rem 0.4rem;
+    font-size: 0.65rem;
+  }
+
+  .storm-progress {
+    top: 5.3rem;
+    width: calc(100vw - 5rem);
+  }
+
+  .storm-instrument-mirror {
+    top: 6rem;
+    left: 0.4rem;
+    width: 6.6rem;
+  }
+
+  .storm-instrument-mirror > div {
+    padding: 0.3rem 0.35rem;
+    font-size: 0.62rem;
+  }
+
+  .storm-control-deck {
+    bottom: 0.35rem;
+    display: grid;
+    width: calc(100vw - 1rem);
+    gap: 0.3rem;
+    padding: 0.35rem;
+  }
+
+  .storm-control-group {
+    gap: 0.22rem;
+  }
+
+  .storm-control-group > span {
+    width: 4.3rem;
+    font-size: 0.55rem;
+  }
+
+  .storm-hold-control {
+    min-height: 2.3rem;
+    padding: 0.3rem;
+    font-size: 0.62rem;
+  }
+
+  .storm-control-deck small {
+    display: none;
+  }
+
+  .storm-briefing-card {
+    max-height: calc(100vh - 1rem);
+    overflow-y: auto;
+    padding: 1rem;
+  }
+
+  .storm-briefing-card h2 {
+    font-size: 2rem;
+  }
+
+  .airbus-scenario-hub {
+    align-items: start;
+    overflow-y: auto;
+    padding: 0.5rem;
+  }
+
+  .scenario-hub-panel {
+    width: calc(100vw - 1rem);
+    max-height: calc(100vh - 1rem);
+    overflow-y: auto;
+    padding: 0.8rem;
+  }
+
+  .scenario-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .scenario-card {
+    min-height: 12.5rem;
+  }
+
+  .airbus-engine-out .storm-instrument-mirror {
+    width: 7.8rem;
+  }
+
+  .airbus-shell.airbus-simulator-active .scene-tools {
+    right: 0.55rem;
+    bottom: 6.7rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .storm-topbar {
+    width: calc(100vw - 1rem);
+  }
+
+  .storm-progress {
+    top: 11.9rem;
+    width: calc(100vw - 1.5rem);
+  }
+
+  .storm-instrument-mirror,
+  .airbus-engine-out .storm-instrument-mirror {
+    top: 12.3rem;
+  }
+
+  .storm-control-group {
+    gap: 0.15rem;
+  }
+
+  .storm-control-group > span {
+    width: 3.65rem;
+    padding-inline: 0.1rem;
+    font-size: 0.5rem;
+  }
+
+  .storm-hold-control {
+    padding-inline: 0.2rem;
+    font-size: 0.58rem;
+  }
+
+  .airbus-shell.airbus-simulator-active .scene-tools {
+    bottom: 9rem;
   }
 }
 

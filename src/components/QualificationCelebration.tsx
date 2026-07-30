@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import type { EngineOutTrait } from '../game/airbusEngineOut'
 
 const CAPTAIN_CELEBRATION_REVEAL_DELAY_MS = 850
 
@@ -82,12 +83,29 @@ export function MilestoneCelebration({
   )
 }
 
-export function AirbusCompletionCelebration({ reducedMotion, onContinue }: { reducedMotion: boolean; onContinue: () => void }) {
+const captainTraitLabels: Record<EngineOutTrait, string> = {
+  directionalControl: 'Directional Control',
+  energyDiscipline: 'Energy Discipline',
+  calmDiversion: 'Calm Diversion',
+}
+
+export function AirbusCompletionCelebration({
+  reducedMotion,
+  traits,
+  onContinue,
+}: {
+  reducedMotion: boolean
+  traits: EngineOutTrait[]
+  onContinue: () => void
+}) {
+  const debrief = traits.length > 0
+    ? `Captain traits: ${traits.map((trait) => captainTraitLabels[trait]).join(' · ')}`
+    : 'Both simulator exercises are complete. Captain knowledge logged.'
   return (
     <MilestoneCelebration
       eyebrow="Airbus A320"
       title="POP T CAPTAIN MODE COMPLETE"
-      body="Captain knowledge logged."
+      body={debrief}
       actionLabel="Continue"
       reducedMotion={reducedMotion}
       onContinue={onContinue}

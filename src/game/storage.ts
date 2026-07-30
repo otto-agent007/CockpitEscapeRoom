@@ -487,7 +487,7 @@ function normalizeAirbusSimulatorProgress(
       : engineProgressValid && (engineOut.status === 'completed' || engineOut.status === 'in_progress')
         ? engineOut.status
         : 'not_started'
-  const cameraPhase = normalizedStatus === 'in_progress'
+  const cameraPhase = normalizedStatus === 'in_progress' || engineStatus === 'in_progress'
     ? 'storm'
     : candidate.cameraPhase === 'transitioning'
       ? 'transitioning'

@@ -196,6 +196,37 @@ describe('schema-v10 to schema-v11 Airbus scenario migration', () => {
 })
 
 describe('canonical schema-v11 Airbus scenario recovery', () => {
+  it('restores the focused captain camera for an in-progress Engine-Out exercise', () => {
+    const state = createInitialState()
+    const loaded = loadRaw({
+      ...state,
+      phase: 'airbus',
+      airbusAssignments: { ...airbusCaptainFlow.controlMatch },
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        familiarization: 'completed',
+        cameraPhase: 'qualified',
+        location: 'engineOut',
+        stormLine: {
+          status: 'completed',
+          checkpoint: 'clearAir',
+          attempts: { stormEntry: 0, stormCore: 0, clearAir: 0 },
+          bestTraits: ['weatherJudgment'],
+        },
+        engineOut: {
+          status: 'in_progress',
+          checkpoint: 'recognition',
+          attempts: { recognition: 0, stabilization: 0, diversion: 0 },
+          bestTraits: [],
+        },
+      },
+    })
+
+    expect(loaded.airbusSimulator.location).toBe('engineOut')
+    expect(loaded.airbusSimulator.cameraPhase).toBe('storm')
+    expect(loaded.airbusSimulator.engineOut.status).toBe('in_progress')
+  })
+
   it('resets malformed Engine-Out progress to the hub without erasing Storm completion', () => {
     const state = createInitialState()
     const loaded = loadRaw({

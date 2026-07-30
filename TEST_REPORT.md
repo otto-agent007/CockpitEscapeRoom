@@ -1,5 +1,60 @@
 # Test report
 
+## 2026-07-29 Airbus Storm Line simulator — owner visual gate open
+
+- Evolved Airbus A320 Pop T Captain Mode into the 2:45 **Storm Line**
+  fictional simulator. Players manually control pitch, bank, and paired thrust,
+  choose the safer western corridor, recover through checkpoint-local retries,
+  and earn Calm Control, Weather Judgment, and Energy Management traits.
+  Keyboard, standard gamepad, native HTML hold controls, pause, opt-in
+  soundscape, reduced motion, reload, no-WebGL fallback, and the retained
+  skippable five-card familiarization are covered. Existing completion and
+  reward handoff behavior is preserved.
+- Persistence is schema v9. Focused unit coverage proves fixed-step
+  determinism, storm progression, corridor choice, control/energy failures,
+  checkpoint recovery, traits, v8 migration, corrupt-v9 normalization, and
+  preservation of already-completed Airbus/reward progress.
+- Rebuilt the authoritative Blender 5.1.2 source and deployable Airbus GLB with
+  three semantic PFD/ND/ECAM display surfaces, nested captain sidestick
+  roll/pitch pivots, and one paired-thrust pivot. The accepted GLB is
+  39,883,148 bytes at SHA-256
+  `9e747fcdf36cbf6fbac475997423d3805bd6681a2be316d14523daface29b82c`;
+  it contains 163 selected objects, 162 `game_id` nodes, 13 materials, and 10
+  textures. No destructive optimization was used.
+- The first actual-browser visual gate correctly rejected an export whose new
+  display/control nodes inherited stale world matrices and appeared at the
+  origin. Updating Blender's view layer before reparenting repaired the source
+  cause. A later 375 px capture exposed viewer tools covering Decrease thrust,
+  and the 1280×720 smoke path exposed a status-dock/drop-zone pointer overlap;
+  both layout defects were repaired and their focused browser paths passed.
+- Inspected actual-browser captures from the production GLB are tracked at
+  `preview-renders/storm-line/airbus-storm-line-{1440,768,375}.png`. The final
+  images show live cockpit-mounted PFD/ND/ECAM graphics, an unobstructed control
+  deck, and preserved captain-seat composition.
+- `BLENDER_BIN=/home/user1/.local/bin/blender BLENDER_EXPECTED_VERSION=5.1 npm
+  run asset:airbus` passed source preparation, validation, preview rendering,
+  export, and glTF inspection. `npm run asset:airbus:promote-gate`,
+  `npm run assets:check`, and `npm run pipeline:evals` passed. `npm run check`
+  passed ESLint, TypeScript, 138/138 Vitest tests, and the production build.
+- Bounded Chromium runs account for all 40 selected cases: Airbus Storm Line
+  3/3, locker 6/6, reward 6/6, viewer controls 3/3, and smoke 22/22 with its
+  capture-only owner-evidence case intentionally skipped. A monolithic attempt
+  was externally terminated after seven green cases without an assertion
+  failure; the slower real-asset cases and every remaining case passed in
+  bounded runs. The one genuine smoke failure was reproduced, repaired, and
+  passed on an exact fresh-build rerun.
+- The branch is `agent/airbus-gameplay-evolution`, created from
+  `origin/main` commit `7252c2c`. No Tesla/Model Y implementation or asset file
+  is part of this milestone.
+- Vercel preview deployment `dpl_Cqcac6J4JoyBbEtEKdQgYoN34aQM` reached
+  `READY` at
+  `https://cockpit-escape-room-mg2122811-ottoagent007-gmailcoms-projects.vercel.app`.
+  Authenticated requests returned HTTP 200 for the app and Airbus GLB; the
+  deployed model is 39,883,148 bytes and its SHA-256 exactly matches local.
+  The connected share-link helper returned 403 for this protected deployment,
+  so owner access remains subject to Vercel authentication. Owner visual/play
+  approval remains open.
+
 ## 2026-07-26 TMB2 Productions approved-logo ident — owner visual gate open
 
 - Owner follow-up: reduced only the generated `PRODUCTIONS` caption to 50% in
@@ -1052,3 +1107,15 @@ Historical checkpoint; the 2026-07-11 transition and Tripo-intake sections above
 - Final Airbus GLB: 39,878,776 bytes, SHA-256 `e340dcf1caefb998f208a5fd228455384d289916efd4b4f15fbafc50c79497ef`.
 - Focused browser validation: `npx playwright test e2e/smoke.spec.ts --grep "Airbus production cockpit loads" --workers=1` passed 1/1 after the final GLB export. The production test uses a bounded 180-second timeout because SwiftShader teardown can outlast the functional assertions.
 - Browser screenshots inspected: `/tmp/airbus-radio-thrust-aligned-1440.png`, `/tmp/airbus-radio-thrust-aligned-768.png`, `/tmp/airbus-radio-thrust-aligned-375.png`. Tracked owner proof: `preview-renders/airbus-target-alignment/airbus-radio-thrust-aligned-1440.png` (690,306 bytes). At 1440 the radio is farther left on its panel and thrust is centered between the levers; 768 remains usable. The 375 capture retains the existing narrow projected-camera limitation with thrust offscreen and is not a mobile approval milestone.
+
+## 2026-07-30 Airbus Simulator Hub and Engine-Out Handling
+
+- The mandatory five-card Airbus qualification now opens a two-card Simulator Hub. Storm Line is ready first; completing it returns to the Hub and unlocks Engine-Out Handling without completing Airbus. Engine-Out completion records its debrief traits and completes Airbus while the existing reward remains locked until the player explicitly continues.
+- Engine-Out is a deliberate, fictional, non-operational cruise-training exercise with deterministic Recognition, Stabilization, and Diversion stages. Pitch, bank, paired thrust, and directional balance share one normalized keyboard/gamepad/native-control contract. Five cumulative unsafe seconds retry only the active stage, and replay starts from the opening checkpoint while preserving best traits.
+- Schema 11 migration preserves old completed/reward saves, keeps both scenarios replayable, and safely normalizes corrupt Engine-Out progress without erasing qualification or completed Storm progress. A browser-discovered regression now proves an in-progress Engine-Out reload restores the focused captain camera.
+- The production Airbus cockpit renders scenario-aware PFD, ND, and ECAM screens inside their physical bezels, live sidestick/thrust response, restrained heading/bank motion, and a SAFE RETURN corridor that appears outside the windshield only during Diversion. All operational-looking copy remains explicitly simulator/training-only.
+- `npm run check` passed ESLint, TypeScript, 195/195 Vitest tests across 20 files, and the production Vite build. `npm run assets:check` passed the current deployable assets, and `git diff --check` passed.
+- `npx playwright test e2e/airbus-storm-line.spec.ts --project=chromium` passed 5/5 in 2.3 minutes. `npx playwright test e2e/airbus-engine-out.spec.ts --project=chromium` passed its four then-current cases in 2.5 minutes, including the real 38 MiB Airbus GLB; the subsequently added clock-controlled Diversion completion case passed 1/1 in 17.5 seconds.
+- Browser coverage proves qualification gating, Hub unlocks, keyboard directional response, gamepad normalization, native controls, pause/resume, focused failure/retry, durable reload, reduced motion, full Diversion completion, and no early reward unlock. The 375 px geometry gate verifies the instructor panel, telemetry, viewer tools, and control deck do not overlap and every hold control stays inside the viewport.
+- Inspected 1440×900 owner-gate evidence is tracked at `preview-renders/airbus-scenarios/airbus-simulator-hub-1440.png`, `airbus-engine-out-briefing-1440.png`, and `airbus-engine-out-recognition-1440.png`. Inspected 768×900 and 375×812 captures remain local validation evidence. The milestone is automated-check complete and awaits owner visual approval.
+- Tesla/Model Y gameplay and assets were not changed by this milestone. No Vercel preview was published.

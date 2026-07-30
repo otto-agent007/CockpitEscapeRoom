@@ -415,7 +415,37 @@ describe('gameReducer', () => {
 
     expect(next.airbusSimulator.location).toBe('engineOut')
     expect(next.airbusSimulator.engineOut.status).toBe('in_progress')
+    expect(next.airbusSimulator.cameraPhase).toBe('storm')
     expect(next.statusMessage).toContain('deliberate cruise training exercise')
+  })
+
+  it('replays a completed Storm Line through the focused camera transition', () => {
+    let state = completeStormLine()
+    state = {
+      ...state,
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        stormLine: {
+          ...state.airbusSimulator.stormLine,
+          checkpoint: 'clearAir',
+          attempts: { stormEntry: 1, stormCore: 2, clearAir: 1 },
+        },
+      },
+    }
+    state = gameReducer(state, { type: 'SELECT_AIRBUS_SCENARIO', scenario: 'stormLine' })
+    state = gameReducer(state, { type: 'BEGIN_AIRBUS_STORM_TRANSITION' })
+
+    expect(state.airbusSimulator.cameraPhase).toBe('transitioning')
+    expect(state.airbusSimulator.stormLine.checkpoint).toBe('stormEntry')
+    expect(state.airbusSimulator.stormLine.attempts).toEqual({
+      stormEntry: 0,
+      stormCore: 0,
+      clearAir: 0,
+    })
+
+    state = gameReducer(state, { type: 'START_AIRBUS_STORM_LINE' })
+    expect(state.airbusSimulator.location).toBe('stormLine')
+    expect(state.airbusSimulator.stormLine.status).toBe('in_progress')
   })
 
   it('completes Airbus only after Engine-Out Handling is complete', () => {
@@ -463,8 +493,28 @@ describe('gameReducer', () => {
       type: 'COMPLETE_AIRBUS_ENGINE_OUT',
       traits: ['directionalControl'],
     })
+    state = {
+      ...state,
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        engineOut: {
+          ...state.airbusSimulator.engineOut,
+          checkpoint: 'diversion',
+          attempts: { recognition: 0, stabilization: 2, diversion: 1 },
+        },
+      },
+    }
     state = gameReducer(state, { type: 'SELECT_AIRBUS_SCENARIO', scenario: 'engineOut' })
     state = gameReducer(state, { type: 'BEGIN_AIRBUS_ENGINE_OUT' })
+
+    expect(state.airbusSimulator.engineOut.checkpoint).toBe('recognition')
+    expect(state.airbusSimulator.engineOut.attempts).toEqual({
+      recognition: 0,
+      stabilization: 0,
+      diversion: 0,
+    })
+    expect(state.airbusSimulator.engineOut.bestTraits).toEqual(['directionalControl'])
+
     state = gameReducer(state, {
       type: 'COMPLETE_AIRBUS_ENGINE_OUT',
       traits: ['energyDiscipline', 'directionalControl'],

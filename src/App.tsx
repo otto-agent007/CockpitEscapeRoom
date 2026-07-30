@@ -6,8 +6,11 @@ import { LockerTransition, type LockerIntroStage } from './components/LockerTran
 import { AirbusCompletionCelebration, CaptainHatCelebration } from './components/QualificationCelebration'
 import { SceneHelp } from './components/SceneHelp'
 import { dc9LegacyFlow, gameCopy, lockerFlow, type AirbusControl, type LockerMemoryId } from './game/config'
+import type { EngineOutCheckpoint, EngineOutTrait } from './game/airbusEngineOut'
+import type { StormLineCheckpoint, StormLineTrait } from './game/airbusSimulator'
 import { isLockerMemoryAvailable } from './game/state'
 import { clearGameState } from './game/storage'
+import { useAirbusSimulator } from './game/useAirbusSimulator'
 import { useGame } from './game/useGame'
 import type { AirbusHotspotScreenPositions, AirbusLoadState, Dc9HotspotScreenPositions, Dc9LoadState, LockerCameraCue, LockerLoadState } from './scenes/PrototypeScene'
 
@@ -40,6 +43,8 @@ const REDUCED_LOCKER_INTRO_TIMINGS = {
   revealLocker: 250,
   wideHold: 0,
 } as const
+
+const AIRBUS_STORM_TRANSITION_MS = 1_250
 
 const LOCKER_HAT_HOLD_MS = 2_000
 
@@ -175,6 +180,60 @@ export default function App() {
   const lockerInteractionEnabled = state.phase === 'locker' && state.lockerIntroCompleted && !lockerIntroActive && !captainHatCelebrationActive && !lockerHatFinaleActive
   const availableLockerMemories = lockerFlow.memoryIds.filter((memoryId) => isLockerMemoryAvailable(state, memoryId))
   const viewerResetReady = !lockerIntroActive && !lockerHatFinaleActive && (state.phase !== 'airbus' || airbusSceneReady)
+  const saveAirbusCheckpoint = useCallback((
+    checkpoint: StormLineCheckpoint,
+    attempts: Record<StormLineCheckpoint, number>,
+  ) => {
+    dispatch({ type: 'SAVE_AIRBUS_STORM_CHECKPOINT', checkpoint, attempts })
+  }, [dispatch])
+  const completeAirbusStormLine = useCallback((
+    traits: StormLineTrait[],
+  ) => {
+    dispatch({ type: 'COMPLETE_AIRBUS_STORM_LINE', traits })
+  }, [dispatch])
+  const saveAirbusEngineOutCheckpoint = useCallback((
+    checkpoint: EngineOutCheckpoint,
+    attempts: Record<EngineOutCheckpoint, number>,
+  ) => {
+    dispatch({ type: 'SAVE_AIRBUS_ENGINE_OUT_CHECKPOINT', checkpoint, attempts })
+  }, [dispatch])
+  const completeAirbusEngineOut = useCallback((
+    traits: EngineOutTrait[],
+  ) => {
+    dispatch({ type: 'COMPLETE_AIRBUS_ENGINE_OUT', traits })
+  }, [dispatch])
+  const activeAirbusScenario = state.phase === 'airbus'
+    ? state.airbusSimulator.location === 'stormLine' &&
+        state.airbusSimulator.stormLine.status === 'in_progress'
+      ? 'stormLine'
+      : state.airbusSimulator.location === 'engineOut' &&
+          state.airbusSimulator.engineOut.status === 'in_progress'
+        ? 'engineOut'
+        : null
+    : null
+  const airbusSimulator = useAirbusSimulator({
+    activeScenario: activeAirbusScenario,
+    stormLine: {
+      checkpoint: state.airbusSimulator.stormLine.checkpoint,
+      attempts: state.airbusSimulator.stormLine.attempts,
+    },
+    engineOut: {
+      checkpoint: state.airbusSimulator.engineOut.checkpoint,
+      attempts: state.airbusSimulator.engineOut.attempts,
+    },
+    onStormCheckpoint: saveAirbusCheckpoint,
+    onStormComplete: completeAirbusStormLine,
+    onEngineOutCheckpoint: saveAirbusEngineOutCheckpoint,
+    onEngineOutComplete: completeAirbusEngineOut,
+  })
+  useEffect(() => {
+    if (state.phase !== 'airbus' || state.airbusSimulator.cameraPhase !== 'transitioning') return
+    const timeout = window.setTimeout(
+      () => dispatch({ type: 'START_AIRBUS_STORM_LINE' }),
+      reducedMotion ? 0 : AIRBUS_STORM_TRANSITION_MS,
+    )
+    return () => window.clearTimeout(timeout)
+  }, [dispatch, reducedMotion, state.airbusSimulator.cameraPhase, state.phase])
   const beginDc9Entry = useCallback(() => setDc9EntryStage((stage) => stage === 'idle' ? 'fade-out' : stage), [])
   const finishDc9Entry = useCallback(() => setDc9EntryStage('idle'), [])
 
@@ -525,7 +584,7 @@ export default function App() {
     <main
       ref={shellRef}
       data-locker-hat-finale-stage={state.phase === 'locker' ? lockerHatFinaleStage : undefined}
-      className={`game-shell${state.phase === 'airbus' ? ' airbus-shell' : ''}${state.phase === 'locker' ? ' locker-shell' : ''}${state.phase === 'dc9' ? ' captain-shell' : ''}`}
+      className={`game-shell${state.phase === 'airbus' ? ' airbus-shell' : ''}${activeAirbusScenario ? ' airbus-simulator-active' : ''}${state.phase === 'locker' ? ' locker-shell' : ''}${state.phase === 'dc9' ? ' captain-shell' : ''}`}
     >
       {skipPrototypeScene || (state.phase === 'airbus' && airbusLoadState.status === 'accessible-fallback') || (state.phase === 'locker' && lockerLoadState.status === 'accessible-fallback') || (state.phase === 'dc9' && dc9LoadState.status === 'accessible-fallback') ? (
         state.phase === 'locker'
@@ -542,6 +601,9 @@ export default function App() {
             reducedMotion={reducedMotion}
             lockerHatRevealed={state.lockerHatRevealed}
             selectedAirbusCard={activeSelectedAirbusCard}
+            airbusCameraPhase={state.airbusSimulator.cameraPhase}
+            airbusSimulationFrameRef={airbusSimulator.activeFrameRef}
+            airbusInputRef={airbusSimulator.inputRef}
             airbusRetryToken={airbusRetryToken}
             lockerRetryToken={lockerRetryToken}
             lockerCameraCue={lockerCameraCue}
@@ -575,6 +637,9 @@ export default function App() {
           airbusMeshPickingEnabled={!skipPrototypeScene && airbusLoadState.status !== 'accessible-fallback'}
           selectedAirbusCard={activeSelectedAirbusCard}
           onSelectedAirbusCardChange={setSelectedAirbusCard}
+          airbusSimulator={airbusSimulator}
+          onAirbusRecenter={() => setCameraResetRevision((revision) => revision + 1)}
+          reducedMotion={reducedMotion}
           selectedLockerMemory={selectedLockerMemory}
           onSelectedLockerMemoryChange={setSelectedLockerMemory}
         />
@@ -619,7 +684,11 @@ export default function App() {
       {!lockerIntroActive && !captainHatCelebrationActive && !lockerHatFinaleActive && helpOpen && <button type="button" className="scene-help-dismiss" onClick={closeHelp} aria-label="Dismiss viewer help" tabIndex={-1} />}
       {!lockerIntroActive && !captainHatCelebrationActive && !lockerHatFinaleActive && <SceneHelp phase={state.phase} open={helpOpen} onClose={closeHelp} />}
       {state.phase === 'airbus' && state.completedPuzzles.includes('airbus') && !lockerIntroActive && (
-        <AirbusCompletionCelebration reducedMotion={reducedMotion} onContinue={continueToReward} />
+        <AirbusCompletionCelebration
+          reducedMotion={reducedMotion}
+          traits={state.airbusSimulator.engineOut.bestTraits}
+          onContinue={continueToReward}
+        />
       )}
       {captainHatCelebrationActive && (
         <CaptainHatCelebration reducedMotion={reducedMotion} onContinue={continueToAirbus} />

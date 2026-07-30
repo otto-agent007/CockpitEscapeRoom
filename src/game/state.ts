@@ -560,7 +560,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         state.phase !== 'airbus' ||
         state.airbusSimulator.familiarization !== 'completed' ||
         state.airbusSimulator.cameraPhase !== 'qualified' ||
-        state.airbusSimulator.stormLine.status !== 'not_started' ||
+        (state.airbusSimulator.stormLine.status !== 'not_started' &&
+          state.airbusSimulator.stormLine.status !== 'completed') ||
         !allControlsCorrect(state.airbusAssignments)
       ) return state
       return {
@@ -569,6 +570,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           ...state.airbusSimulator,
           location: 'stormLine',
           cameraPhase: 'transitioning',
+          stormLine: state.airbusSimulator.stormLine.status === 'completed'
+            ? {
+                ...state.airbusSimulator.stormLine,
+                checkpoint: 'stormEntry',
+                attempts: { stormEntry: 0, stormCore: 0, clearAir: 0 },
+              }
+            : state.airbusSimulator.stormLine,
         },
         statusMessage: 'Captain view moving forward. Storm Flight instruments coming into focus.',
       }
@@ -650,9 +658,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         airbusSimulator: {
           ...state.airbusSimulator,
           location: 'engineOut',
+          cameraPhase: 'storm',
           engineOut: {
             ...state.airbusSimulator.engineOut,
             status: 'in_progress',
+            checkpoint: state.airbusSimulator.engineOut.status === 'completed'
+              ? 'recognition'
+              : state.airbusSimulator.engineOut.checkpoint,
+            attempts: state.airbusSimulator.engineOut.status === 'completed'
+              ? { recognition: 0, stabilization: 0, diversion: 0 }
+              : state.airbusSimulator.engineOut.attempts,
           },
         },
         statusMessage: 'Engine-Out Handling is a deliberate cruise training exercise. Maintain calm control.',

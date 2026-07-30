@@ -114,6 +114,26 @@ describe('Engine-Out Handling simulation', () => {
     expect(transition.state.stageElapsedSeconds).toBeCloseTo(0.25, 5)
   })
 
+  it('produces the same authoritative frame regardless of render-time chunking', () => {
+    const input = { pitch: 0.2, bank: 0.3, thrust: 0.1, directional: 0.5 }
+    const initial = createEngineOutStateAtCheckpoint('stabilization')
+    const oneChunk = advanceEngineOut(initial, input, 0.1).state
+    let fixedTicks = initial
+    for (let tick = 0; tick < 6; tick += 1) {
+      fixedTicks = advanceEngineOut(fixedTicks, input, 1 / 60).state
+    }
+
+    expect(oneChunk.stageElapsedSeconds).toBeCloseTo(fixedTicks.stageElapsedSeconds, 7)
+    expect(oneChunk.aircraft.pitch).toBeCloseTo(fixedTicks.aircraft.pitch, 7)
+    expect(oneChunk.aircraft.bank).toBeCloseTo(fixedTicks.aircraft.bank, 7)
+    expect(oneChunk.aircraft.energy).toBeCloseTo(fixedTicks.aircraft.energy, 7)
+    expect(oneChunk.aircraft.directionalError).toBeCloseTo(
+      fixedTicks.aircraft.directionalError,
+      7,
+    )
+    expect(oneChunk.aircraft.headingError).toBeCloseTo(fixedTicks.aircraft.headingError, 7)
+  })
+
   it('smoothly reduces simulated left-engine power before entering Stabilization', () => {
     const halfway = advanceFor(createEngineOutStateAtCheckpoint('recognition'), 5)
 
@@ -127,6 +147,19 @@ describe('Engine-Out Handling simulation', () => {
     expect(finished.state.checkpoint).toBe('stabilization')
     expect(finished.state.aircraft.leftEnginePower).toBeCloseTo(0.28, 2)
     expect(finished.checkpointReached).toBe('stabilization')
+  })
+
+  it('keeps player control active while the Recognition reduction develops', () => {
+    const controlled = advanceFor(
+      createEngineOutStateAtCheckpoint('recognition'),
+      1,
+      { pitch: 0.4, bank: -0.3, thrust: 0.2, directional: 0.2 },
+    )
+
+    expect(controlled.state.aircraft.pitch).toBeGreaterThan(0)
+    expect(controlled.state.aircraft.bank).toBeLessThan(0)
+    expect(controlled.state.aircraft.energy).toBeGreaterThan(0.5)
+    expect(controlled.state.aircraft.directionalError).not.toBe(0)
   })
 
   it('clamps player axes while responding continuously during Stabilization', () => {

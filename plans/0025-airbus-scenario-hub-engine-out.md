@@ -104,13 +104,13 @@ The player can complete the mandatory Airbus qualification, choose the ready Sto
 - [x] 2026-07-30 — Scenario progression and reducer tests pass (55 focused tests across scenario and reducer files).
 - [x] 2026-07-30 — Schema 11 migration and persistence tests pass; focused state/storage/scenario suite has 89 passing tests and typecheck is green.
 - [x] 2026-07-30 — Pure Engine-Out simulation tests pass (14 focused Engine-Out tests; 103 focused gameplay tests total).
-- [ ] Shared input and scenario runtime tests pass.
-- [ ] Simulator Hub and Engine-Out HUD are integrated.
-- [ ] Cockpit displays and 3D response are scenario-aware.
-- [ ] Focused automated checks pass.
-- [ ] Actual browser paths and responsive widths are exercised.
+- [x] 2026-07-30 — Shared four-axis input, scenario routing, and Storm regression tests pass.
+- [x] 2026-07-30 — Simulator Hub, Engine-Out briefing/HUD, native controls, captions, pause, retry, replay, and completion debrief are integrated.
+- [x] 2026-07-30 — PFD, ND, ECAM, world motion, directional cue, SAFE RETURN cue, sidestick, and paired thrust respond to the authoritative scenario frame.
+- [x] 2026-07-30 — `npm run check`, `npm run assets:check`, `git diff --check`, and focused scenario browser suites pass.
+- [x] 2026-07-30 — Actual browser paths were exercised at 1440×900, 768×900, and 375×812; phone overlap defects were repaired and covered by geometry assertions.
 - [ ] Owner approves the Airbus left-seat visual proof.
-- [ ] Evidence and reports are finalized.
+- [x] 2026-07-30 — Implementation evidence and current owner-gate status are recorded here and in `TEST_REPORT.md`.
 
 ## Discoveries
 
@@ -122,6 +122,10 @@ The player can complete the mandatory Airbus qualification, choose the ready Sto
 - Task 1’s focused tests pass, while typecheck now fails only where schema 10 storage normalizers still construct the old Storm-only shape. Task 2 must migrate that boundary before the first implementation commit so the branch does not record a knowingly non-typechecking intermediate state.
 - Schema 11 treats an Engine-Out `completed` flag without canonical Airbus completion as corrupt instead of inventing reward eligibility; it resets that exercise to ready while preserving completed Storm progress.
 - Full lint currently reports two hook-immutability errors at `src/scenes/PrototypeScene.tsx:478` and `:501`, where the existing Storm camera frame callback writes canvas dataset evidence through `gl`. Task 6 owns that already-dirty renderer and must repair the root cause before the final lint gate.
+- A locally reused Vite preview initially served stale code to Playwright, making the new `D` input appear broken. Restarting the exact preview process and rebuilding proved the browser path correct; later runs use fresh production builds.
+- Schema 11 normalization originally restored an in-progress Engine-Out exercise to the qualified camera even though the simulation was active. A focused storage regression now requires the focused captain camera for either in-progress scenario.
+- Starting an in-progress simulation before the 38 MiB GLB finished loading allowed valid simulator time to elapse during headless decoding. The real-asset proof now follows the player boundary: wait for the cockpit, open the briefing, then begin the timed exercise.
+- The first 375×812 proof had telemetry over the instructor panel and viewer tools over the rightmost flight control. CSS and browser geometry assertions now keep those regions disjoint and every hold control inside the viewport.
 
 ## Decision log
 
@@ -133,6 +137,8 @@ The player can complete the mandatory Airbus qualification, choose the ready Sto
 - 2026-07-30: Preserve old completed/reward saves as completed and unlock both exercises for replay.
 - 2026-07-30: Return malformed Engine-Out progress to the hub while preserving independently proven qualification and Storm completion.
 - 2026-07-30: Implement inline and sequentially because the active workspace rules do not authorize sub-agent delegation.
+- 2026-07-30: Replays reset the selected scenario to its opening checkpoint with fresh attempt counters while preserving best earned traits.
+- 2026-07-30: Keep the exterior SAFE RETURN corridor hidden until Diversion; Recognition and Stabilization retain a calm forward view while the ND can preview the eventual diversion objective.
 
 ## Milestones
 
@@ -578,7 +584,12 @@ Allow at most three repair attempts for the same unchanged root cause before pau
 - 2026-07-30: `npm test -- --run src/game/airbusScenario.test.ts src/game/state.test.ts` passes 55 tests. The following `npm run typecheck` reports three expected missing `location`/`engineOut` errors in `src/game/storage.ts`.
 - 2026-07-30: `npm test -- --run src/game/storage.test.ts src/game/state.test.ts src/game/airbusScenario.test.ts` passes 89 tests; `npm run typecheck` passes after the schema 11 migration.
 - 2026-07-30: `npm test -- --run src/game/airbusEngineOut.test.ts src/game/airbusScenario.test.ts src/game/state.test.ts src/game/storage.test.ts` passes 103 tests and `npm run typecheck` passes. `npm run lint` fails only on the recorded existing `PrototypeScene.tsx` dataset writes.
+- 2026-07-30: `npm run check` passes ESLint, TypeScript, all 195 Vitest tests across 20 files, and the production Vite build. `npm run assets:check` and `git diff --check` pass.
+- 2026-07-30: `npx playwright test e2e/airbus-storm-line.spec.ts --project=chromium` passes 5/5 in 2.3 minutes, including the production Airbus GLB, keyboard, gamepad, pause, retry, reload, and responsive Storm paths.
+- 2026-07-30: `npx playwright test e2e/airbus-engine-out.spec.ts --project=chromium` passes the four then-current cases in 2.5 minutes, including the production Airbus GLB. The added clock-controlled Diversion completion case passes 1/1 in 17.5 seconds and proves Airbus completion while `rewardUnlocked` remains false.
+- 2026-07-30: Inspected production-browser evidence: `preview-renders/airbus-scenarios/airbus-simulator-hub-1440.png`, `airbus-engine-out-briefing-1440.png`, and `airbus-engine-out-recognition-1440.png`. The PFD, ND, and ECAM fit their physical bezels; the premature windshield corridor was removed.
+- 2026-07-30: Inspected responsive evidence at 768×900 and 375×812. Browser assertions prove no horizontal overflow, no topbar/telemetry overlap, no scene-tools/control-deck overlap, and all eight native controls inside the 375 px viewport.
 
 ## Outcome and handoff
 
-Implementation is beginning. The next concrete checkpoint is Task 1: red tests for the scenario contracts and reducer progression. The milestone remains open until automated validation and the owner’s Airbus left-seat browser proof are complete.
+Implementation and automated validation are complete. The milestone remains open only for the owner’s Airbus left-seat visual approval. No Tesla/Model Y implementation or asset was changed by this scenario work.

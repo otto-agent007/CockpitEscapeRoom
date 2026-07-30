@@ -99,14 +99,11 @@ export function createEngineOutStateAtCheckpoint(checkpoint: EngineOutCheckpoint
   }
 }
 
-export function advanceEngineOut(
+function advanceEngineOutFixedStep(
   state: EngineOutState,
   input: EngineOutInput,
-  elapsedSeconds: number,
+  stepSeconds: number,
 ): EngineOutTransition {
-  if (state.phase !== 'flying' || elapsedSeconds <= 0) return { state }
-
-  const stepSeconds = Math.min(elapsedSeconds, ENGINE_OUT_TIMING.maxFrameDeltaSeconds)
   if (state.checkpoint !== 'recognition') {
     const pitchInput = clamp(input.pitch, -1, 1)
     const bankInput = clamp(input.bank, -1, 1)
@@ -236,16 +233,70 @@ export function advanceEngineOut(
   }
 
   const reductionProgress = stageElapsedSeconds / ENGINE_OUT_TIMING.recognitionSeconds
+  const leftEnginePower = CRUISE_ENGINE_POWER +
+    (REDUCED_ENGINE_POWER - CRUISE_ENGINE_POWER) * reductionProgress
+  const pitchInput = clamp(input.pitch, -1, 1)
+  const bankInput = clamp(input.bank, -1, 1)
+  const thrustInput = clamp(input.thrust, -1, 1)
+  const directionalInput = clamp(input.directional, -1, 1)
+  const engineAsymmetry = state.aircraft.rightEnginePower - leftEnginePower
+  const directionalError = approach(
+    state.aircraft.directionalError,
+    clamp(-engineAsymmetry * 1.25 + directionalInput * 1.2, -1, 1),
+    2.2,
+    stepSeconds,
+  )
   return {
     state: {
       ...state,
       stageElapsedSeconds,
       aircraft: {
         ...state.aircraft,
-        leftEnginePower: CRUISE_ENGINE_POWER +
-          (REDUCED_ENGINE_POWER - CRUISE_ENGINE_POWER) * reductionProgress,
+        pitch: approach(state.aircraft.pitch, pitchInput * 20, 2.4, stepSeconds),
+        bank: approach(state.aircraft.bank, bankInput * 40, 2.4, stepSeconds),
+        energy: approach(
+          state.aircraft.energy,
+          clamp(0.5 + thrustInput * 0.35, 0.15, 0.85),
+          1.8,
+          stepSeconds,
+        ),
+        directionalError,
+        headingError: state.aircraft.headingError + directionalError * 3 * stepSeconds,
+        leftEnginePower,
       },
     },
+  }
+}
+
+export function advanceEngineOut(
+  state: EngineOutState,
+  input: EngineOutInput,
+  elapsedSeconds: number,
+): EngineOutTransition {
+  if (state.phase !== 'flying' || !Number.isFinite(elapsedSeconds) || elapsedSeconds <= 0) {
+    return { state }
+  }
+
+  let remaining = Math.min(elapsedSeconds, ENGINE_OUT_TIMING.maxFrameDeltaSeconds)
+  let nextState = state
+  let checkpointReached: EngineOutCheckpoint | undefined
+  while (remaining > 0.000_001 && nextState.phase === 'flying') {
+    const stepSeconds = Math.min(1 / 60, remaining)
+    const transition = advanceEngineOutFixedStep(nextState, input, stepSeconds)
+    nextState = transition.state
+    checkpointReached = transition.checkpointReached ?? checkpointReached
+    remaining -= stepSeconds
+    if (transition.failureReason || transition.completed) {
+      return {
+        ...transition,
+        checkpointReached,
+      }
+    }
+  }
+
+  return {
+    state: nextState,
+    checkpointReached,
   }
 }
 
