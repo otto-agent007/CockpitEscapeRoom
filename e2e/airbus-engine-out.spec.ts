@@ -143,6 +143,10 @@ test('Engine-Out diversion completes Airbus without exposing the reward early', 
   })
 
   await expect(page.getByText(/Engine-Out Handling · diversion/)).toBeVisible()
+  await page.getByRole('button', { name: 'Right corridor' }).click()
+  await expect(
+    page.getByRole('region', { name: 'Captain task: Diversion judgment' }),
+  ).toContainText('Captain task complete')
   await page.clock.runFor(45_000)
   await expect(page.getByRole('heading', { name: 'POP T CAPTAIN MODE COMPLETE' })).toBeVisible()
   await expect(page.getByText(/Captain traits:/)).toBeVisible()

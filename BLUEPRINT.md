@@ -42,7 +42,7 @@ Wrong answers must never erase completed stages.
 
 1. Stable Final Flight Log records, shutdown, and Captain’s Key.
 2. Locker memory interaction and hat-reveal gate.
-3. Airbus Pop T Captain five-card matcher and ATP gate from the left seat.
+3. Airbus Pop T Captain Storm Line simulator from the left seat, unlocked only after the five-card qualification is completed.
 4. Reward reveal UI and final closing message.
 5. Mars optional trigger.
 
@@ -56,7 +56,7 @@ Wrong answers never erase completed puzzles. Final Flight Log route stamps and s
 
 ## 5. Final Flight Log and Airbus experience
 
-The original opening screen remains in place, with only its button renamed to **Start Game** and routed to the Final Flight Log. The Final Flight Log uses the DC-9 right-seat first-officer view, a reliable route strip attached to the first-officer yoke, a readable HTML route record, progressive hints, a non-puzzle Home Operations Log, and the three supported shutdown controls. The later Airbus experience uses the left-seat captain view while retaining its five labels, assignment feedback, ATP question, and presentation.
+The original opening screen remains in place, with only its button renamed to **Start Game** and routed to the Final Flight Log. The Final Flight Log uses the DC-9 right-seat first-officer view, a reliable route strip attached to the first-officer yoke, a readable HTML route record, progressive hints, a non-puzzle Home Operations Log, the three supported shutdown controls, and the ATP milestone. The later Airbus experience uses the left-seat captain view, requires all five labels to be matched, and then offers **Begin Storm Line** before transitioning to the focused fictional Storm Flight view. Storm Line and Engine-Out Handling add four short captain-workload decisions on the existing ND and upper ECAM. They are required but forgiving: an unfinished decision safely holds only the next simulator boundary, wrong choices strengthen coaching, and completed decisions survive retry and reload.
 
 The Final Flight Log is not a memorization exam. The Northwest/Memphis/DC-9 history should appear mainly in scenery, route choices, dispatch texture, sounds, and the rhythm of the hub. Fleet counts, exact retirement dates, and economics are reference material, not required answers unless a later puzzle proves fun in playtesting.
 
@@ -123,7 +123,7 @@ The loop stops when validation passes, the maximum bounded attempts are reached,
 
 **Phase 2 — locker reveal proof:** personal locker objects, captain’s hat reveal, accessible inspection flow, and spoiler-safe transition.
 
-**Phase 3 — Airbus Pop T Captain proof:** left-seat exported camera, captain-side sidestick target, existing drag-and-drop object matching, ATP gate, browser integration, and owner visual gate.
+**Phase 3 — Airbus Pop T Captain proof:** left-seat qualification camera, mandatory object matching, exported Storm Flight camera, Storm Line manual-flight scenario, live cockpit displays and controls, browser integration, and owner visual gate.
 
 **Phase 4 — Model Y reward:** red Model Y asset, achievement card, optional plate.
 

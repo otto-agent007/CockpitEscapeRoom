@@ -931,6 +931,9 @@ function AirbusDisplayRaycaster({
     surface: THREE.Object3D
   } | null>(null)
   const hoveringRef = useRef(false)
+  const surfaceBoundsRef = useRef(new THREE.Box3())
+  const surfaceCenterRef = useRef(new THREE.Vector3())
+  const surfaceCornerRef = useRef(new THREE.Vector3())
   const ndSurface = useMemo(() => scene.getObjectByName(AIRBUS_ND_SURFACE), [scene])
   const ecamSurface = useMemo(() => scene.getObjectByName(AIRBUS_ECAM_SURFACE), [scene])
 
@@ -954,6 +957,49 @@ function AirbusDisplayRaycaster({
     raycasterRef.current.setFromCamera(pointerRef.current, camera)
     return raycasterRef.current.intersectObject(actionableSurface, false)[0] ?? null
   }, [actionableSurface, camera, scene])
+
+  useFrame(() => {
+    const canvas = canvasRef.current
+    if (!actionableSurface) {
+      delete canvas.dataset.airbusWorkloadHitX
+      delete canvas.dataset.airbusWorkloadHitY
+      delete canvas.dataset.airbusWorkloadHitLeft
+      delete canvas.dataset.airbusWorkloadHitRight
+      return
+    }
+    const center = surfaceBoundsRef.current
+      .setFromObject(actionableSurface)
+      .getCenter(surfaceCenterRef.current)
+      .project(camera)
+    const bounds = canvas.getBoundingClientRect()
+    canvas.dataset.airbusWorkloadHitX = String((center.x * 0.5 + 0.5) * bounds.width)
+    canvas.dataset.airbusWorkloadHitY = String((-center.y * 0.5 + 0.5) * bounds.height)
+    if (actionableSurface instanceof THREE.Mesh) {
+      if (!actionableSurface.geometry.boundingBox) {
+        actionableSurface.geometry.computeBoundingBox()
+      }
+      const localBounds = actionableSurface.geometry.boundingBox
+      if (localBounds) {
+        let left = Number.POSITIVE_INFINITY
+        let right = Number.NEGATIVE_INFINITY
+        for (const x of [localBounds.min.x, localBounds.max.x]) {
+          for (const y of [localBounds.min.y, localBounds.max.y]) {
+            for (const z of [localBounds.min.z, localBounds.max.z]) {
+              const corner = surfaceCornerRef.current
+                .set(x, y, z)
+                .applyMatrix4(actionableSurface.matrixWorld)
+                .project(camera)
+              const screenX = (corner.x * 0.5 + 0.5) * bounds.width
+              left = Math.min(left, screenX)
+              right = Math.max(right, screenX)
+            }
+          }
+        }
+        canvas.dataset.airbusWorkloadHitLeft = String(left)
+        canvas.dataset.airbusWorkloadHitRight = String(right)
+      }
+    }
+  })
 
   useEffect(() => {
     const canvas = canvasRef.current

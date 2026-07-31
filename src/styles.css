@@ -3367,6 +3367,35 @@ progress {
   }
 }
 
+@media (min-width: 621px) and (max-width: 900px) {
+  .storm-topbar-actions {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 0.3rem;
+  }
+
+  .storm-topbar-actions > span {
+    grid-column: 1 / -1;
+    text-align: right;
+  }
+
+  .storm-progress {
+    top: 8.45rem;
+  }
+
+  .storm-instrument-mirror {
+    top: 9.1rem;
+  }
+
+  .airbus-workload-task {
+    top: 9.1rem;
+    right: 0.7rem;
+    left: 12.8rem;
+    width: auto;
+    transform: none;
+  }
+}
+
 @media (max-width: 620px) {
   .mode-grid,
   .briefing-facts {
@@ -3580,7 +3609,7 @@ progress {
   .airbus-workload-task {
     top: 6rem;
     right: 0.4rem;
-    left: 7.4rem;
+    left: 8.5rem;
     width: auto;
     transform: none;
   }
@@ -3677,7 +3706,7 @@ progress {
   .airbus-workload-task {
     top: 12.6rem;
     right: 0.4rem;
-    left: 7.4rem;
+    left: 8.5rem;
     align-items: stretch;
     flex-direction: column;
     gap: 0.35rem;
