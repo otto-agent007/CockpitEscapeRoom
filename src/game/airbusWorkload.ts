@@ -22,6 +22,8 @@ export type AirbusWorkloadAction =
 
 export interface AirbusWorkloadProgress {
   scanRange: AirbusScanRange
+  selectedWeatherSector: AirbusWeatherSector | null
+  selectedSafeReturnSide: AirbusSafeReturnSide | null
   completedTasks: AirbusWorkloadTaskId[]
   attempts: Record<AirbusWorkloadTaskId, number>
 }
@@ -51,6 +53,8 @@ const NEXT_SCAN_RANGE: Record<AirbusScanRange, AirbusScanRange> = {
 export function createInitialAirbusWorkloadProgress(): AirbusWorkloadProgress {
   return {
     scanRange: 'near',
+    selectedWeatherSector: null,
+    selectedSafeReturnSide: null,
     completedTasks: [],
     attempts: {
       stormScanRange: 0,
@@ -120,12 +124,22 @@ export function applyAirbusWorkloadAction(
   const scanRange = activeTask === 'stormScanRange' && action.type === 'cycleScanRange'
     ? NEXT_SCAN_RANGE[progress.scanRange]
     : progress.scanRange
+  const selectedWeatherSector = activeTask === 'stormGapSelection'
+    && action.type === 'selectWeatherSector'
+    ? action.sector
+    : progress.selectedWeatherSector
+  const selectedSafeReturnSide = activeTask === 'engineSafeReturnSelection'
+    && action.type === 'selectSafeReturn'
+    ? action.side
+    : progress.selectedSafeReturnSide
   const correct = completedByAction(activeTask, action, scanRange)
   if (correct) {
     return {
       progress: {
         ...progress,
         scanRange,
+        selectedWeatherSector,
+        selectedSafeReturnSide,
         completedTasks: AIRBUS_WORKLOAD_TASKS.filter(
           (task) => task === activeTask || progress.completedTasks.includes(task),
         ),
@@ -139,6 +153,8 @@ export function applyAirbusWorkloadAction(
     progress: {
       ...progress,
       scanRange,
+      selectedWeatherSector,
+      selectedSafeReturnSide,
       attempts: {
         ...progress.attempts,
         [activeTask]: progress.attempts[activeTask] + 1,
@@ -183,6 +199,8 @@ export function resetAirbusScenarioWorkload(
   for (const task of resetTasks) attempts[task] = 0
   return {
     scanRange: scenario === 'stormLine' ? 'near' : progress.scanRange,
+    selectedWeatherSector: scenario === 'stormLine' ? null : progress.selectedWeatherSector,
+    selectedSafeReturnSide: scenario === 'engineOut' ? null : progress.selectedSafeReturnSide,
     completedTasks: progress.completedTasks.filter((task) => !resetTasks.includes(task)),
     attempts,
   }

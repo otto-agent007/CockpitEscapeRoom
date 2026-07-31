@@ -475,6 +475,8 @@ describe('schema-v9 to schema-v12 mandatory qualification migration', () => {
       },
       workload: {
         scanRange: 'near',
+        selectedWeatherSector: null,
+        selectedSafeReturnSide: null,
         completedTasks: [],
         attempts: {
           stormScanRange: 0,
@@ -864,6 +866,8 @@ describe('canonical schema-v12 storage', () => {
         },
         workload: {
           scanRange: 'planet',
+          selectedWeatherSector: 'north',
+          selectedSafeReturnSide: 'up',
           completedTasks: ['inventedTask', 'stormGapSelection'],
           attempts: {
             stormScanRange: -4,
@@ -877,6 +881,8 @@ describe('canonical schema-v12 storage', () => {
 
     expect(loaded.airbusSimulator.workload).toEqual({
       scanRange: 'near',
+      selectedWeatherSector: null,
+      selectedSafeReturnSide: null,
       completedTasks: [],
       attempts: {
         stormScanRange: 0,
@@ -923,6 +929,8 @@ describe('canonical schema-v12 storage', () => {
       },
       workload: {
         scanRange: 'near',
+        selectedWeatherSector: null,
+        selectedSafeReturnSide: null,
         completedTasks: [],
         attempts: {
           stormScanRange: 0,

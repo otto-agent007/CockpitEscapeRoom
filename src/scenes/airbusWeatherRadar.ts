@@ -2,6 +2,7 @@ import type {
   AirbusWeatherCell,
   AirbusWeatherFieldSnapshot,
 } from '../game/airbusWeatherField'
+import type { AirbusScanRange } from '../game/airbusWorkload'
 
 export type AirbusRadarColor = 'green' | 'yellow' | 'red'
 
@@ -36,6 +37,12 @@ interface SweepSegment {
   to: number
 }
 
+const AIRBUS_RADAR_RANGES: Record<AirbusScanRange, number> = {
+  near: 20,
+  mid: 40,
+  far: 80,
+}
+
 const RADAR_MIN_ANGLE = -70
 const RADAR_MAX_ANGLE = 70
 const STANDARD_SWEEP_SPEED = 45
@@ -47,11 +54,18 @@ export function radarColorForPrecipitation(precipitation: number): AirbusRadarCo
   return 'green'
 }
 
+export function airbusRadarRangePresentation(
+  scanRange: AirbusScanRange,
+): { distanceNm: number; label: string } {
+  const distanceNm = AIRBUS_RADAR_RANGES[scanRange]
+  return { distanceNm, label: `RANGE ${distanceNm}` }
+}
+
 export function projectAirbusWeatherCellToRadar(
   cell: Pick<AirbusWeatherCell, 'bearingDegrees' | 'distanceNm'>,
-  rangeNm: number,
+  scanRange: AirbusScanRange,
 ): AirbusRadarProjection {
-  const safeRange = Number.isFinite(rangeNm) && rangeNm > 0 ? rangeNm : 80
+  const safeRange = AIRBUS_RADAR_RANGES[scanRange]
   const rangeFraction = Math.max(0, Math.min(1, cell.distanceNm / safeRange))
   const bearingRadians = cell.bearingDegrees * Math.PI / 180
   return {
@@ -59,6 +73,14 @@ export function projectAirbusWeatherCellToRadar(
     y: -Math.cos(bearingRadians) * rangeFraction,
     rangeFraction,
   }
+}
+
+export function visibleAirbusRadarReturns(
+  radar: AirbusWeatherRadarFrame,
+  scanRange: AirbusScanRange,
+): readonly AirbusRadarReturn[] {
+  const rangeNm = AIRBUS_RADAR_RANGES[scanRange]
+  return radar.returns.filter((item) => item.distanceNm <= rangeNm)
 }
 
 export function createAirbusWeatherRadarFrame(

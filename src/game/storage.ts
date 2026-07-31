@@ -474,6 +474,16 @@ function normalizeAirbusWorkloadProgress(
   const scanRange = AIRBUS_SCAN_RANGES.includes(candidate.scanRange as AirbusScanRange)
     ? candidate.scanRange as AirbusScanRange
     : fallback.scanRange
+  const selectedWeatherSector = ['west', 'center', 'east'].includes(
+    candidate.selectedWeatherSector as string,
+  )
+    ? candidate.selectedWeatherSector as AirbusWorkloadProgress['selectedWeatherSector']
+    : fallback.selectedWeatherSector
+  const selectedSafeReturnSide = ['left', 'right'].includes(
+    candidate.selectedSafeReturnSide as string,
+  )
+    ? candidate.selectedSafeReturnSide as AirbusWorkloadProgress['selectedSafeReturnSide']
+    : fallback.selectedSafeReturnSide
   const savedTasks = Array.isArray(candidate.completedTasks)
     ? candidate.completedTasks.filter(isString)
     : []
@@ -490,7 +500,7 @@ function normalizeAirbusWorkloadProgress(
       attempts[task] = savedAttempts[task]
     }
   }
-  return { scanRange, completedTasks, attempts }
+  return { scanRange, selectedWeatherSector, selectedSafeReturnSide, completedTasks, attempts }
 }
 
 function normalizeAirbusSimulatorProgress(

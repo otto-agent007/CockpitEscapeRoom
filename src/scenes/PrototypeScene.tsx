@@ -8,6 +8,12 @@ import type { AirbusFlightInput } from '../game/airbusInput'
 import type { AirbusActiveSimulationFrame } from '../game/airbusScenario'
 import type { StormLineState } from '../game/airbusSimulator'
 import type { AirbusWeatherFieldSnapshot } from '../game/airbusWeatherField'
+import {
+  deriveAirbusWorkloadTask,
+  type AirbusWorkloadAction,
+  type AirbusWorkloadProgress,
+  type AirbusWorkloadTaskId,
+} from '../game/airbusWorkload'
 import { dc9LegacyFlow, airbusCaptainFlow, type AirbusControl, type LockerMemoryId } from '../game/config'
 import { type AirbusCameraPhase, type Dc9ChapterStage, type Dc9SecureControlId, type GamePhase } from '../game/state'
 import {
@@ -21,9 +27,11 @@ import {
 import { AirbusAtmosphere } from './AirbusAtmosphere'
 import {
   advanceAirbusWeatherRadar,
+  airbusRadarRangePresentation,
   createAirbusWeatherRadarFrame,
   projectAirbusWeatherCellToRadar,
   shouldResetAirbusWeatherRadar,
+  visibleAirbusRadarReturns,
   type AirbusWeatherRadarFrame,
 } from './airbusWeatherRadar'
 import { AIRBUS_MODEL_URL, clearCockpitModel, DC9_MODEL_URL, loadCockpitModel, LOCKER_MODEL_URL } from './cockpitModelLoader'
@@ -169,6 +177,8 @@ interface PrototypeSceneProps {
   airbusCameraPhase: AirbusCameraPhase
   airbusSimulationFrameRef: MutableRefObject<AirbusActiveSimulationFrame | null>
   airbusInputRef: MutableRefObject<AirbusFlightInput>
+  airbusWorkload: AirbusWorkloadProgress
+  airbusActiveWorkloadTask: AirbusWorkloadTaskId | null
   airbusRetryToken: number
   lockerRetryToken: number
   lockerCameraCue: LockerCameraCue
@@ -182,6 +192,7 @@ interface PrototypeSceneProps {
   onAirbusHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
   onDc9HotspotsChange?: (positions: Dc9HotspotScreenPositions) => void
   onAirbusTarget: (control: AirbusControl) => void
+  onAirbusWorkloadAction: (action: AirbusWorkloadAction) => void
   onLockerCameraSettled: (cue: LockerCameraCue) => void
   onDc9Interaction: (gameId: string) => void
   onLockerMemory: (memoryId: LockerMemoryId) => void
@@ -893,6 +904,138 @@ function AirbusTargetRaycaster({
   return null
 }
 
+const AIRBUS_ND_SURFACE = 'AIRBUS_A320_DISPLAY_CAPTAIN_ND_SURFACE'
+const AIRBUS_ECAM_SURFACE = 'AIRBUS_A320_DISPLAY_UPPER_ECAM_SURFACE'
+
+function AirbusDisplayRaycaster({
+  scene,
+  selectedAirbusCard,
+  activeTask,
+  onAction,
+  onHoverInteractive,
+}: {
+  scene: THREE.Group
+  selectedAirbusCard: string | null
+  activeTask: AirbusWorkloadTaskId | null
+  onAction: (action: AirbusWorkloadAction) => void
+  onHoverInteractive: HoverHandler
+}) {
+  const { camera, gl } = useThree()
+  const canvasRef = useRef(gl.domElement)
+  const raycasterRef = useRef(new THREE.Raycaster())
+  const pointerRef = useRef(new THREE.Vector2())
+  const pointerDownRef = useRef<{
+    pointerId: number
+    x: number
+    y: number
+    surface: THREE.Object3D
+  } | null>(null)
+  const hoveringRef = useRef(false)
+  const ndSurface = useMemo(() => scene.getObjectByName(AIRBUS_ND_SURFACE), [scene])
+  const ecamSurface = useMemo(() => scene.getObjectByName(AIRBUS_ECAM_SURFACE), [scene])
+
+  const actionableSurface = useMemo(() => {
+    if (selectedAirbusCard || !activeTask) return null
+    return activeTask === 'engineEventAcknowledgement' ? ecamSurface : ndSurface
+  }, [activeTask, ecamSurface, ndSurface, selectedAirbusCard])
+
+  useEffect(() => {
+    canvasRef.current = gl.domElement
+  }, [gl])
+
+  const pick = useCallback((event: PointerEvent) => {
+    if (!actionableSurface) return null
+    const bounds = canvasRef.current.getBoundingClientRect()
+    scene.updateMatrixWorld(true)
+    pointerRef.current.set(
+      ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
+      -((event.clientY - bounds.top) / bounds.height) * 2 + 1,
+    )
+    raycasterRef.current.setFromCamera(pointerRef.current, camera)
+    return raycasterRef.current.intersectObject(actionableSurface, false)[0] ?? null
+  }, [actionableSurface, camera, scene])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    canvas.dataset.airbusActiveWorkloadTask = activeTask ?? ''
+
+    const setHovering = (hovering: boolean) => {
+      if (hoveringRef.current === hovering) return
+      hoveringRef.current = hovering
+      onHoverInteractive(hovering)
+    }
+
+    const onPointerMove = (event: PointerEvent) => {
+      setHovering(Boolean(pick(event)))
+    }
+
+    const onPointerDown = (event: PointerEvent) => {
+      const hit = pick(event)
+      pointerDownRef.current = hit
+        ? {
+            pointerId: event.pointerId,
+            x: event.clientX,
+            y: event.clientY,
+            surface: hit.object,
+          }
+        : null
+    }
+
+    const onPointerUp = (event: PointerEvent) => {
+      const down = pointerDownRef.current
+      pointerDownRef.current = null
+      if (!down || down.pointerId !== event.pointerId) return
+      if (Math.hypot(event.clientX - down.x, event.clientY - down.y) >= 6) return
+      const hit = pick(event)
+      if (!hit || hit.object !== down.surface || !activeTask) return
+
+      const horizontal = THREE.MathUtils.clamp(hit.uv?.x ?? 0.5, 0, 1)
+      let action: AirbusWorkloadAction
+      if (activeTask === 'stormScanRange') {
+        action = { type: 'cycleScanRange' }
+      } else if (activeTask === 'stormGapSelection') {
+        action = {
+          type: 'selectWeatherSector',
+          sector: horizontal < 1 / 3 ? 'west' : horizontal < 2 / 3 ? 'center' : 'east',
+        }
+      } else if (activeTask === 'engineEventAcknowledgement') {
+        action = { type: 'acknowledgeEngineEvent' }
+      } else {
+        action = {
+          type: 'selectSafeReturn',
+          side: horizontal < 0.5 ? 'left' : 'right',
+        }
+      }
+      event.preventDefault()
+      event.stopPropagation()
+      canvas.dataset.airbusLastWorkloadAction = JSON.stringify(action)
+      onAction(action)
+    }
+
+    const resetPointer = () => {
+      pointerDownRef.current = null
+      setHovering(false)
+    }
+
+    canvas.addEventListener('pointermove', onPointerMove)
+    canvas.addEventListener('pointerdown', onPointerDown)
+    canvas.addEventListener('pointerup', onPointerUp)
+    canvas.addEventListener('pointercancel', resetPointer)
+    canvas.addEventListener('pointerleave', resetPointer)
+    return () => {
+      canvas.removeEventListener('pointermove', onPointerMove)
+      canvas.removeEventListener('pointerdown', onPointerDown)
+      canvas.removeEventListener('pointerup', onPointerUp)
+      canvas.removeEventListener('pointercancel', resetPointer)
+      canvas.removeEventListener('pointerleave', resetPointer)
+      delete canvas.dataset.airbusActiveWorkloadTask
+      resetPointer()
+    }
+  }, [activeTask, onAction, onHoverInteractive, pick])
+
+  return null
+}
+
 function AirbusRuntimeLighting() {
   return (
     <>
@@ -970,12 +1113,15 @@ function drawWeatherRadar(
   canvas: HTMLCanvasElement,
   radar: AirbusWeatherRadarFrame,
   footer: string,
+  workload: AirbusWorkloadProgress,
+  workloadTask: AirbusWorkloadTaskId | null,
   safeReturnProgress?: number,
 ) {
   const context = instrumentContext(canvas)
   const originX = 192
   const originY = 263
   const radarRadius = 142
+  const range = airbusRadarRangePresentation(workload.scanRange)
   context.save()
   context.beginPath()
   context.moveTo(originX, originY)
@@ -1012,11 +1158,11 @@ function drawWeatherRadar(
     yellow: [243, 207, 57],
     red: [244, 69, 56],
   } as const
-  for (const item of radar.returns) {
-    const projected = projectAirbusWeatherCellToRadar(item, 80)
+  for (const item of visibleAirbusRadarReturns(radar, workload.scanRange)) {
+    const projected = projectAirbusWeatherCellToRadar(item, workload.scanRange)
     const x = originX + projected.x * radarRadius
     const y = originY + projected.y * radarRadius
-    const radius = Math.max(5, Math.min(24, item.radiusNm / 80 * radarRadius * 1.8))
+    const radius = Math.max(5, Math.min(24, item.radiusNm / range.distanceNm * radarRadius * 1.8))
     const alpha = Math.max(0.18, 0.86 - item.ageSeconds / 12)
     const [red, green, blue] = radarColors[item.color]
     for (let lobe = 0; lobe < 3; lobe += 1) {
@@ -1114,6 +1260,64 @@ function drawWeatherRadar(
   context.textAlign = 'left'
   context.fillText(`GAP ${radar.gapBearingDegrees.toFixed(0)}°`, 16, 42)
   context.textAlign = 'right'
+  context.fillText(range.label, 368, 42)
+  context.textAlign = 'left'
+
+  if (workloadTask === 'stormGapSelection') {
+    const sectors = [
+      { id: 'west', label: 'WEST', x: 65 },
+      { id: 'center', label: 'CENTER', x: 192 },
+      { id: 'east', label: 'EAST', x: 319 },
+    ] as const
+    const confirmed = workload.completedTasks.includes('stormGapSelection')
+    context.font = '700 13px ui-monospace, monospace'
+    context.textAlign = 'center'
+    for (const sector of sectors) {
+      const selected = workload.selectedWeatherSector === sector.id
+      context.fillStyle = selected ? (confirmed ? '#72ff9d' : '#ffb05d') : '#5c9ca4'
+      context.fillText(sector.label, sector.x, 68)
+      if (selected) {
+        context.strokeStyle = confirmed ? '#72ff9d' : '#ffb05d'
+        context.lineWidth = 2
+        context.strokeRect(sector.x - 42, 54, 84, 28)
+      }
+    }
+    context.textAlign = 'left'
+  }
+
+  if (workloadTask === 'engineSafeReturnSelection') {
+    const sides = [
+      { id: 'left', label: 'LEFT', x: 96 },
+      { id: 'right', label: 'RIGHT', x: 288 },
+    ] as const
+    const confirmed = workload.completedTasks.includes('engineSafeReturnSelection')
+    context.font = '700 13px ui-monospace, monospace'
+    context.textAlign = 'center'
+    for (const side of sides) {
+      const selected = workload.selectedSafeReturnSide === side.id
+      context.fillStyle = selected ? (confirmed ? '#72ff9d' : '#ffb05d') : '#5c9ca4'
+      context.fillText(`${side.label} SAFE`, side.x, 68)
+      if (selected) {
+        context.strokeStyle = confirmed ? '#72ff9d' : '#ffb05d'
+        context.lineWidth = 2
+        context.strokeRect(side.x - 62, 54, 124, 28)
+      }
+    }
+    context.textAlign = 'left'
+  }
+
+  if (
+    workloadTask === 'stormScanRange'
+    || workloadTask === 'stormGapSelection'
+    || workloadTask === 'engineSafeReturnSelection'
+  ) {
+    const complete = workload.completedTasks.includes(workloadTask)
+    context.strokeStyle = complete ? '#72ff9d' : '#7ef9ff'
+    context.lineWidth = 4
+    context.strokeRect(3, 3, canvas.width - 6, canvas.height - 6)
+  }
+
+  context.textAlign = 'right'
   context.fillText(footer, 368, 270)
   context.textAlign = 'left'
 }
@@ -1122,11 +1326,15 @@ function drawNd(
   canvas: HTMLCanvasElement,
   simulation: StormLineState,
   radar: AirbusWeatherRadarFrame,
+  workload: AirbusWorkloadProgress,
+  workloadTask: AirbusWorkloadTaskId | null,
 ) {
   drawWeatherRadar(
     canvas,
     radar,
     `XTK ${simulation.aircraft.lateralPosition.toFixed(2)}`,
+    workload,
+    workloadTask,
   )
 }
 
@@ -1203,16 +1411,25 @@ function drawEngineOutNd(
   canvas: HTMLCanvasElement,
   simulation: EngineOutState,
   radar: AirbusWeatherRadarFrame,
+  workload: AirbusWorkloadProgress,
+  workloadTask: AirbusWorkloadTaskId | null,
 ) {
   drawWeatherRadar(
     canvas,
     radar,
     `DRIFT ${simulation.aircraft.headingError.toFixed(1)}°`,
+    workload,
+    workloadTask,
     simulation.checkpoint === 'diversion' ? simulation.corridorProgress : undefined,
   )
 }
 
-function drawEngineOutEcam(canvas: HTMLCanvasElement, simulation: EngineOutState) {
+function drawEngineOutEcam(
+  canvas: HTMLCanvasElement,
+  simulation: EngineOutState,
+  workload: AirbusWorkloadProgress,
+  workloadTask: AirbusWorkloadTaskId | null,
+) {
   const context = instrumentContext(canvas)
   context.fillStyle = '#ffb05d'
   context.fillText('SIM ENG 1 REDUCED — TRAINING', 18, 26)
@@ -1247,6 +1464,21 @@ function drawEngineOutEcam(canvas: HTMLCanvasElement, simulation: EngineOutState
   context.fillText(`BAL ${Math.round(Math.abs(simulation.aircraft.directionalError) * 100)}%`, 18, 222)
   context.fillStyle = '#7ef9ff'
   context.fillText(`SAFE ${Math.round(simulation.corridorProgress * 100)}%`, 260, 222)
+  if (workloadTask === 'engineEventAcknowledgement') {
+    const acknowledged = workload.completedTasks.includes('engineEventAcknowledgement')
+    context.fillStyle = acknowledged ? '#72ff9d' : '#ffb05d'
+    context.font = '700 14px ui-monospace, monospace'
+    context.textAlign = 'center'
+    context.fillText(
+      acknowledged ? 'TRAINING EVENT ACKNOWLEDGED' : 'ACK REQUIRED',
+      canvas.width / 2,
+      246,
+    )
+    context.strokeStyle = acknowledged ? '#72ff9d' : '#7ef9ff'
+    context.lineWidth = 4
+    context.strokeRect(3, 3, canvas.width - 6, canvas.height - 6)
+    context.textAlign = 'left'
+  }
   context.fillText('SIMULATOR — NON OPERATIONAL', 38, 265)
 }
 
@@ -1255,12 +1487,14 @@ function AirbusSimulatorAnimator({
   simulationFrameRef,
   inputRef,
   weatherSnapshotRef,
+  workload,
   reducedMotion,
 }: {
   scene: THREE.Group
   simulationFrameRef: MutableRefObject<AirbusActiveSimulationFrame | null>
   inputRef: MutableRefObject<AirbusFlightInput>
   weatherSnapshotRef: MutableRefObject<AirbusWeatherFieldSnapshot | null>
+  workload: AirbusWorkloadProgress
   reducedMotion: boolean
 }) {
   const { gl } = useThree()
@@ -1361,19 +1595,24 @@ function AirbusSimulatorAnimator({
       reducedMotion,
     )
     radarFrameRef.current = radar
+    const workloadTask = deriveAirbusWorkloadTask(
+      currentFrame.scenario,
+      currentFrame.state.checkpoint,
+    )
     if (currentFrame.scenario === 'stormLine') {
       drawPfd(instruments.pfd.canvas, currentFrame.state)
-      drawNd(instruments.nd.canvas, currentFrame.state, radar)
+      drawNd(instruments.nd.canvas, currentFrame.state, radar, workload, workloadTask)
       drawEcam(instruments.ecam.canvas, currentFrame.state, currentInput)
     } else {
       drawEngineOutPfd(instruments.pfd.canvas, currentFrame.state)
-      drawEngineOutNd(instruments.nd.canvas, currentFrame.state, radar)
-      drawEngineOutEcam(instruments.ecam.canvas, currentFrame.state)
+      drawEngineOutNd(instruments.nd.canvas, currentFrame.state, radar, workload, workloadTask)
+      drawEngineOutEcam(instruments.ecam.canvas, currentFrame.state, workload, workloadTask)
     }
     canvasRef.current.dataset.airbusRadarSignature = radar.signature
     canvasRef.current.dataset.airbusRadarGapBearing = radar.gapBearingDegrees.toFixed(2)
     canvasRef.current.dataset.airbusRadarSweepAngle = radar.sweepAngleDegrees.toFixed(2)
     canvasRef.current.dataset.airbusRadarReturnCount = String(radar.returns.length)
+    canvasRef.current.dataset.airbusRadarRange = airbusRadarRangePresentation(workload.scanRange).label
     canvasRef.current.dataset.airbusRadarResetCount = String(radarResetCountRef.current)
     canvasRef.current.dataset.airbusRadarOldestReturnAge = Math.max(
       0,
@@ -1408,24 +1647,30 @@ function AirbusCockpit({
   cameraPhase,
   simulationFrameRef,
   inputRef,
+  workload,
+  activeWorkloadTask,
   reducedMotion,
   retryToken,
   cameraResetRevision,
   onLoadState,
   onAirbusHotspotsChange,
   onAirbusTarget,
+  onAirbusWorkloadAction,
   onHoverInteractive,
 }: {
   selectedAirbusCard: string | null
   cameraPhase: AirbusCameraPhase
   simulationFrameRef: MutableRefObject<AirbusActiveSimulationFrame | null>
   inputRef: MutableRefObject<AirbusFlightInput>
+  workload: AirbusWorkloadProgress
+  activeWorkloadTask: AirbusWorkloadTaskId | null
   reducedMotion: boolean
   retryToken: number
   cameraResetRevision: number
   onLoadState: (state: AirbusLoadState) => void
   onAirbusHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
   onAirbusTarget: (control: AirbusControl) => void
+  onAirbusWorkloadAction: (action: AirbusWorkloadAction) => void
   onHoverInteractive: HoverHandler
 }) {
   const { camera, size } = useThree()
@@ -1548,6 +1793,7 @@ function AirbusCockpit({
             simulationFrameRef={simulationFrameRef}
             inputRef={inputRef}
             weatherSnapshotRef={weatherSnapshotRef}
+            workload={workload}
             reducedMotion={reducedMotion}
           />
           <AirbusCameraDirector
@@ -1562,6 +1808,13 @@ function AirbusCockpit({
             scene={loaded.scene}
             selectedAirbusCard={selectedAirbusCard}
             onTarget={onAirbusTarget}
+            onHoverInteractive={onHoverInteractive}
+          />
+          <AirbusDisplayRaycaster
+            scene={loaded.scene}
+            selectedAirbusCard={selectedAirbusCard}
+            activeTask={activeWorkloadTask}
+            onAction={onAirbusWorkloadAction}
             onHoverInteractive={onHoverInteractive}
           />
         </>
@@ -2345,6 +2598,8 @@ export function PrototypeScene({
   airbusCameraPhase,
   airbusSimulationFrameRef,
   airbusInputRef,
+  airbusWorkload,
+  airbusActiveWorkloadTask,
   airbusRetryToken,
   lockerRetryToken,
   lockerCameraCue,
@@ -2358,6 +2613,7 @@ export function PrototypeScene({
   onAirbusHotspotsChange,
   onDc9HotspotsChange,
   onAirbusTarget,
+  onAirbusWorkloadAction,
   onLockerCameraSettled,
   onDc9Interaction,
   onLockerMemory,
@@ -2379,12 +2635,15 @@ export function PrototypeScene({
             cameraPhase={airbusCameraPhase}
             simulationFrameRef={airbusSimulationFrameRef}
             inputRef={airbusInputRef}
+            workload={airbusWorkload}
+            activeWorkloadTask={airbusActiveWorkloadTask}
             reducedMotion={reducedMotion}
             retryToken={airbusRetryToken}
             cameraResetRevision={cameraResetRevision}
             onLoadState={onAirbusLoadState}
             onAirbusHotspotsChange={onAirbusHotspotsChange}
             onAirbusTarget={onAirbusTarget}
+            onAirbusWorkloadAction={onAirbusWorkloadAction}
             onHoverInteractive={onInteractiveHover}
           />
         )}

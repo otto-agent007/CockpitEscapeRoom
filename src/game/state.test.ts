@@ -29,6 +29,8 @@ describe('schema-v12 canonical state', () => {
       },
       workload: {
         scanRange: 'near',
+        selectedWeatherSector: null,
+        selectedSafeReturnSide: null,
         completedTasks: [],
         attempts: {
           stormScanRange: 0,

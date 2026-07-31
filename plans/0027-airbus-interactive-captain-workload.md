@@ -78,7 +78,7 @@ Apply the Global Constraints above. Preserve the existing player loop:
 - [x] 2026-07-30 — Scenario checkpoint gating passes 34 focused Storm, Engine-Out, and adapter tests.
 - [x] 2026-07-30 — Schema 12 reducer and migration pass 111 focused tests; typecheck is green.
 - [x] 2026-07-30 — Runtime safe holds and native captain-task controls pass typecheck, lint, and 111 focused tests.
-- [ ] ND/ECAM 3D interactions and display feedback pass browser tests.
+- [ ] ND/ECAM 3D interactions and display feedback pass browser tests; focused unit, lint, type, and build checks are green.
 - [ ] Full validation, visual evidence, review, and reports are complete.
 
 ## Decision log
@@ -88,6 +88,7 @@ Apply the Global Constraints above. Preserve the existing player loop:
 - 2026-07-30: Reuse the existing Blender-authored ND and ECAM surfaces; add no proxy geometry or GLB edit.
 - 2026-07-30: Treat a sub-six-pixel pointer gesture as a click and larger movement as camera look.
 - 2026-07-30: Persist task completion and attempts; explicit replay resets only the selected scenario's workload.
+- 2026-07-30: Persist the last ND weather-sector and SAFE RETURN choice inside schema 12 so native and 3D actions produce the same exact amber/green display feedback.
 - 2026-07-30: Use native HTML buttons as the authoritative accessible fallback when WebGL is unavailable.
 
 ## File structure
@@ -449,7 +450,7 @@ npm test -- --run src/game/airbusWorkload.test.ts src/game/airbusScenario.test.t
 
 Expected: all commands pass.
 
-- [ ] **Step 7: Commit runtime and HUD**
+- [x] **Step 7: Commit runtime and HUD**
 
 ```bash
 git add src/game/useAirbusSimulator.ts src/App.tsx src/components/Hud.tsx src/styles.css
@@ -475,11 +476,11 @@ airbusActiveWorkloadTask: AirbusWorkloadTaskId | null
 onAirbusWorkloadAction: (action: AirbusWorkloadAction) => void
 ```
 
-- [ ] **Step 1: Write failing radar-range tests**
+- [x] **Step 1: Write failing radar-range tests**
 
 Prove that near, mid, and far range modes use deterministic labels and increasing distance limits, while preserving the same shared weather-field signature and sweep semantics.
 
-- [ ] **Step 2: Run and verify RED**
+- [x] **Step 2: Run and verify RED**
 
 ```bash
 npm test -- --run src/scenes/airbusWeatherRadar.test.ts
@@ -487,7 +488,7 @@ npm test -- --run src/scenes/airbusWeatherRadar.test.ts
 
 Expected: fail because radar derivation has no scan-range input.
 
-- [ ] **Step 3: Add pure scan-range presentation**
+- [x] **Step 3: Add pure scan-range presentation**
 
 Accept `AirbusScanRange` in the radar adapter. Use fictional display ranges:
 
@@ -499,7 +500,7 @@ far: 80
 
 Only projection scale, range labels, and visible return inclusion change. Weather cells and scenario rules remain unchanged.
 
-- [ ] **Step 4: Add the display-surface raycaster**
+- [x] **Step 4: Add the display-surface raycaster**
 
 Create one focused component in `PrototypeScene.tsx` that:
 
@@ -513,7 +514,7 @@ Create one focused component in `PrototypeScene.tsx` that:
 - sets pointer cursor only over the currently actionable display;
 - does not dispatch while the five-card target picker owns interaction.
 
-- [ ] **Step 5: Draw workload feedback on existing textures**
+- [x] **Step 5: Draw workload feedback on existing textures**
 
 ND:
 
@@ -529,7 +530,7 @@ ECAM:
 
 Keep `SIM — NON OPERATIONAL` visible.
 
-- [ ] **Step 6: Run focused checks**
+- [x] **Step 6: Run focused checks**
 
 ```bash
 npm test -- --run src/scenes/airbusWeatherRadar.test.ts src/game/airbusWeatherField.test.ts src/scenes/airbusAtmosphereVisuals.test.ts
@@ -690,7 +691,8 @@ Stop when all acceptance checks pass, three focused repair hypotheses fail, the 
 - 2026-07-30: Approved design committed at `docs/superpowers/specs/2026-07-30-airbus-interactive-captain-workload-design.md`.
 - 2026-07-30: Workload, scenario, reducer, and storage suite passes 111 tests; schema 12 typecheck passes.
 - 2026-07-30: Runtime gating and native task controls pass `npm run typecheck`, focused ESLint, and the 111-test workload/scenario/state/storage suite.
+- 2026-07-30: Physical ND/ECAM implementation passes 134 focused tests, focused ESLint, typecheck, production build, and `git diff --check`.
 
 ## Outcome and handoff
 
-Tasks 1 through 3 are committed. Task 4 implementation is complete and awaiting its focused commit; Task 5 physical ND and ECAM interaction follows.
+Tasks 1 through 4 are committed. Task 5 physical ND and ECAM interaction is implemented and awaiting its focused commit and browser proof.

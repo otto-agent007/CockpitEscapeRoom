@@ -8,6 +8,11 @@ import { SceneHelp } from './components/SceneHelp'
 import { dc9LegacyFlow, gameCopy, lockerFlow, type AirbusControl, type LockerMemoryId } from './game/config'
 import type { EngineOutCheckpoint, EngineOutTrait } from './game/airbusEngineOut'
 import type { StormLineCheckpoint, StormLineTrait } from './game/airbusSimulator'
+import {
+  deriveAirbusWorkloadTask,
+  type AirbusWorkloadAction,
+  type AirbusWorkloadTaskId,
+} from './game/airbusWorkload'
 import { isLockerMemoryAvailable } from './game/state'
 import { clearGameState } from './game/storage'
 import { useAirbusSimulator } from './game/useAirbusSimulator'
@@ -211,6 +216,19 @@ export default function App() {
         ? 'engineOut'
         : null
     : null
+  const derivedAirbusWorkloadTask = activeAirbusScenario === 'stormLine'
+    ? deriveAirbusWorkloadTask('stormLine', state.airbusSimulator.stormLine.checkpoint)
+    : activeAirbusScenario === 'engineOut'
+      ? deriveAirbusWorkloadTask('engineOut', state.airbusSimulator.engineOut.checkpoint)
+      : null
+  const airbusActiveWorkloadTask: AirbusWorkloadTaskId | null =
+    derivedAirbusWorkloadTask
+    && !state.airbusSimulator.workload.completedTasks.includes(derivedAirbusWorkloadTask)
+      ? derivedAirbusWorkloadTask
+      : null
+  const applyAirbusWorkloadAction = useCallback((action: AirbusWorkloadAction) => {
+    dispatch({ type: 'APPLY_AIRBUS_WORKLOAD_ACTION', action })
+  }, [dispatch])
   const airbusSimulator = useAirbusSimulator({
     activeScenario: activeAirbusScenario,
     stormLine: {
@@ -605,6 +623,8 @@ export default function App() {
             airbusCameraPhase={state.airbusSimulator.cameraPhase}
             airbusSimulationFrameRef={airbusSimulator.activeFrameRef}
             airbusInputRef={airbusSimulator.inputRef}
+            airbusWorkload={state.airbusSimulator.workload}
+            airbusActiveWorkloadTask={airbusActiveWorkloadTask}
             airbusRetryToken={airbusRetryToken}
             lockerRetryToken={lockerRetryToken}
             lockerCameraCue={lockerCameraCue}
@@ -618,6 +638,7 @@ export default function App() {
             onAirbusHotspotsChange={updateAirbusHotspots}
             onDc9HotspotsChange={setDc9Hotspots}
             onAirbusTarget={placeSelectedAirbusCard}
+            onAirbusWorkloadAction={applyAirbusWorkloadAction}
             onLockerCameraSettled={handleLockerCameraSettled}
             onDc9Interaction={handleDc9Interaction}
             onLockerMemory={(memoryId) => {

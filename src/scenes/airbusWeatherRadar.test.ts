@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { deriveAirbusWeatherField } from '../game/airbusWeatherField'
 import {
   advanceAirbusWeatherRadar,
+  airbusRadarRangePresentation,
   createAirbusWeatherRadarFrame,
   projectAirbusWeatherCellToRadar,
   radarColorForPrecipitation,
   shouldResetAirbusWeatherRadar,
+  visibleAirbusRadarReturns,
 } from './airbusWeatherRadar'
 
 const weather = deriveAirbusWeatherField({
@@ -17,15 +19,40 @@ const weather = deriveAirbusWeatherField({
 })
 
 describe('Airbus live weather radar', () => {
+  it('uses deterministic increasing fictional scan ranges', () => {
+    expect(airbusRadarRangePresentation('near')).toEqual({ distanceNm: 20, label: 'RANGE 20' })
+    expect(airbusRadarRangePresentation('mid')).toEqual({ distanceNm: 40, label: 'RANGE 40' })
+    expect(airbusRadarRangePresentation('far')).toEqual({ distanceNm: 80, label: 'RANGE 80' })
+  })
+
   it('projects the shared bearing into the heading-up fan', () => {
     const cell = weather.cells[0]
     expect(cell).toBeDefined()
 
-    const projected = projectAirbusWeatherCellToRadar(cell!, 80)
+    const projected = projectAirbusWeatherCellToRadar(cell!, 'far')
 
     expect(Math.sign(projected.x)).toBe(Math.sign(cell!.bearingDegrees))
     expect(projected.rangeFraction).toBeCloseTo(cell!.distanceNm / 80, 6)
     expect(projected.y).toBeLessThanOrEqual(0)
+  })
+
+  it('changes only projection scale and visible returns for the selected range', () => {
+    const frame = {
+      ...createAirbusWeatherRadarFrame(weather, 0),
+      signature: weather.signature,
+      sweepAngleDegrees: 0,
+      returns: [
+        { cellId: 'near', bearingDegrees: -10, distanceNm: 15, radiusNm: 2, precipitation: 0.2, color: 'green' as const, refreshedAtSeconds: 0, ageSeconds: 0 },
+        { cellId: 'mid', bearingDegrees: 0, distanceNm: 35, radiusNm: 2, precipitation: 0.5, color: 'yellow' as const, refreshedAtSeconds: 0, ageSeconds: 0 },
+        { cellId: 'far', bearingDegrees: 10, distanceNm: 70, radiusNm: 2, precipitation: 0.8, color: 'red' as const, refreshedAtSeconds: 0, ageSeconds: 0 },
+      ],
+    }
+
+    expect(visibleAirbusRadarReturns(frame, 'near').map((item) => item.cellId)).toEqual(['near'])
+    expect(visibleAirbusRadarReturns(frame, 'mid').map((item) => item.cellId)).toEqual(['near', 'mid'])
+    expect(visibleAirbusRadarReturns(frame, 'far').map((item) => item.cellId)).toEqual(['near', 'mid', 'far'])
+    expect(frame.signature).toBe(weather.signature)
+    expect(frame.sweepAngleDegrees).toBe(0)
   })
 
   it('uses deterministic green, yellow, and red precipitation bands', () => {

@@ -52,6 +52,7 @@ describe('Airbus captain workload', () => {
       { type: 'selectWeatherSector', sector: 'center' },
     )
     expect(wrong.outcome).toBe('incorrect')
+    expect(wrong.progress.selectedWeatherSector).toBe('center')
     expect(wrong.progress.attempts.stormGapSelection).toBe(1)
     expect(wrong.progress.completedTasks).toEqual(['stormScanRange'])
 
@@ -61,6 +62,7 @@ describe('Airbus captain workload', () => {
       { type: 'selectWeatherSector', sector: 'west' },
     )
     expect(correct.outcome).toBe('correct')
+    expect(correct.progress.selectedWeatherSector).toBe('west')
     expect(correct.progress.completedTasks).toEqual([
       'stormScanRange',
       'stormGapSelection',
@@ -83,6 +85,7 @@ describe('Airbus captain workload', () => {
       { type: 'selectSafeReturn', side: 'left' },
     )
     expect(wrong.outcome).toBe('incorrect')
+    expect(wrong.progress.selectedSafeReturnSide).toBe('left')
     expect(wrong.progress.attempts.engineSafeReturnSelection).toBe(1)
 
     const correct = applyAirbusWorkloadAction(
@@ -91,6 +94,7 @@ describe('Airbus captain workload', () => {
       { type: 'selectSafeReturn', side: 'right' },
     )
     expect(correct.outcome).toBe('correct')
+    expect(correct.progress.selectedSafeReturnSide).toBe('right')
     expect(correct.progress.completedTasks).toEqual([
       'engineEventAcknowledgement',
       'engineSafeReturnSelection',
@@ -135,6 +139,8 @@ describe('Airbus captain workload', () => {
   it('resets only the explicitly replayed scenario workload', () => {
     const completed = {
       scanRange: 'mid' as const,
+      selectedWeatherSector: 'west' as const,
+      selectedSafeReturnSide: 'right' as const,
       completedTasks: [...AIRBUS_WORKLOAD_TASKS],
       attempts: {
         stormScanRange: 1,
@@ -146,6 +152,8 @@ describe('Airbus captain workload', () => {
 
     expect(resetAirbusScenarioWorkload(completed, 'stormLine')).toEqual({
       scanRange: 'near',
+      selectedWeatherSector: null,
+      selectedSafeReturnSide: 'right',
       completedTasks: ['engineEventAcknowledgement', 'engineSafeReturnSelection'],
       attempts: {
         stormScanRange: 0,
@@ -156,6 +164,8 @@ describe('Airbus captain workload', () => {
     })
     expect(resetAirbusScenarioWorkload(completed, 'engineOut')).toEqual({
       scanRange: 'mid',
+      selectedWeatherSector: 'west',
+      selectedSafeReturnSide: null,
       completedTasks: ['stormScanRange', 'stormGapSelection'],
       attempts: {
         stormScanRange: 1,
