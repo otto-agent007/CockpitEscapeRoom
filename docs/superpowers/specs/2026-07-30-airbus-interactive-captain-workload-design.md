@@ -103,7 +103,6 @@ interface AirbusWorkloadProgress {
   scanRange: 'near' | 'mid' | 'far'
   completedTasks: AirbusWorkloadTaskId[]
   attempts: Record<AirbusWorkloadTaskId, number>
-  lastFeedback: 'idle' | 'correct' | 'incorrect'
 }
 ```
 
@@ -175,6 +174,7 @@ Migration behavior:
 - Pause, visibility pause, and sound mute keep their existing behavior.
 - Retry rewinds only scenario flight state; already completed workload tasks remain complete.
 - Reload restores completed tasks and does not replay them.
+- Explicitly replaying a completed scenario resets only that scenario's workload tasks and task attempts so the interactive exercise can be replayed; best traits and the other scenario's completion remain intact.
 - WebGL failure preserves the native workload controls and accessible instruments.
 
 ## Visual direction
