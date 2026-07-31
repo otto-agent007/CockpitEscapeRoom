@@ -75,6 +75,14 @@ export function createAirbusWeatherRadarFrame(
   }
 }
 
+export function shouldResetAirbusWeatherRadar(
+  previous: AirbusWeatherRadarFrame,
+  snapshot: AirbusWeatherFieldSnapshot,
+): boolean {
+  return previous.signature !== snapshot.signature
+    || snapshot.elapsedSeconds < previous.sampledAtSeconds
+}
+
 function advanceSweep(
   startAngle: number,
   startDirection: -1 | 1,

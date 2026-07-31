@@ -5,6 +5,7 @@ import {
   createAirbusWeatherRadarFrame,
   projectAirbusWeatherCellToRadar,
   radarColorForPrecipitation,
+  shouldResetAirbusWeatherRadar,
 } from './airbusWeatherRadar'
 
 const weather = deriveAirbusWeatherField({
@@ -88,5 +89,24 @@ describe('Airbus live weather radar', () => {
 
     expect(frame.signature).toBe(weather.signature)
     expect(frame.gapBearingDegrees).toBe(weather.gapBearingDegrees)
+  })
+
+  it('resets on a field transition or scenario-time rewind but not a pause', () => {
+    const frame = advanceAirbusWeatherRadar(
+      createAirbusWeatherRadarFrame(weather, 80),
+      weather,
+      90,
+      false,
+    )
+
+    expect(shouldResetAirbusWeatherRadar(frame, weather)).toBe(false)
+    expect(shouldResetAirbusWeatherRadar(frame, {
+      ...weather,
+      elapsedSeconds: 89,
+    })).toBe(true)
+    expect(shouldResetAirbusWeatherRadar(frame, {
+      ...weather,
+      signature: 'wx-other-field',
+    })).toBe(true)
   })
 })

@@ -203,7 +203,7 @@ test('Storm Line reads a standard gamepad and safely retries an attitude departu
 })
 
 test('production Airbus GLB renders Storm Line displays, controls, and responsive approval views', async ({ page }) => {
-  test.setTimeout(180_000)
+  test.setTimeout(480_000)
   const expectedBytes = statSync('public/models/airbus-captain.glb').size
   const consoleErrors: string[] = []
   page.on('console', (message) => {
@@ -311,6 +311,26 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
 
   await page.getByRole('button', { name: 'Recenter view' }).click()
   await expect(canvas).toHaveAttribute('data-airbus-look-state', '0.0000,0.0000,0.0000,0.0000')
+
+  const resetsBeforeRetry = Number(await canvas.getAttribute('data-airbus-radar-reset-count'))
+  await page.getByRole('button', { name: 'Show flight controls' }).click()
+  const pitchUp = page.getByRole('button', { name: 'Hold Pitch up' })
+  await pitchUp.focus()
+  await page.keyboard.down('Space')
+  await page.keyboard.down('ArrowLeft')
+  await expect(
+    page.getByRole('alertdialog', { name: /storm core needs another pass/i }),
+  ).toBeVisible({ timeout: 150_000 })
+  await page.keyboard.up('Space')
+  await page.keyboard.up('ArrowLeft')
+  await page.getByRole('button', { name: 'Retry this checkpoint' }).click()
+  await expect.poll(async () => Number(
+    await canvas.getAttribute('data-airbus-radar-reset-count'),
+  )).toBeGreaterThan(resetsBeforeRetry)
+  const retrySweep = Number(await canvas.getAttribute('data-airbus-radar-sweep-angle'))
+  await expect.poll(async () => Number(
+    await canvas.getAttribute('data-airbus-radar-sweep-angle'),
+  )).not.toBe(retrySweep)
 
   const evidenceDirectory = process.env.STORM_LINE_EVIDENCE_DIR ?? '/tmp'
   await page.setViewportSize({ width: 1440, height: 900 })

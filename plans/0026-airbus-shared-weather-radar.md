@@ -344,6 +344,8 @@ Repeat: run the narrowest failing test, diagnose the root cause, make one cohere
 - Completion-review repair suite: 29 focused weather/layout/radar/Storm tests passed; focused lint and typecheck passed.
 - Reviewed production-GLB Engine-Out proof passed with the layout-derived visible-gap assertion.
 - Reviewed production-GLB Storm proof passed with layout-derived visible-gap agreement and live radar pause/freeze/resume behavior. A combined sequential run was terminated by the local runner after Engine-Out passed, so Storm was rerun alone and passed in 3.0 minutes.
+- Same-checkpoint retry review repair: radar reset now triggers when scenario elapsed time moves backward even if the stable field signature is unchanged. The focused suite passes 30 tests, including field-transition, pause, and rewind reset cases.
+- Final production-GLB Storm proof passed in 5.6 minutes with a real attitude-envelope failure, same-checkpoint retry, radar reset-count increment, and resumed sweep, in addition to the existing weather, layout-gap, pause, bank, look, recenter, screen, and console assertions.
 - Tier 1 screenshots:
   - `preview-renders/airbus-weather-radar/airbus-storm-entry-weather-radar-1440.png`
   - `preview-renders/airbus-weather-radar/airbus-storm-core-weather-radar-1440.png`

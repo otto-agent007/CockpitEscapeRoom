@@ -23,6 +23,7 @@ import {
   advanceAirbusWeatherRadar,
   createAirbusWeatherRadarFrame,
   projectAirbusWeatherCellToRadar,
+  shouldResetAirbusWeatherRadar,
   type AirbusWeatherRadarFrame,
 } from './airbusWeatherRadar'
 import { AIRBUS_MODEL_URL, clearCockpitModel, DC9_MODEL_URL, loadCockpitModel, LOCKER_MODEL_URL } from './cockpitModelLoader'
@@ -1275,6 +1276,7 @@ function AirbusSimulatorAnimator({
   } | null>(null)
   const lastDrawRef = useRef(-1)
   const radarFrameRef = useRef<AirbusWeatherRadarFrame | null>(null)
+  const radarResetCountRef = useRef(0)
 
   useEffect(() => {
     canvasRef.current = gl.domElement
@@ -1344,9 +1346,14 @@ function AirbusSimulatorAnimator({
     if (!currentFrame || !weatherSnapshot) return
     if (clock.elapsedTime - lastDrawRef.current < 1 / 12) return
     lastDrawRef.current = clock.elapsedTime
-    const previousRadar = radarFrameRef.current?.signature === weatherSnapshot.signature
-      ? radarFrameRef.current
-      : createAirbusWeatherRadarFrame(weatherSnapshot, weatherSnapshot.elapsedSeconds)
+    const retainedRadar = radarFrameRef.current
+    const resetRadar = retainedRadar
+      ? shouldResetAirbusWeatherRadar(retainedRadar, weatherSnapshot)
+      : false
+    if (resetRadar) radarResetCountRef.current += 1
+    const previousRadar = retainedRadar && !resetRadar
+        ? retainedRadar
+        : createAirbusWeatherRadarFrame(weatherSnapshot, weatherSnapshot.elapsedSeconds)
     const radar = advanceAirbusWeatherRadar(
       previousRadar,
       weatherSnapshot,
@@ -1367,6 +1374,7 @@ function AirbusSimulatorAnimator({
     canvasRef.current.dataset.airbusRadarGapBearing = radar.gapBearingDegrees.toFixed(2)
     canvasRef.current.dataset.airbusRadarSweepAngle = radar.sweepAngleDegrees.toFixed(2)
     canvasRef.current.dataset.airbusRadarReturnCount = String(radar.returns.length)
+    canvasRef.current.dataset.airbusRadarResetCount = String(radarResetCountRef.current)
     canvasRef.current.dataset.airbusRadarOldestReturnAge = Math.max(
       0,
       ...radar.returns.map((item) => item.ageSeconds),
