@@ -75,7 +75,7 @@ Apply the Global Constraints above. Preserve the existing player loop:
 - [x] 2026-07-30 — Owner approved all recommended interaction and forgiving-gate decisions.
 - [x] 2026-07-30 — Design specification written, self-reviewed, and committed.
 - [x] 2026-07-30 — Pure workload rules pass seven focused tests.
-- [ ] Scenario checkpoint gating passes focused tests.
+- [x] 2026-07-30 — Scenario checkpoint gating passes 34 focused Storm, Engine-Out, and adapter tests.
 - [ ] Schema 12 reducer and storage migration pass focused tests.
 - [ ] Runtime and native HUD integration pass focused tests.
 - [ ] ND/ECAM 3D interactions and display feedback pass browser tests.
@@ -248,7 +248,7 @@ export function advanceAirbusScenarioFrame(
 ): AirbusScenarioFrameTransition
 ```
 
-- [ ] **Step 1: Add failing transition-gate tests**
+- [x] **Step 1: Add failing transition-gate tests**
 
 Prove:
 
@@ -259,7 +259,7 @@ Prove:
 - Supplying the relevant completed task returns the original scenario transition.
 - A gate returns the prior stable frame, no checkpoint event, no completion event, and the exact `workloadGate`.
 
-- [ ] **Step 2: Run the tests and verify RED**
+- [x] **Step 2: Run the tests and verify RED**
 
 ```bash
 npm test -- --run src/game/airbusScenario.test.ts
@@ -267,7 +267,7 @@ npm test -- --run src/game/airbusScenario.test.ts
 
 Expected: the new assertions fail because workload completion is not accepted.
 
-- [ ] **Step 3: Implement checkpoint-boundary interception**
+- [x] **Step 3: Implement checkpoint-boundary interception**
 
 Advance the selected pure scenario once, then compare the previous and proposed states. Map only these boundaries:
 
@@ -280,7 +280,7 @@ diversion -> complete: engineSafeReturnSelection
 
 When blocked, return the original frame and `workloadGate`. Do not modify either underlying scenario state machine.
 
-- [ ] **Step 4: Run focused scenario tests**
+- [x] **Step 4: Run focused scenario tests**
 
 ```bash
 npm test -- --run src/game/airbusScenario.test.ts src/game/airbusSimulator.test.ts src/game/airbusEngineOut.test.ts
@@ -288,7 +288,7 @@ npm test -- --run src/game/airbusScenario.test.ts src/game/airbusSimulator.test.
 
 Expected: all focused scenario tests pass.
 
-- [ ] **Step 5: Commit scenario gating**
+- [x] **Step 5: Commit scenario gating**
 
 ```bash
 git add src/game/airbusScenario.ts src/game/airbusScenario.test.ts

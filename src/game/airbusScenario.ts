@@ -6,6 +6,7 @@ import {
   type EngineOutTrait,
 } from './airbusEngineOut'
 import type { AirbusFlightInput } from './airbusInput'
+import type { AirbusWorkloadTaskId } from './airbusWorkload'
 import {
   advanceStormLine,
   type StormLineCheckpoint,
@@ -31,6 +32,7 @@ export interface AirbusScenarioFrameTransition {
   failureReason?: StormLineFailureReason | EngineOutFailureReason
   completed?: boolean
   traits?: StormLineTrait[] | EngineOutTrait[]
+  workloadGate?: AirbusWorkloadTaskId
 }
 
 export interface AirbusScenarioGateProgress {
@@ -57,9 +59,19 @@ export function advanceAirbusScenarioFrame(
   frame: AirbusActiveSimulationFrame,
   input: AirbusFlightInput,
   elapsedSeconds: number,
+  completedWorkloadTasks: readonly AirbusWorkloadTaskId[] = [],
 ): AirbusScenarioFrameTransition {
   if (frame.scenario === 'stormLine') {
     const state = advanceStormLine(frame.state, input, elapsedSeconds)
+    const workloadGate = frame.state.checkpoint === 'stormEntry' &&
+      state.checkpoint === 'stormCore'
+      ? 'stormScanRange'
+      : frame.state.checkpoint === 'stormCore' && state.checkpoint === 'clearAir'
+        ? 'stormGapSelection'
+        : null
+    if (workloadGate && !completedWorkloadTasks.includes(workloadGate)) {
+      return { frame, workloadGate }
+    }
     return {
       frame: { scenario: 'stormLine', state },
       checkpointReached: state.checkpoint !== frame.state.checkpoint
@@ -72,6 +84,15 @@ export function advanceAirbusScenarioFrame(
   }
 
   const transition = advanceEngineOut(frame.state, input, elapsedSeconds)
+  const workloadGate = frame.state.checkpoint === 'recognition' &&
+    transition.state.checkpoint === 'stabilization'
+    ? 'engineEventAcknowledgement'
+    : frame.state.checkpoint === 'diversion' && transition.completed
+      ? 'engineSafeReturnSelection'
+      : null
+  if (workloadGate && !completedWorkloadTasks.includes(workloadGate)) {
+    return { frame, workloadGate }
+  }
   return {
     frame: { scenario: 'engineOut', state: transition.state },
     checkpointReached: transition.checkpointReached,
