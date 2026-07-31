@@ -76,7 +76,7 @@ Apply the Global Constraints above. Preserve the existing player loop:
 - [x] 2026-07-30 — Design specification written, self-reviewed, and committed.
 - [x] 2026-07-30 — Pure workload rules pass seven focused tests.
 - [x] 2026-07-30 — Scenario checkpoint gating passes 34 focused Storm, Engine-Out, and adapter tests.
-- [ ] Schema 12 reducer and storage migration pass focused tests.
+- [x] 2026-07-30 — Schema 12 reducer and migration pass 111 focused tests; typecheck is green.
 - [ ] Runtime and native HUD integration pass focused tests.
 - [ ] ND/ECAM 3D interactions and display feedback pass browser tests.
 - [ ] Full validation, visual evidence, review, and reports are complete.
@@ -314,7 +314,7 @@ git commit -m "feat: gate Airbus checkpoints on captain tasks"
 | { type: 'APPLY_AIRBUS_WORKLOAD_ACTION'; action: AirbusWorkloadAction }
 ```
 
-- [ ] **Step 1: Write failing reducer tests**
+- [x] **Step 1: Write failing reducer tests**
 
 Prove:
 
@@ -325,7 +325,7 @@ Prove:
 - beginning a replay resets only the selected scenario's tasks and attempts;
 - completing Storm or Airbus cannot bypass unfinished workload through reducer actions.
 
-- [ ] **Step 2: Write failing storage tests**
+- [x] **Step 2: Write failing storage tests**
 
 Create schema 11 fixtures for:
 
@@ -348,7 +348,7 @@ completed Airbus/reward -> all four tasks
 
 Corrupt task IDs, scan range, and attempt counts normalize to `near`, approved IDs only, and non-negative safe integers.
 
-- [ ] **Step 3: Run tests and verify RED**
+- [x] **Step 3: Run tests and verify RED**
 
 ```bash
 npm test -- --run src/game/state.test.ts src/game/storage.test.ts
@@ -356,7 +356,7 @@ npm test -- --run src/game/state.test.ts src/game/storage.test.ts
 
 Expected: fail for missing workload state, action, and schema 12 migration.
 
-- [ ] **Step 4: Implement state and reducer**
+- [x] **Step 4: Implement state and reducer**
 
 - Set `GAME_SCHEMA_VERSION = 12`.
 - Initialize workload with `createInitialAirbusWorkloadProgress()`.
@@ -366,11 +366,11 @@ Expected: fail for missing workload state, action, and schema 12 migration.
 - On explicit Storm or Engine-Out replay, call `resetAirbusScenarioWorkload`.
 - Before reducer completion actions, verify the two scenario tasks required for that completion.
 
-- [ ] **Step 5: Implement normalization and migration**
+- [x] **Step 5: Implement normalization and migration**
 
 Extend canonical normalization to accept schema 12, migrate schema 11 through the checkpoint-derived helper, and normalize schema 12 workload fields. Preserve completion/reward truth from older saves without granting new completion.
 
-- [ ] **Step 6: Run focused state/storage tests**
+- [x] **Step 6: Run focused state/storage tests**
 
 ```bash
 npm test -- --run src/game/airbusWorkload.test.ts src/game/airbusScenario.test.ts src/game/state.test.ts src/game/storage.test.ts
@@ -379,7 +379,7 @@ npm run typecheck
 
 Expected: all focused tests and typecheck pass.
 
-- [ ] **Step 7: Commit durable progress**
+- [x] **Step 7: Commit durable progress**
 
 ```bash
 git add src/game/state.ts src/game/state.test.ts src/game/storage.ts src/game/storage.test.ts
@@ -688,6 +688,7 @@ Stop when all acceptance checks pass, three focused repair hypotheses fail, the 
 
 - 2026-07-30: Owner instructed Codex to use all recommended choices and proceed without more questions.
 - 2026-07-30: Approved design committed at `docs/superpowers/specs/2026-07-30-airbus-interactive-captain-workload-design.md`.
+- 2026-07-30: Workload, scenario, reducer, and storage suite passes 111 tests; schema 12 typecheck passes.
 
 ## Outcome and handoff
 

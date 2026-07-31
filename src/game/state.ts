@@ -15,8 +15,18 @@ import {
   type EngineOutCheckpoint,
   type EngineOutTrait,
 } from './airbusScenario'
+import {
+  airbusWorkloadHint,
+  applyAirbusWorkloadAction,
+  createInitialAirbusWorkloadProgress,
+  deriveAirbusWorkloadTask,
+  resetAirbusScenarioWorkload,
+  type AirbusWorkloadAction,
+  type AirbusWorkloadProgress,
+  type AirbusWorkloadTaskId,
+} from './airbusWorkload'
 
-export const GAME_SCHEMA_VERSION = 11 as const
+export const GAME_SCHEMA_VERSION = 12 as const
 export const DC9_SECURE_ORDER = dc9LegacyFlow.secureSequence
 export const PUZZLE_IDS = ['dc9', 'locker', 'airbus'] as const
 export type GamePhase = 'briefing' | 'dc9' | 'locker' | 'airbus' | 'reward' | 'mars'
@@ -60,6 +70,7 @@ export type GameAction =
       attempts: Record<EngineOutCheckpoint, number>
     }
   | { type: 'COMPLETE_AIRBUS_ENGINE_OUT'; traits: EngineOutTrait[] }
+  | { type: 'APPLY_AIRBUS_WORKLOAD_ACTION'; action: AirbusWorkloadAction }
   | { type: 'RETURN_TO_AIRBUS_SCENARIO_HUB' }
   | { type: 'SET_ATP_QUALIFICATION_ANSWER'; value: string }
   | { type: 'SUBMIT_DC9_ATP_QUALIFICATION' }
@@ -111,6 +122,7 @@ export interface AirbusSimulatorProgress {
     attempts: Record<EngineOutCheckpoint, number>
     bestTraits: EngineOutTrait[]
   }
+  workload: AirbusWorkloadProgress
 }
 
 interface LockerPayload {
@@ -197,7 +209,39 @@ export function createInitialAirbusSimulatorProgress(): AirbusSimulatorProgress 
       },
       bestTraits: [],
     },
+    workload: createInitialAirbusWorkloadProgress(),
   }
+}
+
+function hasAirbusWorkloadTasks(
+  progress: AirbusWorkloadProgress,
+  tasks: readonly AirbusWorkloadTaskId[],
+): boolean {
+  return tasks.every((task) => progress.completedTasks.includes(task))
+}
+
+function activeAirbusWorkloadTask(state: GameState): AirbusWorkloadTaskId | null {
+  if (state.phase !== 'airbus') return null
+  if (
+    state.airbusSimulator.location === 'stormLine' &&
+    state.airbusSimulator.stormLine.status === 'in_progress'
+  ) {
+    return deriveAirbusWorkloadTask('stormLine', state.airbusSimulator.stormLine.checkpoint)
+  }
+  if (
+    state.airbusSimulator.location === 'engineOut' &&
+    state.airbusSimulator.engineOut.status === 'in_progress'
+  ) {
+    return deriveAirbusWorkloadTask('engineOut', state.airbusSimulator.engineOut.checkpoint)
+  }
+  return null
+}
+
+function completedAirbusWorkloadMessage(task: AirbusWorkloadTaskId): string {
+  if (task === 'stormScanRange') return 'Captain ND training range set to MID.'
+  if (task === 'stormGapSelection') return 'Stable western weather gap confirmed.'
+  if (task === 'engineEventAcknowledgement') return 'Deliberate simulator event acknowledged.'
+  return 'Right-side SAFE RETURN corridor selected.'
 }
 
 function allControlsCorrect(assignments: AirbusAssignments): boolean {
@@ -570,6 +614,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           ...state.airbusSimulator,
           location: 'stormLine',
           cameraPhase: 'transitioning',
+          workload: state.airbusSimulator.stormLine.status === 'completed'
+            ? resetAirbusScenarioWorkload(state.airbusSimulator.workload, 'stormLine')
+            : state.airbusSimulator.workload,
           stormLine: state.airbusSimulator.stormLine.status === 'completed'
             ? {
                 ...state.airbusSimulator.stormLine,
@@ -620,7 +667,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
 
     case 'COMPLETE_AIRBUS_STORM_LINE': {
-      if (state.phase !== 'airbus' || state.airbusSimulator.stormLine.status !== 'in_progress') return state
+      if (
+        state.phase !== 'airbus' ||
+        state.airbusSimulator.stormLine.status !== 'in_progress' ||
+        !hasAirbusWorkloadTasks(state.airbusSimulator.workload, [
+          'stormScanRange',
+          'stormGapSelection',
+        ])
+      ) return state
       const bestTraits = unique([...state.airbusSimulator.stormLine.bestTraits, ...action.traits])
       return {
         ...state,
@@ -659,6 +713,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           ...state.airbusSimulator,
           location: 'engineOut',
           cameraPhase: 'storm',
+          workload: state.airbusSimulator.engineOut.status === 'completed'
+            ? resetAirbusScenarioWorkload(state.airbusSimulator.workload, 'engineOut')
+            : state.airbusSimulator.workload,
           engineOut: {
             ...state.airbusSimulator.engineOut,
             status: 'in_progress',
@@ -700,7 +757,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (
         state.phase !== 'airbus' ||
         state.airbusSimulator.location !== 'engineOut' ||
-        state.airbusSimulator.engineOut.status !== 'in_progress'
+        state.airbusSimulator.engineOut.status !== 'in_progress' ||
+        !hasAirbusWorkloadTasks(state.airbusSimulator.workload, [
+          'engineEventAcknowledgement',
+          'engineSafeReturnSelection',
+        ])
       ) return state
       const bestTraits = unique([...state.airbusSimulator.engineOut.bestTraits, ...action.traits])
       return {
@@ -717,6 +778,27 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         },
         completedPuzzles: unique([...state.completedPuzzles, 'airbus']),
         statusMessage: `${airbusCaptainFlow.firstCompleteBanner}. Engine-Out Handling complete.`,
+      }
+    }
+
+    case 'APPLY_AIRBUS_WORKLOAD_ACTION': {
+      const task = activeAirbusWorkloadTask(state)
+      if (!task) return state
+      const result = applyAirbusWorkloadAction(
+        state.airbusSimulator.workload,
+        task,
+        action.action,
+      )
+      if (result.outcome === 'ignored') return state
+      return {
+        ...state,
+        airbusSimulator: {
+          ...state.airbusSimulator,
+          workload: result.progress,
+        },
+        statusMessage: result.outcome === 'correct'
+          ? completedAirbusWorkloadMessage(task)
+          : airbusWorkloadHint(task, result.progress.attempts[task]),
       }
     }
 

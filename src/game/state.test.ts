@@ -2,12 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { dc9LegacyFlow, airbusCaptainFlow, lockerFlow } from './config'
 import { createInitialState, gameReducer, isLockerMemoryAvailable, type GameState } from './state'
 
-describe('schema-v11 canonical state', () => {
+describe('schema-v12 canonical state', () => {
   it('starts with seat-role semantic fields and no schema-v6 compatibility fields', () => {
     const state = createInitialState() as unknown as Record<string, unknown>
     const dc9 = state.dc9 as Record<string, unknown>
 
-    expect(state.schemaVersion).toBe(11)
+    expect(state.schemaVersion).toBe(12)
     expect(state.phase).toBe('briefing')
     expect(state.airbusQualificationAnswer).toBe('')
     expect(state.airbusCaptainModeUnlocked).toBe(false)
@@ -26,6 +26,16 @@ describe('schema-v11 canonical state', () => {
         checkpoint: 'recognition',
         attempts: { recognition: 0, stabilization: 0, diversion: 0 },
         bestTraits: [],
+      },
+      workload: {
+        scanRange: 'near',
+        completedTasks: [],
+        attempts: {
+          stormScanRange: 0,
+          stormGapSelection: 0,
+          engineEventAcknowledgement: 0,
+          engineSafeReturnSelection: 0,
+        },
       },
     })
     expect(state.rewardUnlocked).toBe(false)
@@ -69,6 +79,24 @@ function completeStormLine(): GameState {
   let state = completeAirbusLabels()
   state = gameReducer(state, { type: 'BEGIN_AIRBUS_STORM_TRANSITION' })
   state = gameReducer(state, { type: 'START_AIRBUS_STORM_LINE' })
+  state = gameReducer(state, {
+    type: 'APPLY_AIRBUS_WORKLOAD_ACTION',
+    action: { type: 'cycleScanRange' },
+  })
+  state = {
+    ...state,
+    airbusSimulator: {
+      ...state.airbusSimulator,
+      stormLine: {
+        ...state.airbusSimulator.stormLine,
+        checkpoint: 'stormCore',
+      },
+    },
+  }
+  state = gameReducer(state, {
+    type: 'APPLY_AIRBUS_WORKLOAD_ACTION',
+    action: { type: 'selectWeatherSector', sector: 'west' },
+  })
   return gameReducer(state, {
     type: 'COMPLETE_AIRBUS_STORM_LINE',
     traits: ['weatherJudgment', 'energyManagement'],
@@ -391,6 +419,16 @@ describe('gameReducer', () => {
       checkpoint: 'clearAir',
       attempts: { stormEntry: 1, stormCore: 0, clearAir: 0 },
     })
+    state = {
+      ...state,
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        workload: {
+          ...state.airbusSimulator.workload,
+          completedTasks: ['stormScanRange', 'stormGapSelection'],
+        },
+      },
+    }
     state = gameReducer(state, {
       type: 'COMPLETE_AIRBUS_STORM_LINE',
       traits: ['weatherJudgment', 'energyManagement'],
@@ -452,6 +490,24 @@ describe('gameReducer', () => {
     let state = completeStormLine()
     state = gameReducer(state, { type: 'BEGIN_AIRBUS_ENGINE_OUT' })
     state = gameReducer(state, {
+      type: 'APPLY_AIRBUS_WORKLOAD_ACTION',
+      action: { type: 'acknowledgeEngineEvent' },
+    })
+    state = {
+      ...state,
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        engineOut: {
+          ...state.airbusSimulator.engineOut,
+          checkpoint: 'diversion',
+        },
+      },
+    }
+    state = gameReducer(state, {
+      type: 'APPLY_AIRBUS_WORKLOAD_ACTION',
+      action: { type: 'selectSafeReturn', side: 'right' },
+    })
+    state = gameReducer(state, {
       type: 'COMPLETE_AIRBUS_ENGINE_OUT',
       traits: ['directionalControl', 'calmDiversion'],
     })
@@ -461,7 +517,7 @@ describe('gameReducer', () => {
     expect(state.airbusSimulator.location).toBe('hub')
     expect(state.airbusSimulator.engineOut).toEqual({
       status: 'completed',
-      checkpoint: 'recognition',
+      checkpoint: 'diversion',
       attempts: { recognition: 0, stabilization: 0, diversion: 0 },
       bestTraits: ['directionalControl', 'calmDiversion'],
     })
@@ -489,6 +545,20 @@ describe('gameReducer', () => {
   it('preserves the best Engine-Out traits and one Airbus completion across replay', () => {
     let state = completeStormLine()
     state = gameReducer(state, { type: 'BEGIN_AIRBUS_ENGINE_OUT' })
+    state = {
+      ...state,
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        workload: {
+          ...state.airbusSimulator.workload,
+          completedTasks: [
+            ...state.airbusSimulator.workload.completedTasks,
+            'engineEventAcknowledgement',
+            'engineSafeReturnSelection',
+          ],
+        },
+      },
+    }
     state = gameReducer(state, {
       type: 'COMPLETE_AIRBUS_ENGINE_OUT',
       traits: ['directionalControl'],
@@ -514,6 +584,29 @@ describe('gameReducer', () => {
       diversion: 0,
     })
     expect(state.airbusSimulator.engineOut.bestTraits).toEqual(['directionalControl'])
+    expect(state.airbusSimulator.workload.completedTasks).toEqual([
+      'stormScanRange',
+      'stormGapSelection',
+    ])
+
+    state = gameReducer(state, {
+      type: 'APPLY_AIRBUS_WORKLOAD_ACTION',
+      action: { type: 'acknowledgeEngineEvent' },
+    })
+    state = {
+      ...state,
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        engineOut: {
+          ...state.airbusSimulator.engineOut,
+          checkpoint: 'diversion',
+        },
+      },
+    }
+    state = gameReducer(state, {
+      type: 'APPLY_AIRBUS_WORKLOAD_ACTION',
+      action: { type: 'selectSafeReturn', side: 'right' },
+    })
 
     state = gameReducer(state, {
       type: 'COMPLETE_AIRBUS_ENGINE_OUT',
@@ -525,6 +618,60 @@ describe('gameReducer', () => {
       'directionalControl',
       'energyDiscipline',
     ])
+  })
+
+  it('applies only the active cockpit workload and strengthens safe coaching', () => {
+    const qualified = completeAirbusLabels()
+    const ignored = gameReducer(qualified, {
+      type: 'APPLY_AIRBUS_WORKLOAD_ACTION',
+      action: { type: 'cycleScanRange' },
+    })
+    expect(ignored).toBe(qualified)
+
+    let state = gameReducer(qualified, { type: 'BEGIN_AIRBUS_STORM_TRANSITION' })
+    state = gameReducer(state, { type: 'START_AIRBUS_STORM_LINE' })
+    state = {
+      ...state,
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        workload: {
+          ...state.airbusSimulator.workload,
+          scanRange: 'far',
+        },
+      },
+    }
+    state = gameReducer(state, {
+      type: 'APPLY_AIRBUS_WORKLOAD_ACTION',
+      action: { type: 'cycleScanRange' },
+    })
+    expect(state.airbusSimulator.workload.scanRange).toBe('near')
+    expect(state.airbusSimulator.workload.attempts.stormScanRange).toBe(1)
+    expect(state.statusMessage).toContain('weather scan')
+
+    state = gameReducer(state, {
+      type: 'APPLY_AIRBUS_WORKLOAD_ACTION',
+      action: { type: 'cycleScanRange' },
+    })
+    expect(state.airbusSimulator.workload.scanRange).toBe('mid')
+    expect(state.airbusSimulator.workload.completedTasks).toEqual(['stormScanRange'])
+    expect(state.statusMessage).toContain('MID')
+  })
+
+  it('guards scenario completion until the required captain tasks are complete', () => {
+    let storm = completeAirbusLabels()
+    storm = gameReducer(storm, { type: 'BEGIN_AIRBUS_STORM_TRANSITION' })
+    storm = gameReducer(storm, { type: 'START_AIRBUS_STORM_LINE' })
+    expect(gameReducer(storm, {
+      type: 'COMPLETE_AIRBUS_STORM_LINE',
+      traits: [],
+    })).toBe(storm)
+
+    let engine = completeStormLine()
+    engine = gameReducer(engine, { type: 'BEGIN_AIRBUS_ENGINE_OUT' })
+    expect(gameReducer(engine, {
+      type: 'COMPLETE_AIRBUS_ENGINE_OUT',
+      traits: [],
+    })).toBe(engine)
   })
 
   it.each(['1500', '1,500', '1500 hour', '1500 hours'])('accepts the DC-9 ATP answer %s', (answer) => {

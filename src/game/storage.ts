@@ -19,6 +19,13 @@ import {
   type LockerMemoryId,
   type LockerQuestionId,
 } from './config'
+import {
+  AIRBUS_WORKLOAD_TASKS,
+  createInitialAirbusWorkloadProgress,
+  type AirbusScanRange,
+  type AirbusWorkloadProgress,
+  type AirbusWorkloadTaskId,
+} from './airbusWorkload'
 
 export const STORAGE_KEY = 'cockpit-escape-room:game-state:v1'
 
@@ -395,6 +402,96 @@ const STORM_CHECKPOINTS = ['stormEntry', 'stormCore', 'clearAir'] as const
 const STORM_TRAITS = ['calmControl', 'weatherJudgment', 'energyManagement'] as const
 const ENGINE_OUT_CHECKPOINTS = ['recognition', 'stabilization', 'diversion'] as const
 const ENGINE_OUT_TRAITS = ['directionalControl', 'energyDiscipline', 'calmDiversion'] as const
+const AIRBUS_SCAN_RANGES = ['near', 'mid', 'far'] as const
+
+interface AirbusWorkloadScenarioBoundary {
+  completed: boolean
+  stormStatus: AirbusSimulatorProgress['stormLine']['status']
+  stormCheckpoint: AirbusSimulatorProgress['stormLine']['checkpoint']
+  engineStatus: AirbusSimulatorProgress['engineOut']['status']
+  engineCheckpoint: AirbusSimulatorProgress['engineOut']['checkpoint']
+}
+
+function migratedAirbusWorkloadTasks(
+  boundary: AirbusWorkloadScenarioBoundary,
+): AirbusWorkloadTaskId[] {
+  if (boundary.completed || boundary.engineStatus === 'completed') {
+    return [...AIRBUS_WORKLOAD_TASKS]
+  }
+  const tasks: AirbusWorkloadTaskId[] = []
+  if (
+    boundary.stormStatus === 'completed' ||
+    boundary.stormCheckpoint === 'stormCore' ||
+    boundary.stormCheckpoint === 'clearAir'
+  ) tasks.push('stormScanRange')
+  if (boundary.stormStatus === 'completed' || boundary.stormCheckpoint === 'clearAir') {
+    tasks.push('stormGapSelection')
+  }
+  if (
+    boundary.engineStatus === 'in_progress' &&
+    (boundary.engineCheckpoint === 'stabilization' || boundary.engineCheckpoint === 'diversion')
+  ) tasks.push('engineEventAcknowledgement')
+  return tasks
+}
+
+function allowedAirbusWorkloadTasks(
+  boundary: AirbusWorkloadScenarioBoundary,
+): readonly AirbusWorkloadTaskId[] {
+  if (boundary.completed || boundary.engineStatus === 'completed') return AIRBUS_WORKLOAD_TASKS
+  if (boundary.engineStatus === 'in_progress') {
+    return boundary.engineCheckpoint === 'diversion'
+      ? AIRBUS_WORKLOAD_TASKS
+      : [
+          'stormScanRange',
+          'stormGapSelection',
+          'engineEventAcknowledgement',
+        ]
+  }
+  if (boundary.stormStatus === 'completed' || boundary.stormCheckpoint === 'clearAir') {
+    return ['stormScanRange', 'stormGapSelection']
+  }
+  if (boundary.stormStatus === 'in_progress' && boundary.stormCheckpoint === 'stormCore') {
+    return ['stormScanRange', 'stormGapSelection']
+  }
+  if (boundary.stormStatus === 'in_progress' && boundary.stormCheckpoint === 'stormEntry') {
+    return ['stormScanRange']
+  }
+  return []
+}
+
+function normalizeAirbusWorkloadProgress(
+  value: unknown,
+  boundary: AirbusWorkloadScenarioBoundary,
+): AirbusWorkloadProgress {
+  const fallback = createInitialAirbusWorkloadProgress()
+  if (!value || typeof value !== 'object') {
+    return {
+      ...fallback,
+      completedTasks: migratedAirbusWorkloadTasks(boundary),
+    }
+  }
+  const candidate = value as Record<string, unknown>
+  const scanRange = AIRBUS_SCAN_RANGES.includes(candidate.scanRange as AirbusScanRange)
+    ? candidate.scanRange as AirbusScanRange
+    : fallback.scanRange
+  const savedTasks = Array.isArray(candidate.completedTasks)
+    ? candidate.completedTasks.filter(isString)
+    : []
+  const allowedTasks = allowedAirbusWorkloadTasks(boundary)
+  const completedTasks = AIRBUS_WORKLOAD_TASKS.filter(
+    (task) => allowedTasks.includes(task) && savedTasks.includes(task),
+  )
+  const savedAttempts = candidate.attempts && typeof candidate.attempts === 'object'
+    ? candidate.attempts as Record<string, unknown>
+    : null
+  const attempts = { ...fallback.attempts }
+  for (const task of AIRBUS_WORKLOAD_TASKS) {
+    if (savedAttempts && isSafeNonNegativeInteger(savedAttempts[task])) {
+      attempts[task] = savedAttempts[task]
+    }
+  }
+  return { scanRange, completedTasks, attempts }
+}
 
 function normalizeAirbusSimulatorProgress(
   value: unknown,
@@ -520,6 +617,13 @@ function normalizeAirbusSimulatorProgress(
       attempts: engineAttempts,
       bestTraits: engineTraits,
     },
+    workload: normalizeAirbusWorkloadProgress(candidate.workload, {
+      completed,
+      stormStatus: normalizedStatus,
+      stormCheckpoint: checkpoint,
+      engineStatus,
+      engineCheckpoint,
+    }),
   }
 }
 
@@ -556,7 +660,7 @@ function normalizeV9(value: unknown): GameState | null {
   }
 }
 
-function normalizeCanonicalScenarioState(value: unknown, schemaVersion: 10 | 11): GameState | null {
+function normalizeCanonicalScenarioState(value: unknown, schemaVersion: 10 | 11 | 12): GameState | null {
   if (!value || typeof value !== 'object') return null
   const candidate = value as Record<string, unknown>
   if (candidate.schemaVersion !== schemaVersion || !hasSafeCanonicalCommonState(candidate)) return null
@@ -593,8 +697,12 @@ function migrateV10(value: unknown): GameState | null {
   return normalizeCanonicalScenarioState(value, 10)
 }
 
-function normalizeV11(value: unknown): GameState | null {
-  return normalizeCanonicalScenarioState(value, GAME_SCHEMA_VERSION)
+function migrateV11(value: unknown): GameState | null {
+  return normalizeCanonicalScenarioState(value, 11)
+}
+
+function normalizeV12(value: unknown): GameState | null {
+  return normalizeCanonicalScenarioState(value, 12)
 }
 
 function migrateV6ToV7(value: unknown): LegacyV7State | null {
@@ -722,7 +830,8 @@ export function loadGameState(storage: Pick<Storage, 'getItem' | 'removeItem'> =
       : migrateV5(normalizedParsed) ?? migrateV4(normalizedParsed) ?? migrateV3(normalizedParsed)
     const legacyV7 = isLegacyV7State(normalizedParsed) ? normalizedParsed : legacyV6 ? migrateV6ToV7(legacyV6) : null
     const migratedV8 = legacyV7 ? migrateV7ToV8(legacyV7) : null
-    const state = normalizeV11(normalizedParsed)
+    const state = normalizeV12(normalizedParsed)
+      ?? migrateV11(normalizedParsed)
       ?? migrateV10(normalizedParsed)
       ?? normalizeV9(normalizedParsed)
       ?? normalizeV8(normalizedParsed)
