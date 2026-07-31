@@ -74,7 +74,7 @@ Apply the Global Constraints above. Preserve the existing player loop:
 
 - [x] 2026-07-30 — Owner approved all recommended interaction and forgiving-gate decisions.
 - [x] 2026-07-30 — Design specification written, self-reviewed, and committed.
-- [ ] Pure workload rules pass focused tests.
+- [x] 2026-07-30 — Pure workload rules pass seven focused tests.
 - [ ] Scenario checkpoint gating passes focused tests.
 - [ ] Schema 12 reducer and storage migration pass focused tests.
 - [ ] Runtime and native HUD integration pass focused tests.
@@ -164,7 +164,7 @@ export function resetAirbusScenarioWorkload(
 ): AirbusWorkloadProgress
 ```
 
-- [ ] **Step 1: Write failing pure tests**
+- [x] **Step 1: Write failing pure tests**
 
 Cover these exact behaviors:
 
@@ -178,7 +178,7 @@ expect(deriveAirbusWorkloadTask('engineOut', 'stabilization')).toBeNull()
 
 Also prove `near → mid → far → near`, `MID`, `west`, acknowledgement, and `right` correctness; irrelevant actions are ignored; wrong actions increment only the active task; completed tasks remain unique; and replay reset is scenario-local.
 
-- [ ] **Step 2: Run the tests and verify RED**
+- [x] **Step 2: Run the tests and verify RED**
 
 Run:
 
@@ -188,7 +188,7 @@ npm test -- --run src/game/airbusWorkload.test.ts
 
 Expected: fail because `airbusWorkload.ts` does not exist.
 
-- [ ] **Step 3: Implement the minimal pure module**
+- [x] **Step 3: Implement the minimal pure module**
 
 Use immutable arrays/records. Correct task answers are:
 
@@ -201,7 +201,7 @@ engineSafeReturnSelection: action.type === 'selectSafeReturn' && action.side ===
 
 Attempts increase only on an applicable incorrect action. The first hint repeats the instructor objective; attempt two and later names the correct cockpit area and direction without using real procedure language.
 
-- [ ] **Step 4: Run the tests and verify GREEN**
+- [x] **Step 4: Run the tests and verify GREEN**
 
 Run:
 
@@ -211,7 +211,7 @@ npm test -- --run src/game/airbusWorkload.test.ts
 
 Expected: all workload tests pass.
 
-- [ ] **Step 5: Commit the pure rules**
+- [x] **Step 5: Commit the pure rules**
 
 ```bash
 git add src/game/airbusWorkload.ts src/game/airbusWorkload.test.ts
