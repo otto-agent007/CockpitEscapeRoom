@@ -80,6 +80,7 @@ Apply the Global Constraints above. Preserve the existing player loop:
 - [x] 2026-07-30 — Runtime safe holds and native captain-task controls pass typecheck, lint, and 111 focused tests.
 - [x] 2026-07-30 — ND/ECAM 3D interactions, click-versus-drag behavior, and display feedback pass the production browser suite.
 - [x] 2026-07-30 — Full validation, visual evidence, diff review, and reports are complete; owner play/visual approval remains open.
+- [x] 2026-07-31 — Repaired PR CI by publishing the omitted Blender-authored simulator contract and updating stale qualification-only smoke expectations; all six formerly failing browser cases pass locally.
 
 ## Decision log
 
@@ -696,6 +697,7 @@ Stop when all acceptance checks pass, three focused repair hypotheses fail, the 
 - 2026-07-30: Workload Chromium suite passes 4/4 in 3.9 minutes and Engine-Out passes 5/5 in 3.1 minutes. Four Storm native cases pass; its long production case was externally terminated three times with exit 143 before an assertion result and is explicitly not claimed as passing.
 - 2026-07-30: Seven 1440/768/375 evidence frames were inspected. The initial 768 frame exposed topbar overlap; the tablet layout was repaired and the final geometry assertion passes.
 - 2026-07-30: Final west and right physical ND sectors were clicked in the connected production Brave session after new Playwright processes began receiving external exit 143 terminations. Exact canvas actions and persisted schema 12 selections were inspected; the Playwright rerun itself is not claimed as passing.
+- 2026-07-31: The previously unverified production Storm Line case passed in Playwright in 4.5 minutes. The production A320 load, Engine-Out, and ND/ECAM mesh cases also passed in 1.5, 2.5, and 2.6 minutes respectively against the rebuilt 39,884,100-byte GLB. `npm run check` passed 238/238 tests and build; asset checks, 6/6 pipeline evals, runtime-gate validation, and diff check passed.
 
 ## Outcome and handoff
 

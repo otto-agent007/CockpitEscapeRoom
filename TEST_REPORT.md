@@ -1,5 +1,14 @@
 # Test report
 
+## 2026-07-31 Airbus PR browser-smoke and asset-contract repair
+
+- GitHub Actions run `30662072268` first cleared checkout and quality after CI was made independent of exhausted Git LFS bandwidth, then exposed six real Playwright failures. Four production-browser failures traced to the committed `airbus-captain.glb` missing the display, control-pivot, and Storm Flight camera nodes already required by the branch runtime. Two smoke failures traced to obsolete expectations that five-card qualification still completed Airbus by itself.
+- Rebuilt the authoritative Airbus source with Blender 5.1.2 through `npm run asset:airbus`; no GLB was hand-edited. The deployable model is 39,884,100 bytes at SHA-256 `0a6c8aeb1e1fdbfc85db01becb812ca0c3b7810208d03fba65f26c4fa4306251`. It exports 164 selected objects and 163 `game_id` nodes, including all three live display surfaces, both nested sidestick pivots, the paired-thrust pivot, and the raised Storm Flight camera. `npm run asset:airbus:promote-gate` and runtime-gate validation passed.
+- Updated the browser cache key to `storm-flight-0a6c8aeb`, made the model-failure route include query strings, and repaired the journey fixture so qualification opens the Simulator Hub while only completed Storm Line, Engine-Out, and all four schema-12 workload tasks open `POP T CAPTAIN MODE COMPLETE`.
+- Exact failed-case reruns passed: reordered journey and card recovery 2/2; production A320 load/placement 1/1 in 1.5 minutes; Engine-Out live displays/control response 1/1 in 2.5 minutes; ND/ECAM real-mesh interaction and drag rejection 1/1 in 2.6 minutes; Storm Line production displays/controls/responsive views 1/1 in 4.5 minutes; and model-load failure/retry 1/1.
+- `npm run check` passed ESLint, TypeScript, 24 Vitest files / 238 tests, and the production build. `npm run assets:check`, `npm run pipeline:evals` (6/6), and `git diff --check` passed. Existing imported-source scale/metadata notices and informational unused-UV/empty-node glTF notices remain recorded; the validators reported no Airbus glTF errors or warnings.
+- No Tesla/Model Y, Flight Mode, reward, locker, DC-9, or Mars implementation file changed in this repair. Owner play/visual approval remains a separate gate from CI correctness.
+
 ## 2026-07-30 Airbus interactive captain workload — owner visual gate open
 
 - Added four required-but-forgiving in-flight captain tasks after the mandatory five-card qualification: fictional ND range `MID`, western weather-gap confirmation, upper-ECAM training-event acknowledgement, and right-side SAFE RETURN selection. Every task works through the Blender-authored cockpit display and an equivalent native HTML button. Wrong choices increase only task-local coaching; unfinished tasks hold the next stable simulator boundary without failing the flight or erasing progress.

@@ -238,7 +238,7 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
   const response = await modelResponse
   expect(Number(response.headers()['content-length'])).toBe(expectedBytes)
   const fetchedBytes = await page.evaluate(async () => {
-    const response = await fetch('/models/airbus-captain.glb?v=storm-flight-bccc21b7', { cache: 'no-store' })
+    const response = await fetch('/models/airbus-captain.glb?v=storm-flight-0a6c8aeb', { cache: 'no-store' })
     return (await response.arrayBuffer()).byteLength
   })
   expect(fetchedBytes).toBe(expectedBytes)
