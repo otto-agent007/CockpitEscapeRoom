@@ -237,10 +237,27 @@ test('production Airbus cockpit renders live Engine-Out displays and control res
     fullPage: true,
   })
   await page.getByRole('button', { name: 'Begin Engine-Out' }).click()
-  await expect(canvas).toHaveAttribute('data-airbus-camera-phase', 'storm', { timeout: 5_000 })
+  await expect(canvas).toHaveAttribute('data-airbus-camera-phase', 'storm', { timeout: 15_000 })
   await expect(page.getByText(/Engine-Out Handling · recognition/)).toBeVisible()
   await expect(page.getByText(/Deliberate simulator event/)).toBeVisible()
   await expect(canvas).toHaveAttribute('data-engine-out-safe-return-visible', 'false')
+  await expect(canvas).toHaveAttribute('data-airbus-weather-depth-bands', '3')
+  await expect(canvas).toHaveAttribute('data-airbus-rain-shaft-count', '0')
+  await expect(canvas).toHaveAttribute('data-airbus-lightning-active', 'false')
+  await expect.poll(async () => {
+    const weatherSignature = await canvas.getAttribute('data-airbus-weather-signature')
+    const radarSignature = await canvas.getAttribute('data-airbus-radar-signature')
+    return Boolean(weatherSignature) && weatherSignature === radarSignature
+  }).toBe(true)
+  await expect.poll(async () => {
+    const weatherGap = Number(await canvas.getAttribute('data-airbus-weather-gap-bearing'))
+    const radarGap = Number(await canvas.getAttribute('data-airbus-radar-gap-bearing'))
+    return Math.abs(weatherGap - radarGap)
+  }).toBeLessThanOrEqual(5)
+  const initialSweep = Number(await canvas.getAttribute('data-airbus-radar-sweep-angle'))
+  await expect.poll(async () => Number(
+    await canvas.getAttribute('data-airbus-radar-sweep-angle'),
+  )).not.toBe(initialSweep)
 
   await page.keyboard.down('d')
   await expect.poll(async () => (
@@ -273,7 +290,7 @@ test('production Airbus cockpit renders live Engine-Out displays and control res
 
   await page.waitForTimeout(500)
   await page.screenshot({
-    path: `${evidenceDirectory}/airbus-engine-out-recognition-1440.png`,
+    path: `${evidenceDirectory}/airbus-engine-out-recognition-weather-radar-1440.png`,
     fullPage: true,
   })
   expect(consoleErrors).toEqual([])

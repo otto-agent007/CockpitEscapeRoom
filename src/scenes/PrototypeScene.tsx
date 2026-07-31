@@ -7,6 +7,7 @@ import type { EngineOutState } from '../game/airbusEngineOut'
 import type { AirbusFlightInput } from '../game/airbusInput'
 import type { AirbusActiveSimulationFrame } from '../game/airbusScenario'
 import type { StormLineState } from '../game/airbusSimulator'
+import type { AirbusWeatherFieldSnapshot } from '../game/airbusWeatherField'
 import { dc9LegacyFlow, airbusCaptainFlow, type AirbusControl, type LockerMemoryId } from '../game/config'
 import { type AirbusCameraPhase, type Dc9ChapterStage, type Dc9SecureControlId, type GamePhase } from '../game/state'
 import {
@@ -17,8 +18,13 @@ import {
   type AirbusCameraPose,
   type AirbusLookOffset,
 } from './airbusCameraRig'
-import { deriveAirbusStormVisualPose } from './airbusStormVisuals'
-import { deriveAirbusEngineOutVisualPose } from './airbusEngineOutVisuals'
+import { AirbusAtmosphere } from './AirbusAtmosphere'
+import {
+  advanceAirbusWeatherRadar,
+  createAirbusWeatherRadarFrame,
+  projectAirbusWeatherCellToRadar,
+  type AirbusWeatherRadarFrame,
+} from './airbusWeatherRadar'
 import { AIRBUS_MODEL_URL, clearCockpitModel, DC9_MODEL_URL, loadCockpitModel, LOCKER_MODEL_URL } from './cockpitModelLoader'
 
 const AIRBUS_GAME_CAMERA = 'CAM_AIRBUS_CAPTAIN_GAME_VIEW'
@@ -959,49 +965,168 @@ function drawPfd(canvas: HTMLCanvasElement, simulation: StormLineState) {
   context.fillText(`ENERGY ${Math.round(energy * 100)}`, 32, 262)
 }
 
-function drawNd(canvas: HTMLCanvasElement, simulation: StormLineState) {
+function drawWeatherRadar(
+  canvas: HTMLCanvasElement,
+  radar: AirbusWeatherRadarFrame,
+  footer: string,
+  safeReturnProgress?: number,
+) {
   const context = instrumentContext(canvas)
-  const intensity = simulation.weatherIntensity
+  const originX = 192
+  const originY = 263
+  const radarRadius = 142
+  context.save()
+  context.beginPath()
+  context.moveTo(originX, originY)
+  context.arc(originX, originY, radarRadius, Math.PI, Math.PI * 2)
+  context.closePath()
+  context.clip()
+  const screenGlow = context.createRadialGradient(originX, originY, 8, originX, originY, radarRadius)
+  screenGlow.addColorStop(0, 'rgba(12,45,49,0.18)')
+  screenGlow.addColorStop(1, 'rgba(1,9,12,0)')
+  context.fillStyle = screenGlow
+  context.fillRect(35, 105, 314, 160)
+
   context.strokeStyle = '#2a8fa8'
   context.lineWidth = 2
   for (const radius of [46, 86, 126]) {
     context.beginPath()
-    context.arc(192, 265, radius, Math.PI, Math.PI * 2)
+    context.arc(originX, originY, radius, Math.PI, Math.PI * 2)
     context.stroke()
   }
-  const cells = [
-    [116, 130, 64],
-    [204, 92, 78],
-    [291, 138, 62],
-  ] as const
-  for (const [x, y, radius] of cells) {
-    const gradient = context.createRadialGradient(x, y, 6, x, y, radius)
-    gradient.addColorStop(0, `rgba(238,54,43,${0.65 * intensity})`)
-    gradient.addColorStop(0.55, `rgba(245,183,54,${0.55 * intensity})`)
-    gradient.addColorStop(1, 'rgba(27,132,76,0)')
-    context.fillStyle = gradient
+  context.strokeStyle = 'rgba(59,139,150,0.55)'
+  for (const bearing of [-60, -30, 0, 30, 60]) {
+    const radians = bearing * Math.PI / 180
     context.beginPath()
-    context.arc(x, y, radius, 0, Math.PI * 2)
-    context.fill()
+    context.moveTo(originX, originY)
+    context.lineTo(
+      originX + Math.sin(radians) * radarRadius,
+      originY - Math.cos(radians) * radarRadius,
+    )
+    context.stroke()
   }
-  context.strokeStyle = '#76ffb2'
-  context.lineWidth = 10
-  context.globalAlpha = 0.8
+
+  const radarColors = {
+    green: [55, 212, 91],
+    yellow: [243, 207, 57],
+    red: [244, 69, 56],
+  } as const
+  for (const item of radar.returns) {
+    const projected = projectAirbusWeatherCellToRadar(item, 80)
+    const x = originX + projected.x * radarRadius
+    const y = originY + projected.y * radarRadius
+    const radius = Math.max(5, Math.min(24, item.radiusNm / 80 * radarRadius * 1.8))
+    const alpha = Math.max(0.18, 0.86 - item.ageSeconds / 12)
+    const [red, green, blue] = radarColors[item.color]
+    for (let lobe = 0; lobe < 3; lobe += 1) {
+      const lobeX = x + (lobe - 1) * radius * 0.46
+      const lobeY = y + (lobe % 2 === 0 ? radius * 0.12 : -radius * 0.18)
+      const gradient = context.createRadialGradient(
+        lobeX,
+        lobeY,
+        1,
+        lobeX,
+        lobeY,
+        radius * (0.72 + lobe * 0.11),
+      )
+      gradient.addColorStop(0, `rgba(${red},${green},${blue},${alpha})`)
+      gradient.addColorStop(0.64, `rgba(${red},${green},${blue},${alpha * 0.7})`)
+      gradient.addColorStop(1, `rgba(${red},${green},${blue},0)`)
+      context.fillStyle = gradient
+      context.beginPath()
+      context.ellipse(
+        lobeX,
+        lobeY,
+        radius * (0.82 + lobe * 0.08),
+        radius * (0.5 + lobe * 0.06),
+        lobe * 0.32,
+        0,
+        Math.PI * 2,
+      )
+      context.fill()
+    }
+  }
+
+  const gapRadians = radar.gapBearingDegrees * Math.PI / 180
+  context.strokeStyle = 'rgba(126,249,255,0.65)'
+  context.lineWidth = 2
+  context.setLineDash([5, 6])
   context.beginPath()
-  context.moveTo(190, 270)
-  context.bezierCurveTo(155, 230, 96, 200, 72, 116)
+  context.moveTo(originX, originY)
+  context.lineTo(
+    originX + Math.sin(gapRadians) * radarRadius * 0.92,
+    originY - Math.cos(gapRadians) * radarRadius * 0.92,
+  )
   context.stroke()
-  context.globalAlpha = 1
+  context.setLineDash([])
+
+  const sweepRadians = radar.sweepAngleDegrees * Math.PI / 180
+  const sweepX = originX + Math.sin(sweepRadians) * radarRadius
+  const sweepY = originY - Math.cos(sweepRadians) * radarRadius
+  const sweepGradient = context.createLinearGradient(originX, originY, sweepX, sweepY)
+  sweepGradient.addColorStop(0, 'rgba(121,255,176,0.05)')
+  sweepGradient.addColorStop(1, 'rgba(121,255,176,0.95)')
+  context.strokeStyle = sweepGradient
+  context.lineWidth = 3
+  context.beginPath()
+  context.moveTo(originX, originY)
+  context.lineTo(sweepX, sweepY)
+  context.stroke()
+
+  if (safeReturnProgress !== undefined) {
+    const safeBearing = 22 * Math.PI / 180
+    context.strokeStyle = 'rgba(117,230,156,0.26)'
+    context.lineWidth = 30
+    context.beginPath()
+    context.moveTo(originX, originY)
+    context.lineTo(
+      originX + Math.sin(safeBearing) * radarRadius * (0.65 + safeReturnProgress * 0.25),
+      originY - Math.cos(safeBearing) * radarRadius * (0.65 + safeReturnProgress * 0.25),
+    )
+    context.stroke()
+    context.strokeStyle = '#75e69c'
+    context.lineWidth = 3
+    context.beginPath()
+    context.moveTo(originX, originY)
+    context.lineTo(
+      originX + Math.sin(safeBearing) * radarRadius * 0.92,
+      originY - Math.cos(safeBearing) * radarRadius * 0.92,
+    )
+    context.stroke()
+  }
+  context.restore()
+
   context.fillStyle = '#ffffff'
   context.beginPath()
-  context.moveTo(192, 245)
-  context.lineTo(184, 265)
-  context.lineTo(200, 265)
+  context.moveTo(originX, 243)
+  context.lineTo(originX - 8, 263)
+  context.lineTo(originX + 8, 263)
   context.closePath()
   context.fill()
   context.fillStyle = '#7ef9ff'
-  context.fillText('WEST GAP', 24, 26)
-  context.fillText(`XTK ${simulation.aircraft.lateralPosition.toFixed(2)}`, 255, 262)
+  context.font = '600 13px ui-monospace, monospace'
+  context.fillText('WX TRAINING', 16, 18)
+  context.textAlign = 'center'
+  context.fillText('TILT AUTO', originX, 18)
+  context.textAlign = 'right'
+  context.fillText('SIM — NON OP', 368, 18)
+  context.textAlign = 'left'
+  context.fillText(`GAP ${radar.gapBearingDegrees.toFixed(0)}°`, 16, 42)
+  context.textAlign = 'right'
+  context.fillText(footer, 368, 270)
+  context.textAlign = 'left'
+}
+
+function drawNd(
+  canvas: HTMLCanvasElement,
+  simulation: StormLineState,
+  radar: AirbusWeatherRadarFrame,
+) {
+  drawWeatherRadar(
+    canvas,
+    radar,
+    `XTK ${simulation.aircraft.lateralPosition.toFixed(2)}`,
+  )
 }
 
 function drawEcam(canvas: HTMLCanvasElement, simulation: StormLineState, input: AirbusFlightInput) {
@@ -1073,49 +1198,17 @@ function drawEngineOutPfd(canvas: HTMLCanvasElement, simulation: EngineOutState)
   context.fillText(`ENERGY ${Math.round(energy * 100)}`, 30, 262)
 }
 
-function drawEngineOutNd(canvas: HTMLCanvasElement, simulation: EngineOutState) {
-  const context = instrumentContext(canvas)
-  for (const radius of [46, 86, 126]) {
-    context.strokeStyle = '#2a8fa8'
-    context.lineWidth = 2
-    context.beginPath()
-    context.arc(192, 265, radius, Math.PI, Math.PI * 2)
-    context.stroke()
-  }
-  context.strokeStyle = 'rgba(117,230,156,0.3)'
-  context.lineWidth = 58
-  context.beginPath()
-  context.moveTo(200, 260)
-  context.bezierCurveTo(224, 220, 278, 184, 326, 98)
-  context.stroke()
-  context.strokeStyle = '#75e69c'
-  context.lineWidth = 5
-  context.beginPath()
-  context.moveTo(192, 260)
-  context.bezierCurveTo(
-    205,
-    244,
-    240 + simulation.corridorProgress * 34,
-    204 - simulation.corridorProgress * 52,
-    326,
-    98,
+function drawEngineOutNd(
+  canvas: HTMLCanvasElement,
+  simulation: EngineOutState,
+  radar: AirbusWeatherRadarFrame,
+) {
+  drawWeatherRadar(
+    canvas,
+    radar,
+    `DRIFT ${simulation.aircraft.headingError.toFixed(1)}°`,
+    simulation.checkpoint === 'diversion' ? simulation.corridorProgress : undefined,
   )
-  context.stroke()
-  context.save()
-  context.translate(192, 250)
-  context.rotate(simulation.aircraft.headingError * Math.PI / 180)
-  context.fillStyle = '#ffffff'
-  context.beginPath()
-  context.moveTo(0, -18)
-  context.lineTo(-8, 2)
-  context.lineTo(8, 2)
-  context.closePath()
-  context.fill()
-  context.restore()
-  context.fillStyle = '#72ff9d'
-  context.fillText('SAFE RETURN', 218, 34)
-  context.fillStyle = '#7ef9ff'
-  context.fillText(`DRIFT ${simulation.aircraft.headingError.toFixed(1)}°`, 18, 262)
 }
 
 function drawEngineOutEcam(canvas: HTMLCanvasElement, simulation: EngineOutState) {
@@ -1160,10 +1253,14 @@ function AirbusSimulatorAnimator({
   scene,
   simulationFrameRef,
   inputRef,
+  weatherSnapshotRef,
+  reducedMotion,
 }: {
   scene: THREE.Group
   simulationFrameRef: MutableRefObject<AirbusActiveSimulationFrame | null>
   inputRef: MutableRefObject<AirbusFlightInput>
+  weatherSnapshotRef: MutableRefObject<AirbusWeatherFieldSnapshot | null>
+  reducedMotion: boolean
 }) {
   const { gl } = useThree()
   const canvasRef = useRef(gl.domElement)
@@ -1177,6 +1274,7 @@ function AirbusSimulatorAnimator({
     materials: THREE.MeshBasicMaterial[]
   } | null>(null)
   const lastDrawRef = useRef(-1)
+  const radarFrameRef = useRef<AirbusWeatherRadarFrame | null>(null)
 
   useEffect(() => {
     canvasRef.current = gl.domElement
@@ -1237,255 +1335,47 @@ function AirbusSimulatorAnimator({
     const instruments = instrumentRef.current
     if (!instruments) return
     const currentFrame = simulationFrameRef.current
+    const weatherSnapshot = weatherSnapshotRef.current
     const currentInput = inputRef.current
     const smoothing = 1 - Math.exp(-delta * 10)
     if (instruments.roll) instruments.roll.rotation.y = THREE.MathUtils.lerp(instruments.roll.rotation.y, currentInput.bank * THREE.MathUtils.degToRad(12), smoothing)
     if (instruments.pitch) instruments.pitch.rotation.x = THREE.MathUtils.lerp(instruments.pitch.rotation.x, currentInput.pitch * THREE.MathUtils.degToRad(10), smoothing)
     if (instruments.thrust) instruments.thrust.rotation.x = THREE.MathUtils.lerp(instruments.thrust.rotation.x, currentInput.thrust * THREE.MathUtils.degToRad(11), smoothing)
-    if (!currentFrame) return
+    if (!currentFrame || !weatherSnapshot) return
     if (clock.elapsedTime - lastDrawRef.current < 1 / 12) return
     lastDrawRef.current = clock.elapsedTime
+    const previousRadar = radarFrameRef.current
+      ?? createAirbusWeatherRadarFrame(weatherSnapshot, clock.elapsedTime)
+    const radar = advanceAirbusWeatherRadar(
+      previousRadar,
+      weatherSnapshot,
+      clock.elapsedTime,
+      reducedMotion,
+    )
+    radarFrameRef.current = radar
     if (currentFrame.scenario === 'stormLine') {
       drawPfd(instruments.pfd.canvas, currentFrame.state)
-      drawNd(instruments.nd.canvas, currentFrame.state)
+      drawNd(instruments.nd.canvas, currentFrame.state, radar)
       drawEcam(instruments.ecam.canvas, currentFrame.state, currentInput)
     } else {
       drawEngineOutPfd(instruments.pfd.canvas, currentFrame.state)
-      drawEngineOutNd(instruments.nd.canvas, currentFrame.state)
+      drawEngineOutNd(instruments.nd.canvas, currentFrame.state, radar)
       drawEngineOutEcam(instruments.ecam.canvas, currentFrame.state)
     }
+    canvasRef.current.dataset.airbusRadarSignature = radar.signature
+    canvasRef.current.dataset.airbusRadarGapBearing = radar.gapBearingDegrees.toFixed(2)
+    canvasRef.current.dataset.airbusRadarSweepAngle = radar.sweepAngleDegrees.toFixed(2)
+    canvasRef.current.dataset.airbusRadarReturnCount = String(radar.returns.length)
+    canvasRef.current.dataset.airbusRadarOldestReturnAge = Math.max(
+      0,
+      ...radar.returns.map((item) => item.ageSeconds),
+    ).toFixed(2)
     instruments.pfd.texture.needsUpdate = true
     instruments.nd.texture.needsUpdate = true
     instruments.ecam.texture.needsUpdate = true
   })
 
   return null
-}
-
-function AirbusStormWeather({
-  simulationFrameRef,
-  reducedMotion,
-}: {
-  simulationFrameRef: MutableRefObject<AirbusActiveSimulationFrame | null>
-  reducedMotion: boolean
-}) {
-  const { camera, gl } = useThree()
-  const meshRef = useRef<THREE.Mesh>(null)
-  const materialRef = useRef<THREE.MeshBasicMaterial>(null)
-  const weatherRef = useRef<ReturnType<typeof makeInstrumentTexture> | null>(null)
-  const lastDrawRef = useRef(-1)
-  const reducedMotionRef = useRef(reducedMotion)
-  const forwardRef = useRef(new THREE.Vector3())
-  const upRef = useRef(new THREE.Vector3())
-  const rollRef = useRef(new THREE.Quaternion())
-  const rollAxisRef = useRef(new THREE.Vector3(0, 0, 1))
-  const yawRef = useRef(new THREE.Quaternion())
-  const yawAxisRef = useRef(new THREE.Vector3(0, 1, 0))
-  const canvasRef = useRef(gl.domElement)
-
-  useEffect(() => {
-    const weather = makeInstrumentTexture()
-    weatherRef.current = weather
-    if (materialRef.current) {
-      materialRef.current.map = weather.texture
-      materialRef.current.needsUpdate = true
-    }
-    return () => {
-      weather.texture.dispose()
-      weatherRef.current = null
-    }
-  }, [])
-
-  useEffect(() => {
-    canvasRef.current = gl.domElement
-  }, [gl])
-
-  useEffect(() => {
-    reducedMotionRef.current = reducedMotion
-  }, [reducedMotion])
-
-  useFrame(({ clock }) => {
-    const mesh = meshRef.current
-    const weather = weatherRef.current
-    if (!mesh || !weather) return
-    const currentFrame = simulationFrameRef.current
-    if (currentFrame?.scenario !== 'stormLine') {
-      if (currentFrame?.scenario !== 'engineOut') {
-        mesh.visible = false
-        return
-      }
-      mesh.visible = true
-      const current = currentFrame.state
-      const pose = deriveAirbusEngineOutVisualPose({
-        pitchDegrees: current.aircraft.pitch,
-        bankDegrees: current.aircraft.bank,
-        headingErrorDegrees: current.aircraft.headingError,
-        directionalError: current.aircraft.directionalError,
-        corridorProgress: current.corridorProgress,
-        leftEnginePower: current.aircraft.leftEnginePower,
-        rightEnginePower: current.aircraft.rightEnginePower,
-      }, reducedMotionRef.current)
-      const forward = forwardRef.current.set(0, 0, -1).applyQuaternion(camera.quaternion)
-      const up = upRef.current.set(0, 1, 0).applyQuaternion(camera.quaternion)
-      mesh.position
-        .copy(camera.position)
-        .addScaledVector(forward, 45)
-        .addScaledVector(up, pose.pitchOffsetMeters)
-      yawRef.current.setFromAxisAngle(yawAxisRef.current, pose.headingDriftRadians)
-      rollRef.current.setFromAxisAngle(rollAxisRef.current, pose.horizonRollRadians)
-      mesh.quaternion.copy(camera.quaternion).multiply(yawRef.current).multiply(rollRef.current)
-      canvasRef.current.dataset.engineOutHeadingDrift = pose.headingDriftRadians.toFixed(4)
-      canvasRef.current.dataset.engineOutHorizonRoll = pose.horizonRollRadians.toFixed(4)
-      canvasRef.current.dataset.engineOutDirectionalCue = pose.directionalCue.toFixed(3)
-      canvasRef.current.dataset.engineOutSafeReturn = pose.safeReturnProgress.toFixed(3)
-      canvasRef.current.dataset.engineOutSafeReturnVisible =
-        current.checkpoint === 'diversion' ? 'true' : 'false'
-      if (clock.elapsedTime - lastDrawRef.current < 0.15) return
-      lastDrawRef.current = clock.elapsedTime
-      const context = instrumentContext(weather.canvas)
-      const sky = context.createLinearGradient(0, 0, 0, weather.canvas.height)
-      sky.addColorStop(0, '#142a3a')
-      sky.addColorStop(0.5, '#486878')
-      sky.addColorStop(0.57, '#a9b8b9')
-      sky.addColorStop(1, '#26353b')
-      context.fillStyle = sky
-      context.fillRect(0, 0, weather.canvas.width, weather.canvas.height)
-      context.strokeStyle = 'rgba(226,241,238,0.58)'
-      context.lineWidth = 2
-      context.beginPath()
-      context.moveTo(0, 126)
-      context.lineTo(weather.canvas.width, 126)
-      context.stroke()
-      context.fillStyle = 'rgba(214,228,227,0.13)'
-      for (let index = 0; index < 8; index += 1) {
-        const x = 28 + index * 56
-        const y = 72 + (index % 3) * 34
-        context.beginPath()
-        context.arc(x, y, 34 + (index % 2) * 12, 0, Math.PI * 2)
-        context.fill()
-      }
-      if (current.checkpoint === 'diversion') {
-        const corridorX = 250 + pose.safeReturnProgress * 58
-        context.fillStyle = 'rgba(117,230,156,0.16)'
-        context.beginPath()
-        context.moveTo(192, 248)
-        context.lineTo(corridorX - 54, 96)
-        context.lineTo(corridorX + 54, 96)
-        context.closePath()
-        context.fill()
-        context.strokeStyle = '#75e69c'
-        context.lineWidth = 4
-        context.beginPath()
-        context.moveTo(192, 248)
-        context.lineTo(corridorX, 96)
-        context.stroke()
-        context.fillStyle = '#d7fff0'
-        context.fillText('SAFE RETURN', 238, 72)
-      }
-      weather.texture.needsUpdate = true
-      return
-    }
-    mesh.visible = true
-    const current = currentFrame.state
-    const reduceMotion = reducedMotionRef.current
-    const {
-      horizonRollRadians: horizonRoll,
-      pitchOffsetMeters: pitchOffset,
-      corridorProgress,
-    } = deriveAirbusStormVisualPose({
-      bankDegrees: current.aircraft.bank,
-      pitchDegrees: current.aircraft.pitch,
-      lateralPosition: current.aircraft.lateralPosition,
-    })
-    const forward = forwardRef.current.set(0, 0, -1).applyQuaternion(camera.quaternion)
-    const up = upRef.current.set(0, 1, 0).applyQuaternion(camera.quaternion)
-    mesh.position
-      .copy(camera.position)
-      .addScaledVector(forward, 45)
-      .addScaledVector(up, pitchOffset)
-    rollRef.current.setFromAxisAngle(rollAxisRef.current, horizonRoll)
-    mesh.quaternion.copy(camera.quaternion).multiply(rollRef.current)
-    canvasRef.current.dataset.stormHorizonRoll = horizonRoll.toFixed(4)
-    canvasRef.current.dataset.stormPitchOffset = pitchOffset.toFixed(3)
-    canvasRef.current.dataset.stormCorridorProgress = corridorProgress.toFixed(3)
-    if (clock.elapsedTime - lastDrawRef.current < 0.15) return
-    lastDrawRef.current = clock.elapsedTime
-    const context = instrumentContext(weather.canvas)
-    const intensity = current.weatherIntensity
-    const horizonY = 112
-    const sky = context.createLinearGradient(0, 0, 0, weather.canvas.height)
-    sky.addColorStop(0, '#07121e')
-    sky.addColorStop(0.48, '#1c3c4c')
-    sky.addColorStop(0.58, '#5c7781')
-    sky.addColorStop(1, '#1b2730')
-    context.fillStyle = sky
-    context.fillRect(0, 0, weather.canvas.width, weather.canvas.height)
-
-    context.strokeStyle = `rgba(185,220,224,${0.2 + (1 - intensity) * 0.3})`
-    context.lineWidth = 2
-    context.beginPath()
-    context.moveTo(0, horizonY)
-    context.lineTo(weather.canvas.width, horizonY)
-    context.stroke()
-
-    const corridorCenter = 78 + corridorProgress * 116
-    const corridorGlow = context.createRadialGradient(
-      corridorCenter,
-      horizonY - 18,
-      4,
-      corridorCenter,
-      horizonY - 18,
-      72,
-    )
-    corridorGlow.addColorStop(0, 'rgba(177,224,215,0.78)')
-    corridorGlow.addColorStop(0.38, 'rgba(86,154,153,0.26)')
-    corridorGlow.addColorStop(1, 'rgba(38,76,83,0)')
-    context.fillStyle = corridorGlow
-    context.fillRect(0, 42, weather.canvas.width, 210)
-
-    for (let index = 0; index < 22; index += 1) {
-      const drift = reduceMotion ? 0 : current.elapsedSeconds * (5 + index % 4)
-      const x = ((index * 79 + drift) % 530) - 72
-      const y = 18 + ((index * 43) % 225)
-      const distanceFromGap = Math.abs(x - corridorCenter)
-      const gapSuppression = THREE.MathUtils.smoothstep(distanceFromGap, 34, 90)
-      const radius = 34 + (index % 5) * 14
-      const gradient = context.createRadialGradient(x, y, 4, x, y, radius)
-      gradient.addColorStop(0, `rgba(11,18,29,${(0.38 + intensity * 0.55) * gapSuppression})`)
-      gradient.addColorStop(0.55, `rgba(24,34,45,${(0.32 + intensity * 0.42) * gapSuppression})`)
-      gradient.addColorStop(1, 'rgba(20,31,42,0)')
-      context.fillStyle = gradient
-      context.beginPath()
-      context.arc(x, y, radius, 0, Math.PI * 2)
-      context.fill()
-    }
-
-    if (!reduceMotion) {
-      context.strokeStyle = `rgba(190,218,226,${0.08 + intensity * 0.22})`
-      context.lineWidth = 1
-      for (let index = 0; index < 28; index += 1) {
-        const x = (index * 47 + current.elapsedSeconds * 38) % 430 - 24
-        const y = (index * 71 + current.elapsedSeconds * 61) % 330 - 28
-        context.beginPath()
-        context.moveTo(x, y)
-        context.lineTo(x - 8, y + 26)
-        context.stroke()
-      }
-    }
-
-    if (!reduceMotion && current.weatherIntensity > 0.7 && current.elapsedSeconds % 17 < 0.2) {
-      context.fillStyle = 'rgba(210,230,255,0.22)'
-      context.fillRect(0, 0, weather.canvas.width, weather.canvas.height)
-    }
-    weather.texture.needsUpdate = true
-  })
-
-  return (
-    <mesh ref={meshRef} renderOrder={-10} frustumCulled={false}>
-      <planeGeometry args={[110, 80]} />
-      <meshBasicMaterial ref={materialRef} depthWrite={false} toneMapped={false} />
-    </mesh>
-  )
 }
 
 function useInteractiveCursor() {
@@ -1535,6 +1425,7 @@ function AirbusCockpit({
   const readyFrameCountRef = useRef<number | null>(null)
   const loadedBytesRef = useRef(0)
   const totalBytesRef = useRef<number | undefined>(undefined)
+  const weatherSnapshotRef = useRef<AirbusWeatherFieldSnapshot | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -1634,12 +1525,22 @@ function AirbusCockpit({
   return (
     <>
       <color attach="background" args={['#172123']} />
-      <AirbusStormWeather simulationFrameRef={simulationFrameRef} reducedMotion={reducedMotion} />
+      <AirbusAtmosphere
+        simulationFrameRef={simulationFrameRef}
+        weatherSnapshotRef={weatherSnapshotRef}
+        reducedMotion={reducedMotion}
+      />
       <AirbusRuntimeLighting />
       {loaded?.interactionCamera && loaded.stormCamera && !loadFailed && (
         <>
           <primitive object={loaded.scene} />
-          <AirbusSimulatorAnimator scene={loaded.scene} simulationFrameRef={simulationFrameRef} inputRef={inputRef} />
+          <AirbusSimulatorAnimator
+            scene={loaded.scene}
+            simulationFrameRef={simulationFrameRef}
+            inputRef={inputRef}
+            weatherSnapshotRef={weatherSnapshotRef}
+            reducedMotion={reducedMotion}
+          />
           <AirbusCameraDirector
             phase={cameraPhase}
             reducedMotion={reducedMotion}

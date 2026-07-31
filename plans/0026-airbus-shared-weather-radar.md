@@ -78,19 +78,22 @@ The authoritative scenario frames already expose deterministic elapsed time, che
 - [x] 2026-07-30 — Owner approved one shared deterministic 2.5D weather field and fictional A320-style live radar.
 - [x] 2026-07-30 — Design specification and defect ledger recorded.
 - [x] 2026-07-30 — ExecPlan created from the approved design and current renderer contracts.
-- [ ] Pure deterministic weather field passes focused tests.
-- [ ] Pure atmosphere-layout adapter passes focused tests and resource budgets.
-- [ ] Pure live-radar sweep and aging adapter passes focused tests.
-- [ ] Procedural atmosphere and shared snapshot ref replace the flat exterior authority.
-- [ ] Captain ND consumes the live shared radar without changing bezel fit.
-- [ ] Focused unit, lint, typecheck, build, and browser regression checks pass.
-- [ ] Tier 1 Storm Entry, Storm Core, and Engine-Out Recognition proofs are reviewed by the owner.
+- [x] 2026-07-30 — Pure deterministic weather field passes 6 focused tests; typecheck is green.
+- [x] 2026-07-30 — Pure atmosphere-layout adapter passes 6 focused tests and resource budgets.
+- [x] 2026-07-30 — Pure live-radar sweep and aging adapter passes 7 focused tests; all 19 new pure tests pass together.
+- [x] 2026-07-30 — Procedural atmosphere and shared snapshot ref replace the flat exterior authority; the legacy flat renderer is removed.
+- [x] 2026-07-30 — Captain ND consumes the live shared radar without changing bezel fit.
+- [x] 2026-07-30 — Focused unit, lint, typecheck, build, and real-browser scenario checks pass.
+- [ ] Tier 1 Storm Entry, Storm Core, and Engine-Out Recognition proofs are awaiting owner review.
 
 ## Discoveries
 
 - The current exterior and radar are both generated canvases, but they have no shared spatial contract.
 - `AirbusSimulatorAnimator` already redraws its screen textures at a bounded 12 Hz, so radar can reuse that cadence while keeping its own sweep history in a ref.
 - The cockpit and camera do not need Blender changes for this milestone; the visual defect is in the browser-authoritative exterior and ND rendering boundary.
+- The captain camera looks down toward the flight deck, so a mathematically centered horizon falls behind the glareshield. The procedural horizon and cloud belt require a camera-relative elevation offset to appear through the windshield.
+- Faceted cone geometry made rain shafts appear as large triangles. Camera-facing shader curtains removed that artifact while retaining the eight-shaft cap.
+- Headless Chromium uses SwiftShader for this proof and the 38 MiB cockpit can take over two minutes per real-asset scenario. Running Storm and Engine-Out sequentially can delay input response; the isolated Storm proof retained the same roll threshold with a 15-second poll allowance.
 
 ## Decision log
 
@@ -99,6 +102,7 @@ The authoritative scenario frames already expose deterministic elapsed time, che
 - 2026-07-30: Use a left-right heading-up sweep and aged return buffer for readable live behavior without implementing operational radar.
 - 2026-07-30: Stop after at most two Tier 1 visual repair passes if a genuine owner composition decision remains.
 - 2026-07-30: Implement inline and sequentially because this workspace does not authorize delegated work.
+- 2026-07-30: Define `signature` as the stable spatial field identity for a scenario/checkpoint/seed. Individual cell samples continue to drift, while asynchronous atmosphere and radar consumers can prove they share one field without timing-phase false negatives.
 
 ## Milestones
 
@@ -323,8 +327,23 @@ Repeat: run the narrowest failing test, diagnose the root cause, make one cohere
 
 ## Evidence
 
-Pending implementation. Record exact test counts, browser results, screenshots, console findings, and unresolved visual delta here as they are produced.
+- `npm test -- --run src/game/airbusWeatherField.test.ts`: 6 tests passed.
+- `npm test -- --run src/scenes/airbusAtmosphereVisuals.test.ts`: 6 tests passed.
+- `npm test -- --run src/scenes/airbusWeatherRadar.test.ts`: 7 tests passed.
+- Combined focused weather/layout/radar suite: 19 tests passed.
+- Combined focused weather/layout/radar suite after the sightline and radar-band repair: 20 tests passed.
+- `npm run typecheck`: passed after pure and browser-integration checkpoints.
+- Focused ESLint over the eight implementation/test files plus `PrototypeScene.tsx`: passed.
+- `npm run build`: passed; Vite production bundle generated.
+- Real production-GLB Engine-Out proof: passed with shared signature, gap agreement, three depth bands, no rain/lightning, live sweep, control response, screen rendering, and no console errors.
+- Real production-GLB Storm Core proof: passed with shared signature, gap agreement, three depth bands, bounded clouds/rain, live sweep, bank/look/recenter response, screen rendering, and no console errors.
+- One-time production-GLB Storm Entry capture: passed its shared signature assertion.
+- Tier 1 screenshots:
+  - `preview-renders/airbus-weather-radar/airbus-storm-entry-weather-radar-1440.png`
+  - `preview-renders/airbus-weather-radar/airbus-storm-core-weather-radar-1440.png`
+  - `preview-renders/airbus-weather-radar/airbus-engine-out-recognition-weather-radar-1440.png`
+- Owner-gate limitation: depth, horizon placement, distinct scenario palettes, radar sweep, radar aging, and shared-cell agreement are implemented. The generated cloud silhouettes remain stylized and are not yet visually equivalent to Aerofly FS or Microsoft Flight Simulator volumetric weather.
 
 ## Outcome and handoff
 
-Pending implementation and Tier 1 owner review. The handoff must state what changed, what was actually run, the three proof images, any remaining visual limitations, and that Tesla/Model Y remained untouched.
+Implementation is complete through the Tier 1 owner gate. The flat exterior authority is removed; Storm and Engine-Out share a deterministic weather field with a layered browser atmosphere and live aged radar returns. The three 1440 by 900 proofs await owner judgment. If the owner accepts the composition, Tier 2 will run the one-time responsive/full-check/deployment evidence pass. If the owner rejects the stylized cloud appearance, the next milestone should focus narrowly on cloud material quality and atmospheric scattering without changing gameplay, cockpit geometry, or radar contracts. Tesla/Model Y remained untouched.

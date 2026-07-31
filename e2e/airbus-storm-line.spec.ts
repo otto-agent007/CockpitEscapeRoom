@@ -248,13 +248,34 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
   await page.getByRole('button', { name: 'Open Storm Line' }).click()
   await page.getByRole('button', { name: 'Begin Storm Line' }).click()
   await expect(canvas).toHaveAttribute('data-airbus-camera-phase', 'transitioning')
-  await expect(canvas).toHaveAttribute('data-airbus-camera-phase', 'storm', { timeout: 5_000 })
+  await expect(canvas).toHaveAttribute('data-airbus-camera-phase', 'storm', { timeout: 15_000 })
   await expect(page.getByText(/Storm Line · Storm core/)).toBeVisible({ timeout: 30_000 })
   await expect(canvas).toHaveAttribute(
     'data-airbus-simulator-nodes',
     /AIRBUS_A320_DISPLAY_CAPTAIN_PFD_SURFACE.*AIRBUS_A320_CONTROL_THRUST_PAIRED_PIVOT/,
     { timeout: 30_000 },
   )
+  await expect(canvas).toHaveAttribute('data-airbus-weather-depth-bands', '3')
+  await expect.poll(async () => Number(
+    await canvas.getAttribute('data-airbus-weather-cloud-count'),
+  )).toBeLessThanOrEqual(48)
+  await expect.poll(async () => Number(
+    await canvas.getAttribute('data-airbus-rain-shaft-count'),
+  )).toBeLessThanOrEqual(8)
+  await expect.poll(async () => {
+    const weatherSignature = await canvas.getAttribute('data-airbus-weather-signature')
+    const radarSignature = await canvas.getAttribute('data-airbus-radar-signature')
+    return Boolean(weatherSignature) && weatherSignature === radarSignature
+  }).toBe(true)
+  await expect.poll(async () => {
+    const weatherGap = Number(await canvas.getAttribute('data-airbus-weather-gap-bearing'))
+    const radarGap = Number(await canvas.getAttribute('data-airbus-radar-gap-bearing'))
+    return Math.abs(weatherGap - radarGap)
+  }).toBeLessThanOrEqual(5)
+  const initialSweep = Number(await canvas.getAttribute('data-airbus-radar-sweep-angle'))
+  await expect.poll(async () => Number(
+    await canvas.getAttribute('data-airbus-radar-sweep-angle'),
+  )).not.toBe(initialSweep)
   await expect(page.getByRole('region', { name: 'Accessible flight instruments' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Show flight controls' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Recenter view' })).toBeVisible()
@@ -263,7 +284,7 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
   await expect.poll(async () => {
     const rawRoll = await canvas.getAttribute('data-storm-horizon-roll')
     return Math.abs(Number(rawRoll))
-  }).toBeGreaterThan(0.08)
+  }, { timeout: 15_000 }).toBeGreaterThan(0.08)
   await page.keyboard.up('ArrowLeft')
 
   const canvasBox = await canvas.boundingBox()
@@ -286,7 +307,7 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.waitForTimeout(500)
   await page.screenshot({
-    path: `${evidenceDirectory}/airbus-storm-flight-view-1440.png`,
+    path: `${evidenceDirectory}/airbus-storm-core-weather-radar-1440.png`,
     fullPage: true,
   })
   expect(consoleErrors).toEqual([])
