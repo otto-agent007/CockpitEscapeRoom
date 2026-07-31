@@ -2340,6 +2340,98 @@ p {
   transform: translateX(-50%);
 }
 
+.airbus-workload-task {
+  position: absolute;
+  z-index: 8;
+  top: 5.9rem;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(42rem, calc(100vw - 19rem));
+  gap: 0.7rem;
+  border: 1px solid rgba(119, 223, 229, 0.38);
+  border-radius: 0.65rem;
+  padding: 0.48rem 0.58rem;
+  background: rgba(3, 12, 15, 0.9);
+  box-shadow: 0 0.7rem 1.8rem rgba(0, 0, 0, 0.25);
+  color: #edf8f5;
+  pointer-events: auto;
+  transform: translateX(-50%);
+}
+
+.airbus-workload-task.is-gated {
+  border-color: rgba(255, 190, 92, 0.78);
+}
+
+.airbus-workload-task.is-complete {
+  border-color: rgba(117, 230, 156, 0.55);
+  opacity: 0.82;
+}
+
+.airbus-workload-copy {
+  display: grid;
+  min-width: 0;
+  gap: 0.12rem;
+}
+
+.airbus-workload-copy > span {
+  color: #83dce2;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.airbus-workload-copy strong {
+  font-size: 0.76rem;
+  line-height: 1.25;
+}
+
+.airbus-workload-copy small {
+  color: #f3c879;
+  font-size: 0.68rem;
+  line-height: 1.25;
+}
+
+.airbus-workload-task.is-complete small {
+  color: #8ee7aa;
+}
+
+.airbus-workload-actions {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 0.3rem;
+}
+
+.airbus-workload-actions button {
+  min-height: 2.2rem;
+  border: 1px solid rgba(139, 224, 230, 0.42);
+  border-radius: 0.45rem;
+  padding: 0.35rem 0.55rem;
+  background: rgba(16, 47, 53, 0.94);
+  color: #f3fbf8;
+  font: inherit;
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+.airbus-workload-actions button:hover,
+.airbus-workload-actions button:focus-visible {
+  border-color: #8be0e6;
+  background: rgba(24, 70, 77, 0.98);
+}
+
+.airbus-workload-readout {
+  border: 1px solid rgba(117, 230, 156, 0.35);
+  border-radius: 0.35rem;
+  padding: 0.32rem 0.4rem;
+  color: #8ee7aa;
+  font: 700 0.65rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  white-space: nowrap;
+}
+
 .storm-control-deck {
   position: absolute;
   right: auto;
@@ -3485,6 +3577,14 @@ progress {
     width: calc(100vw - 5rem);
   }
 
+  .airbus-workload-task {
+    top: 6rem;
+    right: 0.4rem;
+    left: 7.4rem;
+    width: auto;
+    transform: none;
+  }
+
   .storm-instrument-mirror {
     top: 6rem;
     left: 0.4rem;
@@ -3572,6 +3672,34 @@ progress {
   .storm-progress {
     top: 11.9rem;
     width: calc(100vw - 1.5rem);
+  }
+
+  .airbus-workload-task {
+    top: 12.6rem;
+    right: 0.4rem;
+    left: 7.4rem;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.42rem;
+  }
+
+  .airbus-workload-copy strong {
+    font-size: 0.67rem;
+  }
+
+  .airbus-workload-copy small {
+    font-size: 0.61rem;
+  }
+
+  .airbus-workload-actions {
+    flex-wrap: wrap;
+  }
+
+  .airbus-workload-actions button {
+    min-height: 2rem;
+    padding: 0.3rem 0.4rem;
+    font-size: 0.62rem;
   }
 
   .storm-instrument-mirror,

@@ -221,6 +221,7 @@ export default function App() {
       checkpoint: state.airbusSimulator.engineOut.checkpoint,
       attempts: state.airbusSimulator.engineOut.attempts,
     },
+    completedWorkloadTasks: state.airbusSimulator.workload.completedTasks,
     onStormCheckpoint: saveAirbusCheckpoint,
     onStormComplete: completeAirbusStormLine,
     onEngineOutCheckpoint: saveAirbusEngineOutCheckpoint,

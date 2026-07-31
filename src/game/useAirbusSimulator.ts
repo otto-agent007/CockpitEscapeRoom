@@ -24,6 +24,7 @@ import {
   type StormLineCheckpoint,
   type StormLineTrait,
 } from './airbusSimulator'
+import type { AirbusWorkloadTaskId } from './airbusWorkload'
 
 export type StormLineHoldControl = AirbusHoldControl
 
@@ -35,6 +36,7 @@ export interface AirbusSimulatorRuntime {
   paused: boolean
   inputMethod: AirbusInputMethod
   soundEnabled: boolean
+  workloadGate: AirbusWorkloadTaskId | null
   togglePause: () => void
   retryCheckpoint: () => void
   setHoldControl: (control: AirbusHoldControl, pressed: boolean) => void
@@ -51,6 +53,7 @@ interface UseAirbusSimulatorOptions {
     checkpoint: EngineOutCheckpoint
     attempts: Record<EngineOutCheckpoint, number>
   }
+  completedWorkloadTasks: readonly AirbusWorkloadTaskId[]
   onStormCheckpoint: (
     checkpoint: StormLineCheckpoint,
     attempts: Record<StormLineCheckpoint, number>,
@@ -105,6 +108,7 @@ export function useAirbusSimulator(options: UseAirbusSimulatorOptions): AirbusSi
     activeScenario,
     stormLine,
     engineOut,
+    completedWorkloadTasks,
     onStormCheckpoint,
     onStormComplete,
     onEngineOutCheckpoint,
@@ -117,6 +121,7 @@ export function useAirbusSimulator(options: UseAirbusSimulatorOptions): AirbusSi
   const [paused, setPaused] = useState(false)
   const [inputMethod, setInputMethod] = useState<AirbusInputMethod>('keyboard')
   const [soundEnabled, setSoundEnabled] = useState(false)
+  const [workloadGate, setWorkloadGate] = useState<AirbusWorkloadTaskId | null>(null)
   const activeFrameRef = useRef<AirbusActiveSimulationFrame | null>(activeFrame)
   const inputRef = useRef<AirbusFlightInput>({ ...ZERO_AIRBUS_INPUT })
   const keysRef = useRef(new Set<string>())
@@ -146,17 +151,20 @@ export function useAirbusSimulator(options: UseAirbusSimulatorOptions): AirbusSi
   useEffect(() => {
     let nextPublishedFrame: AirbusActiveSimulationFrame | null | undefined
     let resetPause = false
+    let resetWorkloadGate = false
     if (activeScenario && previousScenarioRef.current !== activeScenario) {
       const restored = createActiveFrame(activeScenario, { stormLine, engineOut })
       activeFrameRef.current = restored
       nextPublishedFrame = restored
       completedRef.current = false
       resetPause = true
+      resetWorkloadGate = true
     } else if (!activeScenario) {
       activeFrameRef.current = null
       nextPublishedFrame = null
       completedRef.current = false
       resetPause = true
+      resetWorkloadGate = true
       clearInputRefs()
     } else if (!activeFrameRef.current) {
       const restored = createActiveFrame(activeScenario, { stormLine, engineOut })
@@ -169,6 +177,7 @@ export function useAirbusSimulator(options: UseAirbusSimulatorOptions): AirbusSi
     const publishTimeout = window.setTimeout(() => {
       setActiveFrame(nextPublishedFrame)
       if (resetPause) setPaused(false)
+      if (resetWorkloadGate) setWorkloadGate(null)
     }, 0)
     return () => window.clearTimeout(publishTimeout)
   }, [activeScenario, clearInputRefs, engineOut, stormLine])
@@ -245,8 +254,22 @@ export function useAirbusSimulator(options: UseAirbusSimulatorOptions): AirbusSi
 
       const currentFrame = activeFrameRef.current
       if (!paused && currentFrame && currentFrame.state.phase === 'flying') {
-        const transition = advanceAirbusScenarioFrame(currentFrame, combined.input, deltaSeconds)
+        const transition = advanceAirbusScenarioFrame(
+          currentFrame,
+          combined.input,
+          deltaSeconds,
+          completedWorkloadTasks,
+        )
         activeFrameRef.current = transition.frame
+        setWorkloadGate((current) => current === (transition.workloadGate ?? null)
+          ? current
+          : transition.workloadGate ?? null)
+        if (transition.workloadGate) {
+          clearInputRefs()
+          const centered = { ...ZERO_AIRBUS_INPUT }
+          inputRef.current = centered
+          setInput(centered)
+        }
 
         if (transition.checkpointReached) {
           if (transition.frame.scenario === 'stormLine') {
@@ -282,6 +305,8 @@ export function useAirbusSimulator(options: UseAirbusSimulatorOptions): AirbusSi
     return () => cancelAnimationFrame(frameRequest)
   }, [
     activeScenario,
+    clearInputRefs,
+    completedWorkloadTasks,
     onEngineOutCheckpoint,
     onEngineOutComplete,
     onStormCheckpoint,
@@ -392,6 +417,7 @@ export function useAirbusSimulator(options: UseAirbusSimulatorOptions): AirbusSi
     paused,
     inputMethod,
     soundEnabled,
+    workloadGate,
     togglePause,
     retryCheckpoint,
     setHoldControl,

@@ -4,6 +4,12 @@ import { ENGINE_OUT_ENVELOPE, ENGINE_OUT_TIMING } from '../game/airbusEngineOut'
 import type { AirbusHoldControl } from '../game/airbusInput'
 import { getAirbusScenarioAvailability } from '../game/airbusScenario'
 import type { StormLineState } from '../game/airbusSimulator'
+import {
+  airbusWorkloadHint,
+  deriveAirbusWorkloadTask,
+  type AirbusWorkloadAction,
+  type AirbusWorkloadTaskId,
+} from '../game/airbusWorkload'
 import { gameProgress, type GameAction, type GameState } from '../game/state'
 import type { AirbusSimulatorRuntime } from '../game/useAirbusSimulator'
 import {
@@ -106,6 +112,106 @@ function HoldControl({
     >
       {label}
     </button>
+  )
+}
+
+const workloadTaskCopy: Record<AirbusWorkloadTaskId, {
+  label: string
+  instruction: string
+}> = {
+  stormScanRange: {
+    label: 'Weather picture',
+    instruction: 'Set the fictional captain ND scan range to MID.',
+  },
+  stormGapSelection: {
+    label: 'Route judgment',
+    instruction: 'Confirm the stable weather gap on the captain ND.',
+  },
+  engineEventAcknowledgement: {
+    label: 'Event recognition',
+    instruction: 'Acknowledge the deliberate training event on the upper ECAM.',
+  },
+  engineSafeReturnSelection: {
+    label: 'Diversion judgment',
+    instruction: 'Select the calmer SAFE RETURN corridor on the captain ND.',
+  },
+}
+
+function AirbusCaptainTask({
+  state,
+  dispatch,
+  runtime,
+  scenario,
+  checkpoint,
+}: {
+  state: GameState
+  dispatch: React.Dispatch<GameAction>
+  runtime: AirbusSimulatorRuntime
+  scenario: 'stormLine' | 'engineOut'
+  checkpoint: 'stormEntry' | 'stormCore' | 'clearAir' | 'recognition' | 'stabilization' | 'diversion'
+}) {
+  const task = deriveAirbusWorkloadTask(scenario, checkpoint)
+  if (!task) return null
+
+  const progress = state.airbusSimulator.workload
+  const complete = progress.completedTasks.includes(task)
+  const attempts = progress.attempts[task]
+  const gated = runtime.workloadGate === task
+  const apply = (action: AirbusWorkloadAction) => {
+    dispatch({ type: 'APPLY_AIRBUS_WORKLOAD_ACTION', action })
+  }
+
+  return (
+    <section
+      className={`airbus-workload-task${complete ? ' is-complete' : ''}${gated ? ' is-gated' : ''}`}
+      data-airbus-workload-task={task}
+      data-complete={complete}
+      aria-label={`Captain task: ${workloadTaskCopy[task].label}`}
+      aria-live="polite"
+    >
+      <div className="airbus-workload-copy">
+        <span>Captain task · SIM — NON OPERATIONAL</span>
+        <strong>{workloadTaskCopy[task].instruction}</strong>
+        {complete ? (
+          <small>Captain task complete.</small>
+        ) : attempts > 0 ? (
+          <small>{airbusWorkloadHint(task, attempts)}</small>
+        ) : gated ? (
+          <small>The simulator is safely holding this checkpoint for your decision.</small>
+        ) : null}
+      </div>
+
+      {!complete && (
+        <div className="airbus-workload-actions">
+          {task === 'stormScanRange' && (
+            <>
+              <span className="airbus-workload-readout">Range {progress.scanRange.toUpperCase()}</span>
+              <button type="button" onClick={() => apply({ type: 'cycleScanRange' })}>
+                Cycle scan range
+              </button>
+            </>
+          )}
+          {task === 'stormGapSelection' && (
+            <>
+              <button type="button" onClick={() => apply({ type: 'selectWeatherSector', sector: 'west' })}>West</button>
+              <button type="button" onClick={() => apply({ type: 'selectWeatherSector', sector: 'center' })}>Center</button>
+              <button type="button" onClick={() => apply({ type: 'selectWeatherSector', sector: 'east' })}>East</button>
+            </>
+          )}
+          {task === 'engineEventAcknowledgement' && (
+            <button type="button" onClick={() => apply({ type: 'acknowledgeEngineEvent' })}>
+              Acknowledge training event
+            </button>
+          )}
+          {task === 'engineSafeReturnSelection' && (
+            <>
+              <button type="button" onClick={() => apply({ type: 'selectSafeReturn', side: 'left' })}>Left corridor</button>
+              <button type="button" onClick={() => apply({ type: 'selectSafeReturn', side: 'right' })}>Right corridor</button>
+            </>
+          )}
+        </div>
+      )}
+    </section>
   )
 }
 
@@ -219,6 +325,14 @@ function AirbusStormLineHud({
       </div>
 
       <progress className="storm-progress" max={165} value={simulation.elapsedSeconds} aria-label="Storm Line progress" />
+
+      <AirbusCaptainTask
+        state={state}
+        dispatch={dispatch}
+        runtime={runtime}
+        scenario="stormLine"
+        checkpoint={simulation.checkpoint}
+      />
 
       {controlsOpen && (
         <div id="storm-flight-controls" className="storm-control-deck" aria-label="Accessible flight controls">
@@ -488,6 +602,14 @@ function AirbusEngineOutHud({
         max={120}
         value={progressSeconds}
         aria-label="Engine-Out Handling progress"
+      />
+
+      <AirbusCaptainTask
+        state={state}
+        dispatch={dispatch}
+        runtime={runtime}
+        scenario="engineOut"
+        checkpoint={simulation.checkpoint}
       />
 
       {controlsOpen && (

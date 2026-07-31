@@ -77,7 +77,7 @@ Apply the Global Constraints above. Preserve the existing player loop:
 - [x] 2026-07-30 — Pure workload rules pass seven focused tests.
 - [x] 2026-07-30 — Scenario checkpoint gating passes 34 focused Storm, Engine-Out, and adapter tests.
 - [x] 2026-07-30 — Schema 12 reducer and migration pass 111 focused tests; typecheck is green.
-- [ ] Runtime and native HUD integration pass focused tests.
+- [x] 2026-07-30 — Runtime safe holds and native captain-task controls pass typecheck, lint, and 111 focused tests.
 - [ ] ND/ECAM 3D interactions and display feedback pass browser tests.
 - [ ] Full validation, visual evidence, review, and reports are complete.
 
@@ -402,11 +402,11 @@ git commit -m "feat: persist Airbus cockpit workload"
 - `AirbusSimulatorRuntime` exposes `workloadGate: AirbusWorkloadTaskId | null`.
 - `App` dispatches `APPLY_AIRBUS_WORKLOAD_ACTION`.
 
-- [ ] **Step 1: Add a failing runtime-facing test at the pure boundary**
+- [x] **Step 1: Add a failing runtime-facing test at the pure boundary**
 
 Extend the scenario test to prove a gate clears immediately on the next update after the completed task list changes. This test protects the hook's intended contract without testing animation timing.
 
-- [ ] **Step 2: Run and verify RED**
+- [x] **Step 2: Run and verify RED**
 
 ```bash
 npm test -- --run src/game/airbusScenario.test.ts
@@ -414,7 +414,7 @@ npm test -- --run src/game/airbusScenario.test.ts
 
 Expected: fail until the completed task input is honored on each call.
 
-- [ ] **Step 3: Integrate the animation loop**
+- [x] **Step 3: Integrate the animation loop**
 
 - Pass the current completed task list to every `advanceAirbusScenarioFrame` call.
 - Store the returned gate in React state only when it changes.
@@ -422,7 +422,7 @@ Expected: fail until the completed task input is honored on each call.
 - Clear the gate automatically after the reducer records the required task.
 - Preserve manual pause separately; do not report a workload hold as user pause.
 
-- [ ] **Step 4: Add the compact HUD task controls**
+- [x] **Step 4: Add the compact HUD task controls**
 
 Derive active task from scenario/checkpoint and render:
 
@@ -435,11 +435,11 @@ Derive active task from scenario/checkpoint and render:
 
 Native controls dispatch the same workload actions as 3D clicks. Use real `<button>` elements and existing HUD regions; do not insert unsafe HTML.
 
-- [ ] **Step 5: Add bounded styles**
+- [x] **Step 5: Add bounded styles**
 
 Add a compact task row under the top mission strip. At 1440 it must not cover the display panel. At 768 and 375 it may stack with the existing topbar but must not produce horizontal overflow or overlap the scene tools.
 
-- [ ] **Step 6: Run focused validation**
+- [x] **Step 6: Run focused validation**
 
 ```bash
 npx eslint src/game/useAirbusSimulator.ts src/App.tsx src/components/Hud.tsx
@@ -689,7 +689,8 @@ Stop when all acceptance checks pass, three focused repair hypotheses fail, the 
 - 2026-07-30: Owner instructed Codex to use all recommended choices and proceed without more questions.
 - 2026-07-30: Approved design committed at `docs/superpowers/specs/2026-07-30-airbus-interactive-captain-workload-design.md`.
 - 2026-07-30: Workload, scenario, reducer, and storage suite passes 111 tests; schema 12 typecheck passes.
+- 2026-07-30: Runtime gating and native task controls pass `npm run typecheck`, focused ESLint, and the 111-test workload/scenario/state/storage suite.
 
 ## Outcome and handoff
 
-Implementation is pending. The next action is Task 1 using `superpowers:executing-plans`.
+Tasks 1 through 3 are committed. Task 4 implementation is complete and awaiting its focused commit; Task 5 physical ND and ECAM interaction follows.
