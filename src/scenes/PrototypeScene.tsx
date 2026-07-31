@@ -1344,12 +1344,13 @@ function AirbusSimulatorAnimator({
     if (!currentFrame || !weatherSnapshot) return
     if (clock.elapsedTime - lastDrawRef.current < 1 / 12) return
     lastDrawRef.current = clock.elapsedTime
-    const previousRadar = radarFrameRef.current
-      ?? createAirbusWeatherRadarFrame(weatherSnapshot, clock.elapsedTime)
+    const previousRadar = radarFrameRef.current?.signature === weatherSnapshot.signature
+      ? radarFrameRef.current
+      : createAirbusWeatherRadarFrame(weatherSnapshot, weatherSnapshot.elapsedSeconds)
     const radar = advanceAirbusWeatherRadar(
       previousRadar,
       weatherSnapshot,
-      clock.elapsedTime,
+      weatherSnapshot.elapsedSeconds,
       reducedMotion,
     )
     radarFrameRef.current = radar

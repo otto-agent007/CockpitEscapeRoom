@@ -28,6 +28,7 @@ export interface AirbusAtmosphereLayout {
   clusters: readonly AirbusCloudCluster[]
   rainShafts: readonly AirbusRainShaft[]
   gapBearingDegrees: number
+  visibleGapBearingDegrees: number
   motionScale: number
 }
 
@@ -62,10 +63,16 @@ function projectCell(
   cell: AirbusWeatherCell,
   snapshot: AirbusWeatherFieldSnapshot,
   layer: number,
+  motionScale: number,
 ): AirbusCloudCluster {
   const band = depthBand(cell.distanceNm)
-  const distance = 18 + cell.distanceNm * 1.45
-  const bearingRadians = cell.bearingDegrees * Math.PI / 180
+  const approachRate = snapshot.scenario === 'stormLine' ? 0.012 : 0.006
+  const visualDistanceNm = cell.distanceNm
+    + snapshot.elapsedSeconds * approachRate * (1 - motionScale)
+  const visualBearingDegrees = cell.bearingDegrees
+    - cell.driftDegreesPerSecond * snapshot.elapsedSeconds * (1 - motionScale)
+  const distance = 18 + visualDistanceNm * 1.45
+  const bearingRadians = visualBearingDegrees * Math.PI / 180
   const variation = seededVariation(cell.id, layer)
   const layerSpread = layer - (clusterCount(cell, snapshot.scenario) - 1) / 2
   const horizontalSpread = layerSpread * cell.radiusNm * (0.36 + variation * 0.18)
@@ -85,7 +92,7 @@ function projectCell(
     id: `${cell.id}-cluster-${layer}`,
     cellId: cell.id,
     band,
-    bearingDegrees: cell.bearingDegrees,
+    bearingDegrees: visualBearingDegrees,
     position: [x, y, z],
     scale: [
       baseScale * 1.45,
@@ -97,9 +104,18 @@ function projectCell(
   }
 }
 
-function projectRainShaft(cell: AirbusWeatherCell): AirbusRainShaft {
-  const distance = 18 + cell.distanceNm * 1.45
-  const bearingRadians = cell.bearingDegrees * Math.PI / 180
+function projectRainShaft(
+  cell: AirbusWeatherCell,
+  snapshot: AirbusWeatherFieldSnapshot,
+  motionScale: number,
+): AirbusRainShaft {
+  const approachRate = snapshot.scenario === 'stormLine' ? 0.012 : 0.006
+  const visualDistanceNm = cell.distanceNm
+    + snapshot.elapsedSeconds * approachRate * (1 - motionScale)
+  const visualBearingDegrees = cell.bearingDegrees
+    - cell.driftDegreesPerSecond * snapshot.elapsedSeconds * (1 - motionScale)
+  const distance = 18 + visualDistanceNm * 1.45
+  const bearingRadians = visualBearingDegrees * Math.PI / 180
   const width = cell.radiusNm * 0.9
 
   return {
@@ -115,15 +131,49 @@ function projectRainShaft(cell: AirbusWeatherCell): AirbusRainShaft {
   }
 }
 
+function deriveVisibleGapBearing(
+  clusters: readonly AirbusCloudCluster[],
+  targetBearingDegrees: number,
+): number {
+  const candidates = Array.from(
+    { length: 25 },
+    (_, index) => targetBearingDegrees - 12 + index,
+  ).sort((left, right) =>
+    Math.abs(left - targetBearingDegrees) - Math.abs(right - targetBearingDegrees),
+  )
+  let bestBearing = targetBearingDegrees
+  let bestOcclusion = Number.POSITIVE_INFINITY
+
+  for (const candidate of candidates) {
+    let occlusion = 0
+    for (const cluster of clusters) {
+      const distance = Math.hypot(cluster.position[0], cluster.position[2])
+      const angularRadius = Math.max(
+        2,
+        Math.atan2(cluster.scale[0] * 0.42, distance) * 180 / Math.PI,
+      )
+      const separation = Math.abs(candidate - cluster.bearingDegrees)
+      const overlap = Math.max(0, 1 - separation / angularRadius)
+      occlusion += overlap * cluster.opacity * (0.35 + cluster.precipitation * 0.65)
+    }
+    if (occlusion < bestOcclusion) {
+      bestOcclusion = occlusion
+      bestBearing = candidate
+    }
+  }
+  return bestBearing
+}
+
 export function deriveAirbusAtmosphereLayout(
   snapshot: AirbusWeatherFieldSnapshot,
   options: AirbusAtmosphereLayoutOptions,
 ): AirbusAtmosphereLayout {
+  const motionScale = options.reducedMotion ? 0.18 : 1
   const clusters = snapshot.cells
     .flatMap((cell) =>
       Array.from(
         { length: clusterCount(cell, snapshot.scenario) },
-        (_, layer) => projectCell(cell, snapshot, layer),
+        (_, layer) => projectCell(cell, snapshot, layer, motionScale),
       ),
     )
     .slice(0, MAX_CLUSTERS)
@@ -132,13 +182,17 @@ export function deriveAirbusAtmosphereLayout(
       .filter((cell) => cell.precipitation >= 0.48)
       .sort((left, right) => right.precipitation - left.precipitation)
       .slice(0, MAX_RAIN_SHAFTS)
-      .map(projectRainShaft)
+      .map((cell) => projectRainShaft(cell, snapshot, motionScale))
     : []
 
   return {
     clusters,
     rainShafts,
     gapBearingDegrees: snapshot.gapBearingDegrees,
-    motionScale: options.reducedMotion ? 0.18 : 1,
+    visibleGapBearingDegrees: deriveVisibleGapBearing(
+      clusters,
+      snapshot.gapBearingDegrees,
+    ),
+    motionScale,
   }
 }

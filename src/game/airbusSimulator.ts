@@ -1,4 +1,5 @@
 import type { AirbusFlightInput } from './airbusInput'
+import { deriveAirbusWeatherDynamics } from './airbusWeatherField'
 
 export type FlightInput = Omit<AirbusFlightInput, 'directional'>
 
@@ -100,6 +101,21 @@ function stormIntensity(elapsedSeconds: number): number {
   return 0.05
 }
 
+function sharedStormIntensity(
+  checkpoint: StormLineCheckpoint,
+  elapsedSeconds: number,
+  seed: number,
+): number {
+  const scheduledIntensity = stormIntensity(elapsedSeconds)
+  return deriveAirbusWeatherDynamics({
+    scenario: 'stormLine',
+    checkpoint,
+    elapsedSeconds,
+    intensity: scheduledIntensity,
+    seed,
+  }).turbulence
+}
+
 export function createStormLineStateAtCheckpoint(
   checkpoint: StormLineCheckpoint,
   attempts?: Record<StormLineCheckpoint, number>,
@@ -115,7 +131,7 @@ export function createStormLineStateAtCheckpoint(
       ...initial.aircraft,
       lateralPosition: checkpoint === 'stormEntry' ? 0 : -0.7,
     },
-    weatherIntensity: stormIntensity(elapsedSeconds),
+    weatherIntensity: sharedStormIntensity(checkpoint, elapsedSeconds, seed),
     attempts: attempts ? { ...attempts } : initial.attempts,
   }
 }
@@ -191,7 +207,7 @@ function applyScenarioBoundaries(state: StormLineState): StormLineState {
 
 function advanceFixedStep(state: StormLineState, input: FlightInput, stepSeconds: number): StormLineState {
   const elapsedSeconds = state.elapsedSeconds + stepSeconds
-  const weatherIntensity = stormIntensity(elapsedSeconds)
+  const weatherIntensity = sharedStormIntensity(state.checkpoint, elapsedSeconds, state.seed)
   const pitchGust = Math.sin(elapsedSeconds * 3.71 + state.seed * 0.83) * weatherIntensity * 0.42
   const bankGust = Math.sin(elapsedSeconds * 2.13 + state.seed * 1.37) * weatherIntensity * 1.1
   const pitchTargetRate = input.pitch * 8
@@ -268,7 +284,11 @@ export function restartStormLineCheckpoint(state: StormLineState): StormLineStat
       energy: 0.5,
       lateralPosition: checkpoint === 'stormEntry' ? 0 : -0.7,
     },
-    weatherIntensity: stormIntensity(CHECKPOINT_START_SECONDS[checkpoint]),
+    weatherIntensity: sharedStormIntensity(
+      checkpoint,
+      CHECKPOINT_START_SECONDS[checkpoint],
+      state.seed,
+    ),
     outsideEnvelopeSeconds: 0,
     failureReason: null,
     attempts: {

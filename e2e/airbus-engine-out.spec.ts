@@ -250,7 +250,7 @@ test('production Airbus cockpit renders live Engine-Out displays and control res
     return Boolean(weatherSignature) && weatherSignature === radarSignature
   }).toBe(true)
   await expect.poll(async () => {
-    const weatherGap = Number(await canvas.getAttribute('data-airbus-weather-gap-bearing'))
+    const weatherGap = Number(await canvas.getAttribute('data-airbus-visible-gap-bearing'))
     const radarGap = Number(await canvas.getAttribute('data-airbus-radar-gap-bearing'))
     return Math.abs(weatherGap - radarGap)
   }).toBeLessThanOrEqual(5)

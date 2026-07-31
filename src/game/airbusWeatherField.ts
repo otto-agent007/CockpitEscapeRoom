@@ -35,6 +35,25 @@ export interface AirbusWeatherFieldSnapshot {
   cells: readonly AirbusWeatherCell[]
 }
 
+export type AirbusWeatherInstructorCue =
+  | 'returnsBuilding'
+  | 'gapHolding'
+  | 'smoothTurn'
+  | 'coreTurbulence'
+  | 'weatherReceding'
+  | 'clearAir'
+  | 'stableCruise'
+
+export interface AirbusWeatherDynamics {
+  visibility: number
+  ambientLight: number
+  precipitation: number
+  turbulence: number
+  lightningEligible: boolean
+  gapBearingDegrees: number
+  instructorCue: AirbusWeatherInstructorCue
+}
+
 interface WeatherEnvelope {
   cellCount: number
   visibility: number
@@ -99,7 +118,7 @@ function stormEnvelope(checkpoint: StormLineCheckpoint, intensity: number): Weat
       visibility: 0.42 - intensity * 0.1,
       ambientLight: 0.5 - intensity * 0.08,
       precipitation: 0.72 + intensity * 0.25,
-      turbulence: 0.62 + intensity * 0.35,
+      turbulence: intensity,
       lightningEligible: true,
       gapBearingDegrees: -24,
     }
@@ -110,7 +129,7 @@ function stormEnvelope(checkpoint: StormLineCheckpoint, intensity: number): Weat
       visibility: 0.84,
       ambientLight: 0.82,
       precipitation: 0.2,
-      turbulence: 0.16,
+      turbulence: intensity,
       lightningEligible: false,
       gapBearingDegrees: -20,
     }
@@ -120,7 +139,7 @@ function stormEnvelope(checkpoint: StormLineCheckpoint, intensity: number): Weat
     visibility: 0.78,
     ambientLight: 0.74,
     precipitation: 0.28,
-    turbulence: 0.22,
+    turbulence: intensity,
     lightningEligible: false,
     gapBearingDegrees: -27,
   }
@@ -135,6 +154,38 @@ function engineOutEnvelope(checkpoint: EngineOutCheckpoint): WeatherEnvelope {
     turbulence: 0.08,
     lightningEligible: false,
     gapBearingDegrees: checkpoint === 'diversion' ? 22 : 4,
+  }
+}
+
+function envelopeForInput(input: AirbusWeatherFieldInput): WeatherEnvelope {
+  return input.scenario === 'stormLine'
+    ? stormEnvelope(input.checkpoint as StormLineCheckpoint, clamp01(input.intensity))
+    : engineOutEnvelope(input.checkpoint as EngineOutCheckpoint)
+}
+
+function instructorCueForInput(input: AirbusWeatherFieldInput): AirbusWeatherInstructorCue {
+  if (input.scenario === 'engineOut') return 'stableCruise'
+  const elapsedSeconds = Math.max(0, finiteOr(input.elapsedSeconds, 0))
+  if (elapsedSeconds < 12) return 'returnsBuilding'
+  if (elapsedSeconds < 38) return 'gapHolding'
+  if (elapsedSeconds < 75) return 'smoothTurn'
+  if (elapsedSeconds < 120) return 'coreTurbulence'
+  if (elapsedSeconds < 150) return 'weatherReceding'
+  return 'clearAir'
+}
+
+export function deriveAirbusWeatherDynamics(
+  input: AirbusWeatherFieldInput,
+): AirbusWeatherDynamics {
+  const envelope = envelopeForInput(input)
+  return {
+    visibility: clamp01(envelope.visibility),
+    ambientLight: clamp01(envelope.ambientLight),
+    precipitation: clamp01(envelope.precipitation),
+    turbulence: clamp01(envelope.turbulence),
+    lightningEligible: envelope.lightningEligible,
+    gapBearingDegrees: envelope.gapBearingDegrees,
+    instructorCue: instructorCueForInput(input),
   }
 }
 
@@ -187,9 +238,8 @@ export function deriveAirbusWeatherField(
   input: AirbusWeatherFieldInput,
 ): AirbusWeatherFieldSnapshot {
   const elapsedSeconds = Math.max(0, finiteOr(input.elapsedSeconds, 0))
-  const envelope = input.scenario === 'stormLine'
-    ? stormEnvelope(input.checkpoint as StormLineCheckpoint, clamp01(input.intensity))
-    : engineOutEnvelope(input.checkpoint as EngineOutCheckpoint)
+  const envelope = envelopeForInput(input)
+  const dynamics = deriveAirbusWeatherDynamics(input)
   const templates = input.scenario === 'stormLine'
     ? STORM_CELL_TEMPLATES
     : ENGINE_OUT_CELL_TEMPLATES
@@ -206,12 +256,12 @@ export function deriveAirbusWeatherField(
     signature,
     scenario: input.scenario,
     elapsedSeconds,
-    visibility: clamp01(envelope.visibility),
-    ambientLight: clamp01(envelope.ambientLight),
-    precipitation: clamp01(envelope.precipitation),
-    turbulence: clamp01(envelope.turbulence),
-    lightningEligible: envelope.lightningEligible,
-    gapBearingDegrees: envelope.gapBearingDegrees,
+    visibility: dynamics.visibility,
+    ambientLight: dynamics.ambientLight,
+    precipitation: dynamics.precipitation,
+    turbulence: dynamics.turbulence,
+    lightningEligible: dynamics.lightningEligible,
+    gapBearingDegrees: dynamics.gapBearingDegrees,
     cells,
   }
 }

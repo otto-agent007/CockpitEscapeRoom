@@ -17,6 +17,7 @@ describe('Airbus atmosphere layout', () => {
 
     expect(first).toEqual(second)
     expect(first.gapBearingDegrees).toBe(storm.gapBearingDegrees)
+    expect(Math.abs(first.visibleGapBearingDegrees - storm.gapBearingDegrees)).toBeLessThanOrEqual(5)
   })
 
   it('projects cell bearings into the same camera-relative horizontal direction', () => {
@@ -46,13 +47,30 @@ describe('Airbus atmosphere layout', () => {
   })
 
   it('uses reduced motion to bound nonessential drift without removing weather', () => {
+    const initialWeather = deriveAirbusWeatherField({
+      scenario: 'stormLine',
+      checkpoint: 'stormCore',
+      elapsedSeconds: 0,
+      intensity: 0.85,
+      seed: 21,
+    })
+    const initial = deriveAirbusAtmosphereLayout(initialWeather, { reducedMotion: false })
     const moving = deriveAirbusAtmosphereLayout(storm, { reducedMotion: false })
     const reduced = deriveAirbusAtmosphereLayout(storm, { reducedMotion: true })
+    const initialCluster = initial.clusters[0]
+    const movingCluster = moving.clusters[0]
+    const reducedCluster = reduced.clusters[0]
 
     expect(reduced.clusters).toHaveLength(moving.clusters.length)
     expect(reduced.rainShafts).toHaveLength(moving.rainShafts.length)
     expect(reduced.motionScale).toBeLessThan(moving.motionScale)
     expect(reduced.motionScale).toBeGreaterThan(0)
+    expect(initialCluster).toBeDefined()
+    expect(movingCluster).toBeDefined()
+    expect(reducedCluster).toBeDefined()
+    expect(Math.abs(reducedCluster!.position[0] - initialCluster!.position[0])).toBeLessThan(
+      Math.abs(movingCluster!.position[0] - initialCluster!.position[0]),
+    )
   })
 
   it('keeps Engine-Out calm but spatially layered', () => {

@@ -3,8 +3,13 @@ import { airbusCaptainFlow, type AirbusControl, type LockerMemoryId } from '../g
 import { ENGINE_OUT_ENVELOPE, ENGINE_OUT_TIMING } from '../game/airbusEngineOut'
 import type { AirbusHoldControl } from '../game/airbusInput'
 import { getAirbusScenarioAvailability } from '../game/airbusScenario'
+import type { StormLineState } from '../game/airbusSimulator'
 import { gameProgress, type GameAction, type GameState } from '../game/state'
 import type { AirbusSimulatorRuntime } from '../game/useAirbusSimulator'
+import {
+  deriveAirbusWeatherDynamics,
+  type AirbusWeatherInstructorCue,
+} from '../game/airbusWeatherField'
 import type { AirbusHotspotScreenPositions } from '../scenes/PrototypeScene'
 import { LockerHud } from './LockerHud'
 
@@ -36,13 +41,24 @@ const failureCoaching = {
   corridor: 'The western gap is the stable route. Bank left before the weather entry closes.',
 } as const
 
-function stormCaption(elapsedSeconds: number): string {
-  if (elapsedSeconds < 12) return 'First officer: Weather returns are building ahead.'
-  if (elapsedSeconds < 38) return 'First officer: The western gap is holding steady.'
-  if (elapsedSeconds < 75) return 'First officer: Nice judgment. Keep the turn smooth.'
-  if (elapsedSeconds < 120) return 'First officer: Core turbulence. Guard the energy.'
-  if (elapsedSeconds < 150) return 'First officer: The worst of it is behind us.'
-  return 'First officer: Clear air ahead. Settle her down.'
+const stormCaptions: Record<Exclude<AirbusWeatherInstructorCue, 'stableCruise'>, string> = {
+  returnsBuilding: 'First officer: Weather returns are building ahead.',
+  gapHolding: 'First officer: The western gap is holding steady.',
+  smoothTurn: 'First officer: Nice judgment. Keep the turn smooth.',
+  coreTurbulence: 'First officer: Core turbulence. Guard the energy.',
+  weatherReceding: 'First officer: The worst of it is behind us.',
+  clearAir: 'First officer: Clear air ahead. Settle her down.',
+}
+
+function stormCaption(simulation: StormLineState): string {
+  const cue = deriveAirbusWeatherDynamics({
+    scenario: 'stormLine',
+    checkpoint: simulation.checkpoint,
+    elapsedSeconds: simulation.elapsedSeconds,
+    intensity: simulation.weatherIntensity,
+    seed: simulation.seed,
+  }).instructorCue
+  return cue === 'stableCruise' ? stormCaptions.returnsBuilding : stormCaptions[cue]
 }
 
 function HoldControl({
@@ -171,7 +187,7 @@ function AirbusStormLineHud({
         <div>
           <p className="eyebrow">Storm Line · {checkpoint}</p>
           <h2 id="storm-line-title" className="sr-only">Storm Line flight simulator</h2>
-          <p className="storm-crew-caption" aria-live="polite">{stormCaption(simulation.elapsedSeconds)}</p>
+          <p className="storm-crew-caption" aria-live="polite">{stormCaption(simulation)}</p>
         </div>
         <div className="storm-topbar-actions">
           <span>{timeRemaining}s</span>

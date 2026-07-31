@@ -268,7 +268,7 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
     return Boolean(weatherSignature) && weatherSignature === radarSignature
   }).toBe(true)
   await expect.poll(async () => {
-    const weatherGap = Number(await canvas.getAttribute('data-airbus-weather-gap-bearing'))
+    const weatherGap = Number(await canvas.getAttribute('data-airbus-visible-gap-bearing'))
     const radarGap = Number(await canvas.getAttribute('data-airbus-radar-gap-bearing'))
     return Math.abs(weatherGap - radarGap)
   }).toBeLessThanOrEqual(5)
@@ -276,6 +276,15 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
   await expect.poll(async () => Number(
     await canvas.getAttribute('data-airbus-radar-sweep-angle'),
   )).not.toBe(initialSweep)
+  await page.getByRole('button', { name: 'Pause' }).click()
+  await page.waitForTimeout(250)
+  const pausedSweep = await canvas.getAttribute('data-airbus-radar-sweep-angle')
+  await page.waitForTimeout(750)
+  await expect(canvas).toHaveAttribute('data-airbus-radar-sweep-angle', pausedSweep ?? '')
+  await page.getByRole('button', { name: 'Resume' }).click()
+  await expect.poll(async () => Number(
+    await canvas.getAttribute('data-airbus-radar-sweep-angle'),
+  )).not.toBe(Number(pausedSweep))
   await expect(page.getByRole('region', { name: 'Accessible flight instruments' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Show flight controls' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Recenter view' })).toBeVisible()

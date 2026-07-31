@@ -54,13 +54,14 @@ const RAIN_VERTEX_SHADER = `
 `
 
 const RAIN_FRAGMENT_SHADER = `
+  uniform float rainOpacity;
   varying vec2 vUv;
   void main() {
     float sideFade = smoothstep(0.0, 0.32, vUv.x) * smoothstep(0.0, 0.32, 1.0 - vUv.x);
     float topFade = smoothstep(0.0, 0.28, 1.0 - vUv.y);
     float lowerFade = smoothstep(0.0, 0.18, vUv.y);
     float streaks = 0.72 + 0.28 * sin(vUv.x * 96.0);
-    float alpha = sideFade * topFade * lowerFade * streaks * 0.22;
+    float alpha = sideFade * topFade * lowerFade * streaks * rainOpacity;
     gl_FragColor = vec4(0.45, 0.62, 0.68, alpha);
   }
 `
@@ -131,6 +132,7 @@ export function AirbusAtmosphere({
   const flashRef = useRef<THREE.PointLight>(null)
   const cloudMaterialRef = useRef<THREE.MeshBasicMaterial>(null)
   const skyMaterialRef = useRef<THREE.ShaderMaterial>(null)
+  const rainMaterialRef = useRef<THREE.ShaderMaterial>(null)
   const canvasRef = useRef(gl.domElement)
   const lastWeatherUpdateRef = useRef(-1)
   const reducedMotionRef = useRef(reducedMotion)
@@ -147,6 +149,9 @@ export function AirbusAtmosphere({
       horizonColor: { value: new THREE.Color('#a5bcc0') },
       lowerColor: { value: new THREE.Color('#26343a') },
       visibility: { value: 0.8 },
+  }), [])
+  const rainUniforms = useMemo(() => ({
+    rainOpacity: { value: 0.22 },
   }), [])
 
   useEffect(() => {
@@ -233,7 +238,8 @@ export function AirbusAtmosphere({
       dummy.rotation.set(0, 0, (index % 5 - 2) * 0.035)
       dummy.updateMatrix()
       clouds.setMatrixAt(index, dummy.matrix)
-      const shade = 0.98 - cluster.precipitation * 0.2
+      const shade = (0.98 - cluster.precipitation * 0.2)
+        * (0.78 + cluster.opacity * 0.22)
       cloudColor.setRGB(shade * 0.9, shade * 0.95, shade)
       clouds.setColorAt(index, cloudColor)
     }
@@ -253,6 +259,12 @@ export function AirbusAtmosphere({
     if (cloudMaterialRef.current) {
       cloudMaterialRef.current.opacity = 0.5 + snapshot.precipitation * 0.16
     }
+    const rainOpacityUniform = rainMaterialRef.current?.uniforms.rainOpacity
+    if (rainOpacityUniform) {
+      rainOpacityUniform.value = layout.rainShafts.length > 0
+        ? Math.max(...layout.rainShafts.map((shaft) => shaft.opacity))
+        : 0
+    }
     const stormPalette = snapshot.scenario === 'stormLine'
     const skyMaterial = skyMaterialRef.current
     skyMaterial?.uniforms.zenithColor?.value.set(stormPalette ? '#102b42' : '#2f6e96')
@@ -268,12 +280,14 @@ export function AirbusAtmosphere({
 
     canvasRef.current.dataset.airbusWeatherSignature = snapshot.signature
     canvasRef.current.dataset.airbusWeatherGapBearing = snapshot.gapBearingDegrees.toFixed(2)
+    canvasRef.current.dataset.airbusVisibleGapBearing = layout.visibleGapBearingDegrees.toFixed(2)
     canvasRef.current.dataset.airbusWeatherCloudCount = String(layout.clusters.length)
     canvasRef.current.dataset.airbusWeatherDepthBands = String(
       new Set(layout.clusters.map((cluster) => cluster.band)).size,
     )
     canvasRef.current.dataset.airbusRainShaftCount = String(layout.rainShafts.length)
     canvasRef.current.dataset.airbusLightningActive = String(lightningActive)
+    canvasRef.current.dataset.airbusAtmosphereMotionScale = layout.motionScale.toFixed(2)
   })
 
   return (
@@ -329,8 +343,10 @@ export function AirbusAtmosphere({
       >
         <planeGeometry args={[1, 1]} />
         <shaderMaterial
+          ref={rainMaterialRef}
           vertexShader={RAIN_VERTEX_SHADER}
           fragmentShader={RAIN_FRAGMENT_SHADER}
+          uniforms={rainUniforms}
           transparent
           depthWrite={false}
           side={THREE.DoubleSide}

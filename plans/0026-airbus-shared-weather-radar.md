@@ -94,6 +94,7 @@ The authoritative scenario frames already expose deterministic elapsed time, che
 - The captain camera looks down toward the flight deck, so a mathematically centered horizon falls behind the glareshield. The procedural horizon and cloud belt require a camera-relative elevation offset to appear through the windshield.
 - Faceted cone geometry made rain shafts appear as large triangles. Camera-facing shader curtains removed that artifact while retaining the eight-shaft cap.
 - Headless Chromium uses SwiftShader for this proof and the 38 MiB cockpit can take over two minutes per real-asset scenario. Running Storm and Engine-Out sequentially can delay input response; the isolated Storm proof retained the same roll threshold with a 15-second poll allowance.
+- The first completion review found that the radar used presentation-clock time, reduced-motion layout values were not fully consumed, weather dynamics did not yet feed Storm rules/captions, and gap diagnostics only compared copied field metadata. The fixes now use scenario time with field-transition resets, reconstruct reduced-motion drift, consume cloud/rain opacity, route turbulence and instructor cues through shared weather dynamics, and compare the ND with a gap derived from rendered cluster occlusion.
 
 ## Decision log
 
@@ -103,6 +104,8 @@ The authoritative scenario frames already expose deterministic elapsed time, che
 - 2026-07-30: Stop after at most two Tier 1 visual repair passes if a genuine owner composition decision remains.
 - 2026-07-30: Implement inline and sequentially because this workspace does not authorize delegated work.
 - 2026-07-30: Define `signature` as the stable spatial field identity for a scenario/checkpoint/seed. Individual cell samples continue to drift, while asynchronous atmosphere and radar consumers can prove they share one field without timing-phase false negatives.
+- 2026-07-30: Advance and age radar returns from scenario elapsed time, not the R3F clock, so manual pause and visibility pause freeze the sweep without catch-up.
+- 2026-07-30: Keep the authoritative cells unchanged for accessibility, but reconstruct a slowed exterior-only drift from cell velocity in reduced motion; radar information and cell identity remain live.
 
 ## Milestones
 
@@ -338,6 +341,9 @@ Repeat: run the narrowest failing test, diagnose the root cause, make one cohere
 - Real production-GLB Engine-Out proof: passed with shared signature, gap agreement, three depth bands, no rain/lightning, live sweep, control response, screen rendering, and no console errors.
 - Real production-GLB Storm Core proof: passed with shared signature, gap agreement, three depth bands, bounded clouds/rain, live sweep, bank/look/recenter response, screen rendering, and no console errors.
 - One-time production-GLB Storm Entry capture: passed its shared signature assertion.
+- Completion-review repair suite: 29 focused weather/layout/radar/Storm tests passed; focused lint and typecheck passed.
+- Reviewed production-GLB Engine-Out proof passed with the layout-derived visible-gap assertion.
+- Reviewed production-GLB Storm proof passed with layout-derived visible-gap agreement and live radar pause/freeze/resume behavior. A combined sequential run was terminated by the local runner after Engine-Out passed, so Storm was rerun alone and passed in 3.0 minutes.
 - Tier 1 screenshots:
   - `preview-renders/airbus-weather-radar/airbus-storm-entry-weather-radar-1440.png`
   - `preview-renders/airbus-weather-radar/airbus-storm-core-weather-radar-1440.png`
