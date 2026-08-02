@@ -1,6 +1,6 @@
 import { GLTFLoader, type GLTF } from 'three/addons/loaders/GLTFLoader.js'
 
-export const REWARD_MODEL_URL = `${import.meta.env.BASE_URL}models/model-y-reward.glb?v=model-y-flight-mode-v1-20260726`
+export const REWARD_MODEL_URL = `${import.meta.env.BASE_URL}models/model-y-reward.glb?v=legacy-hangar-53b51f9a`
 
 let cachedRewardModel: Promise<GLTF> | null = null
 

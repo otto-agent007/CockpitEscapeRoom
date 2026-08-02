@@ -12,6 +12,7 @@ import hashlib
 import json
 import math
 import shutil
+import subprocess
 from pathlib import Path
 
 import bpy
@@ -26,6 +27,25 @@ OPTIMIZED_PATH = SOURCE_ROOT / "extracted" / "optimized" / "red-electric-car.opt
 MASTER_PATH = REPO_ROOT / "art-source" / "blender" / "tesla_reward.blend"
 REPORT_PATH = REPO_ROOT / "asset-reports" / "model-y-reward-intake.json"
 EXPECTED_SHA256 = "d88769d9c66bdeca46bf239c9baa2a295afc82ffb24005733d9374b9c7782bee"
+HANGAR_SOURCE_ROOT = (
+    REPO_ROOT
+    / ".cache"
+    / "cockpit-pipeline"
+    / "sources"
+    / "model-y-hangar"
+    / "sketchfab-hangar-64f7d287f5274029bc29755a9839ebbf"
+)
+HANGAR_ARCHIVE_PATH = HANGAR_SOURCE_ROOT / "original" / "hangar.zip"
+HANGAR_GLTF_PATH = HANGAR_SOURCE_ROOT / "extracted" / "scene.gltf"
+HANGAR_LICENSE_PATH = HANGAR_SOURCE_ROOT / "extracted" / "license.txt"
+HANGAR_ATLAS_PATH = HANGAR_SOURCE_ROOT / "processed" / "hangar-atlas.png"
+HANGAR_SOURCE_SHA256 = "8ec631f27e40f6f1f3ac3448c96374c315a4874f2c8e4bdbe307f284fdf6e1fe"
+HANGAR_SOURCE_URL = "https://sketchfab.com/3d-models/hangar-64f7d287f5274029bc29755a9839ebbf"
+HANGAR_AUTHOR = "nermin"
+HANGAR_LICENSE = "CC BY 4.0"
+HANGAR_TARGET_WIDTH = 24.0
+HANGAR_CENTER_Y = 0.0
+HANGAR_ATLAS_SIZE = 2048
 REQUIRED_TEXTURE_ROLES = ("baseColor", "normal", "metallicRoughness")
 SOURCE_TEXTURE_MINIMUM = 4096
 RUNTIME_TEXTURE_SIZE = 2048
@@ -438,23 +458,200 @@ def make_fan_rotor(
     return join_objects(name, parts)
 
 
-def build_environment(root: bpy.types.Object) -> tuple[bpy.types.Object, bpy.types.Object]:
-    hangar = make_empty("TESLA_HANGAR", root)
-    dark = make_material("MAT_TESLA_HANGAR_DARK", (0.025, 0.035, 0.045, 1.0), metallic=0.35, roughness=0.48)
-    floor_mat = make_material("MAT_TESLA_HANGAR_FLOOR", (0.09, 0.11, 0.13, 1.0), metallic=0.2, roughness=0.58)
-    legacy = make_material("MAT_TESLA_LEGACY_BRASS", (0.42, 0.22, 0.07, 1.0), metallic=0.8, roughness=0.24)
+def build_hangar_atlas() -> bpy.types.Image:
+    textures = HANGAR_SOURCE_ROOT / "extracted" / "textures"
+    placements = (
+        ("main_baseColor.png", "1024x1024!", "+0+0"),
+        ("sidewalk_baseColor.png", "1024x1024!", "+1024+0"),
+        ("metaltrim_baseColor.png", "1024x16!", "+0+1024"),
+        ("Walllamp_baseColor.png", "512x512!", "+0+1536"),
+        ("barrel_baseColor.png", "512x512!", "+512+1536"),
+        ("electricbox1_baseColor.png", "512x512!", "+1024+1536"),
+        ("ceilinglamp_baseColor.png", "128x256!", "+1536+1792"),
+    )
+    for filename, _, _ in placements:
+        if not (textures / filename).exists():
+            raise FileNotFoundError(f"Missing Sketchfab hangar texture: {textures / filename}")
 
-    make_box("TESLA_HANGAR_FLOOR", (18.0, 14.0, 0.16), (0.0, 0.0, -0.08), floor_mat, hangar)
-    make_box("TESLA_HANGAR_BACK", (18.0, 0.18, 6.8), (0.0, 5.9, 3.4), dark, hangar)
-    make_box("TESLA_HANGAR_LEFT", (0.18, 14.0, 6.8), (-8.9, 0.0, 3.4), dark, hangar)
-    make_box("TESLA_HANGAR_RIGHT", (0.18, 14.0, 6.8), (8.9, 0.0, 3.4), dark, hangar)
-    make_box("TESLA_HANGAR_CEILING", (18.0, 14.0, 0.14), (0.0, 0.0, 6.8), dark, hangar)
-    make_box("TESLA_HANGAR_FLOOR_LINE_LEFT", (8.5, 0.055, 0.025), (0.0, 1.25, 0.02), legacy, hangar)
-    make_box("TESLA_HANGAR_FLOOR_LINE_RIGHT", (8.5, 0.055, 0.025), (0.0, -1.25, 0.02), legacy, hangar)
+    HANGAR_ATLAS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    command = [
+        "/usr/bin/convert",
+        "-size",
+        f"{HANGAR_ATLAS_SIZE}x{HANGAR_ATLAS_SIZE}",
+        "xc:#101216",
+    ]
+    for filename, dimensions, offset in placements:
+        command.extend(
+            [
+                "(",
+                str(textures / filename),
+                "-filter",
+                "Lanczos",
+                "-resize",
+                dimensions,
+                ")",
+                "-geometry",
+                offset,
+                "-composite",
+            ]
+        )
+    command.append(str(HANGAR_ATLAS_PATH))
+    subprocess.run(command, check=True)
+
+    image = bpy.data.images.load(str(HANGAR_ATLAS_PATH), check_existing=False)
+    image.name = "TEX_TESLA_HANGAR_ATLAS"
+    image.pack()
+    return image
+
+
+def make_hangar_atlas_material(image: bpy.types.Image) -> bpy.types.Material:
+    material = bpy.data.materials.new("MAT_TESLA_HANGAR_SOURCE")
+    material.use_nodes = True
+    material.use_backface_culling = False
+    nodes = material.node_tree.nodes
+    links = material.node_tree.links
+    principled = nodes.get("Principled BSDF")
+    principled.inputs["Metallic"].default_value = 0.03
+    principled.inputs["Roughness"].default_value = 0.62
+    texture = nodes.new("ShaderNodeTexImage")
+    texture.name = "TESLA_HANGAR_ATLAS"
+    texture.image = image
+    texture.interpolation = "Linear"
+    texture.extension = "CLIP"
+    links.new(texture.outputs["Color"], principled.inputs["Base Color"])
+    return material
+
+
+def remap_hangar_uvs(obj: bpy.types.Object, material_name: str) -> None:
+    regions = {
+        "main": (0.0, 0.5, 0.5, 0.5),
+        "sidewalk": (0.5, 0.5, 0.5, 0.5),
+        "metaltrim": (0.0, 0.4921875, 0.5, 0.0078125),
+        "walllamp": (0.0, 0.0, 0.25, 0.25),
+        "barrel": (0.25, 0.0, 0.25, 0.25),
+        "electricbox1": (0.5, 0.0, 0.25, 0.25),
+        "ceilinglamp": (0.75, 0.0, 0.0625, 0.125),
+    }
+    source_key = next(
+        (key for key in regions if material_name.lower().startswith(key)),
+        None,
+    )
+    if source_key is None:
+        raise RuntimeError(f"Unmapped Sketchfab hangar material: {material_name}")
+    uv_layer = obj.data.uv_layers.active
+    if uv_layer is None:
+        raise RuntimeError(f"Sketchfab hangar mesh has no UV layer: {obj.name}")
+    offset_x, offset_y, scale_x, scale_y = regions[source_key]
+    for loop in uv_layer.data:
+        loop.uv = (
+            offset_x + loop.uv.x * scale_x,
+            offset_y + loop.uv.y * scale_y,
+        )
+
+
+def import_hangar_source(hangar: bpy.types.Object) -> dict[str, object]:
+    if not HANGAR_ARCHIVE_PATH.exists() or not HANGAR_GLTF_PATH.exists() or not HANGAR_LICENSE_PATH.exists():
+        raise FileNotFoundError("The owner-selected Sketchfab hangar source is not staged.")
+    if sha256(HANGAR_ARCHIVE_PATH) != HANGAR_SOURCE_SHA256:
+        raise RuntimeError("The staged Sketchfab hangar archive does not match the approved source hash.")
+    license_text = HANGAR_LICENSE_PATH.read_text(encoding="utf-8")
+    if HANGAR_SOURCE_URL not in license_text or "CC-BY-4.0" not in license_text:
+        raise RuntimeError("The staged Sketchfab hangar license is incomplete.")
+
+    atlas_image = build_hangar_atlas()
+    atlas_material = make_hangar_atlas_material(atlas_image)
+    before_objects = set(bpy.data.objects)
+    bpy.ops.import_scene.gltf(filepath=str(HANGAR_GLTF_PATH))
+    imported = [obj for obj in bpy.data.objects if obj not in before_objects]
+    meshes = [obj for obj in imported if obj.type == "MESH"]
+    if len(meshes) != 7:
+        raise RuntimeError(f"Expected seven Sketchfab hangar meshes; received {len(meshes)}.")
+
+    source_minimum, source_maximum = recursive_bounds(meshes)
+    source_size = source_maximum - source_minimum
+    source_center = (source_minimum + source_maximum) * 0.5
+    scale = HANGAR_TARGET_WIDTH / source_size.x
+    source_origin = Vector((source_center.x, source_center.y, source_minimum.z))
+    normalization = (
+        Matrix.Translation(Vector((0.0, HANGAR_CENTER_Y, 0.0)))
+        @ Matrix.Scale(scale, 4)
+        @ Matrix.Translation(-source_origin)
+    )
+
+    for obj in meshes:
+        original_material = next(
+            (material.name for material in obj.data.materials if material is not None),
+            "",
+        )
+        world_matrix = obj.matrix_world.copy()
+        obj.parent = None
+        obj.data.transform(world_matrix)
+        obj.matrix_world = Matrix.Identity(4)
+        obj.data.transform(normalization)
+        remap_hangar_uvs(obj, original_material)
+        obj.data.materials.clear()
+        obj.data.materials.append(atlas_material)
+        obj.data.update()
+    for obj in imported:
+        if obj.type != "MESH":
+            bpy.data.objects.remove(obj, do_unlink=True)
+
+    source_triangles = triangle_count(meshes)
+    shell = join_objects("TESLA_HANGAR_SOURCE_SHELL", meshes)
+    shell.data.materials.clear()
+    shell.data.materials.append(atlas_material)
+    for polygon in shell.data.polygons:
+        polygon.material_index = 0
+    shell.parent = hangar
+    shell["source_url"] = HANGAR_SOURCE_URL
+    shell["creator"] = HANGAR_AUTHOR
+    shell["license"] = HANGAR_LICENSE
+    shell["source_sha256"] = HANGAR_SOURCE_SHA256
+    for material in list(bpy.data.materials):
+        if material.users == 0:
+            bpy.data.materials.remove(material)
+    for image in list(bpy.data.images):
+        if image.users == 0:
+            bpy.data.images.remove(image)
+    bpy.context.view_layer.update()
+    runtime_minimum, runtime_maximum = recursive_bounds([shell])
+    return {
+        "sourceTriangleCount": source_triangles,
+        "runtimeTriangleCount": triangle_count([shell]),
+        "sourceMaterialCount": 7,
+        "runtimeMaterialCount": 1,
+        "runtimeTexture": {
+            "name": atlas_image.name,
+            "dimensions": [int(atlas_image.size[0]), int(atlas_image.size[1])],
+            "packed": bool(atlas_image.packed_file),
+        },
+        "normalizationScale": scale,
+        "runtimeBounds": {
+            "minimum": [round(value, 6) for value in runtime_minimum],
+            "maximum": [round(value, 6) for value in runtime_maximum],
+            "size": [round(value, 6) for value in runtime_maximum - runtime_minimum],
+        },
+    }
+
+
+def build_environment(root: bpy.types.Object) -> tuple[bpy.types.Object, bpy.types.Object, dict[str, object]]:
+    hangar = make_empty("TESLA_HANGAR", root)
+    hangar["source_url"] = HANGAR_SOURCE_URL
+    hangar["creator"] = HANGAR_AUTHOR
+    hangar["license"] = HANGAR_LICENSE
+    hangar["source_sha256"] = HANGAR_SOURCE_SHA256
+    source_report = import_hangar_source(hangar)
+
+    dark = bpy.data.materials.get("MAT_TESLA_PLATE_TEXT")
+    legacy = bpy.data.materials.get("MAT_TESLA_PLATE")
+    if dark is None or legacy is None:
+        raise RuntimeError("Model Y hangar requires the shared plate materials.")
+    make_box("TESLA_HANGAR_APRON", (20.0, 20.0, 0.16), (0.0, 0.0, -0.08), dark, hangar)
+    back_y = source_report["runtimeBounds"]["maximum"][1]
     make_text_mesh(
         "TESLA_HANGAR_LEGACY_SIGN",
         "POP T  LEGACY FLIGHT",
-        (0.0, 5.75, 4.15),
+        (0.0, back_y - 0.12, 5.30),
         (math.radians(90.0), 0.0, 0.0),
         0.62,
         legacy,
@@ -464,7 +661,7 @@ def build_environment(root: bpy.types.Object) -> tuple[bpy.types.Object, bpy.typ
     left_door = make_box(
         "TESLA_HANGAR_DOOR_LEFT",
         (5.3, 0.20, 5.7),
-        (-2.66, -3.40, 2.85),
+        (-2.66, -11.0, 2.85),
         dark,
         hangar,
         bevel=0.04,
@@ -472,23 +669,26 @@ def build_environment(root: bpy.types.Object) -> tuple[bpy.types.Object, bpy.typ
     right_door = make_box(
         "TESLA_HANGAR_DOOR_RIGHT",
         (5.3, 0.20, 5.7),
-        (2.66, -3.40, 2.85),
+        (2.66, -11.0, 2.85),
         dark,
         hangar,
         bevel=0.04,
     )
-    return left_door, right_door
+    return left_door, right_door, source_report
 
 
 def build_flight_kit(
     flight_mode: bpy.types.Object,
 ) -> dict[str, bpy.types.Object]:
-    flight_metal = make_material(
-        "MAT_TESLA_FLIGHT_METAL",
-        (0.16, 0.28, 0.38, 1.0),
-        metallic=0.28,
-        roughness=0.30,
+    flight_red = make_material(
+        "MAT_TESLA_FLIGHT_RED",
+        (0.38, 0.018, 0.025, 1.0),
+        metallic=0.46,
+        roughness=0.24,
     )
+    mechanical_dark = bpy.data.materials.get("MAT_TESLA_PLATE_TEXT")
+    if mechanical_dark is None:
+        raise RuntimeError("Model Y flight kit requires the shared dark mechanical material.")
     emissive_mat = make_material(
         "MAT_TESLA_FLIGHT_EMISSIVE",
         (0.015, 0.06, 0.08, 1.0),
@@ -533,7 +733,7 @@ def build_flight_kit(
             outline,
             origin[2],
             thickness,
-            flight_metal,
+            flight_red,
             bevel=0.035,
         )
         world = panel.matrix_world.copy()
@@ -551,7 +751,7 @@ def build_flight_kit(
             f"{pivot_name}_PANEL",
             (0.82, 1.12, 0.055),
             (x_position, 0.0, 0.46),
-            flight_metal,
+            mechanical_dark,
             bevel=0.06,
         )
         world = door.matrix_world.copy()
@@ -573,10 +773,10 @@ def build_flight_kit(
         housing = bpy.context.object
         housing.name = f"{rotor_name}_HOUSING"
         housing.data.name = f"{rotor_name}_HOUSING_GEOMETRY"
-        housing.data.materials.append(flight_metal)
+        housing.data.materials.append(mechanical_dark)
         housing.parent = flight_mode
 
-        rotor = make_fan_rotor(rotor_name, (x_position, 0.0, 0.39), flight_metal)
+        rotor = make_fan_rotor(rotor_name, (x_position, 0.0, 0.39), mechanical_dark)
         rotor.parent = flight_mode
         moving[rotor_name] = rotor
 
@@ -784,8 +984,8 @@ def build() -> dict[str, object]:
         bpy.data.objects.remove(obj, do_unlink=True)
 
     export_optimized_vehicle(meshes)
-    left_door, right_door = build_environment(root)
     build_plate(motion_root)
+    left_door, right_door, hangar_report = build_environment(root)
     moving = build_flight_kit(flight_mode)
     author_animation(motion_root, left_door, right_door, moving)
     configure_scene(root)
@@ -841,10 +1041,23 @@ def build() -> dict[str, object]:
         ),
         "sourceTextures": source_textures,
         "runtimeTextures": runtime_textures,
+        "hangarSource": HANGAR_SOURCE_URL,
+        "hangarAuthor": HANGAR_AUTHOR,
+        "hangarLicense": HANGAR_LICENSE,
+        "hangarPreservedSource": str(HANGAR_ARCHIVE_PATH.relative_to(REPO_ROOT)),
+        "hangarSourceSha256": HANGAR_SOURCE_SHA256,
+        "hangarSourceTriangleCount": hangar_report["sourceTriangleCount"],
+        "runtimeHangarTriangleCount": hangar_report["runtimeTriangleCount"],
+        "hangarSourceMaterialCount": hangar_report["sourceMaterialCount"],
+        "runtimeHangarMaterialCount": hangar_report["runtimeMaterialCount"],
+        "runtimeHangarTexture": hangar_report["runtimeTexture"],
+        "hangarNormalizationScale": hangar_report["normalizationScale"],
+        "runtimeHangarBounds": hangar_report["runtimeBounds"],
         "rootObject": "TESLA_ROOT",
         "requiredNodes": [
             "TESLA_ROOT",
             "TESLA_HANGAR",
+            "TESLA_HANGAR_SOURCE_SHELL",
             "TESLA_HANGAR_DOOR_LEFT",
             "TESLA_HANGAR_DOOR_RIGHT",
             "TESLA_VEHICLE",
@@ -877,6 +1090,7 @@ def build() -> dict[str, object]:
         "knownDeviations": [
             "The owner-supplied Tripo vehicle is a private reward candidate rather than exact manufacturer CAD.",
             "Flight Mode is a fictional non-operational articulated kit built around the untouched one-piece vehicle body.",
+            "The CC BY 4.0 Sketchfab hangar exterior is used double-sided as the reward shell; its seven source textures are consolidated into one 2K runtime atlas.",
         ],
     }
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)

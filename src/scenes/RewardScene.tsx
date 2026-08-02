@@ -1,6 +1,7 @@
 import { Canvas, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { clone } from 'three/addons/utils/SkeletonUtils.js'
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
 import * as THREE from 'three'
 
 import { clearRewardModel, loadRewardModel } from './rewardModelLoader'
@@ -27,19 +28,53 @@ const REWARD_ANIMATION = 'TESLA_FLIGHT_MODE_REVEAL'
 
 interface RewardModelProps {
   clipTimeSeconds: number
+  playbackRevision: number
   retryToken: number
   onLoadState: (state: RewardLoadState) => void
 }
 
-function RewardModel({ clipTimeSeconds, retryToken, onLoadState }: RewardModelProps) {
+function RewardShowroomEnvironment() {
+  const { get, gl, invalidate } = useThree()
+
+  useEffect(() => {
+    const scene = get().scene
+    const previousEnvironment = scene.environment
+    const previousIntensity = scene.environmentIntensity
+    const room = new RoomEnvironment()
+    const generator = new THREE.PMREMGenerator(gl)
+    const renderTarget = generator.fromScene(room, 0.04)
+    scene.environment = renderTarget.texture
+    scene.environmentIntensity = 0.42
+    invalidate()
+
+    return () => {
+      scene.environment = previousEnvironment
+      scene.environmentIntensity = previousIntensity
+      renderTarget.dispose()
+      generator.dispose()
+      room.dispose()
+    }
+  }, [get, gl, invalidate])
+
+  return null
+}
+
+function RewardModel({
+  clipTimeSeconds,
+  playbackRevision,
+  retryToken,
+  onLoadState,
+}: RewardModelProps) {
   const { camera, gl, invalidate, size } = useThree()
   const canvasRef = useRef(gl.domElement)
   const cameraRef = useRef(camera)
+  const lastPlaybackRevisionRef = useRef(playbackRevision)
   const [loaded, setLoaded] = useState<{
     scene: THREE.Group
     camera: THREE.Camera
     narrowCamera: THREE.Camera
     mixer: THREE.AnimationMixer
+    action: THREE.AnimationAction
     rightDoor: THREE.Object3D
     rightWing: THREE.Object3D
     closedDoorX: number
@@ -105,6 +140,7 @@ function RewardModel({ clipTimeSeconds, retryToken, onLoadState }: RewardModelPr
           camera: sourceCamera,
           narrowCamera,
           mixer,
+          action,
           rightDoor,
           rightWing,
           closedDoorX: rightDoor.position.x,
@@ -137,6 +173,10 @@ function RewardModel({ clipTimeSeconds, retryToken, onLoadState }: RewardModelPr
     const runtimeCamera = cameraRef.current
     const canvas = canvasRef.current
     const sourceCamera = size.width <= 768 ? loaded.narrowCamera : loaded.camera
+    if (lastPlaybackRevisionRef.current !== playbackRevision) {
+      loaded.action.reset().play()
+      lastPlaybackRevisionRef.current = playbackRevision
+    }
     loaded.mixer.setTime(clipTimeSeconds)
     loaded.scene.updateMatrixWorld(true)
     sourceCamera.getWorldPosition(runtimeCamera.position)
@@ -158,7 +198,7 @@ function RewardModel({ clipTimeSeconds, retryToken, onLoadState }: RewardModelPr
       && loaded.rightWing.scale.x > 0.99
     ) ? 'deployed' : 'stowed'
     invalidate()
-  }, [clipTimeSeconds, invalidate, loaded, size.width])
+  }, [clipTimeSeconds, invalidate, loaded, playbackRevision, size.width])
 
   useEffect(() => () => {
     loaded?.mixer.stopAllAction()
@@ -169,6 +209,7 @@ function RewardModel({ clipTimeSeconds, retryToken, onLoadState }: RewardModelPr
 
 export function RewardScene({
   clipTimeSeconds,
+  playbackRevision,
   retryToken,
   onLoadState,
 }: RewardModelProps) {
@@ -190,11 +231,13 @@ export function RewardScene({
         fallback={<div className="canvas-fallback">WebGL is unavailable. The complete reward remains available below.</div>}
       >
         <color attach="background" args={['#05090d']} />
-        <ambientLight intensity={0.55} color="#8fb9d8" />
-        <directionalLight position={[6, -5, 7]} intensity={4.2} color="#ffd8b5" castShadow />
-        <directionalLight position={[-5, 2, 4]} intensity={2.2} color="#70b9ff" />
+        <RewardShowroomEnvironment />
+        <ambientLight intensity={0.38} color="#d7e6ee" />
+        <directionalLight position={[6, -5, 7]} intensity={2.8} color="#ffd8b5" castShadow />
+        <directionalLight position={[-5, 2, 4]} intensity={1.4} color="#8ec8ff" />
         <RewardModel
           clipTimeSeconds={clipTimeSeconds}
+          playbackRevision={playbackRevision}
           retryToken={retryToken}
           onLoadState={onLoadState}
         />

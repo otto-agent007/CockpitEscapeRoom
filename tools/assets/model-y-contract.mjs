@@ -1,10 +1,24 @@
 export const MODEL_Y_SOURCE_SHA256 = 'd88769d9c66bdeca46bf239c9baa2a295afc82ffb24005733d9374b9c7782bee'
+export const MODEL_Y_HANGAR_SOURCE_SHA256 = '8ec631f27e40f6f1f3ac3448c96374c315a4874f2c8e4bdbe307f284fdf6e1fe'
+export const MODEL_Y_HANGAR_SOURCE_URL = 'https://sketchfab.com/3d-models/hangar-64f7d287f5274029bc29755a9839ebbf'
 export const MODEL_Y_ANIMATION_NAME = 'TESLA_FLIGHT_MODE_REVEAL'
 export const MODEL_Y_ANIMATION_DURATION_SECONDS = 11.5
+export const MODEL_Y_FLIGHT_RED_MATERIAL = 'MAT_TESLA_FLIGHT_RED'
+export const MODEL_Y_FLIGHT_PANEL_NODES = [
+  'TESLA_WING_LEFT_PIVOT_PANEL',
+  'TESLA_WING_RIGHT_PIVOT_PANEL',
+  'TESLA_STABILIZER_LEFT_PIVOT_PANEL',
+  'TESLA_STABILIZER_RIGHT_PIVOT_PANEL',
+]
+export const MODEL_Y_REMOVED_FLOOR_GUIDE_NODES = [
+  'TESLA_HANGAR_FLOOR_LINE_LEFT',
+  'TESLA_HANGAR_FLOOR_LINE_RIGHT',
+]
 
 export const MODEL_Y_REQUIRED_NODES = [
   'TESLA_ROOT',
   'TESLA_HANGAR',
+  'TESLA_HANGAR_SOURCE_SHELL',
   'TESLA_HANGAR_DOOR_LEFT',
   'TESLA_HANGAR_DOOR_RIGHT',
   'TESLA_VEHICLE',
@@ -61,6 +75,9 @@ export function validateModelYContract({ json, byteLength, intakeReport }) {
   if (missingNodes.length > 0) {
     errors.push(`Model Y GLB is missing required nodes: ${missingNodes.join(', ')}.`)
   }
+  if (MODEL_Y_REMOVED_FLOOR_GUIDE_NODES.some((name) => nodeByName.has(name))) {
+    errors.push('Model Y hangar must not include decorative floor guide lines.')
+  }
 
   const vehicle = nodeByName.get('TESLA_VEHICLE')
   if (vehicle?.extras?.game_id !== 'reward.modelY') {
@@ -70,6 +87,12 @@ export function validateModelYContract({ json, byteLength, intakeReport }) {
   if (flightMode?.extras?.game_id !== 'reward.flightMode' || flightMode?.extras?.interaction !== 'animation') {
     errors.push('TESLA_FLIGHT_MODE_ROOT must export the reward.flightMode animation contract.')
   }
+  const hangar = nodeByName.get('TESLA_HANGAR')
+  if (hangar?.extras?.source_url !== MODEL_Y_HANGAR_SOURCE_URL
+    || hangar?.extras?.creator !== 'nermin'
+    || hangar?.extras?.license !== 'CC BY 4.0') {
+    errors.push('TESLA_HANGAR must retain the approved nermin Sketchfab CC BY 4.0 provenance.')
+  }
 
   const body = nodeByName.get('TESLA_MODEL_Y_BODY')
   const bodyPrimitives = Number.isInteger(body?.mesh) ? (json.meshes?.[body.mesh]?.primitives ?? []) : []
@@ -78,10 +101,38 @@ export function validateModelYContract({ json, byteLength, intakeReport }) {
   }
 
   const allPrimitives = (json.meshes ?? []).flatMap((mesh) => mesh.primitives ?? [])
+  const hangarShell = nodeByName.get('TESLA_HANGAR_SOURCE_SHELL')
+  const hangarPrimitives = Number.isInteger(hangarShell?.mesh)
+    ? (json.meshes?.[hangarShell.mesh]?.primitives ?? [])
+    : []
   const bodyTriangles = bodyPrimitives.reduce((sum, primitive) => sum + triangleCount(json, primitive), 0)
+  const hangarTriangles = hangarPrimitives.reduce(
+    (sum, primitive) => sum + triangleCount(json, primitive),
+    0,
+  )
   const totalTriangles = allPrimitives.reduce((sum, primitive) => sum + triangleCount(json, primitive), 0)
   const materialCount = (json.materials ?? []).length
   const drawCallCount = allPrimitives.length
+  const flightRedMaterialIndex = (json.materials ?? [])
+    .findIndex((material) => material.name === MODEL_Y_FLIGHT_RED_MATERIAL)
+  const flightRedFactor = json.materials?.[flightRedMaterialIndex]
+    ?.pbrMetallicRoughness?.baseColorFactor
+  const redDominant = Array.isArray(flightRedFactor)
+    && flightRedFactor.length >= 3
+    && flightRedFactor[0] > 0.05
+    && flightRedFactor[0] > flightRedFactor[1] * 2
+    && flightRedFactor[0] > flightRedFactor[2] * 2
+  const panelsUseRedFinish = MODEL_Y_FLIGHT_PANEL_NODES.every((name) => {
+    const node = nodeByName.get(name)
+    const primitives = Number.isInteger(node?.mesh) ? (json.meshes?.[node.mesh]?.primitives ?? []) : []
+    return primitives.length > 0
+      && primitives.every((primitive) => primitive.material === flightRedMaterialIndex)
+  })
+  if (!redDominant || !panelsUseRedFinish) {
+    errors.push(
+      'Model Y wing and stabilizer panels must use the red-dominant MAT_TESLA_FLIGHT_RED finish.',
+    )
+  }
 
   if (bodyTriangles > MAX_VEHICLE_TRIANGLES) {
     errors.push(`TESLA_MODEL_Y_BODY exceeds ${MAX_VEHICLE_TRIANGLES} triangles; received ${bodyTriangles}.`)
@@ -113,6 +164,12 @@ export function validateModelYContract({ json, byteLength, intakeReport }) {
 
   if (intakeReport?.sourceSha256 !== MODEL_Y_SOURCE_SHA256) {
     errors.push('Model Y intake report does not match the approved source SHA-256.')
+  }
+  if (intakeReport?.hangarSourceSha256 !== MODEL_Y_HANGAR_SOURCE_SHA256) {
+    errors.push('Model Y intake report does not match the approved hangar source SHA-256.')
+  }
+  if (hangarTriangles <= 0 || intakeReport?.runtimeHangarTriangleCount !== hangarTriangles) {
+    errors.push('Model Y intake report runtime hangar count does not match the deployable source shell.')
   }
   if (intakeReport?.sourceTextureGatePassed !== true
     || !completeTextureSet(intakeReport?.sourceTextures, 4096)) {
