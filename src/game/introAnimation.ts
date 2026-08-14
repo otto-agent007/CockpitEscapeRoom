@@ -88,6 +88,28 @@ export type SpriteActorFrame = {
   scale: number
   rotation: number
   flipX: boolean
+  opacity: number
+}
+
+export type IntroFxFrame =
+  | { kind: 'sparkle'; x: number; y: number; size: number; opacity: number; tint: 'blue' | 'white' | 'gold' }
+  | { kind: 'burst-flash'; x: number; y: number; radius: number; opacity: number }
+  | { kind: 'exclaim'; x: number; y: number; scale: number; opacity: number }
+  | { kind: 'sweat'; x: number; y: number; scale: number; opacity: number }
+  | { kind: 'impact-star'; x: number; y: number; scale: number; rotation: number; opacity: number }
+  | { kind: 'laser-grid'; horizonY: number; scroll: number; opacity: number }
+  | { kind: 'chart-glow'; progress: number; opacity: number }
+  | { kind: 'radial-rays'; x: number; y: number; scale: number; rotation: number; opacity: number }
+  | { kind: 'pixel-assemble'; progress: number; x: number; y: number }
+
+export type IntroFxKind = IntroFxFrame['kind']
+
+export type IntroCardFrame = {
+  assetId: 'emblem-finale'
+  x: number
+  y: number
+  scale: number
+  opacity: number
 }
 
 export type IntroPropFrame = {
@@ -104,10 +126,13 @@ export type IntroAnimationFrame = {
   sceneProgress: number
   backgroundAssetId: string | null
   backgroundOffsetX: number
+  backgroundDim: number
   logo: { visible: boolean; buildProgress: number; highlightOpacity: number }
   popt: SpriteActorFrame | null
   key: SpriteActorFrame | null
   props: readonly IntroPropFrame[]
+  fx: readonly IntroFxFrame[]
+  card: IntroCardFrame | null
   pixelCollapse: number
 }
 
@@ -165,6 +190,7 @@ function poptActor(
   scale = 1.12,
   rotation = 0,
   flipX = false,
+  opacity = 1,
 ): SpriteActorFrame {
   const clip = POPT_CLIPS[clipId]
   const sequenceFrame = getSpriteFrame(clip, elapsedMs)
@@ -177,6 +203,7 @@ function poptActor(
     scale,
     rotation,
     flipX,
+    opacity,
   }
 }
 
@@ -188,6 +215,7 @@ function keyActor(
   scale = 0.38,
   rotation = 0,
   flipX = false,
+  opacity = 1,
 ): SpriteActorFrame {
   const clip = KEY_CLIPS[clipId]
   const sequenceFrame = getSpriteFrame(clip, elapsedMs)
@@ -200,7 +228,86 @@ function keyActor(
     scale,
     rotation,
     flipX,
+    opacity,
   }
+}
+
+/**
+ * Milliseconds elapsed since a story event, for once/hold-last clips whose
+ * acting starts mid-scene (a burst, an impact, a lunge) rather than at the
+ * scene boundary.
+ */
+export function clipElapsedMs(normalizedTimeSeconds: number, eventStartSeconds: number): number {
+  return Math.max(0, (normalizedTimeSeconds - eventStartSeconds) * 1_000)
+}
+
+/** A parametric actor path in scene-local seconds. */
+export type IntroPath = (sceneSeconds: number) => { x: number; y: number; rotation: number }
+
+const TRAIL_TINTS = ['white', 'blue', 'blue'] as const
+
+/**
+ * The key's sparkle trail. deriveIntroAnimation is pure, so the trail cannot
+ * be stored particle state: it re-samples the same parametric path the key
+ * follows at earlier scene-local times, clamped to the scene entry so no
+ * sample ever crosses a scene boundary. Jitter uses fixed integer lattices in
+ * the drawPixelCollapse style to stay deterministic.
+ */
+export function keyTrail(
+  path: IntroPath,
+  sceneSeconds: number,
+  count = 6,
+  spacingSeconds = 0.05,
+): IntroFxFrame[] {
+  const trail: IntroFxFrame[] = []
+  for (let index = 1; index <= count; index += 1) {
+    const sample = path(Math.max(0, sceneSeconds - index * spacingSeconds))
+    const fade = 1 - index / (count + 1)
+    trail.push({
+      kind: 'sparkle',
+      x: sample.x - 6 + ((index * 29 + 11) % 13),
+      y: sample.y - 26 - ((index * 17 + 5) % 9),
+      size: Math.max(1, 4 - Math.floor(index / 2)),
+      opacity: Math.round(85 * fade) / 100,
+      tint: TRAIL_TINTS[index % 3]!,
+    })
+  }
+  return trail
+}
+
+/**
+ * The neon chart the key climbs in the finance scene, in stage coordinates.
+ * Shared by the key's run path and the renderer's chart glow so the drawn
+ * line stays causal.
+ */
+export const CHART_POINTS = [
+  { x: 42, y: 182 },
+  { x: 98, y: 164 },
+  { x: 142, y: 172 },
+  { x: 194, y: 140 },
+  { x: 272, y: 104 },
+] as const
+
+const CHART_SEGMENT_LENGTHS = CHART_POINTS.slice(1).map((point, index) => {
+  const previous = CHART_POINTS[index]!
+  return Math.hypot(point.x - previous.x, point.y - previous.y)
+})
+const CHART_TOTAL_LENGTH = CHART_SEGMENT_LENGTHS.reduce((total, length) => total + length, 0)
+
+/** Position along the chart polyline by arc length, progress in [0, 1]. */
+export function chartPointAt(progress: number): { x: number; y: number } {
+  let remaining = clamp01(progress) * CHART_TOTAL_LENGTH
+  for (let index = 0; index < CHART_SEGMENT_LENGTHS.length; index += 1) {
+    const length = CHART_SEGMENT_LENGTHS[index]!
+    if (remaining <= length || index === CHART_SEGMENT_LENGTHS.length - 1) {
+      const from = CHART_POINTS[index]!
+      const to = CHART_POINTS[index + 1]!
+      const t = length === 0 ? 0 : Math.min(1, remaining / length)
+      return { x: from.x + (to.x - from.x) * t, y: from.y + (to.y - from.y) * t }
+    }
+    remaining -= length
+  }
+  return { ...CHART_POINTS.at(-1)! }
 }
 
 function prop(
@@ -227,10 +334,13 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
     sceneProgress: rawProgress,
     backgroundAssetId: BACKGROUNDS[scene.id] ?? null,
     backgroundOffsetX: reducedMotion ? 0 : -8 * sceneProgress,
+    backgroundDim: 0,
     logo: { visible: false, buildProgress: 0, highlightOpacity: 0 },
     popt: null,
     key: null,
     props: [],
+    fx: [],
+    card: null,
     pixelCollapse: 0,
   }
 

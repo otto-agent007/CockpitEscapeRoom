@@ -1,8 +1,13 @@
 import {
+  CHART_POINTS,
   KEY_CLIPS,
   POPT_CLIPS,
+  chartPointAt,
   type HandoffFrame,
   type IntroAnimationFrame,
+  type IntroCardFrame,
+  type IntroFxFrame,
+  type IntroFxKind,
   type IntroPropFrame,
   type SpriteActorFrame,
   type SpriteClip,
@@ -24,6 +29,7 @@ type SpriteCommand = {
   scale: number
   rotation: number
   flipX: boolean
+  opacity: number
 }
 
 export type LogoLayerId =
@@ -43,12 +49,31 @@ export type LogoLayerCommand = {
 export type IntroDrawCommand =
   | { kind: 'clear'; color: '#02030a' }
   | { kind: 'background'; assetId: string; offsetX: number }
+  | { kind: 'background-dim'; opacity: number }
   | LogoLayerCommand
   | { kind: 'prop'; prop: IntroPropFrame }
   | SpriteCommand
+  | { kind: 'fx'; fx: IntroFxFrame }
+  | { kind: 'card'; card: IntroCardFrame }
   | { kind: 'pixel-collapse'; progress: number }
   | { kind: 'handoff-key'; assetId: 'key-poses'; sourceFrame: 13; x: number; y: number; scale: number; rotation: number }
   | { kind: 'handoff-flash'; opacity: number }
+
+/**
+ * Environmental fx render under the actors; accent fx render over them.
+ * A fixed table keeps the layering deterministic per fx kind.
+ */
+const FX_LAYER: Record<IntroFxKind, 'under' | 'over'> = {
+  'laser-grid': 'under',
+  'chart-glow': 'under',
+  'pixel-assemble': 'under',
+  sparkle: 'over',
+  'burst-flash': 'over',
+  exclaim: 'over',
+  sweat: 'over',
+  'impact-star': 'over',
+  'radial-rays': 'over',
+}
 
 const clipsByAssetId = new Map<string, SpriteClip>()
 for (const clip of [...Object.values(POPT_CLIPS), ...Object.values(KEY_CLIPS)]) {
@@ -72,6 +97,7 @@ function spriteCommand(actor: 'popt' | 'key', frame: SpriteActorFrame): SpriteCo
     scale: frame.scale,
     rotation: frame.rotation,
     flipX: frame.flipX,
+    opacity: frame.opacity,
   }
 }
 
@@ -82,6 +108,9 @@ export function deriveIntroDrawCommands(
   const commands: IntroDrawCommand[] = [{ kind: 'clear', color: '#02030a' }]
   if (frame.backgroundAssetId) {
     commands.push({ kind: 'background', assetId: frame.backgroundAssetId, offsetX: frame.backgroundOffsetX })
+  }
+  if (frame.backgroundDim > 0) {
+    commands.push({ kind: 'background-dim', opacity: Math.min(1, frame.backgroundDim) })
   }
   if (frame.logo.visible) {
     commands.push({
@@ -120,8 +149,15 @@ export function deriveIntroDrawCommands(
     }
   }
   for (const sceneProp of frame.props) commands.push({ kind: 'prop', prop: sceneProp })
+  for (const fx of frame.fx) {
+    if (FX_LAYER[fx.kind] === 'under') commands.push({ kind: 'fx', fx })
+  }
   if (frame.popt) commands.push(spriteCommand('popt', frame.popt))
   if (frame.key) commands.push(spriteCommand('key', frame.key))
+  for (const fx of frame.fx) {
+    if (FX_LAYER[fx.kind] === 'over') commands.push({ kind: 'fx', fx })
+  }
+  if (frame.card) commands.push({ kind: 'card', card: frame.card })
   if (frame.pixelCollapse > 0) commands.push({ kind: 'pixel-collapse', progress: frame.pixelCollapse })
   if (handoff) {
     commands.push({
@@ -191,11 +227,13 @@ function drawBackground(
 function drawSprite(
   context: CanvasRenderingContext2D,
   image: CanvasImageSource,
-  command: Pick<SpriteCommand, 'sourceFrame' | 'frameWidth' | 'frameHeight' | 'columns' | 'pivot' | 'x' | 'y' | 'scale' | 'rotation' | 'flipX'>,
+  command: Pick<SpriteCommand, 'sourceFrame' | 'frameWidth' | 'frameHeight' | 'columns' | 'pivot' | 'x' | 'y' | 'scale' | 'rotation' | 'flipX' | 'opacity'>,
 ): void {
+  if (command.opacity <= 0) return
   const sourceX = (command.sourceFrame % command.columns) * command.frameWidth
   const sourceY = Math.floor(command.sourceFrame / command.columns) * command.frameHeight
   context.save()
+  context.globalAlpha = Math.min(1, command.opacity)
   context.translate(Math.round(command.x), Math.round(command.y))
   context.rotate(command.rotation)
   context.scale(command.flipX ? -command.scale : command.scale, command.scale)
@@ -329,11 +367,7 @@ function drawProp(context: CanvasRenderingContext2D, prop: IntroPropFrame): void
       context.stroke()
       break
     case 'bull-impact':
-      context.fillStyle = '#f5c424'
-      for (let index = 0; index < 8; index += 1) {
-        context.rotate(Math.PI / 4)
-        context.fillRect(8, -2, 15, 4)
-      }
+      drawImpactStarShape(context)
       break
     case 'cloud-puff':
       context.fillStyle = '#d8e7ff'
@@ -364,6 +398,213 @@ function drawProp(context: CanvasRenderingContext2D, prop: IntroPropFrame): void
       context.fillRect(-5, -2, 10, 4)
       break
   }
+  context.restore()
+}
+
+function drawImpactStarShape(context: CanvasRenderingContext2D): void {
+  context.fillStyle = '#f5c424'
+  for (let index = 0; index < 8; index += 1) {
+    context.rotate(Math.PI / 4)
+    context.fillRect(8, -2, 15, 4)
+  }
+}
+
+const SPARKLE_TINTS = { blue: '#75c4ff', white: '#fffdf0', gold: '#f5c424' } as const
+
+function drawFx(
+  context: CanvasRenderingContext2D,
+  fx: IntroFxFrame,
+): void {
+  context.save()
+  switch (fx.kind) {
+    case 'sparkle': {
+      context.globalAlpha = fx.opacity
+      context.fillStyle = SPARKLE_TINTS[fx.tint]
+      const size = Math.max(1, Math.round(fx.size))
+      const x = Math.round(fx.x)
+      const y = Math.round(fx.y)
+      context.fillRect(x - size, y, size * 2 + 1, 1)
+      context.fillRect(x, y - size, 1, size * 2 + 1)
+      if (size > 2) context.fillRect(x - 1, y - 1, 3, 3)
+      break
+    }
+    case 'burst-flash': {
+      context.globalAlpha = fx.opacity
+      context.translate(Math.round(fx.x), Math.round(fx.y))
+      context.fillStyle = '#fffbe4'
+      context.beginPath()
+      context.arc(0, 0, Math.max(2, fx.radius * 0.45), 0, Math.PI * 2)
+      context.fill()
+      context.fillStyle = '#f5c424'
+      const armLength = Math.max(4, Math.round(fx.radius))
+      for (let index = 0; index < 8; index += 1) {
+        context.rotate(Math.PI / 4)
+        context.fillRect(Math.round(fx.radius * 0.3), -2, armLength, 4)
+      }
+      break
+    }
+    case 'exclaim': {
+      context.globalAlpha = fx.opacity
+      context.translate(Math.round(fx.x), Math.round(fx.y))
+      context.scale(fx.scale, fx.scale)
+      context.fillStyle = '#5a1410'
+      context.fillRect(-4, -25, 8, 16)
+      context.fillRect(-4, -6, 8, 7)
+      context.fillStyle = '#e54835'
+      context.fillRect(-3, -24, 6, 14)
+      context.fillRect(-3, -5, 6, 5)
+      break
+    }
+    case 'sweat': {
+      context.globalAlpha = fx.opacity
+      context.translate(Math.round(fx.x), Math.round(fx.y))
+      context.scale(fx.scale, fx.scale)
+      context.fillStyle = '#75c4ff'
+      context.fillRect(-1, -4, 2, 2)
+      context.fillRect(-2, -2, 4, 4)
+      context.fillStyle = '#d8e7ff'
+      context.fillRect(-1, -1, 1, 1)
+      break
+    }
+    case 'impact-star': {
+      context.globalAlpha = fx.opacity
+      context.translate(Math.round(fx.x), Math.round(fx.y))
+      context.rotate(fx.rotation)
+      context.scale(fx.scale, fx.scale)
+      drawImpactStarShape(context)
+      break
+    }
+    case 'laser-grid': {
+      const horizonY = Math.round(fx.horizonY)
+      context.globalAlpha = fx.opacity
+      context.strokeStyle = '#c03030'
+      context.lineWidth = 1
+      const depth = INTRO_STAGE_HEIGHT - horizonY
+      context.beginPath()
+      for (let index = 0; index <= 12; index += 1) {
+        const spread = (index - 6) / 6
+        context.moveTo(160 + spread * 26, horizonY)
+        context.lineTo(160 + spread * 240, INTRO_STAGE_HEIGHT)
+      }
+      for (let index = 0; index < 7; index += 1) {
+        const wrapped = (index + fx.scroll) % 7
+        const rowProgress = (wrapped / 7) ** 2
+        const y = horizonY + Math.round(depth * rowProgress)
+        context.moveTo(0, y)
+        context.lineTo(INTRO_STAGE_WIDTH, y)
+      }
+      context.stroke()
+      context.globalAlpha = fx.opacity * 0.55
+      context.strokeStyle = '#e54835'
+      context.beginPath()
+      context.moveTo(0, horizonY)
+      context.lineTo(INTRO_STAGE_WIDTH, horizonY)
+      context.stroke()
+      break
+    }
+    case 'chart-glow': {
+      const tip = chartPointAt(fx.progress)
+      const firstUnlit = CHART_POINTS.findIndex(
+        (_point, index) => index > 0 && chartProgressBefore(index) >= fx.progress,
+      )
+      const litPoints = CHART_POINTS.slice(0, firstUnlit === -1 ? CHART_POINTS.length : firstUnlit)
+      context.globalAlpha = fx.opacity * 0.35
+      context.strokeStyle = '#75c4ff'
+      context.lineWidth = 5
+      strokeChart(context, litPoints, tip)
+      context.globalAlpha = fx.opacity
+      context.strokeStyle = '#3d7cff'
+      context.lineWidth = 2
+      strokeChart(context, litPoints, tip)
+      break
+    }
+    case 'radial-rays': {
+      context.globalAlpha = fx.opacity
+      context.translate(Math.round(fx.x), Math.round(fx.y))
+      context.rotate(fx.rotation)
+      const rayLength = 190 * fx.scale
+      for (let index = 0; index < 12; index += 1) {
+        context.rotate(Math.PI / 6)
+        context.fillStyle = index % 2 === 0 ? '#1761e8' : '#75c4ff'
+        context.globalAlpha = fx.opacity * (index % 2 === 0 ? 0.5 : 0.32)
+        context.beginPath()
+        context.moveTo(0, 0)
+        context.lineTo(rayLength, -10 * fx.scale)
+        context.lineTo(rayLength, 10 * fx.scale)
+        context.closePath()
+        context.fill()
+      }
+      break
+    }
+    case 'pixel-assemble': {
+      const progress = Math.max(0, Math.min(1, fx.progress))
+      const count = 88
+      for (let index = 0; index < count; index += 1) {
+        const startX = (index * 73 + 19) % INTRO_STAGE_WIDTH
+        const startY = (index * 41 + 7) % INTRO_STAGE_HEIGHT
+        const endX = fx.x + ((index * 29) % 56) - 28
+        const endY = fx.y - ((index * 17) % 72)
+        const travel = progress ** 1.5
+        const x = Math.round(startX + (endX - startX) * travel)
+        const y = Math.round(startY + (endY - startY) * travel)
+        const size = Math.max(1, 6 - Math.floor(progress * 4) - (index % 3))
+        context.globalAlpha = 0.35 + 0.65 * progress
+        context.fillStyle = index % 3 === 0 ? '#75c4ff' : index % 2 === 0 ? '#1761e8' : '#061b66'
+        context.fillRect(x, y, size, size)
+      }
+      break
+    }
+  }
+  context.restore()
+}
+
+function chartProgressBefore(pointIndex: number): number {
+  let length = 0
+  for (let index = 1; index <= pointIndex; index += 1) {
+    const from = CHART_POINTS[index - 1]!
+    const to = CHART_POINTS[index]!
+    length += Math.hypot(to.x - from.x, to.y - from.y)
+  }
+  let total = 0
+  for (let index = 1; index < CHART_POINTS.length; index += 1) {
+    const from = CHART_POINTS[index - 1]!
+    const to = CHART_POINTS[index]!
+    total += Math.hypot(to.x - from.x, to.y - from.y)
+  }
+  return total === 0 ? 0 : length / total
+}
+
+function strokeChart(
+  context: CanvasRenderingContext2D,
+  litPoints: ReadonlyArray<{ x: number; y: number }>,
+  tip: { x: number; y: number },
+): void {
+  context.beginPath()
+  const first = litPoints[0] ?? tip
+  context.moveTo(first.x, first.y)
+  for (const point of litPoints.slice(1)) context.lineTo(point.x, point.y)
+  context.lineTo(tip.x, tip.y)
+  context.stroke()
+}
+
+function drawCard(
+  context: CanvasRenderingContext2D,
+  image: CanvasImageSource,
+  card: IntroCardFrame,
+): void {
+  if (card.opacity <= 0) return
+  const { width, height } = imageDimensions(image)
+  const drawWidth = Math.round(width * card.scale)
+  const drawHeight = Math.round(height * card.scale)
+  context.save()
+  context.globalAlpha = Math.min(1, card.opacity)
+  context.drawImage(
+    image,
+    Math.round(card.x - drawWidth / 2),
+    Math.round(card.y - drawHeight / 2),
+    drawWidth,
+    drawHeight,
+  )
   context.restore()
 }
 
@@ -428,12 +669,27 @@ export function renderIntroFrame(
         if (image) drawLogoLayer(context, image, command)
         break
       }
+      case 'background-dim':
+        context.save()
+        context.globalAlpha = command.opacity
+        context.fillStyle = '#02030a'
+        context.fillRect(0, 0, INTRO_STAGE_WIDTH, INTRO_STAGE_HEIGHT)
+        context.restore()
+        break
       case 'prop':
         drawProp(context, command.prop)
         break
       case 'sprite': {
         const image = assets.get(command.assetId)
         if (image) drawSprite(context, image, command)
+        break
+      }
+      case 'fx':
+        drawFx(context, command.fx)
+        break
+      case 'card': {
+        const image = assets.get(command.card.assetId)
+        if (image) drawCard(context, image, command.card)
         break
       }
       case 'pixel-collapse':
@@ -449,6 +705,7 @@ export function renderIntroFrame(
             columns: 5,
             pivot: { x: 128, y: 224 },
             flipX: false,
+            opacity: 1,
           })
         }
         break

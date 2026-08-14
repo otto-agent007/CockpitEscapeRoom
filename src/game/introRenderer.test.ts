@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { deriveHandoffAnimation, deriveIntroAnimation } from './introAnimation'
+import { deriveHandoffAnimation, deriveIntroAnimation, type IntroAnimationFrame } from './introAnimation'
 import { deriveIntroDrawCommands, shouldUseExactLogoFallback } from './introRenderer'
 
 describe('TMB2 Canvas draw commands', () => {
@@ -77,6 +77,45 @@ describe('TMB2 Canvas draw commands', () => {
       .some((command) => command.kind === 'pixel-collapse')).toBe(false)
     expect(deriveIntroDrawCommands(deriveIntroAnimation(52.5, false), null)
       .some((command) => command.kind === 'pixel-collapse')).toBe(true)
+  })
+
+  it('slots environmental fx under the actors, accents over them, and the card above accents', () => {
+    const story = deriveIntroAnimation(38, false)
+    const frame: IntroAnimationFrame = {
+      ...story,
+      backgroundDim: 0.4,
+      fx: [
+        { kind: 'sparkle', x: 200, y: 96, size: 3, opacity: 0.8, tint: 'blue' },
+        { kind: 'laser-grid', horizonY: 150, scroll: 0.25, opacity: 0.4 },
+      ],
+      card: { assetId: 'emblem-finale', x: 160, y: 104, scale: 1, opacity: 1 },
+    }
+    const commands = deriveIntroDrawCommands(frame, deriveHandoffAnimation(1))
+    const kinds = commands.map((command) => command.kind)
+    expect(kinds[0]).toBe('clear')
+    expect(kinds[1]).toBe('background')
+    expect(kinds[2]).toBe('background-dim')
+
+    const indexed = commands.map((command, index) => ({ command, index }))
+    const gridIndex = indexed.find(
+      (entry) => entry.command.kind === 'fx' && entry.command.fx.kind === 'laser-grid',
+    )!.index
+    const sparkleIndex = indexed.find(
+      (entry) => entry.command.kind === 'fx' && entry.command.fx.kind === 'sparkle',
+    )!.index
+    expect(gridIndex).toBeLessThan(kinds.indexOf('sprite'))
+    expect(sparkleIndex).toBeGreaterThan(kinds.lastIndexOf('sprite'))
+    expect(kinds.indexOf('card')).toBeGreaterThan(sparkleIndex)
+    expect(kinds.indexOf('card')).toBeLessThan(kinds.indexOf('handoff-key'))
+  })
+
+  it('emits no fx, dim, or card while the scaffolding is unchoreographed', () => {
+    for (const time of [2, 8, 13, 18, 24, 31, 38, 44, 49, 52]) {
+      const frame = deriveIntroAnimation(time, false)
+      expect(frame.fx).toEqual([])
+      expect(frame.backgroundDim).toBe(0)
+      expect(frame.card).toBeNull()
+    }
   })
 
   it('draws the Start handoff key over the frozen story frame', () => {
