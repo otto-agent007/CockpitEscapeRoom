@@ -150,6 +150,19 @@ describe('TMB2 sprite animation contract', () => {
     expect(midJolt.popt!.x).toBeLessThan(boundary.popt!.x - 2)
   })
 
+  it('sprints Pop T across the runway while the key flies ahead of him', () => {
+    const start = deriveIntroAnimation(16.4, false)
+    const end = deriveIntroAnimation(21.6, false)
+    expect(end.popt!.x - start.popt!.x).toBeGreaterThan(160)
+    expect(start.key?.clipId).toBe('fly')
+    expect(start.fx.some((fx) => fx.kind === 'sparkle')).toBe(true)
+
+    const crossing = deriveIntroAnimation(INTRO_MUSIC_CUES.cartNearMiss, false)
+    const cart = crossing.props.find((sceneProp) => sceneProp.id === 'runway-cart')
+    expect(Math.abs(cart!.x - crossing.popt!.x)).toBeLessThan(24)
+    expect(crossing.popt!.y).toBeLessThan(184)
+  })
+
   it('bursts the key from the bag with a flash, spray, and the red exclaim slam', () => {
     const preBurst = deriveIntroAnimation(12.5, false)
     expect(preBurst.key).toBeNull()

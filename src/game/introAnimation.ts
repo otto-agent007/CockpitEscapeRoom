@@ -549,13 +549,42 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         ],
       }
     }
-    case 'runway':
+    case 'runway': {
+      // Panel 4: a real chase. Pop T sprints the full stage, the key flies
+      // ahead on a sparkle trail, and the cart crosses his lane on the accent.
+      const t = storyTime
+      const sceneT = t - 16
+      const CART_CROSS = INTRO_MUSIC_CUES.cartNearMiss
+      const fx: IntroFxFrame[] = []
+
+      const keyPath: IntroPath = (sceneSeconds) => {
+        const p = sceneSeconds / 6
+        return {
+          x: 130 + 170 * p + Math.sin(sceneSeconds * 1.5) * 6,
+          y: 158 - 70 * p + Math.sin(sceneSeconds * 2.2) * 8,
+          rotation: -0.12 + Math.sin(sceneSeconds * 2.2) * 0.05,
+        }
+      }
+      const keySample = keyPath(sceneT)
+      fx.push(...keyTrail(keyPath, sceneT))
+
+      const hop = t > CART_CROSS - 0.2 && t < CART_CROSS + 0.4
+        ? Math.sin(((t - (CART_CROSS - 0.2)) / 0.6) * Math.PI)
+        : 0
+      const poptX = 44 + (224 * sceneT) / 6
+      const popt = poptActor('run', elapsedMs, poptX, 190 - hop * 14, 1.12, -hop * 0.08)
+
+      const cartX = 473 - 90 * sceneT
+
       return {
         ...base,
-        popt: poptActor('run', elapsedMs, 76 + Math.sin(sceneProgress * Math.PI * 6) * 4, 190),
-        key: keyActor('run', elapsedMs, 190 - sceneProgress * 18 + Math.sin(sceneProgress * Math.PI * 4) * 5, 174),
-        props: [prop('runway-cart', 350 - sceneProgress * 430, 184, 0.68)],
+        backgroundOffsetX: reducedMotion ? 0 : -12 * sceneProgress,
+        popt,
+        key: keyActor('fly', elapsedMs, keySample.x, keySample.y, 0.36, keySample.rotation),
+        fx,
+        props: [prop('runway-cart', cartX, 184, 0.68)],
       }
+    }
     case 'ballpark':
       return {
         ...base,
