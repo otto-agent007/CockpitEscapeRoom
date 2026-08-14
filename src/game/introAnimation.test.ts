@@ -113,8 +113,9 @@ describe('TMB2 sprite animation contract', () => {
     }
     expect(deriveIntroAnimation(18, false).props.find((prop) => prop.id === 'runway-cart')?.scale)
       .toBeLessThanOrEqual(0.7)
-    expect(deriveIntroAnimation(31, false).props.find((prop) => prop.id === 'bull-impact')?.scale)
-      .toBeLessThanOrEqual(0.4)
+    const bullStar = deriveIntroAnimation(31, false).fx.find((fx) => fx.kind === 'impact-star')
+    expect(bullStar).toBeDefined()
+    expect(bullStar!.scale).toBeLessThanOrEqual(0.4)
     expect(deriveIntroAnimation(44, false).props.find((prop) => prop.id === 'pilot-wings')?.scale)
       .toBeLessThanOrEqual(0.6)
     const pursuit = deriveIntroAnimation(44, false)
@@ -189,6 +190,25 @@ describe('TMB2 sprite animation contract', () => {
         positions[index]!.y - positions[index - 1]!.y,
       )).toBeLessThan(4)
     }
+  })
+
+  it('runs the key up the lit chart and spins Pop T off the bull on the accent', () => {
+    const climbing = deriveIntroAnimation(30, false)
+    const glow = climbing.fx.find((fx) => fx.kind === 'chart-glow')
+    expect(glow).toBeDefined()
+    expect(climbing.key?.clipId).toBe('run')
+    expect(climbing.popt?.clipId).toBe('run')
+
+    const justAfterImpact = deriveIntroAnimation(INTRO_MUSIC_CUES.bullImpact + 0.09, false)
+    expect(justAfterImpact.popt?.clipId).toBe('bull-spin')
+    expect(justAfterImpact.popt?.sourceFrame).toBeLessThanOrEqual(1)
+    expect(justAfterImpact.fx.some((fx) => fx.kind === 'impact-star')).toBe(true)
+
+    const recovered = deriveIntroAnimation(32.5, false)
+    expect(recovered.popt?.clipId).toBe('run')
+    const perched = deriveIntroAnimation(34.2, false)
+    expect(perched.key?.clipId).toBe('taunt')
+    expect(perched.fx.find((fx) => fx.kind === 'chart-glow')?.progress).toBe(1)
   })
 
   it('bursts the key from the bag with a flash, spray, and the red exclaim slam', () => {

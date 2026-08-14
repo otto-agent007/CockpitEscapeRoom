@@ -665,16 +665,65 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
 
       return { ...base, popt, key: keyActor('fly', elapsedMs, keySample.x, keySample.y, 0.36, keySample.rotation), fx, props }
     }
-    case 'city-finance':
-      return {
-        ...base,
-        popt: poptActor('bull-spin', elapsedMs, 54 + eased * 156, 188, 1.14, sceneProgress * Math.PI * 0.35),
-        key: keyActor('run', elapsedMs, 106 + sceneProgress * 150, 172 - sceneProgress * 72, 0.36),
-        props: [
-          prop('graph', 160, 152, 1),
-          prop('bull-impact', 222, 178, 0.3 + Math.sin(sceneProgress * Math.PI) * 0.08, 0, Math.sin(sceneProgress * Math.PI)),
-        ],
+    case 'city-finance': {
+      // Panel 6: the key runs up the neon chart, lighting it as it climbs,
+      // while Pop T's chase meets the painted bull on the measured accent.
+      const t = storyTime
+      const IMPACT = INTRO_MUSIC_CUES.bullImpact
+      const SPIN_END = 32.2
+      const sceneT = t - 28
+      const fx: IntroFxFrame[] = []
+
+      const chartProgress = clamp01(sceneT / 5.2)
+      const chartPosition = chartPointAt(chartProgress)
+      fx.push({ kind: 'chart-glow', progress: chartProgress, opacity: 0.85 })
+      let key: SpriteActorFrame
+      if (chartProgress < 1) {
+        const bounce = Math.abs(Math.sin(sceneT * Math.PI * 4)) * 3
+        key = keyActor('run', elapsedMs, chartPosition.x, chartPosition.y - bounce, 0.36)
+      } else {
+        const hover = sceneT - 5.2
+        key = keyActor(
+          'taunt',
+          clipElapsedMs(t, 33.2),
+          chartPosition.x + Math.sin(hover * 3.1) * 4,
+          chartPosition.y + Math.sin(hover * 4.6) * 3,
+          0.36,
+          Math.sin(hover * 6) * 0.1,
+        )
       }
+
+      let popt: SpriteActorFrame
+      if (t < IMPACT) {
+        popt = poptActor('run', elapsedMs, 42 + ((t - 28) / (IMPACT - 28)) * 163, 188, 1.14)
+      } else if (t < SPIN_END) {
+        const knock = 1 - (1 - Math.min(1, (t - IMPACT) / 1.2)) ** 2
+        const tumble = Math.sin(Math.PI * Math.min(1, (t - IMPACT) / 0.9))
+        popt = poptActor(
+          'bull-spin',
+          clipElapsedMs(t, IMPACT),
+          205 - 38 * knock,
+          188 - 18 * tumble,
+          1.14,
+          0.3 * tumble,
+        )
+      } else {
+        popt = poptActor('run', clipElapsedMs(t, SPIN_END), 167 + ((t - SPIN_END) / 2.8) * 33, 188, 1.14)
+      }
+      if (t >= IMPACT && t < IMPACT + 0.6) {
+        const phase = (t - IMPACT) / 0.6
+        fx.push({
+          kind: 'impact-star',
+          x: 238,
+          y: 162,
+          scale: 0.3 + Math.sin(phase * Math.PI) * 0.12,
+          rotation: phase * 0.5,
+          opacity: Math.sin(phase * Math.PI),
+        })
+      }
+
+      return { ...base, popt, key, fx, props: [] }
+    }
     case 'sky':
       return {
         ...base,
