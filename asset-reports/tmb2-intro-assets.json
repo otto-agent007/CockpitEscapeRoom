@@ -376,6 +376,12 @@
       "id": "cloud-chase-v1",
       "taxonomy": "illustration-story",
       "prompt": "Create a wide 16:10 pixel-art illustration-story background plate for the TMB2 browser-game intro, matching the authoritative blonde-haired Pop T storyboard's polished cinematic pixel work, layered cobalt and midnight-blue clouds, electric-blue star particles, crisp stepped cloud edges, luminous depth, and a joyful high-altitude adventure tone. Compose sweeping cloud banks and diagonal speed corridors with a clear central flight path for separately composited sprites, brighter blue horizon light toward the upper right, and crop-safe detail at both edges; the sky must feel dynamic without depicting danger or an emergency. Sky only: no person, no pilot, no Pop T, no cartoon key, no aircraft, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, planet, vehicle, or reward imagery."
+    },
+    {
+      "id": "runway-day-v1",
+      "taxonomy": "illustration-story",
+      "status": "recorded-awaiting-owner-generation",
+      "prompt": "Create a wide 16:10 pixel-art illustration-story background plate for the TMB2 browser-game intro, matching the authoritative blonde-haired Pop T storyboard's cinematic 16-bit-inspired finish, crisp stepped pixel clusters, and its panel-4 daylight look: a bright sunny airport runway under a vivid blue sky with bold white cumulus clouds. Show the runway surface receding from the lower left with clean markings and warm sunlit concrete, a distant parked airliner and a control tower on the right horizon, gentle heat-haze sparkle and subtle blue square particles, generous clear action space across the center-left for separately composited sprites, and crop-safe margins. Keep midnight-navy shadows, electric-blue accent glints, and warm gold sunlight consistent with the storyboard palette. Background/prop plate only: no person, no pilot, no Pop T, no cartoon key, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery."
     }
   ],
   "generatedAssets": [
@@ -425,14 +431,14 @@
     "archiveIntegrity": "pass",
     "runtimeManifest": {
       "status": "pass",
-      "assets": 77,
-      "preloads": 20,
+      "assets": 78,
+      "preloads": 21,
       "path": "public/images/intro/tmb2/tmb2-intro-assets.json"
     },
     "runtimeDecodeContract": {
       "initialImages": 9,
-      "totalRenderedImages": 20,
-      "packagePreloads": 20,
+      "totalRenderedImages": 21,
+      "packagePreloads": 21,
       "note": "The five ident images and four opening story images decode sequentially before Start enables; remaining story images decode lazily. Sequential decoding avoids an observed Chromium stall when the existing large sheets decode concurrently."
     },
     "historicContractDelta": {
@@ -489,5 +495,47 @@
         "sha256": "8f02190f7ab2ab04608e44f383a59b80e7c9227879978d73e4bce1e82acee6b9"
       }
     ]
-  }
+  },
+  "derivedAssets": [
+    {
+      "id": "emblem-finale-v1",
+      "source": "art-source/intro/tmb2/recovered/2026-07-19-storyboards/pilot Pop T with golden blond hair and blue eyes.png",
+      "sourceSha256": "0f9b2fed22597380c926028d39bf1c33470b32c42a7a59bbba335f1642f8b7d2",
+      "builder": "tools/assets/build-intro-emblem.py",
+      "panelCrop": [
+        1237,
+        474,
+        1652,
+        919
+      ],
+      "chipPaintOut": {
+        "box": [
+          0,
+          0,
+          44,
+          30
+        ],
+        "fill": [
+          1,
+          1,
+          3
+        ],
+        "note": "storyboard \"8\" corner chip removed; faint sparkle noise inside the box sacrificed"
+      },
+      "emblemCrop": [
+        0,
+        0,
+        415,
+        278
+      ],
+      "runtime": "public/images/intro/tmb2/emblem/finale-card.png",
+      "artSourceCopy": "art-source/intro/tmb2/derived/emblem/finale-card.png",
+      "sha256": "dc76c4bbfd608ea44dc9987df2ece9cec4c78b08348040a20b850e1021a75f89",
+      "bytes": 80353,
+      "width": 248,
+      "height": 166,
+      "review": "Panel 8 winged-globe emblem with Pop T holding the key, cropped from the approved storyboard; LANCZOS once to the exact 248x166 display size so runtime never resamples at scale 1. Owner visual gate item: chip corner and stamp-vs-eased reveal.",
+      "date": "2026-08-14"
+    }
+  ]
 }

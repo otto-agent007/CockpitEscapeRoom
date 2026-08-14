@@ -34,7 +34,7 @@ describe('TMB2 runtime image tiers', () => {
   it('registers every rendered sheet and background as a safe local PNG', () => {
     expect(() => validateIntroAssets(introAssets)).not.toThrow()
     expect(new Set(introAssets.map((asset) => asset.id)).size).toBe(introAssets.length)
-    expect(introAssets).toHaveLength(20)
+    expect(introAssets).toHaveLength(21)
     expect(introAssets.every((asset) => asset.path.endsWith('.png'))).toBe(true)
     expect(JSON.stringify(introAssets)).not.toMatch(/\.webp|tesla|model[- ]?y|flight mode|mars/i)
 
@@ -74,7 +74,8 @@ describe('TMB2 runtime image tiers', () => {
       'popt-startle-stumble',
       'key-poses',
     ])
-    expect(INTRO_FULL_ASSET_IDS).toHaveLength(20)
+    expect(INTRO_FULL_ASSET_IDS).toHaveLength(21)
+    expect(INTRO_INITIAL_ASSET_IDS).not.toContain('emblem-finale')
     expect(getIntroAssetsForTier('initial').map((asset) => asset.id)).toEqual(INTRO_INITIAL_ASSET_IDS)
     expect(getIntroAssetsForTier('full')).toEqual(introAssets)
   })

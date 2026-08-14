@@ -96,6 +96,7 @@ const preload = [
   'popt/legacy/idle-sheet.png',
   'popt/legacy/run-sheet.png',
   'popt/legacy/reach-catch-sheet.png',
+  'emblem/finale-card.png',
 ]
 
 const manifest = {

@@ -71,6 +71,15 @@
       "hasAlpha": true
     },
     {
+      "id": "emblem-finale-card-png",
+      "path": "emblem/finale-card.png",
+      "sha256": "dc76c4bbfd608ea44dc9987df2ece9cec4c78b08348040a20b850e1021a75f89",
+      "bytes": 80353,
+      "width": 248,
+      "height": 166,
+      "hasAlpha": false
+    },
+    {
       "id": "key-key-mascot-poses-00-png",
       "path": "key/key-mascot-poses-00.png",
       "sha256": "cee6d458f187d7c225ba52854df9a124c0cd8ba7c03c8d51f29ffca89db8f4ae",
@@ -719,6 +728,7 @@
     "key/key-mascot-poses-sheet.png",
     "popt/legacy/idle-sheet.png",
     "popt/legacy/run-sheet.png",
-    "popt/legacy/reach-catch-sheet.png"
+    "popt/legacy/reach-catch-sheet.png",
+    "emblem/finale-card.png"
   ]
 }

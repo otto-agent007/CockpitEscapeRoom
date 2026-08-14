@@ -1,7 +1,7 @@
 export type IntroAsset = {
   id: string
   path: string
-  role: 'background' | 'sprite' | 'logo-layer'
+  role: 'background' | 'sprite' | 'logo-layer' | 'card'
 }
 
 export type IntroAssetTier = 'initial' | 'full'
@@ -52,6 +52,7 @@ export const introAssets = [
   { id: 'popt-bull-spin', path: 'images/intro/tmb2/popt/bull-spin/bull-spin-sheet.png', role: 'sprite' },
   { id: 'popt-pilot-glide', path: 'images/intro/tmb2/popt/pilot-glide/pilot-glide-sheet.png', role: 'sprite' },
   { id: 'popt-victory-recovery', path: 'images/intro/tmb2/popt/victory-recovery/victory-recovery-sheet.png', role: 'sprite' },
+  { id: 'emblem-finale', path: 'images/intro/tmb2/emblem/finale-card.png', role: 'card' },
 ] as const satisfies readonly IntroAsset[]
 
 export const INTRO_INITIAL_ASSET_IDS = [

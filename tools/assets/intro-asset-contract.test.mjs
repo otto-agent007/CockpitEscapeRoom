@@ -156,6 +156,7 @@ describe('TMB2 intro asset contract', () => {
       'popt/legacy/idle-sheet.png',
       'popt/legacy/run-sheet.png',
       'popt/legacy/reach-catch-sheet.png',
+      'emblem/finale-card.png',
     ])
   })
 
