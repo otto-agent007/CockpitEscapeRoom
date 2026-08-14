@@ -1,4 +1,5 @@
 import { getIntroScene, normalizeIntroTime, type IntroSceneId } from './introConfig'
+import { DUFFEL_JOLT_PERIOD_SECONDS, INTRO_MUSIC_CUES } from './introMusicCues'
 
 export type SpriteLoopMode = 'loop' | 'once' | 'hold-last'
 
@@ -321,13 +322,38 @@ function prop(
   return { id, x, y, scale, rotation, opacity }
 }
 
+/**
+ * Reduced motion holds one curated representative story time per scene, so a
+ * held pose is a deliberate mid-action frame rather than whatever the scene
+ * midpoint happens to land on (for once-clips the midpoint is often the
+ * post-impact splat).
+ */
+const REPRESENTATIVE_SCENE_TIME: Partial<Record<IntroSceneId, number>> = {
+  duffel: 9.6,
+  'key-escape': 13.6,
+  runway: 19,
+  ballpark: 24.7,
+  'city-finance': 29.5,
+  sky: 38.5,
+  'final-pursuit': 44,
+  catch: 50.3,
+}
+
+/** Fx kinds that stay visible (frozen) under reduced motion. */
+const REDUCED_MOTION_FX: ReadonlySet<IntroFxKind> = new Set(['laser-grid', 'chart-glow', 'radial-rays'])
+
 export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean): IntroAnimationFrame {
   const normalizedTime = normalizeIntroTime(timeSeconds)
   const scene = getIntroScene(normalizedTime)
   const duration = scene.endSeconds - scene.startSeconds
   const rawProgress = clamp01((normalizedTime - scene.startSeconds) / duration)
-  const sceneProgress = reducedMotion ? 0.5 : rawProgress
-  const elapsedMs = reducedMotion ? duration * 500 : (normalizedTime - scene.startSeconds) * 1_000
+  const storyTime = reducedMotion
+    ? REPRESENTATIVE_SCENE_TIME[scene.id] ?? scene.startSeconds + duration / 2
+    : normalizedTime
+  const sceneProgress = reducedMotion
+    ? clamp01((storyTime - scene.startSeconds) / duration)
+    : rawProgress
+  const elapsedMs = (storyTime - scene.startSeconds) * 1_000
   const eased = easeInOut(sceneProgress)
   const base: IntroAnimationFrame = {
     sceneId: scene.id,
@@ -344,6 +370,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
     pixelCollapse: 0,
   }
 
+  const frame = ((): IntroAnimationFrame => {
   switch (scene.id) {
     case 'tmb2-ident':
       return {
@@ -356,12 +383,57 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
               highlightOpacity: clamp01((sceneProgress - 0.78) / 0.22),
             },
       }
-    case 'duffel':
+    case 'duffel': {
+      // Panel 1 into panel 2: Pop T assembles from blue pixels on a darkened
+      // stage, strides to the bag, then fights it with beat-locked tugs.
+      const t = storyTime
+      const assembleEnd = INTRO_MUSIC_CUES.assembleDone
+      const walkEnd = 7.95
+      const fx: IntroFxFrame[] = []
+      const backgroundDim = t < 6.8 ? 0.55 * (1 - (t - 6) / 0.8) : 0
+
+      let popt: SpriteActorFrame
+      if (t < assembleEnd) {
+        const assembleProgress = clamp01((t - 6) / (assembleEnd - 6))
+        const x = 52 + assembleProgress * 18
+        fx.push({ kind: 'pixel-assemble', progress: assembleProgress, x, y: 188 })
+        popt = poptActor('run', elapsedMs, x, 190, 1.12, 0, false, 0.25 + 0.75 * assembleProgress)
+      } else if (t < walkEnd) {
+        const walkProgress = easeInOut((t - assembleEnd) / (walkEnd - assembleEnd))
+        popt = poptActor('run', elapsedMs, 70 + walkProgress * 68, 190)
+      } else {
+        const joltStart = INTRO_MUSIC_CUES.firstDuffelJolt
+        const sinceJolt = t - joltStart
+        const joltCount = sinceJolt >= 0 ? Math.floor(sinceJolt / DUFFEL_JOLT_PERIOD_SECONDS) : -1
+        const joltPhase = sinceJolt >= 0
+          ? (sinceJolt % DUFFEL_JOLT_PERIOD_SECONDS) / DUFFEL_JOLT_PERIOD_SECONDS
+          : 0
+        const joltStrength = joltCount < 0 ? 0 : Math.min(1, 0.4 + joltCount * 0.2)
+        const tugOffset = -7 * Math.sin(joltPhase * Math.PI) * joltStrength
+        popt = poptActor('duffel-pull', clipElapsedMs(t, walkEnd), 138 + tugOffset, 190)
+        if (t >= 9.5) {
+          const dropletLift = Math.sin(joltPhase * Math.PI)
+          fx.push(
+            { kind: 'sweat', x: 126, y: 102 - dropletLift * 7, scale: 1, opacity: 0.9 * dropletLift },
+            { kind: 'sweat', x: 148, y: 108 - dropletLift * 5, scale: 0.8, opacity: 0.7 * dropletLift },
+          )
+        }
+        return {
+          ...base,
+          backgroundDim,
+          popt,
+          fx,
+          props: [prop('duffel', 206, 156, 1, Math.sin(joltPhase * Math.PI) * 0.055 * joltStrength)],
+        }
+      }
       return {
         ...base,
-        popt: poptActor('duffel-pull', elapsedMs, 58 + eased * 86, 190),
-        props: [prop('duffel', 205 + eased * 22, 156, 1, Math.sin(elapsedMs / 55) * 0.025)],
+        backgroundDim,
+        popt,
+        fx,
+        props: [prop('duffel', 206, 156, 1, Math.sin(elapsedMs / 220) * 0.012)],
       }
+    }
     case 'key-escape': {
       const taunting = sceneProgress < 0.55
       return {
@@ -437,6 +509,10 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         pixelCollapse: clamp01((sceneProgress - 0.48) / 0.52),
       }
   }
+  })()
+
+  if (!reducedMotion || frame.fx.length === 0) return frame
+  return { ...frame, fx: frame.fx.filter((fx) => REDUCED_MOTION_FX.has(fx.kind)) }
 }
 
 export function deriveHandoffAnimation(progress: number): HandoffFrame {

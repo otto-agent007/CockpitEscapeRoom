@@ -7,6 +7,7 @@ import {
   getSpriteFrame,
   type SpriteTiming,
 } from './introAnimation'
+import { DUFFEL_JOLT_PERIOD_SECONDS, INTRO_MUSIC_CUES } from './introMusicCues'
 
 describe('TMB2 sprite animation contract', () => {
   it('selects frames from authored durations and loop modes', () => {
@@ -120,6 +121,33 @@ describe('TMB2 sprite animation contract', () => {
     const wings = pursuit.props.find((prop) => prop.id === 'pilot-wings')
     expect(wings?.x).toBeCloseTo(pursuit.popt!.x)
     expect(wings!.y).toBeLessThan(pursuit.popt!.y)
+  })
+
+  it('materializes Pop T from blue pixels before the duffel struggle', () => {
+    const assembling = deriveIntroAnimation(6.6, false)
+    expect(assembling.fx.some((fx) => fx.kind === 'pixel-assemble')).toBe(true)
+    expect(assembling.backgroundDim).toBeGreaterThan(0)
+    expect(assembling.popt?.opacity).toBeLessThan(1)
+    expect(assembling.key).toBeNull()
+
+    const tugging = deriveIntroAnimation(10.5, false)
+    expect(tugging.fx.some((fx) => fx.kind === 'pixel-assemble')).toBe(false)
+    expect(tugging.backgroundDim).toBe(0)
+    expect(tugging.popt?.opacity).toBe(1)
+    expect(tugging.popt?.clipId).toBe('duffel-pull')
+    expect(tugging.fx.some((fx) => fx.kind === 'sweat')).toBe(true)
+  })
+
+  it('locks the duffel tugs to the measured jolt grid', () => {
+    const midJolt = deriveIntroAnimation(
+      INTRO_MUSIC_CUES.firstDuffelJolt + DUFFEL_JOLT_PERIOD_SECONDS / 2,
+      false,
+    )
+    const boundary = deriveIntroAnimation(
+      INTRO_MUSIC_CUES.firstDuffelJolt + DUFFEL_JOLT_PERIOD_SECONDS - 0.001,
+      false,
+    )
+    expect(midJolt.popt!.x).toBeLessThan(boundary.popt!.x - 2)
   })
 
   it('flies and rotates the key into the lock during the 650ms handoff', () => {
