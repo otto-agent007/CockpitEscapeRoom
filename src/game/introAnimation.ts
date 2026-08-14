@@ -435,19 +435,118 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
       }
     }
     case 'key-escape': {
-      const taunting = sceneProgress < 0.55
+      // Panel 3: the key blasts out of the bag on the musical pickup, hangs to
+      // taunt as the big slam lands a red "!", then rockets offscreen.
+      const t = storyTime
+      const BURST = INTRO_MUSIC_CUES.keyBurst
+      const TAUNT_START = 12.984
+      const FLY_EXIT = INTRO_MUSIC_CUES.keyFlyExit
+      const BAG_MOUTH = { x: 210, y: 148 }
+      const APEX = { x: 172, y: 96 }
+      const fx: IntroFxFrame[] = []
+
+      const keyPath: IntroPath = (sceneSeconds) => {
+        const pathTime = 12 + sceneSeconds
+        if (pathTime <= BURST) return { x: BAG_MOUTH.x, y: BAG_MOUTH.y, rotation: -0.35 }
+        if (pathTime < TAUNT_START) {
+          const raw = (pathTime - BURST) / (TAUNT_START - BURST)
+          const p = 1 - (1 - raw) ** 2
+          return {
+            x: BAG_MOUTH.x + (APEX.x - BAG_MOUTH.x) * p,
+            y: BAG_MOUTH.y + (APEX.y - BAG_MOUTH.y) * p - Math.sin(p * Math.PI) * 18,
+            rotation: -0.35 * (1 - p),
+          }
+        }
+        if (pathTime < FLY_EXIT) {
+          const hover = pathTime - TAUNT_START
+          return {
+            x: APEX.x + Math.sin(hover * 3.4) * 4,
+            y: APEX.y + Math.sin(hover * 5.1) * 3,
+            rotation: Math.sin(hover * 8) * 0.08,
+          }
+        }
+        const raw = (pathTime - FLY_EXIT) / (16 - FLY_EXIT)
+        const p = raw * raw
+        return {
+          x: APEX.x + 172 * p,
+          y: APEX.y - 30 * p,
+          rotation: 0.5 * Math.min(1, raw * 1.6),
+        }
+      }
+
+      const sceneT = t - 12
+      const keySample = keyPath(sceneT)
+      let key: SpriteActorFrame | null = null
+      if (t > BURST) {
+        const clipId = t < TAUNT_START ? 'fly' : t < FLY_EXIT ? 'taunt' : 'fly'
+        const clipStart = t < TAUNT_START ? BURST : t < FLY_EXIT ? TAUNT_START : FLY_EXIT
+        key = keyActor(
+          clipId,
+          clipElapsedMs(t, clipStart),
+          keySample.x,
+          keySample.y,
+          0.38,
+          keySample.rotation,
+        )
+        if (t < TAUNT_START || t >= FLY_EXIT) fx.push(...keyTrail(keyPath, sceneT))
+      }
+
+      if (t > BURST && t < BURST + 0.3) {
+        const flash = (t - BURST) / 0.3
+        fx.push({
+          kind: 'burst-flash',
+          x: BAG_MOUTH.x,
+          y: BAG_MOUTH.y,
+          radius: 8 + flash * 16,
+          opacity: 1 - flash,
+        })
+      }
+      if (t > BURST && t < BURST + 0.45) {
+        const spray = (t - BURST) / 0.45
+        for (let index = 0; index < 5; index += 1) {
+          const angle = index * 2.4 + 0.7
+          const distance = 10 + spray * 26
+          fx.push({
+            kind: 'sparkle',
+            x: BAG_MOUTH.x + Math.cos(angle) * distance,
+            y: BAG_MOUTH.y - 8 + Math.sin(angle) * distance * 0.7,
+            size: 3 - (index % 2),
+            opacity: 0.9 * (1 - spray),
+            tint: index % 2 === 0 ? 'gold' : 'white',
+          })
+        }
+      }
+
+      const knockback = t <= BURST
+        ? 0
+        : 1 - (1 - Math.min(1, (t - BURST) / 1.2)) ** 2
+      const poptX = 138 - 26 * knockback
+      const EXCLAIM = INTRO_MUSIC_CUES.exclaim
+      if (t >= EXCLAIM && t < EXCLAIM + 0.66) {
+        const pop = (t - EXCLAIM) / 0.66
+        fx.push({
+          kind: 'exclaim',
+          x: poptX + 6,
+          y: 88,
+          scale: pop < 0.25 ? 0.55 + 0.65 * (pop / 0.25) : 1.2 - 0.2 * Math.min(1, (pop - 0.25) / 0.3),
+          opacity: pop > 0.8 ? (1 - pop) / 0.2 : 1,
+        })
+      }
+
+      const popt = t <= BURST
+        ? poptActor('duffel-pull', clipElapsedMs(t, 7.95), 138, 190)
+        : poptActor('startle-stumble', clipElapsedMs(t, BURST), poptX, 190)
+
       return {
         ...base,
-        popt: poptActor('startle-stumble', elapsedMs, 84 - eased * 14, 190),
-        key: keyActor(
-          taunting ? 'taunt' : 'fly',
-          elapsedMs,
-          166 + eased * 118,
-          146 - Math.sin(sceneProgress * Math.PI) * 52,
-          0.38,
-          taunting ? Math.sin(elapsedMs / 120) * 0.08 : sceneProgress * 0.8,
-        ),
-        props: [prop('duffel', 206, 154, 1, -0.1)],
+        popt,
+        key,
+        fx,
+        props: [
+          t <= BURST
+            ? prop('duffel', 206, 156, 1, Math.sin(elapsedMs / 50) * 0.05)
+            : prop('duffel', 206, 156, 1, -0.06),
+        ],
       }
     }
     case 'runway':

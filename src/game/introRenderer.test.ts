@@ -109,15 +109,6 @@ describe('TMB2 Canvas draw commands', () => {
     expect(kinds.indexOf('card')).toBeLessThan(kinds.indexOf('handoff-key'))
   })
 
-  it('emits no fx, dim, or card while the scaffolding is unchoreographed', () => {
-    for (const time of [2, 8, 13, 18, 24, 31, 38, 44, 49, 52]) {
-      const frame = deriveIntroAnimation(time, false)
-      expect(frame.fx).toEqual([])
-      expect(frame.backgroundDim).toBe(0)
-      expect(frame.card).toBeNull()
-    }
-  })
-
   it('draws the Start handoff key over the frozen story frame', () => {
     const handoff = deriveHandoffAnimation(1)
     const commands = deriveIntroDrawCommands(deriveIntroAnimation(24, false), handoff)

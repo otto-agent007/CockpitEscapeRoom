@@ -150,6 +150,31 @@ describe('TMB2 sprite animation contract', () => {
     expect(midJolt.popt!.x).toBeLessThan(boundary.popt!.x - 2)
   })
 
+  it('bursts the key from the bag with a flash, spray, and the red exclaim slam', () => {
+    const preBurst = deriveIntroAnimation(12.5, false)
+    expect(preBurst.key).toBeNull()
+    expect(preBurst.popt?.clipId).toBe('duffel-pull')
+
+    const bursting = deriveIntroAnimation(12.8, false)
+    expect(bursting.key?.clipId).toBe('fly')
+    expect(bursting.fx.some((fx) => fx.kind === 'burst-flash')).toBe(true)
+    expect(bursting.fx.some((fx) => fx.kind === 'sparkle')).toBe(true)
+
+    const slammed = deriveIntroAnimation(13.2, false)
+    expect(slammed.fx.some((fx) => fx.kind === 'exclaim')).toBe(true)
+    expect(slammed.popt?.clipId).toBe('startle-stumble')
+    expect(slammed.key?.clipId).toBe('taunt')
+
+    const exiting = deriveIntroAnimation(15.2, false)
+    expect(exiting.key?.clipId).toBe('fly')
+    const exitTrail = exiting.fx.filter((fx) => fx.kind === 'sparkle')
+    expect(exitTrail.length).toBeGreaterThanOrEqual(4)
+    for (const sparkle of exitTrail) {
+      expect(sparkle.x).toBeLessThan(exiting.key!.x + 8)
+    }
+    expect(deriveIntroAnimation(15.9, false).key!.x).toBeGreaterThan(300)
+  })
+
   it('flies and rotates the key into the lock during the 650ms handoff', () => {
     expect(deriveHandoffAnimation(0)).toEqual({
       progress: 0,
