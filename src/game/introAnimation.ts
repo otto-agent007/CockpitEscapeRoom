@@ -323,6 +323,20 @@ function prop(
 }
 
 /**
+ * Owner-comparison switch for the finale card reveal: 'stamp' pops in 16-bit
+ * style (0.9 scale for the first beat, then 1.0); 'eased' zooms 0.9 -> 1.0
+ * over half a second. Presented at the owner visual gate.
+ */
+export const EMBLEM_REVEAL_STYLE: 'stamp' | 'eased' = 'stamp'
+
+function emblemCardScale(sinceStampSeconds: number): number {
+  if (EMBLEM_REVEAL_STYLE === 'eased') {
+    return 0.9 + 0.1 * easeInOut(clamp01(sinceStampSeconds / 0.5))
+  }
+  return sinceStampSeconds < 0.08 ? 0.9 : 1
+}
+
+/**
  * Reduced motion holds one curated representative story time per scene, so a
  * held pose is a deliberate mid-action frame rather than whatever the scene
  * midpoint happens to land on (for once-clips the midpoint is often the
@@ -882,12 +896,56 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         props: [prop('pilot-wings', popt.x, popt.y - 38, 0.52, popt.rotation * 0.5)],
       }
     }
-    case 'catch':
+    case 'catch': {
+      // Panel 8: victory beat with the key wriggling in the raised glove, then
+      // the winged-globe emblem card stamps in on the biggest late accent.
+      const t = storyTime
+      const STAMP = INTRO_MUSIC_CUES.emblemStamp
+      const fx: IntroFxFrame[] = []
+
+      if (t < STAMP) {
+        const held = clipElapsedMs(t, 48)
+        for (let index = 0; index < 3; index += 1) {
+          const twinklePhase = (t - 48) * 2.4 + index * 2.1
+          fx.push({
+            kind: 'sparkle',
+            x: 163 + Math.cos(twinklePhase) * (14 + index * 4),
+            y: 112 + Math.sin(twinklePhase) * (10 + index * 3),
+            size: 2 + (index % 2),
+            opacity: 0.55 + 0.35 * Math.sin(twinklePhase * 1.7),
+            tint: 'gold',
+          })
+        }
+        return {
+          ...base,
+          popt: poptActor('victory-recovery', held, 150, 190, 1.16),
+          key: keyActor('tug', held, 163, 116, 0.36, Math.sin(t * 9) * 0.15),
+          fx,
+        }
+      }
+
+      const reveal = clamp01((t - STAMP) / 0.236)
+      fx.push({
+        kind: 'radial-rays',
+        x: 160,
+        y: 104,
+        scale: 1,
+        rotation: (t - STAMP) * 0.35,
+        opacity: 0.55 * reveal,
+      })
       return {
         ...base,
-        popt: poptActor('victory-recovery', elapsedMs, 150, 190, 1.16),
-        key: keyActor('taunt', elapsedMs, 214 + Math.sin(elapsedMs / 150) * 8, 126, 0.36, Math.sin(elapsedMs / 120) * 0.12),
+        backgroundDim: clamp01((t - STAMP) / 0.196),
+        fx,
+        card: {
+          assetId: 'emblem-finale',
+          x: 160,
+          y: 106,
+          scale: emblemCardScale(t - STAMP),
+          opacity: reveal,
+        },
       }
+    }
     case 'loop-reset':
       return {
         ...base,

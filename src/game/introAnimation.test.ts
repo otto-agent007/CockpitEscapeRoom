@@ -230,6 +230,34 @@ describe('TMB2 sprite animation contract', () => {
     expect(deriveIntroAnimation(43, false).fx.some((fx) => fx.kind === 'laser-grid')).toBe(true)
   })
 
+  it('streams cloud puffs past the airborne glide', () => {
+    const early = deriveIntroAnimation(36.5, false)
+    const later = deriveIntroAnimation(37.5, false)
+    const earlyPuff = early.props.find((sceneProp) => sceneProp.id === 'cloud-puff')
+    const laterPuff = later.props.find((sceneProp) => sceneProp.id === 'cloud-puff')
+    expect(earlyPuff).toBeDefined()
+    expect(laterPuff!.x).toBeLessThan(earlyPuff!.x)
+    expect(early.key?.clipId).toBe('fly')
+    expect(early.fx.some((fx) => fx.kind === 'sparkle')).toBe(true)
+  })
+
+  it('stamps the emblem card over a dimmed stage on the late accent', () => {
+    const victory = deriveIntroAnimation(49, false)
+    expect(victory.popt?.clipId).toBe('victory-recovery')
+    expect(victory.key?.clipId).toBe('tug')
+    expect(victory.card).toBeNull()
+
+    const stamped = deriveIntroAnimation(50.2, false)
+    expect(stamped.card).toMatchObject({ assetId: 'emblem-finale', scale: 1, opacity: 1 })
+    expect(stamped.backgroundDim).toBe(1)
+    expect(stamped.popt).toBeNull()
+    expect(stamped.key).toBeNull()
+    expect(stamped.fx.some((fx) => fx.kind === 'radial-rays')).toBe(true)
+
+    // The card cuts before the loop-reset drag gag begins.
+    expect(deriveIntroAnimation(51.2, false).card).toBeNull()
+  })
+
   it('keeps the red laser grid exclusive to the airborne scenes', () => {
     expect(deriveIntroAnimation(38, false).fx.some((fx) => fx.kind === 'laser-grid')).toBe(true)
     expect(deriveIntroAnimation(47, false).fx.some((fx) => fx.kind === 'laser-grid')).toBe(true)
@@ -261,6 +289,22 @@ describe('TMB2 sprite animation contract', () => {
       expect(sparkle.x).toBeLessThan(exiting.key!.x + 8)
     }
     expect(deriveIntroAnimation(15.9, false).key!.x).toBeGreaterThan(300)
+  })
+
+  it('suppresses transient fx and holds curated poses in reduced motion', () => {
+    const transient = new Set(['sparkle', 'burst-flash', 'exclaim', 'sweat', 'impact-star', 'pixel-assemble'])
+    for (const time of [3, 8, 13, 18, 24, 31, 38, 44, 49, 52]) {
+      const frame = deriveIntroAnimation(time, true)
+      for (const fx of frame.fx) {
+        expect(transient.has(fx.kind), `${fx.kind} must not render in reduced motion`).toBe(false)
+      }
+    }
+    // The city holds the pre-impact chase, never the post-impact splat.
+    expect(deriveIntroAnimation(31, true).popt?.clipId).toBe('run')
+    // The airborne scenes hold a static laser grid; catch holds the emblem card.
+    expect(deriveIntroAnimation(38, true).fx.some((fx) => fx.kind === 'laser-grid')).toBe(true)
+    expect(deriveIntroAnimation(50, true).card).not.toBeNull()
+    expect(deriveIntroAnimation(50, true).backgroundDim).toBe(1)
   })
 
   it('flies and rotates the key into the lock during the 650ms handoff', () => {
