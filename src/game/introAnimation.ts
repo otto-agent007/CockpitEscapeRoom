@@ -414,7 +414,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         popt = poptActor('run', elapsedMs, x, 190, 1.12, 0, false, 0.25 + 0.75 * assembleProgress)
       } else if (t < walkEnd) {
         const walkProgress = easeInOut((t - assembleEnd) / (walkEnd - assembleEnd))
-        popt = poptActor('run', elapsedMs, 70 + walkProgress * 68, 190)
+        popt = poptActor('run', elapsedMs, 70 + walkProgress * 82, 190)
       } else {
         const joltStart = INTRO_MUSIC_CUES.firstDuffelJolt
         const sinceJolt = t - joltStart
@@ -424,12 +424,12 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
           : 0
         const joltStrength = joltCount < 0 ? 0 : Math.min(1, 0.4 + joltCount * 0.2)
         const tugOffset = -7 * Math.sin(joltPhase * Math.PI) * joltStrength
-        popt = poptActor('duffel-pull', clipElapsedMs(t, walkEnd), 138 + tugOffset, 190)
+        popt = poptActor('duffel-pull', clipElapsedMs(t, walkEnd), 152 + tugOffset, 190)
         if (t >= 9.5) {
           const dropletLift = Math.sin(joltPhase * Math.PI)
           fx.push(
-            { kind: 'sweat', x: 126, y: 102 - dropletLift * 7, scale: 1, opacity: 0.9 * dropletLift },
-            { kind: 'sweat', x: 148, y: 108 - dropletLift * 5, scale: 0.8, opacity: 0.7 * dropletLift },
+            { kind: 'sweat', x: 140, y: 102 - dropletLift * 7, scale: 1, opacity: 0.9 * dropletLift },
+            { kind: 'sweat', x: 162, y: 108 - dropletLift * 5, scale: 0.8, opacity: 0.7 * dropletLift },
           )
         }
         return {
@@ -596,7 +596,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         popt,
         key: keyActor('fly', elapsedMs, keySample.x, keySample.y, 0.36, keySample.rotation),
         fx,
-        props: [prop('runway-cart', cartX, 184, 0.68)],
+        props: [prop('runway-cart', cartX, 208, 0.68)],
       }
     }
     case 'ballpark': {
@@ -671,7 +671,9 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         popt = poptActor('run', elapsedMs, 36 + ((t - 22) / (SLIDE_START - 22)) * 84, 190)
       } else {
         const slide = 1 - (1 - clamp01((t - SLIDE_START) / 2.2)) ** 2
-        popt = poptActor('baseball-slide', clipElapsedMs(t, SLIDE_START), 120 + 118 * slide, 194, 1.18, -0.05)
+        // The clip advances with slide travel (520ms of authored frames spread
+        // over the full slide) so the hold pose lands only when he stops.
+        popt = poptActor('baseball-slide', slide * 520, 120 + 118 * slide, 194, 1.18, -0.05)
         if (t < 25.5) {
           props.push(prop('cloud-puff', 120 + 118 * slide - 20, 198, 0.3, 0, 0.5))
         }
@@ -750,7 +752,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
           kind: 'laser-grid',
           horizonY: 152,
           scroll: ((t - IGNITE) * 0.9) % 7,
-          opacity: 0.4 * clamp01((t - IGNITE) / 0.76),
+          opacity: 0.52 * clamp01((t - IGNITE) / 0.76),
         })
       }
 
@@ -799,7 +801,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         kind: 'laser-grid',
         horizonY: 156,
         scroll: ((t - INTRO_MUSIC_CUES.skyGridIgnite) * 0.9) % 7,
-        opacity: 0.35,
+        opacity: 0.45,
       })
 
       let popt: SpriteActorFrame

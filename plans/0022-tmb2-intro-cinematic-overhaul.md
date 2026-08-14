@@ -30,13 +30,13 @@ Choreography and FX in `introAnimation.ts`/`introRenderer.ts`, two asset additio
 ## Progress
 
 - [x] Owner decisions recorded (2026-08-14): daylight runway via owner ChatGPT generation from our prompt; emblem finale cropped from storyboard panel 8; all four pain points (acting, missing moments, background fidelity, pacing) in scope.
-- [x] Music accents measured (see Discoveries); not yet baked into code.
-- [ ] `src/game/introMusicCues.ts` baked + tested.
-- [ ] Legacy Pop T sheets brought under the hashed manifest.
-- [ ] FX scaffolding + key-path refactor (pixel-identical landing).
-- [ ] Scene choreography rewrite (8 scenes).
-- [ ] Emblem finale card pipeline.
-- [ ] runway-day-v1 prompt recorded for owner generation.
+- [x] Music accents measured (see Discoveries).
+- [x] `src/game/introMusicCues.ts` baked + tested.
+- [x] Legacy Pop T sheets brought under the hashed manifest.
+- [x] FX scaffolding + key-path refactor (pixel-identical landing).
+- [x] Scene choreography rewrite (8 scenes).
+- [x] Emblem finale card pipeline.
+- [x] runway-day-v1 prompt recorded for owner generation.
 - [ ] Daylight runway plate integrated (owner-dependent; night plate remains until it lands).
 - [ ] Full validation + real-browser proof capture.
 - [ ] Owner visual gate.
@@ -67,12 +67,12 @@ Choreography and FX in `introAnimation.ts`/`introRenderer.ts`, two asset additio
 
 ## Implementation steps
 
-- [ ] `src/game/introMusicCues.ts` + cue-window/monotonicity tests.
-- [ ] Legacy sheet relocation + manifest rebuild (74→77 assets, 17→20 preloads) + contract-test literal + cross-check test + ledger record.
-- [ ] FX state (`IntroFxFrame` union, `fx[]`, `backgroundDim`, `card`, sprite `opacity`), per-scene key-path functions + `keyTrail`, `clipElapsed`, renderer fx/dim/card commands with fixed under/over layering, new draw functions (laser grid, chart glow, radial rays, pixel assemble, exclaim, sweat, sparkle, burst flash, extracted impact star). Lands with all fx empty; output pixel-identical; suite green.
-- [ ] Scene rewrites in storyboard order (duffel, key-escape, runway, ballpark, city-finance, sky, final-pursuit, catch), one commit per scene, unit tests alongside.
-- [ ] `tools/assets/build-intro-emblem.py` + `asset:tmb2-emblem` script + manifest/preload + `emblem-finale` runtime asset + provenance + README.
-- [ ] `runway-day-v1` prompt recorded in `asset-reports/tmb2-intro-assets.json` `generationPrompts`.
+- [x] `src/game/introMusicCues.ts` + cue-window/monotonicity tests.
+- [x] Legacy sheet relocation + manifest rebuild (74→77 assets, 17→20 preloads) + contract-test literal + cross-check test + ledger record.
+- [x] FX state (`IntroFxFrame` union, `fx[]`, `backgroundDim`, `card`, sprite `opacity`), per-scene key-path functions + `keyTrail`, `clipElapsed`, renderer fx/dim/card commands with fixed under/over layering, new draw functions (laser grid, chart glow, radial rays, pixel assemble, exclaim, sweat, sparkle, burst flash, extracted impact star). Lands with all fx empty; output pixel-identical; suite green.
+- [x] Scene rewrites in storyboard order (duffel, key-escape, runway, ballpark, city-finance, sky, final-pursuit, catch), unit tests alongside. Deviation: sky landed inside the final-pursuit commit (`40a7191`) rather than its own; its dedicated assertions followed in `2de334f`.
+- [x] `tools/assets/build-intro-emblem.py` + `asset:tmb2-emblem` script + manifest/preload + `emblem-finale` runtime asset + provenance + README.
+- [x] `runway-day-v1` prompt recorded in `asset-reports/tmb2-intro-assets.json` `generationPrompts`.
 - [ ] Atomic daylight-runway integration when the plate lands.
 - [ ] Proof capture + evidence.
 
@@ -97,6 +97,38 @@ Review → focused repair → validation → remaining-delta review. Stop after 
 
 - Branch `agent/tmb2-intro-overhaul` created from `agent/airbus-gameplay-evolution` HEAD `0719d8e` (main is an ancestor; the intro implementation lives on this lineage, not yet on main). Working tree clean apart from pre-existing untracked `.superpowers/` and `CLAUDE.md`.
 - Audio accent extraction command and full accent table captured (see Discoveries); source `public/audio/intro-audio-53s.mp3`, 53.040 s per ffprobe.
+
+### 2026-08-14 music cues
+
+- TDD RED: `npx vitest run src/game/introMusicCues.test.ts` failed on the missing module before implementation. GREEN: 4/4 focused cases (cue-in-window, strict monotonicity, choreography anchors for the t=24/31/44/49 sample times, jolt beat grid).
+- `npm run check` exit 0: ESLint, TypeScript, Vitest 242/242 across 25 files, Vite build. Commits `fbd25d5` (ExecPlan), `472a44a` (cues).
+
+### 2026-08-14 legacy sheet governance
+
+- TDD RED: the extended 20-entry preload literal and the new cross-check failed 2 focused cases against the old package. After `git mv` into `popt/legacy/`, path updates in `introAssets.ts`/`POPT_CLIPS`, and a manifest rebuild: `TMB2 intro asset contract passed (77 assets, 20 preloads)`; focused suites 12/12.
+- The cross-check test lives in `tools/assets/intro-asset-contract.test.mjs` (imports `introAssets` from src; a src-side `node:fs` import fails the app tsconfig, discovered via a real `npm run check` failure). A src-side test still pins every runtime path inside `images/intro/tmb2/`.
+- Ledger gained `legacySheetRelocation` (moves + sha256s); `validation.runtimeManifest` now 77/20. Full `npm run check` exit 0: Vitest 244/244 across 25 files. Commit `ae52237`.
+
+### 2026-08-14 FX scaffolding
+
+- `IntroFxFrame` union (9 kinds), `fx[]`/`backgroundDim`/`card` frame growth, sprite `opacity`, `clipElapsedMs`, `IntroPath` + `keyTrail` (path re-sampling, fixed-lattice jitter), `CHART_POINTS`/`chartPointAt`; renderer `background-dim`/`fx`/`card` commands with the fixed under/over `FX_LAYER` table and nine deterministic draw functions; impact star extracted from the `bull-impact` prop for reuse.
+- Landed inert: a dedicated test asserts `fx: []`, `backgroundDim: 0`, `card: null` at all ten sampled story times, and every pre-existing choreography/renderer test passed unchanged. New ordering test pins dim at index 2 and fx-under < sprites < fx-over < card < handoff.
+- `npm run check` exit 0: Vitest 246/246 across 25 files. Commit `cea3cb2`.
+
+### 2026-08-14 scene choreography
+
+- Commits: duffel `e623897`, key-escape `e6c1276`, runway `3ea9edf`, ballpark `e8364fe`, city-finance `5092c85`, sky+final-pursuit `40a7191`, catch + reduced-motion contract `2de334f`. Each commit ran its focused Vitest suites green before landing.
+- Owner-contract sample anchors preserved and re-verified unchanged: clip-per-scene at t=8/13/18/24/31/44/49/52, runway key smoothness, staging scales, wings tracking, handoff.
+- New assertions: materialize + jolt grid, burst/spray/exclaim with trail-behind-key invariant, runway traversal >160 px + cart crossing within 24 px at the accent, three-way ball/key/star intersection + 121-sample ballpark smoothness sweep + slide past base, chart-glow causality + event-relative bull-spin frames + post-spin recovery, cloud-puff streaming, laser-grid scene exclusivity, miss dodge + glove lock (`key.x === popt.x + 24`) + grab spark, emblem card stamp with dim=1 and actor removal, reduced-motion transient-fx suppression with curated poses (city holds pre-impact run; catch holds the static card).
+- Reduced motion reworked from emergent midpoint sampling to `REPRESENTATIVE_SCENE_TIME` + an fx whitelist (laser-grid, chart-glow, radial-rays); the 17 s/21 s frame-equality contract still passes.
+- Deviations recorded: the Task-4 "scaffolding stays inert" guard test was removed once scenes emit fx by design (superseded by the positive per-scene fx assertions above); the t=31 bull restraint assertion moved from the deleted `bull-impact` prop to the replacing `impact-star` fx at the same time and bound; first duffel jolt strength raised (0.4 base) after the jolt-grid test caught a sub-2px first tug.
+- Full `npm run check` exit 0 after the final scene: Vitest 256/256 across 25 files.
+
+### 2026-08-14 emblem card + runway-day prompt
+
+- `build-intro-emblem.py` verified the storyboard sha, cropped panel 8 at (1237,474)-(1652,919), painted out the "8" chip box (0,0,44,30) with the sampled near-black, trimmed to (0,0,415,278), and produced `emblem/finale-card.png` 248x166, 80,353 bytes, sha256 `dc76c4bb…a75f89` (byte-identical art-source copy under `derived/emblem/`). Visual preview inspected: full winged-globe emblem with Pop T holding the key, no chip remnant.
+- Manifest rebuilt 77→78 assets, 20→21 preloads; `emblem-finale` added to the runtime full tier only (Start gate unchanged, verified by test). `npm run assets:check` GREEN (78/21); `npm run check` GREEN (Vitest 256/256).
+- Ledger gained `derivedAssets` (crop boxes, chip fill, hashes, review note) and the `runway-day-v1` generation prompt (`status: recorded-awaiting-owner-generation`); README documents the derived pipeline and the amended plate policy. Commit `4832bf7`.
 
 ## Outcome and handoff
 

@@ -424,6 +424,51 @@ test('TMB2 cinematic follows exact boundaries and loops without entering gamepla
   await expect(page.locator('.dc9-entry-transition')).toHaveCount(0)
 })
 
+test('TMB2 cinematic renders the storyboard laser grid and emblem finale', async ({ page }) => {
+  const intro = await openGameIntro(page)
+  const audio = page.locator('audio')
+  await audio.evaluate(async (media) => {
+    media.pause()
+    if (media.readyState < HTMLMediaElement.HAVE_METADATA) {
+      await new Promise<void>((resolve, reject) => {
+        media.addEventListener('loadedmetadata', () => resolve(), { once: true })
+        media.addEventListener('error', () => reject(new Error('Intro audio metadata failed')), { once: true })
+      })
+    }
+  })
+
+  await audio.evaluate((media) => {
+    media.currentTime = 38
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await expect.poll(async () => intro.locator('.game-intro__stage').evaluate((element) => {
+    const context = (element as HTMLCanvasElement).getContext('2d')
+    if (!context) return 0
+    const pixels = context.getImageData(0, 150, 320, 70).data
+    let redDominant = 0
+    for (let index = 0; index < pixels.length; index += 4) {
+      const red = pixels[index]!
+      if (red > 80 && red > pixels[index + 1]! && red > pixels[index + 2]! - 10) redDominant += 1
+    }
+    return redDominant
+  })).toBeGreaterThan(200)
+
+  await audio.evaluate((media) => {
+    media.currentTime = 50.2
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await expect.poll(async () => intro.locator('.game-intro__stage').evaluate((element) => {
+    const context = (element as HTMLCanvasElement).getContext('2d')
+    if (!context) return 0
+    const pixels = context.getImageData(36, 23, 248, 166).data
+    let nonBackground = 0
+    for (let index = 0; index < pixels.length; index += 4) {
+      if (pixels[index] !== 2 || pixels[index + 1] !== 3 || pixels[index + 2] !== 10) nonBackground += 1
+    }
+    return nonBackground
+  })).toBeGreaterThan(15_000)
+})
+
 test('TMB2 cinematic blocks playback with an exact retry when opening art fails', async ({ page }) => {
   await page.route('**/images/intro/tmb2/logo/tmb2-ident-base.png', (route) => route.abort())
   await page.goto('/')
