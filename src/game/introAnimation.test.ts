@@ -163,6 +163,34 @@ describe('TMB2 sprite animation contract', () => {
     expect(crossing.popt!.y).toBeLessThan(184)
   })
 
+  it('deflects the baseball off the key at one shared point on the accent', () => {
+    const impact = deriveIntroAnimation(INTRO_MUSIC_CUES.ballDeflect + 0.008, false)
+    const ball = impact.props.find((sceneProp) => sceneProp.id === 'baseball')
+    const star = impact.fx.find((fx) => fx.kind === 'impact-star')
+    expect(ball).toBeDefined()
+    expect(star).toBeDefined()
+    expect(Math.abs(ball!.x - impact.key!.x)).toBeLessThan(8)
+    expect(Math.abs(ball!.x - star!.x)).toBeLessThan(8)
+    expect(impact.popt?.clipId).toBe('baseball-slide')
+
+    // The ball rises after the swat and the slide carries Pop T past the base.
+    const after = deriveIntroAnimation(25.2, false)
+    const ballAfter = after.props.find((sceneProp) => sceneProp.id === 'baseball')
+    expect(ballAfter!.y).toBeLessThan(ball!.y)
+    expect(deriveIntroAnimation(27, false).popt!.x).toBeGreaterThan(226)
+
+    // Direction change stays smooth: no frame-to-frame jump reaches 4px.
+    const positions = Array.from({ length: 121 }, (_, index) => (
+      deriveIntroAnimation(23.5 + index / 60, false).key!
+    ))
+    for (let index = 1; index < positions.length; index += 1) {
+      expect(Math.hypot(
+        positions[index]!.x - positions[index - 1]!.x,
+        positions[index]!.y - positions[index - 1]!.y,
+      )).toBeLessThan(4)
+    }
+  })
+
   it('bursts the key from the bag with a flash, spray, and the red exclaim slam', () => {
     const preBurst = deriveIntroAnimation(12.5, false)
     expect(preBurst.key).toBeNull()

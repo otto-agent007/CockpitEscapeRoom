@@ -585,16 +585,86 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         props: [prop('runway-cart', cartX, 184, 0.68)],
       }
     }
-    case 'ballpark':
-      return {
-        ...base,
-        popt: poptActor('baseball-slide', elapsedMs, 42 + eased * 176, 194, 1.18, -0.05),
-        key: keyActor('fly', elapsedMs, 176 + Math.sin(sceneProgress * Math.PI * 2) * 42, 104),
-        props: [
-          prop('baseball', 70 + sceneProgress * 200, 82 + Math.sin(sceneProgress * Math.PI) * 76, 0.8),
-          prop('base', 230, 192, 0.65),
-        ],
+    case 'ballpark': {
+      // Panel 5: the ball, the key, and the impact star share one deflection
+      // point at the measured accent while Pop T slides past the base below.
+      const t = storyTime
+      const DEFLECT = INTRO_MUSIC_CUES.ballDeflect
+      const D = { x: 196, y: 118 }
+      const BALL_IN_START = 22.8
+      const BALL_OUT_END = 25.6
+      const SLIDE_START = DEFLECT - 0.6
+      const fx: IntroFxFrame[] = []
+
+      const keyPath: IntroPath = (sceneSeconds) => {
+        const pathTime = 22 + sceneSeconds
+        if (pathTime <= DEFLECT) {
+          const p = clamp01((pathTime - 22) / (DEFLECT - 22))
+          const bob = (1 - p) * 6
+          return {
+            x: 150 + (D.x - 150) * p + Math.sin(sceneSeconds * 3) * bob * 0.4,
+            y: 128 + (D.y + 28 - 128) * p + Math.sin(sceneSeconds * 4.1) * bob,
+            rotation: -0.08 * (1 - p),
+          }
+        }
+        if (pathTime < 25.2) {
+          const p = 1 - (1 - (pathTime - DEFLECT) / 0.648) ** 2
+          return {
+            x: D.x + (172 - D.x) * p,
+            y: D.y + 28 + (132 - D.y - 28) * p,
+            rotation: -0.12 * p,
+          }
+        }
+        const raw = clamp01((pathTime - 25.2) / 2.8)
+        const p = raw * raw
+        return {
+          x: 172 + 130 * p,
+          y: 132 - 48 * p,
+          rotation: -0.12 + 0.2 * raw,
+        }
       }
+      const sceneT = t - 22
+      const keySample = keyPath(sceneT)
+      fx.push(...keyTrail(keyPath, sceneT))
+
+      const props: IntroPropFrame[] = [prop('base', 230, 192, 0.65)]
+      if (t >= BALL_IN_START && t <= BALL_OUT_END) {
+        const ballPosition = t <= DEFLECT
+          ? {
+              x: 310 + (D.x - 310) * ((t - BALL_IN_START) / (DEFLECT - BALL_IN_START)),
+              y: 70 + (D.y - 70) * ((t - BALL_IN_START) / (DEFLECT - BALL_IN_START)),
+            }
+          : {
+              x: D.x + (320 - D.x) * ((t - DEFLECT) / (BALL_OUT_END - DEFLECT)),
+              y: D.y + (52 - D.y) * ((t - DEFLECT) / (BALL_OUT_END - DEFLECT)),
+            }
+        props.push(prop('baseball', ballPosition.x, ballPosition.y, 0.8))
+      }
+      if (t >= DEFLECT && t < DEFLECT + 0.53) {
+        const phase = (t - DEFLECT) / 0.53
+        fx.push({
+          kind: 'impact-star',
+          x: D.x,
+          y: D.y,
+          scale: 0.3 + Math.sin(phase * Math.PI) * 0.1,
+          rotation: phase * 0.6,
+          opacity: Math.sin(phase * Math.PI),
+        })
+      }
+
+      let popt: SpriteActorFrame
+      if (t < SLIDE_START) {
+        popt = poptActor('run', elapsedMs, 36 + ((t - 22) / (SLIDE_START - 22)) * 84, 190)
+      } else {
+        const slide = 1 - (1 - clamp01((t - SLIDE_START) / 2.2)) ** 2
+        popt = poptActor('baseball-slide', clipElapsedMs(t, SLIDE_START), 120 + 118 * slide, 194, 1.18, -0.05)
+        if (t < 25.5) {
+          props.push(prop('cloud-puff', 120 + 118 * slide - 20, 198, 0.3, 0, 0.5))
+        }
+      }
+
+      return { ...base, popt, key: keyActor('fly', elapsedMs, keySample.x, keySample.y, 0.36, keySample.rotation), fx, props }
+    }
     case 'city-finance':
       return {
         ...base,
