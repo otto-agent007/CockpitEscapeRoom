@@ -724,22 +724,162 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
 
       return { ...base, popt, key, fx, props: [] }
     }
-    case 'sky':
-      return {
-        ...base,
-        popt: poptActor('pilot-glide', elapsedMs, 46 + eased * 92, 166 - Math.sin(sceneProgress * Math.PI) * 26, 1.08),
-        key: keyActor('fly', elapsedMs, 202 + Math.sin(sceneProgress * Math.PI * 2) * 22, 108 - sceneProgress * 18, 0.36),
-        props: [prop('cloud-puff', 340 - sceneProgress * 410, 132, 0.55, 0, 0.72)],
+    case 'sky': {
+      // Panel 7: the chase goes airborne over the red digital horizon.
+      const t = storyTime
+      const IGNITE = INTRO_MUSIC_CUES.skyGridIgnite
+      const sceneT = t - 35
+      const fx: IntroFxFrame[] = []
+
+      if (t >= IGNITE) {
+        fx.push({
+          kind: 'laser-grid',
+          horizonY: 152,
+          scroll: ((t - IGNITE) * 0.9) % 7,
+          opacity: 0.4 * clamp01((t - IGNITE) / 0.76),
+        })
       }
-    case 'final-pursuit': {
-      const missArc = Math.sin(sceneProgress * Math.PI * 2)
-      const poptX = 72 + eased * 112
-      const poptY = 158 - missArc * 20
+
+      const keyPath: IntroPath = (sceneSeconds) => ({
+        x: 190 + (sceneSeconds / 7) * 80 + Math.sin(sceneSeconds * 1.7) * 10,
+        y: 120 - (sceneSeconds / 7) * 36 + Math.sin(sceneSeconds * 2.3) * 7,
+        rotation: -0.15 + Math.sin(sceneSeconds * 2.3) * 0.05,
+      })
+      const keySample = keyPath(sceneT)
+      fx.push(...keyTrail(keyPath, sceneT))
+
+      const props: IntroPropFrame[] = []
+      for (let index = 0; index < 3; index += 1) {
+        const puffX = 380 + index * 150 - sceneT * 95
+        if (puffX > -70 && puffX < 390) {
+          props.push(prop('cloud-puff', puffX, 92 + index * 40, 0.45 + index * 0.08, 0, 0.65))
+        }
+      }
+
       return {
         ...base,
-        popt: poptActor('pilot-glide', elapsedMs, poptX, poptY, 1.1, missArc * 0.08),
-        key: keyActor('fly', elapsedMs, 220 - eased * 28, 116 + missArc * 16, 0.36),
-        props: [prop('pilot-wings', poptX, poptY - 38, 0.52, missArc * 0.08)],
+        popt: poptActor(
+          'pilot-glide',
+          elapsedMs,
+          40 + (sceneT / 7) * 110,
+          172 - (sceneT / 7) * 40 + Math.sin(sceneT * 1.1) * 6,
+          1.08,
+          -0.06 + Math.sin(sceneT * 1.1) * 0.05,
+        ),
+        key: keyActor('fly', elapsedMs, keySample.x, keySample.y, 0.36, keySample.rotation),
+        fx,
+        props,
+      }
+    }
+    case 'final-pursuit': {
+      // Panels 7-8 bridge: converge, whiff on the lunge accent, recover on the
+      // surge, then close the glove on the key at the grab accent.
+      const t = storyTime
+      const MISS = INTRO_MUSIC_CUES.missLunge
+      const RECOVER = INTRO_MUSIC_CUES.catchRecover
+      const GRAB = INTRO_MUSIC_CUES.catchGrab
+      const sceneT = t - 42
+      const fx: IntroFxFrame[] = []
+
+      fx.push({
+        kind: 'laser-grid',
+        horizonY: 156,
+        scroll: ((t - INTRO_MUSIC_CUES.skyGridIgnite) * 0.9) % 7,
+        opacity: 0.35,
+      })
+
+      let popt: SpriteActorFrame
+      if (t < MISS) {
+        popt = poptActor(
+          'pilot-glide',
+          elapsedMs,
+          60 + ((t - 42) / (MISS - 42)) * 96,
+          150 - (t - 42) * 3.2 + Math.sin(t * 1.3) * 4,
+          1.1,
+          Math.sin(t * 1.3) * 0.04,
+        )
+      } else if (t < RECOVER) {
+        const lungeProgress = 1 - (1 - Math.min(1, (t - MISS) / 0.5)) ** 2
+        const sag = clamp01((t - (MISS + 0.48)) / 0.4)
+        popt = poptActor(
+          'reach-catch',
+          clipElapsedMs(t, MISS),
+          156 + 34 * lungeProgress,
+          140 - 18 * Math.sin(Math.PI * Math.min(1, (t - MISS) / 0.888)) + 10 * sag,
+          1.1,
+          0.15 * sag,
+        )
+        if (t >= MISS + 0.48) {
+          fx.push({ kind: 'sweat', x: 156 + 34 * lungeProgress - 6, y: 112, scale: 1, opacity: 0.85 })
+        }
+      } else if (t < 47) {
+        const recoverProgress = clamp01((t - RECOVER) / (47 - RECOVER))
+        popt = poptActor(
+          'pilot-glide',
+          clipElapsedMs(t, RECOVER),
+          190 + recoverProgress * 18,
+          148 - recoverProgress * 10,
+          1.1,
+          0.15 * (1 - recoverProgress),
+        )
+      } else {
+        const reach = clamp01((t - 47) / (GRAB - 47))
+        popt = poptActor('reach-catch', clipElapsedMs(t, 47), 208 + reach * 14, 138, 1.1)
+      }
+
+      const keyPath: IntroPath = (sceneSeconds) => {
+        if (sceneSeconds < MISS - 42) {
+          const p = sceneSeconds / (MISS - 42)
+          return { x: 214 - p * 10, y: 116 + Math.sin(sceneSeconds * 1.9) * 6, rotation: -0.1 }
+        }
+        if (sceneSeconds < MISS - 42 + 0.58) {
+          const p = (sceneSeconds - (MISS - 42)) / 0.58
+          return { x: 204 + 18 * p, y: 116 - 26 * Math.sin(Math.PI * p), rotation: -0.1 + 0.2 * p }
+        }
+        if (sceneSeconds < 5.3) {
+          const p = (sceneSeconds - (MISS - 42 + 0.58)) / (5.3 - (MISS - 42 + 0.58))
+          return {
+            x: 222 + p * 24,
+            y: 116 + p * 6 + Math.sin(sceneSeconds * 3.3) * 2,
+            rotation: 0.1 * (1 - p),
+          }
+        }
+        return { x: 246, y: 122 + Math.sin(sceneSeconds * 5) * 1.5, rotation: 0 }
+      }
+
+      let key: SpriteActorFrame
+      if (t < GRAB) {
+        const keySample = keyPath(sceneT)
+        key = keyActor('fly', elapsedMs, keySample.x, keySample.y, 0.36, keySample.rotation)
+        fx.push(...keyTrail(keyPath, sceneT))
+      } else {
+        key = keyActor(
+          'tug',
+          clipElapsedMs(t, GRAB),
+          popt.x + 24,
+          124,
+          0.36,
+          Math.sin(t * 14) * 0.18,
+        )
+        if (t < GRAB + 0.4) {
+          const phase = (t - GRAB) / 0.4
+          fx.push({
+            kind: 'impact-star',
+            x: popt.x + 24,
+            y: 124,
+            scale: 0.3,
+            rotation: phase * 0.5,
+            opacity: Math.sin(phase * Math.PI),
+          })
+        }
+      }
+
+      return {
+        ...base,
+        popt,
+        key,
+        fx,
+        props: [prop('pilot-wings', popt.x, popt.y - 38, 0.52, popt.rotation * 0.5)],
       }
     }
     case 'catch':

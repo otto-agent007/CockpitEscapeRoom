@@ -211,6 +211,33 @@ describe('TMB2 sprite animation contract', () => {
     expect(perched.fx.find((fx) => fx.kind === 'chart-glow')?.progress).toBe(1)
   })
 
+  it('misses on the lunge accent then locks the key to the glove at the grab', () => {
+    const gliding = deriveIntroAnimation(44, false)
+    expect(gliding.popt?.clipId).toBe('pilot-glide')
+
+    const missing = deriveIntroAnimation(INTRO_MUSIC_CUES.missLunge + 0.3, false)
+    expect(missing.popt?.clipId).toBe('reach-catch')
+    expect(missing.key?.clipId).toBe('fly')
+    // The dodge lifts the key well above its approach line while Pop T whiffs.
+    expect(missing.key!.y).toBeLessThan(105)
+
+    const caught = deriveIntroAnimation(INTRO_MUSIC_CUES.catchGrab + 0.1, false)
+    expect(caught.key?.clipId).toBe('tug')
+    expect(caught.key!.x).toBeCloseTo(caught.popt!.x + 24, 5)
+    expect(caught.fx.some((fx) => fx.kind === 'impact-star')).toBe(true)
+
+    // The laser grid persists through the pursuit for horizon continuity.
+    expect(deriveIntroAnimation(43, false).fx.some((fx) => fx.kind === 'laser-grid')).toBe(true)
+  })
+
+  it('keeps the red laser grid exclusive to the airborne scenes', () => {
+    expect(deriveIntroAnimation(38, false).fx.some((fx) => fx.kind === 'laser-grid')).toBe(true)
+    expect(deriveIntroAnimation(47, false).fx.some((fx) => fx.kind === 'laser-grid')).toBe(true)
+    for (const time of [3, 8, 13, 18, 24, 31, 49.9, 52]) {
+      expect(deriveIntroAnimation(time, false).fx.some((fx) => fx.kind === 'laser-grid')).toBe(false)
+    }
+  })
+
   it('bursts the key from the bag with a flash, spray, and the red exclaim slam', () => {
     const preBurst = deriveIntroAnimation(12.5, false)
     expect(preBurst.key).toBeNull()
