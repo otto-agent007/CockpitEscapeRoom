@@ -55,6 +55,13 @@ describe('TMB2 runtime image tiers', () => {
       ])
   })
 
+  it('keeps every runtime image inside the hashed tmb2 package', () => {
+    for (const asset of introAssets) {
+      expect(asset.path, `${asset.id} must live inside the hashed tmb2 package`)
+        .toMatch(/^images\/intro\/tmb2\//)
+    }
+  })
+
   it('decodes only the opening tier before allowing playback', () => {
     expect(INTRO_INITIAL_ASSET_IDS).toEqual([
       'logo-source',

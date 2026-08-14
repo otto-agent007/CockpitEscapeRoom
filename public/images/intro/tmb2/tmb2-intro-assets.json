@@ -505,6 +505,33 @@
       "bytes": 1720
     },
     {
+      "id": "popt-legacy-idle-sheet-png",
+      "path": "popt/legacy/idle-sheet.png",
+      "sha256": "8b302b8c90ed92d020a166d43719f8474c6e43c80b32c5c811594a1a98c67723",
+      "bytes": 3610,
+      "width": 1024,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-legacy-reach-catch-sheet-png",
+      "path": "popt/legacy/reach-catch-sheet.png",
+      "sha256": "8f02190f7ab2ab04608e44f383a59b80e7c9227879978d73e4bce1e82acee6b9",
+      "bytes": 3851,
+      "width": 1024,
+      "height": 256,
+      "hasAlpha": true
+    },
+    {
+      "id": "popt-legacy-run-sheet-png",
+      "path": "popt/legacy/run-sheet.png",
+      "sha256": "432ff43be2405e11e94ba9fc8b13d86ce9c2fc4ab0bc9ecea0735347d584f94f",
+      "bytes": 7150,
+      "width": 1024,
+      "height": 512,
+      "hasAlpha": true
+    },
+    {
       "id": "popt-pilot-glide-pilot-glide-00-png",
       "path": "popt/pilot-glide/pilot-glide-00.png",
       "sha256": "295a4a45b0e87196f8894b42256abff30eed1a0413230959a9bed9ebe11d0d41",
@@ -689,6 +716,9 @@
     "popt/bull-spin/bull-spin-sheet.png",
     "popt/pilot-glide/pilot-glide-sheet.png",
     "popt/victory-recovery/victory-recovery-sheet.png",
-    "key/key-mascot-poses-sheet.png"
+    "key/key-mascot-poses-sheet.png",
+    "popt/legacy/idle-sheet.png",
+    "popt/legacy/run-sheet.png",
+    "popt/legacy/reach-catch-sheet.png"
   ]
 }

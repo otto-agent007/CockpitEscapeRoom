@@ -41,9 +41,9 @@ function poptClip(
 }
 
 export const POPT_CLIPS = {
-  idle: poptClip('popt-idle', 'images/intro/popt/idle-sheet.png', [220, 220, 220, 220], 'loop', 4),
-  run: poptClip('popt-run', 'images/intro/popt/run-sheet.png', [90, 90, 90, 90, 90, 90, 90, 90], 'loop', 4),
-  'reach-catch': poptClip('popt-reach-catch', 'images/intro/popt/reach-catch-sheet.png', [110, 110, 140, 260], 'hold-last', 4),
+  idle: poptClip('popt-idle', 'images/intro/tmb2/popt/legacy/idle-sheet.png', [220, 220, 220, 220], 'loop', 4),
+  run: poptClip('popt-run', 'images/intro/tmb2/popt/legacy/run-sheet.png', [90, 90, 90, 90, 90, 90, 90, 90], 'loop', 4),
+  'reach-catch': poptClip('popt-reach-catch', 'images/intro/tmb2/popt/legacy/reach-catch-sheet.png', [110, 110, 140, 260], 'hold-last', 4),
   'duffel-pull': poptClip('popt-duffel-pull', 'images/intro/tmb2/popt/duffel-pull/duffel-pull-sheet.png', [140, 120, 160, 180], 'loop', 4),
   'startle-stumble': poptClip('popt-startle-stumble', 'images/intro/tmb2/popt/startle-stumble/startle-stumble-sheet.png', [90, 110, 260], 'hold-last', 4),
   'baseball-slide': poptClip('popt-baseball-slide', 'images/intro/tmb2/popt/baseball-slide/baseball-slide-sheet.png', [90, 90, 120, 220], 'hold-last', 4),

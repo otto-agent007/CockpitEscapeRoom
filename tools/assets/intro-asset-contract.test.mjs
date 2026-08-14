@@ -3,6 +3,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import * as introAssetContract from './intro-asset-contract.mjs'
+import { introAssets } from '../../src/game/introAssets'
 
 const {
   pngAlphaBounds,
@@ -152,7 +153,20 @@ describe('TMB2 intro asset contract', () => {
       'popt/pilot-glide/pilot-glide-sheet.png',
       'popt/victory-recovery/victory-recovery-sheet.png',
       'key/key-mascot-poses-sheet.png',
+      'popt/legacy/idle-sheet.png',
+      'popt/legacy/run-sheet.png',
+      'popt/legacy/reach-catch-sheet.png',
     ])
+  })
+
+  it('hash-binds every runtime image through the manifest preload list', () => {
+    const manifest = JSON.parse(readFileSync('public/images/intro/tmb2/tmb2-intro-assets.json', 'utf8'))
+    const preload = new Set(manifest.preload)
+    for (const asset of introAssets) {
+      const packagePath = asset.path.replace('images/intro/tmb2/', '')
+      expect(preload.has(packagePath), `${asset.id} (${packagePath}) must be a manifest preload`)
+        .toBe(true)
+    }
   })
 
   it('keeps the owner-approved Productions revision at half-size and centered', () => {

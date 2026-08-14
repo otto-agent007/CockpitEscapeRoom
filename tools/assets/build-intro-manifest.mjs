@@ -93,6 +93,9 @@ const preload = [
   'popt/pilot-glide/pilot-glide-sheet.png',
   'popt/victory-recovery/victory-recovery-sheet.png',
   'key/key-mascot-poses-sheet.png',
+  'popt/legacy/idle-sheet.png',
+  'popt/legacy/run-sheet.png',
+  'popt/legacy/reach-catch-sheet.png',
 ]
 
 const manifest = {

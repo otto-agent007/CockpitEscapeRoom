@@ -15,11 +15,24 @@
   "runtimeIdent": {
     "builder": "tools/assets/build-tmb2-ident-assets.py",
     "command": "npm run asset:tmb2-ident",
-    "crop": [105, 261, 1573, 663],
-    "identPosition": [16, 72],
+    "crop": [
+      105,
+      261,
+      1573,
+      663
+    ],
+    "identPosition": [
+      16,
+      72
+    ],
     "productionsY": 168,
     "productionsScale": 0.5,
-    "productionsAlphaBounds": [127, 168, 193, 176],
+    "productionsAlphaBounds": [
+      127,
+      168,
+      193,
+      176
+    ],
     "derivation": "The exact approved artwork is cropped and resized with Pillow LANCZOS, then separated into base, blue, and gold-white highlight RGBA layers. PRODUCTIONS uses an embedded deterministic 5x7 uppercase bitmap alphabet in restrained gold; its owner-approved follow-up uses one-pixel cells and tracking for a 0.5 scale factor without inferring or redrawing the TMB2 typography.",
     "assets": [
       {
@@ -67,7 +80,12 @@
         "width": 320,
         "height": 224,
         "mode": "RGBA",
-        "color": [224, 175, 74, 255]
+        "color": [
+          224,
+          175,
+          74,
+          255
+        ]
       }
     ]
   },
@@ -76,15 +94,31 @@
       "group": "storyboards",
       "directory": "art-source/intro/tmb2/recovered/2026-07-19-storyboards",
       "files": [
-        { "name": "pilot Pop T with golden blond hair and blue eyes.png", "sha256": "0f9b2fed22597380c926028d39bf1c33470b32c42a7a59bbba335f1642f8b7d2", "bytes": 2109024, "width": 1672, "height": 941 },
-        { "name": "pop t chasing the brass key.png", "sha256": "c5b8dad0ceb9bf5ce083946e1691b63458d1e90e0c59d58748ef78c1649cc6db", "bytes": 2059109, "width": 1672, "height": 941 }
+        {
+          "name": "pilot Pop T with golden blond hair and blue eyes.png",
+          "sha256": "0f9b2fed22597380c926028d39bf1c33470b32c42a7a59bbba335f1642f8b7d2",
+          "bytes": 2109024,
+          "width": 1672,
+          "height": 941
+        },
+        {
+          "name": "pop t chasing the brass key.png",
+          "sha256": "c5b8dad0ceb9bf5ce083946e1691b63458d1e90e0c59d58748ef78c1649cc6db",
+          "bytes": 2059109,
+          "width": 1672,
+          "height": 941
+        }
       ]
     },
     {
       "group": "popt-runtime-archive",
       "directory": "art-source/intro/tmb2/recovered/2026-07-19-popt-runtime-archive",
       "files": [
-        { "name": "PopT-cinematic-runtime-assets.zip", "sha256": "a1c16a73da1462c1ca980fe7c4f60ce341519a097098979a2a058428094acc0e", "bytes": 70814 }
+        {
+          "name": "PopT-cinematic-runtime-assets.zip",
+          "sha256": "a1c16a73da1462c1ca980fe7c4f60ce341519a097098979a2a058428094acc0e",
+          "bytes": 70814
+        }
       ],
       "extractedFileCount": 43,
       "archiveValidation": "unzip -t passed with no errors"
@@ -93,26 +127,146 @@
       "group": "cartoon-key-and-runway",
       "directory": "art-source/intro/tmb2/recovered/2026-07-20-cartoon-key-and-runway/originals",
       "files": [
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (1).png", "sha256": "bfd7338197c5f1b8272d937dd57ddef6ae023fefa9a8dc2dd65c3214f325c0f2", "bytes": 1073319, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (10).png", "sha256": "cf63e5a292f18346e1228002c3c45e1ab1891f628b94d68e4fc89bb504a8dc2f", "bytes": 1080376, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (2).png", "sha256": "bed47d528c50c521b1b613c3fae9bdaec225d46309906389793d1f365370c247", "bytes": 1070197, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (3).png", "sha256": "ab5a3addb6b35179f81fd6f0bad186eb7959dd7f6c0a6eb9be1d75d6e811e60d", "bytes": 1066050, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (4).png", "sha256": "c34801dd73b61755051fcd2d74cbbe28b43e9206e6d91e92f9245990871c5567", "bytes": 1065283, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (5).png", "sha256": "f421ff5b333cb213a7945e508ab167eabf01a39e6f1a276e2ba583034f09dd19", "bytes": 1067196, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (6).png", "sha256": "d00c637613fc5d424a01387f4661d73e543c1ac08c40a93e4f633ec0f237d426", "bytes": 1071266, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (7).png", "sha256": "753534f06ec14ed78b8704fc3a31397621e3bffcbda3f3836afb57f179934f7b", "bytes": 1064119, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (8).png", "sha256": "da9d5c84f04b2df59de48164397af9afc2a2320749b895ec9b64d1016271b64f", "bytes": 1068502, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (9).png", "sha256": "c0dd9ee1e4004d8bf16943ded69fca1c3891a2a8e71789980636ebead0229e07", "bytes": 1078479, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_49_17 PM.png", "sha256": "982aa882c316a4dd047c812589dae0a5e4a27ae38d36eec797a10d89986ac762", "bytes": 2112799, "width": 1672, "height": 941 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_50_20 PM.png", "sha256": "79df23e5d7d8eb5361d81a96e7b2510fe71d7d4409735738806d6418024ddffc", "bytes": 1076803, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_50_29 PM.png", "sha256": "12ec1116cd1de31d6dbcb59c3fdc514b020cdec96c3b14de55e0e996a6f50624", "bytes": 1089444, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_50_42 PM.png", "sha256": "0bba34c94262afada9cb81cb97694a7872b72ebff26a923fc84fba2597c6a2a4", "bytes": 1071845, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_50_49 PM.png", "sha256": "aa8ef5889709a94d0619ac646cd996b6abe8f064933ac64b797f1d9cd724a9d2", "bytes": 1061282, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_51_00 PM.png", "sha256": "679eee391b1e8ffbd7a2b0bc6d0c0c4933006d551ea131811c0bc9e27c561da0", "bytes": 1080505, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_51_07 PM.png", "sha256": "f8aa7563110803dedd0067c96a2964be408ae6dc3d384a7de73ff277393f4bd0", "bytes": 1045074, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_51_14 PM.png", "sha256": "4eafe0d3ace9130d3d3940906ae4bf352748c4b27ec2f1c38a4e5d7360ac6732", "bytes": 1079407, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_51_23 PM.png", "sha256": "cf63e5a292f18346e1228002c3c45e1ab1891f628b94d68e4fc89bb504a8dc2f", "bytes": 1080376, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_51_41 PM.png", "sha256": "f421ff5b333cb213a7945e508ab167eabf01a39e6f1a276e2ba583034f09dd19", "bytes": 1067196, "width": 1254, "height": 1254 }
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (1).png",
+          "sha256": "bfd7338197c5f1b8272d937dd57ddef6ae023fefa9a8dc2dd65c3214f325c0f2",
+          "bytes": 1073319,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (10).png",
+          "sha256": "cf63e5a292f18346e1228002c3c45e1ab1891f628b94d68e4fc89bb504a8dc2f",
+          "bytes": 1080376,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (2).png",
+          "sha256": "bed47d528c50c521b1b613c3fae9bdaec225d46309906389793d1f365370c247",
+          "bytes": 1070197,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (3).png",
+          "sha256": "ab5a3addb6b35179f81fd6f0bad186eb7959dd7f6c0a6eb9be1d75d6e811e60d",
+          "bytes": 1066050,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (4).png",
+          "sha256": "c34801dd73b61755051fcd2d74cbbe28b43e9206e6d91e92f9245990871c5567",
+          "bytes": 1065283,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (5).png",
+          "sha256": "f421ff5b333cb213a7945e508ab167eabf01a39e6f1a276e2ba583034f09dd19",
+          "bytes": 1067196,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (6).png",
+          "sha256": "d00c637613fc5d424a01387f4661d73e543c1ac08c40a93e4f633ec0f237d426",
+          "bytes": 1071266,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (7).png",
+          "sha256": "753534f06ec14ed78b8704fc3a31397621e3bffcbda3f3836afb57f179934f7b",
+          "bytes": 1064119,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (8).png",
+          "sha256": "da9d5c84f04b2df59de48164397af9afc2a2320749b895ec9b64d1016271b64f",
+          "bytes": 1068502,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (9).png",
+          "sha256": "c0dd9ee1e4004d8bf16943ded69fca1c3891a2a8e71789980636ebead0229e07",
+          "bytes": 1078479,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_49_17 PM.png",
+          "sha256": "982aa882c316a4dd047c812589dae0a5e4a27ae38d36eec797a10d89986ac762",
+          "bytes": 2112799,
+          "width": 1672,
+          "height": 941
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_50_20 PM.png",
+          "sha256": "79df23e5d7d8eb5361d81a96e7b2510fe71d7d4409735738806d6418024ddffc",
+          "bytes": 1076803,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_50_29 PM.png",
+          "sha256": "12ec1116cd1de31d6dbcb59c3fdc514b020cdec96c3b14de55e0e996a6f50624",
+          "bytes": 1089444,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_50_42 PM.png",
+          "sha256": "0bba34c94262afada9cb81cb97694a7872b72ebff26a923fc84fba2597c6a2a4",
+          "bytes": 1071845,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_50_49 PM.png",
+          "sha256": "aa8ef5889709a94d0619ac646cd996b6abe8f064933ac64b797f1d9cd724a9d2",
+          "bytes": 1061282,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_51_00 PM.png",
+          "sha256": "679eee391b1e8ffbd7a2b0bc6d0c0c4933006d551ea131811c0bc9e27c561da0",
+          "bytes": 1080505,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_51_07 PM.png",
+          "sha256": "f8aa7563110803dedd0067c96a2964be408ae6dc3d384a7de73ff277393f4bd0",
+          "bytes": 1045074,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_51_14 PM.png",
+          "sha256": "4eafe0d3ace9130d3d3940906ae4bf352748c4b27ec2f1c38a4e5d7360ac6732",
+          "bytes": 1079407,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_51_23 PM.png",
+          "sha256": "cf63e5a292f18346e1228002c3c45e1ab1891f628b94d68e4fc89bb504a8dc2f",
+          "bytes": 1080376,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_51_41 PM.png",
+          "sha256": "f421ff5b333cb213a7945e508ab167eabf01a39e6f1a276e2ba583034f09dd19",
+          "bytes": 1067196,
+          "width": 1254,
+          "height": 1254
+        }
       ]
     }
   ],
@@ -168,10 +322,22 @@
     "cartoonKey": {
       "uniqueSourceFrames": 17,
       "backgroundTolerance": 45,
-      "canonicalSize": [128, 128],
-      "runtimeSize": [256, 256],
-      "canonicalPivot": [64, 112],
-      "runtimePivot": [128, 224],
+      "canonicalSize": [
+        128,
+        128
+      ],
+      "runtimeSize": [
+        256,
+        256
+      ],
+      "canonicalPivot": [
+        64,
+        112
+      ],
+      "runtimePivot": [
+        128,
+        224
+      ],
       "normalizedFrames": 17,
       "componentCountPerFrame": 1,
       "path": "public/images/intro/tmb2/key",
@@ -259,14 +425,14 @@
     "archiveIntegrity": "pass",
     "runtimeManifest": {
       "status": "pass",
-      "assets": 74,
-      "preloads": 17,
+      "assets": 77,
+      "preloads": 20,
       "path": "public/images/intro/tmb2/tmb2-intro-assets.json"
     },
     "runtimeDecodeContract": {
       "initialImages": 9,
       "totalRenderedImages": 20,
-      "packagePreloads": 17,
+      "packagePreloads": 20,
       "note": "The five ident images and four opening story images decode sequentially before Start enables; remaining story images decode lazily. Sequential decoding avoids an observed Chromium stall when the existing large sheets decode concurrently."
     },
     "historicContractDelta": {
@@ -302,5 +468,26 @@
         "supersededByOwnerFollowUp": "The 50% Productions revision is validated locally and will receive a new Git-integrated preview after the PR branch update."
       }
     }
+  },
+  "legacySheetRelocation": {
+    "date": "2026-08-14",
+    "rationale": "The three legacy Pop T sheets were rendered at runtime but lived outside the hashed tmb2 package, so assets:check never verified them. Relocated byte-identically so every runtime image is hash-bound; a Vitest cross-check now requires every introAssets path to be a manifest preload.",
+    "moves": [
+      {
+        "from": "public/images/intro/popt/idle-sheet.png",
+        "to": "public/images/intro/tmb2/popt/legacy/idle-sheet.png",
+        "sha256": "8b302b8c90ed92d020a166d43719f8474c6e43c80b32c5c811594a1a98c67723"
+      },
+      {
+        "from": "public/images/intro/popt/run-sheet.png",
+        "to": "public/images/intro/tmb2/popt/legacy/run-sheet.png",
+        "sha256": "432ff43be2405e11e94ba9fc8b13d86ce9c2fc4ab0bc9ecea0735347d584f94f"
+      },
+      {
+        "from": "public/images/intro/popt/reach-catch-sheet.png",
+        "to": "public/images/intro/tmb2/popt/legacy/reach-catch-sheet.png",
+        "sha256": "8f02190f7ab2ab04608e44f383a59b80e7c9227879978d73e4bce1e82acee6b9"
+      }
+    ]
   }
 }
