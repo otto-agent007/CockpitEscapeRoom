@@ -382,6 +382,177 @@
       "taxonomy": "illustration-story",
       "status": "recorded-awaiting-owner-generation",
       "prompt": "Create a wide 16:10 pixel-art illustration-story background plate for the TMB2 browser-game intro, matching the authoritative blonde-haired Pop T storyboard's cinematic 16-bit-inspired finish, crisp stepped pixel clusters, and its panel-4 daylight look: a bright sunny airport runway under a vivid blue sky with bold white cumulus clouds. Show the runway surface receding from the lower left with clean markings and warm sunlit concrete, a distant parked airliner and a control tower on the right horizon, gentle heat-haze sparkle and subtle blue square particles, generous clear action space across the center-left for separately composited sprites, and crop-safe margins. Keep midnight-navy shadows, electric-blue accent glints, and warm gold sunlight consistent with the storyboard palette. Background/prop plate only: no person, no pilot, no Pop T, no cartoon key, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery."
+    },
+    {
+      "id": "ident-logo-tap-v1",
+      "taxonomy": "character-acting",
+      "status": "recorded-awaiting-owner-generation",
+      "generator": "chatgpt-image (owner account); one image per frame at 1024x1024",
+      "pipeline": "quantize through the Pop T animation contract (16-color palette, 128x128 canonical, bottom-center pivot, baseline 111) before any runtime use",
+      "priority": 1,
+      "replaces": "startle-stumble + victory-recovery stand-ins in the ident gag",
+      "scene": "tmb2-ident",
+      "styleBlock": "Create a single 1:1 pixel-art character acting frame for the TMB2 browser-game intro, drawing the blonde-haired, blue-eyed pilot Pop T exactly as he appears in the authoritative storyboard: navy pilot cap with gold wing emblem, white short-sleeve uniform shirt with dark tie and gold epaulette accents, navy trousers, dark shoes. Match the existing Pop T runtime sprites: strict limited palette (deep navy outlines, warm skin, golden blond hair, white shirt, restrained gold), chunky 8-pixel cluster look, crisp stepped edges, full body in side view facing right, feet on a consistent baseline near the bottom of frame, centered horizontally with generous margins, plain solid background for clean cutout, no floor shadow, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery. Pose: ",
+      "frames": [
+        "sprinting at full tilt, body leaning far forward, one fist pumping",
+        "skidding to a stop, body leaning far back, heels dug in, arms windmilling",
+        "leaning back on one heel, jaw dropped, eyes wide, staring up amazed",
+        "standing tall, one hand raised about to tap something above head height, other fist on hip",
+        "tapping upward with one finger, chest out, confident grin, eyes closed",
+        "proud pose, arms crossed, big wink at the viewer",
+        "thumbs-up at the viewer, chest out, beaming smile"
+      ]
+    },
+    {
+      "id": "duffel-struggle-v1",
+      "taxonomy": "character-acting",
+      "status": "recorded-awaiting-owner-generation",
+      "generator": "chatgpt-image (owner account); one image per frame at 1024x1024",
+      "pipeline": "quantize through the Pop T animation contract (16-color palette, 128x128 canonical, bottom-center pivot, baseline 111) before any runtime use",
+      "priority": 1,
+      "replaces": "duffel-pull 4-frame loop",
+      "scene": "duffel",
+      "styleBlock": "Create a single 1:1 pixel-art character acting frame for the TMB2 browser-game intro, drawing the blonde-haired, blue-eyed pilot Pop T exactly as he appears in the authoritative storyboard: navy pilot cap with gold wing emblem, white short-sleeve uniform shirt with dark tie and gold epaulette accents, navy trousers, dark shoes. Match the existing Pop T runtime sprites: strict limited palette (deep navy outlines, warm skin, golden blond hair, white shirt, restrained gold), chunky 8-pixel cluster look, crisp stepped edges, full body in side view facing right, feet on a consistent baseline near the bottom of frame, centered horizontally with generous margins, plain solid background for clean cutout, no floor shadow, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery. Pose: ",
+      "frames": [
+        "gripping an unseen handle at hip height with both hands, knees bent, about to pull",
+        "pulling hard, body at forty-five degrees, heels dug in, cheeks puffed",
+        "straining with all his might, body nearly horizontal, one foot slipping",
+        "yanked back upright, off balance, arms flailing",
+        "wiping brow with one forearm, exhausted slump, other hand still on the unseen handle",
+        "re-gripping with gritted teeth and furrowed brow, more determined than before"
+      ]
+    },
+    {
+      "id": "startle-big-take-v1",
+      "taxonomy": "character-acting",
+      "status": "recorded-awaiting-owner-generation",
+      "generator": "chatgpt-image (owner account); one image per frame at 1024x1024",
+      "pipeline": "quantize through the Pop T animation contract (16-color palette, 128x128 canonical, bottom-center pivot, baseline 111) before any runtime use",
+      "priority": 1,
+      "replaces": "startle-stumble 3-frame clip at the exclaim slam",
+      "scene": "key-escape",
+      "styleBlock": "Create a single 1:1 pixel-art character acting frame for the TMB2 browser-game intro, drawing the blonde-haired, blue-eyed pilot Pop T exactly as he appears in the authoritative storyboard: navy pilot cap with gold wing emblem, white short-sleeve uniform shirt with dark tie and gold epaulette accents, navy trousers, dark shoes. Match the existing Pop T runtime sprites: strict limited palette (deep navy outlines, warm skin, golden blond hair, white shirt, restrained gold), chunky 8-pixel cluster look, crisp stepped edges, full body in side view facing right, feet on a consistent baseline near the bottom of frame, centered horizontally with generous margins, plain solid background for clean cutout, no floor shadow, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery. Pose: ",
+      "frames": [
+        "recoiling, arms thrown up, cap lifting off his head, eyes popping wide",
+        "full comic take, cap in mid-air above him, hair standing up, mouth open in a yell",
+        "stumbling backward on one heel, arms wheeling, cap falling back toward his head",
+        "catching the cap with one hand, knees knocked together, sheepish grimace",
+        "jamming the cap back on, eyes narrowed at something above, fists clenched"
+      ]
+    },
+    {
+      "id": "catch-celebrate-v1",
+      "taxonomy": "character-acting",
+      "status": "recorded-awaiting-owner-generation",
+      "generator": "chatgpt-image (owner account); one image per frame at 1024x1024",
+      "pipeline": "quantize through the Pop T animation contract (16-color palette, 128x128 canonical, bottom-center pivot, baseline 111) before any runtime use",
+      "priority": 1,
+      "replaces": "victory-recovery + reach-catch in the catch finale",
+      "scene": "catch",
+      "styleBlock": "Create a single 1:1 pixel-art character acting frame for the TMB2 browser-game intro, drawing the blonde-haired, blue-eyed pilot Pop T exactly as he appears in the authoritative storyboard: navy pilot cap with gold wing emblem, white short-sleeve uniform shirt with dark tie and gold epaulette accents, navy trousers, dark shoes. Match the existing Pop T runtime sprites: strict limited palette (deep navy outlines, warm skin, golden blond hair, white shirt, restrained gold), chunky 8-pixel cluster look, crisp stepped edges, full body in side view facing right, feet on a consistent baseline near the bottom of frame, centered horizontally with generous margins, plain solid background for clean cutout, no floor shadow, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery. Pose: ",
+      "frames": [
+        "hoisting a clenched fist high overhead, chest out, mouth open in a cheer",
+        "both arms raised in a V, one knee lifted, jubilant laugh",
+        "heel-click jump to one side, both arms out",
+        "landing in a wide stance, one arm flexed, grinning at the viewer",
+        "relaxed proud stance, one hand adjusting the cap brim, satisfied smile"
+      ]
+    },
+    {
+      "id": "run-cycle-8f-v1",
+      "taxonomy": "character-acting",
+      "status": "recorded-awaiting-owner-generation",
+      "generator": "chatgpt-image (owner account); one image per frame at 1024x1024",
+      "pipeline": "quantize through the Pop T animation contract (16-color palette, 128x128 canonical, bottom-center pivot, baseline 111) before any runtime use",
+      "priority": 2,
+      "replaces": "legacy 8-frame run sheet reuse of 4 drawings",
+      "scene": "runway and chase beats",
+      "styleBlock": "Create a single 1:1 pixel-art character acting frame for the TMB2 browser-game intro, drawing the blonde-haired, blue-eyed pilot Pop T exactly as he appears in the authoritative storyboard: navy pilot cap with gold wing emblem, white short-sleeve uniform shirt with dark tie and gold epaulette accents, navy trousers, dark shoes. Match the existing Pop T runtime sprites: strict limited palette (deep navy outlines, warm skin, golden blond hair, white shirt, restrained gold), chunky 8-pixel cluster look, crisp stepped edges, full body in side view facing right, feet on a consistent baseline near the bottom of frame, centered horizontally with generous margins, plain solid background for clean cutout, no floor shadow, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery. Pose: ",
+      "frames": [
+        "sprint cycle contact pose, right foot down, deep forward lean",
+        "sprint cycle push-off, right leg extended behind, arms pumping",
+        "sprint cycle full flight, both feet off the ground, maximum stride",
+        "sprint cycle reach, left leg reaching forward, body coiled",
+        "sprint cycle contact pose, left foot down, deep forward lean",
+        "sprint cycle push-off, left leg extended behind, arms pumping",
+        "sprint cycle full flight, both feet off the ground, arms crossed mid-swing",
+        "sprint cycle reach, right leg reaching forward, cap brim pressed flat by speed"
+      ]
+    },
+    {
+      "id": "bull-spin-recover-v1",
+      "taxonomy": "character-acting",
+      "status": "recorded-awaiting-owner-generation",
+      "generator": "chatgpt-image (owner account); one image per frame at 1024x1024",
+      "pipeline": "quantize through the Pop T animation contract (16-color palette, 128x128 canonical, bottom-center pivot, baseline 111) before any runtime use",
+      "priority": 2,
+      "replaces": "bull-spin 6-frame once clip",
+      "scene": "city-finance",
+      "styleBlock": "Create a single 1:1 pixel-art character acting frame for the TMB2 browser-game intro, drawing the blonde-haired, blue-eyed pilot Pop T exactly as he appears in the authoritative storyboard: navy pilot cap with gold wing emblem, white short-sleeve uniform shirt with dark tie and gold epaulette accents, navy trousers, dark shoes. Match the existing Pop T runtime sprites: strict limited palette (deep navy outlines, warm skin, golden blond hair, white shirt, restrained gold), chunky 8-pixel cluster look, crisp stepped edges, full body in side view facing right, feet on a consistent baseline near the bottom of frame, centered horizontally with generous margins, plain solid background for clean cutout, no floor shadow, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery. Pose: ",
+      "frames": [
+        "slamming into an unseen obstacle, body compressed accordion-style, stars popping",
+        "launched backward in a full spin, limbs out like a pinwheel",
+        "second rotation of the spin, tighter, cap flying",
+        "landing seated, legs out, dazed spiral eyes, small stars circling his head",
+        "shaking his head clear, one hand on the ground pushing up",
+        "back on his feet mid-stride, cap back on, determined scowl"
+      ]
+    },
+    {
+      "id": "slide-dust-v1",
+      "taxonomy": "character-acting",
+      "status": "recorded-awaiting-owner-generation",
+      "generator": "chatgpt-image (owner account); one image per frame at 1024x1024",
+      "pipeline": "quantize through the Pop T animation contract (16-color palette, 128x128 canonical, bottom-center pivot, baseline 111) before any runtime use",
+      "priority": 2,
+      "replaces": "baseball-slide 4-frame clip",
+      "scene": "ballpark",
+      "styleBlock": "Create a single 1:1 pixel-art character acting frame for the TMB2 browser-game intro, drawing the blonde-haired, blue-eyed pilot Pop T exactly as he appears in the authoritative storyboard: navy pilot cap with gold wing emblem, white short-sleeve uniform shirt with dark tie and gold epaulette accents, navy trousers, dark shoes. Match the existing Pop T runtime sprites: strict limited palette (deep navy outlines, warm skin, golden blond hair, white shirt, restrained gold), chunky 8-pixel cluster look, crisp stepped edges, full body in side view facing right, feet on a consistent baseline near the bottom of frame, centered horizontally with generous margins, plain solid background for clean cutout, no floor shadow, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery. Pose: ",
+      "frames": [
+        "sprint dropping into a slide, arms back, one leg folding under",
+        "full slide, leading leg extended, body low, dust kicking behind",
+        "slide finishing, leading leg bent, torso rising, one hand down",
+        "popping up out of the slide onto both feet, dusting off his trousers",
+        "jogging onward, looking up and shaking a fist at the sky"
+      ]
+    },
+    {
+      "id": "glide-bank-v1",
+      "taxonomy": "character-acting",
+      "status": "recorded-awaiting-owner-generation",
+      "generator": "chatgpt-image (owner account); one image per frame at 1024x1024",
+      "pipeline": "quantize through the Pop T animation contract (16-color palette, 128x128 canonical, bottom-center pivot, baseline 111) before any runtime use",
+      "priority": 2,
+      "replaces": "pilot-glide 4-frame loop",
+      "scene": "sky and final-pursuit",
+      "styleBlock": "Create a single 1:1 pixel-art character acting frame for the TMB2 browser-game intro, drawing the blonde-haired, blue-eyed pilot Pop T exactly as he appears in the authoritative storyboard: navy pilot cap with gold wing emblem, white short-sleeve uniform shirt with dark tie and gold epaulette accents, navy trousers, dark shoes. Match the existing Pop T runtime sprites: strict limited palette (deep navy outlines, warm skin, golden blond hair, white shirt, restrained gold), chunky 8-pixel cluster look, crisp stepped edges, full body in side view facing right, feet on a consistent baseline near the bottom of frame, centered horizontally with generous margins, plain solid background for clean cutout, no floor shadow, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery. Pose: ",
+      "frames": [
+        "gliding flat-out like a superhero, arms swept back, tie fluttering",
+        "banking left, inside arm dipped, body rolled",
+        "leveling off, chin up, scanning ahead with a hand shading his eyes",
+        "banking right, outside arm dipped, trouser legs fluttering",
+        "surging forward with both fists ahead, cheeks puffed with effort",
+        "reaching far forward with one open glove, fingers spread, straining"
+      ]
+    },
+    {
+      "id": "key-taunt-plus-v1",
+      "taxonomy": "character-acting",
+      "status": "recorded-awaiting-owner-generation",
+      "generator": "chatgpt-image (owner account); one image per frame at 1024x1024",
+      "pipeline": "quantize through the Pop T animation contract (16-color palette, 128x128 canonical, bottom-center pivot, baseline 111) before any runtime use",
+      "priority": 2,
+      "replaces": "key taunt 4-pose reuse",
+      "scene": "key-escape and city-finance",
+      "styleBlock": "Create a single 1:1 pixel-art character acting frame for the TMB2 browser-game intro, drawing the living golden brass key mascot exactly as it appears in the existing runtime sprites: heart-shaped golden head with big cartoon eyes, white gloves, brown cartoon shoes, key-teeth tail held like a prop. Strict limited gold/brown/white palette with deep navy outlines, chunky 8-pixel cluster look, crisp stepped edges, full body in side view facing left, centered with generous margins, plain solid background for clean cutout, no floor shadow, no readable text, no logo, no watermark, no UI. Pose: ",
+      "frames": [
+        "hovering, thumbing its nose at the viewer with both hands, tongue out",
+        "doubled over in silent laughter, holding its belly, feet kicking",
+        "beckoning with one glove, half-lidded smug eyes",
+        "mock saluting with a grin, other glove behind its back",
+        "coiled like a sprinter about to launch, glove on an imaginary starting line",
+        "zipping away, body stretched into a speed streak, waving bye-bye"
+      ]
     }
   ],
   "generatedAssets": [

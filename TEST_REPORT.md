@@ -180,6 +180,16 @@ Measured in the Playwright environment, which reports `SwiftShader` — a CPU ra
 - Tesla/Model Y gameplay and assets were not changed by this milestone. No Vercel preview was published.
 
 ## 2026-07-27 Legacy Hangar visibility, source replacement, and Replay — owner approved
+## 2026-08-15 TMB2 intro SEGA punch pass — owner visual gate open
+
+- The owner judged the 0022 storyboard-fidelity build under par against the Genesis-era SEGA logo-intro reference and approved the plan-0028 direction: a code-only punch pass now, ChatGPT-Image acting frames next, and the plan-0020 ident reopened for a Pop T logo gag. Implemented: a pure-frame punch camera (focal zoom plus deterministic shake offsets applied around the world draw commands), accent flash frames, hitstop that freezes the acting clock at the accent and catches back up continuously, the ident logo gag on the 0.72 s beat grid extrapolated from the measured cues (the 0–6 s ident window is a measured flat pad), and per-accent punches, flashes, and tracking cameras across all eight story scenes. The TMB2 logo bytes are untouched; the key never appears before its 12.696 s duffel burst.
+- TDD at each step with recorded RED runs; the ballpark ≤4 px smoothness sweep caught an 8.9 px rejoin jump in the first hitstop design, which was replaced with the continuous catch-up form. Unit suite grew 256 → 265 across 25 files; ESLint, TypeScript, and the production build passed at every commit (`3caf67a`, `48a1f32`, `84b0abd`, `898666a`).
+- Real-browser verification at 1440×900 against the production build with the clock-driven method: stills at all sixteen punch/gag moments were captured and inspected; two real defects were found and fixed (the runway camera pushed the crossing cart behind the audio controls; the exclaim red wash drowned the storyboard's red "!"), then re-captured and verified. Stills live under `preview-renders/tmb2-intro-overhaul/stills-sega-punch/`.
+- Motion proofs: `intro-proof-sega-punch-1440x900-4fps.webp` (244 frames, PIL-verified non-black at sampled frames) plus two 12 fps punch-window recordings (key-burst/exclaim and emblem stamp). ffmpeg encodes but cannot decode animated webp, so assembly verification used PIL.
+- Reduced motion re-verified in a real browser: representative poses with identity camera and no flashes at the ident, exclaim, deflect, and stamp samples. Responsive spot checks passed at 375, 768, and 1440 px. Full Playwright e2e after the punch pass: 51 passed, 1 skipped in 16.9 m (exit 0), including the storyboard fx probes at t=38 and t=50.2. `npm run assets:check` passed (78 assets / 21 preloads) after the acting-frames prompt pack (nine `character-acting` records) was recorded in the ledger with the owner-facing view `asset-reports/tmb2-acting-frames-prompt-pack.md`.
+- Open at the owner gate: review of the punch-pass motion proofs and stills, the stamp-vs-eased emblem reveal choice, and owner generation of the priority-1 acting packs plus the still-owed `runway-day-v1` daylight plate. No push or publication before owner approval.
+
+## 2026-07-31 Airbus PR browser-smoke and asset-contract repair
 
 - Replaced the featureless procedural hangar walls with the owner-selected
   Sketchfab `Hangar` source by nermin under CC BY 4.0. The exact 8,276,403-byte

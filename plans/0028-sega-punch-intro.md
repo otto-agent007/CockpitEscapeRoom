@@ -48,11 +48,12 @@ Camera/flash/hitstop system and per-scene punch choreography in `introAnimation.
 
 ## Implementation steps
 
-- [ ] Task 1 — `camera: { zoom, x, y }` and `flash: { color, opacity } | null` on `IntroAnimationFrame` (identity/null defaults), `hitstopTime`/`accentPunch`/`accentShake`/`accentFlash` helpers, renderer world-transform + `flash` draw command, reduced-motion forces identity camera and null flash. Lands inert; every existing test green unchanged; new tests pin identity/null at the ten sampled story times.
-- [ ] Task 2 — Ident gag: accelerated logo build (complete ≈ 1.7 s), Pop T runs in on 1.776, skid + dust 2.496, tap 3.936 with white flash + shake + punch, highlight flare 4.656 with radial-rays, proud hold, exit toward the duffel scene. Logo-threshold and scene-action tests evolve to the new timings (documented here).
-- [ ] Task 3 — Scene punch choreography: per-scene accent table (burst 12.696 punch, exclaim 13.056 red flash + hitstop + shake, cart 19.368, deflect 24.552 white flash + hitstop, bull 30.480 hitstop + shake, grid ignite 35.640 flash pulse, miss 45.120, grab 47.496 hitstop + punch, stamp 49.704 strong white flash), tracking cameras in runway/ballpark/city/pursuit, at least one hard cut (ballpark deflect close-up).
-- [ ] Task 4 — Full `npm run check` + e2e, stills refresh, motion capture, evidence here and in `TEST_REPORT.md`, owner gate.
-- [ ] Task 5 — Acting prompt pack recorded in `asset-reports/tmb2-intro-assets.json` `generationPrompts` + owner-facing doc (per-gag frame lists, animation-contract palette/pivot/size baked into each prompt).
+- [x] Task 1 — Camera/flash/hitstop scaffolding, landed inert and pixel-identical. Commit `3caf67a`. Deviation from the sketch: camera carries `offsetX/offsetY` screen-space shake, and the world transform is applied inside `renderIntroFrame` around the world commands rather than as new draw commands, so every existing command-anchor test held unchanged; `flash` is a real command after `pixel-collapse`.
+- [x] Task 2 — Ident gag on the extrapolated beat grid (enter 1.776, skid 2.496, tap 3.936 with white flash + shake + punch, flare 4.656, exit 5.376); logo build accelerated to 1.7 s; the tap now causes the highlight flare. Radial-rays dropped (they draw over the logo layers by the fixed FX table); flare sparkles instead. Test evolutions: scene-action t=2 expects the run-in; logo-threshold samples moved to 0.5/1/1.5; exact-command-list test relaxed to ordered logo layers + logo-under-sprite. Commit `48a1f32`.
+- [x] Task 3 — Punch pass on every measured accent + tracking cameras. Hitstop redesigned mid-task: the freeze-then-jump form broke the ≤4px ballpark smoothness sweep (8.9px rejoin jump), replaced with freeze-then-catch-up (continuous, resynced 2.5×hold after the accent). Impact stars open at full presence and run on real time so the freeze frame reads as the hit. Commit `84b0abd`.
+- [x] Task 3b — Still-driven repairs: runway focal y 150→185 (the cart was pushed behind the audio controls under zoom), exclaim flash 0.55→0.32 (the red wash drowned the storyboard's red "!"), grab focal headroom. Commit `898666a`.
+- [x] Task 4 — Proof capture (stills at all punch moments, 244-frame 4 fps full-loop webp + two 12 fps punch-window webps, reduced-motion + 375/768/1440 spot checks). Full e2e result recorded in Evidence.
+- [x] Task 5 — Acting prompt pack: 9 `character-acting` records (4 priority-1 gag clips, 5 polish-wave incl. the key mascot) in `generationPrompts` with the contract pipeline named per record, plus the owner-facing `asset-reports/tmb2-acting-frames-prompt-pack.md`.
 
 ## Validation plan
 
@@ -76,6 +77,15 @@ Review → focused repair → validation → remaining-delta review. Stop after 
 - `npm run check` exit 0 (Vitest 256/256 across 25 files); `npm run assets:check` 78/21; full e2e 51 passed / 1 skipped in 17.4 m — all before any 0028 change.
 - Ident-window audio profile measured (flat pad, first accent 7.512); grid extrapolation recorded in Discoveries.
 
+### 2026-08-15 punch pass
+
+- TDD per task: scaffolding RED 6 focused failures → GREEN 262/262 full suite; ident gag RED 4 → GREEN 263/263; punch pass RED 2 → 265/265 after the hitstop catch-up redesign (the ballpark ≤4px sweep caught the rejoin jump — recorded in Task 3). ESLint + tsc clean at each commit.
+- Real-browser stills at every punch moment (1440×900, production build on 4173, clock-driven): ident run-in/skid/tap/flare/exit, duffel jolt, burst punch-in, exclaim slam, runway tracking, cart kick, deflect close-up, bull slam, sky grid, grab punch, stamp flash, emblem card — inspected; two defects found and fixed (cart behind controls; "!" drowned by the red wash), re-captured and verified. Committed under `preview-renders/tmb2-intro-overhaul/stills-sega-punch/`.
+- Motion proofs assembled and PIL-verified (244 frames, non-black content sampled at f16/f99/f199): `intro-proof-sega-punch-1440x900-4fps.webp` (10.4 MB) plus 12 fps punch windows `punch-window-burst-exclaim-12fps.webp` and `punch-window-emblem-stamp-12fps.webp`. ffmpeg cannot decode animated webp (encoder-only) — verification used PIL.
+- Reduced motion re-verified in-browser (`reducedMotion: 'reduce'`): representative poses, identity camera, no flashes at ident/exclaim/deflect/stamp samples. Responsive spot checks green at 375/768/1440 (ident tap + deflect close-up).
+- `npm run assets:check` after the ledger prompt-pack addition: 78 assets / 21 preloads, contract passed.
+- Full e2e after the punch pass: see the dated entry in `TEST_REPORT.md`.
+
 ## Outcome and handoff
 
-Pending implementation. Work stops at the owner visual gate; acting-frame integration (post-generation) is a follow-up plan.
+Punch pass, ident gag, and prompt pack are implemented and locally validated. Work stops at the owner visual gate: review the motion proofs and stills, choose stamp-vs-eased emblem reveal (`EMBLEM_REVEAL_STYLE`), generate the priority-1 acting packs plus `runway-day-v1` from the recorded prompts. Acting-frame integration post-generation is a follow-up plan. No push before owner approval.
