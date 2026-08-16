@@ -463,17 +463,73 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
 
   const frame = ((): IntroAnimationFrame => {
   switch (scene.id) {
-    case 'tmb2-ident':
+    case 'tmb2-ident': {
+      // SEGA-style ident gag (plan 0028): the logo slams together fast, Pop T
+      // sprints in, skids at the sight of it, taps it on the beat — the tap
+      // ignites the gold-white overload — then he sprints off into the story.
+      // The ident window is a flat build pad (measured 2026-08-15), so beats
+      // sit on the 0.72 s accent grid extrapolated from the measured cues.
+      if (reducedMotion) {
+        return { ...base, logo: { visible: true, buildProgress: 1, highlightOpacity: 0 } }
+      }
+      const t = storyTime
+      const ENTER = 1.776
+      const SKID = 2.496
+      const TAP = 3.936
+      const FLARE = 4.656
+      const EXIT = 5.376
+      const fx: IntroFxFrame[] = []
+      const props: IntroPropFrame[] = []
+
+      let popt: SpriteActorFrame | null = null
+      if (t >= EXIT) {
+        popt = poptActor('run', clipElapsedMs(t, EXIT), 130 + ((t - EXIT) / (6 - EXIT)) * 218, 190)
+      } else if (t >= TAP) {
+        popt = poptActor('victory-recovery', clipElapsedMs(t, TAP), 130, 190)
+      } else if (t >= SKID) {
+        const skidSlide = 1 - (1 - clamp01((t - SKID) / 0.3)) ** 2
+        popt = poptActor('startle-stumble', clipElapsedMs(t, SKID), 100 + 30 * skidSlide, 190)
+        if (t < SKID + 0.55) {
+          props.push(
+            prop('cloud-puff', 88 + 20 * skidSlide, 196, 0.28, 0, 0.5 * (1 - (t - SKID) / 0.55)),
+          )
+        }
+      } else if (t >= ENTER) {
+        popt = poptActor('run', clipElapsedMs(t, ENTER), -24 + ((t - ENTER) / (SKID - ENTER)) * 124, 190)
+      }
+
+      if (t >= FLARE && t < 5.7) {
+        for (let index = 0; index < 3; index += 1) {
+          const twinkle = (t - FLARE) * 3.1 + index * 2.3
+          fx.push({
+            kind: 'sparkle',
+            x: 64 + index * 96 + Math.sin(twinkle) * 5,
+            y: 78 + Math.cos(twinkle * 0.7) * 4,
+            size: 2 + (index % 2),
+            opacity: 0.6 + 0.3 * Math.sin(twinkle * 1.4),
+            tint: index === 1 ? 'white' : 'gold',
+          })
+        }
+      }
+
+      const settle = t >= EXIT ? easeInOut((t - EXIT) / (6 - EXIT)) : 0
+      const zoom = 1 + 0.06 * easeInOut(clamp01(t / TAP)) * (1 - settle) + 0.16 * accentPunch(t, TAP)
+      const shake = accentShake(t, TAP, 2.5, 0.35)
+      const flashLevel = accentFlash(t, TAP, 0.15)
       return {
         ...base,
-        logo: reducedMotion
-          ? { visible: true, buildProgress: 1, highlightOpacity: 0 }
-          : {
-              visible: true,
-              buildProgress: clamp01(sceneProgress / 0.72),
-              highlightOpacity: clamp01((sceneProgress - 0.78) / 0.22),
-            },
+        logo: {
+          visible: true,
+          buildProgress: clamp01(t / 1.7),
+          highlightOpacity: clamp01((t - TAP) / (FLARE - TAP)),
+        },
+        popt,
+        fx,
+        props,
+        camera: { zoom, x: 160, y: 128, offsetX: shake.x, offsetY: shake.y },
+        flash: flashLevel > 0 ? { color: 'white', opacity: 0.5 * flashLevel } : null,
       }
+    }
     case 'duffel': {
       // Panel 1 into panel 2: Pop T assembles from blue pixels on a darkened
       // stage, strides to the bag, then fights it with beat-locked tugs.

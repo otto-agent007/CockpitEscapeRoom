@@ -69,7 +69,7 @@ describe('TMB2 sprite animation contract', () => {
     expect(deriveIntroAnimation(2, false)).toMatchObject({
       sceneId: 'tmb2-ident',
       logo: { visible: true },
-      popt: null,
+      popt: { clipId: 'run' },
       key: null,
     })
     expect(deriveIntroAnimation(8, false).popt?.clipId).toBe('duffel-pull')
@@ -310,6 +310,36 @@ describe('TMB2 sprite animation contract', () => {
     expect(deriveIntroAnimation(38, true).fx.some((fx) => fx.kind === 'laser-grid')).toBe(true)
     expect(deriveIntroAnimation(50, true).card).not.toBeNull()
     expect(deriveIntroAnimation(50, true).backgroundDim).toBe(1)
+  })
+
+  it('plays the SEGA-style ident gag: sprint in, skid, tap, flare, sprint off', () => {
+    expect(deriveIntroAnimation(1.2, false).popt).toBeNull()
+
+    const entering = deriveIntroAnimation(2.1, false)
+    expect(entering.popt?.clipId).toBe('run')
+
+    const skid = deriveIntroAnimation(2.6, false)
+    expect(skid.popt?.clipId).toBe('startle-stumble')
+    expect(skid.props.some((sceneProp) => sceneProp.id === 'cloud-puff')).toBe(true)
+
+    const tap = deriveIntroAnimation(3.99, false)
+    expect(tap.popt?.clipId).toBe('victory-recovery')
+    expect(tap.flash?.color).toBe('white')
+    expect(tap.camera.zoom).toBeGreaterThan(1.1)
+    expect(tap.logo.highlightOpacity).toBeGreaterThan(0)
+
+    const flare = deriveIntroAnimation(4.8, false)
+    expect(flare.logo.highlightOpacity).toBe(1)
+    expect(flare.fx.filter((fx) => fx.kind === 'sparkle').length).toBeGreaterThanOrEqual(3)
+
+    const exiting = deriveIntroAnimation(5.8, false)
+    expect(exiting.popt?.clipId).toBe('run')
+    expect(exiting.popt!.x).toBeGreaterThan(200)
+
+    // The key never cameos before its duffel burst reveal.
+    for (const time of [1, 2.5, 4, 5.5]) {
+      expect(deriveIntroAnimation(time, false).key).toBeNull()
+    }
   })
 
   it('freezes the acting clock briefly at an accent and rejoins real time', () => {

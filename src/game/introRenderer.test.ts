@@ -5,32 +5,29 @@ import { deriveIntroDrawCommands, shouldUseExactLogoFallback } from './introRend
 describe('TMB2 Canvas draw commands', () => {
   it('assembles the approved TMB2 Productions layers without procedural typography', () => {
     const commands = deriveIntroDrawCommands(deriveIntroAnimation(4.8, false), null)
-    expect(commands.map((command) => command.kind)).toEqual([
-      'clear',
-      'logo-layer',
-      'logo-layer',
-      'logo-layer',
-      'logo-layer',
-    ])
+    expect(commands[0]).toEqual({ kind: 'clear', color: '#02030a' })
     expect(commands.filter((command) => command.kind === 'logo-layer')).toEqual([
       expect.objectContaining({ assetId: 'logo-blue-mask' }),
       expect.objectContaining({ assetId: 'logo-base' }),
       expect.objectContaining({ assetId: 'logo-highlight-mask' }),
       expect.objectContaining({ assetId: 'logo-productions' }),
     ])
+    // The ident gag stages Pop T with the logo, never over it.
+    const kinds = commands.map((command) => command.kind)
+    expect(kinds.lastIndexOf('logo-layer')).toBeLessThan(kinds.indexOf('sprite'))
     expect(JSON.stringify(commands)).not.toMatch(/glyph|procedural|title|caption|chapter/i)
   })
 
   it('reveals base, productions, and highlight layers only at their thresholds', () => {
-    const early = deriveIntroDrawCommands(deriveIntroAnimation(1, false), null)
+    const early = deriveIntroDrawCommands(deriveIntroAnimation(0.5, false), null)
     expect(early.filter((command) => command.kind === 'logo-layer').map((command) => command.assetId))
       .toEqual(['logo-blue-mask'])
 
-    const base = deriveIntroDrawCommands(deriveIntroAnimation(2.4, false), null)
+    const base = deriveIntroDrawCommands(deriveIntroAnimation(1, false), null)
     expect(base.filter((command) => command.kind === 'logo-layer').map((command) => command.assetId))
       .toEqual(['logo-blue-mask', 'logo-base'])
 
-    const productions = deriveIntroDrawCommands(deriveIntroAnimation(3.5, false), null)
+    const productions = deriveIntroDrawCommands(deriveIntroAnimation(1.5, false), null)
     expect(productions.filter((command) => command.kind === 'logo-layer').map((command) => command.assetId))
       .toEqual(['logo-blue-mask', 'logo-base', 'logo-productions'])
 
