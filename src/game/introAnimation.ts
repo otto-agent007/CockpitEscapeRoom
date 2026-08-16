@@ -740,7 +740,8 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
       // shakes the frame, and hitstops the actors (SCENE_HITSTOP).
       const shake = accentShake(normalizedTime, EXCLAIM, 3.5, 0.4)
       const burstFlash = 0.4 * accentFlash(normalizedTime, BURST, 0.12)
-      const exclaimFlash = 0.55 * accentFlash(normalizedTime, EXCLAIM, 0.18)
+      // Kept translucent so the storyboard's red "!" reads through the slam.
+      const exclaimFlash = 0.32 * accentFlash(normalizedTime, EXCLAIM, 0.18)
       const camera: IntroCameraFrame = {
         zoom: (normalizedTime >= EXCLAIM ? 1.04 : 1.02)
           + 0.22 * accentPunch(normalizedTime, BURST, 0.05, 0.6)
@@ -798,10 +799,11 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
 
       // The chase camera tracks Pop T; the near-miss kicks the zoom and frame.
       const shake = accentShake(normalizedTime, CART_CROSS, 2, 0.3)
+      // Focal sits low so the crossing cart stays fully in frame under zoom.
       const camera: IntroCameraFrame = {
         zoom: 1.14 + 0.1 * accentPunch(normalizedTime, CART_CROSS, 0.05, 0.45),
         x: Math.max(96, Math.min(224, poptX)),
-        y: 150,
+        y: 185,
         offsetX: shake.x,
         offsetY: shake.y,
       }
@@ -1175,7 +1177,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         x: normalizedTime < GRAB
           ? Math.max(120, Math.min(230, (popt.x + key.x) / 2))
           : popt.x + 24,
-        y: normalizedTime < GRAB ? 130 : 124,
+        y: normalizedTime < GRAB ? 130 : 132,
         offsetX: shake.x,
         offsetY: shake.y,
       }
