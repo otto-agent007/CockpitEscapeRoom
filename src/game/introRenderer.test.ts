@@ -109,6 +109,22 @@ describe('TMB2 Canvas draw commands', () => {
     expect(kinds.indexOf('card')).toBeLessThan(kinds.indexOf('handoff-key'))
   })
 
+  it('renders the accent flash above the card and below the Start handoff', () => {
+    const story = deriveIntroAnimation(38, false)
+    const frame: IntroAnimationFrame = {
+      ...story,
+      card: { assetId: 'emblem-finale', x: 160, y: 104, scale: 1, opacity: 1 },
+      flash: { color: 'red', opacity: 0.6 },
+    }
+    const commands = deriveIntroDrawCommands(frame, deriveHandoffAnimation(0.5))
+    const kinds = commands.map((command) => command.kind)
+    expect(kinds.indexOf('flash')).toBeGreaterThan(kinds.indexOf('card'))
+    expect(kinds.indexOf('flash')).toBeLessThan(kinds.indexOf('handoff-key'))
+
+    expect(deriveIntroDrawCommands(deriveIntroAnimation(18, false), null)
+      .some((command) => command.kind === 'flash')).toBe(false)
+  })
+
   it('draws the Start handoff key over the frozen story frame', () => {
     const handoff = deriveHandoffAnimation(1)
     const commands = deriveIntroDrawCommands(deriveIntroAnimation(24, false), handoff)

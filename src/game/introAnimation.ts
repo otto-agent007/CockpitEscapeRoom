@@ -113,6 +113,79 @@ export type IntroCardFrame = {
   opacity: number
 }
 
+/**
+ * A punch-in camera: (x, y) is the focal stage point that stays put on screen
+ * while the world scales around it by zoom; offsetX/offsetY displace the view
+ * in screen space (shake). Identity draws exactly the untransformed stage.
+ */
+export type IntroCameraFrame = {
+  zoom: number
+  x: number
+  y: number
+  offsetX: number
+  offsetY: number
+}
+
+export const IDENTITY_CAMERA: IntroCameraFrame = Object.freeze({
+  zoom: 1,
+  x: 160,
+  y: 112,
+  offsetX: 0,
+  offsetY: 0,
+})
+
+/** A full-stage accent flash drawn above the card, below the Start handoff. */
+export type IntroFlashFrame = {
+  color: 'white' | 'red'
+  opacity: number
+}
+
+/**
+ * SEGA-style hitstop: the acting clock freezes at the accent for holdSeconds,
+ * then rejoins real time with a small forward jump, so every pose holds the
+ * exact accent values and the music never drifts.
+ */
+export function hitstopTime(t: number, accentSeconds: number, holdSeconds: number): number {
+  return t < accentSeconds + holdSeconds ? Math.min(t, accentSeconds) : t
+}
+
+/** Camera punch envelope: fast linear attack to 1, quadratic ease-out decay. */
+export function accentPunch(t: number, accentSeconds: number, attack = 0.06, decay = 0.5): number {
+  const since = t - accentSeconds
+  if (since < 0 || since >= attack + decay) return 0
+  if (since < attack) return since / attack
+  const fall = (since - attack) / decay
+  return (1 - fall) ** 2
+}
+
+/**
+ * Deterministic decaying screen shake after an accent: offsets come from the
+ * fixed integer lattices used by drawPixelCollapse, quantized to 60 fps so the
+ * jitter is frame-coherent, never random.
+ */
+export function accentShake(
+  t: number,
+  accentSeconds: number,
+  amplitude: number,
+  duration = 0.4,
+): { x: number; y: number } {
+  const since = t - accentSeconds
+  if (since < 0 || since >= duration) return { x: 0, y: 0 }
+  const envelope = (1 - since / duration) ** 2
+  const lattice = Math.floor(since * 60)
+  const x = amplitude * envelope * ((((lattice * 73 + 19) % 7) - 3) / 3)
+  const y = amplitude * envelope * ((((lattice * 41 + 7) % 5) - 2) / 2)
+  return { x, y }
+}
+
+/** Accent flash envelope: full for the first third of the window, then falls. */
+export function accentFlash(t: number, accentSeconds: number, duration = 0.18): number {
+  const since = t - accentSeconds
+  if (since < 0 || since >= duration) return 0
+  const phase = since / duration
+  return phase < 0.35 ? 1 : (1 - phase) / 0.65
+}
+
 export type IntroPropFrame = {
   id: 'duffel' | 'runway-cart' | 'baseball' | 'base' | 'graph' | 'bull-impact' | 'cloud-puff' | 'pilot-wings'
   x: number
@@ -134,6 +207,8 @@ export type IntroAnimationFrame = {
   props: readonly IntroPropFrame[]
   fx: readonly IntroFxFrame[]
   card: IntroCardFrame | null
+  camera: IntroCameraFrame
+  flash: IntroFlashFrame | null
   pixelCollapse: number
 }
 
@@ -381,6 +456,8 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
     props: [],
     fx: [],
     card: null,
+    camera: IDENTITY_CAMERA,
+    flash: null,
     pixelCollapse: 0,
   }
 
@@ -958,8 +1035,13 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
   }
   })()
 
-  if (!reducedMotion || frame.fx.length === 0) return frame
-  return { ...frame, fx: frame.fx.filter((fx) => REDUCED_MOTION_FX.has(fx.kind)) }
+  if (!reducedMotion) return frame
+  return {
+    ...frame,
+    fx: frame.fx.filter((fx) => REDUCED_MOTION_FX.has(fx.kind)),
+    camera: IDENTITY_CAMERA,
+    flash: null,
+  }
 }
 
 export function deriveHandoffAnimation(progress: number): HandoffFrame {

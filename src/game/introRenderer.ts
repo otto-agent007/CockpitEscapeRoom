@@ -55,6 +55,7 @@ export type IntroDrawCommand =
   | SpriteCommand
   | { kind: 'fx'; fx: IntroFxFrame }
   | { kind: 'card'; card: IntroCardFrame }
+  | { kind: 'flash'; color: 'white' | 'red'; opacity: number }
   | { kind: 'pixel-collapse'; progress: number }
   | { kind: 'handoff-key'; assetId: 'key-poses'; sourceFrame: 13; x: number; y: number; scale: number; rotation: number }
   | { kind: 'handoff-flash'; opacity: number }
@@ -159,6 +160,9 @@ export function deriveIntroDrawCommands(
   }
   if (frame.card) commands.push({ kind: 'card', card: frame.card })
   if (frame.pixelCollapse > 0) commands.push({ kind: 'pixel-collapse', progress: frame.pixelCollapse })
+  if (frame.flash && frame.flash.opacity > 0) {
+    commands.push({ kind: 'flash', color: frame.flash.color, opacity: frame.flash.opacity })
+  }
   if (handoff) {
     commands.push({
       kind: 'handoff-key',
@@ -619,6 +623,36 @@ function drawPixelCollapse(context: CanvasRenderingContext2D, progress: number):
   }
 }
 
+/**
+ * World commands scale and shake with the punch camera; the card, transitions,
+ * accent flash, and Start handoff stay screen-space.
+ */
+const CAMERA_SPACE_COMMANDS: ReadonlySet<IntroDrawCommand['kind']> = new Set([
+  'background',
+  'background-dim',
+  'logo-layer',
+  'prop',
+  'sprite',
+  'fx',
+])
+
+function withCamera(
+  context: CanvasRenderingContext2D,
+  camera: IntroAnimationFrame['camera'],
+  draw: () => void,
+): void {
+  if (camera.zoom === 1 && camera.offsetX === 0 && camera.offsetY === 0) {
+    draw()
+    return
+  }
+  context.save()
+  context.translate(camera.x + camera.offsetX, camera.y + camera.offsetY)
+  context.scale(camera.zoom, camera.zoom)
+  context.translate(-camera.x, -camera.y)
+  draw()
+  context.restore()
+}
+
 export function renderIntroFrame(
   context: CanvasRenderingContext2D,
   frame: IntroAnimationFrame,
@@ -640,6 +674,7 @@ export function renderIntroFrame(
   let drewExactLogoFallback = false
 
   for (const command of commands) {
+    const drawCommand = (): void => {
     switch (command.kind) {
       case 'clear':
         context.clearRect(0, 0, INTRO_STAGE_WIDTH, INTRO_STAGE_HEIGHT)
@@ -710,6 +745,13 @@ export function renderIntroFrame(
         }
         break
       }
+      case 'flash':
+        context.save()
+        context.globalAlpha = Math.min(1, command.opacity)
+        context.fillStyle = command.color === 'red' ? '#e54835' : '#fffbe4'
+        context.fillRect(0, 0, INTRO_STAGE_WIDTH, INTRO_STAGE_HEIGHT)
+        context.restore()
+        break
       case 'handoff-flash':
         context.save()
         context.globalAlpha = command.opacity
@@ -717,6 +759,12 @@ export function renderIntroFrame(
         context.fillRect(0, 0, INTRO_STAGE_WIDTH, INTRO_STAGE_HEIGHT)
         context.restore()
         break
+    }
+    }
+    if (CAMERA_SPACE_COMMANDS.has(command.kind)) {
+      withCamera(context, frame.camera, drawCommand)
+    } else {
+      drawCommand()
     }
   }
 }

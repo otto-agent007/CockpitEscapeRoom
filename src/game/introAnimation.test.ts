@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import {
+  IDENTITY_CAMERA,
   KEY_CLIPS,
   POPT_CLIPS,
+  accentFlash,
+  accentPunch,
+  accentShake,
   deriveHandoffAnimation,
   deriveIntroAnimation,
   getSpriteFrame,
+  hitstopTime,
   type SpriteTiming,
 } from './introAnimation'
 import { DUFFEL_JOLT_PERIOD_SECONDS, INTRO_MUSIC_CUES } from './introMusicCues'
@@ -305,6 +310,45 @@ describe('TMB2 sprite animation contract', () => {
     expect(deriveIntroAnimation(38, true).fx.some((fx) => fx.kind === 'laser-grid')).toBe(true)
     expect(deriveIntroAnimation(50, true).card).not.toBeNull()
     expect(deriveIntroAnimation(50, true).backgroundDim).toBe(1)
+  })
+
+  it('freezes the acting clock briefly at an accent and rejoins real time', () => {
+    expect(hitstopTime(10, 10.5, 0.12)).toBe(10)
+    expect(hitstopTime(10.55, 10.5, 0.12)).toBe(10.5)
+    expect(hitstopTime(10.62, 10.5, 0.12)).toBe(10.62)
+  })
+
+  it('spikes the accent punch envelope at the hit and decays it away', () => {
+    expect(accentPunch(9, 10)).toBe(0)
+    expect(accentPunch(10.06, 10)).toBeCloseTo(1, 5)
+    expect(accentPunch(10.31, 10)).toBeLessThan(0.6)
+    expect(accentPunch(11.5, 10)).toBe(0)
+  })
+
+  it('shakes deterministically within its amplitude and settles to rest', () => {
+    expect(accentShake(10.1, 10, 3)).toEqual(accentShake(10.1, 10, 3))
+    const shaken = accentShake(10.05, 10, 3)
+    expect(Math.abs(shaken.x)).toBeLessThanOrEqual(3)
+    expect(Math.abs(shaken.y)).toBeLessThanOrEqual(3)
+    expect(Math.abs(shaken.x) + Math.abs(shaken.y)).toBeGreaterThan(0)
+    expect(accentShake(9.9, 10, 3)).toEqual({ x: 0, y: 0 })
+    expect(accentShake(11, 10, 3)).toEqual({ x: 0, y: 0 })
+  })
+
+  it('flashes hard on the accent frame and fades inside the window', () => {
+    expect(accentFlash(9.99, 10)).toBe(0)
+    expect(accentFlash(10, 10)).toBe(1)
+    expect(accentFlash(10.05, 10)).toBe(1)
+    expect(accentFlash(10.15, 10)).toBeLessThan(1)
+    expect(accentFlash(10.4, 10)).toBe(0)
+  })
+
+  it('keeps reduced motion free of camera moves and accent flashes', () => {
+    for (const time of [3, 8, 13, 18, 24, 31, 38, 44, 49, 52]) {
+      const frame = deriveIntroAnimation(time, true)
+      expect(frame.camera).toEqual(IDENTITY_CAMERA)
+      expect(frame.flash).toBeNull()
+    }
   })
 
   it('flies and rotates the key into the lock during the 650ms handoff', () => {
