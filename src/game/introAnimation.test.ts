@@ -342,10 +342,55 @@ describe('TMB2 sprite animation contract', () => {
     }
   })
 
-  it('freezes the acting clock briefly at an accent and rejoins real time', () => {
+  it('lands a camera punch, flash, or hitstop on every measured accent', () => {
+    const burst = deriveIntroAnimation(INTRO_MUSIC_CUES.keyBurst + 0.05, false)
+    expect(burst.camera.zoom).toBeGreaterThan(1.1)
+    expect(burst.flash?.color).toBe('white')
+
+    const exclaim = deriveIntroAnimation(INTRO_MUSIC_CUES.exclaim + 0.06, false)
+    expect(exclaim.flash?.color).toBe('red')
+    expect(Math.abs(exclaim.camera.offsetX) + Math.abs(exclaim.camera.offsetY)).toBeGreaterThan(0)
+    const frozen = deriveIntroAnimation(INTRO_MUSIC_CUES.exclaim + 0.01, false)
+    const frozenLater = deriveIntroAnimation(INTRO_MUSIC_CUES.exclaim + 0.1, false)
+    expect(frozenLater.popt!.x).toBe(frozen.popt!.x)
+
+    const chase = deriveIntroAnimation(18, false)
+    expect(chase.camera.zoom).toBeGreaterThan(1.05)
+    const nearMiss = deriveIntroAnimation(INTRO_MUSIC_CUES.cartNearMiss + 0.05, false)
+    expect(nearMiss.camera.zoom).toBeGreaterThan(chase.camera.zoom)
+
+    const deflect = deriveIntroAnimation(INTRO_MUSIC_CUES.ballDeflect + 0.05, false)
+    expect(deflect.flash?.color).toBe('white')
+    expect(deflect.camera.zoom).toBeGreaterThan(1.2)
+
+    const bull = deriveIntroAnimation(INTRO_MUSIC_CUES.bullImpact + 0.05, false)
+    expect(bull.flash?.color).toBe('red')
+
+    expect(deriveIntroAnimation(INTRO_MUSIC_CUES.skyGridIgnite + 0.05, false).flash).not.toBeNull()
+
+    const grab = deriveIntroAnimation(INTRO_MUSIC_CUES.catchGrab + 0.05, false)
+    expect(grab.flash?.color).toBe('white')
+    expect(grab.camera.zoom).toBeGreaterThan(1.2)
+
+    const stamp = deriveIntroAnimation(INTRO_MUSIC_CUES.emblemStamp + 0.03, false)
+    expect(stamp.flash?.color).toBe('white')
+    expect(stamp.flash!.opacity).toBeGreaterThan(0.5)
+  })
+
+  it('opens impact stars at full presence so the hitstop freeze frame reads', () => {
+    const deflect = deriveIntroAnimation(INTRO_MUSIC_CUES.ballDeflect + 0.008, false)
+    const star = deflect.fx.find((fx) => fx.kind === 'impact-star')
+    expect(star!.opacity).toBeGreaterThan(0.9)
+  })
+
+  it('freezes the acting clock at an accent then catches smoothly back up', () => {
     expect(hitstopTime(10, 10.5, 0.12)).toBe(10)
     expect(hitstopTime(10.55, 10.5, 0.12)).toBe(10.5)
-    expect(hitstopTime(10.62, 10.5, 0.12)).toBe(10.62)
+    expect(hitstopTime(10.7, 10.5, 0.12)).toBeGreaterThan(10.5)
+    expect(hitstopTime(10.7, 10.5, 0.12)).toBeLessThan(10.7)
+    expect(hitstopTime(11.5, 10.5, 0.12)).toBe(11.5)
+    // Continuity at the catch-up boundary keeps the ≤4px motion contract.
+    expect(hitstopTime(10.92, 10.5, 0.12)).toBeCloseTo(10.92, 10)
   })
 
   it('spikes the accent punch envelope at the hit and decays it away', () => {

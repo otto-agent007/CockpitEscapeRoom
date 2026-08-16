@@ -142,11 +142,24 @@ export type IntroFlashFrame = {
 
 /**
  * SEGA-style hitstop: the acting clock freezes at the accent for holdSeconds,
- * then rejoins real time with a small forward jump, so every pose holds the
- * exact accent values and the music never drifts.
+ * then catches back up to real time over catchupSeconds at a slightly faster
+ * rate. Continuous everywhere, so the ≤4px frame-step motion contract holds,
+ * and fully resynced with the music once the catch-up window closes.
  */
-export function hitstopTime(t: number, accentSeconds: number, holdSeconds: number): number {
-  return t < accentSeconds + holdSeconds ? Math.min(t, accentSeconds) : t
+export function hitstopTime(
+  t: number,
+  accentSeconds: number,
+  holdSeconds: number,
+  catchupSeconds = holdSeconds * 2.5,
+): number {
+  const since = t - accentSeconds
+  if (since < 0) return t
+  if (since < holdSeconds) return accentSeconds
+  if (since < holdSeconds + catchupSeconds) {
+    return accentSeconds
+      + (since - holdSeconds) * ((holdSeconds + catchupSeconds) / catchupSeconds)
+  }
+  return t
 }
 
 /** Camera punch envelope: fast linear attack to 1, quadratic ease-out decay. */
@@ -431,14 +444,28 @@ const REPRESENTATIVE_SCENE_TIME: Partial<Record<IntroSceneId, number>> = {
 /** Fx kinds that stay visible (frozen) under reduced motion. */
 const REDUCED_MOTION_FX: ReadonlySet<IntroFxKind> = new Set(['laser-grid', 'chart-glow', 'radial-rays'])
 
+/**
+ * The one accent per scene that freezes the actors SEGA-style. Impact fx,
+ * flashes, and camera punches keep running on real time through the hold.
+ */
+const SCENE_HITSTOP: Partial<Record<IntroSceneId, { accent: number; hold: number }>> = {
+  'key-escape': { accent: INTRO_MUSIC_CUES.exclaim, hold: 0.12 },
+  ballpark: { accent: INTRO_MUSIC_CUES.ballDeflect, hold: 0.1 },
+  'city-finance': { accent: INTRO_MUSIC_CUES.bullImpact, hold: 0.12 },
+  'final-pursuit': { accent: INTRO_MUSIC_CUES.catchGrab, hold: 0.14 },
+}
+
 export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean): IntroAnimationFrame {
   const normalizedTime = normalizeIntroTime(timeSeconds)
   const scene = getIntroScene(normalizedTime)
   const duration = scene.endSeconds - scene.startSeconds
   const rawProgress = clamp01((normalizedTime - scene.startSeconds) / duration)
+  const hitstop = SCENE_HITSTOP[scene.id]
   const storyTime = reducedMotion
     ? REPRESENTATIVE_SCENE_TIME[scene.id] ?? scene.startSeconds + duration / 2
-    : normalizedTime
+    : hitstop
+      ? hitstopTime(normalizedTime, hitstop.accent, hitstop.hold)
+      : normalizedTime
   const sceneProgress = reducedMotion
     ? clamp01((storyTime - scene.startSeconds) / duration)
     : rawProgress
@@ -539,6 +566,27 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
       const fx: IntroFxFrame[] = []
       const backgroundDim = t < 6.8 ? 0.55 * (1 - (t - 6) / 0.8) : 0
 
+      // Dolly toward the struggle; each beat-locked tug kicks the zoom.
+      const joltGridStart = INTRO_MUSIC_CUES.firstDuffelJolt
+      const lastJoltBeat = normalizedTime >= joltGridStart
+        ? joltGridStart
+          + Math.floor((normalizedTime - joltGridStart) / DUFFEL_JOLT_PERIOD_SECONDS)
+          * DUFFEL_JOLT_PERIOD_SECONDS
+        : null
+      const camera: IntroCameraFrame = {
+        zoom: 1
+          + 0.1 * easeInOut(clamp01((t - 6) / 3))
+          + (lastJoltBeat === null ? 0 : 0.05 * accentPunch(normalizedTime, lastJoltBeat, 0.05, 0.4)),
+        x: 170,
+        y: 165,
+        offsetX: 0,
+        offsetY: 0,
+      }
+      const assembleBlink = 0.25 * accentFlash(normalizedTime, assembleEnd, 0.12)
+      const flash: IntroFlashFrame | null = assembleBlink > 0
+        ? { color: 'white', opacity: assembleBlink }
+        : null
+
       let popt: SpriteActorFrame
       if (t < assembleEnd) {
         const assembleProgress = clamp01((t - 6) / (assembleEnd - 6))
@@ -570,6 +618,8 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
           backgroundDim,
           popt,
           fx,
+          camera,
+          flash,
           props: [prop('duffel', 206, 156, 1, Math.sin(joltPhase * Math.PI) * 0.055 * joltStrength)],
         }
       }
@@ -578,6 +628,8 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         backgroundDim,
         popt,
         fx,
+        camera,
+        flash,
         props: [prop('duffel', 206, 156, 1, Math.sin(elapsedMs / 220) * 0.012)],
       }
     }
@@ -669,8 +721,8 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         : 1 - (1 - Math.min(1, (t - BURST) / 1.2)) ** 2
       const poptX = 138 - 26 * knockback
       const EXCLAIM = INTRO_MUSIC_CUES.exclaim
-      if (t >= EXCLAIM && t < EXCLAIM + 0.66) {
-        const pop = (t - EXCLAIM) / 0.66
+      if (normalizedTime >= EXCLAIM && normalizedTime < EXCLAIM + 0.66) {
+        const pop = (normalizedTime - EXCLAIM) / 0.66
         fx.push({
           kind: 'exclaim',
           x: poptX + 6,
@@ -684,11 +736,32 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         ? poptActor('duffel-pull', clipElapsedMs(t, 7.95), 138, 190)
         : poptActor('startle-stumble', clipElapsedMs(t, BURST), poptX, 190)
 
+      // The burst punches in at the bag; the track's biggest hit slams red,
+      // shakes the frame, and hitstops the actors (SCENE_HITSTOP).
+      const shake = accentShake(normalizedTime, EXCLAIM, 3.5, 0.4)
+      const burstFlash = 0.4 * accentFlash(normalizedTime, BURST, 0.12)
+      const exclaimFlash = 0.55 * accentFlash(normalizedTime, EXCLAIM, 0.18)
+      const camera: IntroCameraFrame = {
+        zoom: (normalizedTime >= EXCLAIM ? 1.04 : 1.02)
+          + 0.22 * accentPunch(normalizedTime, BURST, 0.05, 0.6)
+          + 0.12 * accentPunch(normalizedTime, EXCLAIM, 0.05, 0.5),
+        x: normalizedTime < EXCLAIM ? 205 : 178,
+        y: 150,
+        offsetX: shake.x,
+        offsetY: shake.y,
+      }
+
       return {
         ...base,
         popt,
         key,
         fx,
+        camera,
+        flash: exclaimFlash > 0
+          ? { color: 'red', opacity: exclaimFlash }
+          : burstFlash > 0
+            ? { color: 'white', opacity: burstFlash }
+            : null,
         props: [
           t <= BURST
             ? prop('duffel', 206, 156, 1, Math.sin(elapsedMs / 50) * 0.05)
@@ -723,12 +796,23 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
 
       const cartX = 473 - 90 * sceneT
 
+      // The chase camera tracks Pop T; the near-miss kicks the zoom and frame.
+      const shake = accentShake(normalizedTime, CART_CROSS, 2, 0.3)
+      const camera: IntroCameraFrame = {
+        zoom: 1.14 + 0.1 * accentPunch(normalizedTime, CART_CROSS, 0.05, 0.45),
+        x: Math.max(96, Math.min(224, poptX)),
+        y: 150,
+        offsetX: shake.x,
+        offsetY: shake.y,
+      }
+
       return {
         ...base,
         backgroundOffsetX: reducedMotion ? 0 : -12 * sceneProgress,
         popt,
         key: keyActor('fly', elapsedMs, keySample.x, keySample.y, 0.36, keySample.rotation),
         fx,
+        camera,
         props: [prop('runway-cart', cartX, 208, 0.68)],
       }
     }
@@ -788,14 +872,15 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         props.push(prop('baseball', ballPosition.x, ballPosition.y, 0.8))
       }
       if (t >= DEFLECT && t < DEFLECT + 0.53) {
-        const phase = (t - DEFLECT) / 0.53
+        // Real-time phase so the star holds full presence through the hitstop.
+        const phase = clamp01((normalizedTime - DEFLECT) / 0.53)
         fx.push({
           kind: 'impact-star',
           x: D.x,
           y: D.y,
-          scale: 0.3 + Math.sin(phase * Math.PI) * 0.1,
+          scale: 0.3 + 0.1 * (1 - phase),
           rotation: phase * 0.6,
-          opacity: Math.sin(phase * Math.PI),
+          opacity: clamp01(1 - phase ** 2),
         })
       }
 
@@ -812,7 +897,27 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         }
       }
 
-      return { ...base, popt, key: keyActor('fly', elapsedMs, keySample.x, keySample.y, 0.36, keySample.rotation), fx, props }
+      // Drift toward the deflection point, then punch into it on the accent.
+      const focalDrift = easeInOut(clamp01((t - 22) / (DEFLECT - 22)))
+      const shake = accentShake(normalizedTime, DEFLECT, 2.5, 0.35)
+      const deflectFlash = 0.35 * accentFlash(normalizedTime, DEFLECT, 0.12)
+      const camera: IntroCameraFrame = {
+        zoom: 1.08 + 0.24 * accentPunch(normalizedTime, DEFLECT, 0.05, 0.45),
+        x: 140 + (D.x - 140) * focalDrift,
+        y: 165 + (D.y + 10 - 165) * focalDrift,
+        offsetX: shake.x,
+        offsetY: shake.y,
+      }
+
+      return {
+        ...base,
+        popt,
+        key: keyActor('fly', elapsedMs, keySample.x, keySample.y, 0.36, keySample.rotation),
+        fx,
+        camera,
+        flash: deflectFlash > 0 ? { color: 'white', opacity: deflectFlash } : null,
+        props,
+      }
     }
     case 'city-finance': {
       // Panel 6: the key runs up the neon chart, lighting it as it climbs,
@@ -860,18 +965,38 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         popt = poptActor('run', clipElapsedMs(t, SPIN_END), 167 + ((t - SPIN_END) / 2.8) * 33, 188, 1.14)
       }
       if (t >= IMPACT && t < IMPACT + 0.6) {
-        const phase = (t - IMPACT) / 0.6
+        // Real-time phase so the star holds full presence through the hitstop.
+        const phase = clamp01((normalizedTime - IMPACT) / 0.6)
         fx.push({
           kind: 'impact-star',
           x: 238,
           y: 162,
-          scale: 0.3 + Math.sin(phase * Math.PI) * 0.12,
+          scale: 0.3 + 0.12 * (1 - phase),
           rotation: phase * 0.5,
-          opacity: Math.sin(phase * Math.PI),
+          opacity: clamp01(1 - phase ** 2),
         })
       }
 
-      return { ...base, popt, key, fx, props: [] }
+      // Follow the climb up the chart; the bull hit slams red and shakes.
+      const shake = accentShake(normalizedTime, IMPACT, 3, 0.4)
+      const bullFlash = 0.4 * accentFlash(normalizedTime, IMPACT, 0.18)
+      const camera: IntroCameraFrame = {
+        zoom: 1.08 + 0.18 * accentPunch(normalizedTime, IMPACT, 0.05, 0.5),
+        x: Math.max(120, Math.min(230, chartPosition.x)),
+        y: 150,
+        offsetX: shake.x,
+        offsetY: shake.y,
+      }
+
+      return {
+        ...base,
+        popt,
+        key,
+        fx,
+        camera,
+        flash: bullFlash > 0 ? { color: 'red', opacity: bullFlash } : null,
+        props: [],
+      }
     }
     case 'sky': {
       // Panel 7: the chase goes airborne over the red digital horizon.
@@ -905,6 +1030,17 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         }
       }
 
+      // A slow airborne push; the horizon ignition pulses red and trembles.
+      const shake = accentShake(normalizedTime, IGNITE, 1.5, 0.3)
+      const igniteFlash = 0.3 * accentFlash(normalizedTime, IGNITE, 0.2)
+      const camera: IntroCameraFrame = {
+        zoom: 1 + 0.08 * easeInOut(clamp01(sceneT / 5)),
+        x: 170,
+        y: 130,
+        offsetX: shake.x,
+        offsetY: shake.y,
+      }
+
       return {
         ...base,
         popt: poptActor(
@@ -917,6 +1053,8 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         ),
         key: keyActor('fly', elapsedMs, keySample.x, keySample.y, 0.36, keySample.rotation),
         fx,
+        camera,
+        flash: igniteFlash > 0 ? { color: 'red', opacity: igniteFlash } : null,
         props,
       }
     }
@@ -1011,16 +1149,35 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
           Math.sin(t * 14) * 0.18,
         )
         if (t < GRAB + 0.4) {
-          const phase = (t - GRAB) / 0.4
+          // Real-time phase so the star holds full presence through the hitstop.
+          const phase = clamp01((normalizedTime - GRAB) / 0.4)
           fx.push({
             kind: 'impact-star',
             x: popt.x + 24,
             y: 124,
             scale: 0.3,
             rotation: phase * 0.5,
-            opacity: Math.sin(phase * Math.PI),
+            opacity: clamp01(1 - phase ** 2),
           })
         }
+      }
+
+      // Track the shrinking gap, kick on the whiff, punch into the grab.
+      const shake = {
+        x: accentShake(normalizedTime, MISS, 2, 0.3).x + accentShake(normalizedTime, GRAB, 2.5, 0.35).x,
+        y: accentShake(normalizedTime, MISS, 2, 0.3).y + accentShake(normalizedTime, GRAB, 2.5, 0.35).y,
+      }
+      const grabFlash = 0.45 * accentFlash(normalizedTime, GRAB, 0.15)
+      const camera: IntroCameraFrame = {
+        zoom: 1.1
+          + 0.08 * accentPunch(normalizedTime, MISS, 0.05, 0.4)
+          + 0.22 * accentPunch(normalizedTime, GRAB, 0.05, 0.5),
+        x: normalizedTime < GRAB
+          ? Math.max(120, Math.min(230, (popt.x + key.x) / 2))
+          : popt.x + 24,
+        y: normalizedTime < GRAB ? 130 : 124,
+        offsetX: shake.x,
+        offsetY: shake.y,
       }
 
       return {
@@ -1028,6 +1185,8 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         popt,
         key,
         fx,
+        camera,
+        flash: grabFlash > 0 ? { color: 'white', opacity: grabFlash } : null,
         props: [prop('pilot-wings', popt.x, popt.y - 38, 0.52, popt.rotation * 0.5)],
       }
     }
@@ -1056,6 +1215,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
           popt: poptActor('victory-recovery', held, 150, 190, 1.16),
           key: keyActor('tug', held, 163, 116, 0.36, Math.sin(t * 9) * 0.15),
           fx,
+          camera: { zoom: 1.06, x: 160, y: 145, offsetX: 0, offsetY: 0 },
         }
       }
 
@@ -1068,10 +1228,12 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         rotation: (t - STAMP) * 0.35,
         opacity: 0.55 * reveal,
       })
+      const stampFlash = 0.7 * accentFlash(normalizedTime, STAMP, 0.22)
       return {
         ...base,
         backgroundDim: clamp01((t - STAMP) / 0.196),
         fx,
+        flash: stampFlash > 0 ? { color: 'white', opacity: stampFlash } : null,
         card: {
           assetId: 'emblem-finale',
           x: 160,
