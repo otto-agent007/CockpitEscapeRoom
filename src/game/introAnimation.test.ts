@@ -380,8 +380,13 @@ describe('TMB2 sprite animation contract', () => {
     const frozenLater = deriveIntroAnimation(INTRO_MUSIC_CUES.exclaim + 0.1, false)
     expect(frozenLater.popt!.x).toBe(frozen.popt!.x)
 
+    // The runway used to hold a 1.14 framing zoom for the whole scene, and this
+    // assertion pinned it at > 1.05. That held zoom moved nothing — 0.111 px of
+    // screen travel per frame — while point-sampling every world draw. The
+    // replacement is stronger: the chase must rest at exactly identity, and the
+    // near-miss must be the thing that lifts it.
     const chase = deriveIntroAnimation(18, false)
-    expect(chase.camera.zoom).toBeGreaterThan(1.05)
+    expect(chase.camera.zoom).toBe(1)
     const nearMiss = deriveIntroAnimation(INTRO_MUSIC_CUES.cartNearMiss + 0.05, false)
     expect(nearMiss.camera.zoom).toBeGreaterThan(chase.camera.zoom)
 
@@ -401,6 +406,27 @@ describe('TMB2 sprite animation contract', () => {
     const stamp = deriveIntroAnimation(INTRO_MUSIC_CUES.emblemStamp + 0.03, false)
     expect(stamp.flash?.color).toBe('white')
     expect(stamp.flash!.opacity).toBeGreaterThan(0.5)
+  })
+
+  it('rests the camera at identity and lifts it only for a punch', () => {
+    let lifted = 0
+    let total = 0
+    for (let time = 0; time <= 53.04; time += 0.04) {
+      const { camera } = deriveIntroAnimation(time, false)
+      total += 1
+      // A fractional offset displaces the whole stage off its pixel grid for the
+      // length of the kick, so shake lands on whole stage pixels.
+      expect(Number.isInteger(camera.offsetX)).toBe(true)
+      expect(Number.isInteger(camera.offsetY)).toBe(true)
+      expect(camera.zoom).toBeGreaterThanOrEqual(1)
+      // Nothing sits inside the dead zone: it is either identity or a real push.
+      expect(camera.zoom === 1 || camera.zoom >= 1.02).toBe(true)
+      if (camera.zoom !== 1) lifted += 1
+    }
+    // Zoom is a punch, never a framing device. Before this contract the stage
+    // carried a fractional world transform on 93.5% of frames while moving
+    // 0.02-0.36 px per frame; now only the accent envelopes lift it.
+    expect(lifted / total).toBeLessThan(0.15)
   })
 
   it('opens impact stars at full presence so the hitstop freeze frame reads', () => {

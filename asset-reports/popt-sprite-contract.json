@@ -8,7 +8,6 @@
     "animationContractSha256": "ee79610510df36c5d73c98103a4cb1be563b0a936d8d48d8304c33854e165e01",
     "reason": "The v1 cell size, character size, and runtime draw scale were pipeline defaults that were never derived from the 320x224 intro stage. See defectsMeasured."
   },
-
   "derivation": {
     "principle": "Every number below is derived from the intro stage, not from a tool default. One art pixel must occupy a whole number of stage pixels, and the character must carry the detail its on-stage size demands.",
     "stage": {
@@ -18,56 +17,95 @@
       "displayScale": "integer only; computeIntroStagePlacement floors it (measured 4x at a 1440x900 viewport)"
     },
     "characterOnStage": {
-      "standingHeightStagePx": 92,
-      "shareOfStageHeight": 0.41,
-      "rationale": "Preserves the staging the owner reviewed in the 0028 punch pass. v1 rendered 105 stage px from 47 art px; v2 renders 92 stage px from 92 art px."
+      "standingHeightStagePx": 104,
+      "shareOfStageHeight": 0.46,
+      "rationale": "Chosen after plan 0030 retired the held camera zoom. Under 0028 he rendered 105 stage px from 47 art px and the scene baseline magnified that to 100-120 depending on scene, ~114 on average. With the camera resting at 1 there is no magnification left, so the art must carry the size: 104 art px drawn 1:1. That is the tallest a standing pose can be and still leave the 128 cell headroom for raised-arm poses, and it lands ~9% under the 0028 average apparent size."
     }
   },
-
   "cell": {
-    "canonical": [128, 128],
-    "pivot": { "x": 64, "y": 112 },
-    "baseline": 111,
-    "pivotUnchangedFromV1": true,
-    "note": "Pivot and baseline are deliberately identical to v1 so on-stage foot placement and every choreographed y position stay valid."
+    "canonical": [
+      128,
+      128
+    ],
+    "pivot": {
+      "x": 64,
+      "y": 120
+    },
+    "baseline": 119,
+    "pivotUnchangedFromV1": false,
+    "v1Pivot": {
+      "x": 64,
+      "y": 112
+    },
+    "note": "The pivot moved down 8 rows inside the cell purely to buy headroom for the taller standing pose. It does not move him on stage: the renderer places the pivot at the choreographed (x, y), so every foot position from 0022 and 0028 stays valid."
   },
-
   "character": {
-    "standingHeightPx": 92,
+    "standingHeightPx": 104,
     "standingHeightTolerancePx": 2,
-    "standingWidthPx": 30,
-    "maxPoseHeightPx": 104,
-    "maxPoseWidthPx": 108,
-    "envelope": "A pose must fit x in [10,118] and y in [7,116] of the cell. Widest v1 pose was the baseball slide at 54x30 art px; doubled it is 108x60 and still clears the cell.",
-    "v1StandingHeightPx": 46
+    "standingWidthPx": 34,
+    "maxPoseHeightPx": 112,
+    "maxPoseWidthPx": 118,
+    "envelope": "A pose must fit x in [5,123] and y in [7,127] of the cell. Widest v1 pose was the baseball slide at 54x30 art px; at the v2 scale factor of 2.21 that is 119x66, which clears the cell by 4 px a side.",
+    "v1StandingHeightPx": 46,
+    "envelopeBounds": {
+      "x": [
+        5,
+        123
+      ],
+      "y": [
+        7,
+        127
+      ]
+    }
   },
-
   "generation": {
-    "canvas": [1024, 1024],
+    "canvas": [
+      1024,
+      1024
+    ],
     "blockPx": 8,
-    "logicalGrid": [128, 128],
+    "logicalGrid": [
+      128,
+      128
+    ],
     "unchangedFromV1": true,
-    "note": "1024 / 8 = 128 exactly, so the generation setup does not change. What changes is composition: the character fills 92 of the 128 rows instead of 46."
+    "note": "1024 / 8 = 128 exactly, so the generation setup does not change. What changes is composition: the character fills 104 of the 128 rows instead of 46."
   },
-
   "runtime": {
-    "framePng": [128, 128],
+    "framePng": [
+      128,
+      128
+    ],
     "artPixelsPerFilePixel": 1,
     "sheetColumns": 4,
     "drawScale": 1,
     "artPixelsPerStagePixel": 1,
     "v1": {
-      "framePng": [256, 256],
+      "framePng": [
+        256,
+        256
+      ],
       "artPixelsPerFilePixel": 2,
       "drawScale": "1.08 - 1.18 depending on call site",
       "artPixelToStagePixel": 2.24
     }
   },
-
   "palette": {
     "opaqueColors": [
-      "#040614", "#1A203F", "#F1EFF0", "#F8AC75", "#280B02", "#BAB7CB", "#D5773F",
-      "#F5C424", "#20251E", "#3A4772", "#A35616", "#CB8A06", "#6A320A", "#82819A"
+      "#040614",
+      "#1A203F",
+      "#F1EFF0",
+      "#F8AC75",
+      "#280B02",
+      "#BAB7CB",
+      "#D5773F",
+      "#F5C424",
+      "#20251E",
+      "#3A4772",
+      "#A35616",
+      "#CB8A06",
+      "#6A320A",
+      "#82819A"
     ],
     "count": 14,
     "freeSlots": 1,
@@ -77,21 +115,150 @@
     "identityRule": "The 14 colors are the character's identity and must not be re-picked. Verified present in every shipped v1 frame.",
     "source": "measured across all 24 v1 pipeline frames"
   },
-
   "clips": [
-    { "id": "idle",             "loopMode": "loop", "grounded": true,      "v1Frames": 4, "v2Frames": 4,  "durations": [220, 220, 220, 220] },
-    { "id": "run",              "loopMode": "loop", "grounded": true,      "v1Frames": 8, "v2Frames": 8,  "durations": [90, 90, 90, 90, 90, 90, 90, 90] },
-    { "id": "duffel-pull",      "loopMode": "loop", "grounded": true,      "v1Frames": 4, "v2Frames": 6,  "durations": [140, 120, 120, 160, 140, 180] },
-    { "id": "startle-stumble",  "loopMode": "hold-last", "grounded": true, "v1Frames": 3, "v2Frames": 5,  "durations": [70, 90, 110, 140, 260] },
-    { "id": "baseball-slide",   "loopMode": "hold-last", "grounded": true, "v1Frames": 4, "v2Frames": 6,  "durations": [70, 90, 90, 110, 120, 220] },
-    { "id": "bull-spin",        "loopMode": "once", "grounded": true,      "v1Frames": 6, "v2Frames": 8,  "durations": [70, 70, 80, 80, 80, 80, 90, 160] },
-    { "id": "pilot-glide",      "loopMode": "loop", "grounded": false,      "v1Frames": 4, "v2Frames": 6,  "durations": [120, 120, 120, 120, 120, 120] },
-    { "id": "reach-catch",      "loopMode": "hold-last", "grounded": false, "v1Frames": 4, "v2Frames": 6,  "durations": [90, 110, 110, 140, 160, 260] },
-    { "id": "victory-recovery", "loopMode": "hold-last", "grounded": true, "v1Frames": 3, "v2Frames": 6,  "durations": [110, 140, 140, 180, 200, 300] }
+    {
+      "id": "idle",
+      "loopMode": "loop",
+      "grounded": true,
+      "v1Frames": 4,
+      "v2Frames": 4,
+      "durations": [
+        220,
+        220,
+        220,
+        220
+      ]
+    },
+    {
+      "id": "run",
+      "loopMode": "loop",
+      "grounded": true,
+      "v1Frames": 8,
+      "v2Frames": 8,
+      "durations": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ]
+    },
+    {
+      "id": "duffel-pull",
+      "loopMode": "loop",
+      "grounded": true,
+      "v1Frames": 4,
+      "v2Frames": 6,
+      "durations": [
+        140,
+        120,
+        120,
+        160,
+        140,
+        180
+      ]
+    },
+    {
+      "id": "startle-stumble",
+      "loopMode": "hold-last",
+      "grounded": true,
+      "v1Frames": 3,
+      "v2Frames": 5,
+      "durations": [
+        70,
+        90,
+        110,
+        140,
+        260
+      ]
+    },
+    {
+      "id": "baseball-slide",
+      "loopMode": "hold-last",
+      "grounded": true,
+      "v1Frames": 4,
+      "v2Frames": 6,
+      "durations": [
+        70,
+        90,
+        90,
+        110,
+        120,
+        220
+      ]
+    },
+    {
+      "id": "bull-spin",
+      "loopMode": "once",
+      "grounded": true,
+      "v1Frames": 6,
+      "v2Frames": 8,
+      "durations": [
+        70,
+        70,
+        80,
+        80,
+        80,
+        80,
+        90,
+        160
+      ]
+    },
+    {
+      "id": "pilot-glide",
+      "loopMode": "loop",
+      "grounded": false,
+      "v1Frames": 4,
+      "v2Frames": 6,
+      "durations": [
+        120,
+        120,
+        120,
+        120,
+        120,
+        120
+      ]
+    },
+    {
+      "id": "reach-catch",
+      "loopMode": "hold-last",
+      "grounded": false,
+      "v1Frames": 4,
+      "v2Frames": 6,
+      "durations": [
+        90,
+        110,
+        110,
+        140,
+        160,
+        260
+      ]
+    },
+    {
+      "id": "victory-recovery",
+      "loopMode": "hold-last",
+      "grounded": true,
+      "v1Frames": 3,
+      "v2Frames": 6,
+      "durations": [
+        110,
+        140,
+        140,
+        180,
+        200,
+        300
+      ]
+    }
   ],
-  "frameTotals": { "v1": 40, "v2": 55, "plusAnchor": 56 },
+  "frameTotals": {
+    "v1": 40,
+    "v2": 55,
+    "plusAnchor": 56
+  },
   "clipIdsAreRuntimeContract": "Clip ids, loop modes, and total clip durations are consumed by src/game/introAnimation.ts. Ids and loop modes must not change. Durations may only be re-split within the same total.",
-
   "qualityGates": {
     "orphanPixelRate": {
       "max": 0.06,
@@ -106,7 +273,6 @@
     "baselineDrift": "Feet touch y=111 in every grounded frame; airborne clips declare their own offset once and hold it.",
     "identity": "Owner review against art-source/intro/tmb2/popt-v2/references/identity-anchor-1024.png."
   },
-
   "defectsMeasured": {
     "date": "2026-08-16",
     "fractionalSpriteScale": {
@@ -134,7 +300,6 @@
       "status": "not changed. The v2 frame budget adds authored tilt frames to pilot-glide and bull-spin so runtime rotation can be retired later without losing the motion."
     }
   },
-
   "references": {
     "directory": "art-source/intro/tmb2/popt-v2/references",
     "files": {
@@ -147,7 +312,11 @@
       "palette.txt": "The 14 colours as hex."
     }
   },
-
   "promptPack": "asset-reports/popt-frame-prompt-pack.md",
-  "plan": "plans/0029-popt-native-resolution.md"
+  "plan": "plans/0029-popt-native-resolution.md",
+  "dependsOn": {
+    "plan": "plans/0030-pixel-safe-punch-camera.md",
+    "decision": "Owner approved retiring the held camera zoom on 2026-08-16.",
+    "consequence": "The camera no longer magnifies actors, so the standing height moved from 92 to 104 and the pivot from (64,112) to (64,120). Had the zoom stayed, 92 with pivot (64,112) would have been correct. Do not mix the two sets."
+  }
 }

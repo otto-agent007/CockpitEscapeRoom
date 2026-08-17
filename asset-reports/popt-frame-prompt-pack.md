@@ -5,8 +5,8 @@ contract these prompts implement is `asset-reports/popt-sprite-contract.json`; t
 and evidence are in `plans/0029-popt-native-resolution.md`.
 
 **What changes from the frames we have:** nothing about who Pop T is. Same character, same 14
-colours, same poses. He is redrawn at **twice the linear resolution** — 92 pixels tall instead
-of 46 — because he plays at 41% of the screen and 46 pixels cannot hold that size. The frames
+colours, same poses. He is redrawn at **more than twice the linear resolution** — 104 pixels tall instead
+of 46 — because he plays at 46% of the screen and 46 pixels cannot hold that size. The frames
 we have resolve about one fifth the detail of the key mascot standing next to him.
 
 ---
@@ -48,9 +48,9 @@ Paste this verbatim at the top of every request, then add the one-line pose brie
 > #040614 #1A203F #F1EFF0 #F8AC75 #280B02 #BAB7CB #D5773F #F5C424 #20251E #3A4772 #A35616
 > #CB8A06 #6A320A #82819A
 >
-> Composition, in logical pixels of the 128×128 grid: he stands on a baseline at row 111, centred
-> on column 64. Standing height is 92 rows (top of cap at row 19). No pose may leave the box
-> from column 10 to 118 and row 7 to 116.
+> Composition, in logical pixels of the 128×128 grid: he stands on a baseline at row 119, centred
+> on column 64. Standing height is 104 rows (top of cap at row 16). No pose may leave the box
+> from column 5 to 123 and row 7 to 127.
 >
 > Fully transparent background. No ground, no shadow, no props, no duffel bag, no key character,
 > no text, no logo, no border, no frame, no watermark, no UI.

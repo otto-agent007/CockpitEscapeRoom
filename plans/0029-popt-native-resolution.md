@@ -29,7 +29,8 @@ asset-manifest changes needed to load 128×128 frames when they arrive.
 Excluded: the GameDevStuff repository; the key mascot (it is drawn at scale 0.38 and is
 supersampled rather than upscaled — it is not the problem); the background plates; the 0028 punch
 choreography; `introConfig.ts` timeline boundaries; audio; every non-intro chapter. The fractional
-punch-camera zoom recorded in Discoveries is explicitly **out of scope and unresolved**.
+punch-camera zoom recorded in Discoveries was out of scope here and is handled by
+`plans/0030-pixel-safe-punch-camera.md`, which the owner approved on 2026-08-16.
 
 ## Context and constraints
 
@@ -40,8 +41,9 @@ punch-camera zoom recorded in Discoveries is explicitly **out of scope and unres
   within the same total.
 - The 14-colour palette is the character's identity and is not re-picked. One of the 16 palette
   slots stays free.
-- Pivot (64,112) and baseline 111 are deliberately unchanged, so every choreographed foot position
-  from 0022 and 0028 stays valid.
+- The pivot may move *within* the cell but must never move the character *on stage*: the renderer
+  places the pivot at the choreographed (x, y), so every foot position from 0022 and 0028 stays
+  valid. It moved from (64,112) to (64,120) on 2026-08-17 to buy headroom for the taller pose.
 - Never weaken a test; evolve assertions with equal-or-stronger equivalents and record each
   evolution here.
 - No push before owner approval.
@@ -55,6 +57,10 @@ punch-camera zoom recorded in Discoveries is explicitly **out of scope and unres
 - [x] 2026-08-16 — Owner prompt pack written to `asset-reports/popt-frame-prompt-pack.md`.
 - [x] 2026-08-16 — Frame validator `tools/assets/check-popt-frames.py` written and proven to fail
       the v1 frames it is meant to reject.
+- [x] 2026-08-17 — Contract amended for `plans/0030-pixel-safe-punch-camera.md`: standing height
+      92 → 104, pivot (64,112) → (64,120), baseline row 111 → 119, envelope widened to
+      x [5,123] / y [7,127]. Prompt pack and reference images regenerated; gate re-verified in
+      both directions against the amended numbers.
 - [ ] Owner generates Wave 0 anchor; identity approved before any other frame.
 - [ ] Owner generates Waves 1–3 (55 frames).
 - [ ] Frames snapped, normalised, exported to 128×128, validated, integrated.
@@ -95,9 +101,9 @@ Measured 2026-08-16 against the shipped build. Each figure is reproducible from 
   every world command, so background, props, and sprites are all point-sampled off-grid for almost
   the entire runtime. Reduced motion is identity and is unaffected. **This is the single largest
   contributor to the frame looking soft, it is not an asset problem, and correcting Pop T will not
-  fix it.** Recorded here and deliberately left alone: it changes approved 0028 choreography and is
-  the owner's call. A pixel-safe punch would quantise the zoom to whole steps, or move the punch
-  from a world transform to an integer change of the stage's display scale.
+  fix it.** *Resolved 2026-08-17 by `plans/0030-pixel-safe-punch-camera.md`: the nine held scene
+  baselines were retired, so the intro is now pixel-exact on 93.3% of frames and only the punch
+  envelopes lift the zoom. That change is why this contract's standing height moved to 104.*
 
 - **Eight call sites rotate Pop T at runtime** (slide tilt, glide sway, bull tumble, lunge sag, exit
   roll). Any non-zero rotation resamples a pixel sprite; Genesis hardware could not rotate sprites
@@ -126,7 +132,15 @@ Measured 2026-08-16 against the shipped build. Each figure is reproducible from 
   in the 16-colour budget if the redraw needs one more shading step.
 - **2026-08-16 — Frame budget 40 → 55.** The acting gap named in 0028 is real; the redraw is the
   cheapest moment to close part of it, since every frame is being regenerated anyway.
-- **2026-08-16 — Leave the fractional punch-camera zoom alone.** Out of the scope the owner set,
+- **2026-08-17 — Standing height raised 92 → 104 and the pivot moved to (64,120).** Consequence of
+  the owner approving plan 0030 on 2026-08-16. With the held camera zoom retired there is no
+  magnification left to borrow, so the art must carry the size. 104 is the tallest standing pose
+  the 128 cell can hold while leaving headroom for raised arms, and it lands ~9% under the 0028
+  average apparent size. The pivot moved down 8 rows inside the cell purely to buy that
+  headroom; it does not move him on stage. The contract records a `dependsOn` block so the two
+  number sets are never mixed.
+- **2026-08-16 — Leave the fractional punch-camera zoom alone.** *(superseded 2026-08-16 — the
+  owner asked for it to be scoped, then approved it; see `plans/0030-pixel-safe-punch-camera.md`.)* Out of the scope the owner set,
   and it changes approved choreography. Documented above as the largest remaining defect.
 
 ## Milestones
@@ -270,6 +284,6 @@ The critical path is now the owner: generate the Wave 0 anchor from
 `asset-reports/popt-frame-prompt-pack.md`, approve its identity, then work through Waves 1–3.
 Integration, validation, and browser proof follow each wave.
 
-One decision is owed separately and is not part of this plan: whether to make the 0028 punch camera
-pixel-safe. Until that is answered, Pop T will be resampled by the camera on 93.5% of the intro no
-matter how good the frames are.
+The camera question that was owed here has been answered: `plans/0030-pixel-safe-punch-camera.md`
+is implemented, the intro is now pixel-exact on 93.3% of frames instead of 6.4%, and this
+contract has been amended to suit. The anchor can be generated against the amended numbers.

@@ -1,7 +1,8 @@
 # Pixel-safe punch camera
 
-> **Status: scoped, not started.** This document exists to cost the work and surface one decision
-> that blocks `plans/0029-popt-native-resolution.md`. No code has been changed for it.
+> **Status: implemented 2026-08-17, awaiting the owner visual gate.** Owner approved the change on
+> 2026-08-16, choosing to amend the 0029 contract first. The pixel-exact share of the intro went
+> from 6.4% to 93.3%.
 
 ## Purpose
 
@@ -169,3 +170,85 @@ signed off, because both depend on the framing it changes. Suggested order:
 - The punches still land on every measured accent with their existing attack and decay.
 - Reduced motion is unchanged — it is already identity.
 - Owner approves the re-staged composition of all nine scenes.
+
+## Progress
+
+- [x] 2026-08-16 — Scoped and measured; owner approved "do it, amend the contract first".
+- [x] 2026-08-17 — All nine scene baselines retired to 1.0.
+- [x] 2026-08-17 — `punchZoom` helper with a 0.02 dead zone; shake rounded to whole stage pixels.
+- [x] 2026-08-17 — 0029 contract amended: standing height 92 → 104, pivot (64,112) → (64,120),
+      baseline row 111 → 119, envelope widened; prompt pack and reference images regenerated.
+- [x] 2026-08-17 — Nine scenes inspected in a real browser; one staging repair made.
+- [ ] Owner visual gate on the re-staged composition, together with the 0028 punch review.
+
+## Implementation steps
+
+- [x] **Task 1 — Retire the baselines.** `src/game/introAnimation.ts`: the nine held zooms
+      (`tmb2-ident` 1.06, `duffel` 1.10, `key-escape` 1.02/1.04, `runway` 1.14, `ballpark` 1.08,
+      `city-finance` 1.08, `sky` 1.08, `final-pursuit` 1.10, `catch` 1.06) all become 1. The `sky`
+      scene's camera was *only* a baseline ease, so its zoom is now the literal 1.
+- [x] **Task 2 — Make the rest state structural.** Added `punchZoom(...lifts)`, which sums the punch
+      envelopes and returns exactly 1 unless the sum clears `ZOOM_DEADZONE` (0.02). Zoom can no
+      longer be lifted except by an accent, and a sub-visible push can no longer cost the grid.
+- [x] **Task 3 — Integer shake.** `accentShake` now rounds its offsets. A fractional offset
+      displaces the whole stage off-grid for the length of the kick; whole-pixel shake is also how
+      the hardware this is imitating actually shook.
+- [x] **Task 4 — Amend the 0029 contract** to the taller standing height and moved pivot, with a
+      `dependsOn` block recording that the two number sets must not be mixed.
+- [x] **Task 5 — Re-stage.** Only one repair was needed; see Deviations.
+- [ ] **Task 6 — Owner visual gate.**
+
+## Deviations from the scope
+
+- **Focal tracking was kept, not deleted.** The scope proposed removing it. That turned out to be
+  unnecessary work that would have made the punches worse: with the baseline at 1 the focal has no
+  effect at all except while a punch is running, and during a punch it is exactly what aims the
+  push-in at its subject. The measured drift the scope objected to was entirely a product of the
+  held zoom, so retiring the zoom already removed it. The focals stay and now do one job well.
+- **Re-staging was one line, not nine scenes.** The scope assumed the widened framing would need
+  every actor coordinate remapped. It did not: actors sit near their focal points, so the apparent
+  shift is 1–7 px in every scene, and all nine were inspected in a real browser and read correctly
+  as staged. The single genuine repair was the runway cart.
+
+## Evidence
+
+### 2026-08-17 camera
+
+- Camera census over 5305 frames at 100 Hz, after the change: **93.0% identity, 0.3% integer shake
+  only, 6.7% (3.6 s) inside a punch envelope** — 93.3% pixel exact against 6.4% before. Every scene
+  now rests at exactly 1: `%` of frames at rest is 94 (ident), 86 (duffel), 83 (key-escape), 95
+  (runway), 94 (ballpark), 95 (city-finance), 100 (sky), 90 (final-pursuit), 100 (catch and
+  loop-reset).
+- Punch peaks preserved and relatively stronger, because the same lift now starts from a wider rest:
+  ballpark peaks at 1.232 from 1.0 (a 1.23× push) where it previously peaked at 1.312 from 1.08 (a
+  1.22× push). Peaks measured: ident 1.157, duffel 1.049, key-escape 1.217, runway 1.099, ballpark
+  1.232, city-finance 1.180, final-pursuit 1.216.
+- `npm run check` exit 0 — ESLint, TypeScript, Vitest 267/267 across 25 files, production build.
+  `npm run assets:check` passed, 78 assets / 21 preloads.
+- Test evolution recorded: `lands a camera punch, flash, or hitstop on every measured accent`
+  asserted `chase.camera.zoom > 1.05` at t=18, which was pinning the held runway framing — the very
+  thing being retired. Replaced with `toBe(1)` plus the existing assertion that the near-miss lifts
+  it above the chase, which is strictly stronger: it now pins both the rest state and the punch.
+- New test `rests the camera at identity and lifts it only for a punch` sweeps the full timeline
+  asserting integer offsets, `zoom >= 1`, no value inside the dead zone, and that fewer than 15% of
+  frames carry any lift at all.
+
+### 2026-08-17 browser
+
+- Production build on 4173, clock-driven, 1440×900. All eleven scene samples captured with no page
+  errors: ident tap, duffel, exclaim, runway, cart, ballpark, bull, sky, pursuit, grab, emblem.
+- Every scene reads crisper; the ident tap in particular now fits the whole TMB2 wordmark in frame,
+  where the held 1.06 plus punch used to crop its edges. The emblem finale is byte-identical because
+  the card is a screen-space command and was never inside the camera transform.
+- **One repair.** The runway cart was still unreadable at its accent. Overlay bands measured in the
+  live page, in stage rows: the Press Start button occupies 188–195 and the audio controls 204–219,
+  so the gap between them is 9 rows and the cart needs 16. It moved from row 208 to 182, crossing
+  just above the button at Pop T's shin, and now reads as a near-miss passing behind him. The 0028
+  attempt at this could only lower the focal, because the held 1.14 zoom pushed the cart further
+  down the frame the more the camera tried to include it.
+
+## Outcome and handoff
+
+Implemented and locally validated. Nothing pushed. The remaining gate is the owner's review of the
+re-staged composition, which should be taken together with the 0028 punch proofs since both concern
+the same frames. After that, plan 0029 resumes at the Wave 0 anchor against the amended contract.

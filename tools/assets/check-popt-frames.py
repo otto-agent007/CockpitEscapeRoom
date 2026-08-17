@@ -72,8 +72,9 @@ def check_frame(path: Path, art: Image.Image, contract: dict, clip: dict | None)
     baseline = contract["cell"]["baseline"]
     palette = {hex_to_rgb(c) for c in contract["palette"]["opaqueColors"]}
     max_orphan = contract["qualityGates"]["orphanPixelRate"]["max"]
-    env_x = (10, cell_w - 10)
-    env_y = (7, cell_h - 12)
+    bounds = contract["character"]["envelopeBounds"]
+    env_x = tuple(bounds["x"])
+    env_y = tuple(bounds["y"])
 
     if art.size != (cell_w, cell_h):
         failures.append(f"canvas is {art.width}x{art.height} art px, contract says {cell_w}x{cell_h}")

@@ -162,6 +162,23 @@ export function hitstopTime(
   return t
 }
 
+/**
+ * A push-in below this is invisible but still costs the stage its pixel grid,
+ * so it snaps back to identity. Measured over 5305 sampled frames: 230 of them
+ * sat in this dead zone, 2.3 s of the intro reclaimed for nothing given up.
+ */
+const ZOOM_DEADZONE = 0.02
+
+/**
+ * Zoom rests at exactly 1 and is only ever lifted by a punch. Framing is staged,
+ * never zoomed: a held fractional zoom point-samples every world draw for the
+ * whole scene while moving nothing the eye can follow.
+ */
+function punchZoom(...lifts: readonly number[]): number {
+  const lift = lifts.reduce((total, value) => total + value, 0)
+  return lift < ZOOM_DEADZONE ? 1 : 1 + lift
+}
+
 /** Camera punch envelope: fast linear attack to 1, quadratic ease-out decay. */
 export function accentPunch(t: number, accentSeconds: number, attack = 0.06, decay = 0.5): number {
   const since = t - accentSeconds
@@ -186,8 +203,10 @@ export function accentShake(
   if (since < 0 || since >= duration) return { x: 0, y: 0 }
   const envelope = (1 - since / duration) ** 2
   const lattice = Math.floor(since * 60)
-  const x = amplitude * envelope * ((((lattice * 73 + 19) % 7) - 3) / 3)
-  const y = amplitude * envelope * ((((lattice * 41 + 7) % 5) - 2) / 2)
+  // Rounded: the shake is a screen-space displacement of the whole stage, so a
+  // fractional offset resamples every world draw for the length of the kick.
+  const x = Math.round(amplitude * envelope * ((((lattice * 73 + 19) % 7) - 3) / 3))
+  const y = Math.round(amplitude * envelope * ((((lattice * 41 + 7) % 5) - 2) / 2))
   return { x, y }
 }
 
@@ -545,8 +564,9 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         }
       }
 
-      const settle = t >= EXIT ? easeInOut((t - EXIT) / (6 - EXIT)) : 0
-      const zoom = 1 + 0.06 * easeInOut(clamp01(t / TAP)) * (1 - settle) + 0.16 * accentPunch(t, TAP)
+      // Zoom is a punch, never a framing device: it rests at exactly 1 so the
+      // stage stays on its pixel grid, and only the tap accent pushes in.
+      const zoom = punchZoom(0.16 * accentPunch(t, TAP))
       const shake = accentShake(t, TAP, 2.5, 0.35)
       const flashLevel = accentFlash(t, TAP, 0.15)
       return {
@@ -580,9 +600,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
           * DUFFEL_JOLT_PERIOD_SECONDS
         : null
       const camera: IntroCameraFrame = {
-        zoom: 1
-          + 0.1 * easeInOut(clamp01((t - 6) / 3))
-          + (lastJoltBeat === null ? 0 : 0.05 * accentPunch(normalizedTime, lastJoltBeat, 0.05, 0.4)),
+        zoom: punchZoom(lastJoltBeat === null ? 0 : 0.05 * accentPunch(normalizedTime, lastJoltBeat, 0.05, 0.4)),
         x: 170,
         y: 165,
         offsetX: 0,
@@ -749,9 +767,12 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
       // Kept translucent so the storyboard's red "!" reads through the slam.
       const exclaimFlash = 0.32 * accentFlash(normalizedTime, EXCLAIM, 0.18)
       const camera: IntroCameraFrame = {
-        zoom: (normalizedTime >= EXCLAIM ? 1.04 : 1.02)
-          + 0.22 * accentPunch(normalizedTime, BURST, 0.05, 0.6)
-          + 0.12 * accentPunch(normalizedTime, EXCLAIM, 0.05, 0.5),
+        zoom: punchZoom(
+          0.22 * accentPunch(normalizedTime, BURST, 0.05, 0.6),
+          0.12 * accentPunch(normalizedTime, EXCLAIM, 0.05, 0.5),
+        ),
+        // The focal only bites while a punch is running, so it names the point
+        // each punch drives into: the bag on the burst, Pop T on the slam.
         x: normalizedTime < EXCLAIM ? 205 : 178,
         y: 150,
         offsetX: shake.x,
@@ -803,11 +824,12 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
 
       const cartX = 473 - 90 * sceneT
 
-      // The chase camera tracks Pop T; the near-miss kicks the zoom and frame.
+      // The near-miss kicks the zoom. The focal still follows Pop T, which is
+      // inert at rest and only bites while the punch runs — so the push-in
+      // drives into him. It sits low so the crossing cart stays in frame.
       const shake = accentShake(normalizedTime, CART_CROSS, 2, 0.3)
-      // Focal sits low so the crossing cart stays fully in frame under zoom.
       const camera: IntroCameraFrame = {
-        zoom: 1.14 + 0.1 * accentPunch(normalizedTime, CART_CROSS, 0.05, 0.45),
+        zoom: punchZoom(0.1 * accentPunch(normalizedTime, CART_CROSS, 0.05, 0.45)),
         x: Math.max(96, Math.min(224, poptX)),
         y: 185,
         offsetX: shake.x,
@@ -821,7 +843,14 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         key: keyActor('fly', elapsedMs, keySample.x, keySample.y, 0.36, keySample.rotation),
         fx,
         camera,
-        props: [prop('runway-cart', cartX, 208, 0.68)],
+        // Measured overlay bands in stage rows: the Press Start button occupies
+        // 188-195 and the audio controls 204-219, leaving no gap between them
+        // wide enough for the cart. It crosses just above the button instead, at
+        // Pop T's shin, which also reads as the lane behind him. The 0028 fix
+        // could only drop the focal, because the held 1.14 zoom pushed the cart
+        // further down the frame; with the zoom retired the prop can simply sit
+        // where it reads.
+        props: [prop('runway-cart', cartX, 182, 0.68)],
       }
     }
     case 'ballpark': {
@@ -910,7 +939,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
       const shake = accentShake(normalizedTime, DEFLECT, 2.5, 0.35)
       const deflectFlash = 0.35 * accentFlash(normalizedTime, DEFLECT, 0.12)
       const camera: IntroCameraFrame = {
-        zoom: 1.08 + 0.24 * accentPunch(normalizedTime, DEFLECT, 0.05, 0.45),
+        zoom: punchZoom(0.24 * accentPunch(normalizedTime, DEFLECT, 0.05, 0.45)),
         x: 140 + (D.x - 140) * focalDrift,
         y: 165 + (D.y + 10 - 165) * focalDrift,
         offsetX: shake.x,
@@ -989,7 +1018,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
       const shake = accentShake(normalizedTime, IMPACT, 3, 0.4)
       const bullFlash = 0.4 * accentFlash(normalizedTime, IMPACT, 0.18)
       const camera: IntroCameraFrame = {
-        zoom: 1.08 + 0.18 * accentPunch(normalizedTime, IMPACT, 0.05, 0.5),
+        zoom: punchZoom(0.18 * accentPunch(normalizedTime, IMPACT, 0.05, 0.5)),
         x: Math.max(120, Math.min(230, chartPosition.x)),
         y: 150,
         offsetX: shake.x,
@@ -1042,7 +1071,9 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
       const shake = accentShake(normalizedTime, IGNITE, 1.5, 0.3)
       const igniteFlash = 0.3 * accentFlash(normalizedTime, IGNITE, 0.2)
       const camera: IntroCameraFrame = {
-        zoom: 1 + 0.08 * easeInOut(clamp01(sceneT / 5)),
+        // The sky scene carried a slow 8% push and nothing else. It was pure
+        // drift — 0.043 px of screen movement per frame — so it is gone.
+        zoom: 1,
         x: 170,
         y: 130,
         offsetX: shake.x,
@@ -1177,9 +1208,10 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
       }
       const grabFlash = 0.45 * accentFlash(normalizedTime, GRAB, 0.15)
       const camera: IntroCameraFrame = {
-        zoom: 1.1
-          + 0.08 * accentPunch(normalizedTime, MISS, 0.05, 0.4)
-          + 0.22 * accentPunch(normalizedTime, GRAB, 0.05, 0.5),
+        zoom: punchZoom(
+          0.08 * accentPunch(normalizedTime, MISS, 0.05, 0.4),
+          0.22 * accentPunch(normalizedTime, GRAB, 0.05, 0.5),
+        ),
         x: normalizedTime < GRAB
           ? Math.max(120, Math.min(230, (popt.x + key.x) / 2))
           : popt.x + 24,
@@ -1223,7 +1255,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
           popt: poptActor('victory-recovery', held, 150, 190, 1),
           key: keyActor('tug', held, 163, 116, 0.36, Math.sin(t * 9) * 0.15),
           fx,
-          camera: { zoom: 1.06, x: 160, y: 145, offsetX: 0, offsetY: 0 },
+          camera: { zoom: 1, x: 160, y: 145, offsetX: 0, offsetY: 0 },
         }
       }
 
