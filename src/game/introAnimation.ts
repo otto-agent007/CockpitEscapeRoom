@@ -276,7 +276,13 @@ function poptActor(
   elapsedMs: number,
   x: number,
   y: number,
-  scale = 1.12,
+  /**
+   * Stage pixels per sheet pixel. Must stay a whole number: the sheet is point
+   * sampled (`imageSmoothingEnabled = false`), so a fractional scale spreads one
+   * art pixel across an uneven 2-or-3 stage pixels and the silhouette steps
+   * raggedly against a background drawn 1:1.
+   */
+  scale = 1,
   rotation = 0,
   flipX = false,
   opacity = 1,
@@ -592,7 +598,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         const assembleProgress = clamp01((t - 6) / (assembleEnd - 6))
         const x = 52 + assembleProgress * 18
         fx.push({ kind: 'pixel-assemble', progress: assembleProgress, x, y: 188 })
-        popt = poptActor('run', elapsedMs, x, 190, 1.12, 0, false, 0.25 + 0.75 * assembleProgress)
+        popt = poptActor('run', elapsedMs, x, 190, 1, 0, false, 0.25 + 0.75 * assembleProgress)
       } else if (t < walkEnd) {
         const walkProgress = easeInOut((t - assembleEnd) / (walkEnd - assembleEnd))
         popt = poptActor('run', elapsedMs, 70 + walkProgress * 82, 190)
@@ -793,7 +799,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         ? Math.sin(((t - (CART_CROSS - 0.2)) / 0.6) * Math.PI)
         : 0
       const poptX = 44 + (224 * sceneT) / 6
-      const popt = poptActor('run', elapsedMs, poptX, 190 - hop * 14, 1.12, -hop * 0.08)
+      const popt = poptActor('run', elapsedMs, poptX, 190 - hop * 14, 1, -hop * 0.08)
 
       const cartX = 473 - 90 * sceneT
 
@@ -893,7 +899,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         const slide = 1 - (1 - clamp01((t - SLIDE_START) / 2.2)) ** 2
         // The clip advances with slide travel (520ms of authored frames spread
         // over the full slide) so the hold pose lands only when he stops.
-        popt = poptActor('baseball-slide', slide * 520, 120 + 118 * slide, 194, 1.18, -0.05)
+        popt = poptActor('baseball-slide', slide * 520, 120 + 118 * slide, 194, 1, -0.05)
         if (t < 25.5) {
           props.push(prop('cloud-puff', 120 + 118 * slide - 20, 198, 0.3, 0, 0.5))
         }
@@ -951,7 +957,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
 
       let popt: SpriteActorFrame
       if (t < IMPACT) {
-        popt = poptActor('run', elapsedMs, 42 + ((t - 28) / (IMPACT - 28)) * 163, 188, 1.14)
+        popt = poptActor('run', elapsedMs, 42 + ((t - 28) / (IMPACT - 28)) * 163, 188, 1)
       } else if (t < SPIN_END) {
         const knock = 1 - (1 - Math.min(1, (t - IMPACT) / 1.2)) ** 2
         const tumble = Math.sin(Math.PI * Math.min(1, (t - IMPACT) / 0.9))
@@ -960,11 +966,11 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
           clipElapsedMs(t, IMPACT),
           205 - 38 * knock,
           188 - 18 * tumble,
-          1.14,
+          1,
           0.3 * tumble,
         )
       } else {
-        popt = poptActor('run', clipElapsedMs(t, SPIN_END), 167 + ((t - SPIN_END) / 2.8) * 33, 188, 1.14)
+        popt = poptActor('run', clipElapsedMs(t, SPIN_END), 167 + ((t - SPIN_END) / 2.8) * 33, 188, 1)
       }
       if (t >= IMPACT && t < IMPACT + 0.6) {
         // Real-time phase so the star holds full presence through the hitstop.
@@ -1050,7 +1056,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
           elapsedMs,
           40 + (sceneT / 7) * 110,
           172 - (sceneT / 7) * 40 + Math.sin(sceneT * 1.1) * 6,
-          1.08,
+          1,
           -0.06 + Math.sin(sceneT * 1.1) * 0.05,
         ),
         key: keyActor('fly', elapsedMs, keySample.x, keySample.y, 0.36, keySample.rotation),
@@ -1084,7 +1090,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
           elapsedMs,
           60 + ((t - 42) / (MISS - 42)) * 96,
           150 - (t - 42) * 3.2 + Math.sin(t * 1.3) * 4,
-          1.1,
+          1,
           Math.sin(t * 1.3) * 0.04,
         )
       } else if (t < RECOVER) {
@@ -1095,7 +1101,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
           clipElapsedMs(t, MISS),
           156 + 34 * lungeProgress,
           140 - 18 * Math.sin(Math.PI * Math.min(1, (t - MISS) / 0.888)) + 10 * sag,
-          1.1,
+          1,
           0.15 * sag,
         )
         if (t >= MISS + 0.48) {
@@ -1108,12 +1114,12 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
           clipElapsedMs(t, RECOVER),
           190 + recoverProgress * 18,
           148 - recoverProgress * 10,
-          1.1,
+          1,
           0.15 * (1 - recoverProgress),
         )
       } else {
         const reach = clamp01((t - 47) / (GRAB - 47))
-        popt = poptActor('reach-catch', clipElapsedMs(t, 47), 208 + reach * 14, 138, 1.1)
+        popt = poptActor('reach-catch', clipElapsedMs(t, 47), 208 + reach * 14, 138, 1)
       }
 
       const keyPath: IntroPath = (sceneSeconds) => {
@@ -1214,7 +1220,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         }
         return {
           ...base,
-          popt: poptActor('victory-recovery', held, 150, 190, 1.16),
+          popt: poptActor('victory-recovery', held, 150, 190, 1),
           key: keyActor('tug', held, 163, 116, 0.36, Math.sin(t * 9) * 0.15),
           fx,
           camera: { zoom: 1.06, x: 160, y: 145, offsetX: 0, offsetY: 0 },
@@ -1248,7 +1254,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
     case 'loop-reset':
       return {
         ...base,
-        popt: poptActor('victory-recovery', elapsedMs, 124 + eased * 260, 190, 1.16, eased * 0.18),
+        popt: poptActor('victory-recovery', elapsedMs, 124 + eased * 260, 190, 1, eased * 0.18),
         key: keyActor('tug', elapsedMs, 190 + eased * 260, 154, 0.38, eased * 0.24),
         pixelCollapse: clamp01((sceneProgress - 0.48) / 0.52),
       }

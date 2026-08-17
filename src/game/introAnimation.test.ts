@@ -12,6 +12,7 @@ import {
   hitstopTime,
   type SpriteTiming,
 } from './introAnimation'
+import { INTRO_STAGE_HEIGHT } from './introGeometry'
 import { DUFFEL_JOLT_PERIOD_SECONDS, INTRO_MUSIC_CUES } from './introMusicCues'
 
 describe('TMB2 sprite animation contract', () => {
@@ -113,7 +114,12 @@ describe('TMB2 sprite animation contract', () => {
   it('stages Pop T as the readable comedy lead and keeps accent props restrained', () => {
     for (const time of [8, 13, 18, 24, 31, 38, 44, 49]) {
       const frame = deriveIntroAnimation(time, false)
-      expect(frame.popt?.scale).toBeGreaterThanOrEqual(1.05)
+      // "Readable lead" means he is drawn big enough to carry the frame. Assert
+      // that directly — his drawn cell covers the full stage height — instead of
+      // the old `scale >= 1.05`, which measured the same intent but also
+      // licensed the fractional scales that put him off the stage pixel grid.
+      const clip = POPT_CLIPS[frame.popt!.clipId as keyof typeof POPT_CLIPS]
+      expect(frame.popt!.scale * clip.frameHeight).toBeGreaterThanOrEqual(INTRO_STAGE_HEIGHT)
       if (frame.key) expect(frame.key.scale).toBeLessThanOrEqual(0.4)
     }
     expect(deriveIntroAnimation(18, false).props.find((prop) => prop.id === 'runway-cart')?.scale)
@@ -127,6 +133,26 @@ describe('TMB2 sprite animation contract', () => {
     const wings = pursuit.props.find((prop) => prop.id === 'pilot-wings')
     expect(wings?.x).toBeCloseTo(pursuit.popt!.x)
     expect(wings!.y).toBeLessThan(pursuit.popt!.y)
+  })
+
+  it('keeps Pop T on the stage pixel grid for the whole intro', () => {
+    // One source pixel must land on a whole number of stage pixels. A
+    // fractional scale point-samples the sheet unevenly: at the old 1.12 a
+    // single art pixel came out 2 px wide 35% of the time and 3 px wide 11% of
+    // the time, so his silhouette stepped raggedly against a background drawn
+    // 1:1. Any whole scale is safe; the current art ships at 1.
+    for (let time = 0; time <= 53.04; time += 0.04) {
+      const popt = deriveIntroAnimation(time, false).popt
+      if (!popt) continue
+      expect(Number.isInteger(popt.scale)).toBe(true)
+      expect(popt.scale).toBeGreaterThanOrEqual(1)
+    }
+    // Reduced motion draws curated poses through the same command path.
+    for (const time of [3, 9, 13, 25, 31, 44, 50]) {
+      const popt = deriveIntroAnimation(time, true).popt
+      if (!popt) continue
+      expect(Number.isInteger(popt.scale)).toBe(true)
+    }
   })
 
   it('materializes Pop T from blue pixels before the duffel struggle', () => {

@@ -1,0 +1,18 @@
+# Pop T character palette — 14 opaque colors + transparent.
+# Ordered by pixel count across the shipped frames.
+#040614
+#1A203F
+#F1EFF0
+#F8AC75
+#280B02
+#BAB7CB
+#D5773F
+#F5C424
+#20251E
+#3A4772
+#A35616
+#CB8A06
+#6A320A
+#82819A
+# Key/background color used by the pipeline, never part of the character art:
+# 06FD08
