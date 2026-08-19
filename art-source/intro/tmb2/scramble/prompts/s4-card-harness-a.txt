@@ -1,0 +1,37 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- TWO reference images are attached: first a rough layout mock (composition only — ignore its
+  style and any text), second the character identity reference for uniform colours.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s4-card-harness-a.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+A flat cel-shaded 2D close-up illustration in clean 16-bit video-game
+cutscene style, a single dramatic still: a cockpit seat harness being strapped in, straight-on
+torso view over a white uniform shirt — two hands pull the two wide dark navy shoulder straps
+diagonally down across the chest, drawing their steel tongues toward the round brushed-steel
+quick-release buckle at the sternum, straps still slightly slack, the moment JUST BEFORE they
+lock. No head in frame. One cool light pool; near-black surroundings.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material: a base, one darker shade, one lighter shade.
+- Every colour region is a solid area of ONE flat colour with a hard edge. No gradients, no
+  blending, no soft edges, no glow, no bloom. Any light pool is one broad flat lighter shape.
+- NO specular highlights, NO shine streaks, NO texture, NO noise, NO dithering, NO grain.
+
+Palette to draw from: near-black #0A0F22, matte black #16161C, hangar blue #141A2E, panel navy
+#181E36, steel blue #323E60, brushed steel #9AA2B4, off-white #FFFDF0, shirt white #F1EFF0,
+uniform navy #1A203F, gold #F5C424, dark gold #CB8A06, signal red #C8102E, skin #F8AC75,
+amber #FFB020.
+
+Absolutely NO text anywhere: no letters, no numbers, no logos, no placards, no monograms, no
+watermark, no border, no caption.

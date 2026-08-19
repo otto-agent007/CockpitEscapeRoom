@@ -1,0 +1,37 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1024x1024, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- No reference image attached.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/spr-dc9-runway.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+A flat cel-shaded 2D game sprite of a McDonnell Douglas DC-9 jetliner seen exactly from
+DEAD ASTERN (directly behind) at night, as if standing on the runway behind it: the narrow dark
+fuselage seen end-on as a small rounded shape, the T-tail rising above it — the ENTIRE vertical
+fin bright signal red #C8102E with the horizontal stabiliser crossing at its TOP like a T — and
+the two slim rear-mounted engine nacelles flanking the fuselage sides, in dark night shades: the
+airframe reads as a dark silhouette with the red fin as the strongest colour. Wings extend left
+and right as thin dark lines with slight upward dihedral. It will be reduced to a sprite only 52
+pixels wide, so shapes must be bold and simple.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no texture, no noise, no dithering.
+
+Palette to draw from: near-black #0A0F22, steel blue #323E60, warm grey #B9BCC0, off-white
+#FFFDF0, signal red #C8102E, amber #FFB020, dark metal #4A5674.
+
+Background: a completely flat solid pure magenta field, RGB 255 0 255, filling the entire canvas
+edge to edge. The magenta must appear NOWHERE on the aircraft. No ground, no sky, no shadow, no
+text, no border, no watermark, no checkerboard.
+
+Absolutely NO lettering, numbers or logos anywhere on the aircraft.
