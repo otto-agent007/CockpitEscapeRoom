@@ -16,6 +16,9 @@ import {
   createDc9GaugeTargets,
   dc9SelfTestChannelValues,
   dc9YokeDemandFromDrag,
+  DC9_OVERHEAD_HITBOX_EDGE_METRES,
+  DC9_OVERHEAD_HITBOX_NODES,
+  separateDc9OverheadHitboxes,
   type Dc9ActiveSelfTest,
 } from './dc9FlightDeckVisuals'
 
@@ -253,5 +256,80 @@ describe('createDc9GaugeTargets', () => {
     createDc9GaugeTargets(root)
     createDc9GaugeTargets(root)
     expect(root.children.filter((child) => child.name === 'DC9_RUNTIME_GAUGE_TARGETS')).toHaveLength(1)
+  })
+})
+
+describe('separateDc9OverheadHitboxes', () => {
+  /** Reproduces the shipped overhead colliders: boxes far larger than their spacing. */
+  function overheadCockpit(): THREE.Object3D {
+    const root = new THREE.Object3D()
+    const shipped: [string, [number, number, number], [number, number, number]][] = [
+      ['DC9_HITBOX_APUBUSES', [-0.189, 1.035, 2.835], [0.46, 0.24, 0.22]],
+      ['DC9_HITBOX_APUMASTER', [-0.026, 1.003, 2.774], [0.26, 0.24, 0.22]],
+      ['DC9_HITBOX_BATTERY', [0.019, 0.979, 2.725], [0.26, 0.24, 0.22]],
+    ]
+    for (const [name, centre, size] of shipped) {
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(...size))
+      mesh.name = name
+      mesh.position.set(...centre)
+      root.add(mesh)
+    }
+    root.updateMatrixWorld(true)
+    return root
+  }
+
+  function boxes(root: THREE.Object3D): THREE.Box3[] {
+    root.updateMatrixWorld(true)
+    return DC9_OVERHEAD_HITBOX_NODES.map((name) => {
+      const node = root.getObjectByName(name)
+      if (!node) throw new Error(`missing ${name}`)
+      return new THREE.Box3().setFromObject(node)
+    })
+  }
+
+  it('starts from genuinely overlapping colliders', () => {
+    const [apuBuses, apuMaster, battery] = boxes(overheadCockpit())
+    if (!apuBuses || !apuMaster || !battery) throw new Error('missing boxes')
+    expect(apuBuses.intersectsBox(apuMaster)).toBe(true)
+    expect(apuMaster.intersectsBox(battery)).toBe(true)
+  })
+
+  it('leaves each switch its own hit volume', () => {
+    const root = overheadCockpit()
+    expect(separateDc9OverheadHitboxes(root)).toBe(3)
+    const [apuBuses, apuMaster, battery] = boxes(root)
+    if (!apuBuses || !apuMaster || !battery) throw new Error('missing boxes')
+    expect(apuBuses.intersectsBox(apuMaster)).toBe(false)
+    expect(apuMaster.intersectsBox(battery)).toBe(false)
+    expect(apuBuses.intersectsBox(battery)).toBe(false)
+  })
+
+  it('keeps every collider centred on the switch the asset placed it over', () => {
+    const before = boxes(overheadCockpit()).map((box) => box.getCenter(new THREE.Vector3()))
+    const root = overheadCockpit()
+    separateDc9OverheadHitboxes(root)
+    boxes(root).forEach((box, index) => {
+      const expected = before[index]
+      if (!expected) throw new Error('missing centre')
+      expect(box.getCenter(new THREE.Vector3()).distanceTo(expected)).toBeCloseTo(0, 9)
+    })
+  })
+
+  it('keeps the volumes big enough to point at', () => {
+    const root = overheadCockpit()
+    separateDc9OverheadHitboxes(root)
+    for (const box of boxes(root)) {
+      const size = box.getSize(new THREE.Vector3())
+      expect(Math.min(size.x, size.y, size.z)).toBeCloseTo(DC9_OVERHEAD_HITBOX_EDGE_METRES, 6)
+    }
+  })
+
+  it('is safe to run twice and on a cockpit that lacks the nodes', () => {
+    const root = overheadCockpit()
+    separateDc9OverheadHitboxes(root)
+    const after = boxes(root).map((box) => box.getSize(new THREE.Vector3()).x)
+    expect(separateDc9OverheadHitboxes(root)).toBe(0)
+    expect(boxes(root).map((box) => box.getSize(new THREE.Vector3()).x)).toEqual(after)
+    expect(separateDc9OverheadHitboxes(new THREE.Object3D())).toBe(0)
   })
 })

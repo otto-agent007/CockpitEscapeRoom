@@ -953,6 +953,22 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   await expect(page.locator('.dc9-gauge-target')).toHaveCount(6)
   await page.locator('.dc9-gauge-target[data-gauge="airspeed"]').click()
   await expect(page.locator('.dc9-chapter__status p')).toContainText('the airspeed indicator')
+
+  // The EPR pair is the one gauge off the first-officer panel, at the very edge of this
+  // framing, so it is the one that falls out of reach. Whatever the window does, the
+  // gauge being asked for must stay wholly on screen and answerable from the cockpit.
+  const eprTarget = page.locator('.dc9-gauge-target[data-gauge="epr"]')
+  for (const size of [{ width: 1024, height: 768 }, { width: 1280, height: 720 }]) {
+    await page.setViewportSize(size)
+    await expect(eprTarget).toHaveCount(1)
+    const box = await eprTarget.boundingBox()
+    expect(box, `EPR target at ${size.width}x${size.height}`).not.toBeNull()
+    expect(box!.x, `EPR left edge at ${size.width}`).toBeGreaterThanOrEqual(0)
+    expect(box!.y, `EPR top edge at ${size.width}`).toBeGreaterThanOrEqual(0)
+    expect(box!.x + box!.width, `EPR right edge at ${size.width}`).toBeLessThanOrEqual(size.width)
+    expect(box!.y + box!.height, `EPR bottom edge at ${size.width}`).toBeLessThanOrEqual(size.height)
+  }
+
   await completeDc9InstrumentScan(page)
 
   await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_FIRST_OFFICER_OVERHEAD_APPROVAL')
@@ -967,11 +983,25 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   await expect(apuBuses).toHaveAttribute('data-projection', 'mesh')
   await expect(apuMaster).toHaveAttribute('data-projection', 'mesh')
   await expect(battery).toHaveAttribute('data-projection', 'mesh')
-  await battery.press('Enter')
-  await apuBuses.press('Enter')
-  await battery.press('Enter')
+
+  // Clicking a switch on the real overhead panel must action that switch. The shipped hit
+  // volumes are far larger than the 70mm between the switches and overlapped, so a ray
+  // aimed at the APU buses struck the battery box in front of it and the first step of the
+  // checklist reported "that step comes later".
+  const apuBusesPoint = (await apuBuses.getAttribute('data-projection-point'))?.split(',').map(Number) ?? []
+  expect(apuBusesPoint.length).toBeGreaterThanOrEqual(2)
+  await page.mouse.click(apuBusesPoint[0]!, apuBusesPoint[1]!)
+  await expect(page.locator('.dc9-chapter__status p')).toContainText('APU bus switches off')
   await expect(apuBuses).toHaveAttribute('aria-pressed', 'true')
+
+  // An out-of-order selection still coaches without clearing the finished step.
+  await battery.press('Enter')
+  await expect(page.locator('.dc9-chapter__status p')).toContainText('That step comes later')
+  await expect(apuBuses).toHaveAttribute('aria-pressed', 'true')
+  await expect(apuMaster).toHaveAttribute('aria-pressed', 'false')
+
   await apuMaster.press('Enter')
+  await expect(apuMaster).toHaveAttribute('aria-pressed', 'true')
   await battery.press('Enter')
   const atpAnswer = page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })
   await atpAnswer.fill('1500 hours')

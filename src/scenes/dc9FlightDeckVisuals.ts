@@ -186,3 +186,61 @@ export function createDc9GaugeTargets(root: THREE.Object3D): Map<string, THREE.O
   }
   return targets
 }
+
+/**
+ * Overhead shutdown colliders, shrunk so each one covers its own switch.
+ *
+ * The donor build enlarged these hit volumes for easier pointing, but the three switches
+ * sit only 70mm apart while the boxes are 240-460mm across, so they overlap heavily and a
+ * ray aimed at one switch strikes whichever neighbour happens to be nearer the camera.
+ * Clicking the APU buses -- the first required step -- reported "that step comes later"
+ * because the battery box was in front of it. Each box is reduced to a volume that fits
+ * between its neighbours, keeping its centre exactly where the asset put it.
+ */
+export const DC9_OVERHEAD_HITBOX_NODES = [
+  'DC9_HITBOX_APUBUSES',
+  'DC9_HITBOX_APUMASTER',
+  'DC9_HITBOX_BATTERY',
+] as const
+
+/**
+ * Boxes separate only when they clear each other on some axis, which is a tighter bound
+ * than the 70.7mm centre-to-centre distance suggests: the APU master and battery pivots
+ * differ by just 49mm on their widest axis. 42mm leaves a gap there and still projects to
+ * roughly a 50px target at 1440 on the overhead view.
+ */
+export const DC9_OVERHEAD_HITBOX_EDGE_METRES = 0.042
+
+export function separateDc9OverheadHitboxes(root: THREE.Object3D): number {
+  let adjusted = 0
+  for (const name of DC9_OVERHEAD_HITBOX_NODES) {
+    const collider = root.getObjectByName(name)
+    if (!collider) continue
+    root.updateMatrixWorld(true)
+    const bounds = new THREE.Box3().setFromObject(collider)
+    if (bounds.isEmpty()) continue
+    const size = bounds.getSize(new THREE.Vector3())
+    const centre = bounds.getCenter(new THREE.Vector3())
+    const axes = [size.x, size.y, size.z] as const
+    // The tolerance keeps a second pass idempotent despite float error in the bounds.
+    const scale = axes.map((extent) => (
+      extent > DC9_OVERHEAD_HITBOX_EDGE_METRES * 1.001
+        ? DC9_OVERHEAD_HITBOX_EDGE_METRES / extent
+        : 1
+    ))
+    if (scale.every((value) => value === 1)) continue
+    collider.scale.set(
+      collider.scale.x * (scale[0] ?? 1),
+      collider.scale.y * (scale[1] ?? 1),
+      collider.scale.z * (scale[2] ?? 1),
+    )
+    // Scaling happens about the node origin, which need not be the box centre, so put the
+    // centre back where the asset placed it.
+    root.updateMatrixWorld(true)
+    const moved = new THREE.Box3().setFromObject(collider).getCenter(new THREE.Vector3())
+    collider.position.add(centre.clone().sub(moved))
+    adjusted += 1
+  }
+  root.updateMatrixWorld(true)
+  return adjusted
+}

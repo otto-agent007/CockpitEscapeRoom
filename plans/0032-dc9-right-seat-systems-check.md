@@ -235,6 +235,8 @@ criterion, or when the delta stops shrinking, or at the owner gate.
       updated to the new flow (not relaxed), all DC-9 specs green.
 - [x] 2026-08-19 — Responsive and reduced-motion pass at 1440/768/375, with the standing
       instruction moved above the controls so it is never below the fold.
+- [x] 2026-08-19 — Owner playtest repairs: overlapping overhead colliders separated, and
+      the last gauge made reachable at every window size.
 - [ ] Owner review of the reopened Final Flight Log opening gate.
 
 ## Evidence
@@ -290,6 +292,25 @@ it and the target now tracks the pointer alone.
    held button no longer stops the control.
 4. **Duplicate accessible names.** The projected gauge target and its list entry shared a
    name; the projected one now says where it is.
+
+### Owner playtest, 2026-08-19
+
+Two faults the owner hit that the pre-gate validation had missed, both now fixed and
+covered by the real-GLB spec:
+
+1. **The overhead switches actioned the wrong control.** Clicking the APU buses — the
+   first required step — reported "that step comes later". The three shipped hit volumes
+   are 240-460mm boxes around switches only 70mm apart, so they overlap and the ray struck
+   the battery box in front. Latent since the shutdown shipped, because the existing test
+   only ever pressed the native buttons. `separateDc9OverheadHitboxes` shrinks each to a
+   42mm volume about its own centre. The bound is per-axis, not centre distance: the APU
+   master and battery differ by just 49mm on their widest axis, so the first attempt at
+   55mm still overlapped and the new test caught it.
+2. **The last gauge fell off the screen.** EPR is the only instrument off the
+   first-officer panel, at the far-left edge of the framing: at 1024x768 its target sat at
+   x = -25 and at 900px it was gone. Targets are now clamped by their own half-extent, the
+   prompted gauge falls back to a labelled chip when its projection leaves the view, and
+   the scan panel leads with the question and the six options.
 
 ### Measurement notes for whoever picks this up
 

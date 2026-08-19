@@ -803,6 +803,33 @@
   background: rgb(139 187 154 / 8%);
 }
 
+/* The gauge being asked for is off the current view, so it gets a labelled chip in the
+   cockpit area rather than silently disappearing. */
+.dc9-gauge-target.is-fallback {
+  top: auto;
+  bottom: 7.5rem;
+  left: 1.5rem;
+  width: auto;
+  height: auto;
+  padding: .5rem .7rem;
+  border: 1px solid #d8b46d;
+  border-radius: 0;
+  background: rgb(10 18 19 / 92%);
+  box-shadow: 0 12px 34px rgb(0 0 0 / 45%);
+  transform: none;
+}
+
+.dc9-gauge-target__fallback {
+  color: #f3ce75;
+  font-size: .78rem;
+  white-space: nowrap;
+}
+
+.dc9-gauge-target.is-fallback:hover,
+.dc9-gauge-target.is-fallback:focus-visible {
+  background: rgb(240 200 117 / 14%);
+}
+
 /* Wider than the 760px document breakpoint: these panels are 30rem, so they crowd the
    cockpit out well before a narrow phone layout would. */
 @media (max-width: 900px) {
@@ -820,9 +847,17 @@
     grid-template-columns: 1fr;
   }
 
-  /* The stacked panel covers the panel face, so the scan runs from its list instead. */
+  /* The stacked panel covers the panel face, so projected targets would sit under it and
+     the scan runs from its list instead. The off-view fallback chip stays: it is pinned
+     above the sheet and is the only cockpit-side way to answer. */
   .dc9-gauge-target {
     display: none;
+  }
+
+  .dc9-gauge-target.is-fallback {
+    display: block;
+    bottom: auto;
+    top: 6.5rem;
   }
 }
 

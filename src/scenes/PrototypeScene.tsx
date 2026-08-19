@@ -53,6 +53,7 @@ import {
   createDc9GaugeTargets,
   dc9SelfTestChannelValues,
   dc9YokeDemandFromDrag,
+  separateDc9OverheadHitboxes,
   type Dc9ActiveSelfTest,
   type Dc9JointHandle,
 } from './dc9FlightDeckVisuals'
@@ -2698,6 +2699,7 @@ function Dc9Cockpit({
           ...buildDc9JointHandles(scene, DC9_INSTRUMENT_JOINTS, DC9_INSTRUMENT_BINDINGS),
         ]
         for (const [gameId, target] of createDc9GaugeTargets(scene)) targets.set(gameId, target)
+        separateDc9OverheadHitboxes(scene)
         const yokeTarget = scene.getObjectByName('OBJ8_DC9VC2_RANGE_015') ?? null
         scene.updateMatrixWorld(true)
         const sourceCamera = scene.getObjectByName(DC9_GAME_CAMERA)
