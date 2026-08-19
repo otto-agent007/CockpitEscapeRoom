@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { deriveHandoffAnimation, deriveIntroAnimation, type IntroAnimationFrame } from './introAnimation'
 import { deriveIntroDrawCommands, shouldUseExactLogoFallback } from './introRenderer'
 
-describe('TMB2 Canvas draw commands', () => {
+describe('Scramble Canvas draw commands', () => {
   it('assembles the approved TMB2 Productions layers without procedural typography', () => {
     const commands = deriveIntroDrawCommands(deriveIntroAnimation(4.8, false), null)
     expect(commands[0]).toEqual({ kind: 'clear', color: '#02030a' })
@@ -55,18 +55,45 @@ describe('TMB2 Canvas draw commands', () => {
     ]))).toBe(false)
   })
 
-  it('orders recovered runway art, independent props, and pivot-stable actors', () => {
-    const commands = deriveIntroDrawCommands(deriveIntroAnimation(18, false), null)
-    expect(commands[0]).toEqual({ kind: 'clear', color: '#02030a' })
-    expect(commands[1]).toMatchObject({ kind: 'background', assetId: 'background-runway' })
-    expect(commands.some((command) => command.kind === 'prop' && command.prop.id === 'runway-cart')).toBe(true)
+  it('draws the reveal plate over the dark plate, clipped to its progress', () => {
+    const commands = deriveIntroDrawCommands(deriveIntroAnimation(13.2, false), null)
+    const kinds = commands.map((command) => command.kind)
+    expect(commands[1]).toMatchObject({ kind: 'background', assetId: 'plate-hangar-dark' })
+    expect(kinds.indexOf('background-reveal')).toBe(kinds.indexOf('background') + 1)
+  })
 
-    const sprites = commands.filter((command) => command.kind === 'sprite')
-    expect(sprites).toHaveLength(2)
-    expect(sprites).toEqual(expect.arrayContaining([
-      expect.objectContaining({ actor: 'popt', assetId: 'popt-run', pivot: { x: 128, y: 224 } }),
-      expect.objectContaining({ actor: 'key', assetId: 'key-poses', pivot: { x: 128, y: 224 } }),
-    ]))
+  it('orders the doorway plate, the silhouette, and the door leaves back to front', () => {
+    const commands = deriveIntroDrawCommands(deriveIntroAnimation(28, false), null)
+    const kinds = commands.map((command) => command.kind)
+    expect(commands[1]).toMatchObject({ kind: 'background', assetId: 'plate-doorway' })
+    // The leaves close over the silhouette standing in the gap.
+    expect(kinds.indexOf('sprite')).toBeLessThan(kinds.indexOf('doors'))
+  })
+
+  it('letters the nameplate over the case card, above the fx', () => {
+    const commands = deriveIntroDrawCommands(deriveIntroAnimation(12, false), null)
+    const kinds = commands.map((command) => command.kind)
+    const nameplateIndex = kinds.indexOf('nameplate')
+    expect(nameplateIndex).toBeGreaterThan(kinds.indexOf('background'))
+    expect(commands[nameplateIndex]).toMatchObject({
+      nameplate: { text: 'CAPT. POP T' },
+    })
+  })
+
+  it('orders the takeoff: runway lights under the jet, accents over it', () => {
+    const commands = deriveIntroDrawCommands(deriveIntroAnimation(44, false), null)
+    expect(commands[1]).toMatchObject({ kind: 'background', assetId: 'plate-runway-lineup' })
+    const indexed = commands.map((command, index) => ({ command, index }))
+    const lightsIndex = indexed.find(
+      (entry) => entry.command.kind === 'fx' && entry.command.fx.kind === 'runway-lights',
+    )!.index
+    const strobeIndex = indexed.find(
+      (entry) => entry.command.kind === 'fx' && entry.command.fx.kind === 'nav-strobe',
+    )!.index
+    const spriteIndex = indexed.find((entry) => entry.command.kind === 'sprite')!.index
+    expect(lightsIndex).toBeLessThan(spriteIndex)
+    expect(strobeIndex).toBeGreaterThan(spriteIndex)
+    expect(commands[spriteIndex]).toMatchObject({ actor: 'jet', assetId: 'dc9-runway', scale: 1 })
   })
 
   it('adds pixel collapse only during the reset beat', () => {
@@ -76,61 +103,25 @@ describe('TMB2 Canvas draw commands', () => {
       .some((command) => command.kind === 'pixel-collapse')).toBe(true)
   })
 
-  it('slots environmental fx under the actors, accents over them, and the card above accents', () => {
-    const story = deriveIntroAnimation(38, false)
-    const frame: IntroAnimationFrame = {
-      ...story,
-      backgroundDim: 0.4,
-      fx: [
-        { kind: 'sparkle', x: 200, y: 96, size: 3, opacity: 0.8, tint: 'blue' },
-        { kind: 'laser-grid', horizonY: 150, scroll: 0.25, opacity: 0.4 },
-      ],
-      card: { assetId: 'emblem-finale', x: 160, y: 104, scale: 1, opacity: 1 },
-    }
-    const commands = deriveIntroDrawCommands(frame, deriveHandoffAnimation(1))
-    const kinds = commands.map((command) => command.kind)
-    expect(kinds[0]).toBe('clear')
-    expect(kinds[1]).toBe('background')
-    expect(kinds[2]).toBe('background-dim')
-
-    const indexed = commands.map((command, index) => ({ command, index }))
-    const gridIndex = indexed.find(
-      (entry) => entry.command.kind === 'fx' && entry.command.fx.kind === 'laser-grid',
-    )!.index
-    const sparkleIndex = indexed.find(
-      (entry) => entry.command.kind === 'fx' && entry.command.fx.kind === 'sparkle',
-    )!.index
-    expect(gridIndex).toBeLessThan(kinds.indexOf('sprite'))
-    expect(sparkleIndex).toBeGreaterThan(kinds.lastIndexOf('sprite'))
-    expect(kinds.indexOf('card')).toBeGreaterThan(sparkleIndex)
-    expect(kinds.indexOf('card')).toBeLessThan(kinds.indexOf('handoff-key'))
-  })
-
   it('renders the accent flash above the card and below the Start handoff', () => {
-    const story = deriveIntroAnimation(38, false)
+    const story = deriveIntroAnimation(50.2, false)
     const frame: IntroAnimationFrame = {
       ...story,
-      card: { assetId: 'emblem-finale', x: 160, y: 104, scale: 1, opacity: 1 },
-      flash: { color: 'red', opacity: 0.6 },
+      flash: { color: 'white', opacity: 0.6 },
     }
     const commands = deriveIntroDrawCommands(frame, deriveHandoffAnimation(0.5))
     const kinds = commands.map((command) => command.kind)
     expect(kinds.indexOf('flash')).toBeGreaterThan(kinds.indexOf('card'))
-    expect(kinds.indexOf('flash')).toBeLessThan(kinds.indexOf('handoff-key'))
+    expect(kinds.indexOf('flash')).toBeLessThan(kinds.indexOf('handoff-emblem'))
 
-    expect(deriveIntroDrawCommands(deriveIntroAnimation(18, false), null)
+    expect(deriveIntroDrawCommands(deriveIntroAnimation(33, false), null)
       .some((command) => command.kind === 'flash')).toBe(false)
   })
 
-  it('draws the Start handoff key over the frozen story frame', () => {
+  it('draws the Start handoff emblem over the frozen story frame', () => {
     const handoff = deriveHandoffAnimation(1)
     const commands = deriveIntroDrawCommands(deriveIntroAnimation(24, false), handoff)
-    expect(commands.at(-2)).toMatchObject({
-      kind: 'handoff-key',
-      assetId: 'key-poses',
-      scale: 4.5,
-      rotation: Math.PI * 2,
-    })
+    expect(commands.at(-2)).toEqual({ kind: 'handoff-emblem', x: 160, y: 106, scale: 4.5 })
     expect(commands.at(-1)).toEqual({ kind: 'handoff-flash', opacity: 1 })
   })
 })

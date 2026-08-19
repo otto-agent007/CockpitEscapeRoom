@@ -1,24 +1,30 @@
 import { describe, expect, it } from 'vitest'
 import { introScenes, type IntroSceneId } from './introConfig'
-import { DUFFEL_JOLT_PERIOD_SECONDS, INTRO_MUSIC_CUES } from './introMusicCues'
+import { BEAT_GRID_SECONDS, INTRO_MUSIC_CUES } from './introMusicCues'
 
 const EXPECTED_SCENE: Record<keyof typeof INTRO_MUSIC_CUES, IntroSceneId> = {
-  assembleDone: 'duffel',
-  firstDuffelJolt: 'duffel',
-  keyBurst: 'key-escape',
-  exclaim: 'key-escape',
-  keyFlyExit: 'key-escape',
-  cartNearMiss: 'runway',
-  ballDeflect: 'ballpark',
-  bullImpact: 'city-finance',
-  skyGridIgnite: 'sky',
-  missLunge: 'final-pursuit',
-  catchRecover: 'final-pursuit',
-  catchGrab: 'final-pursuit',
-  emblemStamp: 'catch',
+  bootsDown: 'ritual',
+  coffeeDown: 'ritual',
+  flightCase: 'ritual',
+  latchesSnap: 'ritual',
+  hangarReveal: 'hangar-reveal',
+  capFlip: 'suit-up',
+  fourStripes: 'suit-up',
+  logbookSnap: 'suit-up',
+  wingsPinned: 'suit-up',
+  watchCheck: 'suit-up',
+  shadesDown: 'shades',
+  engineStart: 'engine-start',
+  instrumentsAlive: 'inserts',
+  thePhoto: 'inserts',
+  handOnThrottles: 'inserts',
+  throttlesUp: 'takeoff',
+  rotate: 'takeoff',
+  jetPass: 'takeoff',
+  emblemStamp: 'title',
 }
 
-describe('TMB2 intro music cues', () => {
+describe('Scramble intro music cues', () => {
   it('places every cue inside its locked scene window', () => {
     for (const [cue, sceneId] of Object.entries(EXPECTED_SCENE)) {
       const time = INTRO_MUSIC_CUES[cue as keyof typeof INTRO_MUSIC_CUES]
@@ -35,22 +41,33 @@ describe('TMB2 intro music cues', () => {
     }
   })
 
-  it('honors choreography anchors that existing scene tests sample', () => {
-    // The slide begins 0.6s before the deflection and the t=24 sample must already slide.
-    expect(INTRO_MUSIC_CUES.ballDeflect - 0.6).toBeLessThanOrEqual(24)
-    // The t=31 sample must still be inside the six-frame bull spin (~0.72s at 120ms frames).
-    expect(INTRO_MUSIC_CUES.bullImpact).toBeLessThanOrEqual(31)
-    expect(INTRO_MUSIC_CUES.bullImpact + 0.72).toBeGreaterThan(31)
-    // The t=44 sample must still glide; the miss lunge comes after it.
-    expect(INTRO_MUSIC_CUES.missLunge).toBeGreaterThan(44)
-    // The t=49 sample must still be the victory pose; the emblem stamps after it.
-    expect(INTRO_MUSIC_CUES.emblemStamp).toBeGreaterThan(49)
+  it('preserves the measured accents the track carries', () => {
+    // These values were measured once from the audio (plan 0028) and the
+    // Scramble design rides the same track: renaming a cue must never move it.
+    expect(INTRO_MUSIC_CUES.bootsDown).toBe(7.512)
+    expect(INTRO_MUSIC_CUES.coffeeDown).toBe(8.976)
+    expect(INTRO_MUSIC_CUES.hangarReveal).toBe(13.056)
+    expect(INTRO_MUSIC_CUES.capFlip).toBe(14.544)
+    expect(INTRO_MUSIC_CUES.logbookSnap).toBe(19.368)
+    expect(INTRO_MUSIC_CUES.watchCheck).toBe(24.552)
+    expect(INTRO_MUSIC_CUES.shadesDown).toBe(30.48)
+    expect(INTRO_MUSIC_CUES.engineStart).toBe(35.64)
+    expect(INTRO_MUSIC_CUES.throttlesUp).toBe(45.12)
+    expect(INTRO_MUSIC_CUES.rotate).toBe(46.008)
+    expect(INTRO_MUSIC_CUES.jetPass).toBe(47.496)
+    expect(INTRO_MUSIC_CUES.emblemStamp).toBe(49.704)
   })
 
-  it('keeps the duffel jolts on the measured beat grid', () => {
-    expect(DUFFEL_JOLT_PERIOD_SECONDS).toBeCloseTo(0.72, 5)
-    // Four full jolt periods fit between the first jolt and the key burst.
-    const jolts = (INTRO_MUSIC_CUES.keyBurst - INTRO_MUSIC_CUES.firstDuffelJolt) / DUFFEL_JOLT_PERIOD_SECONDS
-    expect(jolts).toBeGreaterThanOrEqual(4)
+  it('derives every grid cue exactly from a measured cue on the 0.72 s grid', () => {
+    expect(BEAT_GRID_SECONDS).toBeCloseTo(0.72, 5)
+    const grid = (origin: number, beats: number): number =>
+      Math.round((origin + beats * BEAT_GRID_SECONDS) * 1000) / 1000
+    expect(INTRO_MUSIC_CUES.flightCase).toBeCloseTo(grid(INTRO_MUSIC_CUES.coffeeDown, 2), 5)
+    expect(INTRO_MUSIC_CUES.latchesSnap).toBeCloseTo(grid(INTRO_MUSIC_CUES.coffeeDown, 4), 5)
+    expect(INTRO_MUSIC_CUES.fourStripes).toBeCloseTo(grid(INTRO_MUSIC_CUES.capFlip, 3), 5)
+    expect(INTRO_MUSIC_CUES.wingsPinned).toBeCloseTo(grid(INTRO_MUSIC_CUES.logbookSnap, 3), 5)
+    expect(INTRO_MUSIC_CUES.instrumentsAlive).toBeCloseTo(grid(INTRO_MUSIC_CUES.engineStart, 4), 5)
+    expect(INTRO_MUSIC_CUES.thePhoto).toBeCloseTo(grid(INTRO_MUSIC_CUES.engineStart, 6), 5)
+    expect(INTRO_MUSIC_CUES.handOnThrottles).toBeCloseTo(grid(INTRO_MUSIC_CUES.engineStart, 8), 5)
   })
 })

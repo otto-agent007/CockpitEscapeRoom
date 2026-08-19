@@ -5,14 +5,17 @@ export const INTRO_HANDOFF_SECONDS = 0.65
 
 export type IntroSceneId =
   | 'tmb2-ident'
-  | 'duffel'
-  | 'key-escape'
-  | 'runway'
-  | 'ballpark'
-  | 'city-finance'
-  | 'sky'
-  | 'final-pursuit'
-  | 'catch'
+  | 'beacon-dark'
+  | 'ritual'
+  | 'hangar-reveal'
+  | 'suit-up'
+  | 'doors'
+  | 'shades'
+  | 'walk'
+  | 'engine-start'
+  | 'inserts'
+  | 'takeoff'
+  | 'title'
   | 'loop-reset'
 
 export type IntroScene = {
@@ -30,58 +33,76 @@ export const introScenes = [
     summary: 'Blue pixels assemble the TMB2 console logo before a bright gold-white overload.',
   },
   {
-    id: 'duffel',
+    id: 'beacon-dark',
     startSeconds: 6,
-    endSeconds: 12,
-    summary: 'Pop T enters confidently and struggles with an oversized rattling duffel bag.',
+    endSeconds: 7.512,
+    summary: 'A single amber beacon sweep crosses the dark before the pre-flight ritual begins.',
   },
   {
-    id: 'key-escape',
-    startSeconds: 12,
-    endSeconds: 16,
-    summary: 'A living golden key bursts from the luggage, startles Pop T, taunts him, and escapes.',
+    id: 'ritual',
+    startSeconds: 7.512,
+    endSeconds: 13.056,
+    summary: 'Hard-cut stills on the beat: boots on the tarmac, coffee set down, the flight case latches snap shut.',
   },
   {
-    id: 'runway',
-    startSeconds: 16,
-    endSeconds: 22,
-    summary: 'Pop T chases the key past airport equipment and narrowly avoids a runway cart.',
+    id: 'hangar-reveal',
+    startSeconds: 13.056,
+    endSeconds: 14.544,
+    summary: 'Hangar floodlights slam on row by row and reveal the Northwest DC-9 waiting for its legacy flight.',
   },
   {
-    id: 'ballpark',
-    startSeconds: 22,
-    endSeconds: 28,
-    summary: 'The key redirects a baseball while Pop T performs a dramatic slide past the base.',
+    id: 'suit-up',
+    startSeconds: 14.544,
+    endSeconds: 26,
+    summary: 'The suit-up montage: the cap flipped and caught, four captain stripes, the logbook snapped shut, wings pinned, and a glance at the watch.',
   },
   {
-    id: 'city-finance',
-    startSeconds: 28,
-    endSeconds: 35,
-    summary: 'The key runs along a rising neon graph and Pop T collides with comic bull imagery.',
+    id: 'doors',
+    startSeconds: 26,
+    endSeconds: 30.48,
+    summary: 'The hangar doors grind open around the captain’s backlit silhouette.',
   },
   {
-    id: 'sky',
-    startSeconds: 35,
-    endSeconds: 42,
-    summary: 'Clouds and a red digital horizon launch the chase into the sky.',
+    id: 'shades',
+    startSeconds: 30.48,
+    endSeconds: 31.5,
+    summary: 'Shades down.',
   },
   {
-    id: 'final-pursuit',
-    startSeconds: 42,
-    endSeconds: 48,
-    summary: 'Pop T glides on pilot wings, misses the key once, recovers, and catches it.',
+    id: 'walk',
+    startSeconds: 31.5,
+    endSeconds: 35.64,
+    summary: 'The long walk across the hangar floor, small against the DC-9’s nose.',
   },
   {
-    id: 'catch',
-    startSeconds: 48,
+    id: 'engine-start',
+    startSeconds: 35.64,
+    endSeconds: 38.52,
+    summary: 'Engine light-off: the fan spools and the anti-collision beacon starts flashing on the beat.',
+  },
+  {
+    id: 'inserts',
+    startSeconds: 38.52,
+    endSeconds: 42.84,
+    summary: 'Cockpit inserts: the instrument panel wakes left to right, the family photo on the glareshield, a hand settles on the throttles.',
+  },
+  {
+    id: 'takeoff',
+    startSeconds: 42.84,
+    endSeconds: 49.704,
+    summary: 'Lineup on the empty runway, throttles up, rotate — the DC-9 climbs past the camera trailing a contrail.',
+  },
+  {
+    id: 'title',
+    startSeconds: 49.704,
     endSeconds: 51,
-    summary: 'Pop T holds a brief victory pose before the key delivers one last joke.',
+    summary: 'The winged-globe emblem stamps into the contrail against the stars.',
   },
   {
     id: 'loop-reset',
     startSeconds: 51,
     endSeconds: 53.04,
-    summary: 'The key drags Pop T away and the picture collapses into blue pixels.',
+    summary: 'The title holds and the picture collapses into blue pixels before the loop restarts.',
   },
 ] as const satisfies readonly IntroScene[]
 

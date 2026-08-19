@@ -358,49 +358,64 @@ test('TMB2 cinematic follows exact boundaries and loops without entering gamepla
       summary: 'Blue pixels assemble the TMB2 console logo before a bright gold-white overload.',
     },
     {
-      time: 6,
-      id: 'duffel',
-      summary: 'Pop T enters confidently and struggles with an oversized rattling duffel bag.',
+      time: 6.5,
+      id: 'beacon-dark',
+      summary: 'A single amber beacon sweep crosses the dark before the pre-flight ritual begins.',
     },
     {
-      time: 12,
-      id: 'key-escape',
-      summary: 'A living golden key bursts from the luggage, startles Pop T, taunts him, and escapes.',
+      time: 8,
+      id: 'ritual',
+      summary: 'Hard-cut stills on the beat: boots on the tarmac, coffee set down, the flight case latches snap shut.',
     },
     {
-      time: 16,
-      id: 'runway',
-      summary: 'Pop T chases the key past airport equipment and narrowly avoids a runway cart.',
+      time: 13.5,
+      id: 'hangar-reveal',
+      summary: 'Hangar floodlights slam on row by row and reveal the Northwest DC-9 waiting for its legacy flight.',
     },
     {
-      time: 22,
-      id: 'ballpark',
-      summary: 'The key redirects a baseball while Pop T performs a dramatic slide past the base.',
+      time: 20,
+      id: 'suit-up',
+      summary: 'The suit-up montage: the cap flipped and caught, four captain stripes, the logbook snapped shut, wings pinned, and a glance at the watch.',
     },
     {
       time: 28,
-      id: 'city-finance',
-      summary: 'The key runs along a rising neon graph and Pop T collides with comic bull imagery.',
+      id: 'doors',
+      summary: 'The hangar doors grind open around the captain’s backlit silhouette.',
     },
     {
-      time: 35,
-      id: 'sky',
-      summary: 'Clouds and a red digital horizon launch the chase into the sky.',
+      time: 31,
+      id: 'shades',
+      summary: 'Shades down.',
     },
     {
-      time: 42,
-      id: 'final-pursuit',
-      summary: 'Pop T glides on pilot wings, misses the key once, recovers, and catches it.',
+      time: 33,
+      id: 'walk',
+      summary: 'The long walk across the hangar floor, small against the DC-9’s nose.',
     },
     {
-      time: 48,
-      id: 'catch',
-      summary: 'Pop T holds a brief victory pose before the key delivers one last joke.',
+      time: 37,
+      id: 'engine-start',
+      summary: 'Engine light-off: the fan spools and the anti-collision beacon starts flashing on the beat.',
     },
     {
-      time: 51,
+      time: 40,
+      id: 'inserts',
+      summary: 'Cockpit inserts: the instrument panel wakes left to right, the family photo on the glareshield, a hand settles on the throttles.',
+    },
+    {
+      time: 44,
+      id: 'takeoff',
+      summary: 'Lineup on the empty runway, throttles up, rotate — the DC-9 climbs past the camera trailing a contrail.',
+    },
+    {
+      time: 50.2,
+      id: 'title',
+      summary: 'The winged-globe emblem stamps into the contrail against the stars.',
+    },
+    {
+      time: 52,
       id: 'loop-reset',
-      summary: 'The key drags Pop T away and the picture collapses into blue pixels.',
+      summary: 'The title holds and the picture collapses into blue pixels before the loop restarts.',
     },
   ] as const
 
@@ -607,21 +622,21 @@ test('TMB2 cinematic holds scene poses for reduced motion and fits required view
   const canvas = intro.locator('.game-intro__stage')
   const audio = page.locator('audio')
   await audio.evaluate((media) => {
-    media.currentTime = 17
+    media.currentTime = 32.2
     media.dispatchEvent(new Event('timeupdate'))
   })
   const firstPose = await canvas.evaluate((element) => ({
     popt: element.getAttribute('data-popt-frame'),
-    key: element.getAttribute('data-key-frame'),
+    jet: element.getAttribute('data-jet-frame'),
   }))
   await audio.evaluate((media) => {
-    media.currentTime = 21
+    media.currentTime = 35.2
     media.dispatchEvent(new Event('timeupdate'))
   })
-  await expect(canvas).toHaveAttribute('data-scene', 'runway')
+  await expect(canvas).toHaveAttribute('data-scene', 'walk')
   expect(await canvas.evaluate((element) => ({
     popt: element.getAttribute('data-popt-frame'),
-    key: element.getAttribute('data-key-frame'),
+    jet: element.getAttribute('data-jet-frame'),
   }))).toEqual(firstPose)
 
   for (const viewport of [
