@@ -1,0 +1,60 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 2048x2048, highest quality. Generate once, no variants.
+- One reference image is attached: the character's identity reference. Match the character to it.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/popt-v2/generated/anchor/anchor-00-c.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+A flat cel-shaded 2D character illustration of a single cartoon airline pilot, full body, drawn
+in clean vector style with hard-edged colour regions.
+
+The character matches the attached reference exactly: young male pilot, blonde hair, navy peaked
+cap with a gold band above the brim, white short-sleeve uniform shirt with gold-striped
+epaulettes on both shoulders, dark navy necktie, navy trousers with a belt, dark boots.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material: a base, one darker shade, one lighter shade.
+- Every colour region is a solid area of ONE flat colour with a hard edge. No gradients, no
+  blending, no soft edges, no glow.
+- NO specular highlights, NO shine, NO reflective streaks, NO gloss anywhere - especially not on
+  the trousers or boots.
+- NO fabric texture, NO fine wrinkles, NO creases, NO folds, NO stitching, NO pinstripes, NO
+  patterns. Trousers and shirt are plain solid colour with only broad shading.
+- NO noise, NO speckling, NO dithering, NO grain, NO stippling.
+
+Palette to draw from: near-black #040614, dark navy #1A203F, mid navy #3A4772, off-white #F1EFF0,
+light grey-lavender #BAB7CB, mid grey #82819A, skin #F8AC75, mid skin #D5773F, deep brown #280B02,
+brown #6A320A, tan-brown #A35616, gold #F5C424, dark gold #CB8A06, near-black green #20251E.
+
+Proportions - IMPORTANT: this is a stylised cartoon mascot, not a realistic figure. The head is
+large relative to the body: the whole figure is about FIVE head-heights tall. Short legs, compact
+torso, big head, small hands and feet. Match the chunky heroic-cartoon proportions of the attached
+reference, which is deliberately caricatured.
+
+Facial features - IMPORTANT: this artwork will be reduced to a sprite only 104 pixels tall, so
+every facial feature must be BOLD, HIGH-CONTRAST and SIMPLIFIED or it will disappear.
+- The MOUTH must be clearly visible: a solid dark shape in a colour much darker than the skin,
+  drawn with the same weight and contrast as the eyebrows. Never a faint crease, never a thin
+  tonal line, never the same hue as the skin.
+- Eyes, eyebrows and mouth are each solid dark shapes, generously sized, well separated from one
+  another, sitting in the lower half of the face.
+- No subtle tonal shading anywhere on the face. No nose shading, no cheek blush, no soft contour.
+
+Pose: standing at rest in a three-quarter view facing to the right. Weight even on both feet,
+arms relaxed and hanging at his sides, hands open, chin level, calm neutral expression.
+
+Framing: the whole figure is fully visible, standing upright and vertically centred, occupying
+about 90 percent of the image height, with a small even margin above the cap and below the boots.
+Both feet are visible and level.
+
+Background: a completely flat solid pure magenta field, RGB 255 0 255, filling the entire canvas
+edge to edge. The magenta must appear NOWHERE on the character. No ground, no shadow, no
+horizon, no props, no text, no logo, no border, no watermark, no checkerboard.

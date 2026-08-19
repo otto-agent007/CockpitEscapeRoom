@@ -61,12 +61,44 @@ punch-camera zoom recorded in Discoveries was out of scope here and is handled b
       92 → 104, pivot (64,112) → (64,120), baseline row 111 → 119, envelope widened to
       x [5,123] / y [7,127]. Prompt pack and reference images regenerated; gate re-verified in
       both directions against the amended numbers.
-- [ ] Owner generates Wave 0 anchor; identity approved before any other frame.
+- [x] 2026-08-17 — Wave 0 anchor generated (Codex built-in `image_gen`, ChatGPT plan, no API key)
+      and normalised through the new pipeline; passes the v3 gate.
+- [x] 2026-08-17 — **Owner retired the 14-colour pixel-art constraint** after reviewing the
+      belt/hands evidence. Contract raised to v3 (`supersedesV2`), full-colour route adopted.
+- [x] 2026-08-17 — `tools/assets/normalise-popt-frame.py` and
+      `tools/assets/check-popt-frames-fullcolour.py` written; gate proven in both directions
+      against 7 injected defects (baseline shift, pivot drift, punched speck, chroma spill,
+      disconnected piece, dissolved alpha, wrong canvas).
+- [ ] Owner identity approval on the full-colour anchor before any other frame.
 - [ ] Owner generates Waves 1–3 (55 frames).
 - [ ] Frames snapped, normalised, exported to 128×128, validated, integrated.
 - [ ] Browser proof at the punch moments; owner visual gate.
 
 ## Discoveries
+
+**2026-08-17 — the premise of this plan was partly wrong.** The Purpose above says Pop T should be
+drawn "on the same pixel grid as everything else in the frame". Measured against the shipped
+plates: there is no such grid. The five backgrounds under `public/images/intro/tmb2/backgrounds/`
+are 1586x992 paintings carrying 118k-208k distinct colours with ~47-54% single-pixel runs. The
+orphan-pixel ceiling the v2 contract gates on is a pixel-art-specific measure that those plates
+fail at **92.9%**; full-colour Pop T scores **78.6%**, i.e. below the artwork he stands in front
+of, while the quantised build scores 0.7%. Enforcing a 14-colour palette on the character alone
+was producing the very defect this plan exists to remove — a character composited over a painting.
+
+What the constraint cost, measured on the Wave 0 anchor at the 19x reduction: the mouth was
+deleted outright (drawn as a 6px skin-toned crease, it lost every modal vote), the belt was
+fragmented by `#F1EFF0` pixels punched through the near-black band where cells straddled the shirt
+hem, and both thumbs flattened into the hand. All three survive intact on the full-colour route.
+Evidence: `preview-renders/tmb2-intro-overhaul/popt-v2-belt-hands-detail.png` and
+`popt-v2-look-comparison.png` (both composited over `duffel-terminal` at stage scale).
+
+The intermediate option — smooth downsample then re-quantise to a larger adaptive palette — was
+tested and is worse, not a compromise: 7.5% orphan at 16 colours rising to 16.5% at 32, because
+chopping anti-aliased gradients without dithering manufactures banding speckle.
+
+**The integer-scaling invariant is untouched.** The sprite is still pre-rendered at exactly its
+on-stage size and blitted 1:1 into the 320x224 stage, which scales to screen by an integer. Plan
+0030's work stands; only the palette constraint is retired.
 
 Measured 2026-08-16 against the shipped build. Each figure is reproducible from the repository.
 
@@ -274,6 +306,56 @@ The validator is proven in both directions, because a gate that cannot fail is n
   passable; the synthetic frames are a control, are not committed, and are not art.
 - The gate is deliberately **not** wired into `npm run assets:check` yet — it would fail the
   currently shipped frames. It runs per wave until the v2 set is complete, then joins the suite.
+
+## Resume here — paused 2026-08-17
+
+Work is paused at the owner's request, pending a decision. Nothing is committed; the branch is
+`agent/tmb2-intro-overhaul`.
+
+### The two open decisions
+
+1. **Identity.** Does the full-colour anchor read as Pop T? Look at
+   `preview-renders/tmb2-intro-overhaul/popt-v3-anchor-on-plates.png` (on three real plates at
+   stage scale) and `popt-v2-anchor-candidates.png` (against v1 and the rejected variants).
+   Every one of the remaining 55 frames is a pose delta from this, so it is the cheap moment to
+   change him. Open question if he is close but not right: he lands at **5.78 head-heights**
+   against v1's **5.11**, so another pass asking for four-and-a-half heads would close the gap.
+2. **Airborne alignment.** Frames are placed by the midpoint of the foot span, which has no
+   meaning when the feet leave the ground — `run-03` and `run-07` are specified as airborne, and
+   all of `pilot-glide` and `bull-spin` are. They need a different anchor (most likely hips, or
+   cap-top carried forward from the contact frame). Guessing it across 26 frames risks a
+   character that bobs vertically through the run cycle.
+
+### What is already done and verified
+
+- Contract raised to **v3, full colour** (`asset-reports/popt-sprite-contract.json`), with the
+  decision, reasoning and measured evidence recorded under `supersedesV2`.
+- `tools/assets/normalise-popt-frame.py` — magenta key, despill, alpha-weighted downsample,
+  placement in the cell.
+- `tools/assets/check-popt-frames-fullcolour.py` — the replacement gate, with
+  `check-popt-frames-fullcolour.test.py` proving it rejects all 7 injected defects and accepts a
+  clean frame. Run the test first on resuming; it is the fastest confidence check.
+- `asset-reports/popt-frame-prompt-pack.md` rewritten for v3. The old block/palette instructions
+  are retired and must not come back.
+- `art-source/intro/tmb2/popt-v2/prompts/anchor-00.txt` is the exact prompt that produced the
+  approved anchor. Copy it for new frames and swap only the pose brief.
+
+### To pick up exactly where this left off
+
+```
+python3 tools/assets/check-popt-frames-fullcolour.test.py          # gate still honest?
+python3 tools/assets/check-popt-frames-fullcolour.py art-source/intro/tmb2/popt-v2/normalised
+```
+
+Then, once identity and the airborne rule are settled, generate Wave 1's twelve locomotion frames
+one at a time per the prompt pack, normalising and gating each as it lands. Scale is locked at
+**19.0** source px per cell px — do not re-derive it per frame or he changes size between clips.
+
+### Cost so far
+
+Three generations through Codex's built-in `image_gen` on the ChatGPT plan, ~100k tokens of plan
+allowance, no API credits. Image turns burn plan allowance 3-5x faster than text on a rolling
+5-hour window, so Waves 1-3 (55 frames) should be batched by wave rather than run in one sitting.
 
 ## Outcome and handoff
 

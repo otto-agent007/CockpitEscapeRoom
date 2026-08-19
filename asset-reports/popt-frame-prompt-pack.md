@@ -1,63 +1,96 @@
-# Pop T v2 — frame generation pack
+# Pop T v3 — frame generation pack
 
-Owner-facing. Everything here is copy-paste ready for ChatGPT Image. The machine-readable
-contract these prompts implement is `asset-reports/popt-sprite-contract.json`; the reasoning
-and evidence are in `plans/0029-popt-native-resolution.md`.
+**Contract v3, full colour.** The machine-readable contract is
+`asset-reports/popt-sprite-contract.json`; the reasoning and evidence are in
+`plans/0029-popt-native-resolution.md`.
 
-**What changes from the frames we have:** nothing about who Pop T is. Same character, same 14
-colours, same poses. He is redrawn at **more than twice the linear resolution** — 104 pixels tall instead
-of 46 — because he plays at 46% of the screen and 46 pixels cannot hold that size. The frames
-we have resolve about one fifth the detail of the key mascot standing next to him.
+> **This pack was rewritten on 2026-08-17.** The previous version asked for "exact 8x8 blocks" of
+> 14 flat colours. That was retired: gpt-image-2 cannot draw a pixel lattice (measured — 34,232
+> distinct colours, 57.5% single-pixel runs, no detectable grid), and the intro's own background
+> plates are 1586x992 paintings that fail the old orphan-pixel ceiling at 92.9%, so there was
+> never a shared pixel grid to join. Forcing the palette deleted Pop T's mouth, fragmented his
+> belt and flattened his thumbs. **Do not reintroduce the block/palette instructions.**
 
----
+## How generation runs
 
-## Before you start
+Codex CLI's **built-in `image_gen`** tool, which bills against the ChatGPT plan and needs no API
+key. Never set `OPENAI_API_KEY` for these runs and never let it fall back to `scripts/image_gen.py`
+— both switch to API billing, which is what exhausted the earlier attempt.
 
-Attach these three images to **every** generation. They live in
-`art-source/intro/tmb2/popt-v2/references/`.
+```
+codex exec -C /mnt/2TBHDD/CockpitEscapeRoom -s workspace-write \
+  -i art-source/intro/tmb2/popt-v2/references/identity-anchor-1024.png \
+  - < <prompt-file>
+```
 
-| Attach | File | Why |
-| --- | --- | --- |
-| 1 | `identity-anchor-1024.png` | Who he is. Colours, uniform, proportions, face. |
-| 2 | `target-scale-mockup-1024.png` | How big he sits in the cell. The chunky pixels in it are the *old* art doubled — they show the size to hit, not the quality. |
-| 3 | `pixel-matrix-8x8-1024.png` | The 8×8 block grid. Constraint only — it must never appear in the artwork. |
+Attach **only** the identity reference. The old pixel-matrix and target-scale references are
+retired — the matrix encouraged the fake pixelation, and the scale mockup is v1 art.
 
-Generate **one frame per request**. Never ask for a sheet, a pose board, or several poses in one
-image: the pipeline needs each frame on the same locked grid, and a multi-pose image drifts.
+Ask for the largest size the generator will produce **natively**, and tell it not to resize: one
+run returned 1254x1254 and was upscaled to the requested 2048, which adds blur and no detail.
 
-Save each result as `art-source/intro/tmb2/popt-v2/generated/<clip>/<clip>-NN.png`, numbering
-from `00`. Tell me when a wave is done and I will snap, normalise, export, and validate it.
+## After generation
 
----
+```
+python3 tools/assets/normalise-popt-frame.py <generated.png> <normalised.png> \
+    --source-px-per-cell-px 19.0
+python3 tools/assets/check-popt-frames-fullcolour.py art-source/intro/tmb2/popt-v2/normalised
+```
+
+The scale **19.0** is locked — derived once from the Wave 0 anchor and reused for every frame, so
+the character never changes size between clips. Alignment is by the foot-span midpoint. Airborne
+poses need a different anchor rule, which is an open decision (see the plan).
 
 ## The invariant block
 
-Paste this verbatim at the top of every request, then add the one-line pose brief under it.
+Paste this verbatim at the top of every request, then add the pose brief and the framing block.
 
-> Draw a single 16-bit Genesis-era pixel-art character frame on a 1024×1024 canvas.
->
-> The artwork must read as exactly 128×128 logical pixels: every pixel is an exact 8×8 block of
-> one flat colour, aligned to the attached matrix reference. No block may be half-sized, offset,
-> blurred, gradient-filled, or anti-aliased. Do not draw the matrix itself.
->
-> The character is the pilot from the attached identity reference — same face, same navy peaked
-> cap with a gold band, same white short-sleeve uniform shirt with epaulettes and a dark tie,
-> same navy trousers, same dark boots. Keep him unmistakably the same character.
->
-> Use only these 14 colours and full transparency. No other colour, no intermediate shade:
-> #040614 #1A203F #F1EFF0 #F8AC75 #280B02 #BAB7CB #D5773F #F5C424 #20251E #3A4772 #A35616
-> #CB8A06 #6A320A #82819A
->
-> Composition, in logical pixels of the 128×128 grid: he stands on a baseline at row 119, centred
-> on column 64. Standing height is 104 rows (top of cap at row 16). No pose may leave the box
-> from column 5 to 123 and row 7 to 127.
->
-> Fully transparent background. No ground, no shadow, no props, no duffel bag, no key character,
-> no text, no logo, no border, no frame, no watermark, no UI.
->
-> He faces right. Draw a clean readable silhouette: every limb separated from the torso, arms at
-> least 3 pixels thick, no stray single pixels floating off the body, no speckled dithering inside
-> flat areas. Shade in deliberate clusters, not noise.
+> A flat cel-shaded 2D character illustration of a single cartoon airline pilot, full body, drawn
+> in clean vector style with hard-edged colour regions.
+> 
+> The character matches the attached reference exactly: young male pilot, blonde hair, navy peaked
+> cap with a gold band above the brim, white short-sleeve uniform shirt with gold-striped
+> epaulettes on both shoulders, dark navy necktie, navy trousers with a belt, dark boots.
+> 
+> Colour and shading rules, followed strictly:
+> - Use at most three flat shades per material: a base, one darker shade, one lighter shade.
+> - Every colour region is a solid area of ONE flat colour with a hard edge. No gradients, no
+>   blending, no soft edges, no glow.
+> - NO specular highlights, NO shine, NO reflective streaks, NO gloss anywhere - especially not on
+>   the trousers or boots.
+> - NO fabric texture, NO fine wrinkles, NO creases, NO folds, NO stitching, NO pinstripes, NO
+>   patterns. Trousers and shirt are plain solid colour with only broad shading.
+> - NO noise, NO speckling, NO dithering, NO grain, NO stippling.
+> 
+> Palette to draw from: near-black #040614, dark navy #1A203F, mid navy #3A4772, off-white #F1EFF0,
+> light grey-lavender #BAB7CB, mid grey #82819A, skin #F8AC75, mid skin #D5773F, deep brown #280B02,
+> brown #6A320A, tan-brown #A35616, gold #F5C424, dark gold #CB8A06, near-black green #20251E.
+> 
+> Proportions - IMPORTANT: this is a stylised cartoon mascot, not a realistic figure. The head is
+> large relative to the body: the whole figure is about FIVE head-heights tall. Short legs, compact
+> torso, big head, small hands and feet. Match the chunky heroic-cartoon proportions of the attached
+> reference, which is deliberately caricatured.
+> 
+> Facial features - IMPORTANT: this artwork will be reduced to a sprite only 104 pixels tall, so
+> every facial feature must be BOLD, HIGH-CONTRAST and SIMPLIFIED or it will disappear.
+> - The MOUTH must be clearly visible: a solid dark shape in a colour much darker than the skin,
+>   drawn with the same weight and contrast as the eyebrows. Never a faint crease, never a thin
+>   tonal line, never the same hue as the skin.
+> - Eyes, eyebrows and mouth are each solid dark shapes, generously sized, well separated from one
+>   another, sitting in the lower half of the face.
+> - No subtle tonal shading anywhere on the face. No nose shading, no cheek blush, no soft contour.
+
+## The framing block
+
+Paste this after the pose brief.
+
+> Framing: the whole figure is fully visible, standing upright and vertically centred, occupying
+> about 90 percent of the image height, with a small even margin above the cap and below the boots.
+> Both feet are visible and level.
+> 
+> Background: a completely flat solid pure magenta field, RGB 255 0 255, filling the entire canvas
+> edge to edge. The magenta must appear NOWHERE on the character. No ground, no shadow, no
+> horizon, no props, no text, no logo, no border, no watermark, no checkerboard.
 
 ---
 

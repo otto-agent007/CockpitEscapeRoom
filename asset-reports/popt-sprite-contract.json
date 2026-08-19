@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "asset": "popt",
-  "contractVersion": 2,
-  "status": "authored-awaiting-frames",
+  "contractVersion": 3,
+  "status": "v3-full-colour-anchor-approved-awaiting-waves",
   "supersedes": {
     "file": "public/images/intro/tmb2/popt/animation-contract-export.json",
     "animationContractSha256": "ee79610510df36c5d73c98103a4cb1be563b0a936d8d48d8304c33854e165e01",
@@ -113,7 +113,9 @@
     "budgetNote": "15 opaque + transparent, one Genesis palette line. One slot is unused and may be spent on a single new shading step if the redraw needs it.",
     "keyColorNeverInArt": "#06FD08",
     "identityRule": "The 14 colors are the character's identity and must not be re-picked. Verified present in every shipped v1 frame.",
-    "source": "measured across all 24 v1 pipeline frames"
+    "source": "measured across all 24 v1 pipeline frames",
+    "binding": false,
+    "role": "Origin reference only as of v3. These 14 colours describe where the character came from and should still read as his identity, but frames are no longer quantised to them and conformance is no longer gated."
   },
   "clips": [
     {
@@ -318,5 +320,27 @@
     "plan": "plans/0030-pixel-safe-punch-camera.md",
     "decision": "Owner approved retiring the held camera zoom on 2026-08-16.",
     "consequence": "The camera no longer magnifies actors, so the standing height moved from 92 to 104 and the pivot from (64,112) to (64,120). Had the zoom stayed, 92 with pivot (64,112) would have been correct. Do not mix the two sets."
+  },
+  "supersedesV2": {
+    "decision": "2026-08-17: the 14-colour flat pixel-art constraint is retired for Pop T. Frames are authored as flat-shaded high-resolution illustrations and alpha-downsampled to the contract cell in full colour.",
+    "reason": "The v2 premise was that Pop T should sit 'on the same pixel grid as everything else in the frame'. Measured 2026-08-17: there is no such grid. The five background plates are 1586x992 paintings carrying 118k-208k distinct colours with ~50% single-pixel runs. Enforcing a 14-colour palette on the character alone is what made him read as a composite over the artwork, which is the defect this plan exists to remove.",
+    "evidence": {
+      "backgroundPlateOrphanRate": 0.929,
+      "fullColourPoptOrphanRate": 0.786,
+      "quantisedPoptOrphanRate": 0.007,
+      "note": "The orphan-pixel ceiling is a pixel-art-specific measure. The intro's own plates fail it at 92.9%, and full-colour Pop T scores below the artwork he stands in front of. It is not a meaningful quality signal for this asset.",
+      "quantisationDamage": "At the 19x reduction the 14-colour modal vote deleted the mouth entirely, fragmented the belt with off-white pixels punched through the near-black band, and flattened both thumbs."
+    },
+    "whatIsUnchanged": "The pixel-grid invariant that matters is untouched: the sprite is pre-rendered at exactly its on-stage size and blitted 1:1 into the 320x224 stage, which scales to screen by an integer. No fractional resampling is reintroduced and plans 0029/0030 stand."
+  },
+  "render": {
+    "route": "full-colour",
+    "sourceArt": "Flat cel-shaded illustration on a solid #FF00FF chroma field, generated at the largest native size the generator will produce without upscaling.",
+    "normaliser": "tools/assets/normalise-popt-frame.py",
+    "gate": "tools/assets/check-popt-frames-fullcolour.py",
+    "retiredGate": "tools/assets/check-popt-frames.py - palette and orphan checks are specific to the v2 contract; kept for any asset still on a flat palette.",
+    "sourcePxPerCellPx": 19.0,
+    "sourcePxPerCellPxNote": "Derived once from the Wave 0 anchor and applied unchanged to every later frame. Re-fitting per frame would make the character change size between clips.",
+    "alignment": "feet - the horizontal midpoint of the foot span sits on the pivot column and the lowest opaque row sits on the baseline, so choreographed foot positions from 0022 and 0028 stay valid."
   }
 }
