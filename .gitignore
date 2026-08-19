@@ -17,3 +17,6 @@ tools/blender/blender_mcp_addon.py
 
 # Claude Code: local-only settings (permission allowlist, per-machine)
 .claude/settings.local.json
+
+# Superpowers brainstorm: per-machine server state, including a session token
+.superpowers/
