@@ -536,3 +536,293 @@
   color: #fff;
   background: rgba(0, 0, 0, 0.52);
 }
+
+/* Right-seat flight-control check ---------------------------------------- */
+
+.dc9-control-check,
+.dc9-instrument-scan {
+  position: absolute;
+  z-index: 7;
+  top: 1rem;
+  right: 1rem;
+  bottom: 6.5rem;
+  width: min(30rem, calc(100vw - 2rem));
+  overflow: auto;
+  padding: clamp(.9rem, 1.8vw, 1.25rem);
+  border: 1px solid rgb(229 193 119 / 30%);
+  background: rgb(10 18 19 / 91%);
+  box-shadow: 0 24px 70px rgb(0 0 0 / 48%);
+  pointer-events: auto;
+}
+
+.dc9-control-check h2,
+.dc9-instrument-scan h2 {
+  margin: .15rem 0 0;
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+}
+
+.dc9-control-check__intro,
+.dc9-instrument-scan__intro {
+  margin: .8rem 0 .5rem;
+  font-size: .88rem;
+  line-height: 1.5;
+}
+
+.dc9-control-check__instructions {
+  margin: 0 0 .9rem;
+  color: #c9d8d6;
+  font-size: .78rem;
+  line-height: 1.5;
+}
+
+.dc9-control-check__axes {
+  display: grid;
+  gap: .75rem;
+}
+
+.dc9-axis {
+  padding: .55rem .6rem;
+  border: 1px solid rgb(232 202 136 / 18%);
+  background: rgb(255 255 255 / 3%);
+}
+
+.dc9-axis__head {
+  display: flex;
+  justify-content: space-between;
+  gap: .5rem;
+  font-size: .78rem;
+}
+
+.dc9-axis__head strong {
+  color: #e8c57f;
+  font-variant-numeric: tabular-nums;
+}
+
+.dc9-axis__meter {
+  position: relative;
+  height: .4rem;
+  margin: .4rem 0 .5rem;
+  overflow: hidden;
+  border: 1px solid rgb(232 202 136 / 22%);
+  background: rgb(0 0 0 / 35%);
+}
+
+.dc9-axis__fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #7fa7a3, #e8c57f);
+}
+
+.dc9-axis__holds {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .4rem;
+}
+
+.dc9-axis__hold {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .35rem;
+  padding: .45rem .5rem;
+  border: 1px solid rgb(232 202 136 / 25%);
+  color: inherit;
+  background: rgb(255 255 255 / 4%);
+  font-size: .74rem;
+  text-align: start;
+  touch-action: none;
+}
+
+.dc9-axis__hold:hover,
+.dc9-axis__hold:focus-visible {
+  border-color: #d8b46d;
+  background: rgb(240 200 117 / 10%);
+}
+
+.dc9-axis__hold kbd {
+  padding: .05rem .3rem;
+  border: 1px solid rgb(232 202 136 / 30%);
+  color: #e8c57f;
+  font-family: ui-monospace, monospace;
+  font-size: .66rem;
+  white-space: nowrap;
+}
+
+.dc9-control-check__checklist {
+  display: grid;
+  gap: .55rem;
+  margin-top: .9rem;
+}
+
+.dc9-control-check__group h3 {
+  margin: 0 0 .25rem;
+  color: #9fb6b4;
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.dc9-control-check__group ul {
+  display: grid;
+  gap: .15rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dc9-control-check__item {
+  display: flex;
+  gap: .5rem;
+  padding: .12rem 0;
+  color: #c9d8d6;
+  font-size: .78rem;
+}
+
+.dc9-control-check__item.is-next {
+  color: #f3ce75;
+}
+
+.dc9-control-check__item.is-complete {
+  color: #a9c7b1;
+}
+
+.dc9-control-check__next {
+  margin: 0 0 .8rem;
+  padding: .5rem .6rem;
+  border-left: 2px solid #d8b46d;
+  color: #f3ce75;
+  font-size: .84rem;
+  line-height: 1.45;
+  background: rgb(240 200 117 / 8%);
+}
+
+.dc9-control-check__method {
+  margin: 0 0 .5rem;
+  color: #8fa4a2;
+  font-size: .72rem;
+}
+
+.dc9-control-check__disclaimer,
+.dc9-instrument-scan__disclaimer {
+  display: block;
+  color: #8fa4a2;
+  font-size: .68rem;
+  line-height: 1.45;
+}
+
+/* Instrument scan --------------------------------------------------------- */
+
+.dc9-instrument-scan__question {
+  margin: .6rem 0 .35rem;
+  color: #f3ce75;
+  font-size: .95rem;
+  line-height: 1.45;
+}
+
+.dc9-instrument-scan .dc9-document__note {
+  color: #9fb6b4;
+  font-size: .76rem;
+}
+
+.dc9-instrument-scan__list {
+  display: grid;
+  gap: .4rem;
+  margin: .8rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dc9-instrument-choice {
+  display: grid;
+  gap: .12rem;
+  width: 100%;
+  padding: .55rem .6rem;
+  border: 1px solid rgb(232 202 136 / 25%);
+  color: inherit;
+  background: rgb(255 255 255 / 4%);
+  text-align: start;
+}
+
+.dc9-instrument-choice:hover:not(:disabled),
+.dc9-instrument-choice:focus-visible {
+  border-color: #d8b46d;
+  background: rgb(240 200 117 / 10%);
+}
+
+.dc9-instrument-choice strong {
+  font-size: .84rem;
+}
+
+.dc9-instrument-choice small {
+  color: #9fb6b4;
+  font-size: .7rem;
+  line-height: 1.4;
+}
+
+.dc9-instrument-choice.is-identified {
+  border-color: rgb(139 187 154 / 55%);
+  color: #a9c7b1;
+}
+
+.dc9-instrument-choice.is-final-hint,
+.dc9-gauge-target.is-final-hint {
+  border-color: #f0c875;
+  box-shadow: 0 0 0 2px rgb(240 200 117 / 26%);
+}
+
+.dc9-instrument-scan__progress {
+  margin: .3rem 0 .5rem;
+  color: #c9d8d6;
+  font-size: .76rem;
+}
+
+.dc9-gauge-target {
+  position: absolute;
+  /* Below the scan panel, so a projected target can never sit over its own copy. */
+  z-index: 4;
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  transform: translate(-50%, -50%);
+}
+
+.dc9-gauge-target:hover:not(:disabled),
+.dc9-gauge-target:focus-visible {
+  border-color: #f0c875;
+  outline: none;
+  background: rgb(240 200 117 / 8%);
+  box-shadow: 0 0 0 2px rgb(240 200 117 / 20%), 0 0 1.6rem rgb(240 200 117 / 40%);
+}
+
+.dc9-gauge-target.is-identified {
+  border-color: rgb(139 187 154 / 60%);
+  background: rgb(139 187 154 / 8%);
+}
+
+/* Wider than the 760px document breakpoint: these panels are 30rem, so they crowd the
+   cockpit out well before a narrow phone layout would. */
+@media (max-width: 900px) {
+  .dc9-control-check,
+  .dc9-instrument-scan {
+    top: auto;
+    right: .5rem;
+    bottom: 5.5rem;
+    left: .5rem;
+    width: auto;
+    max-height: 58vh;
+  }
+
+  .dc9-axis__holds {
+    grid-template-columns: 1fr;
+  }
+
+  /* The stacked panel covers the panel face, so the scan runs from its list instead. */
+  .dc9-gauge-target {
+    display: none;
+  }
+}
+

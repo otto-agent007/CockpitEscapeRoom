@@ -52,5 +52,151 @@
       { "code": "SEA", "city": "Seattle", "periodMileage": 1870 },
       { "code": "AMS", "city": "Amsterdam", "periodMileage": 4544 }
     ]
+  },
+  "flightDeck": {
+    "note": "Right-seat flight-deck animation contract, measured from the cleared donor OBJ8 channels and expressed in the deployed glTF space (which equals raw X-Plane space). The runtime rebuilds these pivots as groups above the named draw-range nodes; a future Blender rebuild should promote them to authored pivots under DC9_INTERACTIVE without changing any value here. Guarded by tools/assets/dc9-flight-deck-contract.mjs and mirrored in src/game/dc9FlightDeck.ts.",
+    "bakedPose": "art-source/blender/dc9_parked_neutral_pose.json (every dataref below is zero)",
+    "rangeSemantics": {
+      "extrapolate": "Two-key ANIM_rotate: a linear map that keeps going past its samples.",
+      "clamp": "Multi-key ANIM_rotate_begin: a calibrated dial face that holds against its stops."
+    },
+    "controls": {
+      "foYokePitch": {
+        "nodes": ["OBJ8_DC9VC2_RANGE_014", "OBJ8_DC9VC2_RANGE_015"],
+        "dataref": "sim/joystick/yolk_pitch_ratio",
+        "kind": "rotate",
+        "range": "extrapolate",
+        "pivot": [0.59298, -0.289439, 2.56786],
+        "axis": [1, 0, 0],
+        "keys": [[-1, -10], [1, 15]]
+      },
+      "foYokeRoll": {
+        "nodes": ["OBJ8_DC9VC2_RANGE_015"],
+        "dataref": "sim/joystick/yolk_roll_ratio",
+        "kind": "rotate",
+        "range": "extrapolate",
+        "pivot": [0.497686, 0.31607144644914453, 2.605477798526198],
+        "axis": [0, 0, 1],
+        "keys": [[-1, 90], [1, -90]]
+      },
+      "captainYokePitch": {
+        "nodes": ["OBJ8_DC9VC2_RANGE_012", "OBJ8_DC9VC2_RANGE_013"],
+        "dataref": "sim/joystick/yolk_pitch_ratio",
+        "kind": "rotate",
+        "range": "extrapolate",
+        "pivot": [-0.579981, -0.289439, 2.56786],
+        "axis": [1, 0, 0],
+        "keys": [[-1, -10], [1, 15]]
+      },
+      "captainYokeRoll": {
+        "nodes": ["OBJ8_DC9VC2_RANGE_013"],
+        "dataref": "sim/joystick/yolk_roll_ratio",
+        "kind": "rotate",
+        "range": "extrapolate",
+        "pivot": [-0.484682, 0.31607144644914453, 2.605477798526198],
+        "axis": [0, 0, 1],
+        "keys": [[-1, 90], [1, -90]]
+      },
+      "thrustLeverLeft": {
+        "nodes": ["OBJ8_DC9VC2_RANGE_009", "OBJ8_DC9VC2_RANGE_010"],
+        "dataref": "sim/flightmodel/engine/ENGN_thro[0]",
+        "kind": "rotate",
+        "range": "extrapolate",
+        "pivot": [-0.026399, 0.137043, 2.67068],
+        "axis": [1, 0, 0],
+        "keys": [[0, 0], [1, -55]]
+      },
+      "thrustLeverRight": {
+        "nodes": ["OBJ8_DC9VC2_RANGE_006", "OBJ8_DC9VC2_RANGE_007", "OBJ8_DC9VC2_RANGE_008"],
+        "dataref": "sim/flightmodel/engine/ENGN_thro[1]",
+        "kind": "rotate",
+        "range": "extrapolate",
+        "pivot": [-0.021248, 0.137043, 2.67068],
+        "axis": [1, 0, 0],
+        "keys": [[0, 0], [1, -55]]
+      },
+      "pedalFoLeft": {
+        "nodes": ["OBJ8_DC9VC2_RANGE_017"],
+        "dataref": "sim/joystick/yoke_heading_ratio",
+        "kind": "translate",
+        "range": "extrapolate",
+        "axis": [0, 0, 1],
+        "keys": [[-1, 0], [1, 0.160003]]
+      },
+      "pedalFoRight": {
+        "nodes": ["OBJ8_DC9VC2_RANGE_018"],
+        "dataref": "sim/joystick/yoke_heading_ratio",
+        "kind": "translate",
+        "range": "extrapolate",
+        "axis": [0, 0, 1],
+        "keys": [[-1, 0.160003], [1, 0]]
+      },
+      "pedalCaptainLeft": {
+        "nodes": ["OBJ8_DC9VC2_RANGE_020"],
+        "dataref": "sim/joystick/yoke_heading_ratio",
+        "kind": "translate",
+        "range": "extrapolate",
+        "axis": [0, 0, 1],
+        "keys": [[-1, 0], [1, 0.160003]]
+      },
+      "pedalCaptainRight": {
+        "nodes": ["OBJ8_DC9VC2_RANGE_021"],
+        "dataref": "sim/joystick/yoke_heading_ratio",
+        "kind": "translate",
+        "range": "extrapolate",
+        "axis": [0, 0, 1],
+        "keys": [[-1, 0.160003], [1, 0]]
+      }
+    },
+    "instruments": {
+      "airspeed": {
+        "gameId": "dc9.gauge.airspeed",
+        "label": "Airspeed indicator",
+        "center": [0.368331, 0.333986, 2.346],
+        "radius": 0.038,
+        "needleNodes": ["OBJ8_DC9-32_COCKPIT_RANGE_151"],
+        "dataref": "sim/cockpit2/gauges/indicators/airspeed_kts_copilot"
+      },
+      "attitude": {
+        "gameId": "dc9.gauge.attitude",
+        "label": "Attitude director indicator",
+        "center": [0.473, 0.356, 2.276],
+        "radius": 0.062,
+        "needleNodes": ["OBJ8_DC9-32_COCKPIT_RANGE_129", "OBJ8_DC9-32_COCKPIT_RANGE_131"],
+        "dataref": "sim/cockpit2/gauges/indicators/{pitch,roll}_AHARS_deg_copilot"
+      },
+      "altimeter": {
+        "gameId": "dc9.gauge.altimeter",
+        "label": "Altimeter",
+        "center": [0.579689, 0.3381, 2.372499],
+        "radius": 0.038,
+        "needleNodes": ["OBJ8_DC9-32_COCKPIT_RANGE_166", "OBJ8_DC9-32_COCKPIT_RANGE_164"],
+        "dataref": "sim/cockpit2/gauges/indicators/altitude_ft_copilot"
+      },
+      "heading": {
+        "gameId": "dc9.gauge.heading",
+        "label": "Horizontal situation indicator",
+        "center": [0.473608, 0.253793, 2.378965],
+        "radius": 0.045,
+        "needleNodes": ["OBJ8_DC9-32_COCKPIT_RANGE_108", "OBJ8_DC9-32_COCKPIT_RANGE_109"],
+        "dataref": "sim/cockpit2/gauges/indicators/heading_electric_deg_mag_copilot"
+      },
+      "verticalSpeed": {
+        "gameId": "dc9.gauge.verticalSpeed",
+        "label": "Vertical speed indicator",
+        "center": [0.665776, 0.337112, 2.368714],
+        "radius": 0.038,
+        "needleNodes": ["OBJ8_DC9-32_COCKPIT_RANGE_099"],
+        "dataref": "sim/cockpit2/gauges/indicators/vvi_fpm_copilot"
+      },
+      "epr": {
+        "gameId": "dc9.gauge.epr",
+        "label": "Engine pressure ratio gauges",
+        "center": [0.001569, 0.426916, 2.334151],
+        "radius": 0.055,
+        "needleNodes": ["OBJ8_DC9-32_COCKPIT_RANGE_037", "OBJ8_DC9-32_COCKPIT_RANGE_055"],
+        "dataref": "sim/cockpit2/engine/indicators/EPR_ratio[0..1]"
+      }
+    }
   }
 }

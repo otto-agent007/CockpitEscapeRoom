@@ -38,6 +38,24 @@ import {
   type AirbusWeatherRadarFrame,
 } from './airbusWeatherRadar'
 import { AIRBUS_MODEL_URL, clearCockpitModel, DC9_MODEL_URL, loadCockpitModel, LOCKER_MODEL_URL } from './cockpitModelLoader'
+import {
+  DC9_FLIGHT_CONTROL_BINDINGS,
+  DC9_FLIGHT_CONTROL_JOINTS,
+  DC9_INSTRUMENT_BINDINGS,
+  DC9_INSTRUMENT_JOINTS,
+  type Dc9InstrumentId,
+} from '../game/dc9FlightDeck'
+import { NEUTRAL_DC9_CONTROLS, type Dc9ControlInput, type Dc9ControlState } from '../game/dc9Input'
+import {
+  advanceDc9SelfTests,
+  applyDc9JointValue,
+  buildDc9JointHandles,
+  createDc9GaugeTargets,
+  dc9SelfTestChannelValues,
+  dc9YokeDemandFromDrag,
+  type Dc9ActiveSelfTest,
+  type Dc9JointHandle,
+} from './dc9FlightDeckVisuals'
 
 const AIRBUS_GAME_CAMERA = 'CAM_AIRBUS_CAPTAIN_GAME_VIEW'
 const AIRBUS_STORM_FLIGHT_CAMERA = 'CAM_AIRBUS_CAPTAIN_STORM_FLIGHT'
@@ -60,6 +78,10 @@ const DC9_LOOK_PITCH_LIMIT = 0.18
 const DC9_LOOK_POINTER_SPEED = 0.0018
 const DC9_SHUTDOWN_INITIAL_YAW = 0.15
 const DC9_KEY_INITIAL_YAW = 0.28
+// The control check starts looking down and slightly inboard, onto the right-seat yoke.
+const DC9_CONTROL_CHECK_INITIAL_YAW = -0.07
+const DC9_CONTROL_CHECK_INITIAL_PITCH = -0.14
+const DC9_SCAN_INITIAL_YAW = -0.1
 const LOCKER_CAMERA_MOVE_SECONDS = 4.5
 const LOCKER_MEMORY_CAMERA_MOVE_SECONDS = 1.8
 const LOCKER_CLOSE_FOCUS_FOV = 30
@@ -174,6 +196,9 @@ interface PrototypeSceneProps {
   phase: Exclude<GamePhase, 'briefing' | 'reward' | 'mars'>
   activeDc9Controls: Dc9SecureControlId[]
   dc9ChapterStage: Dc9ChapterStage
+  dc9FlightControlsRef?: React.RefObject<Dc9ControlState>
+  dc9IdentifiedInstruments: readonly Dc9InstrumentId[]
+  onDc9YokeDrag?: (input: Partial<Dc9ControlInput> | null) => void
   reducedMotion: boolean
   lockerHatRevealed: boolean
   selectedAirbusCard: string | null
@@ -626,12 +651,17 @@ function Dc9SeatLookControls({
   wideFov,
   narrowFov,
   initialYaw,
+  initialPitch = 0,
+  suppressLookRef,
 }: {
   sourceCamera: THREE.Camera
   cameraResetRevision: number
   wideFov: number
   narrowFov: number
   initialYaw: number
+  initialPitch?: number
+  /** Set while the player is dragging the yoke, so looking around does not fight it. */
+  suppressLookRef?: React.RefObject<boolean>
 }) {
   const { camera, gl, size } = useThree()
   const basePositionRef = useRef(new THREE.Vector3())
@@ -662,9 +692,9 @@ function Dc9SeatLookControls({
     fovRef.current = wideFov
     narrowFovRef.current = narrowFov
     yawRef.current = initialYaw
-    pitchRef.current = 0
+    pitchRef.current = THREE.MathUtils.clamp(initialPitch, -DC9_LOOK_PITCH_LIMIT, DC9_LOOK_PITCH_LIMIT)
     cameraDirtyRef.current = true
-  }, [cameraResetRevision, initialYaw, narrowFov, sourceCamera, wideFov])
+  }, [cameraResetRevision, initialPitch, initialYaw, narrowFov, sourceCamera, wideFov])
 
   useFrame(() => {
     if (!cameraDirtyRef.current) return
@@ -699,7 +729,7 @@ function Dc9SeatLookControls({
       draggingRef.current = false
     }
     const onLookStart = (event: PointerEvent) => {
-      if (event.button !== 0) return
+      if (event.button !== 0 || suppressLookRef?.current) return
       draggingRef.current = true
       lastPointerRef.current = { x: event.clientX, y: event.clientY }
       try {
@@ -709,6 +739,7 @@ function Dc9SeatLookControls({
       }
     }
     const onLookMove = (event: PointerEvent) => {
+      if (suppressLookRef?.current) draggingRef.current = false
       if (!draggingRef.current) return
       const deltaX = event.clientX - lastPointerRef.current.x
       const deltaY = event.clientY - lastPointerRef.current.y
@@ -743,7 +774,7 @@ function Dc9SeatLookControls({
       canvas.removeEventListener('pointercancel', stopDrag)
       canvas.removeEventListener('wheel', onWheel)
     }
-  }, [gl])
+  }, [gl, suppressLookRef])
 
   return null
 }
@@ -2223,6 +2254,14 @@ const DC9_REQUIRED_NODES = [
   ...DC9_LEGACY_ROUTE_REGISTRY_CODES.map((code) => `DC9_ROUTE_ROW_${code}`),
 ] as const
 
+/** Stages that read a document or panel and share the tighter route-camera framing. */
+function dc9DocumentFraming(stage: Dc9ChapterStage): boolean {
+  return stage === 'intro'
+    || stage === 'routeRecord'
+    || stage === 'homeOperations'
+    || stage === 'instrumentScan'
+}
+
 const DC9_CONTROL_NODES: Record<Dc9SecureControlId, string> = {
   apuBuses: 'DC9_CTRL_APU_BUSES',
   apuMaster: 'DC9_CTRL_APU_MASTER',
@@ -2269,6 +2308,153 @@ function Dc9ControlAnimator({
   return null
 }
 
+/**
+ * Drives the reconstructed flight-deck pivots every frame: the yoke, thrust levers and
+ * pedals follow the player's control positions, and each newly identified gauge runs its
+ * power-on self-test sweep.
+ */
+function Dc9FlightDeckAnimator({
+  handles,
+  controlsRef,
+  identifiedInstruments,
+  reducedMotion,
+}: {
+  handles: Dc9JointHandle[]
+  controlsRef?: React.RefObject<Dc9ControlState>
+  identifiedInstruments: readonly Dc9InstrumentId[]
+  reducedMotion: boolean
+}) {
+  const { gl } = useThree()
+  const selfTestsRef = useRef<Dc9ActiveSelfTest[]>([])
+  const seenInstrumentsRef = useRef<Set<Dc9InstrumentId>>(new Set(identifiedInstruments))
+  const publishedSelfTestRef = useRef('')
+  const canvasRef = useRef(gl.domElement)
+
+  useEffect(() => {
+    canvasRef.current = gl.domElement
+  }, [gl])
+
+  useEffect(() => {
+    // Only gauges identified after mount get a sweep; a reloaded save stays at rest.
+    for (const instrument of identifiedInstruments) {
+      if (seenInstrumentsRef.current.has(instrument)) continue
+      seenInstrumentsRef.current.add(instrument)
+      if (reducedMotion) continue
+      selfTestsRef.current = [...selfTestsRef.current, { instrument, elapsedSeconds: 0 }]
+    }
+  }, [identifiedInstruments, reducedMotion])
+
+  useFrame((_, delta) => {
+    selfTestsRef.current = advanceDc9SelfTests(selfTestsRef.current, delta)
+    const controls = controlsRef?.current ?? NEUTRAL_DC9_CONTROLS
+    const channels = dc9SelfTestChannelValues(selfTestsRef.current)
+    // Mirrors the other dc9 runtime datasets so a browser test can watch a sweep run
+    // without depending on screenshot timing.
+    const running = selfTestsRef.current
+      .map((entry) => `${entry.instrument}:${entry.elapsedSeconds.toFixed(2)}`)
+      .join(',')
+    if (running !== publishedSelfTestRef.current) {
+      publishedSelfTestRef.current = running
+      canvasRef.current.dataset.dc9SelfTest = running
+    }
+    for (const handle of handles) {
+      switch (handle.drive) {
+        case 'pitch': applyDc9JointValue(handle, controls.pitch); break
+        case 'roll': applyDc9JointValue(handle, controls.roll); break
+        case 'thrust': applyDc9JointValue(handle, controls.thrust); break
+        case 'rudder': applyDc9JointValue(handle, controls.rudder); break
+        default: applyDc9JointValue(handle, channels[handle.drive] ?? 0); break
+      }
+    }
+  })
+  return null
+}
+
+/**
+ * Lets the player grab the first-officer yoke directly. A drag that starts on the yoke
+ * drives the control axes; anything else falls through to looking around the cockpit.
+ */
+function Dc9YokeDragControls({
+  yokeTarget,
+  enabled,
+  suppressLookRef,
+  onDrag,
+  onHoverInteractive,
+}: {
+  yokeTarget: THREE.Object3D | null
+  enabled: boolean
+  suppressLookRef: React.RefObject<boolean>
+  onDrag?: (input: Partial<Dc9ControlInput> | null) => void
+  onHoverInteractive: HoverHandler
+}) {
+  const { camera, gl, size } = useThree()
+  const raycaster = useRef(new THREE.Raycaster())
+  const pointer = useRef(new THREE.Vector2())
+  const originRef = useRef<{ x: number; y: number } | null>(null)
+  const sizeRef = useRef(size)
+
+  useEffect(() => {
+    sizeRef.current = size
+  }, [size])
+
+  useEffect(() => {
+    if (!enabled || !yokeTarget || !onDrag) return
+    const canvas = gl.domElement
+    const hitsYoke = (event: PointerEvent) => {
+      const bounds = canvas.getBoundingClientRect()
+      pointer.current.set(
+        ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
+        -((event.clientY - bounds.top) / bounds.height) * 2 + 1,
+      )
+      raycaster.current.setFromCamera(pointer.current, camera)
+      return raycaster.current.intersectObject(yokeTarget, true).length > 0
+    }
+    const release = () => {
+      originRef.current = null
+      suppressLookRef.current = false
+      onDrag(null)
+    }
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.button !== 0 || !hitsYoke(event)) return
+      originRef.current = { x: event.clientX, y: event.clientY }
+      suppressLookRef.current = true
+      try {
+        canvas.setPointerCapture(event.pointerId)
+      } catch {
+        // Synthetic accessibility/test events may not own an active browser pointer.
+      }
+    }
+    const onPointerMove = (event: PointerEvent) => {
+      const origin = originRef.current
+      if (!origin) {
+        onHoverInteractive(hitsYoke(event))
+        return
+      }
+      onDrag(dc9YokeDemandFromDrag(
+        event.clientX - origin.x,
+        event.clientY - origin.y,
+        sizeRef.current.width,
+        sizeRef.current.height,
+      ))
+    }
+    canvas.addEventListener('pointerdown', onPointerDown)
+    canvas.addEventListener('pointermove', onPointerMove)
+    canvas.addEventListener('pointerup', release)
+    canvas.addEventListener('pointercancel', release)
+    canvas.addEventListener('pointerleave', release)
+    return () => {
+      canvas.removeEventListener('pointerdown', onPointerDown)
+      canvas.removeEventListener('pointermove', onPointerMove)
+      canvas.removeEventListener('pointerup', release)
+      canvas.removeEventListener('pointercancel', release)
+      canvas.removeEventListener('pointerleave', release)
+      release()
+    }
+  }, [camera, enabled, gl, onDrag, onHoverInteractive, suppressLookRef, yokeTarget])
+
+  return null
+}
+
 function Dc9HotspotProjector({
   targets,
   onChange,
@@ -2294,7 +2480,7 @@ function Dc9HotspotProjector({
         y: ((1 - point.y) / 2) * size.height,
         visible: visibleInHierarchy && point.z >= -1 && point.z <= 1 && point.x >= -1 && point.x <= 1 && point.y >= -1 && point.y <= 1,
       }
-      if (gameId === 'dc9.route.card' && position.visible) {
+      if ((gameId === 'dc9.route.card' || gameId.startsWith('dc9.gauge.')) && position.visible) {
         bounds.setFromObject(object)
         let minX = Number.POSITIVE_INFINITY
         let minY = Number.POSITIVE_INFINITY
@@ -2419,9 +2605,12 @@ function Dc9Cockpit({
   chapterStage,
   reducedMotion,
   interactionEnabled,
+  flightControlsRef,
+  identifiedInstruments,
   onLoadState,
   onHotspotsChange,
   onInteraction,
+  onYokeDrag,
   onHoverInteractive,
 }: {
   cameraResetRevision: number
@@ -2429,9 +2618,12 @@ function Dc9Cockpit({
   chapterStage: Dc9ChapterStage
   reducedMotion: boolean
   interactionEnabled: boolean
+  flightControlsRef?: React.RefObject<Dc9ControlState>
+  identifiedInstruments: readonly Dc9InstrumentId[]
   onLoadState: (state: Dc9LoadState) => void
   onHotspotsChange?: (positions: Dc9HotspotScreenPositions) => void
   onInteraction: (gameId: string) => void
+  onYokeDrag?: (input: Partial<Dc9ControlInput> | null) => void
   onHoverInteractive: HoverHandler
 }) {
   const { camera, gl, size } = useThree()
@@ -2442,9 +2634,12 @@ function Dc9Cockpit({
     secureCamera: THREE.Camera
     controls: Partial<Record<Dc9SecureControlId, THREE.Object3D>>
     targets: Map<string, THREE.Object3D>
+    jointHandles: Dc9JointHandle[]
+    yokeTarget: THREE.Object3D | null
   } | null>(null)
   const [loadFailed, setLoadFailed] = useState(false)
   const canvasRef = useRef(gl.domElement)
+  const suppressLookRef = useRef(false)
 
   useEffect(() => {
     canvasRef.current = gl.domElement
@@ -2496,6 +2691,15 @@ function Dc9Cockpit({
         })
         for (const [gameId, collider] of colliderTargets) targets.set(gameId, collider)
         scene.updateMatrixWorld(true)
+        // The donor bakes the yoke, levers, pedals and needles in place, so their pivots
+        // are rebuilt here from the measured contract rather than shipped in the GLB.
+        const jointHandles = [
+          ...buildDc9JointHandles(scene, DC9_FLIGHT_CONTROL_JOINTS, DC9_FLIGHT_CONTROL_BINDINGS),
+          ...buildDc9JointHandles(scene, DC9_INSTRUMENT_JOINTS, DC9_INSTRUMENT_BINDINGS),
+        ]
+        for (const [gameId, target] of createDc9GaugeTargets(scene)) targets.set(gameId, target)
+        const yokeTarget = scene.getObjectByName('OBJ8_DC9VC2_RANGE_015') ?? null
+        scene.updateMatrixWorld(true)
         const sourceCamera = scene.getObjectByName(DC9_GAME_CAMERA)
         if (!(sourceCamera instanceof THREE.Camera)) {
           throw new Error(`DC-9 cockpit asset is missing required camera ${DC9_GAME_CAMERA}.`)
@@ -2512,7 +2716,7 @@ function Dc9Cockpit({
           dc9LegacyFlow.secureControlIds.map((controlId) => [controlId, scene.getObjectByName(DC9_CONTROL_NODES[controlId])]),
         ) as Partial<Record<Dc9SecureControlId, THREE.Object3D>>
         setLoadFailed(false)
-        setLoaded({ scene, camera: sourceCamera, routeCamera, secureCamera, controls, targets })
+        setLoaded({ scene, camera: sourceCamera, routeCamera, secureCamera, controls, targets, jointHandles, yokeTarget })
         canvas.dataset.dc9ModelState = 'ready'
         canvas.dataset.dc9CameraNode = sourceCamera.name
         canvas.dataset.dc9TargetCount = String(targets.size)
@@ -2542,9 +2746,14 @@ function Dc9Cockpit({
     if (!loaded) return
     const routeStage = chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations'
     const shutdownStage = chapterStage === 'shutdown'
-    const sourceCamera = routeStage ? loaded.routeCamera : shutdownStage ? loaded.secureCamera : loaded.camera
-    const wideFov = routeStage ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV
-    const narrowFov = routeStage ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV
+    const sourceCamera = routeStage || chapterStage === 'instrumentScan'
+      ? loaded.routeCamera
+      : shutdownStage
+        ? loaded.secureCamera
+        : loaded.camera
+    const documentFraming = routeStage || chapterStage === 'instrumentScan'
+    const wideFov = documentFraming ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV
+    const narrowFov = documentFraming ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV
     loaded.scene.updateMatrixWorld(true)
     applyDc9GameplayCameraTransform(
       camera,
@@ -2576,6 +2785,7 @@ function Dc9Cockpit({
       if (typeof gameId !== 'string') return
       if (gameId.startsWith('dc9.route.')) object.visible = routeInteractive
       else if (gameId.startsWith('dc9.secure.')) object.visible = shutdownInteractive
+      else if (gameId.startsWith('dc9.gauge.')) object.visible = chapterStage === 'instrumentScan'
       else if (gameId === 'dc9.key.open') object.visible = keyInteractive
     })
   }, [chapterStage, loaded])
@@ -2588,21 +2798,40 @@ function Dc9Cockpit({
         <>
           <primitive object={loaded.scene} dispose={null} />
           <Dc9SeatLookControls
-            sourceCamera={(chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations')
+            sourceCamera={dc9DocumentFraming(chapterStage)
               ? loaded.routeCamera
               : chapterStage === 'shutdown'
                 ? loaded.secureCamera
                 : loaded.camera}
             cameraResetRevision={cameraResetRevision}
-            wideFov={(chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations') ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV}
-            narrowFov={(chapterStage === 'intro' || chapterStage === 'routeRecord' || chapterStage === 'homeOperations') ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV}
+            wideFov={dc9DocumentFraming(chapterStage) ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV}
+            narrowFov={dc9DocumentFraming(chapterStage) ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV}
             initialYaw={chapterStage === 'keyReveal'
               ? DC9_KEY_INITIAL_YAW
               : chapterStage === 'shutdown'
                 ? DC9_SHUTDOWN_INITIAL_YAW
-                : 0}
+                : chapterStage === 'controlCheck'
+                  ? DC9_CONTROL_CHECK_INITIAL_YAW
+                  : chapterStage === 'instrumentScan'
+                    ? DC9_SCAN_INITIAL_YAW
+                    : 0}
+            initialPitch={chapterStage === 'controlCheck' ? DC9_CONTROL_CHECK_INITIAL_PITCH : 0}
+            suppressLookRef={suppressLookRef}
           />
           <Dc9ControlAnimator controls={loaded.controls} activeControls={activeControls} reducedMotion={reducedMotion} />
+          <Dc9FlightDeckAnimator
+            handles={loaded.jointHandles}
+            controlsRef={flightControlsRef}
+            identifiedInstruments={identifiedInstruments}
+            reducedMotion={reducedMotion}
+          />
+          <Dc9YokeDragControls
+            yokeTarget={loaded.yokeTarget}
+            enabled={interactionEnabled && chapterStage === 'controlCheck'}
+            suppressLookRef={suppressLookRef}
+            onDrag={onYokeDrag}
+            onHoverInteractive={onHoverInteractive}
+          />
           <Dc9HotspotProjector targets={loaded.targets} onChange={onHotspotsChange} />
           <Dc9InteractionRaycaster
             scene={loaded.scene}
@@ -2626,18 +2855,24 @@ function CaptainCockpit({
   chapterStage,
   reducedMotion,
   cameraResetRevision,
+  flightControlsRef,
+  identifiedInstruments,
   onLoadState,
   onHotspotsChange,
   onInteraction,
+  onYokeDrag,
   onHoverInteractive,
 }: {
   activeControls: Dc9SecureControlId[]
   chapterStage: Dc9ChapterStage
   reducedMotion: boolean
   cameraResetRevision: number
+  flightControlsRef?: React.RefObject<Dc9ControlState>
+  identifiedInstruments: readonly Dc9InstrumentId[]
   onLoadState: (state: Dc9LoadState) => void
   onHotspotsChange?: (positions: Dc9HotspotScreenPositions) => void
   onInteraction: (gameId: string) => void
+  onYokeDrag?: (input: Partial<Dc9ControlInput> | null) => void
   onHoverInteractive: HoverHandler
 }) {
   return (
@@ -2648,9 +2883,12 @@ function CaptainCockpit({
         chapterStage={chapterStage}
         reducedMotion={reducedMotion}
         interactionEnabled
+        flightControlsRef={flightControlsRef}
+        identifiedInstruments={identifiedInstruments}
         onLoadState={onLoadState}
         onHotspotsChange={onHotspotsChange}
         onInteraction={onInteraction}
+        onYokeDrag={onYokeDrag}
         onHoverInteractive={onHoverInteractive}
       />
     </>
@@ -2661,6 +2899,9 @@ export function PrototypeScene({
   phase,
   activeDc9Controls,
   dc9ChapterStage,
+  dc9FlightControlsRef,
+  dc9IdentifiedInstruments,
+  onDc9YokeDrag,
   reducedMotion,
   lockerHatRevealed,
   selectedAirbusCard,
@@ -2744,6 +2985,9 @@ export function PrototypeScene({
           <CaptainCockpit
             activeControls={activeDc9Controls}
             chapterStage={dc9ChapterStage}
+            flightControlsRef={dc9FlightControlsRef}
+            identifiedInstruments={dc9IdentifiedInstruments}
+            onYokeDrag={onDc9YokeDrag}
             reducedMotion={reducedMotion}
             cameraResetRevision={cameraResetRevision}
             onLoadState={onDc9LoadState}

@@ -1,3 +1,83 @@
+# DC-9-32 right-seat flight-deck animation contract
+
+Date: 2026-08-19
+
+## Outcome
+
+The parked DC-9 right seat is now hands-on. The first-officer control column, control
+wheel, both thrust levers and both pairs of rudder pedals move under the player, and each
+first-officer instrument can run its needle through a power-on self-test. No geometry was
+added and `public/models/dc9-cockpit.glb` is byte-for-byte unchanged.
+
+## Why no rebuild
+
+The deployed GLB already exposes every donor draw range as its own named node - 659 nodes,
+including all 460 `OBJ8_DC9-32_COCKPIT_RANGE_*` panel ranges and all 129
+`OBJ8_DC9VC2_RANGE_*` cockpit ranges. What the GLB lacks is pivots, because the OBJ8
+import bakes each range in place. Those pivots still exist in the cleared donor source, so
+they were measured out of it and are reconstructed at runtime as groups inserted directly
+above the named nodes.
+
+Rebuilding instead would have produced a new 36 MiB binary, invalidated the recorded
+SHA-256, and reopened an owner-gated asset for no player-visible gain. The measurements
+are recorded in `art-source/blender/dc9_interaction_map.json` under `flightDeck` so a
+future rebuild can promote them to authored Blender pivots without changing a value.
+
+## Coordinate proof
+
+The donor parser reports pivots in Blender space `(x, -z, y)` and axes in X-Plane space.
+Measured against the shipped GLB, glTF equals raw X-Plane space: `glTF = (bx, bz, -by)`.
+Verified on seven nodes to three decimal places - `OBJ8_DC9VC2_RANGE_014`, `_015`, `_007`,
+`_009`, `_017`, and `OBJ8_DC9-32_COCKPIT_RANGE_129`, `_151` - every component matched. No
+node in any of those parent chains carries a rotation, scale or matrix, which
+`tools/assets/dc9-flight-deck-contract.mjs` re-checks on every `npm run assets:check`.
+
+## Measured contract
+
+| Control | Nodes | Pivot (glTF) | Axis | Donor travel |
+| --- | --- | --- | --- | --- |
+| FO yoke column pitch | `RANGE_014`, `RANGE_015` | `0.59298, -0.289439, 2.56786` | `1,0,0` | -1 to -10 deg, +1 to +15 deg |
+| FO yoke wheel roll | `RANGE_015` | `0.497686, 0.316071, 2.605478` | `0,0,1` | -1 to +90 deg, +1 to -90 deg |
+| Captain yoke (linked) | `RANGE_012`, `RANGE_013` | `-0.579981, -0.289439, 2.56786` | `1,0,0` | as above |
+| Thrust lever 1 | `RANGE_009`, `RANGE_010` | `-0.026399, 0.137043, 2.67068` | `1,0,0` | 0 to 0 deg, 1 to -55 deg |
+| Thrust lever 2 | `RANGE_006/007/008` | `-0.021248, 0.137043, 2.67068` | `1,0,0` | as above |
+| Rudder pedals | `RANGE_017/018/020/021` | translation | `0,0,1` | 0.160003 m total, opposed |
+
+Instruments: airspeed `RANGE_151`, ADI `RANGE_129`/`131`, altimeter `RANGE_166`/`164`,
+HSI `RANGE_108`/`109`, VSI `RANGE_099`, EPR `RANGE_037`/`055`, each with its own pivot,
+axis and calibrated key table.
+
+The GLB is baked at `art-source/blender/dc9_parked_neutral_pose.json`, where every dataref
+above is zero, so all runtime motion is applied relative to that pose. Two consequences
+are worth recording because they look like bugs and are not: the yoke's -10/+15 table
+means ratio 0 already carries +2.5 deg, so relative travel is a symmetric +/-12.5 deg; and
+the pedals sit at mid-travel, so each moves +/-0.080 m for 0.160 m of total sweep.
+
+## Range semantics
+
+Donor channels come in two forms and must be treated differently. A two-key `ANIM_rotate`
+is a linear map that keeps going past its samples - the attitude ball is authored as
+`-1 deg -> -1 deg, +1 deg -> +1 deg` and means 1:1 - while a multi-key
+`ANIM_rotate_begin` table is a calibrated dial face that holds against its stops.
+Clamping both, as the first implementation did, capped a twenty-degree ADI roll at one
+degree and a ninety-degree HSI card sweep at zero. Each joint now carries an explicit
+`range` and the unit suite asserts that every self-test produces real needle travel.
+
+## Browser evidence
+
+Production build, real 36 MiB GLB, 1440x900. Model state `ready`, 18 interaction targets
+registered (12 existing plus the six new `dc9.gauge.*`).
+
+- Control sweep: every control moved measurably against the neutral frame - column
+  69,545 px, wheel 35,218 px, pedals 9,815 px, levers 11,506 px - and all eight checklist
+  items latched, ending with the route strip revealed.
+- Gauge projection: the six click targets land on the first-officer basic-T at
+  airspeed 548,295 / ADI 644,253 / altimeter 742,305 / HSI 645,373 / VSI 817,305, with
+  the EPR pair at 180,203 on the centre engine stack.
+- Self-test: with the HTML overlay hidden, the ADI changed 532 px at the top of its
+  excursion and returned to **exactly 0 px** difference from its parked frame, proving
+  both that the needle moves and that the baked-pose arithmetic leaves no drift.
+
 # DC-9-32 First-Officer seat-role migration
 
 Date: 2026-07-15

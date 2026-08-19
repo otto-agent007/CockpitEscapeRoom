@@ -1,6 +1,8 @@
 import { expect, test, type Page } from '@playwright/test'
 import { airbusCaptainFlow, dc9LegacyFlow, lockerFlow } from '../src/game/config'
 import { createInitialState, type GameState } from '../src/game/state'
+import { DC9_CONTROL_CHECK_ITEM_IDS } from '../src/game/dc9ControlCheck'
+import { DC9_INSTRUMENT_SCAN_ORDER } from '../src/game/dc9InstrumentScan'
 import { STORAGE_KEY } from '../src/game/storage'
 
 async function placeAirbusCard(page: Page, card: string, targetName: string): Promise<void> {
@@ -21,6 +23,8 @@ function createLockerState(): GameState {
     phase: 'locker',
     dc9: {
       stage: 'complete',
+      controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS],
+      instrumentScan: { identified: [...DC9_INSTRUMENT_SCAN_ORDER], attempts: 0 },
       routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
       routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
       routeAttempts: 0,
@@ -41,7 +45,33 @@ function createDc9State(): GameState {
   return {
     ...createInitialState(),
     phase: 'dc9',
-    statusMessage: 'The parked DC-9 is ready. Find the route strip on the first-officer yoke.',
+    statusMessage: 'The parked DC-9 is ready. Walk every right-seat control to its stops.',
+  }
+}
+
+/** The chapter as it stands once the opening flight-control sweep is complete. */
+function createDc9RouteRecordState(): GameState {
+  const state = createDc9State()
+  return {
+    ...state,
+    dc9: { ...state.dc9, stage: 'intro', controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS] },
+  }
+}
+
+/** Home Operations finished, with the instrument scan still to run. */
+function createDc9InstrumentScanState(): GameState {
+  const state = createDc9State()
+  return {
+    ...state,
+    dc9: {
+      ...state.dc9,
+      stage: 'instrumentScan',
+      controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS],
+      routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
+      routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
+      homePage: dc9LegacyFlow.homeOperationsPages.length - 1,
+      homeOperationsCompleted: true,
+    },
   }
 }
 
@@ -50,6 +80,8 @@ function createDc9QualificationState(): GameState {
     ...createDc9State(),
     dc9: {
       stage: 'qualification',
+      controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS],
+      instrumentScan: { identified: [...DC9_INSTRUMENT_SCAN_ORDER], attempts: 0 },
       routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
       routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
       routeAttempts: 0,
@@ -119,6 +151,53 @@ function createCompletedAirbusState(): GameState {
     completedPuzzles: ['dc9', 'locker', 'airbus'],
     statusMessage: 'POP T CAPTAIN MODE COMPLETE. Engine-Out Handling complete.',
   }
+}
+
+/** Walk every right-seat control to its stops using the native hold buttons. */
+async function sweepDc9ControlCheck(page: Page): Promise<void> {
+  const panel = page.getByRole('region', { name: 'Flight controls — free and correct' })
+  await expect(panel).toBeVisible()
+  const holds: [string, string][] = [
+    ['Pull column aft', 'yokeAft'],
+    ['Push column forward', 'yokeForward'],
+    ['Roll wheel left', 'wheelLeft'],
+    ['Roll wheel right', 'wheelRight'],
+    ['Left rudder pedal', 'rudderLeft'],
+    ['Right rudder pedal', 'rudderRight'],
+    ['Advance thrust levers', 'thrustAdvance'],
+    ['Close thrust levers', 'thrustClosed'],
+  ]
+  for (const [index, [label, item]] of holds.entries()) {
+    await page.getByRole('button', { name: new RegExp(`^${label}`) }).hover()
+    await page.mouse.down()
+    if (index < holds.length - 1) {
+      await expect(page.locator(`[data-item="${item}"]`)).toHaveAttribute('data-complete', 'true', { timeout: 15_000 })
+    } else {
+      // The last movement ends the stage, so its tick unmounts before it can be read.
+      await expect(panel).toHaveCount(0, { timeout: 15_000 })
+    }
+    await page.mouse.up()
+  }
+}
+
+/** Identify all six right-seat instruments from the native list. */
+async function completeDc9InstrumentScan(page: Page): Promise<void> {
+  const scan = page.getByRole('region', { name: 'The scan he flew by' })
+  await expect(scan).toBeVisible()
+  for (const name of [
+    'Airspeed indicator',
+    'Attitude director indicator',
+    'Altimeter',
+    'Horizontal situation indicator',
+    'Vertical speed indicator',
+    'Engine pressure ratio gauges',
+  ]) {
+    const choice = scan.locator('.dc9-instrument-choice').filter({ hasText: name })
+    // A gauge may already have been identified by clicking it in the cockpit.
+    if (await choice.isDisabled()) continue
+    await choice.click()
+  }
+  await expect(scan).toHaveCount(0)
 }
 
 async function seedGameState(page: Page, state: GameState): Promise<void> {
@@ -542,7 +621,7 @@ test('saved DC-9 reload hides the route opener until loading settles', async ({ 
   test.setTimeout(30_000)
   await page.addInitScript(
     ({ key, savedState }) => window.localStorage.setItem(key, JSON.stringify(savedState)),
-    { key: STORAGE_KEY, savedState: createDc9State() },
+    { key: STORAGE_KEY, savedState: createDc9RouteRecordState() },
   )
   await page.route('**/models/dc9-cockpit.glb*', async (route) => {
     await new Promise((resolve) => setTimeout(resolve, 1_500))
@@ -560,11 +639,7 @@ test('saved DC-9 reload hides the route opener until loading settles', async ({ 
 test('DC-9 Final Flight Log accessible flow', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/?skip3d=1')
-  await seedGameState(page, {
-    ...createInitialState(),
-    phase: 'dc9',
-    statusMessage: 'The parked DC-9 is ready. Find the route strip on the first-officer yoke.',
-  })
+  await seedGameState(page, createDc9RouteRecordState())
 
   await page.getByRole('button', { name: 'Open Legacy Route Record' }).click()
   await expect(page.getByRole('dialog', { name: 'Legacy Route Record' })).toBeVisible()
@@ -593,10 +668,130 @@ test('DC-9 Final Flight Log accessible flow', async ({ page }) => {
   expect(internalScroll).toBeLessThanOrEqual(1)
 })
 
-test('DC-9 route record uses the yoke hotspot and a compact dialog', async ({ page }) => {
+test('DC-9 control check sweeps every right-seat control and opens the route strip', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/?skip3d=1')
   await seedGameState(page, createDc9State())
+
+  const panel = page.getByRole('region', { name: 'Flight controls — free and correct' })
+  await expect(panel).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Open Legacy Route Record' })).toHaveCount(0)
+
+  // Every movement has a native hold button, so the sweep never needs the 3D cockpit.
+  const holds: [string, string][] = [
+    ['Pull column aft', 'yokeAft'],
+    ['Push column forward', 'yokeForward'],
+    ['Roll wheel left', 'wheelLeft'],
+    ['Roll wheel right', 'wheelRight'],
+    ['Left rudder pedal', 'rudderLeft'],
+    ['Right rudder pedal', 'rudderRight'],
+    ['Advance thrust levers', 'thrustAdvance'],
+    ['Close thrust levers', 'thrustClosed'],
+  ]
+  for (const [index, [label, item]] of holds.entries()) {
+    const button = page.getByRole('button', { name: new RegExp(`^${label}`) })
+    await button.hover()
+    await page.mouse.down()
+    if (index < holds.length - 1) {
+      await expect(page.locator(`[data-item="${item}"]`)).toHaveAttribute('data-complete', 'true', { timeout: 15_000 })
+    } else {
+      // Latching the final movement ends the stage, so the panel carrying that tick is
+      // already gone by the time it could be read. Watch for the handoff instead.
+      await expect(panel).toHaveCount(0, { timeout: 15_000 })
+    }
+    await page.mouse.up()
+  }
+
+  await expect(page.locator('.dc9-chapter')).toHaveClass(/dc9-chapter--intro/)
+  await expect(page.getByRole('button', { name: 'Open Legacy Route Record' })).toBeVisible()
+})
+
+test('DC-9 control check answers the keyboard and springs back to neutral', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/?skip3d=1')
+  await seedGameState(page, createDc9State())
+
+  await expect(page.getByRole('region', { name: 'Flight controls — free and correct' })).toBeVisible()
+  const columnReadout = page.locator('.dc9-axis').filter({ hasText: 'Control column' }).locator('strong')
+  await expect(columnReadout).toHaveText('Neutral')
+
+  await page.keyboard.down('ArrowUp')
+  await expect(page.locator('[data-item="yokeAft"]')).toHaveAttribute('data-complete', 'true', { timeout: 15_000 })
+  await page.keyboard.up('ArrowUp')
+  await expect(columnReadout).toHaveText('Neutral', { timeout: 15_000 })
+
+  // The levers are not spring-loaded; they stay where the player leaves them.
+  const thrustReadout = page.locator('.dc9-axis').filter({ hasText: 'Thrust levers' }).locator('strong')
+  await page.keyboard.down('KeyW')
+  await expect(thrustReadout).not.toHaveText('Closed', { timeout: 15_000 })
+  await page.keyboard.up('KeyW')
+  // The readout is republished a few times a second, so let it catch up to the levers
+  // before sampling the position it has to hold.
+  await page.waitForTimeout(500)
+  const parked = await thrustReadout.textContent()
+  await page.waitForTimeout(800)
+  await expect(thrustReadout).toHaveText(parked ?? '')
+})
+
+test('DC-9 control check progress survives a reload', async ({ page }) => {
+  await page.goto('/?skip3d=1')
+  await seedGameState(page, createDc9State())
+  // A key press only registers once the chapter is listening for it.
+  await expect(page.getByRole('region', { name: 'Flight controls — free and correct' })).toBeVisible()
+  await page.keyboard.down('ArrowUp')
+  await expect(page.locator('[data-item="yokeAft"]')).toHaveAttribute('data-complete', 'true', { timeout: 15_000 })
+  await page.keyboard.up('ArrowUp')
+
+  await page.reload()
+  await expect(page.getByRole('region', { name: 'Flight controls — free and correct' })).toBeVisible()
+  await expect(page.locator('[data-item="yokeAft"]')).toHaveAttribute('data-complete', 'true')
+  await expect(page.locator('[data-item="wheelLeft"]')).toHaveAttribute('data-complete', 'false')
+})
+
+test('DC-9 instrument scan coaches wrong gauges and never loses a correct one', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/?skip3d=1')
+  await seedGameState(page, createDc9InstrumentScanState())
+
+  const scan = page.getByRole('region', { name: 'The scan he flew by' })
+  await expect(scan).toBeVisible()
+  await expect(scan).toContainText('Which gauge shows how fast the aircraft is moving through the air?')
+
+  const choice = (name: string) => scan.locator('.dc9-instrument-choice').filter({ hasText: name })
+  await choice('Engine pressure ratio gauges').click()
+  await expect(page.locator('.dc9-chapter__status p')).toContainText('Not that one')
+  await expect(scan).toContainText('0 of 6 identified')
+
+  await choice('Airspeed indicator').click()
+  await expect(page.locator('.dc9-chapter__status p')).toContainText('the airspeed indicator')
+  await expect(scan).toContainText('1 of 6 identified')
+
+  // A later mistake must not take the identified gauge away.
+  await choice('Vertical speed indicator').click()
+  await expect(scan).toContainText('1 of 6 identified')
+  await expect(choice('Airspeed indicator')).toBeDisabled()
+
+  for (const name of ['Attitude director indicator', 'Altimeter', 'Horizontal situation indicator', 'Vertical speed indicator', 'Engine pressure ratio gauges']) {
+    await choice(name).click()
+  }
+  await expect(page.locator('.dc9-chapter')).toHaveClass(/dc9-chapter--shutdown/)
+  await expect(page.getByRole('heading', { name: 'Secure the parked aircraft' })).toBeVisible()
+})
+
+test('DC-9 instrument scan offers final support after three misses on one gauge', async ({ page }) => {
+  await page.goto('/?skip3d=1')
+  await seedGameState(page, createDc9InstrumentScanState())
+  const scan = page.getByRole('region', { name: 'The scan he flew by' })
+  const wrong = scan.locator('.dc9-instrument-choice').filter({ hasText: 'Engine pressure ratio gauges' })
+  for (let attempt = 0; attempt < 3; attempt += 1) await wrong.click()
+  await expect(page.locator('.dc9-chapter__status p')).toContainText('outlined for you now')
+  await expect(scan.locator('.dc9-instrument-choice.is-final-hint')).toHaveCount(1)
+})
+
+test('DC-9 route record uses the yoke hotspot and a compact dialog', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/?skip3d=1')
+  await seedGameState(page, createDc9RouteRecordState())
 
   const routeTrigger = page.getByRole('button', { name: 'Open Legacy Route Record' })
   await expect(routeTrigger).toHaveClass(/dc9-route-record-trigger/)
@@ -705,7 +900,7 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
     (response) => response.url().includes('/models/dc9-cockpit.glb') && response.status() === 200,
     { timeout: 30_000 },
   )
-  await seedGameState(page, { ...createInitialState(), phase: 'dc9' })
+  await seedGameState(page, createDc9RouteRecordState())
   const response = await modelResponse
   expect(Number(response.headers()['content-length'])).toBeGreaterThan(20_000_000)
 
@@ -750,6 +945,16 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
     await page.getByRole('button', { name: 'Next page' }).press('Enter')
   }
   await page.getByRole('button', { name: 'Record this legacy' }).press('Enter')
+
+  // The instrument scan reads the right-seat panel, so it keeps the panel framing and
+  // projects a click target onto each real gauge before the overhead shutdown view.
+  await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_FIRST_OFFICER_ROUTE_APPROVAL')
+  await expect(canvas).toHaveAttribute('data-dc9-targets', /dc9\.gauge\.airspeed/)
+  await expect(page.locator('.dc9-gauge-target')).toHaveCount(6)
+  await page.locator('.dc9-gauge-target[data-gauge="airspeed"]').click()
+  await expect(page.locator('.dc9-chapter__status p')).toContainText('the airspeed indicator')
+  await completeDc9InstrumentScan(page)
+
   await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_FIRST_OFFICER_OVERHEAD_APPROVAL')
   await expect(canvas).toHaveAttribute(
     'data-dc9-camera-state',
@@ -795,7 +1000,7 @@ test('DC-9 model failure keeps the compact accessible captain controls', async (
   test.setTimeout(30_000)
   await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
   await page.goto('/')
-  await seedGameState(page, createDc9State())
+  await seedGameState(page, createDc9RouteRecordState())
 
   const canvas = page.locator('canvas')
   await expect(canvas).toHaveAttribute('data-dc9-model-state', 'fallback')
@@ -820,6 +1025,8 @@ test('complete reordered journey', async ({ page }) => {
   await intro.getByRole('button', { name: 'Start game' }).click()
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toBeVisible()
 
+  await sweepDc9ControlCheck(page)
+
   await page.getByRole('button', { name: 'Open Legacy Route Record' }).click()
   for (const code of dc9LegacyFlow.routePuzzleAnswers) {
     await page.getByRole('button', { name: new RegExp(`^${code},`) }).click()
@@ -829,6 +1036,7 @@ test('complete reordered journey', async ({ page }) => {
     await page.getByRole('button', { name: 'Next page' }).click()
   }
   await page.getByRole('button', { name: 'Record this legacy' }).click()
+  await completeDc9InstrumentScan(page)
   await page.getByRole('button', { name: /APU bus switches/ }).click()
   await page.getByRole('button', { name: /APU master switch/ }).click()
   await page.getByRole('button', { name: /Battery switch/ }).click()

@@ -8,6 +8,10 @@ import {
   AIRBUS_SIMULATOR_REQUIRED_NODES,
   validateAirbusSimulatorContract,
 } from './airbus-simulator-contract.mjs'
+import {
+  DC9_FLIGHT_DECK_REQUIRED_NODES,
+  validateDc9FlightDeckContract,
+} from './dc9-flight-deck-contract.mjs'
 
 const modelDir = 'public/models'
 const models = existsSync(modelDir)
@@ -73,6 +77,7 @@ const requiredModelContracts = {
     'CAM_DC9_FIRST_OFFICER_MAIN_PANEL_APPROVAL',
     'CAM_DC9_FIRST_OFFICER_OVERHEAD_APPROVAL',
     'CAM_DC9_FIRST_OFFICER_PEDESTAL_APPROVAL',
+    ...DC9_FLIGHT_DECK_REQUIRED_NODES,
   ],
   'airbus-captain.glb': [
     'AIRBUS_ROOT',
@@ -108,6 +113,10 @@ for (const [model, requiredNodes] of Object.entries(requiredModelContracts)) {
       failed = true
     }
     if (model === 'dc9-cockpit.glb') {
+      for (const error of validateDc9FlightDeckContract(json)) {
+        console.error(error)
+        failed = true
+      }
       const nodes = json.nodes ?? []
       const nodeIndex = (name) => nodes.findIndex((node) => node.name === name)
       const parentName = (name) => {
