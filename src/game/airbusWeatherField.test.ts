@@ -101,3 +101,76 @@ describe('Airbus shared weather field', () => {
     expect(before.signature).toMatch(/^wx-[0-9a-f]{8}$/)
   })
 })
+
+describe('Airbus weather field ownship response', () => {
+  const stationary = deriveAirbusWeatherField(stormCore)
+
+  it('swings the whole picture by exactly the ownship heading', () => {
+    const turnedLeft = deriveAirbusWeatherField({
+      ...stormCore,
+      ownship: { headingOffsetDegrees: -12, closureNm: 0 },
+    })
+
+    expect(turnedLeft.cells).toHaveLength(stationary.cells.length)
+    for (const [index, cell] of turnedLeft.cells.entries()) {
+      expect(cell.bearingDegrees).toBeCloseTo(stationary.cells[index]!.bearingDegrees + 12, 8)
+      expect(cell.distanceNm).toBeCloseTo(stationary.cells[index]!.distanceNm, 8)
+    }
+    expect(turnedLeft.gapBearingDegrees).toBeCloseTo(stationary.gapBearingDegrees + 12, 8)
+    expect(turnedLeft.ownshipHeadingOffsetDegrees).toBe(-12)
+  })
+
+  it('keeps the gap in the same place relative to the cells through any turn', () => {
+    // This is what protects the authored WEST answer: the gap and the cells
+    // rotate together, so their geometry can never drift apart.
+    for (const headingOffsetDegrees of [-45, -20, 0, 17, 45]) {
+      const snapshot = deriveAirbusWeatherField({
+        ...stormCore,
+        ownship: { headingOffsetDegrees, closureNm: 0 },
+      })
+      for (const cell of snapshot.cells) {
+        const coreHalfWidth = Math.max(2, cell.radiusNm * 0.45)
+        expect(Math.abs(cell.bearingDegrees - snapshot.gapBearingDegrees))
+          .toBeGreaterThan(coreHalfWidth)
+      }
+    }
+  })
+
+  it('closes the weather radially so bearings survive the approach', () => {
+    const closed = deriveAirbusWeatherField({
+      ...stormCore,
+      ownship: { headingOffsetDegrees: 0, closureNm: 6 },
+    })
+
+    for (const [index, cell] of closed.cells.entries()) {
+      const before = stationary.cells[index]!
+      expect(cell.bearingDegrees).toBeCloseTo(before.bearingDegrees, 8)
+      expect(cell.distanceNm).toBeLessThan(before.distanceNm)
+    }
+    expect(closed.closureNm).toBe(6)
+  })
+
+  it('holds one signature across every ownship pose of the same field', () => {
+    // A signature that moved with the live gap bearing would trip the radar
+    // reset on every single frame the player was turning.
+    const poses = [
+      { headingOffsetDegrees: -33, closureNm: 0 },
+      { headingOffsetDegrees: 0, closureNm: 7.5 },
+      { headingOffsetDegrees: 41, closureNm: 3 },
+    ]
+
+    for (const ownship of poses) {
+      expect(deriveAirbusWeatherField({ ...stormCore, ownship }).signature)
+        .toBe(stationary.signature)
+    }
+  })
+
+  it('still keeps a far depth band populated at the closure cap', () => {
+    const closed = deriveAirbusWeatherField({
+      ...stormCore,
+      ownship: { headingOffsetDegrees: 0, closureNm: 8 },
+    })
+
+    expect(closed.cells.some((cell) => cell.distanceNm > 50)).toBe(true)
+  })
+})

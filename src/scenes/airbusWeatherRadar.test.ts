@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { deriveAirbusWeatherField } from '../game/airbusWeatherField'
 import {
   advanceAirbusWeatherRadar,
+  AIRBUS_RADAR_DISPLAY,
   airbusRadarRangePresentation,
   createAirbusWeatherRadarFrame,
   projectAirbusWeatherCellToRadar,
@@ -19,6 +20,11 @@ const weather = deriveAirbusWeatherField({
 })
 
 describe('Airbus live weather radar', () => {
+  it('keeps the live fan inside the readable upper ND display band', () => {
+    expect(AIRBUS_RADAR_DISPLAY.originY).toBeLessThanOrEqual(220)
+    expect(AIRBUS_RADAR_DISPLAY.originY - AIRBUS_RADAR_DISPLAY.radarRadius).toBeGreaterThanOrEqual(70)
+  })
+
   it('uses deterministic increasing fictional scan ranges', () => {
     expect(airbusRadarRangePresentation('near')).toEqual({ distanceNm: 20, label: 'RANGE 20' })
     expect(airbusRadarRangePresentation('mid')).toEqual({ distanceNm: 40, label: 'RANGE 40' })
@@ -135,5 +141,62 @@ describe('Airbus live weather radar', () => {
       ...weather,
       signature: 'wx-other-field',
     })).toBe(true)
+  })
+})
+
+describe('Airbus radar live response', () => {
+  const cell = weather.cells[0]!
+
+  function fieldWithCellAt(bearingDegrees: number) {
+    return { ...weather, cells: [{ ...cell, bearingDegrees }] }
+  }
+
+  it('drops a painted return once its cell has rotated out of the scan fan', () => {
+    const inFan = fieldWithCellAt(60)
+    const painted = advanceAirbusWeatherRadar(
+      createAirbusWeatherRadarFrame(inFan, 0),
+      inFan,
+      4,
+      false,
+    )
+    expect(painted.returns.map((item) => item.cellId)).toEqual([cell.id])
+
+    // A cell outside the fan can never be repainted, so keeping its last return
+    // would leave a permanent ghost at the bearing the player turned away from.
+    const rotatedOut = advanceAirbusWeatherRadar(painted, fieldWithCellAt(88), 4.2, false)
+
+    expect(rotatedOut.returns).toEqual([])
+  })
+
+  it('still holds a return that is only just outside the painted fan', () => {
+    const inFan = fieldWithCellAt(60)
+    const painted = advanceAirbusWeatherRadar(
+      createAirbusWeatherRadarFrame(inFan, 0),
+      inFan,
+      4,
+      false,
+    )
+    const nudged = advanceAirbusWeatherRadar(painted, fieldWithCellAt(74), 4.2, false)
+
+    expect(nudged.returns.map((item) => item.cellId)).toEqual([cell.id])
+  })
+
+  it('does not read a lagging weather snapshot as a scenario rewind', () => {
+    const frame = advanceAirbusWeatherRadar(
+      createAirbusWeatherRadarFrame(weather, 90),
+      weather,
+      90.4,
+      false,
+    )
+
+    // Cells are republished on their own throttle, so the snapshot clock trails
+    // the sweep clock. That must not count as a rewind.
+    expect(shouldResetAirbusWeatherRadar(
+      frame,
+      { ...weather, elapsedSeconds: 90.32 },
+      90.44,
+    )).toBe(false)
+    // An actual checkpoint retry does rewind the live clock.
+    expect(shouldResetAirbusWeatherRadar(frame, weather, 45)).toBe(true)
   })
 })

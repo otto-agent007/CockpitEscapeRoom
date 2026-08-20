@@ -304,6 +304,7 @@ function AirbusStormLineHud({
             {runtime.paused ? 'Resume' : 'Pause'}
           </button>
           <button type="button" onClick={onRecenter}>Recenter view</button>
+          <button type="button" onClick={onRestart}>Restart</button>
           <button
             type="button"
             aria-controls="storm-flight-controls"
@@ -569,6 +570,7 @@ function AirbusEngineOutHud({
             {runtime.paused ? 'Resume' : 'Pause'}
           </button>
           <button type="button" onClick={onRecenter}>Recenter view</button>
+          <button type="button" onClick={onRestart}>Restart</button>
           <button
             type="button"
             aria-controls="engine-out-controls"

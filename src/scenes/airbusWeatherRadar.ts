@@ -45,8 +45,25 @@ const AIRBUS_RADAR_RANGES: Record<AirbusScanRange, number> = {
 
 const RADAR_MIN_ANGLE = -70
 const RADAR_MAX_ANGLE = 70
+/**
+ * A painted return survives until the sweep repaints it, which is what makes a
+ * turn read as live. But a cell that rotates out of the scan fan can never be
+ * repainted, so without this margin it would leave a permanent ghost at the
+ * bearing it was last seen at.
+ */
+const RADAR_RETENTION_MARGIN = 6
 const STANDARD_SWEEP_SPEED = 45
 const REDUCED_MOTION_SWEEP_SPEED = 18
+
+// The authored Storm Flight camera keeps the lower edge of the ND close to
+// the viewport controls. Keep the live fan in the upper display band so
+// nearby returns remain visible in the actual cockpit presentation.
+export const AIRBUS_RADAR_DISPLAY = {
+  originX: 192,
+  originY: 198,
+  radarRadius: 120,
+  ringRadii: [38, 72, 106],
+} as const
 
 export function radarColorForPrecipitation(precipitation: number): AirbusRadarColor {
   if (precipitation >= 0.66) return 'red'
@@ -100,9 +117,20 @@ export function createAirbusWeatherRadarFrame(
 export function shouldResetAirbusWeatherRadar(
   previous: AirbusWeatherRadarFrame,
   snapshot: AirbusWeatherFieldSnapshot,
+  /**
+   * Live scenario clock. The cell snapshot is republished at 12 Hz while the
+   * sweep runs at frame rate, so the rewind check must use the same clock the
+   * sweep is sampled with or a lagging snapshot reads as a rewind every frame.
+   */
+  nowSeconds: number = snapshot.elapsedSeconds,
 ): boolean {
   return previous.signature !== snapshot.signature
-    || snapshot.elapsedSeconds < previous.sampledAtSeconds
+    || nowSeconds < previous.sampledAtSeconds
+}
+
+function withinRetainedFan(bearingDegrees: number): boolean {
+  return bearingDegrees >= RADAR_MIN_ANGLE - RADAR_RETENTION_MARGIN
+    && bearingDegrees <= RADAR_MAX_ANGLE + RADAR_RETENTION_MARGIN
 }
 
 function advanceSweep(
@@ -172,7 +200,10 @@ export function advanceAirbusWeatherRadar(
   const activeCells = new Map(snapshot.cells.map((cell) => [cell.id, cell]))
   const returns = new Map(
     previous.returns
-      .filter((item) => activeCells.has(item.cellId))
+      .filter((item) => {
+        const cell = activeCells.get(item.cellId)
+        return cell !== undefined && withinRetainedFan(cell.bearingDegrees)
+      })
       .map((item) => [
         item.cellId,
         {

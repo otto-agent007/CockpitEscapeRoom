@@ -65,6 +65,22 @@ async function startAccessibleStormLine(page: Page) {
   await expect(page.getByRole('region', { name: 'Accessible flight instruments' })).toBeVisible()
 }
 
+/**
+ * Expand the flight-control panel deterministically.
+ *
+ * `isVisible()` does not retry, so under a slow renderer it can run before the
+ * toggle has painted; the click is then skipped and the panel stays collapsed,
+ * which strands every later hold-control lookup until the test times out.
+ */
+async function ensureFlightControlsExpanded(page: Page) {
+  const bankLeft = page.getByRole('button', { name: 'Hold Bank left' })
+  if (await bankLeft.isVisible().catch(() => false)) return
+  const toggle = page.getByRole('button', { name: 'Show flight controls' })
+  await expect(toggle).toBeVisible({ timeout: 120_000 })
+  await toggle.click()
+  await expect(bankLeft).toBeVisible({ timeout: 120_000 })
+}
+
 test('Storm Line stays locked until the five-card Airbus qualification is complete', async ({ page }) => {
   await page.goto('/?skip3d=1')
   await seed(page)
@@ -135,6 +151,15 @@ test('Storm Line supports keyboard flight, pause, and durable checkpoint reload'
   await expect(page.getByRole('button', { name: 'Pause' })).toBeVisible()
 })
 
+test('Storm Line exposes a confirmed full-game restart button', async ({ page }) => {
+  await startAccessibleStormLine(page)
+
+  await expect(page.getByRole('button', { name: 'Restart' })).toBeVisible()
+  page.once('dialog', (dialog) => dialog.accept())
+  await page.getByRole('button', { name: 'Restart' }).click()
+  await expect(page.getByRole('button', { name: 'Start Game' })).toBeVisible()
+})
+
 test('Storm Flight controls default compact on desktop and expanded at 768px', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await startAccessibleStormLine(page)
@@ -203,7 +228,10 @@ test('Storm Line reads a standard gamepad and safely retries an attitude departu
 })
 
 test('production Airbus GLB renders Storm Line displays, controls, and responsive approval views', async ({ page }) => {
-  test.setTimeout(480_000)
+  // Wall-clock budget, not a correctness bound. This suite drives the real
+  // 38 MiB GLB through a CPU rasteriser (SwiftShader) at roughly 1 fps, where
+  // the simulator's fixed step advances 10x slower than wall time.
+  test.setTimeout(900_000)
   const expectedBytes = statSync('public/models/airbus-captain.glb').size
   const consoleErrors: string[] = []
   page.on('console', (message) => {
@@ -256,9 +284,14 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
     { timeout: 30_000 },
   )
   await expect(canvas).toHaveAttribute('data-airbus-weather-depth-bands', '3')
+  // Storm cells are drawn as instanced sprite towers. The floor matters as much
+  // as the ceiling: the renderer once sized its instance buffers from a stale
+  // duplicate of this budget and silently drew only the first 48 sprites.
   await expect.poll(async () => Number(
     await canvas.getAttribute('data-airbus-weather-cloud-count'),
-  )).toBeLessThanOrEqual(48)
+  )).toBeLessThanOrEqual(340)
+  expect(Number(await canvas.getAttribute('data-airbus-weather-cloud-count')))
+    .toBeGreaterThan(120)
   await expect.poll(async () => Number(
     await canvas.getAttribute('data-airbus-rain-shaft-count'),
   )).toBeLessThanOrEqual(8)
@@ -272,6 +305,9 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
     const radarGap = Number(await canvas.getAttribute('data-airbus-radar-gap-bearing'))
     return Math.abs(weatherGap - radarGap)
   }).toBeLessThanOrEqual(5)
+  await expect.poll(async () => Number(
+    await canvas.getAttribute('data-airbus-radar-visible-return-count'),
+  )).toBeGreaterThan(0)
   const initialSweep = Number(await canvas.getAttribute('data-airbus-radar-sweep-angle'))
   await expect.poll(async () => Number(
     await canvas.getAttribute('data-airbus-radar-sweep-angle'),
@@ -289,12 +325,62 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
   await expect(page.getByRole('button', { name: 'Show flight controls' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Recenter view' })).toBeVisible()
 
-  await page.keyboard.down('ArrowLeft')
+  await ensureFlightControlsExpanded(page)
+  const gapBeforeBank = Number(await canvas.getAttribute('data-airbus-weather-gap-bearing'))
+  const bankLeftControl = page.getByRole('button', { name: 'Hold Bank left' })
+  await bankLeftControl.focus()
+  await page.keyboard.down('Space')
   await expect.poll(async () => {
     const rawRoll = await canvas.getAttribute('data-storm-horizon-roll')
     return Math.abs(Number(rawRoll))
   }, { timeout: 15_000 }).toBeGreaterThan(0.08)
-  await page.keyboard.up('ArrowLeft')
+
+  // Banking must move the weather picture, not just the horizon. Turning left
+  // swings the authored gap toward the nose and reports a left ownship track.
+  await expect.poll(async () => Number(
+    await canvas.getAttribute('data-airbus-ownship-heading'),
+  ), { timeout: 15_000 }).toBeLessThan(-1)
+  await expect.poll(async () => Number(
+    await canvas.getAttribute('data-airbus-weather-gap-bearing'),
+  ), { timeout: 15_000 }).toBeGreaterThan(gapBeforeBank + 1)
+  // The ND has to agree with the world outside, or the player is being lied to.
+  await expect.poll(async () => {
+    const weatherGap = Number(await canvas.getAttribute('data-airbus-weather-gap-bearing'))
+    const radarGap = Number(await canvas.getAttribute('data-airbus-radar-gap-bearing'))
+    return Math.abs(weatherGap - radarGap)
+  }, { timeout: 15_000 }).toBeLessThanOrEqual(2)
+  await expect.poll(async () => Number(
+    await canvas.getAttribute('data-storm-horizon-roll'),
+  ), { timeout: 15_000 }).toBeLessThan(-0.08)
+  await expect.poll(async () => Number(
+    await canvas.getAttribute('data-airbus-pfd-horizon-roll'),
+  ), { timeout: 15_000 }).toBeLessThan(0)
+  await page.keyboard.up('Space')
+  await expect.poll(async () => Number(
+    await canvas.getAttribute('data-airbus-input-bank'),
+  ), { timeout: 5_000 }).toBe(0)
+  const reloadedModel = page.waitForResponse(
+    (response) => response.url().includes('/models/airbus-captain.glb') && response.status() === 200,
+    { timeout: 30_000 },
+  )
+  await page.reload()
+  await reloadedModel
+  await expect(canvas).toHaveAttribute(
+    'data-airbus-simulator-nodes',
+    /AIRBUS_A320_DISPLAY_CAPTAIN_PFD_SURFACE/,
+    { timeout: 30_000 },
+  )
+  await ensureFlightControlsExpanded(page)
+  const bankRightControl = page.getByRole('button', { name: 'Hold Bank right' })
+  await bankRightControl.focus()
+  await page.keyboard.down('Space')
+  await expect.poll(async () => Number(
+    await canvas.getAttribute('data-storm-horizon-roll'),
+  ), { timeout: 15_000 }).toBeGreaterThan(0.08)
+  await expect.poll(async () => Number(
+    await canvas.getAttribute('data-airbus-pfd-horizon-roll'),
+  ), { timeout: 15_000 }).toBeGreaterThan(0)
+  await page.keyboard.up('Space')
 
   const canvasBox = await canvas.boundingBox()
   if (!canvasBox) throw new Error('Airbus canvas bounds are unavailable')
@@ -312,8 +398,15 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
   await page.getByRole('button', { name: 'Recenter view' }).click()
   await expect(canvas).toHaveAttribute('data-airbus-look-state', '0.0000,0.0000,0.0000,0.0000')
 
+  // A live gap bearing must not be part of the field signature: if it were, the
+  // radar would reset on every frame the aircraft was turning.
+  expect(Number(await canvas.getAttribute('data-airbus-radar-reset-count'))).toBeLessThanOrEqual(2)
+  await expect.poll(async () => Number(
+    await canvas.getAttribute('data-airbus-radar-visible-return-count'),
+  )).toBeGreaterThan(0)
+
   const resetsBeforeRetry = Number(await canvas.getAttribute('data-airbus-radar-reset-count'))
-  await page.getByRole('button', { name: 'Show flight controls' }).click()
+  await ensureFlightControlsExpanded(page)
   const pitchUp = page.getByRole('button', { name: 'Hold Pitch up' })
   await pitchUp.focus()
   await page.keyboard.down('Space')

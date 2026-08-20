@@ -4,6 +4,10 @@ function clamp(value: number, minimum: number, maximum: number): number {
   return Math.min(maximum, Math.max(minimum, value))
 }
 
+export function airbusPfdHorizonRollRadians(bankDegrees: number): number {
+  return (Number.isFinite(bankDegrees) ? bankDegrees : 0) * degreesToRadians
+}
+
 export interface AirbusStormVisualPose {
   horizonRollRadians: number
   pitchOffsetMeters: number
@@ -19,7 +23,7 @@ export function deriveAirbusStormVisualPose({
   pitchDegrees: number
   lateralPosition: number
 }): AirbusStormVisualPose {
-  const visualBankDegrees = clamp(-bankDegrees * 2.6, -55, 55)
+  const visualBankDegrees = clamp(bankDegrees * 2.6, -55, 55)
   return {
     horizonRollRadians: visualBankDegrees * degreesToRadians,
     pitchOffsetMeters: -Math.tan(pitchDegrees * degreesToRadians) * 55,

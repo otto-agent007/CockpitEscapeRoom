@@ -15,6 +15,7 @@ export interface StormLineAircraftState {
   bankRate: number
   energy: number
   lateralPosition: number
+  trackDistanceNm: number
 }
 
 export interface StormLineMetrics {
@@ -39,6 +40,12 @@ export interface StormLineState {
 }
 
 const FIXED_STEP_SECONDS = 1 / 60
+const BASE_CLOSURE_NM_PER_SECOND = 0.07
+
+/** Thrust drives energy, energy drives ground speed, ground speed closes the weather. */
+function closureNmPerSecond(energy: number): number {
+  return BASE_CLOSURE_NM_PER_SECOND * (0.45 + clamp01(energy) * 1.1)
+}
 const CHECKPOINT_START_SECONDS: Record<StormLineCheckpoint, number> = {
   stormEntry: 0,
   stormCore: 45,
@@ -75,6 +82,7 @@ export function createStormLineState(seed = 1): StormLineState {
       bankRate: 0,
       energy: 0.5,
       lateralPosition: 0,
+      trackDistanceNm: 0,
     },
     weatherIntensity: 0.05,
     outsideEnvelopeSeconds: 0,
@@ -130,6 +138,7 @@ export function createStormLineStateAtCheckpoint(
     aircraft: {
       ...initial.aircraft,
       lateralPosition: checkpoint === 'stormEntry' ? 0 : -0.7,
+      trackDistanceNm: elapsedSeconds * closureNmPerSecond(initial.aircraft.energy),
     },
     weatherIntensity: sharedStormIntensity(checkpoint, elapsedSeconds, seed),
     attempts: attempts ? { ...attempts } : initial.attempts,
@@ -222,6 +231,7 @@ function advanceFixedStep(state: StormLineState, input: FlightInput, stepSeconds
       - (state.aircraft.energy - 0.5) * 0.018 * stepSeconds,
   )
   const lateralPosition = state.aircraft.lateralPosition + Math.sin(bank * Math.PI / 180) * 0.2 * stepSeconds
+  const trackDistanceNm = state.aircraft.trackDistanceNm + closureNmPerSecond(energy) * stepSeconds
   const smoothnessPenalty = state.metrics.smoothnessPenalty
     + (Math.abs(pitchRate - state.aircraft.pitchRate) + Math.abs(bankRate - state.aircraft.bankRate)) * stepSeconds
   const energyDeviationSeconds = state.metrics.energyDeviationSeconds
@@ -238,6 +248,7 @@ function advanceFixedStep(state: StormLineState, input: FlightInput, stepSeconds
       bankRate,
       energy,
       lateralPosition,
+      trackDistanceNm,
     },
     weatherIntensity,
     metrics: {
@@ -283,6 +294,7 @@ export function restartStormLineCheckpoint(state: StormLineState): StormLineStat
       bankRate: 0,
       energy: 0.5,
       lateralPosition: checkpoint === 'stormEntry' ? 0 : -0.7,
+      trackDistanceNm: CHECKPOINT_START_SECONDS[checkpoint] * closureNmPerSecond(0.5),
     },
     weatherIntensity: sharedStormIntensity(
       checkpoint,

@@ -25,8 +25,11 @@ import {
   type AirbusLookOffset,
 } from './airbusCameraRig'
 import { AirbusAtmosphere } from './AirbusAtmosphere'
+import { stormLineOwnshipTrack } from '../game/airbusOwnshipTrack'
+import { airbusPfdHorizonRollRadians } from './airbusStormVisuals'
 import {
   advanceAirbusWeatherRadar,
+  AIRBUS_RADAR_DISPLAY,
   airbusRadarRangePresentation,
   createAirbusWeatherRadarFrame,
   projectAirbusWeatherCellToRadar,
@@ -1124,7 +1127,7 @@ function drawPfd(canvas: HTMLCanvasElement, simulation: StormLineState) {
   const { pitch, bank, energy } = simulation.aircraft
   context.save()
   context.translate(canvas.width / 2, canvas.height / 2)
-  context.rotate(-bank * Math.PI / 180)
+  context.rotate(airbusPfdHorizonRollRadians(bank))
   const horizon = pitch * 3.2
   context.fillStyle = '#176493'
   context.fillRect(-500, -500 + horizon, 1000, 500)
@@ -1155,6 +1158,9 @@ function drawPfd(canvas: HTMLCanvasElement, simulation: StormLineState) {
   context.fillText(`ENERGY ${Math.round(energy * 100)}`, 32, 262)
 }
 
+/** Instrument canvases redraw at 20 Hz; the ND sweep is the fastest thing on them. */
+const INSTRUMENT_REDRAW_INTERVAL_SECONDS = 1 / 20
+
 function drawWeatherRadar(
   canvas: HTMLCanvasElement,
   radar: AirbusWeatherRadarFrame,
@@ -1164,9 +1170,7 @@ function drawWeatherRadar(
   safeReturnProgress?: number,
 ) {
   const context = instrumentContext(canvas)
-  const originX = 192
-  const originY = 263
-  const radarRadius = 142
+  const { originX, originY, radarRadius, ringRadii } = AIRBUS_RADAR_DISPLAY
   const range = airbusRadarRangePresentation(workload.scanRange)
   context.save()
   context.beginPath()
@@ -1178,11 +1182,11 @@ function drawWeatherRadar(
   screenGlow.addColorStop(0, 'rgba(12,45,49,0.18)')
   screenGlow.addColorStop(1, 'rgba(1,9,12,0)')
   context.fillStyle = screenGlow
-  context.fillRect(35, 105, 314, 160)
+  context.fillRect(35, 78, 314, 132)
 
   context.strokeStyle = '#2a8fa8'
   context.lineWidth = 2
-  for (const radius of [46, 86, 126]) {
+  for (const radius of ringRadii) {
     context.beginPath()
     context.arc(originX, originY, radius, Math.PI, Math.PI * 2)
     context.stroke()
@@ -1291,9 +1295,9 @@ function drawWeatherRadar(
 
   context.fillStyle = '#ffffff'
   context.beginPath()
-  context.moveTo(originX, 243)
-  context.lineTo(originX - 8, 263)
-  context.lineTo(originX + 8, 263)
+  context.moveTo(originX, originY - 20)
+  context.lineTo(originX - 8, originY)
+  context.lineTo(originX + 8, originY)
   context.closePath()
   context.fill()
   context.fillStyle = '#7ef9ff'
@@ -1375,10 +1379,13 @@ function drawNd(
   workload: AirbusWorkloadProgress,
   workloadTask: AirbusWorkloadTaskId | null,
 ) {
+  const track = stormLineOwnshipTrack(simulation)
   drawWeatherRadar(
     canvas,
     radar,
-    `XTK ${simulation.aircraft.lateralPosition.toFixed(2)}`,
+    `XTK ${simulation.aircraft.lateralPosition.toFixed(2)}  TRK ${
+      track.headingOffsetDegrees >= 0 ? '+' : ''
+    }${track.headingOffsetDegrees.toFixed(0)}°`,
     workload,
     workloadTask,
   )
@@ -1415,7 +1422,7 @@ function drawEngineOutPfd(canvas: HTMLCanvasElement, simulation: EngineOutState)
   const { pitch, bank, energy, directionalError } = simulation.aircraft
   context.save()
   context.translate(canvas.width / 2, canvas.height / 2)
-  context.rotate(-bank * Math.PI / 180)
+  context.rotate(airbusPfdHorizonRollRadians(bank))
   const horizon = pitch * 3.2
   context.fillStyle = '#176493'
   context.fillRect(-500, -500 + horizon, 1000, 500)
@@ -1619,25 +1626,32 @@ function AirbusSimulatorAnimator({
     const currentFrame = simulationFrameRef.current
     const weatherSnapshot = weatherSnapshotRef.current
     const currentInput = inputRef.current
+    canvasRef.current.dataset.airbusInputBank = currentInput.bank.toFixed(2)
     const smoothing = 1 - Math.exp(-delta * 10)
     if (instruments.roll) instruments.roll.rotation.y = THREE.MathUtils.lerp(instruments.roll.rotation.y, currentInput.bank * THREE.MathUtils.degToRad(12), smoothing)
     if (instruments.pitch) instruments.pitch.rotation.x = THREE.MathUtils.lerp(instruments.pitch.rotation.x, currentInput.pitch * THREE.MathUtils.degToRad(10), smoothing)
     if (instruments.thrust) instruments.thrust.rotation.x = THREE.MathUtils.lerp(instruments.thrust.rotation.x, currentInput.thrust * THREE.MathUtils.degToRad(11), smoothing)
     if (!currentFrame || !weatherSnapshot) return
-    if (clock.elapsedTime - lastDrawRef.current < 1 / 12) return
+    if (clock.elapsedTime - lastDrawRef.current < INSTRUMENT_REDRAW_INTERVAL_SECONDS) return
     lastDrawRef.current = clock.elapsedTime
+    // The live scenario clock, not the weather snapshot's. The snapshot is
+    // republished on its own throttle, so sampling its clock here makes the
+    // sweep stall on every frame where the two throttles disagree.
+    const scenarioSeconds = currentFrame.scenario === 'stormLine'
+      ? currentFrame.state.elapsedSeconds
+      : currentFrame.state.stageElapsedSeconds
     const retainedRadar = radarFrameRef.current
     const resetRadar = retainedRadar
-      ? shouldResetAirbusWeatherRadar(retainedRadar, weatherSnapshot)
+      ? shouldResetAirbusWeatherRadar(retainedRadar, weatherSnapshot, scenarioSeconds)
       : false
     if (resetRadar) radarResetCountRef.current += 1
     const previousRadar = retainedRadar && !resetRadar
         ? retainedRadar
-        : createAirbusWeatherRadarFrame(weatherSnapshot, weatherSnapshot.elapsedSeconds)
+        : createAirbusWeatherRadarFrame(weatherSnapshot, scenarioSeconds)
     const radar = advanceAirbusWeatherRadar(
       previousRadar,
       weatherSnapshot,
-      weatherSnapshot.elapsedSeconds,
+      scenarioSeconds,
       reducedMotion,
     )
     radarFrameRef.current = radar
@@ -1647,10 +1661,16 @@ function AirbusSimulatorAnimator({
     )
     if (currentFrame.scenario === 'stormLine') {
       drawPfd(instruments.pfd.canvas, currentFrame.state)
+      canvasRef.current.dataset.airbusPfdHorizonRoll = airbusPfdHorizonRollRadians(
+        currentFrame.state.aircraft.bank,
+      ).toFixed(4)
       drawNd(instruments.nd.canvas, currentFrame.state, radar, workload, workloadTask)
       drawEcam(instruments.ecam.canvas, currentFrame.state, currentInput)
     } else {
       drawEngineOutPfd(instruments.pfd.canvas, currentFrame.state)
+      canvasRef.current.dataset.airbusPfdHorizonRoll = airbusPfdHorizonRollRadians(
+        currentFrame.state.aircraft.bank,
+      ).toFixed(4)
       drawEngineOutNd(instruments.nd.canvas, currentFrame.state, radar, workload, workloadTask)
       drawEngineOutEcam(instruments.ecam.canvas, currentFrame.state, workload, workloadTask)
     }
@@ -1658,6 +1678,9 @@ function AirbusSimulatorAnimator({
     canvasRef.current.dataset.airbusRadarGapBearing = radar.gapBearingDegrees.toFixed(2)
     canvasRef.current.dataset.airbusRadarSweepAngle = radar.sweepAngleDegrees.toFixed(2)
     canvasRef.current.dataset.airbusRadarReturnCount = String(radar.returns.length)
+    canvasRef.current.dataset.airbusRadarVisibleReturnCount = String(
+      visibleAirbusRadarReturns(radar, workload.scanRange).length,
+    )
     canvasRef.current.dataset.airbusRadarRange = airbusRadarRangePresentation(workload.scanRange).label
     canvasRef.current.dataset.airbusRadarResetCount = String(radarResetCountRef.current)
     canvasRef.current.dataset.airbusRadarOldestReturnAge = Math.max(

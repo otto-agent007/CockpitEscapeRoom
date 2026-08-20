@@ -81,6 +81,10 @@ Apply the Global Constraints above. Preserve the existing player loop:
 - [x] 2026-07-30 — ND/ECAM 3D interactions, click-versus-drag behavior, and display feedback pass the production browser suite.
 - [x] 2026-07-30 — Full validation, visual evidence, diff review, and reports are complete; owner play/visual approval remains open.
 - [x] 2026-07-31 — Repaired PR CI by publishing the omitted Blender-authored simulator contract and updating stale qualification-only smoke expectations; all six formerly failing browser cases pass locally.
+- [x] 2026-08-19 — Added and browser-verified the active Storm Line and Engine-Out full-game `Restart` control; local checkpoint retry and Hub scenario replay remain separate.
+- [x] 2026-08-19 — Corrected Storm Line visual bank sign at the atmosphere boundary; pure direction tests and the rebuilt production Airbus GLB browser path now prove Bank left/right produce opposite signed horizon rolls.
+- [x] 2026-08-19 — Reframed the live ND radar fan into the readable upper display band, exposed the selected-range live-return count for browser evidence, and captured the corrected 1440×900 Storm Core view at `/tmp/airbus-storm-core-weather-radar-1440.png`; owner visual review remains open.
+- [x] 2026-08-19 — Corrected the cockpit PFD canvas transform separately from the windshield adapter by routing both Airbus PFD renderers through one bank-to-roll helper; a fresh-neutral production GLB browser run proves the PFD and windshield signs agree in both directions.
 
 ## Decision log
 
@@ -91,6 +95,8 @@ Apply the Global Constraints above. Preserve the existing player loop:
 - 2026-07-30: Persist task completion and attempts; explicit replay resets only the selected scenario's workload.
 - 2026-07-30: Persist the last ND weather-sector and SAFE RETURN choice inside schema 12 so native and 3D actions produce the same exact amber/green display feedback.
 - 2026-07-30: Use native HTML buttons as the authoritative accessible fallback when WebGL is unavailable.
+- 2026-08-19: Keep the weather-field signature, sweep, bearing, range filtering, and return projection unchanged; the radar repair is presentation-only so the shared live weather contract remains authoritative.
+- 2026-08-19: Treat cockpit PFD horizon roll and windshield atmosphere roll as one signed visual contract, with simulator bank state remaining the source of truth.
 
 ## File structure
 

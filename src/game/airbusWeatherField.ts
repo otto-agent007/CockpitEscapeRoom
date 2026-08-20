@@ -1,4 +1,8 @@
 import type { EngineOutCheckpoint } from './airbusEngineOut'
+import {
+  ZERO_AIRBUS_OWNSHIP_TRACK,
+  type AirbusOwnshipTrack,
+} from './airbusOwnshipTrack'
 import type { StormLineCheckpoint } from './airbusSimulator'
 
 export type AirbusWeatherScenario = 'stormLine' | 'engineOut'
@@ -9,6 +13,11 @@ export interface AirbusWeatherFieldInput {
   elapsedSeconds: number
   intensity: number
   seed: number
+  /**
+   * Where the aircraft has flown to relative to the authored corridor course.
+   * Omitted by callers that only need the scalar dynamics.
+   */
+  ownship?: AirbusOwnshipTrack
 }
 
 export interface AirbusWeatherCell {
@@ -32,6 +41,8 @@ export interface AirbusWeatherFieldSnapshot {
   turbulence: number
   lightningEligible: boolean
   gapBearingDegrees: number
+  ownshipHeadingOffsetDegrees: number
+  closureNm: number
   cells: readonly AirbusWeatherCell[]
 }
 
@@ -82,11 +93,11 @@ const STORM_CELL_TEMPLATES: readonly CellTemplate[] = [
   { bearingDegrees: -11, distanceNm: 44, radiusNm: 8.8, altitudeOffset: 0.2, verticalDevelopment: 0.88, precipitation: 0.86, driftDegreesPerSecond: -0.012 },
   { bearingDegrees: 2, distanceNm: 20, radiusNm: 6.4, altitudeOffset: -0.12, verticalDevelopment: 0.65, precipitation: 0.58, driftDegreesPerSecond: -0.018 },
   { bearingDegrees: 13, distanceNm: 36, radiusNm: 9.5, altitudeOffset: 0.18, verticalDevelopment: 0.96, precipitation: 0.94, driftDegreesPerSecond: -0.013 },
-  { bearingDegrees: 25, distanceNm: 55, radiusNm: 11, altitudeOffset: 0.3, verticalDevelopment: 0.9, precipitation: 0.82, driftDegreesPerSecond: -0.01 },
+  { bearingDegrees: 25, distanceNm: 62, radiusNm: 11, altitudeOffset: 0.3, verticalDevelopment: 0.9, precipitation: 0.82, driftDegreesPerSecond: -0.01 },
   { bearingDegrees: 36, distanceNm: 27, radiusNm: 7, altitudeOffset: -0.05, verticalDevelopment: 0.72, precipitation: 0.66, driftDegreesPerSecond: -0.016 },
   { bearingDegrees: 48, distanceNm: 43, radiusNm: 9.2, altitudeOffset: 0.16, verticalDevelopment: 0.84, precipitation: 0.76, driftDegreesPerSecond: -0.012 },
   { bearingDegrees: 58, distanceNm: 21, radiusNm: 5.6, altitudeOffset: -0.2, verticalDevelopment: 0.6, precipitation: 0.25, driftDegreesPerSecond: -0.018 },
-  { bearingDegrees: 67, distanceNm: 58, radiusNm: 10.2, altitudeOffset: 0.24, verticalDevelopment: 0.8, precipitation: 0.7, driftDegreesPerSecond: -0.009 },
+  { bearingDegrees: 67, distanceNm: 66, radiusNm: 10.2, altitudeOffset: 0.24, verticalDevelopment: 0.8, precipitation: 0.7, driftDegreesPerSecond: -0.009 },
 ]
 
 const ENGINE_OUT_CELL_TEMPLATES: readonly CellTemplate[] = [
@@ -174,6 +185,14 @@ function instructorCueForInput(input: AirbusWeatherFieldInput): AirbusWeatherIns
   return 'clearAir'
 }
 
+function ownshipForInput(input: AirbusWeatherFieldInput): AirbusOwnshipTrack {
+  const ownship = input.ownship ?? ZERO_AIRBUS_OWNSHIP_TRACK
+  return {
+    headingOffsetDegrees: finiteOr(ownship.headingOffsetDegrees, 0),
+    closureNm: Math.max(0, finiteOr(ownship.closureNm, 0)),
+  }
+}
+
 export function deriveAirbusWeatherDynamics(
   input: AirbusWeatherFieldInput,
 ): AirbusWeatherDynamics {
@@ -184,7 +203,10 @@ export function deriveAirbusWeatherDynamics(
     precipitation: clamp01(envelope.precipitation),
     turbulence: clamp01(envelope.turbulence),
     lightningEligible: envelope.lightningEligible,
-    gapBearingDegrees: envelope.gapBearingDegrees,
+    // The gap is a direction to fly, so it rotates with the nose by exactly the
+    // same offset the cells do. Cell-to-gap geometry is unchanged by design.
+    gapBearingDegrees: envelope.gapBearingDegrees
+      - ownshipForInput(input).headingOffsetDegrees,
     instructorCue: instructorCueForInput(input),
   }
 }
@@ -212,17 +234,24 @@ function createCells(
         : 0.45 + clamp01(input.intensity) * 0.35
     : 0.62
 
+  const ownship = ownshipForInput(input)
+
   return templates.slice(0, envelope.cellCount).map((template, index) => ({
     id: `${input.scenario}-cell-${index + 1}`,
+    // Rotating every cell by the same ownship offset as the gap keeps the
+    // authored bearing geometry intact while the whole picture swings with the
+    // nose. Closure is radial for the same reason: bearings are preserved.
     bearingDegrees:
       template.bearingDegrees
       + seededOffset(input.seed, index, 0.7)
-      + template.driftDegreesPerSecond * time,
+      + template.driftDegreesPerSecond * time
+      - ownship.headingOffsetDegrees,
     distanceNm: Math.max(
       8,
       template.distanceNm
       + seededOffset(input.seed + 31, index, 1.2)
-      - time * (input.scenario === 'stormLine' ? 0.012 : 0.006),
+      - time * (input.scenario === 'stormLine' ? 0.012 : 0.006)
+      - ownship.closureNm,
     ),
     altitudeOffset: template.altitudeOffset + seededOffset(input.seed + 67, index, 0.06),
     radiusNm: template.radiusNm * (0.96 + seededOffset(input.seed + 101, index, 0.04)),
@@ -244,13 +273,16 @@ export function deriveAirbusWeatherField(
     ? STORM_CELL_TEMPLATES
     : ENGINE_OUT_CELL_TEMPLATES
   const cells = createCells(templates, envelope, { ...input, elapsedSeconds })
+  // Identity of the field only. The gap bearing is now live, so including it
+  // would change the signature every frame and reset the radar continuously.
   const signature = hashSignature([
     input.scenario,
     input.checkpoint,
     input.seed,
-    envelope.gapBearingDegrees,
     ...cells.map((cell) => cell.id),
   ])
+
+  const ownship = ownshipForInput(input)
 
   return {
     signature,
@@ -262,6 +294,8 @@ export function deriveAirbusWeatherField(
     turbulence: dynamics.turbulence,
     lightningEligible: dynamics.lightningEligible,
     gapBearingDegrees: dynamics.gapBearingDegrees,
+    ownshipHeadingOffsetDegrees: ownship.headingOffsetDegrees,
+    closureNm: ownship.closureNm,
     cells,
   }
 }

@@ -110,6 +110,16 @@ test('Engine-Out native controls pause and retry only Stabilization', async ({ p
   await expect(page.getByText(/Engine-Out Handling · stabilization/)).toBeVisible()
 })
 
+test('Engine-Out exposes a confirmed full-game restart button', async ({ page }) => {
+  await page.goto('/?skip3d=1')
+  await seed(page, engineOutState('in_progress'))
+
+  await expect(page.getByRole('button', { name: 'Restart' })).toBeVisible()
+  page.once('dialog', (dialog) => dialog.accept())
+  await page.getByRole('button', { name: 'Restart' }).click()
+  await expect(page.getByRole('button', { name: 'Start Game' })).toBeVisible()
+})
+
 test('Engine-Out diversion completes Airbus without exposing the reward early', async ({ page }) => {
   await page.clock.install()
   await page.addInitScript(() => {
