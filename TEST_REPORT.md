@@ -1459,3 +1459,17 @@ Historical checkpoint; the 2026-07-11 transition and Tripo-intake sections above
 - `smoke.spec.ts` "renders the storyboard laser grid and emblem finale" still tested the retired emblem and takeoff act. Replaced by assertions on the two moments that now matter: the floodlit aircraft reveal at 37 s, and the runtime-lettered title over the empty right seat. One repair inside that rewrite: counting non-background pixels could not discriminate the title band because the seat plate fills the frame at both sample times (both returned exactly 2880, the full band area), so it counts BRIGHT pixels — the near-white lettering against the dark navy plate — and checks the band is at least twice as bright with the title up as without.
 - `airbus-workload.spec.ts:242` re-verified as pre-existing by stashing all of this work and re-running on the clean tree, where it fails identically. Not introduced here and not fixed here.
 - Full `e2e/smoke.spec.ts` re-run after the repairs: **29 passed, 1 skipped**.
+
+## 2026-08-20 Owner-gate sweep: responsive and reduced motion
+
+- Responsive sweep at 375x667, 768x1024 and 1440x900, sampling seven story beats at each width (ident, suit-up, gates, logbook, reveal, throttles up, title). Asserted per sample: **zero horizontal overflow**, a **whole-number stage scale** (the pixel-grid invariant), and that the intro audio controls never cover a stage row above 200 — the rows the story acts on. All 21 samples clean.
+- Reduced motion verified across eleven timestamps spanning every scene: each resolves to its own curated held frame (ident, ritual, suit-up, doors, standing-alone, walk-out, walk, aircraft-reveal, inserts, right-seat, title), the canvas reports `data-reduced-motion="true"` throughout, and **zero AudioContexts are constructed** — the synthesized gag effects stay silent as designed.
+- The sweep harness reuses the puppeted media element from the verified renderer, so these checks run against an exact clock rather than a decoder that can drop into wall-clock fallback.
+- Proof: `preview-renders/tmb2-intro-overhaul/gate-responsive-reduced-motion.png`.
+
+## 2026-08-20 Intro milestone status for the owner gate
+
+- Suites: `npm run check` 417/417 across 33 files; `npm run assets:check` 63 assets / 49 preloads; `e2e/smoke.spec.ts` 29 passed / 1 skipped.
+- Known outstanding, not introduced by this work: `airbus-workload.spec.ts:242` (width assertion, topbar bottom 183.94 against a 145.59 limit), re-verified as pre-existing by stashing this arc's changes and reproducing the identical failure on the clean tree.
+- Candidate for owner review: `preview-renders/tmb2-intro-overhaul/intro-fastopen-2026-08-20.mp4` — verified frame-by-frame during capture and re-verified at 16 checkpoints from the delivered file.
+- Nothing pushed. The branch holds six commits awaiting the owner gate.
