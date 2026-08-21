@@ -250,7 +250,7 @@ per scene with zero AudioContexts. Candidate render for review:
 `preview-renders/tmb2-intro-overhaul/intro-fastopen-2026-08-20.mp4`, verified frame-by-frame at
 capture and re-verified at 16 checkpoints from the delivered file.
 
-Six commits on `agent/tmb2-intro-overhaul`, **not pushed** — the owner gate governs the push.
+The owner cleared the gate on 2026-08-21; this work is part of the 64 commits pushed to `origin/agent/airbus-live-radar-storm` (head `0c2edae`). Note the branch name: these commits never lived on `agent/tmb2-intro-overhaul`.
 
 Known outstanding and NOT caused by this work: `e2e/airbus-workload.spec.ts:242` fails a width
 assertion; re-verified as pre-existing by stashing this arc and reproducing it on the clean tree.

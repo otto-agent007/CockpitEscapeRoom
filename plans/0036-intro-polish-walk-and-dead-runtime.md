@@ -296,4 +296,4 @@ Placeholders and limitations, stated plainly:
   change but each pose has hand-measured pivots and its own shared-ref scale in `POPT_CLIPS`, so it
   needs its own pass and its own browser proof.
 
-Still at the owner gate. Nothing pushed.
+Owner cleared the gate on 2026-08-21 and the branch was pushed: `agent/airbus-live-radar-storm` -> `origin`, 64 commits, head `0c2edae`. No pull request opened — say so if one is wanted.

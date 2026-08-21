@@ -335,4 +335,4 @@ sampled `node.type` at creation, before the player assigns it — re-read at `st
 
 ## Outcome and handoff
 
-Open. Gag and sizing chosen by the owner 2026-08-20; no push before the owner gate.
+Closed. Gag and sizing chosen by the owner 2026-08-20. The owner cleared the gate on 2026-08-21 and the branch was pushed to `origin/agent/airbus-live-radar-storm`.
