@@ -1451,3 +1451,11 @@ Historical checkpoint; the 2026-07-11 transition and Tripo-intake sections above
 - `npm run check` passed ESLint, TypeScript, **417/417 Vitest tests across 33 files**, and the production build. `npm run assets:check` passed at 63 assets and 49 preloads.
 - Verified render captured in a single session with every frame's time and audio mode asserted, then the mp4 independently frame-extracted at 16 checkpoints — all matched: `preview-renders/tmb2-intro-overhaul/intro-fastopen-2026-08-20.mp4`.
 - An e2e run started before these edits was discarded as meaningless (it exercised the previous code); the suite was re-run against this state.
+
+## 2026-08-20 E2E after the fast-opening cut: two stale intro tests repaired
+
+- Full suite: **57 passed, 1 skipped, 3 failed**. Two failures were stale intro assertions this arc had missed; the third is the known pre-existing Airbus one.
+- `smoke.spec.ts` "follows exact boundaries" was a SECOND boundary test carrying its own copy of the original scene table (hangar-reveal, shades, the flight-case summary) and asserting the attract loop restarted at the ident on `ended`. It now derives its samples from `introScenes` itself — the duplicated list only ever restated what the config already says, and it had drifted twice — and asserts the ending HOLDS the title scene instead of looping.
+- `smoke.spec.ts` "renders the storyboard laser grid and emblem finale" still tested the retired emblem and takeoff act. Replaced by assertions on the two moments that now matter: the floodlit aircraft reveal at 37 s, and the runtime-lettered title over the empty right seat. One repair inside that rewrite: counting non-background pixels could not discriminate the title band because the seat plate fills the frame at both sample times (both returned exactly 2880, the full band area), so it counts BRIGHT pixels — the near-white lettering against the dark navy plate — and checks the band is at least twice as bright with the title up as without.
+- `airbus-workload.spec.ts:242` re-verified as pre-existing by stashing all of this work and re-running on the clean tree, where it fails identically. Not introduced here and not fixed here.
+- Full `e2e/smoke.spec.ts` re-run after the repairs: **29 passed, 1 skipped**.

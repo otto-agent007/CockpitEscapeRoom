@@ -3,6 +3,7 @@ import { airbusCaptainFlow, dc9LegacyFlow, lockerFlow } from '../src/game/config
 import { createInitialState, type GameState } from '../src/game/state'
 import { DC9_CONTROL_CHECK_ITEM_IDS } from '../src/game/dc9ControlCheck'
 import { DC9_INSTRUMENT_SCAN_ORDER } from '../src/game/dc9InstrumentScan'
+import { introScenes } from '../src/game/introConfig'
 import { STORAGE_KEY } from '../src/game/storage'
 
 async function placeAirbusCard(page: Page, card: string, targetName: string): Promise<void> {
@@ -411,7 +412,7 @@ test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the 
   await expect(page.locator('.dc9-entry-transition')).toHaveCount(0, { timeout: 5_000 })
 })
 
-test('TMB2 cinematic follows exact boundaries and loops without entering gameplay', async ({ page }) => {
+test('TMB2 cinematic follows exact boundaries and holds its title without entering gameplay', async ({ page }) => {
   const intro = await openGameIntro(page)
   const audio = page.locator('audio')
   await audio.evaluate(async (media) => {
@@ -433,78 +434,15 @@ test('TMB2 cinematic follows exact boundaries and loops without entering gamepla
   })
   await expect(intro.getByRole('button', { name: 'Start game' })).toBeVisible()
 
-  const scenes = [
-    {
-      time: 0,
-      id: 'tmb2-ident',
-      summary: 'Blue pixels assemble the TMB2 console logo before a bright gold-white overload.',
-    },
-    {
-      time: 6.5,
-      id: 'beacon-dark',
-      summary: 'A single amber beacon sweep crosses the dark before the pre-flight ritual begins.',
-    },
-    {
-      time: 8,
-      id: 'ritual',
-      summary: 'Hard-cut stills on the beat: boots on the tarmac, coffee set down, the flight case latches snap shut.',
-    },
-    {
-      time: 13.5,
-      id: 'hangar-reveal',
-      summary: 'Hangar floodlights slam on row by row and reveal the Northwest DC-9 waiting for its legacy flight.',
-    },
-    {
-      time: 20,
-      id: 'suit-up',
-      summary: 'The suit-up montage: the cap flipped and caught, four captain stripes, the logbook snapped shut, wings pinned, and a glance at the watch.',
-    },
-    {
-      time: 28,
-      id: 'doors',
-      summary: 'The hangar doors grind open around the captain’s backlit silhouette.',
-    },
-    {
-      time: 31,
-      id: 'shades',
-      summary: 'Shades down.',
-    },
-    {
-      time: 33,
-      id: 'walk',
-      summary: 'The long walk across the hangar floor, small against the DC-9’s nose.',
-    },
-    {
-      time: 37,
-      id: 'engine-start',
-      summary: 'Engine light-off: the fan spools and the anti-collision beacon starts flashing on the beat.',
-    },
-    {
-      time: 40,
-      id: 'inserts',
-      summary: 'Cockpit inserts: the instrument panel wakes left to right, the family photo on the glareshield, a hand settles on the throttles.',
-    },
-    {
-      time: 44,
-      id: 'departure',
-      summary: 'Landing lights blaze across the empty tarmac, sweep past, and lift away into the dark.',
-    },
-    {
-      time: 48.5,
-      id: 'right-seat',
-      summary: 'Inside the quiet flight deck: the first officer’s seat is empty, harness loose, panel awake.',
-    },
-    {
-      time: 50.2,
-      id: 'title',
-      summary: 'The instrument glow resolves into the title over the waiting seat.',
-    },
-    {
-      time: 52,
-      id: 'loop-reset',
-      summary: 'The title holds over the seat and the picture collapses into blue pixels before the loop restarts.',
-    },
-  ] as const
+  // Sampled from the scene table itself rather than a copy of it: this test
+  // has drifted twice as the owner reordered the story, and a duplicated list
+  // only ever restates what introConfig already says. What is worth asserting
+  // is that the DOM reports the SAME scene the config resolves at that time.
+  const scenes = introScenes.map((scene) => ({
+    time: scene.startSeconds + (scene.endSeconds - scene.startSeconds) / 2,
+    id: scene.id,
+    summary: scene.summary,
+  }))
 
   for (const scene of scenes) {
     await audio.evaluate((media, time) => {
@@ -517,16 +455,23 @@ test('TMB2 cinematic follows exact boundaries and loops without entering gamepla
     await expect(intro.locator('h1')).toHaveCount(0)
   }
 
+  // The attract loop was removed: the track ending must HOLD the title over the
+  // right seat, not restart from the ident.
   await audio.evaluate((media) => {
     media.dispatchEvent(new Event('ended'))
   })
   await expect(intro).toBeVisible()
-  await expect(intro.locator('.game-intro__stage')).toHaveAttribute('data-scene', 'tmb2-ident')
+  await expect(intro.locator('.game-intro__stage')).toHaveAttribute('data-scene', 'title')
+  await expect(intro).toHaveAttribute('data-intro-cue', 'title')
   await expect(intro.getByRole('button', { name: 'Start game' })).toBeVisible()
   await expect(page.locator('.dc9-entry-transition')).toHaveCount(0)
 })
 
-test('TMB2 cinematic renders the storyboard laser grid and emblem finale', async ({ page }) => {
+test('TMB2 cinematic lands the aircraft reveal and holds the lettered title finale', async ({ page }) => {
+  // Replaces the retired laser-grid/emblem assertions: the emblem finale was
+  // cut as meaningless (it appeared nowhere else in the game) and the takeoff
+  // act with it. The two moments worth pinning now are the floodlit reveal and
+  // the runtime-lettered title over the empty right seat.
   const intro = await openGameIntro(page)
   const audio = page.locator('audio')
   await audio.evaluate(async (media) => {
@@ -539,36 +484,55 @@ test('TMB2 cinematic renders the storyboard laser grid and emblem finale', async
     }
   })
 
+  const litPixels = async (x: number, y: number, width: number, height: number) =>
+    intro.locator('.game-intro__stage').evaluate((element, box) => {
+      const context = (element as HTMLCanvasElement).getContext('2d')
+      if (!context) return 0
+      const pixels = context.getImageData(box.x, box.y, box.width, box.height).data
+      let lit = 0
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (pixels[index] !== 2 || pixels[index + 1] !== 3 || pixels[index + 2] !== 10) lit += 1
+      }
+      return lit
+    }, { x, y, width, height })
+
+  // The floodlights slam on and the DC-9 fills the frame.
   await audio.evaluate((media) => {
-    media.currentTime = 38
+    media.currentTime = 37
     media.dispatchEvent(new Event('timeupdate'))
   })
-  await expect.poll(async () => intro.locator('.game-intro__stage').evaluate((element) => {
-    const context = (element as HTMLCanvasElement).getContext('2d')
-    if (!context) return 0
-    const pixels = context.getImageData(0, 150, 320, 70).data
-    let redDominant = 0
-    for (let index = 0; index < pixels.length; index += 4) {
-      const red = pixels[index]!
-      if (red > 80 && red > pixels[index + 1]! && red > pixels[index + 2]! - 10) redDominant += 1
-    }
-    return redDominant
-  })).toBeGreaterThan(200)
+  await expect(intro).toHaveAttribute('data-intro-cue', 'aircraft-reveal')
+  await expect.poll(() => litPixels(36, 60, 248, 120)).toBeGreaterThan(15_000)
 
+  // The finale: the title lettered over the waiting seat, held to the end.
   await audio.evaluate((media) => {
     media.currentTime = 50.2
     media.dispatchEvent(new Event('timeupdate'))
   })
-  await expect.poll(async () => intro.locator('.game-intro__stage').evaluate((element) => {
-    const context = (element as HTMLCanvasElement).getContext('2d')
-    if (!context) return 0
-    const pixels = context.getImageData(36, 23, 248, 166).data
-    let nonBackground = 0
-    for (let index = 0; index < pixels.length; index += 4) {
-      if (pixels[index] !== 2 || pixels[index + 1] !== 3 || pixels[index + 2] !== 10) nonBackground += 1
-    }
-    return nonBackground
-  })).toBeGreaterThan(15_000)
+  await expect(intro).toHaveAttribute('data-intro-cue', 'title')
+  await expect.poll(() => litPixels(36, 23, 248, 166)).toBeGreaterThan(15_000)
+  // The lettering is near-white on a dark navy plate, so BRIGHT pixels are the
+  // discriminator; counting non-background cannot work here because the seat
+  // plate fills the frame at both times.
+  const brightPixels = async () =>
+    intro.locator('.game-intro__stage').evaluate((element) => {
+      const context = (element as HTMLCanvasElement).getContext('2d')
+      if (!context) return 0
+      const pixels = context.getImageData(80, 36, 160, 18).data
+      let bright = 0
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (pixels[index]! > 200 && pixels[index + 1]! > 200 && pixels[index + 2]! > 200) bright += 1
+      }
+      return bright
+    })
+  const titled = await brightPixels()
+  expect(titled, 'the title band must carry lettering').toBeGreaterThan(80)
+
+  await audio.evaluate((media) => {
+    media.currentTime = 48.5
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  expect(await brightPixels(), 'the seat holds before the title arrives').toBeLessThan(titled / 2)
 })
 
 test('TMB2 cinematic blocks playback with an exact retry when opening art fails', async ({ page }) => {
