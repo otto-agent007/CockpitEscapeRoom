@@ -77,21 +77,13 @@ describe('Scramble Canvas draw commands', () => {
     expect(kinds.indexOf('sprite')).toBeLessThan(kinds.indexOf('doors'))
   })
 
-  it('orders the departure: runway lights under the light wash', () => {
+  it('orders the departure: the panel under the accent fx, with no jet left in it', () => {
     const commands = deriveIntroDrawCommands(deriveIntroAnimation(45.6, false), null)
     const kinds = commands.map((command) => command.kind)
     expect(kinds).toContain('background')
     expect(kinds.indexOf('background')).toBeLessThan(kinds.indexOf('fx'))
     // No jet sprite survives anywhere in the departure act.
     expect(kinds).not.toContain('sprite')
-  })
-
-  it('never commands a pixel collapse now the intro holds instead of looping', () => {
-    for (let time = 0; time <= 53.04; time += 0.25) {
-      const kinds = deriveIntroDrawCommands(deriveIntroAnimation(time, false), null)
-        .map((command) => command.kind)
-      expect(kinds, `t=${time.toFixed(2)}`).not.toContain('pixel-collapse')
-    }
   })
 
   it('renders the accent flash above the card and below the Start handoff', () => {

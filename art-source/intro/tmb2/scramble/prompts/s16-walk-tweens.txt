@@ -1,0 +1,61 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- TWO reference images are attached. The FIRST is the approved six-pose WALK sheet for this exact
+  character: it is the authority for the camera (three-quarter BACK view walking to the right), the
+  body proportions, the stride size, the figure scale and the flat magenta field. The SECOND is the
+  character identity sheet: golden-yellow blond hair in pointed spikes, GOLD eyebrows (never black),
+  rounded boyish face, small button nose, large dark navy eyes, warm peach skin, navy peaked cap
+  with braided gold cord and round red-ringed badge, white short-sleeve shirt, navy trousers, dark
+  boots.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-tweens.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+SIX walking poses of the SAME cartoon airline captain from the attached walk sheet, drawn in a
+single horizontal row, evenly spaced left to right on a completely flat solid magenta #FF00FF
+background. Clear magenta gaps between the figures; no figure touches another. All six are the same
+man at the SAME scale, seen in THREE-QUARTER BACK view walking to the RIGHT — his back and right
+side toward the viewer, exactly the camera and body angle of the attached sheet — with his feet on
+one shared invisible ground line.
+
+These are the IN-BETWEEN frames of that walk cycle: each one sits exactly HALFWAY between two
+neighbouring poses of the attached six-frame walk, so that interleaving them gives a smooth
+twelve-frame cycle. Left to right they progress evenly through one full stride:
+
+1. Halfway between contact (right foot planted forward, left toe trailing) and low passing — the
+   front knee taking the weight, the rear heel just leaving the ground, body starting to sink.
+2. Halfway between low passing and high passing — the support leg straightening, the free knee
+   swinging forward beneath the body, body rising toward its tallest.
+3. Halfway between high passing and the mirrored contact — the free leg reaching forward to plant,
+   the support leg extending behind, stride opening to its widest.
+4. The mirror of pose 1 on the opposite leg.
+5. The mirror of pose 2 on the opposite leg.
+6. The mirror of pose 3 on the opposite leg.
+
+The arms swing in opposition to the legs throughout, hanging fairly relaxed at his sides with a
+slight bend — a calm confident walk, not a march and not a run. Keep his overall height, his lean
+and the size of his head and body identical across all six so the cycle does not bob unevenly, and
+keep the stride length no larger than the stride in the attached sheet.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no fabric texture, no creases.
+- NO texture, NO noise, NO dithering, NO grain.
+- Eyes, eyebrows and mouth must each be a SOLID dark shape with strong contrast — this art will be
+  reduced to a 48 pixel tall sprite and thin detail will vanish.
+- Each figure must have FOUR gold stripes on its epaulette. Count them: four.
+
+Palette to draw from: near-black #040614, dark navy #1A203F, mid navy #3A4772, off-white #F1EFF0,
+skin #F8AC75, blond hair #F5C424 with #CB8A06 shading, gold #F5C424, dark gold #CB8A06.
+
+Absolutely NO text anywhere: no letters, no numbers, no frame labels, no watermark, no border,
+no caption, no grid lines. The cap badge is pure shapes.

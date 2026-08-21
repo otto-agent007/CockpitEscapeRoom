@@ -259,8 +259,7 @@ Deliberately shelved art, kept in `art-source` and reinstatable in one line each
 wands ramp cards, and the retired door-release insert. The DC-9 jet sprites regenerated during the
 takeoff investigation are kept as the evidence for why that act was replaced rather than redrawn.
 
-**Next, not yet done:** the ident gag needs more frames. Measured at 1.9 poses/sec for the hat flip
-and 12.5 fps for the run. The plan is two more sheets — six in-between run frames to interleave into
-a 12-frame cycle at 25 fps, and six in-between gag poses — plus drawing the airborne cap as a
-runtime prop on an interpolated arc so the flick-to-crooked segment (1.44 s of the gag) moves at
-the display rate instead of cutting between two held poses.
+**Done since this handoff was written:** the ident gag got its frames in plan 0034 — the run is
+twelve frames at 25 fps, the gag plays twelve poses with the Wave S13 in-betweens, and the airborne
+cap is a runtime prop on an interpolated arc. The walk cycle, the last under-sampled animation in
+the intro, was doubled to twelve drawings in plan 0036.

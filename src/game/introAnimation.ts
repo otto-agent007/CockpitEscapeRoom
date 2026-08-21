@@ -101,14 +101,16 @@ export const POPT_CLIPS = {
    */
   cap: scrambleClip('popt-cap', 'images/intro/tmb2/scramble/sprites/popt-cap.png', 16, 13, 1, { x: 8, y: 6 }, [1000], 'hold-last'),
   landed: scrambleClip('popt-landed', 'images/intro/tmb2/scramble/sprites/popt-landed.png', 34, 68, 1, { x: 15, y: 67 }, [1000], 'hold-last'),
-  /** The Wave S4 walk cycle: 48 px figure in a 26×50 cell, feet on row 49. */
-  walk: scrambleClip('popt-walk', 'images/intro/tmb2/scramble/sprites/popt-walk-sheet.png', 26, 50, 6, { x: 13, y: 49 }, [130, 130, 130, 130, 130, 130], 'loop'),
+  /**
+   * The walk cycle: 48 px figure in a 26×50 cell, feet on row 49. Twelve
+   * frames — the six Wave S4 poses interleaved with the six Wave S16
+   * in-betweens — over the same 780 ms stride, so the walk plays at ~15 fps
+   * instead of the 7.7 it shipped at, without changing his walking speed.
+   */
+  walk: scrambleClip('popt-walk', 'images/intro/tmb2/scramble/sprites/popt-walk-sheet.png', 26, 50, 12, { x: 13, y: 49 }, Array.from({ length: 12 }, () => 65), 'loop'),
   /** Backlit doorway silhouette, single held frame. */
   backlit: scrambleClip('popt-backlit', 'images/intro/tmb2/scramble/sprites/popt-backlit.png', 28, 64, 1, { x: 14, y: 63 }, [1000], 'hold-last'),
 } as const satisfies Record<string, SpriteClip>
-
-/** The DC-9 sprites. The liftoff pass swaps pre-rendered sizes so every draw
- * keeps a whole-number scale (plan 0030 contract). */
 
 export type PoptClipId = keyof typeof POPT_CLIPS
 
@@ -129,9 +131,6 @@ export type IntroFxFrame =
   | { kind: 'radial-rays'; x: number; y: number; scale: number; rotation: number; opacity: number }
   | { kind: 'beacon'; x: number; y: number; on: boolean }
   | { kind: 'beacon-sweep'; x: number; opacity: number }
-  | { kind: 'nav-strobe'; x: number; y: number; on: boolean }
-  | { kind: 'exhaust'; x: number; y: number; intensity: number }
-  | { kind: 'contrail'; progress: number }
 
 export type IntroFxKind = IntroFxFrame['kind']
 
@@ -307,7 +306,6 @@ export type IntroAnimationFrame = {
   labels: readonly IntroLabelFrame[]
   camera: IntroCameraFrame
   flash: IntroFlashFrame | null
-  pixelCollapse: number
 }
 
 export type HandoffFrame = {
@@ -394,14 +392,6 @@ function prop(
   return { id, x, y, scale, rotation, opacity }
 }
 
-/**
- * Owner-comparison switch for the finale card reveal: 'stamp' pops in 16-bit
- * style (0.9 scale for the first beat, then 1.0); 'eased' zooms 0.9 -> 1.0
- * over half a second.
- */
-export const EMBLEM_REVEAL_STYLE: 'stamp' | 'eased' = 'stamp'
-
-
 /** The anti-collision beacon flashes locked to the beat grid after light-off. */
 export function beaconOn(timeSeconds: number): boolean {
   if (timeSeconds < INTRO_MUSIC_CUES.aircraftReveal) return false
@@ -429,7 +419,7 @@ const REPRESENTATIVE_SCENE_TIME: Partial<Record<IntroSceneId, number>> = {
 }
 
 /** Fx kinds that stay visible (frozen) under reduced motion. */
-const REDUCED_MOTION_FX: ReadonlySet<IntroFxKind> = new Set(['contrail', 'radial-rays'])
+const REDUCED_MOTION_FX: ReadonlySet<IntroFxKind> = new Set(['radial-rays'])
 
 /**
  * The one accent per scene that freezes the acting SEGA-style. Flashes and
@@ -495,7 +485,6 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
     labels: [],
     camera: IDENTITY_CAMERA,
     flash: null,
-    pixelCollapse: 0,
   }
   const CUES = INTRO_MUSIC_CUES
 
@@ -905,9 +894,9 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
   }
 }
 
-/** The Start handoff zooms the winged-globe emblem out of the title card and
- * whites out into the menu — the emblem is the game's seal, so pressing
- * Start walks through it. */
+/** The Start handoff zooms the lettered title out of the finale card and
+ * whites out into the menu, so pressing Start walks through the game's own
+ * name and into the seat the last frame was holding. */
 export function deriveHandoffAnimation(progress: number): HandoffFrame {
   const safeProgress = clamp01(progress)
   const eased = easeInOut(safeProgress)

@@ -1,0 +1,1151 @@
+=== s16-walk-t2 v2 (pair 2-3) 00:24:07
+Reading prompt from stdin...
+OpenAI Codex v0.149.0
+--------
+workdir: /mnt/2TBHDD/CockpitEscapeRoom
+model: gpt-5.6-luna
+provider: openai
+approval: on-request
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a02334-a64f-7ac0-9de9-2050202195a0
+--------
+user
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1024x1024, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached. It holds TWO frames of an approved walk cycle for this exact
+  character on a magenta field: pose A on the LEFT and pose B on the RIGHT. Both are the authority
+  for the character, the camera, the uniform, the drawing style and the figure's height.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t2.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+ONE single cartoon airline captain, alone, centred on a completely flat solid magenta #FF00FF
+background that fills the whole canvas. Draw exactly one figure — not two, not a row, not a sheet.
+
+He is the same man as the two figures in the attached image, drawn in exactly the same flat
+cel-shaded style, and his pose is the exact HALFWAY point between the LEFT figure's pose and the
+RIGHT figure's pose — the frame that would sit between them in the animation.
+
+The pose: His rear leg is swinging through beneath his body and his support leg is straightening, so he is rising toward his tallest. His feet are closer together than in the LEFT figure but not yet as close as in the RIGHT figure, where they almost pass each other.
+
+1. CAMERA — copy it exactly from the attached figures: a three-quarter view from BEHIND, walking to
+   the RIGHT, so the viewer sees the BACK of his head and the back of his navy peaked cap. His face
+   is turned away: no eyes, no nose and no mouth are visible, only the back of his blond hair and
+   the side of one ear. Do not turn him toward the viewer and do not draw him in profile.
+
+2. UNIFORM — copy it exactly from the attached figures and add nothing: plain dark navy peaked cap
+   with a small gold clip at the side and NO round badge; blond hair; white short-sleeve shirt;
+   NO gold stripes and NO shoulder boards on his shoulders; NO tie visible; dark navy trousers with
+   a thin dark belt; black boots.
+
+3. SIZE — his height must match the attached figures exactly: the top of his cap and the soles of
+   his boots sit at the same heights as theirs, and his head, torso, arms and legs are the same
+   size and proportion. His arms hang fairly relaxed at his sides with a slight bend, swinging in
+   opposition to his legs.
+
+4. HEAD SIZE — measure it: the width of his peaked cap must be about 36% of his total height from
+   the top of the cap to the sole of his lower boot. He is a big-headed cartoon mascot about five
+   head-heights tall, exactly like the attached figures. Do not draw a smaller, more realistic head.
+
+5. STRIDE WIDTH — measure it: the horizontal distance from the toe of his leading boot to the heel
+   of his trailing boot must be about 24% of his total height, and must stay between 22% and 26%.
+   This is what makes the frame sit between the two attached poses; a wider stride is wrong.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no fabric texture, no creases.
+- NO texture, NO noise, NO dithering, NO grain, no outline sketch marks.
+- This art will be reduced to a 48 pixel tall sprite, so every shape must be bold and simplified.
+
+Palette to draw from: near-black #040614, dark navy #1A203F, mid navy #3A4772, off-white #F1EFF0,
+skin #F8AC75, blond hair #F5C424 with #CB8A06 shading, gold #F5C424, dark gold #CB8A06.
+
+Absolutely NO text anywhere: no letters, no numbers, no labels, no watermark, no border, no
+caption, no grid lines, no ground line and no shadow.
+
+codex
+I’m using the built-in image generator once with the attached walk-cycle reference, preserving the prompt verbatim and the requested 1024×1024 output target.
+codex
+The single generation completed and produced a native PNG at the tool’s default output location. I’m copying that exact file byte-for-byte to the requested destination and checking its dimensions; no resizing or repository operations will be performed.
+exec
+/bin/bash -lc "cp -- /home/user1/.codex/generated_images/01a02334-a64f-7ac0-9de9-2050202195a0/exec-30a9da4e-a2fb-43c6-a18b-eb31ff24355f.png /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t2.png && identify -format '%w x %h\\n' /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t2.png" in /mnt/2TBHDD/CockpitEscapeRoom
+ exited 127 in 0ms:
+/bin/bash: line 1: identify: command not found
+
+exec
+/bin/bash -lc 'file /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t2.png' in /mnt/2TBHDD/CockpitEscapeRoom
+ succeeded in 0ms:
+/mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t2.png: PNG image data, 1194 x 1317, 8-bit/color RGB, non-interlaced
+
+codex
+Generated exactly one image.
+
+Path: `/mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t2.png`  
+Native dimensions: `1194 × 1317` pixels
+
+The tool returned 1194×1317 rather than 1024×1024; it was copied unchanged without resizing.
+tokens used
+21,668
+Generated exactly one image.
+
+Path: `/mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t2.png`  
+Native dimensions: `1194 × 1317` pixels
+
+The tool returned 1194×1317 rather than 1024×1024; it was copied unchanged without resizing.
+=== s16-walk-t3 v2 (pair 3-4) 00:25:26
+Reading prompt from stdin...
+OpenAI Codex v0.149.0
+--------
+workdir: /mnt/2TBHDD/CockpitEscapeRoom
+model: gpt-5.6-luna
+provider: openai
+approval: on-request
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a02335-e26b-7c50-aad5-b01d3ba6bb63
+--------
+user
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1024x1024, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached. It holds TWO frames of an approved walk cycle for this exact
+  character on a magenta field: pose A on the LEFT and pose B on the RIGHT. Both are the authority
+  for the character, the camera, the uniform, the drawing style and the figure's height.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t3.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+ONE single cartoon airline captain, alone, centred on a completely flat solid magenta #FF00FF
+background that fills the whole canvas. Draw exactly one figure — not two, not a row, not a sheet.
+
+He is the same man as the two figures in the attached image, drawn in exactly the same flat
+cel-shaded style, and his pose is the exact HALFWAY point between the LEFT figure's pose and the
+RIGHT figure's pose — the frame that would sit between them in the animation.
+
+The pose: The leg that just passed underneath is reaching forward, halfway to planting, while the other leg extends behind him. This is a MID-stride frame, not the widest one: his feet are further apart than in the LEFT figure, where they nearly touch, but clearly CLOSER together than in the RIGHT figure.
+
+1. CAMERA — copy it exactly from the attached figures: a three-quarter view from BEHIND, walking to
+   the RIGHT, so the viewer sees the BACK of his head and the back of his navy peaked cap. His face
+   is turned away: no eyes, no nose and no mouth are visible, only the back of his blond hair and
+   the side of one ear. Do not turn him toward the viewer and do not draw him in profile.
+
+2. UNIFORM — copy it exactly from the attached figures and add nothing: plain dark navy peaked cap
+   with a small gold clip at the side and NO round badge; blond hair; white short-sleeve shirt;
+   NO gold stripes and NO shoulder boards on his shoulders; NO tie visible; dark navy trousers with
+   a thin dark belt; black boots.
+
+3. SIZE — his height must match the attached figures exactly: the top of his cap and the soles of
+   his boots sit at the same heights as theirs, and his head, torso, arms and legs are the same
+   size and proportion. His arms hang fairly relaxed at his sides with a slight bend, swinging in
+   opposition to his legs.
+
+4. HEAD SIZE — measure it: the width of his peaked cap must be about 36% of his total height from
+   the top of the cap to the sole of his lower boot. He is a big-headed cartoon mascot about five
+   head-heights tall, exactly like the attached figures. Do not draw a smaller, more realistic head.
+
+5. STRIDE WIDTH — measure it: the horizontal distance from the toe of his leading boot to the heel
+   of his trailing boot must be about 25% of his total height, and must stay between 23% and 27%.
+   This is what makes the frame sit between the two attached poses; a wider stride is wrong.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no fabric texture, no creases.
+- NO texture, NO noise, NO dithering, NO grain, no outline sketch marks.
+- This art will be reduced to a 48 pixel tall sprite, so every shape must be bold and simplified.
+
+Palette to draw from: near-black #040614, dark navy #1A203F, mid navy #3A4772, off-white #F1EFF0,
+skin #F8AC75, blond hair #F5C424 with #CB8A06 shading, gold #F5C424, dark gold #CB8A06.
+
+Absolutely NO text anywhere: no letters, no numbers, no labels, no watermark, no border, no
+caption, no grid lines, no ground line and no shadow.
+
+codex
+I’m using the imagegen skill because this is a single raster-image generation request. I’ll generate once from the attached walk-cycle reference, then place the native result at the exact requested path and verify its pixel dimensions.
+exec
+/bin/bash -lc "sed -n '1,240p' /home/user1/.codex/skills/.system/imagegen/SKILL.md" in /mnt/2TBHDD/CockpitEscapeRoom
+ succeeded in 0ms:
+---
+name: "imagegen"
+description: "Generate or edit raster images when the task benefits from AI-created bitmap visuals such as photos, illustrations, textures, sprites, mockups, or transparent-background cutouts. Use when Codex should create a brand-new image, transform an existing image, or derive visual variants from references, and the output should be a bitmap asset rather than repo-native code or vector. Do not use when the task is better handled by editing existing SVG/vector/code-native assets, extending an established icon or logo system, or building the visual directly in HTML/CSS/canvas."
+---
+
+# Image Generation Skill
+
+Generates or edits images for the current project (for example website assets, game assets, UI mockups, product mockups, wireframes, logo design, photorealistic images, or infographics).
+
+## Top-level modes and rules
+
+This skill has exactly two top-level modes:
+
+- **Default built-in tool mode (preferred):** built-in `image_gen` tool for image generation, editing, and transparent-image requests. Does not require `OPENAI_API_KEY`.
+- **Fallback CLI mode:** `scripts/image_gen.py` CLI. Use when the user explicitly asks for or confirms the CLI/API/model path. Requires `OPENAI_API_KEY`.
+
+Within CLI fallback, the CLI exposes three subcommands:
+
+- `generate`
+- `edit`
+- `generate-batch`
+
+Rules:
+- Use the built-in `image_gen` tool by default for normal image generation and editing requests.
+- Do not switch to CLI fallback for ordinary quality, size, or file-path control.
+- For transparent images, ask built-in `image_gen` for a transparent background and preserve the generated alpha.
+- Never silently switch from built-in `image_gen` or CLI `gpt-image-2` to CLI `gpt-image-1.5`; ask the user first unless they explicitly requested `gpt-image-1.5`.
+- The word `batch` by itself does not mean CLI fallback. If the user asks for many assets or says to batch-generate assets without explicitly asking for CLI/API/model controls, stay on the built-in path and issue one built-in call per requested asset or variant.
+- If the built-in tool fails or is unavailable, tell the user the CLI fallback exists and that it requires `OPENAI_API_KEY`. Proceed only if the user explicitly asks for that fallback.
+- If the user explicitly asks for CLI mode, use the bundled `scripts/image_gen.py` workflow. Do not create one-off SDK runners.
+- Never modify `scripts/image_gen.py`. If something is missing, ask the user before doing anything else.
+
+Built-in save-path policy:
+- In built-in tool mode, Codex saves generated images under `$CODEX_HOME/*` by default.
+- Do not describe or rely on OS temp as the default built-in destination.
+- Do not describe or rely on a destination-path argument (if any) on the built-in `image_gen` tool. If a specific location is needed, generate first and then move or copy the selected output from `$CODEX_HOME/generated_images/...`.
+- Save-path precedence in built-in mode:
+  1. If the user names a destination, move or copy the selected output there.
+  2. If the image is meant for the current project, move or copy the final selected image into the workspace before finishing.
+  3. If the image is only for preview or brainstorming, render it inline; the underlying file can remain at the default `$CODEX_HOME/*` path.
+- Never leave a project-referenced asset only at the default `$CODEX_HOME/*` path.
+- Do not overwrite an existing asset unless the user explicitly asked for replacement; otherwise create a sibling versioned filename such as `hero-v2.png` or `item-icon-edited.png`.
+
+Shared prompt guidance for both modes lives in `references/prompting.md` and `references/sample-prompts.md`.
+
+Fallback-only docs/resources for CLI mode:
+- `references/cli.md`
+- `references/image-api.md`
+- `references/codex-network.md`
+- `scripts/image_gen.py`
+
+## When to use
+- Generate a new image (concept art, product shot, cover, website hero)
+- Generate a new image using one or more reference images for style, composition, or mood
+- Edit an existing image (inpainting, lighting or weather transformations, background replacement, object removal, compositing, transparent background)
+- Produce many assets or variants for one task
+
+## When not to use
+- Extending or matching an existing SVG/vector icon set, logo system, or illustration library inside the repo
+- Creating simple shapes, diagrams, wireframes, or icons that are better produced directly in SVG, HTML/CSS, or canvas
+- Making a small project-local asset edit when the source file already exists in an editable native format
+- Any task where the user clearly wants deterministic code-native output instead of a generated bitmap
+
+## Decision tree
+
+Think about two separate questions:
+
+1. **Intent:** is this a new image or an edit of an existing image?
+2. **Execution strategy:** is this one asset or many assets/variants?
+
+Intent:
+- If the user wants to modify an existing image while preserving parts of it, treat the request as **edit**.
+- If the user provides images only as references for style, composition, mood, or subject guidance, treat the request as **generate**.
+- If the user provides no images, treat the request as **generate**.
+
+Built-in edit semantics:
+- Built-in edit mode is for images already visible in the conversation context, such as attached images or images generated earlier in the thread.
+- If the user wants to edit a local image file with the built-in tool, first load it with built-in `view_image` tool so the image is visible in the conversation context, then proceed with the built-in edit flow.
+- Do not promise arbitrary filesystem-path editing through the built-in tool.
+- If a local file still needs direct file-path control, masks, or other explicit CLI-only parameters, use the explicit CLI fallback only when the user asks for it.
+- For edits, preserve invariants aggressively and save non-destructively by default.
+
+Execution strategy:
+- In the built-in default path, produce many assets or variants by issuing one `image_gen` call per requested asset or variant.
+- In the CLI fallback path, use the CLI `generate-batch` subcommand only when the user explicitly chose CLI mode and needs many prompts/assets.
+- For many distinct assets, do not use `n` as a substitute for separate prompts. `n` is for variants of one prompt; distinct assets need distinct built-in calls or distinct CLI `generate-batch` jobs.
+
+Assume the user wants a new image unless they clearly ask to change an existing one.
+
+## Workflow
+1. Decide the top-level mode: built-in by default, including transparent-output requests; fallback CLI only if explicitly requested or confirmed.
+2. Decide the intent: `generate` or `edit`.
+3. Decide whether the output is preview-only or meant to be consumed by the current project.
+4. Decide the execution strategy: single asset vs repeated built-in calls vs CLI `generate-batch`.
+5. Collect inputs up front: prompt(s), exact text (verbatim), constraints/avoid list, and any input images.
+6. For every input image, label its role explicitly:
+   - reference image
+   - edit target
+   - supporting insert/style/compositing input
+7. If the edit target is only on the local filesystem and you are staying on the built-in path, inspect it with `view_image` first so the image is available in conversation context.
+8. If the user asked for a photo, illustration, sprite, product image, banner, or other explicitly raster-style asset, use `image_gen` rather than substituting SVG/HTML/CSS placeholders. If the request is for an icon, logo, or UI graphic that should match existing repo-native SVG/vector/code assets, prefer editing those directly instead.
+9. Augment the prompt based on specificity:
+   - If the user's prompt is already specific and detailed, normalize it into a clear spec without adding creative requirements.
+   - If the user's prompt is generic, add tasteful augmentation only when it materially improves output quality.
+10. Use the built-in `image_gen` tool by default.
+11. For transparent-output requests, ask built-in `image_gen` for a transparent background and preserve the generated alpha channel.
+12. Inspect outputs and validate: subject, style, composition, text accuracy, and invariants/avoid items.
+13. Iterate with a single targeted change, then re-check.
+14. For preview-only work, render the image inline; the underlying file may remain at the default `$CODEX_HOME/generated_images/...` path.
+15. For project-bound work, move or copy the selected artifact into the workspace and update any consuming code or references. Never leave a project-referenced asset only at the default `$CODEX_HOME/generated_images/...` path.
+16. For batches or multi-asset requests, persist every requested deliverable final in the workspace unless the user explicitly asked to keep outputs preview-only. Discarded variants do not need to be kept unless requested.
+17. If the user explicitly chooses or confirms the CLI fallback, then use the fallback-only docs for model, quality, size, `input_fidelity`, masks, output format, output paths, and network setup.
+18. Always report the final saved path(s) for any workspace-bound asset(s), plus the final prompt or prompt set and whether the built-in tool or fallback CLI mode was used.
+
+## Transparent image requests
+
+Ask built-in `image_gen` for a genuinely transparent background and preserve its alpha.
+
+## Prompt augmentation
+
+Reformat user prompts into a structured, production-oriented spec. Make the user's goal clearer and more actionable, but do not blindly add detail.
+
+Treat this as prompt-shaping guidance, not a closed schema. Use only the lines that help, and add a short extra labeled line when it materially improves clarity.
+
+### Specificity policy
+
+Use the user's prompt specificity to decide how much augmentation is appropriate:
+
+- If the prompt is already specific and detailed, preserve that specificity and only normalize/structure it.
+- If the prompt is generic, you may add tasteful augmentation when it will materially improve the result.
+
+Allowed augmentations:
+- composition or framing hints
+- polish level or intended-use hints
+- practical layout guidance
+- reasonable scene concreteness that supports the stated request
+
+Not allowed augmentations:
+- extra characters or objects that are not implied by the request
+- brand names, slogans, palettes, or narrative beats that are not implied
+- arbitrary side-specific placement unless the surrounding layout supports it
+
+## Use-case taxonomy (exact slugs)
+
+Classify each request into one of these buckets and keep the slug consistent across prompts and references.
+
+Generate:
+- photorealistic-natural — candid/editorial lifestyle scenes with real texture and natural lighting.
+- product-mockup — product/packaging shots, catalog imagery, merch concepts.
+- ui-mockup — app/web interface mockups and wireframes; specify the desired fidelity.
+- infographic-diagram — diagrams/infographics with structured layout and text.
+- scientific-educational — classroom explainers, scientific diagrams, and learning visuals with required labels and accuracy constraints.
+- ads-marketing — campaign concepts and ad creatives with audience, brand position, scene, and exact tagline/copy.
+- productivity-visual — slide, chart, workflow, and data-heavy business visuals.
+- logo-brand — logo/mark exploration, vector-friendly.
+- illustration-story — comics, children’s book art, narrative scenes.
+- stylized-concept — style-driven concept art, 3D/stylized renders.
+- historical-scene — period-accurate/world-knowledge scenes.
+
+Edit:
+- text-localization — translate/replace in-image text, preserve layout.
+- identity-preserve — try-on, person-in-scene; lock face/body/pose.
+- precise-object-edit — remove/replace a specific element (including interior swaps).
+- lighting-weather — time-of-day/season/atmosphere changes only.
+- background-extraction — transparent background / clean cutout. Ask built-in `image_gen` for actual transparency.
+- style-transfer — apply reference style while changing subject/scene.
+- compositing — multi-image insert/merge with matched lighting/perspective.
+- sketch-to-render — drawing/line art to photoreal render.
+
+## Shared prompt schema
+
+Use the following labeled spec as shared prompt scaffolding for both top-level modes:
+
+```text
+Use case: <taxonomy slug>
+Asset type: <where the asset will be used>
+Primary request: <user's main prompt>
+Input images: <Image 1: role; Image 2: role> (optional)
+Scene/backdrop: <environment>
+Subject: <main subject>
+Style/medium: <photo/illustration/3D/etc>
+Composition/framing: <wide/close/top-down; placement>
+Lighting/mood: <lighting + mood>
+Color palette: <palette notes>
+Materials/textures: <surface details>
+Text (verbatim): "<exact text>"
+Constraints: <must keep/must avoid>
+Avoid: <negative constraints>
+```
+
+Notes:
+- `Asset type` and `Input images` are prompt scaffolding, not dedicated CLI flags.
+- `Scene/backdrop` refers to the visual setting. It is not the same as the fallback CLI `background` parameter, which controls output transparency behavior.
+- Fallback-only execution notes such as `Quality:`, `Input fidelity:`, masks, output format, and output paths belong in the CLI path only. Do not treat them as built-in `image_gen` tool arguments.
+
+Augmentation rules:
+- Keep it short.
+- Add only the details needed to improve the prompt materially.
+- For edits, explicitly list invariants (`change only X; keep Y unchanged`).
+- If any critical detail is missing and blocks success, ask a question; otherwise proceed.
+
+## Examples
+
+### Generation example (hero image)
+```text
+Use case: product-mockup
+Asset type: landing page hero
+Primary request: a minimal hero image of a ceramic coffee mug
+Style/medium: clean product photography
+Composition/framing: wide composition with usable negative space for page copy if needed
+Lighting/mood: soft studio lighting
+Constraints: no logos, no text, no watermark
+```
+
+### Edit example (invariants)
+```text
+Use case: precise-object-edit
+Asset type: product photo background replacement
+Primary request: replace only the background with a warm sunset gradient
+Constraints: change only the background; keep the product and its edges unchanged; no text; no watermark
+```
+
+## Prompting best practices
+- Structure prompt as scene/backdrop -> subject -> details -> constraints.
+- Include intended use (ad, UI mock, infographic) to set the mode and polish level.
+- Use camera/composition language for photorealism.
+- Only use SVG/vector stand-ins when the user explicitly asked for vector output or a non-image placeholder.
+- Quote exact text and specify typography + placement.
+- For tricky words, spell them letter-by-letter and require verbatim rendering.
+- For multi-image inputs, reference images by index and describe how they should be used.
+- For edits, repeat invariants every iteration to reduce drift.
+- Iterate with single-change follow-ups.
+- If the prompt is generic, add only the extra detail that will materially help.
+- If the prompt is already detailed, normalize it instead of expanding it.
+- For CLI fallback only, see `references/cli.md` and `references/image-api.md` for model, `quality`, `input_fidelity`, masks, output format, and output-path guidance.
+- For transparent images, ask built-in `image_gen` for actual transparency and preserve its alpha.
+
+More principles shared by both modes: `references/prompting.md`.
+Copy/paste specs shared by both modes: `references/sample-prompts.md`.
+
+
+codex
+The single built-in generation completed. Its returned artifact is at the tool’s native output path; I’m now checking that native PNG’s dimensions, copying it without resizing, and verifying the requested destination.
+exec
+/bin/bash -lc "file /home/user1/.codex/generated_images/01a02335-e26b-7c50-aad5-b01d3ba6bb63/exec-dd753927-c19e-4ec3-b2e1-aef690f8a613.png && test -e art-source/intro/tmb2/scramble/generated/s16-walk-t3.png; printf 'destination_exists=%s\\n' \""'$?"' in /mnt/2TBHDD/CockpitEscapeRoom
+ succeeded in 0ms:
+/home/user1/.codex/generated_images/01a02335-e26b-7c50-aad5-b01d3ba6bb63/exec-dd753927-c19e-4ec3-b2e1-aef690f8a613.png: PNG image data, 1194 x 1317, 8-bit/color RGB, non-interlaced
+destination_exists=1
+
+exec
+/bin/bash -lc 'cp /home/user1/.codex/generated_images/01a02335-e26b-7c50-aad5-b01d3ba6bb63/exec-dd753927-c19e-4ec3-b2e1-aef690f8a613.png /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t3.png' in /mnt/2TBHDD/CockpitEscapeRoom
+ succeeded in 0ms:
+exec
+/bin/bash -lc 'file /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t3.png' in /mnt/2TBHDD/CockpitEscapeRoom
+ succeeded in 0ms:
+/mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t3.png: PNG image data, 1194 x 1317, 8-bit/color RGB, non-interlaced
+
+codex
+Generated exactly one image with built-in `image_gen` and copied unchanged.
+
+Path: `/mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t3.png`  
+Native dimensions: `1194 × 1317 px`
+
+No resizing or git commands performed.
+tokens used
+52,106
+Generated exactly one image with built-in `image_gen` and copied unchanged.
+
+Path: `/mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t3.png`  
+Native dimensions: `1194 × 1317 px`
+
+No resizing or git commands performed.
+=== s16-walk-t5 v2 (pair 5-6) 00:26:34
+Reading prompt from stdin...
+OpenAI Codex v0.149.0
+--------
+workdir: /mnt/2TBHDD/CockpitEscapeRoom
+model: gpt-5.6-luna
+provider: openai
+approval: on-request
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a02336-e1e3-7d23-8efa-4f26aa834c3f
+--------
+user
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1024x1024, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached. It holds TWO frames of an approved walk cycle for this exact
+  character on a magenta field: pose A on the LEFT and pose B on the RIGHT. Both are the authority
+  for the character, the camera, the uniform, the drawing style and the figure's height.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t5.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+ONE single cartoon airline captain, alone, centred on a completely flat solid magenta #FF00FF
+background that fills the whole canvas. Draw exactly one figure — not two, not a row, not a sheet.
+
+He is the same man as the two figures in the attached image, drawn in exactly the same flat
+cel-shaded style, and his pose is the exact HALFWAY point between the LEFT figure's pose and the
+RIGHT figure's pose — the frame that would sit between them in the animation.
+
+The pose: His rear leg is swinging through beneath his body on the opposite side and his support leg is straightening, so he is rising toward his tallest. His feet are closer together than in the LEFT figure but not yet as close as in the RIGHT figure.
+
+1. CAMERA — copy it exactly from the attached figures: a three-quarter view from BEHIND, walking to
+   the RIGHT, so the viewer sees the BACK of his head and the back of his navy peaked cap. His face
+   is turned away: no eyes, no nose and no mouth are visible, only the back of his blond hair and
+   the side of one ear. Do not turn him toward the viewer and do not draw him in profile.
+
+2. UNIFORM — copy it exactly from the attached figures and add nothing: plain dark navy peaked cap
+   with a small gold clip at the side and NO round badge; blond hair; white short-sleeve shirt;
+   NO gold stripes and NO shoulder boards on his shoulders; NO tie visible; dark navy trousers with
+   a thin dark belt; black boots.
+
+3. SIZE — his height must match the attached figures exactly: the top of his cap and the soles of
+   his boots sit at the same heights as theirs, and his head, torso, arms and legs are the same
+   size and proportion. His arms hang fairly relaxed at his sides with a slight bend, swinging in
+   opposition to his legs.
+
+4. HEAD SIZE — measure it: the width of his peaked cap must be about 36% of his total height from
+   the top of the cap to the sole of his lower boot. He is a big-headed cartoon mascot about five
+   head-heights tall, exactly like the attached figures. Do not draw a smaller, more realistic head.
+
+5. STRIDE WIDTH — measure it: the horizontal distance from the toe of his leading boot to the heel
+   of his trailing boot must be about 25% of his total height, and must stay between 23% and 27%.
+   This is what makes the frame sit between the two attached poses; a wider stride is wrong.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no fabric texture, no creases.
+- NO texture, NO noise, NO dithering, NO grain, no outline sketch marks.
+- This art will be reduced to a 48 pixel tall sprite, so every shape must be bold and simplified.
+
+Palette to draw from: near-black #040614, dark navy #1A203F, mid navy #3A4772, off-white #F1EFF0,
+skin #F8AC75, blond hair #F5C424 with #CB8A06 shading, gold #F5C424, dark gold #CB8A06.
+
+Absolutely NO text anywhere: no letters, no numbers, no labels, no watermark, no border, no
+caption, no grid lines, no ground line and no shadow.
+
+codex
+I’m using the image-generation skill because this request is for a single raster sprite, and I’ll keep the work limited to one generated image plus the exact requested copy.
+exec
+/bin/bash -lc "sed -n '1,240p' /home/user1/.codex/skills/.system/imagegen/SKILL.md" in /mnt/2TBHDD/CockpitEscapeRoom
+ succeeded in 0ms:
+---
+name: "imagegen"
+description: "Generate or edit raster images when the task benefits from AI-created bitmap visuals such as photos, illustrations, textures, sprites, mockups, or transparent-background cutouts. Use when Codex should create a brand-new image, transform an existing image, or derive visual variants from references, and the output should be a bitmap asset rather than repo-native code or vector. Do not use when the task is better handled by editing existing SVG/vector/code-native assets, extending an established icon or logo system, or building the visual directly in HTML/CSS/canvas."
+---
+
+# Image Generation Skill
+
+Generates or edits images for the current project (for example website assets, game assets, UI mockups, product mockups, wireframes, logo design, photorealistic images, or infographics).
+
+## Top-level modes and rules
+
+This skill has exactly two top-level modes:
+
+- **Default built-in tool mode (preferred):** built-in `image_gen` tool for image generation, editing, and transparent-image requests. Does not require `OPENAI_API_KEY`.
+- **Fallback CLI mode:** `scripts/image_gen.py` CLI. Use when the user explicitly asks for or confirms the CLI/API/model path. Requires `OPENAI_API_KEY`.
+
+Within CLI fallback, the CLI exposes three subcommands:
+
+- `generate`
+- `edit`
+- `generate-batch`
+
+Rules:
+- Use the built-in `image_gen` tool by default for normal image generation and editing requests.
+- Do not switch to CLI fallback for ordinary quality, size, or file-path control.
+- For transparent images, ask built-in `image_gen` for a transparent background and preserve the generated alpha.
+- Never silently switch from built-in `image_gen` or CLI `gpt-image-2` to CLI `gpt-image-1.5`; ask the user first unless they explicitly requested `gpt-image-1.5`.
+- The word `batch` by itself does not mean CLI fallback. If the user asks for many assets or says to batch-generate assets without explicitly asking for CLI/API/model controls, stay on the built-in path and issue one built-in call per requested asset or variant.
+- If the built-in tool fails or is unavailable, tell the user the CLI fallback exists and that it requires `OPENAI_API_KEY`. Proceed only if the user explicitly asks for that fallback.
+- If the user explicitly asks for CLI mode, use the bundled `scripts/image_gen.py` workflow. Do not create one-off SDK runners.
+- Never modify `scripts/image_gen.py`. If something is missing, ask the user before doing anything else.
+
+Built-in save-path policy:
+- In built-in tool mode, Codex saves generated images under `$CODEX_HOME/*` by default.
+- Do not describe or rely on OS temp as the default built-in destination.
+- Do not describe or rely on a destination-path argument (if any) on the built-in `image_gen` tool. If a specific location is needed, generate first and then move or copy the selected output from `$CODEX_HOME/generated_images/...`.
+- Save-path precedence in built-in mode:
+  1. If the user names a destination, move or copy the selected output there.
+  2. If the image is meant for the current project, move or copy the final selected image into the workspace before finishing.
+  3. If the image is only for preview or brainstorming, render it inline; the underlying file can remain at the default `$CODEX_HOME/*` path.
+- Never leave a project-referenced asset only at the default `$CODEX_HOME/*` path.
+- Do not overwrite an existing asset unless the user explicitly asked for replacement; otherwise create a sibling versioned filename such as `hero-v2.png` or `item-icon-edited.png`.
+
+Shared prompt guidance for both modes lives in `references/prompting.md` and `references/sample-prompts.md`.
+
+Fallback-only docs/resources for CLI mode:
+- `references/cli.md`
+- `references/image-api.md`
+- `references/codex-network.md`
+- `scripts/image_gen.py`
+
+## When to use
+- Generate a new image (concept art, product shot, cover, website hero)
+- Generate a new image using one or more reference images for style, composition, or mood
+- Edit an existing image (inpainting, lighting or weather transformations, background replacement, object removal, compositing, transparent background)
+- Produce many assets or variants for one task
+
+## When not to use
+- Extending or matching an existing SVG/vector icon set, logo system, or illustration library inside the repo
+- Creating simple shapes, diagrams, wireframes, or icons that are better produced directly in SVG, HTML/CSS, or canvas
+- Making a small project-local asset edit when the source file already exists in an editable native format
+- Any task where the user clearly wants deterministic code-native output instead of a generated bitmap
+
+## Decision tree
+
+Think about two separate questions:
+
+1. **Intent:** is this a new image or an edit of an existing image?
+2. **Execution strategy:** is this one asset or many assets/variants?
+
+Intent:
+- If the user wants to modify an existing image while preserving parts of it, treat the request as **edit**.
+- If the user provides images only as references for style, composition, mood, or subject guidance, treat the request as **generate**.
+- If the user provides no images, treat the request as **generate**.
+
+Built-in edit semantics:
+- Built-in edit mode is for images already visible in the conversation context, such as attached images or images generated earlier in the thread.
+- If the user wants to edit a local image file with the built-in tool, first load it with built-in `view_image` tool so the image is visible in the conversation context, then proceed with the built-in edit flow.
+- Do not promise arbitrary filesystem-path editing through the built-in tool.
+- If a local file still needs direct file-path control, masks, or other explicit CLI-only parameters, use the explicit CLI fallback only when the user asks for it.
+- For edits, preserve invariants aggressively and save non-destructively by default.
+
+Execution strategy:
+- In the built-in default path, produce many assets or variants by issuing one `image_gen` call per requested asset or variant.
+- In the CLI fallback path, use the CLI `generate-batch` subcommand only when the user explicitly chose CLI mode and needs many prompts/assets.
+- For many distinct assets, do not use `n` as a substitute for separate prompts. `n` is for variants of one prompt; distinct assets need distinct built-in calls or distinct CLI `generate-batch` jobs.
+
+Assume the user wants a new image unless they clearly ask to change an existing one.
+
+## Workflow
+1. Decide the top-level mode: built-in by default, including transparent-output requests; fallback CLI only if explicitly requested or confirmed.
+2. Decide the intent: `generate` or `edit`.
+3. Decide whether the output is preview-only or meant to be consumed by the current project.
+4. Decide the execution strategy: single asset vs repeated built-in calls vs CLI `generate-batch`.
+5. Collect inputs up front: prompt(s), exact text (verbatim), constraints/avoid list, and any input images.
+6. For every input image, label its role explicitly:
+   - reference image
+   - edit target
+   - supporting insert/style/compositing input
+7. If the edit target is only on the local filesystem and you are staying on the built-in path, inspect it with `view_image` first so the image is available in conversation context.
+8. If the user asked for a photo, illustration, sprite, product image, banner, or other explicitly raster-style asset, use `image_gen` rather than substituting SVG/HTML/CSS placeholders. If the request is for an icon, logo, or UI graphic that should match existing repo-native SVG/vector/code assets, prefer editing those directly instead.
+9. Augment the prompt based on specificity:
+   - If the user's prompt is already specific and detailed, normalize it into a clear spec without adding creative requirements.
+   - If the user's prompt is generic, add tasteful augmentation only when it materially improves output quality.
+10. Use the built-in `image_gen` tool by default.
+11. For transparent-output requests, ask built-in `image_gen` for a transparent background and preserve the generated alpha channel.
+12. Inspect outputs and validate: subject, style, composition, text accuracy, and invariants/avoid items.
+13. Iterate with a single targeted change, then re-check.
+14. For preview-only work, render the image inline; the underlying file may remain at the default `$CODEX_HOME/generated_images/...` path.
+15. For project-bound work, move or copy the selected artifact into the workspace and update any consuming code or references. Never leave a project-referenced asset only at the default `$CODEX_HOME/generated_images/...` path.
+16. For batches or multi-asset requests, persist every requested deliverable final in the workspace unless the user explicitly asked to keep outputs preview-only. Discarded variants do not need to be kept unless requested.
+17. If the user explicitly chooses or confirms the CLI fallback, then use the fallback-only docs for model, quality, size, `input_fidelity`, masks, output format, output paths, and network setup.
+18. Always report the final saved path(s) for any workspace-bound asset(s), plus the final prompt or prompt set and whether the built-in tool or fallback CLI mode was used.
+
+## Transparent image requests
+
+Ask built-in `image_gen` for a genuinely transparent background and preserve its alpha.
+
+## Prompt augmentation
+
+Reformat user prompts into a structured, production-oriented spec. Make the user's goal clearer and more actionable, but do not blindly add detail.
+
+Treat this as prompt-shaping guidance, not a closed schema. Use only the lines that help, and add a short extra labeled line when it materially improves clarity.
+
+### Specificity policy
+
+Use the user's prompt specificity to decide how much augmentation is appropriate:
+
+- If the prompt is already specific and detailed, preserve that specificity and only normalize/structure it.
+- If the prompt is generic, you may add tasteful augmentation when it will materially improve the result.
+
+Allowed augmentations:
+- composition or framing hints
+- polish level or intended-use hints
+- practical layout guidance
+- reasonable scene concreteness that supports the stated request
+
+Not allowed augmentations:
+- extra characters or objects that are not implied by the request
+- brand names, slogans, palettes, or narrative beats that are not implied
+- arbitrary side-specific placement unless the surrounding layout supports it
+
+## Use-case taxonomy (exact slugs)
+
+Classify each request into one of these buckets and keep the slug consistent across prompts and references.
+
+Generate:
+- photorealistic-natural — candid/editorial lifestyle scenes with real texture and natural lighting.
+- product-mockup — product/packaging shots, catalog imagery, merch concepts.
+- ui-mockup — app/web interface mockups and wireframes; specify the desired fidelity.
+- infographic-diagram — diagrams/infographics with structured layout and text.
+- scientific-educational — classroom explainers, scientific diagrams, and learning visuals with required labels and accuracy constraints.
+- ads-marketing — campaign concepts and ad creatives with audience, brand position, scene, and exact tagline/copy.
+- productivity-visual — slide, chart, workflow, and data-heavy business visuals.
+- logo-brand — logo/mark exploration, vector-friendly.
+- illustration-story — comics, children’s book art, narrative scenes.
+- stylized-concept — style-driven concept art, 3D/stylized renders.
+- historical-scene — period-accurate/world-knowledge scenes.
+
+Edit:
+- text-localization — translate/replace in-image text, preserve layout.
+- identity-preserve — try-on, person-in-scene; lock face/body/pose.
+- precise-object-edit — remove/replace a specific element (including interior swaps).
+- lighting-weather — time-of-day/season/atmosphere changes only.
+- background-extraction — transparent background / clean cutout. Ask built-in `image_gen` for actual transparency.
+- style-transfer — apply reference style while changing subject/scene.
+- compositing — multi-image insert/merge with matched lighting/perspective.
+- sketch-to-render — drawing/line art to photoreal render.
+
+## Shared prompt schema
+
+Use the following labeled spec as shared prompt scaffolding for both top-level modes:
+
+```text
+Use case: <taxonomy slug>
+Asset type: <where the asset will be used>
+Primary request: <user's main prompt>
+Input images: <Image 1: role; Image 2: role> (optional)
+Scene/backdrop: <environment>
+Subject: <main subject>
+Style/medium: <photo/illustration/3D/etc>
+Composition/framing: <wide/close/top-down; placement>
+Lighting/mood: <lighting + mood>
+Color palette: <palette notes>
+Materials/textures: <surface details>
+Text (verbatim): "<exact text>"
+Constraints: <must keep/must avoid>
+Avoid: <negative constraints>
+```
+
+Notes:
+- `Asset type` and `Input images` are prompt scaffolding, not dedicated CLI flags.
+- `Scene/backdrop` refers to the visual setting. It is not the same as the fallback CLI `background` parameter, which controls output transparency behavior.
+- Fallback-only execution notes such as `Quality:`, `Input fidelity:`, masks, output format, and output paths belong in the CLI path only. Do not treat them as built-in `image_gen` tool arguments.
+
+Augmentation rules:
+- Keep it short.
+- Add only the details needed to improve the prompt materially.
+- For edits, explicitly list invariants (`change only X; keep Y unchanged`).
+- If any critical detail is missing and blocks success, ask a question; otherwise proceed.
+
+## Examples
+
+### Generation example (hero image)
+```text
+Use case: product-mockup
+Asset type: landing page hero
+Primary request: a minimal hero image of a ceramic coffee mug
+Style/medium: clean product photography
+Composition/framing: wide composition with usable negative space for page copy if needed
+Lighting/mood: soft studio lighting
+Constraints: no logos, no text, no watermark
+```
+
+### Edit example (invariants)
+```text
+Use case: precise-object-edit
+Asset type: product photo background replacement
+Primary request: replace only the background with a warm sunset gradient
+Constraints: change only the background; keep the product and its edges unchanged; no text; no watermark
+```
+
+## Prompting best practices
+- Structure prompt as scene/backdrop -> subject -> details -> constraints.
+- Include intended use (ad, UI mock, infographic) to set the mode and polish level.
+- Use camera/composition language for photorealism.
+- Only use SVG/vector stand-ins when the user explicitly asked for vector output or a non-image placeholder.
+- Quote exact text and specify typography + placement.
+- For tricky words, spell them letter-by-letter and require verbatim rendering.
+- For multi-image inputs, reference images by index and describe how they should be used.
+- For edits, repeat invariants every iteration to reduce drift.
+- Iterate with single-change follow-ups.
+- If the prompt is generic, add only the extra detail that will materially help.
+- If the prompt is already detailed, normalize it instead of expanding it.
+- For CLI fallback only, see `references/cli.md` and `references/image-api.md` for model, `quality`, `input_fidelity`, masks, output format, and output-path guidance.
+- For transparent images, ask built-in `image_gen` for actual transparency and preserve its alpha.
+
+More principles shared by both modes: `references/prompting.md`.
+Copy/paste specs shared by both modes: `references/sample-prompts.md`.
+
+
+codex
+The reference will be passed as the single attached image input, with the supplied image prompt unchanged. I’m making the one generation call now.
+codex
+The single generation completed and produced a native PNG at 1024×1024. I’m copying that exact output into the requested project path, then I’ll verify the file dimensions and stop.
+exec
+/bin/bash -lc 'cp /home/user1/.codex/generated_images/01a02336-e1e3-7d23-8efa-4f26aa834c3f/exec-7de06578-a76a-48be-88de-167cef528336.png /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t5.png' in /mnt/2TBHDD/CockpitEscapeRoom
+ succeeded in 0ms:
+exec
+/bin/bash -lc 'file /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t5.png' in /mnt/2TBHDD/CockpitEscapeRoom
+ succeeded in 0ms:
+/mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t5.png: PNG image data, 1187 x 1325, 8-bit/color RGB, non-interlaced
+
+codex
+Generated one image and copied it to:
+
+[ s16-walk-t5.png ](/mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t5.png)
+
+Native size returned: **1187 × 1325 px**. No resizing performed.
+tokens used
+50,871
+Generated one image and copied it to:
+
+[ s16-walk-t5.png ](/mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t5.png)
+
+Native size returned: **1187 × 1325 px**. No resizing performed.
+=== s16-walk-t6 v2 (pair 6-1) 00:27:44
+Reading prompt from stdin...
+OpenAI Codex v0.149.0
+--------
+workdir: /mnt/2TBHDD/CockpitEscapeRoom
+model: gpt-5.6-luna
+provider: openai
+approval: on-request
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a02337-f56b-7770-ac01-0d3ae6539d9a
+--------
+user
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1024x1024, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached. It holds TWO frames of an approved walk cycle for this exact
+  character on a magenta field: pose A on the LEFT and pose B on the RIGHT. Both are the authority
+  for the character, the camera, the uniform, the drawing style and the figure's height.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t6.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+ONE single cartoon airline captain, alone, centred on a completely flat solid magenta #FF00FF
+background that fills the whole canvas. Draw exactly one figure — not two, not a row, not a sheet.
+
+He is the same man as the two figures in the attached image, drawn in exactly the same flat
+cel-shaded style, and his pose is the exact HALFWAY point between the LEFT figure's pose and the
+RIGHT figure's pose — the frame that would sit between them in the animation.
+
+The pose: The leg that just passed underneath is reaching forward, halfway to planting, while the other leg extends behind him. This is a MID-stride frame, not the widest one: his feet are further apart than in the LEFT figure but clearly CLOSER together than in the RIGHT figure.
+
+1. CAMERA — copy it exactly from the attached figures: a three-quarter view from BEHIND, walking to
+   the RIGHT, so the viewer sees the BACK of his head and the back of his navy peaked cap. His face
+   is turned away: no eyes, no nose and no mouth are visible, only the back of his blond hair and
+   the side of one ear. Do not turn him toward the viewer and do not draw him in profile.
+
+2. UNIFORM — copy it exactly from the attached figures and add nothing: plain dark navy peaked cap
+   with a small gold clip at the side and NO round badge; blond hair; white short-sleeve shirt;
+   NO gold stripes and NO shoulder boards on his shoulders; NO tie visible; dark navy trousers with
+   a thin dark belt; black boots.
+
+3. SIZE — his height must match the attached figures exactly: the top of his cap and the soles of
+   his boots sit at the same heights as theirs, and his head, torso, arms and legs are the same
+   size and proportion. His arms hang fairly relaxed at his sides with a slight bend, swinging in
+   opposition to his legs.
+
+4. HEAD SIZE — measure it: the width of his peaked cap must be about 36% of his total height from
+   the top of the cap to the sole of his lower boot. He is a big-headed cartoon mascot about five
+   head-heights tall, exactly like the attached figures. Do not draw a smaller, more realistic head.
+
+5. STRIDE WIDTH — measure it: the horizontal distance from the toe of his leading boot to the heel
+   of his trailing boot must be about 27% of his total height, and must stay between 25% and 29%.
+   This is what makes the frame sit between the two attached poses; a wider stride is wrong.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no fabric texture, no creases.
+- NO texture, NO noise, NO dithering, NO grain, no outline sketch marks.
+- This art will be reduced to a 48 pixel tall sprite, so every shape must be bold and simplified.
+
+Palette to draw from: near-black #040614, dark navy #1A203F, mid navy #3A4772, off-white #F1EFF0,
+skin #F8AC75, blond hair #F5C424 with #CB8A06 shading, gold #F5C424, dark gold #CB8A06.
+
+Absolutely NO text anywhere: no letters, no numbers, no labels, no watermark, no border, no
+caption, no grid lines, no ground line and no shadow.
+
+codex
+I’m using the image-generation skill because this is a single raster asset generation task with one attached visual reference. I’ll generate once at 1024×1024, then place the native result at the exact requested path and verify its dimensions.
+exec
+/bin/bash -lc "sed -n '1,240p' /home/user1/.codex/skills/.system/imagegen/SKILL.md" in /mnt/2TBHDD/CockpitEscapeRoom
+ succeeded in 0ms:
+---
+name: "imagegen"
+description: "Generate or edit raster images when the task benefits from AI-created bitmap visuals such as photos, illustrations, textures, sprites, mockups, or transparent-background cutouts. Use when Codex should create a brand-new image, transform an existing image, or derive visual variants from references, and the output should be a bitmap asset rather than repo-native code or vector. Do not use when the task is better handled by editing existing SVG/vector/code-native assets, extending an established icon or logo system, or building the visual directly in HTML/CSS/canvas."
+---
+
+# Image Generation Skill
+
+Generates or edits images for the current project (for example website assets, game assets, UI mockups, product mockups, wireframes, logo design, photorealistic images, or infographics).
+
+## Top-level modes and rules
+
+This skill has exactly two top-level modes:
+
+- **Default built-in tool mode (preferred):** built-in `image_gen` tool for image generation, editing, and transparent-image requests. Does not require `OPENAI_API_KEY`.
+- **Fallback CLI mode:** `scripts/image_gen.py` CLI. Use when the user explicitly asks for or confirms the CLI/API/model path. Requires `OPENAI_API_KEY`.
+
+Within CLI fallback, the CLI exposes three subcommands:
+
+- `generate`
+- `edit`
+- `generate-batch`
+
+Rules:
+- Use the built-in `image_gen` tool by default for normal image generation and editing requests.
+- Do not switch to CLI fallback for ordinary quality, size, or file-path control.
+- For transparent images, ask built-in `image_gen` for a transparent background and preserve the generated alpha.
+- Never silently switch from built-in `image_gen` or CLI `gpt-image-2` to CLI `gpt-image-1.5`; ask the user first unless they explicitly requested `gpt-image-1.5`.
+- The word `batch` by itself does not mean CLI fallback. If the user asks for many assets or says to batch-generate assets without explicitly asking for CLI/API/model controls, stay on the built-in path and issue one built-in call per requested asset or variant.
+- If the built-in tool fails or is unavailable, tell the user the CLI fallback exists and that it requires `OPENAI_API_KEY`. Proceed only if the user explicitly asks for that fallback.
+- If the user explicitly asks for CLI mode, use the bundled `scripts/image_gen.py` workflow. Do not create one-off SDK runners.
+- Never modify `scripts/image_gen.py`. If something is missing, ask the user before doing anything else.
+
+Built-in save-path policy:
+- In built-in tool mode, Codex saves generated images under `$CODEX_HOME/*` by default.
+- Do not describe or rely on OS temp as the default built-in destination.
+- Do not describe or rely on a destination-path argument (if any) on the built-in `image_gen` tool. If a specific location is needed, generate first and then move or copy the selected output from `$CODEX_HOME/generated_images/...`.
+- Save-path precedence in built-in mode:
+  1. If the user names a destination, move or copy the selected output there.
+  2. If the image is meant for the current project, move or copy the final selected image into the workspace before finishing.
+  3. If the image is only for preview or brainstorming, render it inline; the underlying file can remain at the default `$CODEX_HOME/*` path.
+- Never leave a project-referenced asset only at the default `$CODEX_HOME/*` path.
+- Do not overwrite an existing asset unless the user explicitly asked for replacement; otherwise create a sibling versioned filename such as `hero-v2.png` or `item-icon-edited.png`.
+
+Shared prompt guidance for both modes lives in `references/prompting.md` and `references/sample-prompts.md`.
+
+Fallback-only docs/resources for CLI mode:
+- `references/cli.md`
+- `references/image-api.md`
+- `references/codex-network.md`
+- `scripts/image_gen.py`
+
+## When to use
+- Generate a new image (concept art, product shot, cover, website hero)
+- Generate a new image using one or more reference images for style, composition, or mood
+- Edit an existing image (inpainting, lighting or weather transformations, background replacement, object removal, compositing, transparent background)
+- Produce many assets or variants for one task
+
+## When not to use
+- Extending or matching an existing SVG/vector icon set, logo system, or illustration library inside the repo
+- Creating simple shapes, diagrams, wireframes, or icons that are better produced directly in SVG, HTML/CSS, or canvas
+- Making a small project-local asset edit when the source file already exists in an editable native format
+- Any task where the user clearly wants deterministic code-native output instead of a generated bitmap
+
+## Decision tree
+
+Think about two separate questions:
+
+1. **Intent:** is this a new image or an edit of an existing image?
+2. **Execution strategy:** is this one asset or many assets/variants?
+
+Intent:
+- If the user wants to modify an existing image while preserving parts of it, treat the request as **edit**.
+- If the user provides images only as references for style, composition, mood, or subject guidance, treat the request as **generate**.
+- If the user provides no images, treat the request as **generate**.
+
+Built-in edit semantics:
+- Built-in edit mode is for images already visible in the conversation context, such as attached images or images generated earlier in the thread.
+- If the user wants to edit a local image file with the built-in tool, first load it with built-in `view_image` tool so the image is visible in the conversation context, then proceed with the built-in edit flow.
+- Do not promise arbitrary filesystem-path editing through the built-in tool.
+- If a local file still needs direct file-path control, masks, or other explicit CLI-only parameters, use the explicit CLI fallback only when the user asks for it.
+- For edits, preserve invariants aggressively and save non-destructively by default.
+
+Execution strategy:
+- In the built-in default path, produce many assets or variants by issuing one `image_gen` call per requested asset or variant.
+- In the CLI fallback path, use the CLI `generate-batch` subcommand only when the user explicitly chose CLI mode and needs many prompts/assets.
+- For many distinct assets, do not use `n` as a substitute for separate prompts. `n` is for variants of one prompt; distinct assets need distinct built-in calls or distinct CLI `generate-batch` jobs.
+
+Assume the user wants a new image unless they clearly ask to change an existing one.
+
+## Workflow
+1. Decide the top-level mode: built-in by default, including transparent-output requests; fallback CLI only if explicitly requested or confirmed.
+2. Decide the intent: `generate` or `edit`.
+3. Decide whether the output is preview-only or meant to be consumed by the current project.
+4. Decide the execution strategy: single asset vs repeated built-in calls vs CLI `generate-batch`.
+5. Collect inputs up front: prompt(s), exact text (verbatim), constraints/avoid list, and any input images.
+6. For every input image, label its role explicitly:
+   - reference image
+   - edit target
+   - supporting insert/style/compositing input
+7. If the edit target is only on the local filesystem and you are staying on the built-in path, inspect it with `view_image` first so the image is available in conversation context.
+8. If the user asked for a photo, illustration, sprite, product image, banner, or other explicitly raster-style asset, use `image_gen` rather than substituting SVG/HTML/CSS placeholders. If the request is for an icon, logo, or UI graphic that should match existing repo-native SVG/vector/code assets, prefer editing those directly instead.
+9. Augment the prompt based on specificity:
+   - If the user's prompt is already specific and detailed, normalize it into a clear spec without adding creative requirements.
+   - If the user's prompt is generic, add tasteful augmentation only when it materially improves output quality.
+10. Use the built-in `image_gen` tool by default.
+11. For transparent-output requests, ask built-in `image_gen` for a transparent background and preserve the generated alpha channel.
+12. Inspect outputs and validate: subject, style, composition, text accuracy, and invariants/avoid items.
+13. Iterate with a single targeted change, then re-check.
+14. For preview-only work, render the image inline; the underlying file may remain at the default `$CODEX_HOME/generated_images/...` path.
+15. For project-bound work, move or copy the selected artifact into the workspace and update any consuming code or references. Never leave a project-referenced asset only at the default `$CODEX_HOME/generated_images/...` path.
+16. For batches or multi-asset requests, persist every requested deliverable final in the workspace unless the user explicitly asked to keep outputs preview-only. Discarded variants do not need to be kept unless requested.
+17. If the user explicitly chooses or confirms the CLI fallback, then use the fallback-only docs for model, quality, size, `input_fidelity`, masks, output format, output paths, and network setup.
+18. Always report the final saved path(s) for any workspace-bound asset(s), plus the final prompt or prompt set and whether the built-in tool or fallback CLI mode was used.
+
+## Transparent image requests
+
+Ask built-in `image_gen` for a genuinely transparent background and preserve its alpha.
+
+## Prompt augmentation
+
+Reformat user prompts into a structured, production-oriented spec. Make the user's goal clearer and more actionable, but do not blindly add detail.
+
+Treat this as prompt-shaping guidance, not a closed schema. Use only the lines that help, and add a short extra labeled line when it materially improves clarity.
+
+### Specificity policy
+
+Use the user's prompt specificity to decide how much augmentation is appropriate:
+
+- If the prompt is already specific and detailed, preserve that specificity and only normalize/structure it.
+- If the prompt is generic, you may add tasteful augmentation when it will materially improve the result.
+
+Allowed augmentations:
+- composition or framing hints
+- polish level or intended-use hints
+- practical layout guidance
+- reasonable scene concreteness that supports the stated request
+
+Not allowed augmentations:
+- extra characters or objects that are not implied by the request
+- brand names, slogans, palettes, or narrative beats that are not implied
+- arbitrary side-specific placement unless the surrounding layout supports it
+
+## Use-case taxonomy (exact slugs)
+
+Classify each request into one of these buckets and keep the slug consistent across prompts and references.
+
+Generate:
+- photorealistic-natural — candid/editorial lifestyle scenes with real texture and natural lighting.
+- product-mockup — product/packaging shots, catalog imagery, merch concepts.
+- ui-mockup — app/web interface mockups and wireframes; specify the desired fidelity.
+- infographic-diagram — diagrams/infographics with structured layout and text.
+- scientific-educational — classroom explainers, scientific diagrams, and learning visuals with required labels and accuracy constraints.
+- ads-marketing — campaign concepts and ad creatives with audience, brand position, scene, and exact tagline/copy.
+- productivity-visual — slide, chart, workflow, and data-heavy business visuals.
+- logo-brand — logo/mark exploration, vector-friendly.
+- illustration-story — comics, children’s book art, narrative scenes.
+- stylized-concept — style-driven concept art, 3D/stylized renders.
+- historical-scene — period-accurate/world-knowledge scenes.
+
+Edit:
+- text-localization — translate/replace in-image text, preserve layout.
+- identity-preserve — try-on, person-in-scene; lock face/body/pose.
+- precise-object-edit — remove/replace a specific element (including interior swaps).
+- lighting-weather — time-of-day/season/atmosphere changes only.
+- background-extraction — transparent background / clean cutout. Ask built-in `image_gen` for actual transparency.
+- style-transfer — apply reference style while changing subject/scene.
+- compositing — multi-image insert/merge with matched lighting/perspective.
+- sketch-to-render — drawing/line art to photoreal render.
+
+## Shared prompt schema
+
+Use the following labeled spec as shared prompt scaffolding for both top-level modes:
+
+```text
+Use case: <taxonomy slug>
+Asset type: <where the asset will be used>
+Primary request: <user's main prompt>
+Input images: <Image 1: role; Image 2: role> (optional)
+Scene/backdrop: <environment>
+Subject: <main subject>
+Style/medium: <photo/illustration/3D/etc>
+Composition/framing: <wide/close/top-down; placement>
+Lighting/mood: <lighting + mood>
+Color palette: <palette notes>
+Materials/textures: <surface details>
+Text (verbatim): "<exact text>"
+Constraints: <must keep/must avoid>
+Avoid: <negative constraints>
+```
+
+Notes:
+- `Asset type` and `Input images` are prompt scaffolding, not dedicated CLI flags.
+- `Scene/backdrop` refers to the visual setting. It is not the same as the fallback CLI `background` parameter, which controls output transparency behavior.
+- Fallback-only execution notes such as `Quality:`, `Input fidelity:`, masks, output format, and output paths belong in the CLI path only. Do not treat them as built-in `image_gen` tool arguments.
+
+Augmentation rules:
+- Keep it short.
+- Add only the details needed to improve the prompt materially.
+- For edits, explicitly list invariants (`change only X; keep Y unchanged`).
+- If any critical detail is missing and blocks success, ask a question; otherwise proceed.
+
+## Examples
+
+### Generation example (hero image)
+```text
+Use case: product-mockup
+Asset type: landing page hero
+Primary request: a minimal hero image of a ceramic coffee mug
+Style/medium: clean product photography
+Composition/framing: wide composition with usable negative space for page copy if needed
+Lighting/mood: soft studio lighting
+Constraints: no logos, no text, no watermark
+```
+
+### Edit example (invariants)
+```text
+Use case: precise-object-edit
+Asset type: product photo background replacement
+Primary request: replace only the background with a warm sunset gradient
+Constraints: change only the background; keep the product and its edges unchanged; no text; no watermark
+```
+
+## Prompting best practices
+- Structure prompt as scene/backdrop -> subject -> details -> constraints.
+- Include intended use (ad, UI mock, infographic) to set the mode and polish level.
+- Use camera/composition language for photorealism.
+- Only use SVG/vector stand-ins when the user explicitly asked for vector output or a non-image placeholder.
+- Quote exact text and specify typography + placement.
+- For tricky words, spell them letter-by-letter and require verbatim rendering.
+- For multi-image inputs, reference images by index and describe how they should be used.
+- For edits, repeat invariants every iteration to reduce drift.
+- Iterate with single-change follow-ups.
+- If the prompt is generic, add only the extra detail that will materially help.
+- If the prompt is already detailed, normalize it instead of expanding it.
+- For CLI fallback only, see `references/cli.md` and `references/image-api.md` for model, `quality`, `input_fidelity`, masks, output format, and output-path guidance.
+- For transparent images, ask built-in `image_gen` for actual transparency and preserve its alpha.
+
+More principles shared by both modes: `references/prompting.md`.
+Copy/paste specs shared by both modes: `references/sample-prompts.md`.
+
+
+codex
+The built-in generator completed its single call. Its native output appears to be a PNG at the tool-provided path; I’m copying that exact file into the requested project location without resizing or modifying it, then checking the native pixel dimensions.
+exec
+/bin/bash -lc 'cp /home/user1/.codex/generated_images/01a02337-f56b-7770-ac01-0d3ae6539d9a/exec-ed22e349-cd48-4124-a747-82a833857dfe.png /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t6.png' in /mnt/2TBHDD/CockpitEscapeRoom
+ succeeded in 0ms:
+exec
+/bin/bash -lc 'file /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t6.png' in /mnt/2TBHDD/CockpitEscapeRoom
+ succeeded in 0ms:
+/mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t6.png: PNG image data, 1189 x 1323, 8-bit/color RGB, non-interlaced
+
+codex
+Generated exactly one image with built-in `image_gen`.
+
+Native size returned: **1189 × 1323 px** — copied without resizing.
+
+[Download `s16-walk-t6.png`](</mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t6.png>)
+tokens used
+17,572
+Generated exactly one image with built-in `image_gen`.
+
+Native size returned: **1189 × 1323 px** — copied without resizing.
+
+[Download `s16-walk-t6.png`](</mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t6.png>)
+WAVE S16C COMPLETE 00:28:49

@@ -59,7 +59,6 @@ export type IntroDrawCommand =
   | { kind: 'label'; label: IntroLabelFrame }
   | { kind: 'title'; title: IntroTitleFrame }
   | { kind: 'flash'; color: 'white' | 'red'; opacity: number }
-  | { kind: 'pixel-collapse'; progress: number }
   | { kind: 'handoff-title'; x: number; y: number; scale: number }
   | { kind: 'handoff-flash'; opacity: number }
 
@@ -69,12 +68,9 @@ export type IntroDrawCommand =
  */
 const FX_LAYER: Record<IntroFxKind, 'under' | 'over'> = {
   'beacon-sweep': 'under',
-  contrail: 'under',
   sparkle: 'over',
   'radial-rays': 'over',
   beacon: 'over',
-  'nav-strobe': 'over',
-  exhaust: 'over',
 }
 
 const clipsByAssetId = new Map<string, SpriteClip>()
@@ -157,7 +153,6 @@ export function deriveIntroDrawCommands(
     if (FX_LAYER[fx.kind] === 'over') commands.push({ kind: 'fx', fx })
   }
   if (frame.title) commands.push({ kind: 'title', title: frame.title })
-  if (frame.pixelCollapse > 0) commands.push({ kind: 'pixel-collapse', progress: frame.pixelCollapse })
   if (frame.flash && frame.flash.opacity > 0) {
     commands.push({ kind: 'flash', color: frame.flash.color, opacity: frame.flash.opacity })
   }
@@ -348,42 +343,6 @@ function drawFx(
       context.fillRect(x - 2, 100, 5, 5)
       break
     }
-    case 'nav-strobe': {
-      if (!fx.on) break
-      context.fillStyle = '#fffdf0'
-      context.fillRect(Math.round(fx.x) - 1, Math.round(fx.y) - 1, 2, 2)
-      break
-    }
-    case 'exhaust': {
-      context.globalAlpha = Math.min(1, fx.intensity)
-      const x = Math.round(fx.x)
-      const y = Math.round(fx.y)
-      context.fillStyle = '#ffc878'
-      context.beginPath()
-      context.moveTo(x - 6, y)
-      context.lineTo(x + 6, y)
-      context.lineTo(x, y + 5 + Math.round(4 * fx.intensity))
-      context.closePath()
-      context.fill()
-      break
-    }
-    case 'contrail': {
-      // Climb-out trail rising left-to-right; the climb-out jet rides its tip
-      // (introAnimation keeps the two on the same curve).
-      const progress = Math.max(0, Math.min(1, fx.progress))
-      if (progress <= 0) break
-      context.globalAlpha = 0.85
-      context.fillStyle = '#dce4f4'
-      for (let index = 0; index < 24; index += 1) {
-        const along = index / 23
-        if (along > progress) break
-        const x = Math.round(60 + 220 * along)
-        const y = Math.round(150 - 110 * along ** 1.3)
-        const size = Math.max(1, Math.round(4 * (1 - along) + 1))
-        context.fillRect(x - size, y - size, size * 2, size * 2)
-      }
-      break
-    }
   }
   context.restore()
 }
@@ -431,17 +390,6 @@ function drawTitle(
   context.fillStyle = '#f8fbff'
   context.fillText(title.text, centreX, centreY)
   context.restore()
-}
-
-function drawPixelCollapse(context: CanvasRenderingContext2D, progress: number): void {
-  const count = Math.floor(112 * Math.max(0, Math.min(1, progress)))
-  for (let index = 0; index < count; index += 1) {
-    const x = (index * 73 + 19) % INTRO_STAGE_WIDTH
-    const y = (index * 41 + 7) % INTRO_STAGE_HEIGHT
-    const size = 2 + (index % 4) * 2
-    context.fillStyle = index % 3 === 0 ? '#75c4ff' : index % 2 === 0 ? '#1761e8' : '#061b66'
-    context.fillRect(x, y, size, size)
-  }
 }
 
 /**
@@ -553,9 +501,6 @@ export function renderIntroFrame(
         break
       case 'title':
         drawTitle(context, command.title)
-        break
-      case 'pixel-collapse':
-        drawPixelCollapse(context, command.progress)
         break
       case 'flash':
         context.save()

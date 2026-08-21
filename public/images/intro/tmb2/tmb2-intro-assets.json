@@ -393,69 +393,6 @@
       "hasAlpha": false
     },
     {
-      "id": "scramble-sprites-dc9-liftoff-160-png",
-      "path": "scramble/sprites/dc9-liftoff-160.png",
-      "sha256": "bcfd8a89f566ca8fdeb46ec52d256ab93b9fd8fea3a8d775cdd7e56434bc8ecb",
-      "bytes": 8517,
-      "width": 160,
-      "height": 72,
-      "hasAlpha": true
-    },
-    {
-      "id": "scramble-sprites-dc9-liftoff-320-png",
-      "path": "scramble/sprites/dc9-liftoff-320.png",
-      "sha256": "e95d168dc852caa6d76ee18a093c3f2862fe29f4669acb3cc0c03e40a520080d",
-      "bytes": 26502,
-      "width": 320,
-      "height": 143,
-      "hasAlpha": true
-    },
-    {
-      "id": "scramble-sprites-dc9-liftoff-48-png",
-      "path": "scramble/sprites/dc9-liftoff-48.png",
-      "sha256": "306d54982891fe33f15127ad1d0e83acb841459d20dffd736871b7d58ca75cac",
-      "bytes": 1327,
-      "width": 48,
-      "height": 22,
-      "hasAlpha": true
-    },
-    {
-      "id": "scramble-sprites-dc9-liftoff-80-png",
-      "path": "scramble/sprites/dc9-liftoff-80.png",
-      "sha256": "48d714822d2adc55b1d47eb3bba1d0d501af154510914e2d2c0d5ee9e840debf",
-      "bytes": 2808,
-      "width": 80,
-      "height": 36,
-      "hasAlpha": true
-    },
-    {
-      "id": "scramble-sprites-dc9-runway-26-png",
-      "path": "scramble/sprites/dc9-runway-26.png",
-      "sha256": "4152bd18154ef3db5937cb88f47c692d5648d645e4d13168b838166808756902",
-      "bytes": 336,
-      "width": 26,
-      "height": 9,
-      "hasAlpha": true
-    },
-    {
-      "id": "scramble-sprites-dc9-runway-36-png",
-      "path": "scramble/sprites/dc9-runway-36.png",
-      "sha256": "dceb66764894ce7a4f3fb2b297649c53354b80ae155681b3eb958b392fb9fe24",
-      "bytes": 450,
-      "width": 36,
-      "height": 12,
-      "hasAlpha": true
-    },
-    {
-      "id": "scramble-sprites-dc9-runway-png",
-      "path": "scramble/sprites/dc9-runway.png",
-      "sha256": "7e5b9f067fbded685e5cec5a511e251db050030578eac295afd6b809f30f1392",
-      "bytes": 736,
-      "width": 52,
-      "height": 18,
-      "hasAlpha": true
-    },
-    {
       "id": "scramble-sprites-popt-backlit-png",
       "path": "scramble/sprites/popt-backlit.png",
       "sha256": "24745193772cdf05ca746f4c28ff1eb5d9b2fd3b522790716b240662f1ab1790",
@@ -593,9 +530,9 @@
     {
       "id": "scramble-sprites-popt-walk-sheet-png",
       "path": "scramble/sprites/popt-walk-sheet.png",
-      "sha256": "61bdc6fadb037747c3ecdcf9f1d0d4c30a042bc846ecde1a2c170ed0b199916f",
-      "bytes": 9467,
-      "width": 156,
+      "sha256": "ccc5238751b0b53c96c63a152071a97598c366650af08bf0c73b4ddedfd32e79",
+      "bytes": 18117,
+      "width": 312,
       "height": 50,
       "hasAlpha": true
     }

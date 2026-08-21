@@ -1473,3 +1473,47 @@ Historical checkpoint; the 2026-07-11 transition and Tripo-intake sections above
 - Known outstanding, not introduced by this work: `airbus-workload.spec.ts:242` (width assertion, topbar bottom 183.94 against a 145.59 limit), re-verified as pre-existing by stashing this arc's changes and reproducing the identical failure on the clean tree.
 - Candidate for owner review: `preview-renders/tmb2-intro-overhaul/intro-fastopen-2026-08-20.mp4` — verified frame-by-frame during capture and re-verified at 16 checkpoints from the delivered file.
 - Nothing pushed. The branch holds six commits awaiting the owner gate.
+
+## 2026-08-21 Walk cycle doubled to twelve drawings, and the cut acts' runtime retired
+
+- A motion census over the whole 53.04 s timeline (per-scene content-change rate, longest hold, and
+  per-scene sprite frame rate, with camera accents excluded so punches and shake did not report
+  every scene as busy) found exactly one under-sampled animation: the walk, six drawings over a
+  780 ms stride — **7.7 a second**, against the ident run's 25 after the owner asked for more frames
+  there. Nothing was wrong with the art: the six poses differ by 8.1–13.5% of their silhouettes, all
+  normalise to 48 px on one shared scale, and the head centroid varies 0.23 px across the cycle.
+- Wave S16 generated six in-betweens. The first attempt — all six on one sheet, the shape that
+  worked for the S13 run tweens — was **rejected on measurement**: three of the six strode wider
+  than any approved frame (boot spans 206, 186, 208 px against the cycle's 112–171), the figures
+  came back 7% shorter, and the prompt's inherited "four gold stripes" and "round badge" rules put a
+  cap badge and shoulder stripes into a shot filmed from behind, where the approved art shows
+  neither. Regenerated as six per-pose deltas against two-frame references built from the approved
+  sheet; ten generations in total, gated on stride-within-bracket and head-size measured **in
+  deployed pixels**. All six accepted frames land within 1.7 px of target at 48 px tall.
+- The deployed sheet is twelve 26x50 cells: every figure 48 px tall with its feet on the pivot row,
+  widths 20–22 px, frame-to-frame silhouette change 7.9–16.1%. The clip plays 12 frames at 65 ms —
+  the **same 780 ms stride**, so his walking speed is unchanged; a test now pins the frame count,
+  the stride total and the equal frame lengths.
+- Retired with the acts that were cut in 0035: the `contrail`, `exhaust` and `nav-strobe` fx kinds
+  with their layer entries and draw cases; `pixelCollapse`, its draw command and `drawPixelCollapse`;
+  `EMBLEM_REVEAL_STYLE`; the stale winged-globe and DC-9-sprite comments; the vestigial
+  `data-jet-frame` read in an e2e assertion; and seven retired jet sprites that were still deployed
+  into `public/` and hash-bound in the manifest. A new sweep test asserts the intro's fx vocabulary
+  is exactly `beacon`, `beacon-sweep`, `radial-rays`, `sparkle` — it fails if a retired kind returns
+  **or** if a live one disappears. The pixel-collapse assertion was deleted with the machinery
+  rather than left as a check that cannot fail; the property it guarded (the intro holds its title)
+  is still asserted directly.
+- `npm run check`: ESLint clean, `tsc -b` clean, **417/417 Vitest across 33 files**, production
+  build OK. `npm run assets:check`: **56 assets / 49 preloads** (was 63/49).
+- Browser: new guard `e2e/smoke.spec.ts` "TMB2 cinematic plays the walk at twelve drawings a stride"
+  samples one whole stride every 32.5 ms and requires all twelve drawings — it sees six and fails on
+  the old sheet. Proof capture at 1440x900 on the production build:
+  `preview-renders/tmb2-intro-overhaul/walk-12frame-proof.png`, twelve consecutive 65 ms samples
+  each asserting its own `data-time`, `data-scene` and `data-audio-failed=false`
+  (`walk-frames/manifest.txt`). The first capture attempt recorded a black stage at 31.620 s — the
+  walk plate had not finished decoding — so the harness now proves the plate is on screen before it
+  records anything.
+- Full `npx playwright test`: **60 passed, 1 skipped, 1 failed**. The failure is
+  `e2e/airbus-workload.spec.ts:242`, the pre-existing width assertion (topbar bottom 183.94 against
+  a 145.59 limit) — the identical numbers recorded when it was proven pre-existing on a clean tree
+  during plan 0034. Not introduced and not fixed here.

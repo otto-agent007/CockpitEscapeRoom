@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Deploy the Scramble intro assets from art-source to public/.
 
-Copies the normalised 320x224 plates and cards, packs the walk cycle into a
-6-column sprite sheet (cell 24x36, feet on the bottom cell row, centred), pads
-the backlit figure into its cell, copies the jet sprites, and derives the dark
-pre-reveal hangar plate. Deterministic; run after any normalised asset changes,
+Copies the normalised 320x224 plates and cards, packs the walk and run cycles
+into sprite sheets (feet on the bottom cell row, centred), pads the backlit
+figure into its cell, and derives the dark pre-reveal hangar plate. Deterministic; run after any normalised asset changes,
 then `node tools/assets/build-intro-manifest.mjs && npm run assets:check`.
 """
 
@@ -40,7 +39,11 @@ BACKLIT_CELL = (28, 64)
 
 def cell_pack(sprite: Image.Image, cell: tuple[int, int]) -> Image.Image:
     """Centre the sprite in the cell with its lowest opaque row on the cell's
-    second-to-last row (row cell_h-1 stays clear so the pivot row is stable)."""
+    second-to-last row (row cell_h-1 stays clear so the pivot row is stable).
+
+    Centring on the bounding box was checked against anchoring on the torso
+    centroid when the walk went to twelve frames: on this art the two agree to
+    the pixel, because integer placement quantises the 0.4 px they differ by."""
     cw, ch = cell
     out = Image.new('RGBA', cell, (0, 0, 0, 0))
     x = (cw - sprite.width) // 2
@@ -64,10 +67,16 @@ def main() -> None:
     for name in CARDS:
         Image.open(SRC / f'{name}-320.png').save(DST / f'cards/{name.removeprefix("card-")}.png')
 
-    # The 48 px walk stays a six-frame row.
-    sheet = Image.new('RGBA', (WALK_CELL[0] * 6, WALK_CELL[1]), (0, 0, 0, 0))
+    # The 48 px walk is TWELVE frames: the six Wave S4 poses interleaved with the
+    # six Wave S16 in-betweens, so the stride plays at ~15 fps instead of 7.7
+    # while keeping its 780 ms length — the same trade the ident run took.
+    walk_order = []
     for index in range(6):
-        frame = Image.open(SRC / f'spr-popt-walk48-{index + 1}.png').convert('RGBA')
+        walk_order.append(f'spr-popt-walk48-{index + 1}')
+        walk_order.append(f'spr-popt-walk48-t{index + 1}')
+    sheet = Image.new('RGBA', (WALK_CELL[0] * len(walk_order), WALK_CELL[1]), (0, 0, 0, 0))
+    for index, name in enumerate(walk_order):
+        frame = Image.open(SRC / f'{name}.png').convert('RGBA')
         sheet.alpha_composite(cell_pack(frame, WALK_CELL), (index * WALK_CELL[0], 0))
     sheet.save(DST / 'sprites/popt-walk-sheet.png')
 
@@ -102,10 +111,6 @@ def main() -> None:
 
     backlit = Image.open(SRC / 'spr-popt-backlit.png').convert('RGBA')
     cell_pack(backlit, BACKLIT_CELL).save(DST / 'sprites/popt-backlit.png')
-
-    for name in ('spr-dc9-runway', 'spr-dc9-runway-36', 'spr-dc9-runway-26',
-                 'spr-dc9-liftoff-48', 'spr-dc9-liftoff-80', 'spr-dc9-liftoff-160', 'spr-dc9-liftoff-320'):
-        Image.open(SRC / f'{name}.png').save(DST / f'sprites/{name.removeprefix("spr-")}.png')
 
     print('deployed', len(PLATES) + 1 + len(CARDS) + 6, 'files to', DST)
 

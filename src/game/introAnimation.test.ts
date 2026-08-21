@@ -13,6 +13,7 @@ import {
   hitstopTime,
   type SpriteTiming,
 } from './introAnimation'
+import { INTRO_DURATION_SECONDS } from './introConfig'
 import { INTRO_MUSIC_CUES } from './introMusicCues'
 
 const CUES = INTRO_MUSIC_CUES
@@ -67,11 +68,15 @@ describe('Scramble sprite animation contract', () => {
     expect(POPT_CLIPS.walk).toMatchObject({
       frameWidth: 26,
       frameHeight: 50,
-      columns: 6,
+      columns: 12,
       pivot: { x: 13, y: 49 },
       loopMode: 'loop',
     })
-    expect(POPT_CLIPS.walk.durations).toHaveLength(6)
+    // Twelve drawings over the SAME 780 ms stride: the Wave S16 in-betweens
+    // smooth the walk without retiming a cycle the owner already approved.
+    expect(POPT_CLIPS.walk.durations).toHaveLength(12)
+    expect(POPT_CLIPS.walk.durations.reduce((total, ms) => total + ms, 0)).toBe(780)
+    expect(new Set(POPT_CLIPS.walk.durations).size).toBe(1)
     expect(POPT_CLIPS.backlit).toMatchObject({
       frameWidth: 28,
       frameHeight: 64,
@@ -316,7 +321,6 @@ describe('Scramble sprite animation contract', () => {
     const held = deriveIntroAnimation(52.9, false)
     expect(held.backgroundAssetId).toBe('plate-right-seat')
     expect(held.title).toMatchObject({ opacity: 1 })
-    expect(held.pixelCollapse).toBe(0)
   })
 
   it('letters the title from the game config so the two can never diverge', () => {
@@ -475,8 +479,19 @@ describe('Scramble sprite animation contract', () => {
     expect(deriveIntroAnimation(40, true).backgroundAssetId).toBe('card-overhead')
   })
 
+  it('produces only the fx kinds the surviving acts use', () => {
+    // The takeoff act took its contrail, exhaust and nav-strobe with it, and the
+    // attract loop took the pixel collapse. This fails if a retired kind comes
+    // back at runtime, and equally if a live one silently disappears.
+    const seen = new Set<string>()
+    for (let time = 0; time < INTRO_DURATION_SECONDS; time += 1 / 30) {
+      for (const fx of deriveIntroAnimation(time, false).fx) seen.add(fx.kind)
+    }
+    expect([...seen].sort()).toEqual(['beacon', 'beacon-sweep', 'radial-rays', 'sparkle'])
+  })
+
   it('suppresses transient fx and camera moves in reduced motion', () => {
-    const allowed = new Set(['runway-lights', 'contrail', 'radial-rays'])
+    const allowed = new Set(['radial-rays'])
     for (const time of [3, 8, 10.6, 13.5, 20, 28, 33, 37, 40, 44, 50, 52]) {
       const frame = deriveIntroAnimation(time, true)
       for (const fx of frame.fx) {

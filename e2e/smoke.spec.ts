@@ -664,6 +664,36 @@ for (const input of ['pointer', 'Enter', 'Space', 'controller'] as const) {
   })
 }
 
+test('TMB2 cinematic plays the walk at twelve drawings a stride', async ({ page }) => {
+  // The walk shipped as six drawings over a 780 ms stride — 7.7 a second, the
+  // choppiest thing in the intro next to a 25 fps ident run. Wave S16 doubled
+  // it. Sampling one whole stride every 32.5 ms must therefore surface all
+  // twelve; with the old sheet this test sees six and fails.
+  const intro = await openGameIntro(page)
+  const canvas = intro.locator('.game-intro__stage')
+  const audio = page.locator('audio')
+  const seen = new Set<string>()
+
+  for (let index = 0; index < 24; index += 1) {
+    const time = 31.62 + index * 0.0325
+    await audio.evaluate((media, value) => {
+      media.currentTime = value
+      media.dispatchEvent(new Event('timeupdate'))
+    }, time)
+    // Assert the clock actually landed: a decoder that drops the runtime into
+    // wall-clock fallback would otherwise let this pass on the wrong frames.
+    await expect.poll(async () => Number(await canvas.getAttribute('data-time'))).toBeCloseTo(time, 2)
+    await expect(canvas).toHaveAttribute('data-scene', 'walk')
+    const drawing = await canvas.getAttribute('data-popt-frame')
+    expect(drawing, `t=${time.toFixed(3)} must draw a walk frame`).toBeTruthy()
+    seen.add(drawing!)
+  }
+
+  expect([...seen].map(Number).sort((a, b) => a - b)).toEqual(
+    Array.from({ length: 12 }, (_, index) => index),
+  )
+})
+
 test('TMB2 cinematic holds scene poses for reduced motion and fits required viewports', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.setViewportSize({ width: 375, height: 812 })
@@ -676,19 +706,14 @@ test('TMB2 cinematic holds scene poses for reduced motion and fits required view
     media.currentTime = 32.2
     media.dispatchEvent(new Event('timeupdate'))
   })
-  const firstPose = await canvas.evaluate((element) => ({
-    popt: element.getAttribute('data-popt-frame'),
-    jet: element.getAttribute('data-jet-frame'),
-  }))
+  const firstPose = await canvas.evaluate((element) => element.getAttribute('data-popt-frame'))
   await audio.evaluate((media) => {
     media.currentTime = 35.2
     media.dispatchEvent(new Event('timeupdate'))
   })
   await expect(canvas).toHaveAttribute('data-scene', 'walk')
-  expect(await canvas.evaluate((element) => ({
-    popt: element.getAttribute('data-popt-frame'),
-    jet: element.getAttribute('data-jet-frame'),
-  }))).toEqual(firstPose)
+  expect(firstPose, 'the held walk pose must be a real drawing, not a missing attribute').not.toBeNull()
+  expect(await canvas.evaluate((element) => element.getAttribute('data-popt-frame'))).toEqual(firstPose)
 
   for (const viewport of [
     { width: 375, height: 812, scale: '1' },
