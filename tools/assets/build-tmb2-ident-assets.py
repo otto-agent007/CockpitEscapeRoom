@@ -7,7 +7,7 @@ import hashlib
 import shutil
 from pathlib import Path
 
-from PIL import Image, ImageDraw
+from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -17,26 +17,7 @@ EXPECTED_SHA256 = "673d13b96bc19b35b508630d1d662d16672ac4bb6ad665a7f6b1b7cee992c
 EXPECTED_BYTES = 811_581
 SOURCE_SIZE = (1659, 948)
 LOGO_CROP = (105, 261, 1573, 663)
-IDENT_SIZE = (288, 79)
-STAGE_SIZE = (320, 224)
-PRODUCTIONS_Y = 168
-PRODUCTIONS_CELL = 1
-PRODUCTIONS_TRACKING = 1
-PRODUCTIONS_COLOR = (224, 175, 74, 255)
-PRODUCTIONS_SHADOW = (61, 42, 14, 190)
-
-BITMAP_FONT = {
-    "P": ("11110", "10001", "10001", "11110", "10000", "10000", "10000"),
-    "R": ("11110", "10001", "10001", "11110", "10100", "10010", "10001"),
-    "O": ("01110", "10001", "10001", "10001", "10001", "10001", "01110"),
-    "D": ("11110", "10001", "10001", "10001", "10001", "10001", "11110"),
-    "U": ("10001", "10001", "10001", "10001", "10001", "10001", "01110"),
-    "C": ("01111", "10000", "10000", "10000", "10000", "10000", "01111"),
-    "T": ("11111", "00100", "00100", "00100", "00100", "00100", "00100"),
-    "I": ("11111", "00100", "00100", "00100", "00100", "00100", "11111"),
-    "N": ("10001", "11001", "11001", "10101", "10011", "10011", "10001"),
-    "S": ("01111", "10000", "10000", "01110", "00001", "00001", "11110"),
-}
+IDENT_SIZE = (160, 44)
 
 
 def sha256(path: Path) -> str:
@@ -101,35 +82,6 @@ def build_logo_layers() -> None:
         save_rgba(layer, name)
 
 
-def build_productions_layer() -> None:
-    label = "PRODUCTIONS"
-    cell = PRODUCTIONS_CELL
-    glyph_width = 5 * cell
-    tracking = PRODUCTIONS_TRACKING
-    label_width = len(label) * glyph_width + (len(label) - 1) * tracking
-    origin_x = (STAGE_SIZE[0] - label_width) // 2
-    layer = Image.new("RGBA", STAGE_SIZE, (0, 0, 0, 0))
-    draw = ImageDraw.Draw(layer)
-    for character_index, character in enumerate(label):
-        glyph = BITMAP_FONT[character]
-        glyph_x = origin_x + character_index * (glyph_width + tracking)
-        for row_index, row in enumerate(glyph):
-            for column_index, value in enumerate(row):
-                if value != "1":
-                    continue
-                x = glyph_x + column_index * cell
-                y = PRODUCTIONS_Y + row_index * cell
-                draw.rectangle(
-                    (x + 1, y + 1, x + cell, y + cell),
-                    fill=PRODUCTIONS_SHADOW,
-                )
-                draw.rectangle(
-                    (x, y, x + cell - 1, y + cell - 1),
-                    fill=PRODUCTIONS_COLOR,
-                )
-    save_rgba(layer, "tmb2-productions.png")
-
-
 def main() -> None:
     verify_source()
     OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
@@ -138,10 +90,9 @@ def main() -> None:
     if sha256(runtime_source) != EXPECTED_SHA256:
         raise RuntimeError("Runtime TMB2 source copy is not byte-identical.")
     build_logo_layers()
-    build_productions_layer()
     print(
         "Built TMB2 ident assets "
-        f"(source {EXPECTED_SHA256}, crop 1468x402+105+261, ident 288x79)."
+        f"(source {EXPECTED_SHA256}, crop 1468x402+105+261, ident 160x44)."
     )
 
 

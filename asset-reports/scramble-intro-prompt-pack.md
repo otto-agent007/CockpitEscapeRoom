@@ -236,3 +236,83 @@ contains.
   `tools/assets/build-intro-emblem.py` no longer produces this file and is superseded for it.
   **Asset production for the Scramble intro is COMPLETE: 52 accepted generations, zero old art
   remaining.**
+
+- 2026-08-20 — **Wave S6: Pop T identity sheet (2 generations).** Owner gate round 4: the watch
+  card and the shades card each showed a different man, and neither matched the opening ident
+  sprite — three faces in one intro. Root cause: every card was generated from text alone, with no
+  character reference anywhere in the pipeline, so each generation invented its own pilot. The
+  hat-only unification of Wave S5 could not catch it.
+  Canonical identity now defined by `refs/identity-popt-canonical.png` (three head-and-shoulders
+  views: front, three-quarter, profile). Authority for the face is the high-res source of the
+  opening sprite, `generated/s4-ident-tap.png`, cropped to `refs/identity-popt-face.png`; authority
+  for the hat and the rendering style is `generated/s5-card-cap-b.png`.
+  Canonical Pop T: saturated golden-yellow blond hair swept forward with pointed temple spikes and
+  a sideburn wedge; **blond eyebrows in deep gold, never black or brown**; rounded boyish face,
+  soft jaw, short rounded chin, small button nose; large dark navy eyes with a single white
+  highlight; warm peach skin; calm closed-mouth expression; clean shaven; the S5 canonical hat;
+  white short-sleeve shirt, navy tie, navy epaulettes with **FOUR** gold stripes.
+  Generation 1 came back with three stripes (first-officer rank) and a smooth helmet of hair; one
+  delta pass fixed both. Stripe count verified on all five visible epaulettes.
+  **From here, every generation that shows Pop T's face or shoulders must attach
+  `refs/identity-popt-canonical.png` as the character reference.**
+  Known deltas the sheet does NOT yet resolve — the opening sprite itself is out of step on three
+  counts: it has black eyebrow bars, three epaulette stripes, and a plain gold-banded cap with no
+  badge. Owner decision pending on whether the sprite set is regenerated to match.
+
+- 2026-08-20 — **Wave S7: ident hat gag sprite set (4 generations).** The ident gag was restaged
+  (plan 0034) and every Pop T sprite in it was regenerated against
+  `refs/identity-popt-canonical.png`. Two sheets: `s7-ident-run-sheet` (6-frame run cycle) and
+  `s7-gag-poses` (skid, blinded, hat-on-forearm, flick, crooked, salute). Each needed exactly one
+  delta pass. The retired `popt-tap` pose and its asset are gone with the tap gag.
+  **Recurring drift worth stating loudly up front in any future prompt:** the model reliably draws
+  **THREE** epaulette stripes no matter how the uniform is described — it happened on the identity
+  sheet and on both S7 sheets, three for three. It also reverts eyebrows to black bars when
+  generating fresh art, though a reference image does carry gold brows forward on deltas. Put
+  "FOUR gold stripes, count them: four" and "eyebrows in deep gold, never black" as their own
+  numbered changes rather than burying them in the uniform description.
+  Also note: low-zoom eyeballing is not sufficient to count stripes — a 3x NEAREST crop of the
+  epaulette band is. I misread a correct four-stripe result as three at sheet scale.
+
+- 2026-08-20 — **Wave S8: the watch card (2 generations).** Owner punch list items 4 and 5 closed in
+  one shot: the pilot in the watch card was a different man from the opening sprite, and the watch
+  was a plain steel chronograph rather than the locker's Rolex GMT-Master. Regenerated with the
+  identity sheet as the character reference and the previous card as the scene reference, with the
+  two jobs stated separately so the old face was not carried forward. The watch is now a gold
+  GMT-Master: gold case and three-link bracelet, black dial with gold markers and hands, and the
+  split red-and-blue bezel, which is what makes it recognisable — described by shape and colour
+  only, since the pack bans brand marks and lettering outright.
+  One delta pass was needed, for a defect worth noting: the model embossed the **letter "M"** on the
+  gold cord slide of the captain's hat, despite the standing "absolutely NO text anywhere" rule.
+  Check emblems and hardware for stray lettering at zoom before accepting a card — at card scale it
+  is easy to miss.
+  Four epaulette stripes came back correct first time here, which is the first generation in this
+  arc where they did; the difference is that the stripe count was stated as its own line in the
+  prompt rather than inside the uniform description.
+
+- 2026-08-20 — **Wave S14: the reading pile (3 generations).** Owner: the logbook beat becomes a
+  story — Dad's reading pile, the Walter Isaacson Elon Musk biography and the Jack Reacher
+  paperbacks, swept aside by the hand to reach the flight log beneath. Generated as a one-change
+  delta off the S4 logbook card so the table, lighting, sleeve and logbook all carry over.
+  Three passes: (1) the base card landed everything except the biography read as a generic white
+  jacket; (2) naming ELON MUSK outright with described features produced a strong likeness but
+  still on a white jacket; (3) the owner supplied the real cover as reference — the actual
+  Isaacson jacket is BLACK with the face filling the frame and steepled fingers at the chin — and
+  a delta describing that design exactly landed it. Lesson recorded: when a real-world object must
+  be recognisable, ask the owner for the reference image up front instead of guessing the design
+  from memory.
+  All cover text is lettered at runtime per the pack rule (`BOOK_LABELS` + a new `label` frame
+  kind): ELON MUSK on the jacket band, REACHER and LEE CHILD on the paperbacks, FLIGHT LOG on the
+  cleared logbook. Positions measured off 5 px zoom grids of the deployed 320x224 cards, then
+  verified in browser captures — eyeballed placement missed by 6-10 px on three of four labels.
+  The door-release card (S12) retired with its beat: the owner moved the gate opening itself onto
+  the 18 s "standing there alone" downbeat. Art stays in art-source.
+
+- 2026-08-20 — **Wave S15: the logbook pick-up (2 generations).** Owner: animate the beat — the
+  hand sweeps the books aside and picks up the flight log. Two new frames, each a next-frame delta
+  off its predecessor so the whole sequence shares one continuous motion: `card-logbook-sweep`
+  (pile pushed right mid-slide, logbook exposed, motion chips) off the S14 pile card, and
+  `card-logbook-lift` (the log gripped and raised, front cover square to camera) off the S4
+  logbook card. Both landed first generation. The beat now plays four stages over 3.4 s —
+  pile 28.0, sweep 28.9, hand-on-log 29.6, lifted 30.4 with its own small punch — with the runtime
+  lettering following the cover through every stage it is legible in (skipped on the sweep frame,
+  where the covers are mid-slide).

@@ -26,21 +26,12 @@
       "hasAlpha": true
     },
     {
-      "id": "emblem-finale-card-png",
-      "path": "emblem/finale-card.png",
-      "sha256": "ba23f5e7dd1c3338b072d08f6eb0b5748cfd4fce9f85a13038c9af0cb75d8ec1",
-      "bytes": 21688,
-      "width": 220,
-      "height": 94,
-      "hasAlpha": true
-    },
-    {
       "id": "logo-tmb2-ident-base-png",
       "path": "logo/tmb2-ident-base.png",
-      "sha256": "dcac4baae7e15a927ff825934c96f394174d7ff9d8e75160a88bc2428ebcdbfd",
-      "bytes": 36124,
-      "width": 288,
-      "height": 79,
+      "sha256": "68b7cdf6bca985673cd1855ab7caacaa7ebf0596d616a1971cf303181b22de15",
+      "bytes": 13480,
+      "width": 160,
+      "height": 44,
       "hasAlpha": true,
       "runtimeId": "logo-base",
       "role": "logo-layer",
@@ -50,10 +41,10 @@
     {
       "id": "logo-tmb2-ident-blue-mask-png",
       "path": "logo/tmb2-ident-blue-mask.png",
-      "sha256": "fe79bcf0abf84382d72ae8b0f8ba9aa8084a47613d3bb0b12ac879eb4967acad",
-      "bytes": 36134,
-      "width": 288,
-      "height": 79,
+      "sha256": "2140d1351dbefc466d69c65d5f49a0c3d1e947813b0173c14c2c29cc9bc6a20f",
+      "bytes": 13489,
+      "width": 160,
+      "height": 44,
       "hasAlpha": true,
       "runtimeId": "logo-blue-mask",
       "role": "logo-layer",
@@ -63,10 +54,10 @@
     {
       "id": "logo-tmb2-ident-highlight-mask-png",
       "path": "logo/tmb2-ident-highlight-mask.png",
-      "sha256": "f233ac383018c099704c280e5c73463603155d4053cd18f5e5ac99c40ed6e6df",
-      "bytes": 31864,
-      "width": 288,
-      "height": 79,
+      "sha256": "b3d4d3e989baf7f9539db369ff34710ce576bfaf6f843157face9fbe2f7de988",
+      "bytes": 11850,
+      "width": 160,
+      "height": 44,
       "hasAlpha": true,
       "runtimeId": "logo-highlight-mask",
       "role": "logo-layer",
@@ -82,19 +73,6 @@
       "height": 948,
       "hasAlpha": false,
       "runtimeId": "logo-source",
-      "role": "logo-layer",
-      "sceneGroup": "ident",
-      "source": "art-source/intro/tmb2/owner-approved/TMB2logo.png"
-    },
-    {
-      "id": "logo-tmb2-productions-png",
-      "path": "logo/tmb2-productions.png",
-      "sha256": "d50b44997a07f0dc1f7d1aacdae49d4193b240bfcae3f7c9eff9d5428564e2fc",
-      "bytes": 642,
-      "width": 320,
-      "height": 224,
-      "hasAlpha": true,
-      "runtimeId": "logo-productions",
       "role": "logo-layer",
       "sceneGroup": "ident",
       "source": "art-source/intro/tmb2/owner-approved/TMB2logo.png"
@@ -208,37 +186,37 @@
       "hasAlpha": false
     },
     {
+      "id": "scramble-cards-logbook-books-png",
+      "path": "scramble/cards/logbook-books.png",
+      "sha256": "f41584fc8649407136069590b53ad16b26d8772f5f64c3382de2fa04a8fecfe6",
+      "bytes": 87215,
+      "width": 320,
+      "height": 224,
+      "hasAlpha": false
+    },
+    {
+      "id": "scramble-cards-logbook-lift-png",
+      "path": "scramble/cards/logbook-lift.png",
+      "sha256": "95efe4c3fa7a893c6abf26cd9e30b93fe65af76980486278d3fcefb02c2ca835",
+      "bytes": 69293,
+      "width": 320,
+      "height": 224,
+      "hasAlpha": false
+    },
+    {
+      "id": "scramble-cards-logbook-sweep-png",
+      "path": "scramble/cards/logbook-sweep.png",
+      "sha256": "9cbf0e19c95de261a1e04854cb6648383ba34057f9fd3d29c43670ad166091ef",
+      "bytes": 75760,
+      "width": 320,
+      "height": 224,
+      "hasAlpha": false
+    },
+    {
       "id": "scramble-cards-logbook-png",
       "path": "scramble/cards/logbook.png",
       "sha256": "b430342b417ede4b11ec3b3be9e12de66aa2ee884755beb877809433af64b695",
       "bytes": 75624,
-      "width": 320,
-      "height": 224,
-      "hasAlpha": false
-    },
-    {
-      "id": "scramble-cards-nacelle-a-png",
-      "path": "scramble/cards/nacelle-a.png",
-      "sha256": "f5758965cda244abe7ea7dd424171329f1c20a7a3e88f947832ce8fda702f2f2",
-      "bytes": 66410,
-      "width": 320,
-      "height": 224,
-      "hasAlpha": false
-    },
-    {
-      "id": "scramble-cards-nacelle-b-png",
-      "path": "scramble/cards/nacelle-b.png",
-      "sha256": "26ccb60c4b5fa2019a4e4e98a7feeab047c7bb62aa009b492878d57c7dfd34af",
-      "bytes": 67941,
-      "width": 320,
-      "height": 224,
-      "hasAlpha": false
-    },
-    {
-      "id": "scramble-cards-nacelle-c-png",
-      "path": "scramble/cards/nacelle-c.png",
-      "sha256": "5b1cdd650d6d864077d4ac24583fa4518b81bc923de694bf74faf2e22a7da5fa",
-      "bytes": 63883,
       "width": 320,
       "height": 224,
       "hasAlpha": false
@@ -257,6 +235,15 @@
       "path": "scramble/cards/shades.png",
       "sha256": "eee2af6272c8073d8ab3a21e5da97922b754c61bd7e5d3d8aacbf00008fa6bbf",
       "bytes": 71985,
+      "width": 320,
+      "height": 224,
+      "hasAlpha": false
+    },
+    {
+      "id": "scramble-cards-shadow-png",
+      "path": "scramble/cards/shadow.png",
+      "sha256": "337c6dcd08cf83f55e8d3fd2d95b43759fbbe5a3fd92d04339617319f01cd5a2",
+      "bytes": 63447,
       "width": 320,
       "height": 224,
       "hasAlpha": false
@@ -291,8 +278,8 @@
     {
       "id": "scramble-cards-watch-png",
       "path": "scramble/cards/watch.png",
-      "sha256": "5d208f2e8dd8e8c6247b7f79380209aa6481abb7be379fc0de0fb6e991ca314a",
-      "bytes": 80961,
+      "sha256": "62379c6f202f78f96f87a1cab49f9ff544f84500013bf3b2e1f680fbaca37d30",
+      "bytes": 82475,
       "width": 320,
       "height": 224,
       "hasAlpha": false
@@ -343,10 +330,10 @@
       "hasAlpha": false
     },
     {
-      "id": "scramble-plates-night-sky-png",
-      "path": "scramble/plates/night-sky.png",
-      "sha256": "971f4533a1b2ac44af3a1d0e88de63f0e82e155f195d42155458c223068d09e5",
-      "bytes": 50021,
+      "id": "scramble-plates-right-seat-png",
+      "path": "scramble/plates/right-seat.png",
+      "sha256": "5445b749d04e228dffc929f0f7dcf3cfb539d48e10fd49282b1ae11f1769501c",
+      "bytes": 76100,
       "width": 320,
       "height": 224,
       "hasAlpha": false
@@ -442,30 +429,129 @@
       "hasAlpha": true
     },
     {
+      "id": "scramble-sprites-popt-blinded-png",
+      "path": "scramble/sprites/popt-blinded.png",
+      "sha256": "292b8a16c71183ca65109cb8673f76e5f460581af3154b03641eb928763dc2b7",
+      "bytes": 3244,
+      "width": 39,
+      "height": 67,
+      "hasAlpha": true
+    },
+    {
+      "id": "scramble-sprites-popt-cap-png",
+      "path": "scramble/sprites/popt-cap.png",
+      "sha256": "b3ef60e8afa556c558afa1aff1689cba6fc581d73f6761199de2af3a099683ba",
+      "bytes": 599,
+      "width": 16,
+      "height": 13,
+      "hasAlpha": true
+    },
+    {
+      "id": "scramble-sprites-popt-cover-png",
+      "path": "scramble/sprites/popt-cover.png",
+      "sha256": "1d2ba47f5ff9ad353779ceb462e1807cdda3b95834dc1ced1c4eace86a5db38e",
+      "bytes": 3204,
+      "width": 34,
+      "height": 64,
+      "hasAlpha": true
+    },
+    {
+      "id": "scramble-sprites-popt-crooked-png",
+      "path": "scramble/sprites/popt-crooked.png",
+      "sha256": "b22121f8132f4e5d0c7759ebd9acec677e0908d0f60bf16dded4a9299c5ad70c",
+      "bytes": 3505,
+      "width": 32,
+      "height": 68,
+      "hasAlpha": true
+    },
+    {
+      "id": "scramble-sprites-popt-fall-png",
+      "path": "scramble/sprites/popt-fall.png",
+      "sha256": "50170970ecac4217c5a556e869fa4c08a0d3d14e981095f9e0631bb81e445196",
+      "bytes": 3607,
+      "width": 45,
+      "height": 63,
+      "hasAlpha": true
+    },
+    {
+      "id": "scramble-sprites-popt-flick-png",
+      "path": "scramble/sprites/popt-flick.png",
+      "sha256": "b52e1b75a46ae9bbb68284747e5da12a4115b20b72b277ea4729667e33194d6a",
+      "bytes": 4313,
+      "width": 39,
+      "height": 94,
+      "hasAlpha": true
+    },
+    {
+      "id": "scramble-sprites-popt-forearm-png",
+      "path": "scramble/sprites/popt-forearm.png",
+      "sha256": "a47d127f3bdd03f573222a42578dc990cd10602fd5d1458f3db874712effa182",
+      "bytes": 3505,
+      "width": 44,
+      "height": 68,
+      "hasAlpha": true
+    },
+    {
+      "id": "scramble-sprites-popt-landed-png",
+      "path": "scramble/sprites/popt-landed.png",
+      "sha256": "d297a23b8fadb12b8e2dbd923992dfc9794502430c9be9a9304e2d9ac2a323ec",
+      "bytes": 3407,
+      "width": 34,
+      "height": 68,
+      "hasAlpha": true
+    },
+    {
+      "id": "scramble-sprites-popt-lookup-png",
+      "path": "scramble/sprites/popt-lookup.png",
+      "sha256": "f16ed3d32522a543c1f0b555aa2c6016cd2255d5a04779eb1554eec667ed4289",
+      "bytes": 2992,
+      "width": 34,
+      "height": 63,
+      "hasAlpha": true
+    },
+    {
       "id": "scramble-sprites-popt-run-sheet-png",
       "path": "scramble/sprites/popt-run-sheet.png",
-      "sha256": "905b6ddec90bdc3887d005d206bfab6ef4fe847f37d5f2f93553b012a5601057",
-      "bytes": 20440,
-      "width": 264,
+      "sha256": "ba6e9df7b8a6c1575e06f069d526eee1502c31326b057d1843d695688fabb19c",
+      "bytes": 40343,
+      "width": 600,
       "height": 66,
+      "hasAlpha": true
+    },
+    {
+      "id": "scramble-sprites-popt-salute-png",
+      "path": "scramble/sprites/popt-salute.png",
+      "sha256": "c968bfaf4c774f36c77712c39a5604d8f25a5960a8df5e839e71b742515a4e46",
+      "bytes": 3324,
+      "width": 28,
+      "height": 73,
       "hasAlpha": true
     },
     {
       "id": "scramble-sprites-popt-skid-png",
       "path": "scramble/sprites/popt-skid.png",
-      "sha256": "42236e686bf9484a37208f81f668d9a135269c13f4b5e8b8422b8d91ea40e2b2",
-      "bytes": 2808,
-      "width": 45,
-      "height": 56,
+      "sha256": "0db31b0c5736189be5ceca8064d08b1e683ddc38f8a656f68778daa7c65486db",
+      "bytes": 4094,
+      "width": 57,
+      "height": 68,
       "hasAlpha": true
     },
     {
-      "id": "scramble-sprites-popt-tap-png",
-      "path": "scramble/sprites/popt-tap.png",
-      "sha256": "61d1a56ca0f566b1c0fe70a0f967ad2b78cedc8f6d8c27db9f20ca1a18efc091",
-      "bytes": 3669,
+      "id": "scramble-sprites-popt-swing-png",
+      "path": "scramble/sprites/popt-swing.png",
+      "sha256": "65b0ddfedbe2271899d465093000ab630532e3aed0cf288bdeb78748129a5787",
+      "bytes": 3501,
+      "width": 43,
+      "height": 65,
+      "hasAlpha": true
+    },
+    {
+      "id": "scramble-sprites-popt-tip-png",
+      "path": "scramble/sprites/popt-tip.png",
+      "sha256": "295deaad81e87b83ad5ced0349d16e9af3a5d684dd897c7cdeb4e6d8e2b460d3",
+      "bytes": 3340,
       "width": 34,
-      "height": 72,
+      "height": 68,
       "hasAlpha": true
     },
     {
@@ -484,21 +570,29 @@
     "logo/tmb2-ident-blue-mask.png",
     "logo/tmb2-ident-base.png",
     "logo/tmb2-ident-highlight-mask.png",
-    "logo/tmb2-productions.png",
     "scramble/sprites/popt-run-sheet.png",
     "scramble/sprites/popt-skid.png",
-    "scramble/sprites/popt-tap.png",
+    "scramble/sprites/popt-blinded.png",
+    "scramble/sprites/popt-forearm.png",
+    "scramble/sprites/popt-flick.png",
+    "scramble/sprites/popt-crooked.png",
+    "scramble/sprites/popt-salute.png",
+    "scramble/sprites/popt-tip.png",
+    "scramble/sprites/popt-cover.png",
+    "scramble/sprites/popt-fall.png",
+    "scramble/sprites/popt-swing.png",
+    "scramble/sprites/popt-lookup.png",
+    "scramble/sprites/popt-cap.png",
+    "scramble/sprites/popt-landed.png",
     "scramble/plates/hangar-dark.png",
     "scramble/plates/hangar-reveal.png",
     "scramble/plates/doorway.png",
     "scramble/plates/door-leaf.png",
     "scramble/plates/walk-tarmac.png",
     "scramble/plates/runway-lineup.png",
-    "scramble/plates/night-sky.png",
+    "scramble/plates/right-seat.png",
     "scramble/cards/boots.png",
     "scramble/cards/coffee.png",
-    "scramble/cards/flight-case.png",
-    "scramble/cards/flight-case-shut.png",
     "scramble/cards/watch.png",
     "scramble/cards/stripes.png",
     "scramble/cards/logbook.png",
@@ -507,23 +601,15 @@
     "scramble/cards/cap-mid.png",
     "scramble/cards/cap-b.png",
     "scramble/cards/shades.png",
-    "scramble/cards/nacelle-a.png",
-    "scramble/cards/nacelle-b.png",
-    "scramble/cards/nacelle-c.png",
+    "scramble/cards/logbook-books.png",
+    "scramble/cards/logbook-sweep.png",
+    "scramble/cards/logbook-lift.png",
+    "scramble/cards/shadow.png",
     "scramble/cards/instruments.png",
     "scramble/cards/instruments-b.png",
-    "scramble/cards/photo.png",
     "scramble/cards/throttles-a.png",
     "scramble/cards/throttles-b.png",
     "scramble/sprites/popt-walk-sheet.png",
-    "scramble/sprites/popt-backlit.png",
-    "scramble/sprites/dc9-runway.png",
-    "scramble/sprites/dc9-runway-36.png",
-    "scramble/sprites/dc9-runway-26.png",
-    "scramble/sprites/dc9-liftoff-48.png",
-    "scramble/sprites/dc9-liftoff-80.png",
-    "scramble/sprites/dc9-liftoff-160.png",
-    "scramble/sprites/dc9-liftoff-320.png",
-    "emblem/finale-card.png"
+    "scramble/sprites/popt-backlit.png"
   ]
 }

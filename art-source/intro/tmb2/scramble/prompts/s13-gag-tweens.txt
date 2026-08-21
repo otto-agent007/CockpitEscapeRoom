@@ -1,0 +1,57 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached: the approved pose sheet for this exact character. It is the
+  authority for WHO he is and HOW he is drawn — golden-yellow blond hair in pointed spikes, GOLD
+  eyebrows (never black), rounded boyish face, small button nose, large dark navy eyes, warm peach
+  skin, the captain's hat with braided gold cord and round red-ringed badge, white short-sleeve
+  shirt, navy tie, navy epaulettes with FOUR gold stripes, navy trousers, black shoes, and the same
+  scale, side-on camera and flat magenta field.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s13-gag-tweens.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+SIX in-between poses of the SAME cartoon airline captain from the attached reference, drawn in a
+single horizontal row, evenly spaced left to right on a completely flat solid magenta #FF00FF
+background. Clear magenta gaps between the figures; no figure touches another. All six are the same
+man at the SAME scale, seen from the SIDE facing right, feet on a consistent invisible ground line.
+
+These are the MISSING FRAMES between poses that already exist, so each one must be a halfway stage,
+not a new idea. The six, left to right:
+
+1. His cap has just been knocked loose and is TIPPING FORWARD on his head, its brim dropping across
+   his forehead but not yet over his eyes. His eyes are still visible and widening. Body upright,
+   arms starting to come up.
+2. The cap has slid down over his eyes and he is HALF-TIPPING HIS HEAD FORWARD to let it fall, one
+   hand raised beside it. Eyes hidden by the brim, mouth a small open shape.
+3. The cap is falling free just below his chin, caught in mid-air, and his right forearm is swinging
+   across to meet it. His eyes are visible again, looking down at the falling cap.
+4. The cap rests on his outstretched forearm and that arm is beginning to SWING UPWARD — elbow
+   rising, cap tilting back on the arm, hair visible, eyes following it up.
+5. The cap is HIGH IN THE AIR above him at the very top of its arc, turned upside down, small with
+   distance. He stands below with his head tipped back and both hands slightly out, watching it.
+6. The cap has just landed hard and crooked on his head, still settling — tilted steeply to one
+   side, his head pushed down a little by the impact, one hand flying up toward the brim, eyes
+   squeezed half shut.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no fabric texture, no creases.
+- NO texture, NO noise, NO dithering, NO grain.
+- Eyes, eyebrows and mouth must each be a SOLID dark shape with strong contrast — this art will be
+  reduced to a 64 pixel tall sprite and thin detail will vanish.
+- Each figure must have FOUR gold stripes on its epaulette. Count them: four.
+
+Gold to use: bright gold #F5C424 with dark gold #CB8A06 shading.
+
+Absolutely NO text anywhere: no letters, no numbers, no frame labels, no watermark, no border,
+no caption, no grid lines. The cap badge is pure shapes.
+

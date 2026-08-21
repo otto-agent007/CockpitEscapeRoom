@@ -1,0 +1,45 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached: the PREVIOUS VERSION of this exact shot. Reproduce it EXACTLY —
+  the same pilot, the same face, blond hair and gold eyebrows, the same captain's hat, the same
+  uniform with four gold stripes per epaulette, the same pose, hand, lamp, framing, dark background
+  and palette — changing ONLY the one thing below.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s11-card-watch-gold.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+Reproduce the attached image EXACTLY, with ONE change:
+
+THE WATCH BEZEL. The ring around the watch face is currently split into a deep red half and a deep
+blue half. Remove those colours completely. The bezel must now be SOLID POLISHED GOLD all the way
+around, the same gold as the watch case and bracelet, with no red, no blue, and no coloured
+segments of any kind. Keep the bezel's shape and its small gold markers; only its colour changes.
+
+The result is an all-gold watch: gold case, gold bezel, gold three-link bracelet, with the black
+dial, gold hour markers and gold hands unchanged in the middle. It stays the brightest object in
+the frame, catching the lamp light.
+
+Nothing else changes at all: the same face, the same blond hair and deep gold eyebrows, the same
+captain's hat with its gold cord and round badge, the same white shirt, the same navy tie, the same
+FOUR gold stripes on each epaulette, the same hands and wrist, the same hanging lamp, the same dark
+background, the same framing and palette.
+
+Gold to use: bright gold #F5C424 with dark gold #CB8A06 shading.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow; one flat pale wedge is allowed on the glossy watch crystal only.
+- NO texture, NO noise, NO dithering, NO grain.
+
+Absolutely NO text anywhere in the image: no letters, no numbers, no numerals on the dial, no
+monograms, no initials on the hat cord, no watermark, no border, no caption. Every emblem is pure
+shapes.

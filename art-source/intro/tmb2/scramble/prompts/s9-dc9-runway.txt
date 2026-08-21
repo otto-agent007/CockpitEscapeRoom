@@ -1,0 +1,57 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1024x1024, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached: a night hangar scene containing THIS EXACT AIRCRAFT in side
+  view. It is the authority for the aircraft type and livery — two rear-fuselage engines, the
+  T-tail, the red fin and its roundel. Ignore its hangar, lighting and camera.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s9-dc9-runway.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+A flat cel-shaded 2D game sprite of the McDonnell Douglas DC-9 jetliner from the attached
+reference, seen at night from DEAD ASTERN — directly behind it, as if standing on the runway
+looking at its tail as it rolls away. Perfectly symmetrical left to right. The aircraft fills the
+frame and nothing else is in the picture.
+
+THE AIRCRAFT IS A TWIN-ENGINE JET. It has EXACTLY TWO engines, mounted on the SIDES of the rear
+fuselage, one visible to the left of the fuselage and one to the right. There is NO third engine
+and NO intake, inlet, opening or hole anywhere in the vertical fin or the top of the rear
+fuselage — the fin is a solid unbroken surface. There are NO engines under the wings.
+
+Shapes, from the centre outward:
+- The fuselage seen end-on: a narrow dark rounded vertical body in the middle.
+- The two engine nacelles as short rounded shapes flanking the fuselage at its sides.
+- A T-TAIL rising above the fuselage: a tall vertical fin, entirely bright signal red, with the
+  horizontal stabiliser crossing at its very TOP like the bar of a letter T. On the fin, a WHITE
+  CIRCULAR DISC containing a solid GREY TRIANGLE pointing DOWNWARD.
+- The wings extending left and right as thin dark bars with a slight upward angle.
+
+Because this is a night rear view, the airframe reads as a dark near-silhouette in deep blues and
+near-black, and the red fin is by far the strongest colour in the image — it is the one thing that
+must stay readable.
+
+This sprite will be reduced to only 26 pixels wide at its smallest, so it must be extremely bold
+and simple: a few large clear shapes, strong contrast between them, no fine detail, no thin
+slivers, no small protrusions, no windows, no individual lights.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no texture, no noise, no dithering.
+
+Palette: near-black #0A0F22, steel blue #323E60, warm grey #B9BCC0, signal red #C8102E, dark metal
+#4A5674.
+
+Background: a completely flat solid pure magenta field, RGB 255 0 255, filling the entire canvas
+edge to edge. The magenta must appear NOWHERE on the aircraft. No ground, no runway, no sky, no
+shadow, no border, no watermark, no checkerboard.
+
+Absolutely NO lettering, numbers, registration marks, airline names or logos anywhere. The fin
+roundel is pure shapes: a white disc with a grey downward triangle.

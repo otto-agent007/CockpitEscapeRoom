@@ -20,20 +20,20 @@ PLATES = {
     'plate-doorway-320.png': 'plates/doorway.png',
     'plate-walk-tarmac-320.png': 'plates/walk-tarmac.png',
     'plate-runway-lineup-320.png': 'plates/runway-lineup.png',
-    'plate-night-sky-320.png': 'plates/night-sky.png',
+    'plate-right-seat-320.png': 'plates/right-seat.png',
     'strip-door-leaf-168.png': 'plates/door-leaf.png',
 }
 
 CARDS = [
-    'card-boots', 'card-coffee', 'card-flight-case', 'card-flight-case-shut',
+    'card-boots', 'card-coffee',
     'card-watch', 'card-stripes', 'card-logbook', 'card-wings',
-    'card-cap-a', 'card-cap-mid', 'card-cap-b', 'card-shades', 'card-nacelle-a',
-    'card-nacelle-b', 'card-nacelle-c', 'card-instruments', 'card-instruments-b',
-    'card-photo', 'card-throttles-a', 'card-throttles-b',
+    'card-cap-a', 'card-cap-mid', 'card-cap-b', 'card-shades', 'card-instruments', 'card-instruments-b',
+    'card-throttles-a', 'card-throttles-b',
+    'card-logbook-books', 'card-logbook-sweep', 'card-logbook-lift', 'card-shadow',
 ]
 
 WALK_CELL = (26, 50)
-RUN_CELL = (44, 66)
+RUN_CELL = (50, 66)
 BACKLIT_CELL = (28, 64)
 
 
@@ -63,18 +63,40 @@ def main() -> None:
     for name in CARDS:
         Image.open(SRC / f'{name}-320.png').save(DST / f'cards/{name.removeprefix("card-")}.png')
 
-    # Wave S4 cycles: the 48 px walk and the 64 px ident run, one row each.
-    for cell, src_prefix, out_name in (
-        (WALK_CELL, 'spr-popt-walk48', 'popt-walk-sheet.png'),
-        (RUN_CELL, 'spr-popt-run64', 'popt-run-sheet.png'),
-    ):
-        sheet = Image.new('RGBA', (cell[0] * 6, cell[1]), (0, 0, 0, 0))
-        for index in range(6):
-            frame = Image.open(SRC / f'{src_prefix}-{index + 1}.png').convert('RGBA')
-            sheet.alpha_composite(cell_pack(frame, cell), (index * cell[0], 0))
-        sheet.save(DST / f'sprites/{out_name}')
+    # The 48 px walk stays a six-frame row.
+    sheet = Image.new('RGBA', (WALK_CELL[0] * 6, WALK_CELL[1]), (0, 0, 0, 0))
+    for index in range(6):
+        frame = Image.open(SRC / f'spr-popt-walk48-{index + 1}.png').convert('RGBA')
+        sheet.alpha_composite(cell_pack(frame, WALK_CELL), (index * WALK_CELL[0], 0))
+    sheet.save(DST / 'sprites/popt-walk-sheet.png')
 
-    for single, out_name in (('spr-popt-skid64', 'popt-skid.png'), ('spr-popt-tap64', 'popt-tap.png')):
+    # The ident run is TWELVE frames: the six Wave S7 poses interleaved with the
+    # six Wave S13 in-betweens, so the cycle plays at 25 fps instead of 12.5.
+    run_order = []
+    for index in range(6):
+        run_order.append(f'spr-popt-run64-{index + 1}')
+        run_order.append(f'spr-popt-run64-t{index + 1}')
+    sheet = Image.new('RGBA', (RUN_CELL[0] * len(run_order), RUN_CELL[1]), (0, 0, 0, 0))
+    for index, name in enumerate(run_order):
+        frame = Image.open(SRC / f'{name}.png').convert('RGBA')
+        sheet.alpha_composite(cell_pack(frame, RUN_CELL), (index * RUN_CELL[0], 0))
+    sheet.save(DST / 'sprites/popt-run-sheet.png')
+
+    for single, out_name in (
+        ('spr-popt-gag-skid', 'popt-skid.png'),
+        ('spr-popt-gag-blinded', 'popt-blinded.png'),
+        ('spr-popt-gag-forearm', 'popt-forearm.png'),
+        ('spr-popt-gag-flick', 'popt-flick.png'),
+        ('spr-popt-gag-crooked', 'popt-crooked.png'),
+        ('spr-popt-gag-salute', 'popt-salute.png'),
+        ('spr-popt-gag-tip', 'popt-tip.png'),
+        ('spr-popt-gag-cover', 'popt-cover.png'),
+        ('spr-popt-gag-fall', 'popt-fall.png'),
+        ('spr-popt-gag-swing', 'popt-swing.png'),
+        ('spr-popt-gag-lookup', 'popt-lookup.png'),
+        ('spr-popt-cap', 'popt-cap.png'),
+        ('spr-popt-gag-landed', 'popt-landed.png'),
+    ):
         Image.open(SRC / f'{single}.png').convert('RGBA').save(DST / f'sprites/{out_name}')
 
     backlit = Image.open(SRC / 'spr-popt-backlit.png').convert('RGBA')

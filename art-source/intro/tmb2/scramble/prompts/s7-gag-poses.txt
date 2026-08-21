@@ -1,0 +1,63 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached: the approved run sheet of this exact character. It is the
+  authority for WHO he is and HOW he is drawn — his blond hair, his GOLD eyebrows, his face, his
+  captain's hat, his uniform with FOUR gold stripes per epaulette, the flat shading, the magenta
+  field, and his scale. Match all of it.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s7-gag-poses.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+SIX separate full-body poses of the SAME cartoon airline captain from the attached reference,
+drawn in a single horizontal row, evenly spaced left to right on a completely flat solid magenta
+#FF00FF background. Clear magenta gaps between the figures; no figure touches another; nothing else
+in the frame. All six are the same man at the SAME scale, seen from the SIDE, facing right, feet on
+a consistent invisible ground line.
+
+He is exactly the man in the reference: golden-yellow blond hair in pointed forward spikes, GOLD
+eyebrows in deep gold (never black), rounded boyish face, small button nose, large dark navy eyes,
+warm peach skin, clean shaven. White short-sleeve uniform shirt, navy tie, navy epaulettes with
+FOUR gold stripes each, navy trousers, gold belt buckle, black shoes. His captain's hat is
+charcoal-navy with a braided gold chin cord and a round badge of red ring, cream disc, blue centre
+and small gold wings.
+
+The six poses, left to right:
+
+1. SKIDDING STOP. Leaning back hard, both feet sliding forward, arms flung out for balance, hat
+   still on his head. A comic sudden stop.
+2. BLINDED. Standing upright but his hat has dropped down over his eyes so the visor covers them
+   completely — his eyes are hidden, only his nose, cheeks and mouth show below the hat. Both arms
+   are stretched straight out in front of him, groping blindly. Mouth a small open surprised shape.
+3. HAT ON FOREARM. The hat has slid off his face and is now resting upside down on his outstretched
+   right forearm, held level. He is looking down at it with his eyes visible again and a small
+   annoyed frown. His hair is fully visible with no hat on his head.
+4. FLICK. He snaps that forearm upward in a flicking motion, elbow driving up, and the hat is in the
+   air just above his arm, tilted, clearly launched. His head is bare, hair visible, and he is
+   looking up at the hat.
+5. HAT LANDS CROOKED. The hat is back on his head but sitting badly askew, tilted well off level so
+   it looks comically wrong. One hand is raised to the brim about to fix it. His visible eye is
+   looking up at the brim.
+6. SALUTE. Standing tall and proud, hat perfectly level on his head, right hand raised in a crisp
+   flat-palm salute to the brim, chest out, a small confident closed-mouth smile.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no fabric texture, no creases.
+- NO texture, NO noise, NO dithering, NO grain.
+- Eyes, eyebrows and mouth must each be a SOLID dark shape with strong contrast, never a faint
+  tonal crease — this art will be reduced to a 64 pixel tall sprite and thin detail will vanish.
+- Each pose must have a bold, clearly different SILHOUETTE, readable when very small.
+
+Gold to use: bright gold #F5C424 with dark gold #CB8A06 shading.
+
+Absolutely NO text anywhere: no letters, no numbers, no pose labels, no watermark, no border,
+no caption, no grid lines, no motion-line captions. The cap badge is pure shapes.

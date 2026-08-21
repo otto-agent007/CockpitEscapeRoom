@@ -1,0 +1,36 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached: the PREVIOUS VERSION of this exact shot. Reproduce it EXACTLY —
+  the same uniformed hand mid-sweep, the same navy logbook emerging beneath, the same two worn
+  navy paperbacks with their lone-walking-figure covers, the same white hardcover in the same
+  position, the same table, lighting, palette and camera — changing ONLY the one thing below.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s14-card-logbook-books-b.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+Reproduce the attached image EXACTLY, with ONE change: the monochrome portrait on the white
+hardcover's dust jacket must be recognisably ELON MUSK, in the manner of the Walter Isaacson
+biography cover — a flat grey-tones rendering of his face, front-on, filling the lower two thirds
+of the jacket: a rounded face with a strong chin, short dark neatly-cut hair, slightly arched
+eyebrows, a faint knowing half-smile, direct gaze at the viewer. Keep it flat cel shading in hard-
+edged greys, matching the reference's style — a stylised likeness, not a photograph.
+
+Everything else stays exactly as it is: the blank white band across the top of the jacket stays
+completely BLANK, the paperbacks keep their lone-figure covers and blank bands, the hand, sleeve,
+logbook, table, palette and framing are unchanged.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no texture, no noise, no dithering, no grain.
+
+Absolutely NO text anywhere: no letters, no numbers, no titles, no author names, no watermark, no
+border, no caption. The blank cover bands stay perfectly blank.

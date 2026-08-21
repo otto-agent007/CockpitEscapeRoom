@@ -1,0 +1,35 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached: an existing artwork from this same film. It is the authority for
+  HOW to draw — flat cel shading, hard-edged colour regions, a deep navy night palette, chunky
+  simplified shapes, no photographic detail. Match its look exactly. Ignore its subject.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s12-card-wands.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+A night ramp scene: a ground crew marshaller standing in silhouette with both arms raised, holding
+two glowing amber marshalling wands crossed above their head in a salute. The figure is a solid
+dark navy silhouette with no facial features, wearing a high-visibility vest picked out as two
+simple pale reflective bands. The two wands are the brightest things in the frame: hard-edged amber
+cones of light with pale cores. Behind, the wet ramp recedes into deep navy dark with a few small
+amber ground lights. Simple, bold, high contrast.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow bloom, no specular highlights, no photographic texture, no noise, no
+  dithering, no grain.
+
+Gold to use where gold appears: bright gold #F5C424 with dark gold #CB8A06 shading.
+
+Absolutely NO text anywhere: no letters, no numbers, no labels, no placards, no switch legends, no
+markings, no watermark, no border, no caption.
+

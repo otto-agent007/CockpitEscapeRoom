@@ -1,0 +1,40 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached: the PREVIOUS FRAME of this exact shot — a uniformed hand
+  resting on a navy logbook lying flat on a dark metal table. Reproduce its scene EXACTLY — the
+  same table, pool of light, palette, camera, the same navy logbook with its gold diagonal band
+  and cream page edges, the same hand and sleeve — changing ONLY what is described below. This is
+  the NEXT frame of the same motion.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s15-card-logbook-lift.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+Reproduce the attached image EXACTLY, advanced one beat in time: the hand has now GRIPPED the
+logbook and LIFTED it off the table.
+
+- The navy logbook is raised into the air, held firmly in the uniformed hand by its lower edge,
+  tilted up toward the viewer so its FRONT COVER faces the camera squarely: deep navy with the
+  gold diagonal band, worn corners, cream page edges visible at the side. It is the hero of the
+  frame, larger than before, catching the pool of light.
+- Below it, the table now shows the empty spot where it lay inside the pool of light.
+- Keep a wide clear area of plain navy cover ABOVE the gold band, completely blank, where a title
+  would sit.
+
+Everything else stays exactly as it is: the table, the lighting, the palette, the framing, the
+sleeve with its gold stripes.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no texture, no noise, no dithering, no grain.
+
+Absolutely NO text anywhere: no letters, no numbers, no titles, no watermark, no border, no
+caption. The blank cover area stays perfectly blank.

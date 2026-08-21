@@ -1,0 +1,59 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- TWO reference images are attached and they have DIFFERENT jobs.
+  * Reference 1 is the CHARACTER IDENTITY SHEET. It is the sole authority for WHO this man is and
+    what his hat looks like. His face must match it exactly.
+  * Reference 2 is the PREVIOUS VERSION of this shot. It is the authority for the SCENE only:
+    the same camera, framing, pose, hanging lamp, dark background and palette. Its FACE and its
+    WATCH are both wrong and are being replaced.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s8-card-watch.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+Reproduce the scene of reference 2 — the same airline captain in a white short-sleeve uniform
+shirt and navy tie, turned the same way, fastening a wristwatch onto his raised left wrist, lit by
+the same hanging lamp against the same dark background, the same framing and the same palette —
+with TWO changes.
+
+CHANGE 1 — HIS FACE. Replace it with the face of the man in reference 1, exactly: saturated
+golden-yellow blond hair swept forward with pointed spikes at the temple; EYEBROWS IN DEEP GOLD so
+he reads as a blond man with blond eyebrows, never black and never brown; a rounded boyish face
+with broad soft cheeks, a soft jawline and a short rounded chin; a small softly drawn button nose;
+large dark navy eyes, simple tall rounded shapes each with one small white highlight; warm peach
+skin; clean shaven with no stubble and no age lines. He is NOT a narrow angular anime face, NOT
+long-chinned, NOT sharp-cheekboned, and his nose is NOT long or prominent. His expression is calm
+and level, mouth closed, glancing down at the watch. His hat is the captain's hat exactly as drawn
+in reference 1.
+
+CHANGE 2 — THE WATCH. Replace the plain steel watch with a GOLD pilot's watch modelled on a Rolex
+GMT-Master, drawn as clean flat shapes:
+- A polished GOLD case and a GOLD three-link bracelet, bright gold #F5C424 with dark gold #CB8A06
+  shading. The whole watch reads gold, not silver, not two-tone.
+- A deep black circular dial with small gold hour markers, gold hour and minute hands, and one
+  extra slim pointer hand.
+- Around the dial, the signature rotating bezel split into TWO coloured halves — one half deep red
+  and the other half deep blue — with a thin gold rim around it. This split bezel is the most
+  recognisable feature of the watch and must be clearly visible.
+- The watch is the brightest object in the frame, catching the lamp light.
+
+Do not draw any brand name, logo, crown emblem or lettering on the dial, bezel or bracelet — the
+watch is recognisable by its shape and its two-colour bezel alone.
+
+He must have FOUR gold stripes on each navy epaulette. Count them: four.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow; one flat pale wedge is allowed on the glossy watch crystal only.
+- NO texture, NO noise, NO dithering, NO grain.
+
+Absolutely NO text anywhere: no letters, no numbers, no numerals on the dial, no monograms, no
+watermark, no border, no caption. The cap badge and the watch are pure shapes.

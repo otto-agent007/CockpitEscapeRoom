@@ -8,6 +8,13 @@ downsample to the target height or width, output a tight RGBA sprite.
 Usage:
   python3 tools/assets/normalise-scramble-sprite.py in.png out.png --height 34
   python3 tools/assets/normalise-scramble-sprite.py in.png out.png --width 52
+
+For an animation cycle every frame must share ONE scale, or the character grows
+and shrinks between frames as each pose's own bounding box is forced to the same
+height. Pass --ref to derive the scale from a single reference frame and apply
+it to all of them:
+
+  python3 tools/assets/normalise-scramble-sprite.py f3.png out3.png --height 64 --ref f1.png
 """
 
 import argparse
@@ -15,7 +22,8 @@ import argparse
 from PIL import Image
 
 
-def normalise(src: Image.Image, height: int | None, width: int | None) -> Image.Image:
+def keyed(src: Image.Image) -> Image.Image:
+    """Hard-key the magenta field, despill the contaminated edge, crop to content."""
     im = src.convert('RGB')
     w, h = im.size
     px = im.load()
@@ -38,9 +46,24 @@ def normalise(src: Image.Image, height: int | None, width: int | None) -> Image.
     bbox = out.getbbox()
     if bbox is None:
         raise SystemExit('no content after keying')
-    out = out.crop(bbox)
+    return out.crop(bbox)
+
+
+def normalise(
+    src: Image.Image,
+    height: int | None,
+    width: int | None,
+    ref: Image.Image | None = None,
+) -> Image.Image:
+    out = keyed(src)
     cw, ch = out.size
-    if height is not None:
+    if ref is not None:
+        # Shared cycle scale: the reference frame decides the scale, every frame
+        # obeys it, so poses keep their real relative size.
+        rw, rh = keyed(ref).size
+        scale = height / rh if height is not None else width / rw
+        target = (max(1, round(cw * scale)), max(1, round(ch * scale)))
+    elif height is not None:
         tw = max(1, round(cw * height / ch))
         target = (tw, height)
     else:
@@ -103,8 +126,14 @@ def main() -> None:
     group = ap.add_mutually_exclusive_group(required=True)
     group.add_argument('--height', type=int)
     group.add_argument('--width', type=int)
+    ap.add_argument('--ref', help='reference frame that sets a shared scale for a cycle')
     args = ap.parse_args()
-    result = normalise(Image.open(args.src), args.height, args.width)
+    result = normalise(
+        Image.open(args.src),
+        args.height,
+        args.width,
+        Image.open(args.ref) if args.ref else None,
+    )
     result.save(args.out)
     print(f'{args.out}: {result.size[0]}x{result.size[1]}')
 
