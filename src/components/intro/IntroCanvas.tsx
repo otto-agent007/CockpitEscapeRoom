@@ -74,7 +74,6 @@ export function IntroCanvas({
       data-scene={frame.sceneId}
       data-time={timeSeconds.toFixed(3)}
       data-popt-frame={frame.popt?.sourceFrame ?? ''}
-      data-jet-frame={frame.jet?.sourceFrame ?? ''}
       data-presentation-scale={placement.scale}
       data-reduced-motion={reducedMotion ? 'true' : 'false'}
       data-handoff-progress={handoffProgress === null ? '' : handoffProgress.toFixed(3)}

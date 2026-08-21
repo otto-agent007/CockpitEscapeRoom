@@ -19,16 +19,16 @@ describe('Scramble cinematic timeline', () => {
       { id: 'tmb2-ident', startSeconds: 0, endSeconds: 6 },
       { id: 'beacon-dark', startSeconds: 6, endSeconds: 7.512 },
       { id: 'ritual', startSeconds: 7.512, endSeconds: 13.056 },
-      { id: 'hangar-reveal', startSeconds: 13.056, endSeconds: 14.544 },
-      { id: 'suit-up', startSeconds: 14.544, endSeconds: 26 },
-      { id: 'doors', startSeconds: 26, endSeconds: 30.48 },
-      { id: 'shades', startSeconds: 30.48, endSeconds: 31.5 },
-      { id: 'walk', startSeconds: 31.5, endSeconds: 35.64 },
-      { id: 'engine-start', startSeconds: 35.64, endSeconds: 38.52 },
+      { id: 'suit-up', startSeconds: 13.056, endSeconds: 18 },
+      { id: 'doors', startSeconds: 18, endSeconds: 21 },
+      { id: 'standing-alone', startSeconds: 21, endSeconds: 23.4 },
+      { id: 'walk-out', startSeconds: 23.4, endSeconds: 33.4 },
+      { id: 'walk', startSeconds: 33.4, endSeconds: 35.64 },
+      { id: 'aircraft-reveal', startSeconds: 35.64, endSeconds: 38.52 },
       { id: 'inserts', startSeconds: 38.52, endSeconds: 42.84 },
-      { id: 'takeoff', startSeconds: 42.84, endSeconds: 49.704 },
-      { id: 'title', startSeconds: 49.704, endSeconds: 51 },
-      { id: 'loop-reset', startSeconds: 51, endSeconds: 53.04 },
+      { id: 'departure', startSeconds: 42.84, endSeconds: 47.496 },
+      { id: 'right-seat', startSeconds: 47.496, endSeconds: 49.704 },
+      { id: 'title', startSeconds: 49.704, endSeconds: 53.04 },
     ])
   })
 
@@ -36,10 +36,12 @@ describe('Scramble cinematic timeline', () => {
     // Scene boundaries are the cues themselves: a boundary that drifts off its
     // accent silently unsyncs the whole design from the track.
     expect(getIntroScene(7.512).id).toBe('ritual')
-    expect(getIntroScene(13.056).id).toBe('hangar-reveal')
-    expect(getIntroScene(14.544).id).toBe('suit-up')
-    expect(getIntroScene(30.48).id).toBe('shades')
-    expect(getIntroScene(35.64).id).toBe('engine-start')
+    expect(getIntroScene(13.056).id).toBe('suit-up')
+    expect(getIntroScene(18).id).toBe('doors')
+    expect(getIntroScene(21).id).toBe('standing-alone')
+    expect(getIntroScene(23.4).id).toBe('walk-out')
+    expect(getIntroScene(33.4).id).toBe('walk')
+    expect(getIntroScene(35.64).id).toBe('aircraft-reveal')
     expect(getIntroScene(38.52).id).toBe('inserts')
     expect(getIntroScene(49.704).id).toBe('title')
   })
@@ -49,20 +51,23 @@ describe('Scramble cinematic timeline', () => {
     expect(getIntroScene(5.999).id).toBe('tmb2-ident')
     expect(getIntroScene(6).id).toBe('beacon-dark')
     expect(getIntroScene(13.055).id).toBe('ritual')
-    expect(getIntroScene(26).id).toBe('doors')
-    expect(getIntroScene(31.5).id).toBe('walk')
-    expect(getIntroScene(42.84).id).toBe('takeoff')
-    expect(getIntroScene(51).id).toBe('loop-reset')
-    expect(getIntroScene(53.039).id).toBe('loop-reset')
+    expect(getIntroScene(26).id).toBe('walk-out')
+    expect(getIntroScene(31.5).id).toBe('walk-out')
+    expect(getIntroScene(42.84).id).toBe('departure')
+    expect(getIntroScene(47.496).id).toBe('right-seat')
+    expect(getIntroScene(53.039).id).toBe('title')
   })
 
-  it('normalizes invalid, negative, and post-loop time before scene selection', () => {
+  it('normalizes invalid, negative, and past-the-end time before scene selection', () => {
     expect(normalizeIntroTime(Number.NaN)).toBe(0)
     expect(normalizeIntroTime(-1)).toBe(0)
-    expect(normalizeIntroTime(53.04)).toBe(0)
-    expect(normalizeIntroTime(59.04)).toBeCloseTo(6)
-    expect(getIntroScene(53.04).id).toBe('tmb2-ident')
-    expect(getIntroScene(59.04).id).toBe('beacon-dark')
+    // Past the end it clamps rather than wrapping: the intro plays once and
+    // holds the title. Wrapping here would snap the held frame back to the
+    // ident, which is exactly the attract loop the owner removed.
+    expect(normalizeIntroTime(53.04)).toBeCloseTo(53.04, 3)
+    expect(normalizeIntroTime(59.04)).toBeCloseTo(53.04, 3)
+    expect(getIntroScene(53.04).id).toBe('title')
+    expect(getIntroScene(120).id).toBe('title')
   })
 
   it('keeps accessibility summaries without visible chapter-title data', () => {

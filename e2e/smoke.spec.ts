@@ -245,6 +245,61 @@ async function openGameIntro(page: Page) {
   return intro
 }
 
+// The ident gag acts on stage rows 128-196 of the 320x224 stage (Pop T's feet
+// sit on row 196). The intro's audio controls float over the stage, so this
+// pins the invariant that matters: whatever they cover, it is never the gag.
+// Measured 2026-08-20 on the original layout: portrait phones cover 0 rows,
+// landscape phones cover the bottom 19-22, all of them empty.
+const GAG_BOTTOM_STAGE_ROW = 200
+
+for (const [width, height, label] of [
+  [375, 667, 'portrait phone'],
+  [667, 375, 'landscape phone'],
+] as const) {
+  test(`the intro audio controls never cover the ident gag on a ${label}`, async ({ page }) => {
+    test.setTimeout(45_000)
+    await page.setViewportSize({ width, height })
+    await page.goto('/')
+    const startGame = page.getByRole('button', { name: 'Start Game' })
+    await expect(startGame).toBeEnabled({ timeout: 60_000 })
+    await startGame.click()
+
+    const intro = page.getByRole('region', { name: 'Game intro' })
+    await expect(intro).toHaveAttribute('data-intro-cue', 'tmb2-ident')
+    // Park the clock on the salute, the last beat of the gag.
+    await page.locator('audio').evaluate((media) => {
+      const audio = media as HTMLAudioElement
+      audio.pause()
+      audio.currentTime = 5.5
+      audio.dispatchEvent(new Event('timeupdate'))
+    })
+
+    const covered = await page.evaluate(() => {
+      const stageElement = document.querySelector('.game-intro__stage') as HTMLCanvasElement | null
+      const controlsElement = document.querySelector('.game-intro__controls')
+      if (!stageElement || !controlsElement) return null
+      const stage = stageElement.getBoundingClientRect()
+      const controls = controlsElement.getBoundingClientRect()
+      const scale = Number(stageElement.dataset.presentationScale)
+      const horizontal = Math.min(stage.right, controls.right) - Math.max(stage.left, controls.left)
+      if (horizontal <= 0) return { topRow: Infinity, scale }
+      const coveredTop = Math.max(stage.top, controls.top)
+      if (coveredTop >= stage.bottom) return { topRow: Infinity, scale }
+      return { topRow: (coveredTop - stage.top) / scale, scale }
+    })
+    expect(covered).not.toBeNull()
+    expect(covered!.scale).toBeGreaterThanOrEqual(1)
+    expect(
+      covered!.topRow,
+      'the audio controls must stay below the rows the ident gag acts on',
+    ).toBeGreaterThanOrEqual(GAG_BOTTOM_STAGE_ROW)
+
+    expect(await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    )).toBe(0)
+  })
+}
+
 test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the TMB2 handoff', async ({ page }) => {
   test.setTimeout(45_000)
   const requestedPaths: string[] = []
@@ -274,8 +329,10 @@ test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the 
     '/images/intro/tmb2/logo/tmb2-ident-base.png',
     '/images/intro/tmb2/logo/tmb2-ident-blue-mask.png',
     '/images/intro/tmb2/logo/tmb2-ident-highlight-mask.png',
-    '/images/intro/tmb2/logo/tmb2-productions.png',
   ]))
+  // The PRODUCTIONS wordmark was removed with the ident resize (plan 0034);
+  // nothing may still request it.
+  expect(requestedPaths).not.toContain('/images/intro/tmb2/logo/tmb2-productions.png')
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toHaveCount(0)
   const audio = page.locator('audio')
   await audio.evaluate((media) => {
@@ -286,7 +343,7 @@ test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the 
   await expect.poll(async () => intro.locator('.game-intro__stage').evaluate((element) => {
     const canvas = element as HTMLCanvasElement
     const context = canvas.getContext('2d')
-    if (!context) return { logo: 0, productions: 0 }
+    if (!context) return { logo: 0, wordmarkBand: 0 }
     const countNonBackgroundPixels = (x: number, y: number, width: number, height: number) => {
       const pixels = context.getImageData(x, y, width, height).data
       let count = 0
@@ -299,8 +356,8 @@ test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the 
       }
       return count
     }
-    return countNonBackgroundPixels(16, 72, 288, 79) > 1_000
-      && countNonBackgroundPixels(0, 164, 320, 15) > 100
+    // Ident geometry is now 160x44 at (80, 78) — half the stage width, centred.
+    return countNonBackgroundPixels(80, 78, 160, 44) > 1_000
   })).toBe(true)
   const identPixels = await intro.locator('.game-intro__stage').evaluate((element) => {
     const context = (element as HTMLCanvasElement).getContext('2d')!
@@ -312,10 +369,35 @@ test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the 
       }
       return total
     }
-    return { logo: count(16, 72, 288, 79), productions: count(0, 164, 320, 15) }
+    return { logo: count(80, 78, 160, 44) }
   })
   expect(identPixels.logo).toBeGreaterThan(1_000)
-  expect(identPixels.productions).toBeGreaterThan(100)
+
+  // Emptiness is measured at 1.5 s, while the logo is building and before Pop T
+  // enters at 1.776 — at 4.8 he is standing in the band the wordmark used to
+  // occupy, so nothing there could be attributed to the wordmark.
+  await audio.evaluate((media) => {
+    media.currentTime = 1.5
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await expect.poll(async () => intro.locator('.game-intro__stage').evaluate((element) => {
+    const context = (element as HTMLCanvasElement).getContext('2d')!
+    const count = (x: number, y: number, width: number, height: number) => {
+      const pixels = context.getImageData(x, y, width, height).data
+      let total = 0
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (pixels[index] !== 2 || pixels[index + 1] !== 3 || pixels[index + 2] !== 10) total += 1
+      }
+      return total
+    }
+    return {
+      // The band the PRODUCTIONS wordmark used to occupy, and the side margins
+      // the old 288 px logo used to cover. All three are background now.
+      wordmarkBand: count(0, 160, 320, 24),
+      leftMargin: count(0, 78, 80, 44),
+      rightMargin: count(240, 78, 80, 44),
+    }
+  })).toEqual({ wordmarkBand: 0, leftMargin: 0, rightMargin: 0 })
 
   await audio.evaluate((media) => {
     media.currentTime = 6
@@ -404,18 +486,23 @@ test('TMB2 cinematic follows exact boundaries and loops without entering gamepla
     },
     {
       time: 44,
-      id: 'takeoff',
-      summary: 'Lineup on the empty runway, throttles up, rotate — the DC-9 climbs past the camera trailing a contrail.',
+      id: 'departure',
+      summary: 'Landing lights blaze across the empty tarmac, sweep past, and lift away into the dark.',
+    },
+    {
+      time: 48.5,
+      id: 'right-seat',
+      summary: 'Inside the quiet flight deck: the first officer’s seat is empty, harness loose, panel awake.',
     },
     {
       time: 50.2,
       id: 'title',
-      summary: 'The winged-globe emblem stamps into the contrail against the stars.',
+      summary: 'The instrument glow resolves into the title over the waiting seat.',
     },
     {
       time: 52,
       id: 'loop-reset',
-      summary: 'The title holds and the picture collapses into blue pixels before the loop restarts.',
+      summary: 'The title holds over the seat and the picture collapses into blue pixels before the loop restarts.',
     },
   ] as const
 

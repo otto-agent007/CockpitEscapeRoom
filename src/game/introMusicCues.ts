@@ -9,44 +9,60 @@
  * audio. Each cue lies inside its scene window from introConfig.
  */
 export const INTRO_MUSIC_CUES = {
-  /** Boots hit the tarmac — first ritual still (+16.9 dB at 7.512). */
+  /**
+   * Re-timed 2026-08-20 (third pass) to slow the whole intro down.
+   *
+   * The arithmetic that drives this: two anchors are fixed by the track — the
+   * doors open on the 18 s vocal, and the aircraft reveal lands on the +17.8 dB
+   * hit at 35.64. That splits the story into windows of 10.5 s, 17.6 s and
+   * 7.2 s. Carrying all nineteen images forced one of those windows to about
+   * 1.3 s per shot every time, which is why the whole story used to be over
+   * before 18 s. At roughly 2.5 s per shot these windows hold FIFTEEN images,
+   * so four were cut and the suit-up moved AFTER the doors: the stripes, watch,
+   * logbook and shades now read as things noticed on the way out, and the
+   * shades go on as he steps into the light.
+   */
+  /** Boots hit the tarmac (+16.9 dB at 7.512). */
   bootsDown: 7.512,
-  /** Coffee set down (+16.0 dB at 8.976; also the beat-grid origin). */
-  coffeeDown: 8.976,
-  /** The flight case (grid: 8.976 + 2 beats). */
-  flightCase: 10.416,
-  /** The latches snap shut (grid: 8.976 + 4 beats). */
-  latchesSnap: 11.856,
-  /** Floodlights slam onto the DC-9 — largest hit in the track (+28.6 dB). */
-  hangarReveal: 13.056,
-  /** The suit-up montage opens: the cap flipped and caught (+14.5 dB at 14.544). */
-  capFlip: 14.544,
-  /** Four captain's stripes (grid: 14.544 + 3 beats). */
-  fourStripes: 16.704,
-  /** The logbook snaps shut (+13.4 dB at 19.368). */
-  logbookSnap: 19.368,
-  /** Wings pinned (grid: 19.368 + 3 beats). */
-  wingsPinned: 21.528,
-  /** A glance at the watch — time to go (+14.6 dB at 24.552). */
-  watchCheck: 24.552,
-  /** Shades down, white streak (+9.6 dB at 30.480). */
-  shadesDown: 30.48,
-  /** Engine light-off; the beacon starts flashing on the grid (+17.8 dB). */
-  engineStart: 35.64,
+  /** Coffee set down. */
+  coffeeDown: 10.284,
+  /** The cap flipped and caught — the track's largest hit (+28.6 dB at 13.056). */
+  capFlip: 13.056,
+  /** Wings pinned. */
+  wingsPinned: 15.528,
+  /** The hangar doors part around him ON the 18 s "standing there alone"
+   * downbeat, and keep grinding open through the whole vocal. The release-lever
+   * insert that used to take this hit is retired (owner, 2026-08-20): the
+   * gates themselves are the image the lyric asks for. */
+  doorsParting: 18,
+  /** He stands alone, his shadow reaching down the hangar floor. */
+  standingAlone: 21,
+  /** Four captain's stripes on the shoulder as he goes. */
+  fourStripes: 23.4,
+  /** A glance at the watch. */
+  watchCheck: 25.7,
+  /** Dad's reading pile — the Musk biography and the Reacher paperbacks —
+   * swept aside to get to the logbook beneath. Widened to 3.4 s so the joke
+   * has room: books first, then the hand on the bare logbook. */
+  logbookSnap: 28,
+  /** Shades down as he steps into the light. */
+  shadesDown: 31.4,
+  /** The last of the walk out across the floor. */
+  walkOut: 33.4,
+  /** Floodlights slam on and the DC-9 is there with him (+17.8 dB at 35.64). */
+  aircraftReveal: 35.64,
   /** The instrument panel wakes left to right (grid: 35.64 + 4 beats). */
   instrumentsAlive: 38.52,
-  /** The photo on the glareshield (grid: 35.64 + 6 beats). */
-  thePhoto: 39.96,
-  /** The hand settles on the throttles (grid: 35.64 + 8 beats). */
-  handOnThrottles: 41.4,
-  /** Throttles up — the takeoff roll begins (+9.1 dB at 45.120). */
+  /** The hand settles on the throttles (grid: 35.64 + 7 beats). */
+  handOnThrottles: 40.68,
+  /** Throttles up — the landing lights blaze across the tarmac (+9.1 dB at 45.120). */
   throttlesUp: 45.12,
-  /** Rotate — the nose lifts (+20.1 dB at 46.008). */
+  /** Rotate — the light sweep lifts off the ground and away (+20.1 dB at 46.008). */
   rotate: 46.008,
-  /** The DC-9 pulls up past the camera (+13.5 dB at 47.496). */
-  jetPass: 47.496,
-  /** Winged-globe emblem stamps into the contrail (+20.3 dB at 49.704). */
-  emblemStamp: 49.704,
+  /** The last light is gone; hard cut inside to the empty right seat (+13.5 dB at 47.496). */
+  intoTheSeat: 47.496,
+  /** The instrument glow resolves into the game's title (+20.3 dB at 49.704). */
+  titleCard: 49.704,
 } as const
 
 /** The measured ~83 BPM half-bar beat grid the ritual and montage cuts ride. */

@@ -1,13 +1,13 @@
 import {
-  JET_CLIPS,
   POPT_CLIPS,
   type HandoffFrame,
   type IntroAnimationFrame,
-  type IntroCardFrame,
+  TITLE_CARD,
+  type IntroLabelFrame,
+  type IntroTitleFrame,
   type IntroDoorsFrame,
   type IntroFxFrame,
   type IntroFxKind,
-  type IntroNameplateFrame,
   type IntroPropFrame,
   type IntroRevealFrame,
   type SpriteActorFrame,
@@ -37,7 +37,6 @@ export type LogoLayerId =
   | 'logo-blue-mask'
   | 'logo-base'
   | 'logo-highlight-mask'
-  | 'logo-productions'
 
 export type LogoLayerCommand = {
   kind: 'logo-layer'
@@ -57,11 +56,11 @@ export type IntroDrawCommand =
   | SpriteCommand
   | { kind: 'doors'; doors: IntroDoorsFrame }
   | { kind: 'fx'; fx: IntroFxFrame }
-  | { kind: 'nameplate'; nameplate: IntroNameplateFrame }
-  | { kind: 'card'; card: IntroCardFrame }
+  | { kind: 'label'; label: IntroLabelFrame }
+  | { kind: 'title'; title: IntroTitleFrame }
   | { kind: 'flash'; color: 'white' | 'red'; opacity: number }
   | { kind: 'pixel-collapse'; progress: number }
-  | { kind: 'handoff-emblem'; x: number; y: number; scale: number }
+  | { kind: 'handoff-title'; x: number; y: number; scale: number }
   | { kind: 'handoff-flash'; opacity: number }
 
 /**
@@ -71,6 +70,7 @@ export type IntroDrawCommand =
 const FX_LAYER: Record<IntroFxKind, 'under' | 'over'> = {
   'beacon-sweep': 'under',
   'runway-lights': 'under',
+  'landing-lights': 'under',
   contrail: 'under',
   sparkle: 'over',
   'radial-rays': 'over',
@@ -80,11 +80,11 @@ const FX_LAYER: Record<IntroFxKind, 'under' | 'over'> = {
 }
 
 const clipsByAssetId = new Map<string, SpriteClip>()
-for (const clip of [...Object.values(POPT_CLIPS), ...Object.values(JET_CLIPS)]) {
+for (const clip of Object.values(POPT_CLIPS)) {
   if (!clipsByAssetId.has(clip.assetId)) clipsByAssetId.set(clip.assetId, clip)
 }
 
-function spriteCommand(actor: 'popt' | 'jet', frame: SpriteActorFrame): SpriteCommand {
+function spriteCommand(actor: 'popt', frame: SpriteActorFrame): SpriteCommand {
   const clip = clipsByAssetId.get(frame.assetId)
   if (!clip) throw new Error(`Missing sprite clip metadata for ${frame.assetId}`)
   return {
@@ -145,35 +145,26 @@ export function deriveIntroDrawCommands(
         blendMode: 'screen',
       })
     }
-    if (frame.logo.buildProgress > 0.72) {
-      commands.push({
-        kind: 'logo-layer',
-        assetId: 'logo-productions',
-        revealProgress: 1,
-        opacity: Math.min(1, (frame.logo.buildProgress - 0.72) / 0.22),
-        blendMode: 'source-over',
-      })
-    }
   }
+  for (const label of frame.labels) commands.push({ kind: 'label', label })
   for (const sceneProp of frame.props) commands.push({ kind: 'prop', prop: sceneProp })
   for (const fx of frame.fx) {
     if (FX_LAYER[fx.kind] === 'under') commands.push({ kind: 'fx', fx })
   }
   if (frame.popt) commands.push(spriteCommand('popt', frame.popt))
-  if (frame.jet) commands.push(spriteCommand('jet', frame.jet))
+  if (frame.cap) commands.push(spriteCommand('popt', frame.cap))
   // The door leaves close over the actors: the silhouette stands in the gap.
   if (frame.doors) commands.push({ kind: 'doors', doors: frame.doors })
   for (const fx of frame.fx) {
     if (FX_LAYER[fx.kind] === 'over') commands.push({ kind: 'fx', fx })
   }
-  if (frame.nameplate) commands.push({ kind: 'nameplate', nameplate: frame.nameplate })
-  if (frame.card) commands.push({ kind: 'card', card: frame.card })
+  if (frame.title) commands.push({ kind: 'title', title: frame.title })
   if (frame.pixelCollapse > 0) commands.push({ kind: 'pixel-collapse', progress: frame.pixelCollapse })
   if (frame.flash && frame.flash.opacity > 0) {
     commands.push({ kind: 'flash', color: frame.flash.color, opacity: frame.flash.opacity })
   }
   if (handoff) {
-    commands.push({ kind: 'handoff-emblem', x: handoff.x, y: handoff.y, scale: handoff.scale })
+    commands.push({ kind: 'handoff-title', x: handoff.x, y: handoff.y, scale: handoff.scale })
     commands.push({ kind: 'handoff-flash', opacity: handoff.flashOpacity })
   }
   return commands
@@ -263,24 +254,12 @@ function drawDoors(
   context.restore()
 }
 
-/** Runtime lettering over the generated blank nameplate. */
-function drawNameplate(context: CanvasRenderingContext2D, nameplate: IntroNameplateFrame): void {
-  context.save()
-  context.font = '6px "Courier New", monospace'
-  context.textAlign = 'center'
-  context.textBaseline = 'middle'
-  context.fillStyle = '#232838'
-  context.fillText(nameplate.text, Math.round(nameplate.x), Math.round(nameplate.y))
-  context.restore()
-}
 
 export function shouldUseExactLogoFallback(
   commands: readonly LogoLayerCommand[],
   assets: IntroRenderAssets,
 ): boolean {
-  return commands
-    .filter((command) => command.assetId !== 'logo-productions')
-    .some((command) => !assets.has(command.assetId))
+  return commands.some((command) => !assets.has(command.assetId))
 }
 
 function drawProp(context: CanvasRenderingContext2D, prop: IntroPropFrame): void {
@@ -372,6 +351,43 @@ function drawFx(
       context.fillRect(x - 2, 100, 5, 5)
       break
     }
+    case 'landing-lights': {
+      // Two hot cores with a cone of spill opening toward the camera. The cone
+      // is a flat wedge, not a gradient, so it stays inside the intro's
+      // cel-shaded language and on the pixel grid.
+      const cx = Math.round(fx.x)
+      const cy = Math.round(fx.y)
+      const spread = Math.max(1, Math.round(fx.spread))
+      const intensity = Math.max(0, Math.min(1, fx.intensity))
+      const reach = INTRO_STAGE_HEIGHT - cy
+      for (const [widthScale, alpha] of [[3.4, 0.1], [1.9, 0.14], [0.9, 0.2]] as const) {
+        context.globalAlpha = alpha * intensity
+        context.fillStyle = '#dce8ff'
+        context.beginPath()
+        context.moveTo(cx - spread, cy)
+        context.lineTo(cx + spread, cy)
+        context.lineTo(cx + Math.round(spread * widthScale * 2.2), cy + reach)
+        context.lineTo(cx - Math.round(spread * widthScale * 2.2), cy + reach)
+        context.closePath()
+        context.fill()
+      }
+      const core = Math.max(2, Math.round(2 + 3 * intensity))
+      for (const side of [-1, 1] as const) {
+        const lampX = cx + side * spread
+        context.globalAlpha = Math.min(1, 0.55 * intensity)
+        context.fillStyle = '#dce8ff'
+        context.fillRect(lampX - core, cy - core, core * 2, core * 2)
+        context.globalAlpha = Math.min(1, intensity)
+        context.fillStyle = '#fffdf0'
+        context.fillRect(
+          lampX - Math.round(core / 2),
+          cy - Math.round(core / 2),
+          Math.max(1, core),
+          Math.max(1, core),
+        )
+      }
+      break
+    }
     case 'runway-lights': {
       // Centreline dashes and edge lights over the painted runway, streaking
       // with speed. Deterministic in phase; geometry anchored to the plate's
@@ -434,24 +450,48 @@ function drawFx(
   context.restore()
 }
 
-function drawCard(
-  context: CanvasRenderingContext2D,
-  image: CanvasImageSource,
-  card: IntroCardFrame,
-): void {
-  if (card.opacity <= 0) return
-  const { width, height } = imageDimensions(image)
-  const drawWidth = Math.round(width * card.scale)
-  const drawHeight = Math.round(height * card.scale)
+/** Book-cover style lettering: plain, small, one colour, no shadow play. */
+function drawLabel(context: CanvasRenderingContext2D, label: IntroLabelFrame): void {
+  if (label.opacity <= 0) return
   context.save()
-  context.globalAlpha = Math.min(1, card.opacity)
-  context.drawImage(
-    image,
-    Math.round(card.x - drawWidth / 2),
-    Math.round(card.y - drawHeight / 2),
-    drawWidth,
-    drawHeight,
-  )
+  context.globalAlpha = Math.min(1, label.opacity)
+  context.font = `700 ${Math.max(1, Math.round(label.sizePx))}px "Courier New", monospace`
+  context.textAlign = 'center'
+  context.textBaseline = 'middle'
+  context.fillStyle = label.ink === 'dark' ? '#232838' : '#e8ddb8'
+  context.fillText(label.text, Math.round(label.x), Math.round(label.y))
+  context.restore()
+}
+
+/**
+ * The finale title, lettered at runtime rather than baked into art — the same
+ * route the case nameplate uses, and the reason no generated plate has to carry
+ * text. The blue/red offset copies mirror the PRESS START prompt's shadow so
+ * the ending shares the intro's typography.
+ */
+function drawTitle(
+  context: CanvasRenderingContext2D,
+  title: IntroTitleFrame,
+  scale = 1,
+  x = title.x,
+  y = title.y,
+): void {
+  if (title.opacity <= 0) return
+  const size = Math.max(1, Math.round(TITLE_FONT_PX * scale))
+  const shadow = Math.max(1, Math.round(scale))
+  const centreX = Math.round(x)
+  const centreY = Math.round(y)
+  context.save()
+  context.globalAlpha = Math.min(1, title.opacity)
+  context.font = `700 ${size}px "Courier New", monospace`
+  context.textAlign = 'center'
+  context.textBaseline = 'middle'
+  context.fillStyle = '#1761e8'
+  context.fillText(title.text, centreX - shadow, centreY)
+  context.fillStyle = '#a41724'
+  context.fillText(title.text, centreX + shadow, centreY)
+  context.fillStyle = '#f8fbff'
+  context.fillText(title.text, centreX, centreY)
   context.restore()
 }
 
@@ -479,7 +519,6 @@ const CAMERA_SPACE_COMMANDS: ReadonlySet<IntroDrawCommand['kind']> = new Set([
   'sprite',
   'doors',
   'fx',
-  'nameplate',
 ])
 
 function withCamera(
@@ -513,9 +552,7 @@ export function renderIntroFrame(
   const useExactLogoFallback = shouldUseExactLogoFallback(logoCommands, assets)
   const exactLogoReveal = Math.max(
     0,
-    ...logoCommands
-      .filter((command) => command.assetId !== 'logo-productions')
-      .map((command) => command.revealProgress),
+    ...logoCommands.map((command) => command.revealProgress),
   )
   let drewExactLogoFallback = false
 
@@ -538,11 +575,6 @@ export function renderIntroFrame(
         break
       }
       case 'logo-layer': {
-        if (command.assetId === 'logo-productions') {
-          const productions = assets.get(command.assetId)
-          if (productions) drawLogoLayer(context, productions, command)
-          break
-        }
         if (useExactLogoFallback) {
           if (!drewExactLogoFallback) {
             const source = assets.get('logo-source')
@@ -578,14 +610,12 @@ export function renderIntroFrame(
       case 'fx':
         drawFx(context, command.fx)
         break
-      case 'nameplate':
-        drawNameplate(context, command.nameplate)
+      case 'label':
+        drawLabel(context, command.label)
         break
-      case 'card': {
-        const image = assets.get(command.card.assetId)
-        if (image) drawCard(context, image, command.card)
+      case 'title':
+        drawTitle(context, command.title)
         break
-      }
       case 'pixel-collapse':
         drawPixelCollapse(context, command.progress)
         break
@@ -596,19 +626,15 @@ export function renderIntroFrame(
         context.fillRect(0, 0, INTRO_STAGE_WIDTH, INTRO_STAGE_HEIGHT)
         context.restore()
         break
-      case 'handoff-emblem': {
-        const image = assets.get('emblem-finale')
-        if (image) {
-          drawCard(context, image, {
-            assetId: 'emblem-finale',
-            x: command.x,
-            y: command.y,
-            scale: command.scale,
-            opacity: 1,
-          })
-        }
+      case 'handoff-title':
+        drawTitle(
+          context,
+          { text: TITLE_CARD.text, x: command.x, y: command.y, opacity: 1 },
+          command.scale,
+          command.x,
+          command.y,
+        )
         break
-      }
       case 'handoff-flash':
         context.save()
         context.globalAlpha = command.opacity
@@ -653,8 +679,12 @@ function drawSprite(
   context.restore()
 }
 
+/** Stage pixels tall for the finale title at scale 1. */
+const TITLE_FONT_PX = 13
+
 const IDENT_SOURCE_CROP = { x: 105, y: 261, width: 1468, height: 402 } as const
-const IDENT_TARGET = { x: 16, y: 72, width: 288, height: 79 } as const
+/** On-stage ident geometry: half the 320 px stage width, centred. */
+export const IDENT_TARGET = { x: 80, y: 78, width: 160, height: 44 } as const
 
 function drawLogoLayer(
   context: CanvasRenderingContext2D,
@@ -666,25 +696,21 @@ function drawLogoLayer(
   context.save()
   context.globalAlpha = command.opacity
   context.globalCompositeOperation = command.blendMode
-  if (command.assetId === 'logo-productions') {
-    context.drawImage(image, 0, 0, INTRO_STAGE_WIDTH, INTRO_STAGE_HEIGHT)
-  } else {
-    context.beginPath()
-    context.rect(
-      IDENT_TARGET.x,
-      IDENT_TARGET.y,
-      IDENT_TARGET.width * revealProgress,
-      IDENT_TARGET.height,
-    )
-    context.clip()
-    context.drawImage(
-      image,
-      IDENT_TARGET.x,
-      IDENT_TARGET.y,
-      IDENT_TARGET.width,
-      IDENT_TARGET.height,
-    )
-  }
+  context.beginPath()
+  context.rect(
+    IDENT_TARGET.x,
+    IDENT_TARGET.y,
+    IDENT_TARGET.width * revealProgress,
+    IDENT_TARGET.height,
+  )
+  context.clip()
+  context.drawImage(
+    image,
+    IDENT_TARGET.x,
+    IDENT_TARGET.y,
+    IDENT_TARGET.width,
+    IDENT_TARGET.height,
+  )
   context.restore()
 }
 

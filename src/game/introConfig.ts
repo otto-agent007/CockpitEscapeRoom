@@ -7,16 +7,16 @@ export type IntroSceneId =
   | 'tmb2-ident'
   | 'beacon-dark'
   | 'ritual'
-  | 'hangar-reveal'
   | 'suit-up'
   | 'doors'
-  | 'shades'
+  | 'standing-alone'
+  | 'walk-out'
   | 'walk'
-  | 'engine-start'
+  | 'aircraft-reveal'
   | 'inserts'
-  | 'takeoff'
+  | 'departure'
+  | 'right-seat'
   | 'title'
-  | 'loop-reset'
 
 export type IntroScene = {
   id: IntroSceneId
@@ -30,7 +30,7 @@ export const introScenes = [
     id: 'tmb2-ident',
     startSeconds: 0,
     endSeconds: 6,
-    summary: 'Blue pixels assemble the TMB2 console logo before a bright gold-white overload.',
+    summary: 'Blue pixels assemble the TMB2 console logo while Pop T chases his cap across the stage.',
   },
   {
     id: 'beacon-dark',
@@ -42,73 +42,78 @@ export const introScenes = [
     id: 'ritual',
     startSeconds: 7.512,
     endSeconds: 13.056,
-    summary: 'Hard-cut stills on the beat: boots on the tarmac, coffee set down, the flight case latches snap shut.',
-  },
-  {
-    id: 'hangar-reveal',
-    startSeconds: 13.056,
-    endSeconds: 14.544,
-    summary: 'Hangar floodlights slam on row by row and reveal the Northwest DC-9 waiting for its legacy flight.',
+    summary: 'Stills held long: boots on the tarmac, then the coffee set down.',
   },
   {
     id: 'suit-up',
-    startSeconds: 14.544,
-    endSeconds: 26,
-    summary: 'The suit-up montage: the cap flipped and caught, four captain stripes, the logbook snapped shut, wings pinned, and a glance at the watch.',
+    startSeconds: 13.056,
+    endSeconds: 18,
+    summary: 'The cap flipped and caught on the track’s biggest hit, then the wings pinned.',
   },
   {
     id: 'doors',
-    startSeconds: 26,
-    endSeconds: 30.48,
-    summary: 'The hangar doors grind open around the captain’s backlit silhouette.',
+    startSeconds: 18,
+    endSeconds: 21,
+    summary: 'A hand slams the release and the hangar doors part around the captain’s backlit silhouette.',
   },
   {
-    id: 'shades',
-    startSeconds: 30.48,
-    endSeconds: 31.5,
-    summary: 'Shades down.',
+    id: 'standing-alone',
+    startSeconds: 21,
+    endSeconds: 23.4,
+    summary: 'The music thins to a voice and he stands alone, his shadow reaching down the hangar floor.',
+  },
+  {
+    id: 'walk-out',
+    startSeconds: 23.4,
+    endSeconds: 33.4,
+    summary: 'On the way out: four stripes on the shoulder, a glance at the watch, his reading pile swept aside to reach the logbook, and the shades down as he steps into the light.',
   },
   {
     id: 'walk',
-    startSeconds: 31.5,
+    startSeconds: 33.4,
     endSeconds: 35.64,
-    summary: 'The long walk across the hangar floor, small against the DC-9’s nose.',
+    summary: 'The last of the long walk across the hangar floor.',
   },
   {
-    id: 'engine-start',
+    id: 'aircraft-reveal',
     startSeconds: 35.64,
     endSeconds: 38.52,
-    summary: 'Engine light-off: the fan spools and the anti-collision beacon starts flashing on the beat.',
+    summary: 'Floodlights slam on row by row and the Northwest DC-9 is there, waiting.',
   },
   {
     id: 'inserts',
     startSeconds: 38.52,
     endSeconds: 42.84,
-    summary: 'Cockpit inserts: the instrument panel wakes left to right, the family photo on the glareshield, a hand settles on the throttles.',
+    summary: 'Cockpit inserts: the instrument panel wakes, then a hand settles on the throttles.',
   },
   {
-    id: 'takeoff',
+    id: 'departure',
     startSeconds: 42.84,
+    endSeconds: 47.496,
+    summary: 'Landing lights blaze across the empty tarmac, sweep past, and lift away into the dark.',
+  },
+  {
+    id: 'right-seat',
+    startSeconds: 47.496,
     endSeconds: 49.704,
-    summary: 'Lineup on the empty runway, throttles up, rotate — the DC-9 climbs past the camera trailing a contrail.',
+    summary: 'Inside the quiet flight deck: the first officer’s seat is empty, harness loose, panel awake.',
   },
   {
     id: 'title',
     startSeconds: 49.704,
-    endSeconds: 51,
-    summary: 'The winged-globe emblem stamps into the contrail against the stars.',
-  },
-  {
-    id: 'loop-reset',
-    startSeconds: 51,
     endSeconds: 53.04,
-    summary: 'The title holds and the picture collapses into blue pixels before the loop restarts.',
+    summary: 'The instrument glow resolves into the title over the waiting seat, and holds there.',
   },
 ] as const satisfies readonly IntroScene[]
 
+/**
+ * The intro plays once and holds. This used to wrap with a modulo for the
+ * attract loop; it now clamps just inside the last scene so the held final
+ * frame stays the title rather than snapping back to the ident at 53.04.
+ */
 export function normalizeIntroTime(timeSeconds: number): number {
   if (!Number.isFinite(timeSeconds) || timeSeconds < 0) return 0
-  return timeSeconds % INTRO_DURATION_SECONDS
+  return Math.min(timeSeconds, INTRO_DURATION_SECONDS - 0.0001)
 }
 
 export function getIntroSceneAtNormalizedTime(normalizedTimeSeconds: number): IntroScene {

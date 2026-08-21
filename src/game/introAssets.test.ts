@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { JET_CLIPS, POPT_CLIPS } from './introAnimation'
+import { POPT_CLIPS } from './introAnimation'
 import {
   INTRO_FULL_ASSET_IDS,
   INTRO_INITIAL_ASSET_IDS,
@@ -38,10 +38,7 @@ describe('Scramble runtime image tiers', () => {
     expect(introAssets.every((asset) => asset.path.endsWith('.png'))).toBe(true)
     expect(JSON.stringify(introAssets)).not.toMatch(/\.webp|tesla|model[- ]?y|flight mode|mars/i)
 
-    const renderedSpriteIds = new Set([
-      ...Object.values(POPT_CLIPS).map((clip) => clip.assetId),
-      ...Object.values(JET_CLIPS).map((clip) => clip.assetId),
-    ])
+    const renderedSpriteIds = new Set(Object.values(POPT_CLIPS).map((clip) => clip.assetId))
     expect(renderedSpriteIds).toEqual(new Set(
       introAssets.filter((asset) => asset.role === 'sprite').map((asset) => asset.id),
     ))
@@ -51,7 +48,6 @@ describe('Scramble runtime image tiers', () => {
         'logo-blue-mask',
         'logo-base',
         'logo-highlight-mask',
-        'logo-productions',
       ])
   })
 
@@ -68,14 +64,22 @@ describe('Scramble runtime image tiers', () => {
       'logo-blue-mask',
       'logo-base',
       'logo-highlight-mask',
-      'logo-productions',
       'popt-run',
       'popt-skid',
-      'popt-tap',
+      'popt-blinded',
+      'popt-forearm',
+      'popt-flick',
+      'popt-crooked',
+      'popt-salute',
+      'popt-tip',
+      'popt-cover',
+      'popt-fall',
+      'popt-swing',
+      'popt-lookup',
+      'popt-cap',
+      'popt-landed',
       'card-boots',
       'card-coffee',
-      'card-flight-case',
-      'card-flight-case-shut',
       'plate-hangar-dark',
       'plate-hangar-reveal',
     ])

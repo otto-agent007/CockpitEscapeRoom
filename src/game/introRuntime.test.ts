@@ -35,7 +35,7 @@ async function settle(deferred: Deferred): Promise<void> {
 }
 
 describe('TMB2 intro runtime', () => {
-  it('latches PRESS START at exactly six seconds and preserves it across loops', () => {
+  it('latches PRESS START at six seconds and holds the final frame instead of looping', () => {
     let state = createIntroRuntimeState()
     state = sampleIntroRuntime(state, 5.999).state
     expect(state.startAvailable).toBe(false)
@@ -43,32 +43,41 @@ describe('TMB2 intro runtime', () => {
     state = sampleIntroRuntime(state, 6).state
     expect(state.startAvailable).toBe(true)
 
+    // The intro plays once: at and past the end it pins to the last frame and
+    // never reports a loop, so the held title cannot snap back to the ident.
     const end = sampleIntroRuntime(state, INTRO_DURATION_SECONDS)
-    expect(end.didLoop).toBe(true)
-    state = resetIntroRuntimeLoop(end.state, 53_040)
-    expect(state).toMatchObject({
+    expect(end.didLoop).toBe(false)
+    expect(end.state).toMatchObject({
       phase: 'playing',
-      timeSeconds: 0,
+      timeSeconds: INTRO_DURATION_SECONDS,
       startAvailable: true,
+      reachedEnd: true,
     })
+
+    const wayPast = sampleIntroRuntime(end.state, INTRO_DURATION_SECONDS + 90)
+    expect(wayPast.didLoop).toBe(false)
+    expect(wayPast.state.timeSeconds).toBe(INTRO_DURATION_SECONDS)
   })
 
-  it('resets fallback time at the same 53.04-second boundary', () => {
+  it('holds the final frame on the fallback clock too', () => {
     let state = sampleIntroRuntime(createIntroRuntimeState(), 10).state
     state = enterIntroFallback(state, 20_000, 10)
     const end = sampleIntroClock(state, {
-      nowMs: 20_000 + (INTRO_DURATION_SECONDS - 10) * 1_000,
+      nowMs: 20_000 + (INTRO_DURATION_SECONDS + 30 - 10) * 1_000,
       mediaTimeSeconds: 10,
     })
-    expect(end.didLoop).toBe(true)
-
-    state = resetIntroRuntimeLoop(end.state, 63_040)
-    expect(state).toMatchObject({
+    expect(end.didLoop).toBe(false)
+    expect(end.state).toMatchObject({
       phase: 'playing',
-      timeSeconds: 0,
+      timeSeconds: INTRO_DURATION_SECONDS,
       audioMode: 'fallback',
-      fallbackStartedAtMs: 63_040,
+      reachedEnd: true,
     })
+
+    // resetIntroRuntimeLoop survives for the audio-failure retry path, which
+    // does still rewind to zero.
+    state = resetIntroRuntimeLoop(end.state, 63_040)
+    expect(state).toMatchObject({ timeSeconds: 0, fallbackStartedAtMs: 63_040 })
   })
 
   it('rejects Start before six seconds and accepts simultaneous requests once', () => {

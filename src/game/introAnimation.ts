@@ -1,3 +1,4 @@
+import { gameCopy } from './config'
 import { getIntroScene, normalizeIntroTime, type IntroSceneId } from './introConfig'
 import { BEAT_GRID_SECONDS, INTRO_MUSIC_CUES } from './introMusicCues'
 
@@ -41,12 +42,63 @@ function scrambleClip(
   }
 }
 
+/**
+ * Where the finale title sits on the stage. The plate keeps its upper band
+ * dark precisely so this stays legible over it.
+ */
+export const TITLE_CARD = {
+  text: gameCopy.title.toUpperCase(),
+  x: 160,
+  y: 44,
+} as const
+
+/**
+ * Where the runtime letters the book covers on `card-logbook-books`, in stage
+ * pixels. Measured from the deployed 320x224 card.
+ */
+/** The logbook beat's four animation stages, as offsets from its cue. */
+export const LOGBOOK_STAGES = [
+  [0, 'card-logbook-books'],
+  [0.9, 'card-logbook-sweep'],
+  [1.6, 'card-logbook'],
+  [2.4, 'card-logbook-lift'],
+] as const
+
+/** FLIGHT LOG on the lifted cover; measured off the deployed lift card. */
+export const LIFT_LABEL: Omit<IntroLabelFrame, 'opacity'> =
+  { text: 'FLIGHT LOG', x: 140, y: 78, sizePx: 9, ink: 'light' }
+
+export const BOOK_LABELS: readonly Omit<IntroLabelFrame, 'opacity'>[] = [
+  { text: 'ELON MUSK', x: 118, y: 75, sizePx: 8, ink: 'light' },
+  { text: 'REACHER', x: 216, y: 115, sizePx: 7, ink: 'light' },
+  { text: 'LEE CHILD', x: 276, y: 122, sizePx: 6, ink: 'light' },
+]
+
 export const POPT_CLIPS = {
-  /** The Wave S4 ident acting, replacing the retired legacy 256-cell sheets:
-   * a 64 px six-phase run, the comic skid, and the triumphant tap pose. */
-  run: scrambleClip('popt-run', 'images/intro/tmb2/scramble/sprites/popt-run-sheet.png', 44, 66, 6, { x: 22, y: 65 }, [80, 80, 80, 80, 80, 80], 'loop'),
-  skid: scrambleClip('popt-skid', 'images/intro/tmb2/scramble/sprites/popt-skid.png', 45, 56, 1, { x: 22, y: 55 }, [1000], 'hold-last'),
-  tap: scrambleClip('popt-tap', 'images/intro/tmb2/scramble/sprites/popt-tap.png', 34, 72, 1, { x: 17, y: 71 }, [1000], 'hold-last'),
+  /** The Wave S7 ident acting: a 64 px six-phase run plus the six hat-gag
+   * poses. Every pivot is the foot-span midpoint, measured off the normalised
+   * sprite — not the bounding-box centre, which drifts on lopsided poses. */
+  run: scrambleClip('popt-run', 'images/intro/tmb2/scramble/sprites/popt-run-sheet.png', 50, 66, 12, { x: 25, y: 65 }, Array.from({ length: 12 }, () => 40), 'loop'),
+  skid: scrambleClip('popt-skid', 'images/intro/tmb2/scramble/sprites/popt-skid.png', 57, 68, 1, { x: 43, y: 67 }, [1000], 'hold-last'),
+  blinded: scrambleClip('popt-blinded', 'images/intro/tmb2/scramble/sprites/popt-blinded.png', 39, 67, 1, { x: 13, y: 66 }, [1000], 'hold-last'),
+  forearm: scrambleClip('popt-forearm', 'images/intro/tmb2/scramble/sprites/popt-forearm.png', 44, 68, 1, { x: 12, y: 67 }, [1000], 'hold-last'),
+  flick: scrambleClip('popt-flick', 'images/intro/tmb2/scramble/sprites/popt-flick.png', 39, 94, 1, { x: 16, y: 93 }, [1000], 'hold-last'),
+  crooked: scrambleClip('popt-crooked', 'images/intro/tmb2/scramble/sprites/popt-crooked.png', 32, 68, 1, { x: 18, y: 67 }, [1000], 'hold-last'),
+  salute: scrambleClip('popt-salute', 'images/intro/tmb2/scramble/sprites/popt-salute.png', 28, 73, 1, { x: 18, y: 72 }, [1000], 'hold-last'),
+  // Wave S13 in-betweens: the gag played 6 poses over 3.22 s (1.9 per second),
+  // which read as a slideshow. These sit between the poses above and double it.
+  tip: scrambleClip('popt-tip', 'images/intro/tmb2/scramble/sprites/popt-tip.png', 34, 68, 1, { x: 12, y: 67 }, [1000], 'hold-last'),
+  cover: scrambleClip('popt-cover', 'images/intro/tmb2/scramble/sprites/popt-cover.png', 34, 64, 1, { x: 14, y: 63 }, [1000], 'hold-last'),
+  fall: scrambleClip('popt-fall', 'images/intro/tmb2/scramble/sprites/popt-fall.png', 45, 63, 1, { x: 9, y: 62 }, [1000], 'hold-last'),
+  swing: scrambleClip('popt-swing', 'images/intro/tmb2/scramble/sprites/popt-swing.png', 43, 65, 1, { x: 16, y: 64 }, [1000], 'hold-last'),
+  lookup: scrambleClip('popt-lookup', 'images/intro/tmb2/scramble/sprites/popt-lookup.png', 34, 63, 1, { x: 18, y: 62 }, [1000], 'hold-last'),
+  /**
+   * The cap alone, pivoted at its centre. Split out of the airborne pose so the
+   * flight can be a smooth interpolated arc at the display refresh rate rather
+   * than two held drawings — generating more poses could never match this.
+   */
+  cap: scrambleClip('popt-cap', 'images/intro/tmb2/scramble/sprites/popt-cap.png', 16, 13, 1, { x: 8, y: 6 }, [1000], 'hold-last'),
+  landed: scrambleClip('popt-landed', 'images/intro/tmb2/scramble/sprites/popt-landed.png', 34, 68, 1, { x: 15, y: 67 }, [1000], 'hold-last'),
   /** The Wave S4 walk cycle: 48 px figure in a 26×50 cell, feet on row 49. */
   walk: scrambleClip('popt-walk', 'images/intro/tmb2/scramble/sprites/popt-walk-sheet.png', 26, 50, 6, { x: 13, y: 49 }, [130, 130, 130, 130, 130, 130], 'loop'),
   /** Backlit doorway silhouette, single held frame. */
@@ -55,21 +107,11 @@ export const POPT_CLIPS = {
 
 /** The DC-9 sprites. The liftoff pass swaps pre-rendered sizes so every draw
  * keeps a whole-number scale (plan 0030 contract). */
-export const JET_CLIPS = {
-  runway: scrambleClip('dc9-runway', 'images/intro/tmb2/scramble/sprites/dc9-runway.png', 52, 18, 1, { x: 26, y: 17 }, [1000], 'hold-last'),
-  'runway-36': scrambleClip('dc9-runway-36', 'images/intro/tmb2/scramble/sprites/dc9-runway-36.png', 36, 12, 1, { x: 18, y: 11 }, [1000], 'hold-last'),
-  'runway-26': scrambleClip('dc9-runway-26', 'images/intro/tmb2/scramble/sprites/dc9-runway-26.png', 26, 9, 1, { x: 13, y: 8 }, [1000], 'hold-last'),
-  'liftoff-48': scrambleClip('dc9-liftoff-48', 'images/intro/tmb2/scramble/sprites/dc9-liftoff-48.png', 48, 22, 1, { x: 24, y: 11 }, [1000], 'hold-last'),
-  'liftoff-80': scrambleClip('dc9-liftoff-80', 'images/intro/tmb2/scramble/sprites/dc9-liftoff-80.png', 80, 36, 1, { x: 40, y: 18 }, [1000], 'hold-last'),
-  'liftoff-160': scrambleClip('dc9-liftoff-160', 'images/intro/tmb2/scramble/sprites/dc9-liftoff-160.png', 160, 72, 1, { x: 80, y: 36 }, [1000], 'hold-last'),
-  'liftoff-320': scrambleClip('dc9-liftoff-320', 'images/intro/tmb2/scramble/sprites/dc9-liftoff-320.png', 320, 143, 1, { x: 160, y: 71 }, [1000], 'hold-last'),
-} as const satisfies Record<string, SpriteClip>
 
 export type PoptClipId = keyof typeof POPT_CLIPS
-export type JetClipId = keyof typeof JET_CLIPS
 
 export type SpriteActorFrame = {
-  clipId: PoptClipId | JetClipId
+  clipId: PoptClipId
   assetId: string
   sourceFrame: number
   x: number
@@ -86,17 +128,45 @@ export type IntroFxFrame =
   | { kind: 'beacon'; x: number; y: number; on: boolean }
   | { kind: 'beacon-sweep'; x: number; opacity: number }
   | { kind: 'runway-lights'; speed: number; phase: number }
+  /**
+   * An aircraft's landing lights coming at the camera: a pair of hot cores at
+   * (x, y) with a cone of spill opening toward the bottom of the frame.
+   * Purpose-built — reusing radial-rays for this read as a sunburst, and bare
+   * sparkles were far too small to carry the beat.
+   */
+  | { kind: 'landing-lights'; x: number; y: number; spread: number; intensity: number }
   | { kind: 'nav-strobe'; x: number; y: number; on: boolean }
   | { kind: 'exhaust'; x: number; y: number; intensity: number }
   | { kind: 'contrail'; progress: number }
 
 export type IntroFxKind = IntroFxFrame['kind']
 
-export type IntroCardFrame = {
-  assetId: 'emblem-finale'
+/**
+ * The finale title, lettered by the runtime. The text comes from the game's
+ * own config so the intro and the opening screen can never disagree, and so no
+ * generated art has to carry text — which the asset pack forbids outright.
+ */
+export type IntroTitleFrame = {
+  text: string
   x: number
   y: number
-  scale: number
+  opacity: number
+}
+
+/**
+ * Small runtime lettering over generated art, centred on (x, y) in stage
+ * pixels. The asset pack forbids text in generated images (the model garbles
+ * it), so anything that must read as words — the case nameplate once, the book
+ * covers now — is drawn by the runtime instead.
+ */
+export type IntroLabelFrame = {
+  text: string
+  x: number
+  y: number
+  /** Stage pixels tall. */
+  sizePx: number
+  /** 'dark' ink for light surfaces, 'light' for dark ones. */
+  ink: 'dark' | 'light'
   opacity: number
 }
 
@@ -115,8 +185,6 @@ export type IntroDoorsFrame = { gap: number }
 
 /** Runtime lettering over a generated blank plate (models garble type, so no
  * generated asset carries text — plan 0031 pack rule 2). */
-export type IntroNameplateFrame = { text: string; x: number; y: number }
-
 /**
  * A punch-in camera: (x, y) is the focal stage point that stays put on screen
  * while the world scales around it by zoom; offsetX/offsetY displace the view
@@ -236,13 +304,13 @@ export type IntroAnimationFrame = {
   backgroundDim: number
   backgroundReveal: IntroRevealFrame | null
   doors: IntroDoorsFrame | null
-  nameplate: IntroNameplateFrame | null
   logo: { visible: boolean; buildProgress: number; highlightOpacity: number }
   popt: SpriteActorFrame | null
-  jet: SpriteActorFrame | null
+  cap: SpriteActorFrame | null
   props: readonly IntroPropFrame[]
   fx: readonly IntroFxFrame[]
-  card: IntroCardFrame | null
+  title: IntroTitleFrame | null
+  labels: readonly IntroLabelFrame[]
   camera: IntroCameraFrame
   flash: IntroFlashFrame | null
   pixelCollapse: number
@@ -312,20 +380,6 @@ function poptActor(
   }
 }
 
-function jetActor(clipId: JetClipId, x: number, y: number): SpriteActorFrame {
-  const clip = JET_CLIPS[clipId]
-  return {
-    clipId,
-    assetId: clip.assetId,
-    sourceFrame: 0,
-    x,
-    y,
-    scale: 1,
-    rotation: 0,
-    flipX: false,
-    opacity: 1,
-  }
-}
 
 /**
  * Milliseconds elapsed since a story event, for once/hold-last clips whose
@@ -353,27 +407,13 @@ function prop(
  */
 export const EMBLEM_REVEAL_STYLE: 'stamp' | 'eased' = 'stamp'
 
-function emblemCardScale(sinceStampSeconds: number): number {
-  if (EMBLEM_REVEAL_STYLE === 'eased') {
-    return 0.9 + 0.1 * easeInOut(clamp01(sinceStampSeconds / 0.5))
-  }
-  return sinceStampSeconds < 0.08 ? 0.9 : 1
-}
-
-/** The runtime letters the generated blank nameplate (pack rule: no generated
- * text). Measured centre of the plate in both case cards: (175, 141). */
-const CASE_NAMEPLATE: IntroNameplateFrame = Object.freeze({ text: 'CAPT. POP T', x: 175, y: 141 })
 
 /** The anti-collision beacon flashes locked to the beat grid after light-off. */
 export function beaconOn(timeSeconds: number): boolean {
-  if (timeSeconds < INTRO_MUSIC_CUES.engineStart) return false
-  return ((timeSeconds - INTRO_MUSIC_CUES.engineStart) / BEAT_GRID_SECONDS) % 1 < 0.14
+  if (timeSeconds < INTRO_MUSIC_CUES.aircraftReveal) return false
+  return ((timeSeconds - INTRO_MUSIC_CUES.aircraftReveal) / BEAT_GRID_SECONDS) % 1 < 0.14
 }
 
-/** Wing-tip strobes double-blink on a fixed deterministic cycle. */
-function strobeOn(timeSeconds: number): boolean {
-  return (Math.floor(timeSeconds * 10) % 12) < 2
-}
 
 /**
  * Reduced motion holds one curated representative story time per scene, so a
@@ -382,15 +422,16 @@ function strobeOn(timeSeconds: number): boolean {
  */
 const REPRESENTATIVE_SCENE_TIME: Partial<Record<IntroSceneId, number>> = {
   'beacon-dark': 7.2,
-  ritual: 10.6,
-  'hangar-reveal': 14.2,
-  'suit-up': 21.7,
-  doors: 29.3,
-  shades: 30.9,
-  walk: 33.5,
-  'engine-start': 37.5,
+  ritual: 9.4,
+  'suit-up': 13.5,
+  doors: 19.6,
+  'standing-alone': 22.2,
+  'walk-out': 27,
+  walk: 34.5,
+  'aircraft-reveal': 36.4,
   inserts: 40.3,
-  takeoff: 44,
+  departure: 45.6,
+  'right-seat': 48.4,
   title: 50.4,
 }
 
@@ -402,7 +443,7 @@ const REDUCED_MOTION_FX: ReadonlySet<IntroFxKind> = new Set(['runway-lights', 'c
  * camera punches keep running on real time through the hold.
  */
 const SCENE_HITSTOP: Partial<Record<IntroSceneId, { accent: number; hold: number }>> = {
-  takeoff: { accent: INTRO_MUSIC_CUES.jetPass, hold: 0.12 },
+  departure: { accent: INTRO_MUSIC_CUES.rotate, hold: 0.12 },
 }
 
 /** Montage helper: the latest beat at or before t, from [time, assetId] cuts. */
@@ -444,9 +485,6 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
     : hitstop
       ? hitstopTime(normalizedTime, hitstop.accent, hitstop.hold)
       : normalizedTime
-  const sceneProgress = reducedMotion
-    ? clamp01((storyTime - scene.startSeconds) / duration)
-    : rawProgress
   const elapsedMs = (storyTime - scene.startSeconds) * 1_000
   const base: IntroAnimationFrame = {
     sceneId: scene.id,
@@ -456,13 +494,13 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
     backgroundDim: 0,
     backgroundReveal: null,
     doors: null,
-    nameplate: null,
     logo: { visible: false, buildProgress: 0, highlightOpacity: 0 },
     popt: null,
-    jet: null,
+    cap: null,
     props: [],
     fx: [],
-    card: null,
+    title: null,
+    labels: [],
     camera: IDENTITY_CAMERA,
     flash: null,
     pixelCollapse: 0,
@@ -472,65 +510,112 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
   const frame = ((): IntroAnimationFrame => {
   switch (scene.id) {
     case 'tmb2-ident': {
-      // SEGA-style ident gag (plan 0028, owner-approved, kept unchanged by
-      // plan 0031): the logo slams together fast, Pop T sprints in, skids at
-      // the sight of it, taps it on the beat — the tap ignites the gold-white
-      // overload — then he sprints off into the story. Beats sit on the
-      // 0.72 s accent grid extrapolated from the measured cues.
+      // The hat gag (plan 0034): the logo slams together, Pop T sprints in and
+      // skids, the slam gusts his cap down over his eyes, it slides onto his
+      // forearm, he flicks it back up, it lands crooked, he straightens it and
+      // salutes. Beats sit on the 0.72 s accent grid extrapolated from the
+      // measured cues. He is never separated from the cap.
       if (reducedMotion) {
         return { ...base, logo: { visible: true, buildProgress: 1, highlightOpacity: 0 } }
       }
       const t = storyTime
       const ENTER = 1.776
       const SKID = 2.496
-      const TAP = 3.936
-      const FLARE = 4.656
-      const EXIT = 5.376
+      const BLIND = 3.216
+      const FLICK = 3.936
+      const CROOKED = 4.656
+      const SALUTE = 5.376
+      const GROUND = 196
       const fx: IntroFxFrame[] = []
       const props: IntroPropFrame[] = []
 
+      // Twelve poses instead of six: the key poses still land on the 0.72 s
+      // accents, and the Wave S13 in-betweens fill the gaps, taking the gag
+      // from 1.9 poses/sec to roughly 4 (owner note 2026-08-20).
+      const GAG: ReadonlyArray<readonly [number, PoptClipId]> = [
+        [SKID, 'skid'],
+        [2.856, 'tip'],
+        [BLIND, 'blinded'],
+        [3.456, 'cover'],
+        [3.696, 'fall'],
+        [FLICK, 'forearm'],
+        [4.176, 'swing'],
+        [4.416, 'flick'],
+        [CROOKED, 'lookup'],
+        [4.896, 'crooked'],
+        [5.136, 'landed'],
+        [SALUTE, 'salute'],
+      ]
+
+      // The cap is in the air between the flick and the moment it lands askew.
+      const CAP_LAUNCH = 4.5
+      const CAP_LAND = 4.896
+
       let popt: SpriteActorFrame | null = null
-      if (t >= EXIT) {
-        popt = poptActor('run', clipElapsedMs(t, EXIT), 130 + ((t - EXIT) / (6 - EXIT)) * 218, 190)
-      } else if (t >= TAP) {
-        popt = poptActor('tap', clipElapsedMs(t, TAP), 130, 190)
+      let cap: SpriteActorFrame | null = null
+      if (t >= SALUTE + 0.34) {
+        const runOff = t - (SALUTE + 0.34)
+        popt = poptActor('run', clipElapsedMs(t, SALUTE + 0.34), 168 + (runOff / 0.29) * 190, GROUND)
       } else if (t >= SKID) {
-        const skidSlide = 1 - (1 - clamp01((t - SKID) / 0.3)) ** 2
-        popt = poptActor('skid', clipElapsedMs(t, SKID), 100 + 30 * skidSlide, 190)
-        if (t < SKID + 0.55) {
-          props.push(
-            prop('cloud-puff', 88 + 20 * skidSlide, 196, 0.28, 0, 0.5 * (1 - (t - SKID) / 0.55)),
+        let chosen: readonly [number, PoptClipId] = GAG[0]!
+        for (const entry of GAG) if (t >= entry[0]) chosen = entry
+        if (chosen[1] === 'skid') {
+          const skidSlide = 1 - (1 - clamp01((t - SKID) / 0.3)) ** 2
+          popt = poptActor('skid', clipElapsedMs(t, SKID), 138 + 30 * skidSlide, GROUND)
+          if (t < SKID + 0.55) {
+            props.push(
+              prop('cloud-puff', 126 + 20 * skidSlide, GROUND + 6, 0.28, 0, 0.5 * (1 - (t - SKID) / 0.55)),
+            )
+          }
+        } else {
+          popt = poptActor(chosen[1], clipElapsedMs(t, chosen[0]), 168, GROUND)
+        }
+        // The cap's flight, interpolated rather than cut: it leaves his hand at
+        // the flick, arcs up over him and drops onto his head. Continuous, so
+        // it moves at whatever rate the browser draws.
+        if (t >= CAP_LAUNCH && t < CAP_LAND) {
+          const flight = clamp01((t - CAP_LAUNCH) / (CAP_LAND - CAP_LAUNCH))
+          cap = poptActor(
+            'cap',
+            0,
+            Math.round(184 - 22 * flight),
+            Math.round(GROUND - 62 - 46 * Math.sin(Math.PI * flight)),
+            1,
+            flight * Math.PI * 2.5,
           )
         }
       } else if (t >= ENTER) {
-        popt = poptActor('run', clipElapsedMs(t, ENTER), -24 + ((t - ENTER) / (SKID - ENTER)) * 124, 190)
+        popt = poptActor('run', clipElapsedMs(t, ENTER), -24 + ((t - ENTER) / (SKID - ENTER)) * 162, GROUND)
       }
 
-      if (t >= FLARE && t < 5.7) {
+      // The straighten sparkle rides the crooked-to-salute correction.
+      if (t >= SALUTE && t < SALUTE + 0.5) {
+        const fade = 1 - (t - SALUTE) / 0.5
         for (let index = 0; index < 3; index += 1) {
-          const twinkle = (t - FLARE) * 3.1 + index * 2.3
+          const twinkle = (t - SALUTE) * 3.4 + index * 2.1
           fx.push({
             kind: 'sparkle',
-            x: 64 + index * 96 + Math.sin(twinkle) * 5,
-            y: 78 + Math.cos(twinkle * 0.7) * 4,
-            size: 2 + (index % 2),
-            opacity: 0.6 + 0.3 * Math.sin(twinkle * 1.4),
+            x: 156 + index * 14 + Math.sin(twinkle) * 3,
+            y: 128 + Math.cos(twinkle * 0.8) * 4,
+            size: 1 + (index % 2),
+            opacity: (0.55 + 0.35 * Math.sin(twinkle * 1.4)) * fade,
             tint: index === 1 ? 'white' : 'gold',
           })
         }
       }
 
-      const zoom = punchZoom(0.16 * accentPunch(t, TAP))
-      const shake = accentShake(t, TAP, 2.5, 0.35)
-      const flashLevel = accentFlash(t, TAP, 0.15)
+      const zoom = punchZoom(0.16 * accentPunch(t, SKID))
+      const shake = accentShake(t, SKID, 2.5, 0.35)
+      const flashLevel = accentFlash(t, SKID, 0.15)
       return {
         ...base,
         logo: {
           visible: true,
           buildProgress: clamp01(t / 1.7),
-          highlightOpacity: clamp01((t - TAP) / (FLARE - TAP)),
+          highlightOpacity: clamp01((t - SKID) / (BLIND - SKID)),
         },
         popt,
+        cap,
         fx,
         props,
         camera: { zoom, x: 160, y: 128, offsetX: shake.x, offsetY: shake.y },
@@ -547,63 +632,24 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
     }
     case 'ritual': {
       // Hard-cut stills on the measured beats. Every card is a full-frame
-      // generated plate; the runtime letters the blank nameplate.
+      // generated plate.
       const t = storyTime
       const cuts = [
         [CUES.bootsDown, 'card-boots'],
         [CUES.coffeeDown, 'card-coffee'],
-        [CUES.flightCase, 'card-flight-case'],
-        [CUES.latchesSnap, 'card-flight-case-shut'],
       ] as const
       const [cutTime, assetId] = activeCut(t, cuts)
       const accents = cardCutAccents(normalizedTime, cutTime)
-      const fx: IntroFxFrame[] = []
-      if (assetId === 'card-flight-case-shut' && t < CUES.latchesSnap + 0.4) {
-        // Snap ticks at the two latch positions.
-        const fade = 1 - (t - CUES.latchesSnap) / 0.4
-        for (const [lx, ly] of [[100, 116], [230, 116]] as const) {
-          fx.push({ kind: 'sparkle', x: lx, y: ly, size: 2, opacity: 0.9 * fade, tint: 'gold' })
-          fx.push({ kind: 'sparkle', x: lx + 6, y: ly - 6, size: 1, opacity: 0.7 * fade, tint: 'white' })
-        }
-      }
-      return {
-        ...base,
-        backgroundAssetId: assetId,
-        nameplate: assetId.startsWith('card-flight-case') ? CASE_NAMEPLATE : null,
-        fx,
-        ...accents,
-      }
-    }
-    case 'hangar-reveal': {
-      // The track's biggest hit: floodlight rows slam down the dark plate and
-      // the Northwest DC-9 appears. Two generated states, revealed
-      // top-to-bottom on the accent — no code-drawn lighting.
-      const t = storyTime
-      const progress = clamp01((t - CUES.hangarReveal) / 0.36)
-      const shake = accentShake(normalizedTime, CUES.hangarReveal, 3.5, 0.4)
-      const flashLevel = 0.55 * accentFlash(normalizedTime, CUES.hangarReveal, 0.2)
-      return {
-        ...base,
-        backgroundAssetId: 'plate-hangar-dark',
-        backgroundReveal: { assetId: 'plate-hangar-reveal', progress, axis: 'ttb' },
-        camera: {
-          zoom: punchZoom(0.16 * accentPunch(normalizedTime, CUES.hangarReveal)),
-          x: 160,
-          y: 140,
-          offsetX: shake.x,
-          offsetY: shake.y,
-        },
-        flash: flashLevel > 0 ? { color: 'white', opacity: flashLevel } : null,
-      }
+      return { ...base, backgroundAssetId: assetId, ...accents }
     }
     case 'suit-up': {
-      // The montage: five identity beats, each a generated card, each cut
+      // The montage: six identity beats, each a generated card, each cut
       // landing on its cue with a punch. Two-frame cards snap to their second
       // frame a fraction after the cut so the action lands on the beat.
       const t = storyTime
-      // Continuity: the hat is caught FIRST, so every later card may wear it;
-      // the watch check closes the montage as the "time to go" button into
-      // the doors (owner reorder 2026-08-18).
+      // Owner order (2026-08-20): cap flip, wings, four stripes, watch,
+      // logbook, aviators. The hat is caught FIRST so every later card may
+      // wear it, and the four stripes take the track's largest hit.
       const cuts = [
         [
           CUES.capFlip,
@@ -613,25 +659,11 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
               ? 'card-cap-mid'
               : 'card-cap-a',
         ],
-        [CUES.fourStripes, 'card-stripes'],
-        [CUES.logbookSnap, 'card-logbook'],
         [CUES.wingsPinned, 'card-wings'],
-        [CUES.watchCheck, 'card-watch'],
       ] as const
       const [cutTime, assetId] = activeCut(t, cuts)
       const accents = cardCutAccents(normalizedTime, cutTime)
       const fx: IntroFxFrame[] = []
-      if (assetId === 'card-watch' && t >= CUES.watchCheck + 0.15 && t < CUES.watchCheck + 0.55) {
-        // One glint on the clasp as he checks the time.
-        const fade = 1 - (t - CUES.watchCheck - 0.15) / 0.4
-        fx.push({ kind: 'sparkle', x: 190, y: 122, size: 2, opacity: 0.9 * fade, tint: 'gold' })
-      }
-      if (assetId === 'card-logbook' && t < CUES.logbookSnap + 0.4) {
-        // The log snaps shut on the click accent.
-        const fade = 1 - (t - CUES.logbookSnap) / 0.4
-        fx.push({ kind: 'sparkle', x: 150, y: 104, size: 2, opacity: 0.9 * fade, tint: 'gold' })
-        fx.push({ kind: 'sparkle', x: 182, y: 112, size: 1, opacity: 0.7 * fade, tint: 'white' })
-      }
       if (assetId === 'card-wings') {
         for (let index = 0; index < 3; index += 1) {
           const twinkle = t * 3 + index * 2.1
@@ -654,57 +686,121 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
       return { ...base, backgroundAssetId: assetId, fx, ...accents }
     }
     case 'doors': {
-      // The leaves grind open around the backlit silhouette. The doorway
-      // aperture in the plate spans x 119–200 (measured), so the gap eases
-      // from a crack to the full opening.
-      const p = easeInOut(sceneProgress)
+      // The gates themselves open on the 18 s "standing there alone" downbeat
+      // (owner: the release-lever insert stole the hit this lyric asks for).
+      // The leaves grind apart around his backlit silhouette for the full
+      // three seconds of the vocal, easing to the gap the shadow hold keeps.
+      const t = storyTime
+      const accents = cardCutAccents(normalizedTime, CUES.doorsParting)
+      const p = easeInOut(clamp01((t - CUES.doorsParting) / (CUES.standingAlone - CUES.doorsParting)))
       return {
         ...base,
         backgroundAssetId: 'plate-doorway',
-        doors: { gap: Math.round(6 + 38 * p) },
+        doors: { gap: Math.round(10 + 26 * p) },
         popt: poptActor('backlit', elapsedMs, 160, 208),
+        ...accents,
       }
     }
-    case 'shades': {
-      const shake = accentShake(normalizedTime, CUES.shadesDown, 2, 0.3)
-      const accents = cardCutAccents(normalizedTime, CUES.shadesDown, { x: 160, y: 100 })
+    case 'walk-out': {
+      // The suit-up on the way out: four beats noticed as he goes, with the
+      // shades going on as he steps into the light. The logbook beat is a
+      // two-state story (owner, 2026-08-20): his reading pile — the white
+      // Isaacson biography and the road-worn Reacher paperbacks — swept aside
+      // to reach the logbook underneath. The covers are drawn textless per the
+      // pack rule; the runtime letters them.
+      const t = storyTime
+      // The logbook beat animates in four stages: the pile, the mid-sweep, the
+      // hand settling on the bare log, and the log lifted in the hand
+      // (owner, 2026-08-20). Each stage is a full generated frame of the same
+      // continuous motion.
+      const logbookStage = (sinceSeconds: number): typeof LOGBOOK_STAGES[number][1] => {
+        let stage: typeof LOGBOOK_STAGES[number][1] = LOGBOOK_STAGES[0]![1]
+        for (const [offset, assetId] of LOGBOOK_STAGES) if (sinceSeconds >= offset) stage = assetId
+        return stage
+      }
+      const cuts = [
+        [CUES.fourStripes, 'card-stripes'],
+        [CUES.watchCheck, 'card-watch'],
+        [CUES.logbookSnap, logbookStage(t - CUES.logbookSnap)],
+        [CUES.shadesDown, 'card-shades'],
+      ] as const
+      const [cutTime, assetId] = activeCut(t, cuts)
+      const liftTime = CUES.logbookSnap + (LOGBOOK_STAGES[3]?.[0] ?? 2.4)
+      const accents = cardCutAccents(
+        normalizedTime,
+        assetId === 'card-logbook-lift' ? liftTime : cutTime,
+      )
+      const fx: IntroFxFrame[] = []
+      const labels: IntroLabelFrame[] = []
+      if (assetId === 'card-logbook-books') {
+        const settle = clamp01((t - CUES.logbookSnap) / 0.25)
+        for (const spot of BOOK_LABELS) labels.push({ ...spot, opacity: settle })
+      }
+      if (assetId === 'card-logbook') {
+        // The pile is swept clear and the logbook reads as what it is.
+        const settle = clamp01((t - (CUES.logbookSnap + 1.6)) / 0.25)
+        labels.push({ text: 'FLIGHT LOG', x: 128, y: 118, sizePx: 7, ink: 'light', opacity: settle })
+      }
+      if (assetId === 'card-logbook-lift') {
+        // The lifted cover carries the same lettering, larger with the book.
+        const settle = clamp01((t - (CUES.logbookSnap + 2.4)) / 0.2)
+        labels.push({ ...LIFT_LABEL, opacity: settle })
+      }
+      if (assetId === 'card-watch' && t >= CUES.watchCheck + 0.15 && t < CUES.watchCheck + 0.55) {
+        const fade = 1 - (t - CUES.watchCheck - 0.15) / 0.4
+        fx.push({ kind: 'sparkle', x: 190, y: 122, size: 2, opacity: 0.9 * fade, tint: 'gold' })
+      }
+      if (assetId === 'card-shades' && t < CUES.shadesDown + 0.35) {
+        const fade = 1 - (t - CUES.shadesDown) / 0.35
+        fx.push({ kind: 'sparkle', x: 118, y: 96, size: 2, opacity: 0.9 * fade, tint: 'white' })
+        fx.push({ kind: 'sparkle', x: 206, y: 96, size: 2, opacity: 0.9 * fade, tint: 'white' })
+      }
+      return { ...base, backgroundAssetId: assetId, fx, labels, ...accents }
+    }
+    case 'standing-alone': {
+      // The track's deepest quiet (measured 30.5-32.0 s). No accent, no shake,
+      // no flash: he stands in the lit doorway with his shadow reaching the
+      // camera, and the only motion is a slow push-in so the stillness reads as
+      // deliberate.
+      const p = clamp01((storyTime - CUES.standingAlone) / 2.4)
       return {
         ...base,
-        backgroundAssetId: 'card-shades',
-        camera: { ...accents.camera, offsetX: shake.x, offsetY: shake.y },
-        flash: accents.flash
-          ? { color: 'white', opacity: Math.max(accents.flash.opacity, 0.45 * accentFlash(normalizedTime, CUES.shadesDown, 0.12)) }
-          : null,
+        backgroundAssetId: 'card-shadow',
+        camera: { zoom: punchZoom(0.06 * p), x: 160, y: 150, offsetX: 0, offsetY: 0 },
       }
     }
     case 'walk': {
       // The scale shot: the 34 px walk cycle crossing toward the looming nose.
-      const p = clamp01((storyTime - 31.5) / (CUES.engineStart - 31.5))
+      const p = clamp01((storyTime - CUES.walkOut) / (CUES.aircraftReveal - CUES.walkOut))
       return {
         ...base,
         backgroundAssetId: 'plate-walk-tarmac',
         popt: poptActor('walk', elapsedMs, Math.round(50 + 120 * p), 196),
       }
     }
-    case 'engine-start': {
-      // Light-off: still nacelle → blades turning → full-spin disc, and the
-      // beacon starts flashing on the beat grid and never stops again.
+    case 'aircraft-reveal': {
+      // The plane, with him. Floodlight rows slam down the dark plate and the
+      // Northwest DC-9 is there; two beats later its engine lights off and the
+      // anti-collision beacon starts flashing and never stops again. The old
+      // hangar-reveal and engine-start scenes merged here when the owner moved
+      // the aircraft to the end of the ground act (2026-08-20).
       const t = storyTime
-      const assetId = t < CUES.engineStart + 0.4
-        ? 'card-nacelle-a'
-        : t < CUES.engineStart + 1.16
-          ? 'card-nacelle-b'
-          : 'card-nacelle-c'
-      const shake = accentShake(normalizedTime, CUES.engineStart, 2, 0.35)
-      const flashLevel = 0.4 * accentFlash(normalizedTime, CUES.engineStart, 0.15)
+      const shake = accentShake(normalizedTime, CUES.aircraftReveal, 3.5, 0.4)
+      const flashLevel = 0.55 * accentFlash(normalizedTime, CUES.aircraftReveal, 0.2)
+      const fx: IntroFxFrame[] = [{ kind: 'beacon', x: 268, y: 32, on: beaconOn(storyTime) }]
       return {
         ...base,
-        backgroundAssetId: assetId,
-        fx: [{ kind: 'beacon', x: 268, y: 32, on: beaconOn(storyTime) }],
+        backgroundAssetId: 'plate-hangar-dark',
+        backgroundReveal: {
+          assetId: 'plate-hangar-reveal',
+          progress: clamp01((t - CUES.aircraftReveal) / 0.36),
+          axis: 'ttb',
+        },
+        fx,
         camera: {
-          zoom: punchZoom(0.14 * accentPunch(normalizedTime, CUES.engineStart)),
+          zoom: punchZoom(0.16 * accentPunch(normalizedTime, CUES.aircraftReveal)),
           x: 160,
-          y: 104,
+          y: 140,
           offsetX: shake.x,
           offsetY: shake.y,
         },
@@ -717,7 +813,6 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
       const t = storyTime
       const cuts = [
         [CUES.instrumentsAlive, 'card-instruments'],
-        [CUES.thePhoto, 'card-photo'],
         [CUES.handOnThrottles, t >= CUES.handOnThrottles + 0.3 ? 'card-throttles-b' : 'card-throttles-a'],
       ] as const
       const [cutTime, assetId] = activeCut(t, cuts)
@@ -731,80 +826,57 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
           axis: 'ltr',
         }
       }
-      if (assetId === 'card-photo') {
-        const twinkle = t * 2.6
-        if (Math.sin(twinkle) > 0) {
-          fx.push({ kind: 'sparkle', x: 208, y: 62, size: 2, opacity: 0.8, tint: 'gold' })
-        }
-        if (Math.cos(twinkle * 0.7) > 0.3) {
-          fx.push({ kind: 'sparkle', x: 118, y: 44, size: 1, opacity: 0.6, tint: 'white' })
-        }
-      }
       return { ...base, backgroundAssetId: assetId, backgroundReveal: reveal, fx, ...accents }
     }
-    case 'takeoff': {
-      // Lineup, roll, rotate, and the pass. The plate stays pixel-exact; the
-      // speed lives in the runtime light FX and the jet's climb, and the pass
-      // swaps pre-rendered sprite sizes so scales stay whole.
+    case 'departure': {
+      // The departure happens off camera (plan 0035). We stay on the empty
+      // tarmac: the landing lights blaze up on throttles-up, sweep past, and
+      // lift away on rotate. Nothing draws the aircraft, so nothing has to
+      // survive being rendered small.
       const t = storyTime
-      const speed = clamp01((t - CUES.throttlesUp) / 1.6)
-      const fx: IntroFxFrame[] = [{ kind: 'runway-lights', speed, phase: t }]
-      let jet: SpriteActorFrame
-      if (t < CUES.jetPass) {
-        // The roll reads as receding: the jet accelerates away down the
-        // runway, shrinking through pre-rendered sizes, and rotate lifts it
-        // off the painted horizon with exhaust.
-        const recede = clamp01((t - CUES.throttlesUp) / 2.2) ** 2
-        const climb = 14 * clamp01((t - CUES.rotate) / 1) ** 2
-        const clipId: JetClipId = recede < 0.25 ? 'runway' : recede < 0.6 ? 'runway-36' : 'runway-26'
-        const span = JET_CLIPS[clipId].frameWidth
-        const jetY = Math.round(150 - 26 * recede - climb)
-        jet = jetActor(clipId, 160, jetY)
-        fx.push({ kind: 'beacon', x: 160, y: jetY - Math.round(16 * (span / 52)), on: beaconOn(storyTime) })
-        fx.push({ kind: 'nav-strobe', x: 160 - Math.round(24 * (span / 52)), y: jetY - 2, on: strobeOn(t) })
-        fx.push({ kind: 'nav-strobe', x: 160 + Math.round(24 * (span / 52)), y: jetY - 2, on: strobeOn(t) })
-        if (t >= CUES.rotate) {
-          fx.push({ kind: 'exhaust', x: 160, y: jetY + 1, intensity: clamp01((t - CUES.rotate) / 0.5) })
-        }
-      } else {
-        // Overhead pass, up and to the RIGHT — the liftoff sprite noses
-        // up-right, so the sweep matches its attitude — then a reverse-angle
-        // climb-out rides the contrail's tip toward the corner.
-        const pass = clamp01((t - CUES.jetPass) / 0.7)
-        const contrailProgress = clamp01((t - CUES.jetPass - 0.7) / 1)
-        if (pass < 1) {
-          const clipId: JetClipId = pass < 0.45 ? 'liftoff-160' : 'liftoff-320'
-          jet = jetActor(clipId, Math.round(90 + 140 * pass), Math.round(130 - 210 * pass))
-        } else {
-          jet = jetActor(
-            'liftoff-48',
-            Math.round(60 + 220 * contrailProgress),
-            Math.round(150 - 110 * contrailProgress ** 1.3),
-          )
-        }
-        fx.push({ kind: 'contrail', progress: contrailProgress })
+      const spool = clamp01((t - CUES.throttlesUp) / (CUES.rotate - CUES.throttlesUp))
+      const lift = clamp01((t - CUES.rotate) / (CUES.intoTheSeat - CUES.rotate))
+      // A gentle idle crawl before throttles-up so the lineup never reads as a
+      // frozen frame — it plays as the slow roll into position.
+      const fx: IntroFxFrame[] = [
+        { kind: 'runway-lights', speed: (0.12 + 0.88 * spool) * (1 - lift), phase: t },
+      ]
+      // The light wash: a bright wedge that grows toward the camera, then
+      // climbs out of frame and fades as the aircraft rotates away.
+      const washY = Math.round(150 - 120 * lift ** 1.6)
+      const washOpacity = (0.25 + 0.75 * spool) * (1 - lift ** 0.8)
+      if (washOpacity > 0.01) {
+        fx.push({
+          kind: 'landing-lights',
+          x: 160,
+          y: washY,
+          spread: Math.round(5 + 13 * spool),
+          intensity: washOpacity,
+        })
       }
-      // Continuous 1 px roll rumble between throttles-up and the pass, from
-      // the same integer lattice family as accentShake.
+      // Continuous 1 px rumble while the roll is under way, from the same
+      // integer lattice family as accentShake.
       let offsetX = 0
       let offsetY = 0
-      if (normalizedTime >= CUES.throttlesUp && normalizedTime < CUES.jetPass) {
+      if (normalizedTime >= CUES.throttlesUp && normalizedTime < CUES.intoTheSeat) {
         const lattice = Math.floor(normalizedTime * 60)
         offsetX = ((lattice * 73 + 19) % 3) - 1
         offsetY = ((lattice * 41 + 7) % 3) - 1
       }
-      const shake = accentShake(normalizedTime, CUES.jetPass, 2.5, 0.35)
-      const flashLevel = 0.4 * accentFlash(normalizedTime, CUES.jetPass, 0.15)
+      const shake = accentShake(normalizedTime, CUES.rotate, 2.5, 0.35)
+      // The scene itself washes out as the lights sweep over it, then falls
+      // dark behind the departing aircraft.
+      const washGlow = 0.2 * spool * (1 - lift)
+      const flashLevel = Math.max(washGlow, 0.4 * accentFlash(normalizedTime, CUES.rotate, 0.15))
       return {
         ...base,
         backgroundAssetId: 'plate-runway-lineup',
-        jet,
+        backgroundDim: 0.45 * lift,
         fx,
         camera: {
           zoom: punchZoom(
             0.1 * accentPunch(normalizedTime, CUES.throttlesUp),
-            0.08 * accentPunch(normalizedTime, CUES.rotate),
-            0.2 * accentPunch(normalizedTime, CUES.jetPass),
+            0.14 * accentPunch(normalizedTime, CUES.rotate),
           ),
           x: 160,
           y: 130,
@@ -814,45 +886,50 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         flash: flashLevel > 0 ? { color: 'white', opacity: flashLevel } : null,
       }
     }
-    case 'title': {
-      // The emblem stamps into the contrail against the stars.
+    case 'right-seat': {
+      // Hard cut inside. The first officer's seat is empty, harness loose, the
+      // panel awake — the seat the player takes the moment they press start.
       const t = storyTime
-      const reveal = clamp01((t - CUES.emblemStamp) / 0.236)
-      const shake = accentShake(normalizedTime, CUES.emblemStamp, 2, 0.3)
-      const stampFlash = 0.7 * accentFlash(normalizedTime, CUES.emblemStamp, 0.22)
+      const settle = clamp01((t - CUES.intoTheSeat) / 0.5)
+      const shake = accentShake(normalizedTime, CUES.intoTheSeat, 2, 0.3)
+      const cutFlash = 0.5 * accentFlash(normalizedTime, CUES.intoTheSeat, 0.18)
       return {
         ...base,
-        backgroundAssetId: 'plate-night-sky',
-        fx: [
-          { kind: 'contrail', progress: 1 },
-          {
-            kind: 'radial-rays',
-            x: 160,
-            y: 104,
-            scale: 1,
-            rotation: (t - CUES.emblemStamp) * 0.35,
-            opacity: 0.55 * reveal,
-          },
-        ],
-        camera: { zoom: 1, x: 160, y: 104, offsetX: shake.x, offsetY: shake.y },
-        flash: stampFlash > 0 ? { color: 'white', opacity: stampFlash } : null,
-        card: {
-          assetId: 'emblem-finale',
+        backgroundAssetId: 'plate-right-seat',
+        // A breath of extra dark on the cut that lifts as the eye settles.
+        backgroundDim: 0.45 * (1 - settle),
+        camera: {
+          zoom: punchZoom(0.12 * accentPunch(normalizedTime, CUES.intoTheSeat)),
           x: 160,
-          y: 106,
-          scale: emblemCardScale(t - CUES.emblemStamp),
-          opacity: reveal,
+          y: 120,
+          offsetX: shake.x,
+          offsetY: shake.y,
         },
+        flash: cutFlash > 0 ? { color: 'white', opacity: cutFlash } : null,
       }
     }
-    case 'loop-reset':
-      // The title holds while the picture collapses into blue pixels.
+    case 'title': {
+      // The instrument glow resolves into the game's own title over the seat.
+      const t = storyTime
+      const reveal = clamp01((t - CUES.titleCard) / 0.26)
+      const shake = accentShake(normalizedTime, CUES.titleCard, 2, 0.3)
+      const stampFlash = 0.6 * accentFlash(normalizedTime, CUES.titleCard, 0.22)
       return {
         ...base,
-        backgroundAssetId: 'plate-night-sky',
-        card: { assetId: 'emblem-finale', x: 160, y: 106, scale: 1, opacity: 1 },
-        pixelCollapse: clamp01((sceneProgress - 0.3) / 0.7),
+        backgroundAssetId: 'plate-right-seat',
+        fx: [{
+          kind: 'radial-rays',
+          x: 160,
+          y: TITLE_CARD.y,
+          scale: 1,
+          rotation: (t - CUES.titleCard) * 0.35,
+          opacity: 0.4 * reveal,
+        }],
+        camera: { zoom: 1, x: 160, y: 120, offsetX: shake.x, offsetY: shake.y },
+        flash: stampFlash > 0 ? { color: 'white', opacity: stampFlash } : null,
+        title: { ...TITLE_CARD, opacity: reveal },
       }
+    }
   }
   })()
 
@@ -873,8 +950,8 @@ export function deriveHandoffAnimation(progress: number): HandoffFrame {
   const eased = easeInOut(safeProgress)
   return {
     progress: safeProgress,
-    x: 160,
-    y: 106,
+    x: TITLE_CARD.x,
+    y: TITLE_CARD.y,
     scale: 1 + eased * 3.5,
     flashOpacity: safeProgress === 1 ? 1 : clamp01((safeProgress - 0.55) / 0.45),
   }
