@@ -65,8 +65,10 @@ export const LOGBOOK_STAGES = [
 ] as const
 
 /** FLIGHT LOG on the lifted cover; measured off the deployed lift card. */
-export const LIFT_LABEL: Omit<IntroLabelFrame, 'opacity'> =
-  { text: 'FLIGHT LOG', x: 140, y: 78, sizePx: 9, ink: 'light' }
+export const LIFT_LABELS: readonly Omit<IntroLabelFrame, 'opacity'>[] = [
+  { text: 'FLIGHT LOG', x: 140, y: 74, sizePx: 9, ink: 'light' },
+  { text: 'CAPT. POP T', x: 140, y: 90, sizePx: 6, ink: 'light' },
+]
 
 export const BOOK_LABELS: readonly Omit<IntroLabelFrame, 'opacity'>[] = [
   { text: 'ELON MUSK', x: 118, y: 75, sizePx: 8, ink: 'light' },
@@ -127,14 +129,6 @@ export type IntroFxFrame =
   | { kind: 'radial-rays'; x: number; y: number; scale: number; rotation: number; opacity: number }
   | { kind: 'beacon'; x: number; y: number; on: boolean }
   | { kind: 'beacon-sweep'; x: number; opacity: number }
-  | { kind: 'runway-lights'; speed: number; phase: number }
-  /**
-   * An aircraft's landing lights coming at the camera: a pair of hot cores at
-   * (x, y) with a cone of spill opening toward the bottom of the frame.
-   * Purpose-built — reusing radial-rays for this read as a sunburst, and bare
-   * sparkles were far too small to carry the beat.
-   */
-  | { kind: 'landing-lights'; x: number; y: number; spread: number; intensity: number }
   | { kind: 'nav-strobe'; x: number; y: number; on: boolean }
   | { kind: 'exhaust'; x: number; y: number; intensity: number }
   | { kind: 'contrail'; progress: number }
@@ -430,20 +424,18 @@ const REPRESENTATIVE_SCENE_TIME: Partial<Record<IntroSceneId, number>> = {
   walk: 34.5,
   'aircraft-reveal': 36.4,
   inserts: 40.3,
-  departure: 45.6,
   'right-seat': 48.4,
   title: 50.4,
 }
 
 /** Fx kinds that stay visible (frozen) under reduced motion. */
-const REDUCED_MOTION_FX: ReadonlySet<IntroFxKind> = new Set(['runway-lights', 'contrail', 'radial-rays'])
+const REDUCED_MOTION_FX: ReadonlySet<IntroFxKind> = new Set(['contrail', 'radial-rays'])
 
 /**
  * The one accent per scene that freezes the acting SEGA-style. Flashes and
  * camera punches keep running on real time through the hold.
  */
 const SCENE_HITSTOP: Partial<Record<IntroSceneId, { accent: number; hold: number }>> = {
-  departure: { accent: INTRO_MUSIC_CUES.rotate, hold: 0.12 },
 }
 
 /** Montage helper: the latest beat at or before t, from [time, assetId] cuts. */
@@ -660,6 +652,8 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
               : 'card-cap-a',
         ],
         [CUES.wingsPinned, 'card-wings'],
+        [CUES.fourStripes, 'card-stripes'],
+        [CUES.watchCheck, 'card-watch'],
       ] as const
       const [cutTime, assetId] = activeCut(t, cuts)
       const accents = cardCutAccents(normalizedTime, cutTime)
@@ -678,6 +672,10 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
             })
           }
         }
+      }
+      if (assetId === 'card-watch' && t >= CUES.watchCheck + 0.15 && t < CUES.watchCheck + 0.55) {
+        const fade = 1 - (t - CUES.watchCheck - 0.15) / 0.4
+        fx.push({ kind: 'sparkle', x: 190, y: 122, size: 2, opacity: 0.9 * fade, tint: 'gold' })
       }
       if (assetId === 'card-cap-b' && t < CUES.capFlip + 0.9) {
         const fade = 1 - (t - CUES.capFlip - 0.5) / 0.4
@@ -719,9 +717,8 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         return stage
       }
       const cuts = [
-        [CUES.fourStripes, 'card-stripes'],
-        [CUES.watchCheck, 'card-watch'],
         [CUES.logbookSnap, logbookStage(t - CUES.logbookSnap)],
+        [CUES.headsetUp, 'card-headset'],
         [CUES.shadesDown, 'card-shades'],
       ] as const
       const [cutTime, assetId] = activeCut(t, cuts)
@@ -739,16 +736,13 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
       if (assetId === 'card-logbook') {
         // The pile is swept clear and the logbook reads as what it is.
         const settle = clamp01((t - (CUES.logbookSnap + 1.6)) / 0.25)
-        labels.push({ text: 'FLIGHT LOG', x: 128, y: 118, sizePx: 7, ink: 'light', opacity: settle })
+        labels.push({ text: 'FLIGHT LOG', x: 128, y: 114, sizePx: 7, ink: 'light', opacity: settle })
+        labels.push({ text: 'CAPT. POP T', x: 128, y: 126, sizePx: 5, ink: 'light', opacity: settle })
       }
       if (assetId === 'card-logbook-lift') {
         // The lifted cover carries the same lettering, larger with the book.
         const settle = clamp01((t - (CUES.logbookSnap + 2.4)) / 0.2)
-        labels.push({ ...LIFT_LABEL, opacity: settle })
-      }
-      if (assetId === 'card-watch' && t >= CUES.watchCheck + 0.15 && t < CUES.watchCheck + 0.55) {
-        const fade = 1 - (t - CUES.watchCheck - 0.15) / 0.4
-        fx.push({ kind: 'sparkle', x: 190, y: 122, size: 2, opacity: 0.9 * fade, tint: 'gold' })
+        for (const spot of LIFT_LABELS) labels.push({ ...spot, opacity: settle })
       }
       if (assetId === 'card-shades' && t < CUES.shadesDown + 0.35) {
         const fade = 1 - (t - CUES.shadesDown) / 0.35
@@ -808,16 +802,24 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
       }
     }
     case 'inserts': {
-      // Cockpit inserts: the panel wakes between its two generated states,
-      // the photo gets its quiet twinkle, the hand settles on the throttles.
+      // The departure plays from INSIDE (owner cut the runway lineup act): the
+      // panel wakes, the overhead sweeps on, the engines light off, then the
+      // hand settles on the throttles and pushes them up on 45.12, and the
+      // panel surges on the 46.008 rotate.
       const t = storyTime
+      // The nacelle spools through its three generated states.
+      const nacelleStage = (since: number): 'card-nacelle-a' | 'card-nacelle-b' | 'card-nacelle-c' =>
+        since < 0.6 ? 'card-nacelle-a' : since < 1.2 ? 'card-nacelle-b' : 'card-nacelle-c'
       const cuts = [
         [CUES.instrumentsAlive, 'card-instruments'],
-        [CUES.handOnThrottles, t >= CUES.handOnThrottles + 0.3 ? 'card-throttles-b' : 'card-throttles-a'],
+        [CUES.overheadPanel, 'card-overhead'],
+        [CUES.nacelleLight, nacelleStage(t - CUES.nacelleLight)],
+        [CUES.handOnThrottles, 'card-throttles-a'],
+        [CUES.throttlesUp, 'card-throttles-b'],
       ] as const
       const [cutTime, assetId] = activeCut(t, cuts)
-      const accents = cardCutAccents(normalizedTime, cutTime, { x: 160, y: 112 })
-      const fx: IntroFxFrame[] = []
+      const accents = cardCutAccents(normalizedTime, cutTime)
+      const fx: IntroFxFrame[] = [{ kind: 'beacon', x: 268, y: 32, on: beaconOn(storyTime) }]
       let reveal: IntroRevealFrame | null = null
       if (assetId === 'card-instruments') {
         reveal = {
@@ -826,64 +828,25 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
           axis: 'ltr',
         }
       }
-      return { ...base, backgroundAssetId: assetId, backgroundReveal: reveal, fx, ...accents }
-    }
-    case 'departure': {
-      // The departure happens off camera (plan 0035). We stay on the empty
-      // tarmac: the landing lights blaze up on throttles-up, sweep past, and
-      // lift away on rotate. Nothing draws the aircraft, so nothing has to
-      // survive being rendered small.
-      const t = storyTime
-      const spool = clamp01((t - CUES.throttlesUp) / (CUES.rotate - CUES.throttlesUp))
-      const lift = clamp01((t - CUES.rotate) / (CUES.intoTheSeat - CUES.rotate))
-      // A gentle idle crawl before throttles-up so the lineup never reads as a
-      // frozen frame — it plays as the slow roll into position.
-      const fx: IntroFxFrame[] = [
-        { kind: 'runway-lights', speed: (0.12 + 0.88 * spool) * (1 - lift), phase: t },
-      ]
-      // The light wash: a bright wedge that grows toward the camera, then
-      // climbs out of frame and fades as the aircraft rotates away.
-      const washY = Math.round(150 - 120 * lift ** 1.6)
-      const washOpacity = (0.25 + 0.75 * spool) * (1 - lift ** 0.8)
-      if (washOpacity > 0.01) {
-        fx.push({
-          kind: 'landing-lights',
-          x: 160,
-          y: washY,
-          spread: Math.round(5 + 13 * spool),
-          intensity: washOpacity,
-        })
-      }
-      // Continuous 1 px rumble while the roll is under way, from the same
-      // integer lattice family as accentShake.
-      let offsetX = 0
-      let offsetY = 0
+      // Rotate: the panel surges and the airframe rumbles on whole pixels.
+      const rotateFlash = 0.5 * accentFlash(normalizedTime, CUES.rotate, 0.2)
+      const shake = accentShake(normalizedTime, CUES.rotate, 2.5, 0.35)
+      let offsetX = accents.camera.offsetX + shake.x
+      let offsetY = accents.camera.offsetY + shake.y
       if (normalizedTime >= CUES.throttlesUp && normalizedTime < CUES.intoTheSeat) {
         const lattice = Math.floor(normalizedTime * 60)
-        offsetX = ((lattice * 73 + 19) % 3) - 1
-        offsetY = ((lattice * 41 + 7) % 3) - 1
+        offsetX += ((lattice * 73 + 19) % 3) - 1
+        offsetY += ((lattice * 41 + 7) % 3) - 1
       }
-      const shake = accentShake(normalizedTime, CUES.rotate, 2.5, 0.35)
-      // The scene itself washes out as the lights sweep over it, then falls
-      // dark behind the departing aircraft.
-      const washGlow = 0.2 * spool * (1 - lift)
-      const flashLevel = Math.max(washGlow, 0.4 * accentFlash(normalizedTime, CUES.rotate, 0.15))
       return {
         ...base,
-        backgroundAssetId: 'plate-runway-lineup',
-        backgroundDim: 0.45 * lift,
+        backgroundAssetId: assetId,
+        backgroundReveal: reveal,
         fx,
-        camera: {
-          zoom: punchZoom(
-            0.1 * accentPunch(normalizedTime, CUES.throttlesUp),
-            0.14 * accentPunch(normalizedTime, CUES.rotate),
-          ),
-          x: 160,
-          y: 130,
-          offsetX: offsetX + shake.x,
-          offsetY: offsetY + shake.y,
-        },
-        flash: flashLevel > 0 ? { color: 'white', opacity: flashLevel } : null,
+        camera: { ...accents.camera, offsetX, offsetY },
+        flash: rotateFlash > 0
+          ? { color: 'white', opacity: Math.max(rotateFlash, accents.flash?.opacity ?? 0) }
+          : accents.flash,
       }
     }
     case 'right-seat': {

@@ -69,8 +69,6 @@ export type IntroDrawCommand =
  */
 const FX_LAYER: Record<IntroFxKind, 'under' | 'over'> = {
   'beacon-sweep': 'under',
-  'runway-lights': 'under',
-  'landing-lights': 'under',
   contrail: 'under',
   sparkle: 'over',
   'radial-rays': 'over',
@@ -285,7 +283,6 @@ function drawProp(context: CanvasRenderingContext2D, prop: IntroPropFrame): void
 const SPARKLE_TINTS = { blue: '#75c4ff', white: '#fffdf0', gold: '#f5c424' } as const
 
 /** The runway's painted horizon row in plate-runway-lineup (measured). */
-const RUNWAY_HORIZON_Y = 117
 
 function drawFx(
   context: CanvasRenderingContext2D,
@@ -349,65 +346,6 @@ function drawFx(
       }
       context.fillStyle = '#ffb020'
       context.fillRect(x - 2, 100, 5, 5)
-      break
-    }
-    case 'landing-lights': {
-      // Two hot cores with a cone of spill opening toward the camera. The cone
-      // is a flat wedge, not a gradient, so it stays inside the intro's
-      // cel-shaded language and on the pixel grid.
-      const cx = Math.round(fx.x)
-      const cy = Math.round(fx.y)
-      const spread = Math.max(1, Math.round(fx.spread))
-      const intensity = Math.max(0, Math.min(1, fx.intensity))
-      const reach = INTRO_STAGE_HEIGHT - cy
-      for (const [widthScale, alpha] of [[3.4, 0.1], [1.9, 0.14], [0.9, 0.2]] as const) {
-        context.globalAlpha = alpha * intensity
-        context.fillStyle = '#dce8ff'
-        context.beginPath()
-        context.moveTo(cx - spread, cy)
-        context.lineTo(cx + spread, cy)
-        context.lineTo(cx + Math.round(spread * widthScale * 2.2), cy + reach)
-        context.lineTo(cx - Math.round(spread * widthScale * 2.2), cy + reach)
-        context.closePath()
-        context.fill()
-      }
-      const core = Math.max(2, Math.round(2 + 3 * intensity))
-      for (const side of [-1, 1] as const) {
-        const lampX = cx + side * spread
-        context.globalAlpha = Math.min(1, 0.55 * intensity)
-        context.fillStyle = '#dce8ff'
-        context.fillRect(lampX - core, cy - core, core * 2, core * 2)
-        context.globalAlpha = Math.min(1, intensity)
-        context.fillStyle = '#fffdf0'
-        context.fillRect(
-          lampX - Math.round(core / 2),
-          cy - Math.round(core / 2),
-          Math.max(1, core),
-          Math.max(1, core),
-        )
-      }
-      break
-    }
-    case 'runway-lights': {
-      // Centreline dashes and edge lights over the painted runway, streaking
-      // with speed. Deterministic in phase; geometry anchored to the plate's
-      // measured horizon.
-      const scroll = (fx.phase * (10 + 280 * fx.speed)) % 24
-      const depthSpan = INTRO_STAGE_HEIGHT - RUNWAY_HORIZON_Y
-      for (let index = 0; index < 10; index += 1) {
-        const y = RUNWAY_HORIZON_Y + 6 + index * 24 - scroll
-        if (y <= RUNWAY_HORIZON_Y || y >= INTRO_STAGE_HEIGHT) continue
-        const depth = (y - RUNWAY_HORIZON_Y) / depthSpan
-        const dashWidth = Math.max(1, Math.round(2 + 8 * depth))
-        const dashLength = Math.max(2, Math.round(3 + 14 * depth * (1 + 2 * fx.speed)))
-        context.fillStyle = '#fffdf0'
-        context.fillRect(160 - Math.floor(dashWidth / 2), Math.round(y), dashWidth, dashLength)
-        const edgeX = Math.round(14 + 136 * depth)
-        const stretch = Math.max(1, Math.round(1 + 10 * fx.speed * depth))
-        context.fillStyle = '#ffb020'
-        context.fillRect(160 - edgeX, Math.round(y), 2, stretch)
-        context.fillRect(160 + edgeX - 2, Math.round(y), 2, stretch)
-      }
       break
     }
     case 'nav-strobe': {

@@ -225,6 +225,22 @@ would mean the references are wrong rather than the prompt.
   the covers are mid-slide and fixed lettering would detach from them.
 - Suites 418/418; asset contract 65 assets / 45 preloads.
 
+### 2026-08-20 — fast opening and the inside departure
+
+- Owner reorder: stripes and watch moved ahead of the gates to speed the opening (opening beats now
+  ~1.39 s; stripes take the 13.056 hit), headset added after the logbook, gates still on 18.0.
+- The runway lineup act was cut as "kinda lame". Consequence surfaced rather than absorbed: it
+  owned the 45.12 (+9.1 dB) and 46.008 (+20.1 dB) accents, so the departure moved inside the
+  cockpit — overhead, nacelle spool (owner: nacelles before the levers), throttles settle, throttles
+  up on 45.12, panel surge and rumble on 46.008. The intro now contains no exterior aircraft shot
+  after the hangar reveal, which suits an ending that lands in the seat.
+- Dead code removed with the act: `plate-runway-lineup`, the `runway-lights` fx and the
+  purpose-built `landing-lights` fx, plus their renderer cases and the orphaned horizon constant.
+- CAPT. POP T restored on the logbook (both settled and lifted states), recovering the
+  personalisation lost with the flight-case card.
+- Suites 417/417; asset contract 63 assets / 49 preloads; 16-checkpoint forensic verification of
+  the delivered render.
+
 ## Outcome and handoff
 
 Open. Design chosen by the owner 2026-08-20; no push before the owner gate.

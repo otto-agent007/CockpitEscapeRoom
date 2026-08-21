@@ -34,7 +34,7 @@ describe('Scramble runtime image tiers', () => {
   it('registers every rendered sheet and background as a safe local PNG', () => {
     expect(() => validateIntroAssets(introAssets)).not.toThrow()
     expect(new Set(introAssets.map((asset) => asset.id)).size).toBe(introAssets.length)
-    expect(introAssets).toHaveLength(45)
+    expect(introAssets).toHaveLength(49)
     expect(introAssets.every((asset) => asset.path.endsWith('.png'))).toBe(true)
     expect(JSON.stringify(introAssets)).not.toMatch(/\.webp|tesla|model[- ]?y|flight mode|mars/i)
 
@@ -83,7 +83,7 @@ describe('Scramble runtime image tiers', () => {
       'plate-hangar-dark',
       'plate-hangar-reveal',
     ])
-    expect(INTRO_FULL_ASSET_IDS).toHaveLength(45)
+    expect(INTRO_FULL_ASSET_IDS).toHaveLength(49)
     expect(INTRO_INITIAL_ASSET_IDS).not.toContain('emblem-finale')
     expect(getIntroAssetsForTier('initial').map((asset) => asset.id)).toEqual(INTRO_INITIAL_ASSET_IDS)
     expect(getIntroAssetsForTier('full')).toEqual(introAssets)

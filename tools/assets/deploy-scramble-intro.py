@@ -19,7 +19,6 @@ PLATES = {
     'plate-hangar-reveal-320.png': 'plates/hangar-reveal.png',
     'plate-doorway-320.png': 'plates/doorway.png',
     'plate-walk-tarmac-320.png': 'plates/walk-tarmac.png',
-    'plate-runway-lineup-320.png': 'plates/runway-lineup.png',
     'plate-right-seat-320.png': 'plates/right-seat.png',
     'strip-door-leaf-168.png': 'plates/door-leaf.png',
 }
@@ -29,6 +28,8 @@ CARDS = [
     'card-watch', 'card-stripes', 'card-logbook', 'card-wings',
     'card-cap-a', 'card-cap-mid', 'card-cap-b', 'card-shades', 'card-instruments', 'card-instruments-b',
     'card-throttles-a', 'card-throttles-b',
+    'card-headset', 'card-overhead',
+    'card-nacelle-a', 'card-nacelle-b', 'card-nacelle-c',
     'card-logbook-books', 'card-logbook-sweep', 'card-logbook-lift', 'card-shadow',
 ]
 

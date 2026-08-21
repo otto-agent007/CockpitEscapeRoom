@@ -104,15 +104,16 @@ describe('Scramble sprite animation contract', () => {
       backgroundAssetId: 'plate-hangar-dark',
       backgroundReveal: { assetId: 'plate-hangar-reveal', progress: 1, axis: 'ttb' },
     })
-    expect(deriveIntroAnimation(30, false).backgroundAssetId).toBe('card-logbook')
+    expect(deriveIntroAnimation(CUES.logbookSnap + 2, false).backgroundAssetId).toBe('card-logbook')
+    expect(deriveIntroAnimation(CUES.headsetUp + 0.5, false).backgroundAssetId).toBe('card-headset')
     expect(deriveIntroAnimation(CUES.doorsParting + 0.5, false)).toMatchObject({
       sceneId: 'doors',
       popt: { clipId: 'backlit' },
     })
     expect(deriveIntroAnimation(34.8, false).sceneId).toBe('walk')
     expect(deriveIntroAnimation(36.5, false).backgroundAssetId).toBe('plate-hangar-dark')
-    expect(deriveIntroAnimation(40.8, false).backgroundAssetId).toBe('card-throttles-a')
-    expect(deriveIntroAnimation(44, false).backgroundAssetId).toBe('plate-runway-lineup')
+    expect(deriveIntroAnimation(CUES.handOnThrottles + 0.5, false).backgroundAssetId).toBe('card-throttles-a')
+    expect(deriveIntroAnimation(44.5, false).backgroundAssetId).toBe('card-throttles-a')
     expect(deriveIntroAnimation(48.5, false).backgroundAssetId).toBe('plate-right-seat')
     expect(deriveIntroAnimation(50.2, false).title).toMatchObject({ text: TITLE_CARD.text })
     expect(deriveIntroAnimation(52.5, false).title).not.toBeNull()
@@ -158,7 +159,7 @@ describe('Scramble sprite animation contract', () => {
     expect(deriveIntroAnimation(CUES.capFlip + 0.3, false).backgroundAssetId).toBe('card-cap-mid')
     expect(deriveIntroAnimation(CUES.capFlip + 0.6, false).backgroundAssetId).toBe('card-cap-b')
     expect(deriveIntroAnimation(CUES.wingsPinned + 0.05, false).backgroundAssetId).toBe('card-wings')
-    expect(deriveIntroAnimation(CUES.fourStripes + 0.05, false).backgroundAssetId).toBe('card-stripes')
+    expect(deriveIntroAnimation(CUES.fourStripes + 0.1, false).backgroundAssetId).toBe('card-stripes')
     expect(deriveIntroAnimation(CUES.watchCheck + 0.1, false).backgroundAssetId).toBe('card-watch')
     // Each cut punches in and pops white.
     const cut = deriveIntroAnimation(CUES.fourStripes + 0.03, false)
@@ -179,11 +180,11 @@ describe('Scramble sprite animation contract', () => {
     expect(deriveIntroAnimation(CUES.logbookSnap + 1.2, false).backgroundAssetId).toBe('card-logbook-sweep')
     const cleared = deriveIntroAnimation(CUES.logbookSnap + 2.0, false)
     expect(cleared.backgroundAssetId).toBe('card-logbook')
-    expect(cleared.labels.map((label) => label.text)).toEqual(['FLIGHT LOG'])
+    expect(cleared.labels.map((label) => label.text)).toEqual(['FLIGHT LOG', 'CAPT. POP T'])
 
     const lifted = deriveIntroAnimation(CUES.logbookSnap + 2.8, false)
     expect(lifted.backgroundAssetId).toBe('card-logbook-lift')
-    expect(lifted.labels.map((label) => label.text)).toEqual(['FLIGHT LOG'])
+    expect(lifted.labels.map((label) => label.text)).toEqual(['FLIGHT LOG', 'CAPT. POP T'])
     // The pick-up lands with its own small punch.
     expect(deriveIntroAnimation(CUES.logbookSnap + 2.45, false).camera.zoom).toBeGreaterThan(1.02)
 
@@ -191,7 +192,7 @@ describe('Scramble sprite animation contract', () => {
     expect(deriveIntroAnimation(CUES.logbookSnap + 1.2, false).labels).toEqual([])
 
     // Nothing else in the intro letters labels.
-    for (const time of [8, 14, 20, 26, 37, 50]) {
+    for (const time of [8, 14, 20, 32, 37, 50]) {
       expect(deriveIntroAnimation(time, false).labels, `t=${time}`).toEqual([])
     }
   })
@@ -207,21 +208,23 @@ describe('Scramble sprite animation contract', () => {
     expect(wider.doors!.gap).toBeGreaterThan(parting.doors!.gap)
   })
 
-  it('spreads the story across the whole track instead of finishing by 18 s', () => {
-    // The complaint this guards: the intro used to run through everything
-    // between 7 s and 16 s and then coast. Every consecutive story beat must
-    // now be at least two seconds apart, across the entire ground act.
-    const beats = [
-      CUES.bootsDown, CUES.coffeeDown, CUES.capFlip, CUES.wingsPinned,
-      CUES.doorsParting, CUES.standingAlone, CUES.fourStripes, CUES.watchCheck,
-      CUES.logbookSnap, CUES.shadesDown, CUES.walkOut, CUES.aircraftReveal,
-      CUES.instrumentsAlive, CUES.handOnThrottles,
-    ]
-    for (let index = 0; index < beats.length - 1; index += 1) {
-      expect(beats[index + 1]! - beats[index]!, `gap after beat ${index}`).toBeGreaterThanOrEqual(2)
+  it('cuts the opening fast, then plays every post-gate beat long', () => {
+    // Owner shape: the ritual and suit-up drive hard so the stripes and watch
+    // both land before the gates, and everything after the 18 s vocal breathes.
+    const opening = [CUES.bootsDown, CUES.coffeeDown, CUES.capFlip, CUES.wingsPinned, CUES.fourStripes]
+    for (let index = 0; index < opening.length - 1; index += 1) {
+      expect(opening[index + 1]! - opening[index]!, `opening gap ${index}`).toBeLessThan(1.6)
     }
-    // And the story must still be running well past the halfway mark.
-    expect(beats[beats.length - 1]!).toBeGreaterThan(40)
+    expect(CUES.watchCheck).toBeLessThan(CUES.doorsParting)
+
+    const after = [CUES.standingAlone, CUES.logbookSnap, CUES.headsetUp, CUES.shadesDown, CUES.walkOut]
+    for (let index = 0; index < after.length - 1; index += 1) {
+      expect(after[index + 1]! - after[index]!, `post-gate gap ${index}`).toBeGreaterThanOrEqual(2.3)
+    }
+    // The doors still hold across the whole vocal.
+    expect(CUES.standingAlone - CUES.doorsParting).toBeGreaterThanOrEqual(3)
+    // And the story still runs deep into the track.
+    expect(CUES.throttlesUp).toBeGreaterThan(44)
   })
 
   it('holds no single shot longer than five seconds outside the walk and the ending', () => {
@@ -265,44 +268,39 @@ describe('Scramble sprite animation contract', () => {
     const awake = deriveIntroAnimation(CUES.instrumentsAlive + 1.2, false)
     expect(awake.backgroundReveal?.progress).toBe(1)
     expect(deriveIntroAnimation(CUES.handOnThrottles + 0.1, false).backgroundAssetId).toBe('card-throttles-a')
-    expect(deriveIntroAnimation(CUES.handOnThrottles + 0.5, false).backgroundAssetId).toBe('card-throttles-b')
   })
 
-  it('sweeps the landing lights across the tarmac and lifts them away on rotate', () => {
-    const waiting = deriveIntroAnimation(44, false)
-    expect(waiting.backgroundAssetId).toBe('plate-runway-lineup')
-    expect(waiting.fx.some((fx) => fx.kind === 'runway-lights')).toBe(true)
+  it('flies the departure from inside the cockpit, nacelles before the levers', () => {
+    // The owner cut the runway lineup act, so the panel and throttles carry the
+    // 45.12 and 46.008 hits and no exterior shot is needed at all.
+    expect(deriveIntroAnimation(CUES.instrumentsAlive + 0.3, false).backgroundAssetId).toBe('card-instruments')
+    expect(deriveIntroAnimation(CUES.overheadPanel + 0.3, false).backgroundAssetId).toBe('card-overhead')
+    expect(deriveIntroAnimation(CUES.nacelleLight + 0.2, false).backgroundAssetId).toBe('card-nacelle-a')
+    expect(deriveIntroAnimation(CUES.nacelleLight + 0.8, false).backgroundAssetId).toBe('card-nacelle-b')
+    expect(deriveIntroAnimation(CUES.nacelleLight + 1.5, false).backgroundAssetId).toBe('card-nacelle-c')
+    expect(CUES.nacelleLight).toBeLessThan(CUES.handOnThrottles)
+    expect(deriveIntroAnimation(CUES.handOnThrottles + 0.2, false).backgroundAssetId).toBe('card-throttles-a')
+    expect(deriveIntroAnimation(CUES.throttlesUp + 0.2, false).backgroundAssetId).toBe('card-throttles-b')
 
-    const spooling = deriveIntroAnimation(CUES.throttlesUp + 0.05, false)
-    expect(spooling.camera.zoom).toBeGreaterThan(1.05)
-    // A purpose-built landing-lights fx: reusing radial-rays here read as a
-    // sunburst and bare sparkles were far too small to carry the beat.
-    const lights = spooling.fx.find((fx) => fx.kind === 'landing-lights')
-    expect(lights, 'the landing lights ride throttles-up').toBeDefined()
-    expect(spooling.flash?.opacity, 'the lights wash the scene').toBeGreaterThan(0)
-
-    // Rotate lifts the lights out of frame and dims the ground behind them.
-    const lifting = deriveIntroAnimation(CUES.rotate + 0.6, false)
-    const liftingLights = lifting.fx.find((fx) => fx.kind === 'landing-lights')
-    if (liftingLights && lights) {
-      expect(liftingLights.kind === 'landing-lights' && liftingLights.y)
-        .toBeLessThan(lights.kind === 'landing-lights' ? lights.y : 0)
-    }
-    expect(lifting.backgroundDim).toBeGreaterThan(0)
-  })
-
-  it('rumbles the roll on whole pixels and freezes rotate with hitstop', () => {
+    // Rotate surges the panel and rumbles on whole pixels.
+    const rotating = deriveIntroAnimation(CUES.rotate + 0.05, false)
+    expect(rotating.flash?.color).toBe('white')
     for (let time = CUES.throttlesUp; time < CUES.intoTheSeat; time += 0.05) {
       const { camera } = deriveIntroAnimation(time, false)
       expect(Number.isInteger(camera.offsetX)).toBe(true)
       expect(Number.isInteger(camera.offsetY)).toBe(true)
     }
-    expect(deriveIntroAnimation(CUES.rotate + 0.05, false).flash?.color).toBe('white')
+
+    // No exterior plate survives anywhere in the intro.
+    for (let time = 6; time <= 53.04; time += 0.1) {
+      expect(deriveIntroAnimation(time, false).backgroundAssetId ?? '', `t=${time.toFixed(1)}`)
+        .not.toMatch(/runway/)
+    }
   })
 
   it('cuts to the empty right seat and letters the game title over it', () => {
     const beforeCut = deriveIntroAnimation(CUES.intoTheSeat - 0.05, false)
-    expect(beforeCut.backgroundAssetId).toBe('plate-runway-lineup')
+    expect(beforeCut.backgroundAssetId).toBe('card-throttles-b')
 
     const seat = deriveIntroAnimation(CUES.intoTheSeat + 0.05, false)
     expect(seat.backgroundAssetId).toBe('plate-right-seat')
@@ -474,7 +472,7 @@ describe('Scramble sprite animation contract', () => {
     expect(second.sceneId).toBe('walk')
     expect(second.popt).toEqual(first.popt)
     // The inserts hold the woken panel.
-    expect(deriveIntroAnimation(40, true).backgroundAssetId).toBe('card-instruments')
+    expect(deriveIntroAnimation(40, true).backgroundAssetId).toBe('card-overhead')
   })
 
   it('suppresses transient fx and camera moves in reduced motion', () => {

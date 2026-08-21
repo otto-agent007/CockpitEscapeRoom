@@ -18,15 +18,14 @@ describe('Scramble cinematic timeline', () => {
     expect(introScenes.map(({ id, startSeconds, endSeconds }) => ({ id, startSeconds, endSeconds }))).toEqual([
       { id: 'tmb2-ident', startSeconds: 0, endSeconds: 6 },
       { id: 'beacon-dark', startSeconds: 6, endSeconds: 7.512 },
-      { id: 'ritual', startSeconds: 7.512, endSeconds: 13.056 },
-      { id: 'suit-up', startSeconds: 13.056, endSeconds: 18 },
+      { id: 'ritual', startSeconds: 7.512, endSeconds: 10.284 },
+      { id: 'suit-up', startSeconds: 10.284, endSeconds: 18 },
       { id: 'doors', startSeconds: 18, endSeconds: 21 },
       { id: 'standing-alone', startSeconds: 21, endSeconds: 23.4 },
-      { id: 'walk-out', startSeconds: 23.4, endSeconds: 33.4 },
-      { id: 'walk', startSeconds: 33.4, endSeconds: 35.64 },
+      { id: 'walk-out', startSeconds: 23.4, endSeconds: 31.6 },
+      { id: 'walk', startSeconds: 31.6, endSeconds: 35.64 },
       { id: 'aircraft-reveal', startSeconds: 35.64, endSeconds: 38.52 },
-      { id: 'inserts', startSeconds: 38.52, endSeconds: 42.84 },
-      { id: 'departure', startSeconds: 42.84, endSeconds: 47.496 },
+      { id: 'inserts', startSeconds: 38.52, endSeconds: 47.496 },
       { id: 'right-seat', startSeconds: 47.496, endSeconds: 49.704 },
       { id: 'title', startSeconds: 49.704, endSeconds: 53.04 },
     ])
@@ -50,10 +49,11 @@ describe('Scramble cinematic timeline', () => {
     expect(getIntroScene(0).id).toBe('tmb2-ident')
     expect(getIntroScene(5.999).id).toBe('tmb2-ident')
     expect(getIntroScene(6).id).toBe('beacon-dark')
-    expect(getIntroScene(13.055).id).toBe('ritual')
+    expect(getIntroScene(10.283).id).toBe('ritual')
     expect(getIntroScene(26).id).toBe('walk-out')
     expect(getIntroScene(31.5).id).toBe('walk-out')
-    expect(getIntroScene(42.84).id).toBe('departure')
+    expect(getIntroScene(31.6).id).toBe('walk')
+    expect(getIntroScene(42.84).id).toBe('inserts')
     expect(getIntroScene(47.496).id).toBe('right-seat')
     expect(getIntroScene(53.039).id).toBe('title')
   })

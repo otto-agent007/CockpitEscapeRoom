@@ -168,6 +168,15 @@
       "hasAlpha": false
     },
     {
+      "id": "scramble-cards-headset-png",
+      "path": "scramble/cards/headset.png",
+      "sha256": "ed45a2871ed66a195837164f0b4a1acc5821e2c7e7e4f44fdacf6415eb5c81cb",
+      "bytes": 72033,
+      "width": 320,
+      "height": 224,
+      "hasAlpha": false
+    },
+    {
       "id": "scramble-cards-instruments-b-png",
       "path": "scramble/cards/instruments-b.png",
       "sha256": "2006695cfd0bb7311b6928396a5fcb8128696204eb152b3cb4c63f5f9ca24cb4",
@@ -217,6 +226,42 @@
       "path": "scramble/cards/logbook.png",
       "sha256": "b430342b417ede4b11ec3b3be9e12de66aa2ee884755beb877809433af64b695",
       "bytes": 75624,
+      "width": 320,
+      "height": 224,
+      "hasAlpha": false
+    },
+    {
+      "id": "scramble-cards-nacelle-a-png",
+      "path": "scramble/cards/nacelle-a.png",
+      "sha256": "f5758965cda244abe7ea7dd424171329f1c20a7a3e88f947832ce8fda702f2f2",
+      "bytes": 66410,
+      "width": 320,
+      "height": 224,
+      "hasAlpha": false
+    },
+    {
+      "id": "scramble-cards-nacelle-b-png",
+      "path": "scramble/cards/nacelle-b.png",
+      "sha256": "26ccb60c4b5fa2019a4e4e98a7feeab047c7bb62aa009b492878d57c7dfd34af",
+      "bytes": 67941,
+      "width": 320,
+      "height": 224,
+      "hasAlpha": false
+    },
+    {
+      "id": "scramble-cards-nacelle-c-png",
+      "path": "scramble/cards/nacelle-c.png",
+      "sha256": "5b1cdd650d6d864077d4ac24583fa4518b81bc923de694bf74faf2e22a7da5fa",
+      "bytes": 63883,
+      "width": 320,
+      "height": 224,
+      "hasAlpha": false
+    },
+    {
+      "id": "scramble-cards-overhead-png",
+      "path": "scramble/cards/overhead.png",
+      "sha256": "9493ee5c49765cb08ae9e4a937e6bcff024cd42bcba7e71d0e7e2d62d3a519b7",
+      "bytes": 73496,
       "width": 320,
       "height": 224,
       "hasAlpha": false
@@ -334,15 +379,6 @@
       "path": "scramble/plates/right-seat.png",
       "sha256": "5445b749d04e228dffc929f0f7dcf3cfb539d48e10fd49282b1ae11f1769501c",
       "bytes": 76100,
-      "width": 320,
-      "height": 224,
-      "hasAlpha": false
-    },
-    {
-      "id": "scramble-plates-runway-lineup-png",
-      "path": "scramble/plates/runway-lineup.png",
-      "sha256": "ea1d75aa587cc6f65f9ad86392f433e62cf5f976d9aaf6fb6319597a264fe5f2",
-      "bytes": 50626,
       "width": 320,
       "height": 224,
       "hasAlpha": false
@@ -589,7 +625,6 @@
     "scramble/plates/doorway.png",
     "scramble/plates/door-leaf.png",
     "scramble/plates/walk-tarmac.png",
-    "scramble/plates/runway-lineup.png",
     "scramble/plates/right-seat.png",
     "scramble/cards/boots.png",
     "scramble/cards/coffee.png",
@@ -601,6 +636,11 @@
     "scramble/cards/cap-mid.png",
     "scramble/cards/cap-b.png",
     "scramble/cards/shades.png",
+    "scramble/cards/headset.png",
+    "scramble/cards/overhead.png",
+    "scramble/cards/nacelle-a.png",
+    "scramble/cards/nacelle-b.png",
+    "scramble/cards/nacelle-c.png",
     "scramble/cards/logbook-books.png",
     "scramble/cards/logbook-sweep.png",
     "scramble/cards/logbook-lift.png",

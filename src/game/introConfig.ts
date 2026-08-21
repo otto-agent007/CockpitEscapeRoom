@@ -14,7 +14,6 @@ export type IntroSceneId =
   | 'walk'
   | 'aircraft-reveal'
   | 'inserts'
-  | 'departure'
   | 'right-seat'
   | 'title'
 
@@ -41,20 +40,20 @@ export const introScenes = [
   {
     id: 'ritual',
     startSeconds: 7.512,
-    endSeconds: 13.056,
-    summary: 'Stills held long: boots on the tarmac, then the coffee set down.',
+    endSeconds: 10.284,
+    summary: 'Quick stills on the beat: boots on the tarmac, then the coffee set down.',
   },
   {
     id: 'suit-up',
-    startSeconds: 13.056,
+    startSeconds: 10.284,
     endSeconds: 18,
-    summary: 'The cap flipped and caught on the track’s biggest hit, then the wings pinned.',
+    summary: 'The suit-up cuts fast: the cap flipped and caught, wings pinned, four captain stripes, and a glance at the watch.',
   },
   {
     id: 'doors',
     startSeconds: 18,
     endSeconds: 21,
-    summary: 'A hand slams the release and the hangar doors part around the captain’s backlit silhouette.',
+    summary: 'The hangar doors part around the captain’s backlit silhouette and hold there through the vocal.',
   },
   {
     id: 'standing-alone',
@@ -65,14 +64,14 @@ export const introScenes = [
   {
     id: 'walk-out',
     startSeconds: 23.4,
-    endSeconds: 33.4,
-    summary: 'On the way out: four stripes on the shoulder, a glance at the watch, his reading pile swept aside to reach the logbook, and the shades down as he steps into the light.',
+    endSeconds: 31.6,
+    summary: 'On the way out: his reading pile swept aside to lift the flight log, the headset over his shoulder, and the shades down as he steps into the light.',
   },
   {
     id: 'walk',
-    startSeconds: 33.4,
+    startSeconds: 31.6,
     endSeconds: 35.64,
-    summary: 'The last of the long walk across the hangar floor.',
+    summary: 'The long walk out across the hangar floor.',
   },
   {
     id: 'aircraft-reveal',
@@ -83,14 +82,8 @@ export const introScenes = [
   {
     id: 'inserts',
     startSeconds: 38.52,
-    endSeconds: 42.84,
-    summary: 'Cockpit inserts: the instrument panel wakes, then a hand settles on the throttles.',
-  },
-  {
-    id: 'departure',
-    startSeconds: 42.84,
     endSeconds: 47.496,
-    summary: 'Landing lights blaze across the empty tarmac, sweep past, and lift away into the dark.',
+    summary: 'Inside the cockpit for the departure: the panel wakes, the overhead switches sweep on, a hand settles on the throttles and pushes them up.',
   },
   {
     id: 'right-seat',

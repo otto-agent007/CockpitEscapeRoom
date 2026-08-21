@@ -10,56 +10,53 @@
  */
 export const INTRO_MUSIC_CUES = {
   /**
-   * Re-timed 2026-08-20 (third pass) to slow the whole intro down.
-   *
-   * The arithmetic that drives this: two anchors are fixed by the track — the
-   * doors open on the 18 s vocal, and the aircraft reveal lands on the +17.8 dB
-   * hit at 35.64. That splits the story into windows of 10.5 s, 17.6 s and
-   * 7.2 s. Carrying all nineteen images forced one of those windows to about
-   * 1.3 s per shot every time, which is why the whole story used to be over
-   * before 18 s. At roughly 2.5 s per shot these windows hold FIFTEEN images,
-   * so four were cut and the suit-up moved AFTER the doors: the stripes, watch,
-   * logbook and shades now read as things noticed on the way out, and the
-   * shades go on as he steps into the light.
+   * Re-timed 2026-08-20 (owner): the opening runs FAST — boots through the
+   * four stripes at ~1.39 s a beat — so the stripes and watch both land before
+   * the gates, which stay pinned to the 18 s "standing there alone" vocal.
+   * Everything after the gates plays long (2.4 s+). The runway lineup act was
+   * cut, so the departure stays inside the cockpit and the panel and throttles
+   * take the 45.12 and 46.008 hits.
    */
   /** Boots hit the tarmac (+16.9 dB at 7.512). */
   bootsDown: 7.512,
   /** Coffee set down. */
-  coffeeDown: 10.284,
-  /** The cap flipped and caught — the track's largest hit (+28.6 dB at 13.056). */
-  capFlip: 13.056,
+  coffeeDown: 8.898,
+  /** The cap flipped and caught. */
+  capFlip: 10.284,
   /** Wings pinned. */
-  wingsPinned: 15.528,
-  /** The hangar doors part around him ON the 18 s "standing there alone"
-   * downbeat, and keep grinding open through the whole vocal. The release-lever
-   * insert that used to take this hit is retired (owner, 2026-08-20): the
-   * gates themselves are the image the lyric asks for. */
+  wingsPinned: 11.67,
+  /** Four captain's stripes — the track's largest hit (+28.6 dB at 13.056). */
+  fourStripes: 13.056,
+  /** A glance at the watch, the last beat before the doors. */
+  watchCheck: 15.528,
+  /** The hangar doors part around him ON the 18 s vocal and hold through it. */
   doorsParting: 18,
   /** He stands alone, his shadow reaching down the hangar floor. */
   standingAlone: 21,
-  /** Four captain's stripes on the shoulder as he goes. */
-  fourStripes: 23.4,
-  /** A glance at the watch. */
-  watchCheck: 25.7,
-  /** Dad's reading pile — the Musk biography and the Reacher paperbacks —
-   * swept aside to get to the logbook beneath. Widened to 3.4 s so the joke
-   * has room: books first, then the hand on the bare logbook. */
-  logbookSnap: 28,
+  /** The reading pile swept aside and the flight log picked up (four stages). */
+  logbookSnap: 23.4,
+  /** The headset slung over his shoulder. */
+  headsetUp: 26.8,
   /** Shades down as he steps into the light. */
-  shadesDown: 31.4,
-  /** The last of the walk out across the floor. */
-  walkOut: 33.4,
+  shadesDown: 29.2,
+  /** The long walk out across the floor. */
+  walkOut: 31.6,
   /** Floodlights slam on and the DC-9 is there with him (+17.8 dB at 35.64). */
   aircraftReveal: 35.64,
   /** The instrument panel wakes left to right (grid: 35.64 + 4 beats). */
   instrumentsAlive: 38.52,
-  /** The hand settles on the throttles (grid: 35.64 + 7 beats). */
-  handOnThrottles: 40.68,
-  /** Throttles up — the landing lights blaze across the tarmac (+9.1 dB at 45.120). */
+  /** Overhead panel switches sweep on (grid: 35.64 + 6 beats). */
+  overheadPanel: 39.96,
+  /** Engine light-off on the nacelle, before the hands reach the levers
+   * (owner, 2026-08-20). Three spool states over its beat. */
+  nacelleLight: 42.12,
+  /** The hand settles on the throttles (grid: 35.64 + 12 beats). */
+  handOnThrottles: 44.28,
+  /** Throttles up — the hand pushes them forward (+9.1 dB at 45.120). */
   throttlesUp: 45.12,
-  /** Rotate — the light sweep lifts off the ground and away (+20.1 dB at 46.008). */
+  /** Rotate — the panel surges as the nose lifts (+20.1 dB at 46.008). */
   rotate: 46.008,
-  /** The last light is gone; hard cut inside to the empty right seat (+13.5 dB at 47.496). */
+  /** Hard cut to the empty right seat (+13.5 dB at 47.496). */
   intoTheSeat: 47.496,
   /** The instrument glow resolves into the game's title (+20.3 dB at 49.704). */
   titleCard: 49.704,
