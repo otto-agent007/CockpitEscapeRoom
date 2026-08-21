@@ -12,9 +12,9 @@
   "sourceMeshCount": 1,
   "sourceTriangleCount": 480305,
   "runtimeVehicleTriangleCount": 180000,
-  "runtimeTotalTriangleCount": 205644,
-  "runtimeMaterialCount": 8,
-  "runtimeDrawCallCount": 25,
+  "runtimeTotalTriangleCount": 215212,
+  "runtimeMaterialCount": 6,
+  "runtimeDrawCallCount": 20,
   "sourceBounds": {
     "minimum": [
       -0.490265,
@@ -115,10 +115,46 @@
       "packed": true
     }
   ],
+  "hangarSource": "https://sketchfab.com/3d-models/hangar-64f7d287f5274029bc29755a9839ebbf",
+  "hangarAuthor": "nermin",
+  "hangarLicense": "CC BY 4.0",
+  "hangarPreservedSource": ".cache/cockpit-pipeline/sources/model-y-hangar/sketchfab-hangar-64f7d287f5274029bc29755a9839ebbf/original/hangar.zip",
+  "hangarSourceSha256": "8ec631f27e40f6f1f3ac3448c96374c315a4874f2c8e4bdbe307f284fdf6e1fe",
+  "hangarSourceTriangleCount": 9640,
+  "runtimeHangarTriangleCount": 9640,
+  "hangarSourceMaterialCount": 7,
+  "runtimeHangarMaterialCount": 1,
+  "runtimeHangarTexture": {
+    "name": "TEX_TESLA_HANGAR_ATLAS",
+    "dimensions": [
+      2048,
+      2048
+    ],
+    "packed": true
+  },
+  "hangarNormalizationScale": 0.012484351540208485,
+  "runtimeHangarBounds": {
+    "minimum": [
+      -12.0,
+      -17.129139,
+      0.0
+    ],
+    "maximum": [
+      12.0,
+      17.129141,
+      10.327149
+    ],
+    "size": [
+      24.0,
+      34.258278,
+      10.327149
+    ]
+  },
   "rootObject": "TESLA_ROOT",
   "requiredNodes": [
     "TESLA_ROOT",
     "TESLA_HANGAR",
+    "TESLA_HANGAR_SOURCE_SHELL",
     "TESLA_HANGAR_DOOR_LEFT",
     "TESLA_HANGAR_DOOR_RIGHT",
     "TESLA_VEHICLE",
@@ -150,6 +186,7 @@
   "visibleProxyReplacement": "The old browser red-box reward proxy must be removed when this GLB is integrated.",
   "knownDeviations": [
     "The owner-supplied Tripo vehicle is a private reward candidate rather than exact manufacturer CAD.",
-    "Flight Mode is a fictional non-operational articulated kit built around the untouched one-piece vehicle body."
+    "Flight Mode is a fictional non-operational articulated kit built around the untouched one-piece vehicle body.",
+    "The CC BY 4.0 Sketchfab hangar exterior is used double-sided as the reward shell; its seven source textures are consolidated into one 2K runtime atlas."
   ]
 }

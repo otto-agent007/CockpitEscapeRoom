@@ -277,7 +277,13 @@
   position: absolute;
   z-index: 1;
   inset: 0;
-  background: linear-gradient(90deg, rgba(2, 6, 9, 0.96) 0%, rgba(2, 6, 9, 0.72) 32%, transparent 68%);
+  background: linear-gradient(
+    90deg,
+    rgba(2, 6, 9, 0.94) 0%,
+    rgba(2, 6, 9, 0.72) 24%,
+    rgba(2, 6, 9, 0.22) 40%,
+    transparent 56%
+  );
   content: "";
   pointer-events: none;
 }
