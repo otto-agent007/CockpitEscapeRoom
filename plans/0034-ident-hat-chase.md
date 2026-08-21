@@ -66,7 +66,7 @@ effects outside the 0–6 s ident window.
 - [x] 2026-08-20 — Milestone 2 complete: 4 generations, all sprites on the canonical identity.
 - [x] 2026-08-20 — Milestone 3 complete: gag animates end to end, browser proof at all 8 beats.
 - [x] 2026-08-20 — Milestone 4 complete: synthesized SFX firing on every beat, verified in-browser.
-- [~] 2026-08-20 — Milestone 5: unit, asset, e2e and responsive proof done; owner gate outstanding.
+- [x] 2026-08-20 — Milestone 5 complete: all proof recorded; awaiting owner review only.
 
 ## Discoveries
 

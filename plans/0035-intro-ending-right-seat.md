@@ -62,7 +62,7 @@ the launch-sequence reorder, which remain separate open items; the DC-9 chapter'
 - [x] 2026-08-20 — Milestone 1 complete: plate generated first time, on style.
 - [x] 2026-08-20 — Milestone 2 complete: all four ending beats animate and are proven in-browser.
 - [x] 2026-08-20 — Milestone 3 complete: emblem and all seven jet sprites gone, 416/416 green.
-- [~] 2026-08-20 — Milestone 4: browser and e2e proof done; owner gate outstanding.
+- [x] 2026-08-20 — Milestone 4 complete: browser, e2e, responsive and reduced-motion proof all recorded.
 
 ## Discoveries
 
@@ -243,7 +243,21 @@ would mean the references are wrong rather than the prompt.
 
 ## Outcome and handoff
 
-Open. Design chosen by the owner 2026-08-20; no push before the owner gate.
+**AT THE OWNER GATE, 2026-08-20.** The intro is feature-complete against every instruction given
+this arc and fully validated: `npm run check` 417/417, `assets:check` 63/49, `e2e/smoke.spec.ts`
+29 passed / 1 skipped, responsive clean at 375/768/1440, reduced motion holding a curated frame
+per scene with zero AudioContexts. Candidate render for review:
+`preview-renders/tmb2-intro-overhaul/intro-fastopen-2026-08-20.mp4`, verified frame-by-frame at
+capture and re-verified at 16 checkpoints from the delivered file.
+
+Six commits on `agent/tmb2-intro-overhaul`, **not pushed** — the owner gate governs the push.
+
+Known outstanding and NOT caused by this work: `e2e/airbus-workload.spec.ts:242` fails a width
+assertion; re-verified as pre-existing by stashing this arc and reproducing it on the clean tree.
+
+Deliberately shelved art, kept in `art-source` and reinstatable in one line each: the chocks and
+wands ramp cards, and the retired door-release insert. The DC-9 jet sprites regenerated during the
+takeoff investigation are kept as the evidence for why that act was replaced rather than redrawn.
 
 **Next, not yet done:** the ident gag needs more frames. Measured at 1.9 poses/sec for the hat flip
 and 12.5 fps for the run. The plan is two more sheets — six in-between run frames to interleave into
