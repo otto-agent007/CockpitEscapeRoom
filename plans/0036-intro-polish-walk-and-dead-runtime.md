@@ -172,6 +172,29 @@ owner-approved this arc); the ident run and gag (0034, complete); reinstating an
   source silently rescaled the character. The slices are now committed as
   `generated/s4-walk-slice-{1..6}.png` so the chain is reproducible.
 
+- 2026-08-21 — **The sweep across the rest of the sprites was safe for a reason worth writing
+  down**: `--coverage` drops pixels *after* the resample, so the output canvas size cannot change.
+  Every `POPT_CLIPS` frame size and hand-measured pivot therefore stays valid, which is what made
+  the sweep a rebuild rather than a re-registration. Verified per sprite after the rebuild: no size
+  changed, no lowest-opaque row moved, and the two sprites that are two pieces (`popt-fall`,
+  `popt-flick` — the cap is off his head in both) were already two pieces before.
+- 2026-08-21 — **Recovering which source made which sprite had to be done by reproduction, not by
+  aspect arithmetic.** Matching on aspect ratio left seven sprites ambiguous or unmatched. Rebuilding
+  every candidate slice and diffing it against the shipped file identified 25 of 27 with a mean
+  absolute difference of **0.00**. Five of those had to be rebuilt at a forced size: they were
+  originally scaled off a shared reference whose rounding an aspect-preserving resize cannot
+  reproduce, which is why `--target WxH` now exists. The mapping is recorded in
+  `art-source/intro/tmb2/scramble/sprite-sources.json` and driven by
+  `tools/assets/rebuild-popt-sprites.py` so it never has to be solved again.
+- 2026-08-21 — Two sprites have **no reproducible source** and were left exactly as they ship:
+  `spr-popt-cap` (the cap cut out of the airborne pose; it measures 0% pale edge anyway) and
+  `spr-popt-gag-lookup`. Both were derived by hand from other sprites, and nothing in
+  `generated/` reproduces them.
+- 2026-08-21 — `spr-popt-backlit` **keeps the old threshold on purpose**. Its bright rim is authored
+  backlight for the doorway, not downsample fringe: at coverage 128 the rim halves (30.7% → 15.2%)
+  and breaks into gaps. It is the one place a soft halo is the subject rather than a defect, so the
+  manifest carries a per-sprite override and the file stays byte-identical to what shipped.
+
 ## Decision log
 
 - 2026-08-21 — Generate each in-between as its own delta against a two-frame reference (the

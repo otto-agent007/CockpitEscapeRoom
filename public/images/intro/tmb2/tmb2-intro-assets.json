@@ -404,8 +404,8 @@
     {
       "id": "scramble-sprites-popt-blinded-png",
       "path": "scramble/sprites/popt-blinded.png",
-      "sha256": "292b8a16c71183ca65109cb8673f76e5f460581af3154b03641eb928763dc2b7",
-      "bytes": 3244,
+      "sha256": "7bdd8b68fa97cac6c5481a5671d97ba583bfa1a569e85fc14bb94aeedd4bd8fa",
+      "bytes": 3142,
       "width": 39,
       "height": 67,
       "hasAlpha": true
@@ -422,8 +422,8 @@
     {
       "id": "scramble-sprites-popt-cover-png",
       "path": "scramble/sprites/popt-cover.png",
-      "sha256": "1d2ba47f5ff9ad353779ceb462e1807cdda3b95834dc1ced1c4eace86a5db38e",
-      "bytes": 3204,
+      "sha256": "c9cfbc5a4552e47dc5eac00a06246b866f8d0ecfde206a1a32ef01e7b22667b0",
+      "bytes": 3117,
       "width": 34,
       "height": 64,
       "hasAlpha": true
@@ -431,8 +431,8 @@
     {
       "id": "scramble-sprites-popt-crooked-png",
       "path": "scramble/sprites/popt-crooked.png",
-      "sha256": "b22121f8132f4e5d0c7759ebd9acec677e0908d0f60bf16dded4a9299c5ad70c",
-      "bytes": 3505,
+      "sha256": "998f1cfdb7ba70bf31079f467bf3453d0fd3529dfc2ef5ef8fc3aced3d0f41a6",
+      "bytes": 3395,
       "width": 32,
       "height": 68,
       "hasAlpha": true
@@ -440,8 +440,8 @@
     {
       "id": "scramble-sprites-popt-fall-png",
       "path": "scramble/sprites/popt-fall.png",
-      "sha256": "50170970ecac4217c5a556e869fa4c08a0d3d14e981095f9e0631bb81e445196",
-      "bytes": 3607,
+      "sha256": "ea9e03179ab3ef28e649a700ec339f3fae2d79cae56de6ffc6736af703f028b2",
+      "bytes": 3464,
       "width": 45,
       "height": 63,
       "hasAlpha": true
@@ -449,8 +449,8 @@
     {
       "id": "scramble-sprites-popt-flick-png",
       "path": "scramble/sprites/popt-flick.png",
-      "sha256": "b52e1b75a46ae9bbb68284747e5da12a4115b20b72b277ea4729667e33194d6a",
-      "bytes": 4313,
+      "sha256": "ffe927bc34cdef39e35be87b6f8830c83d5b74e3e127992f3c5c0673260c1362",
+      "bytes": 4142,
       "width": 39,
       "height": 94,
       "hasAlpha": true
@@ -458,8 +458,8 @@
     {
       "id": "scramble-sprites-popt-forearm-png",
       "path": "scramble/sprites/popt-forearm.png",
-      "sha256": "a47d127f3bdd03f573222a42578dc990cd10602fd5d1458f3db874712effa182",
-      "bytes": 3505,
+      "sha256": "dea6ac80500fa9a0f79516116c8c885b5c0687d26f33e793df9aff99fff2b0b0",
+      "bytes": 3374,
       "width": 44,
       "height": 68,
       "hasAlpha": true
@@ -467,8 +467,8 @@
     {
       "id": "scramble-sprites-popt-landed-png",
       "path": "scramble/sprites/popt-landed.png",
-      "sha256": "d297a23b8fadb12b8e2dbd923992dfc9794502430c9be9a9304e2d9ac2a323ec",
-      "bytes": 3407,
+      "sha256": "0aa526a23df41d6ed33662e74a729a21b76b3c312ca89702668361065d40361e",
+      "bytes": 3277,
       "width": 34,
       "height": 68,
       "hasAlpha": true
@@ -485,8 +485,8 @@
     {
       "id": "scramble-sprites-popt-run-sheet-png",
       "path": "scramble/sprites/popt-run-sheet.png",
-      "sha256": "ba6e9df7b8a6c1575e06f069d526eee1502c31326b057d1843d695688fabb19c",
-      "bytes": 40343,
+      "sha256": "4b957de4a5f95804258f8a33196c6cfe980c24aa351bc5e3c237716ad190a04c",
+      "bytes": 38124,
       "width": 600,
       "height": 66,
       "hasAlpha": true
@@ -494,8 +494,8 @@
     {
       "id": "scramble-sprites-popt-salute-png",
       "path": "scramble/sprites/popt-salute.png",
-      "sha256": "c968bfaf4c774f36c77712c39a5604d8f25a5960a8df5e839e71b742515a4e46",
-      "bytes": 3324,
+      "sha256": "85c49d54a0951a3565fad9e4f726fde8fef0948ca725b4fd7c1c87f47629c25e",
+      "bytes": 3189,
       "width": 28,
       "height": 73,
       "hasAlpha": true
@@ -503,8 +503,8 @@
     {
       "id": "scramble-sprites-popt-skid-png",
       "path": "scramble/sprites/popt-skid.png",
-      "sha256": "0db31b0c5736189be5ceca8064d08b1e683ddc38f8a656f68778daa7c65486db",
-      "bytes": 4094,
+      "sha256": "3a328dfbedad0e7be83890d0929a4eee37b945f0d8bae1eb58f43f46820873a8",
+      "bytes": 3957,
       "width": 57,
       "height": 68,
       "hasAlpha": true
@@ -512,8 +512,8 @@
     {
       "id": "scramble-sprites-popt-swing-png",
       "path": "scramble/sprites/popt-swing.png",
-      "sha256": "65b0ddfedbe2271899d465093000ab630532e3aed0cf288bdeb78748129a5787",
-      "bytes": 3501,
+      "sha256": "c64720da1cf51bb875e554e7c9c79513bc0f22f17cdea2e53e74ee259669b64a",
+      "bytes": 3383,
       "width": 43,
       "height": 65,
       "hasAlpha": true
@@ -521,8 +521,8 @@
     {
       "id": "scramble-sprites-popt-tip-png",
       "path": "scramble/sprites/popt-tip.png",
-      "sha256": "295deaad81e87b83ad5ced0349d16e9af3a5d684dd897c7cdeb4e6d8e2b460d3",
-      "bytes": 3340,
+      "sha256": "5243b6480f2a75abb42496681768b4f3e2d7b5773f589eb69c736883c9a01daa",
+      "bytes": 3230,
       "width": 34,
       "height": 68,
       "hasAlpha": true

@@ -1563,3 +1563,34 @@ Historical checkpoint; the 2026-07-11 transition and Tripo-intake sections above
   scenes were extracted from the mp4 and diffed against the captured frame of the same index. Worst
   mean absolute difference **2.44** (h264 quantisation), zero mismatches.
 
+## 2026-08-21 Fringe fix swept across every Pop T sprite
+
+- The coverage fix that sharpened the walk was applied to the rest of the set. Pale edge across all
+  deployed sprites: **14.9% → 11.5%** of silhouette edge. Per sprite, before → after: skid
+  16.5→10.0, blinded 17.6→12.4, forearm 9.4→7.4, flick 16.7→11.4, crooked 17.8→12.0, salute
+  18.9→13.8, tip 13.8→9.3, cover 22.1→16.5, fall 15.9→10.1, swing 19.0→15.0, landed 18.2→12.1,
+  run sheet 13.3→8.6.
+- **Safe because `--coverage` drops pixels after the resample**, so no output canvas size can change:
+  verified after the rebuild that no sprite changed size, no lowest-opaque row moved (pivots stay
+  valid), and the two sprites that are two pieces — `popt-fall` and `popt-flick`, where the cap is
+  off his head — were already two pieces before. Area fell 3–5% per sprite, which is the fringe.
+- **Which source made which sprite had to be recovered by reproduction.** Aspect arithmetic left
+  seven ambiguous; rebuilding every candidate slice and diffing against the shipped file identified
+  **25 of 27 with mean absolute difference 0.00**. Five needed a forced output size — they were
+  scaled off a shared reference whose rounding an aspect-preserving resize cannot reproduce — which
+  is why `--target WxH` was added. The mapping now lives in
+  `art-source/intro/tmb2/scramble/sprite-sources.json`, driven by
+  `tools/assets/rebuild-popt-sprites.py`.
+- **Two deliberate exclusions.** `spr-popt-cap` and `spr-popt-gag-lookup` have no reproducible
+  source (hand-derived from other sprites) and were left untouched; the cap measures 0% pale edge
+  anyway. `spr-popt-backlit` keeps the old threshold by per-sprite override and is byte-identical to
+  what shipped: its bright rim is authored backlight for the doorway, and at 128 it halves and breaks
+  into gaps.
+- `npm run check`: ESLint, tsc, **418/418 across 33 files**, build — pass. `npm run assets:check`:
+  56 assets / 49 preloads. Full `npx playwright test`: **60 passed, 1 skipped, 1 failed** — the same
+  pre-existing `airbus-workload.spec.ts:242` width assertion, unchanged by this work.
+- Fresh verified render with the swept sprites:
+  `preview-renders/tmb2-intro-overhaul/intro-sharp-sprites-2026-08-21.mp4` — 1591 frames each
+  asserting its own clock and audio state, then 20 checkpoints re-extracted from the delivered file
+  and diffed against those frames (0 mismatches, worst MAD 2.43).
+

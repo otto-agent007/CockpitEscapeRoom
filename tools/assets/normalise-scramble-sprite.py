@@ -55,10 +55,18 @@ def normalise(
     width: int | None,
     ref: Image.Image | None = None,
     coverage: int = 60,
+    target_size: tuple[int, int] | None = None,
 ) -> Image.Image:
     out = keyed(src)
     cw, ch = out.size
-    if ref is not None:
+    if target_size is not None:
+        # Both dimensions pinned. The sprites in POPT_CLIPS declare a fixed frame
+        # size and a hand-measured pivot, so rebuilding one has to land on exactly
+        # the size it already ships at; several were originally scaled off a
+        # shared reference whose rounding an aspect-preserving resize cannot
+        # reproduce.
+        target = target_size
+    elif ref is not None:
         # Shared cycle scale: the reference frame decides the scale, every frame
         # obeys it, so poses keep their real relative size.
         rw, rh = keyed(ref).size
@@ -132,6 +140,7 @@ def main() -> None:
     group = ap.add_mutually_exclusive_group(required=True)
     group.add_argument('--height', type=int)
     group.add_argument('--width', type=int)
+    group.add_argument('--target', help='force the output size, as WxH')
     ap.add_argument('--ref', help='reference frame that sets a shared scale for a cycle')
     ap.add_argument('--coverage', type=int, default=60,
                     help='alpha a cell needs to survive (0-255). 60 keeps quarter-covered cells and '
@@ -143,6 +152,7 @@ def main() -> None:
         args.width,
         Image.open(args.ref) if args.ref else None,
         args.coverage,
+        tuple(int(part) for part in args.target.split('x')) if args.target else None,
     )
     result.save(args.out)
     print(f'{args.out}: {result.size[0]}x{result.size[1]}')
