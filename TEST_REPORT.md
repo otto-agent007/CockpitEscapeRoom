@@ -1545,3 +1545,21 @@ Historical checkpoint; the 2026-07-11 transition and Tripo-intake sections above
   fractional zoom is all accent punch envelopes, which plan 0030 kept by design.
 - `npm run check`: ESLint, tsc, **418/418 Vitest across 33 files**, production build — all pass.
   `npm run assets:check`: 56 assets / 49 preloads. Walk guard re-run in the browser: passed.
+
+## 2026-08-21 Fresh verified render of the intro
+
+- The candidate at the owner gate predated the walk work, so a new one was captured:
+  `preview-renders/tmb2-intro-overhaul/intro-walk-12frame-2026-08-21.mp4` (1280x896, 30 fps, h264 +
+  AAC, 53.033 s, 12.1 MB).
+- Captured with a rebuilt puppet harness, now kept in the repo as `tools/intro/render-verified.mjs`
+  so it cannot be lost again: `currentTime` is a plain variable and `play()` resolves, so the MP3
+  decoder can never drop the runtime into wall-clock fallback and make the render lie about the
+  edit. **Every one of the 1591 frames asserts** that the canvas reports the exact time requested
+  and that `data-audio-failed` is still `false`; the browser session is recycled every 400 frames;
+  each scene is pre-warmed so no plate arrives late and records a black stage. 1591 frames in 227 s.
+- Scene progression sampled during capture matched the edit: ident at 0 and 5 s, ritual at 10,
+  suit-up at 15, doors at 20, walk-out at 25 and 30, walk at 35, inserts at 40 and 45, title at 50.
+- **The delivered file was verified, not just the capture**: 20 checkpoints spanning all twelve
+  scenes were extracted from the mp4 and diffed against the captured frame of the same index. Worst
+  mean absolute difference **2.44** (h264 quantisation), zero mismatches.
+

@@ -260,9 +260,17 @@ Placeholders and limitations, stated plainly:
   largest single step, which is where a real walk is fastest.
 - The generated art is the model's, not an animator's: the tweens' heads measure 0.344–0.361 of
   figure height against the approved 0.359–0.362, a sub-pixel-to-0.7 px difference at 48 px.
-- Nothing here changes a cue time, a scene boundary, a card or the edit. The candidate render for
-  the owner gate, `intro-fastopen-2026-08-20.mp4`, predates this work and still shows the six-frame
-  walk; a fresh full render is worth capturing before the owner reviews, and needs the puppeted
-  media harness described in 0035 (never scrub an MP3 across the track).
+- Nothing here changes a cue time, a scene boundary or a card. The one change to the edit is the
+  owner's call to retire the `standing-alone` push-in, so that shot now holds still.
+- Fresh candidate for the gate, replacing `intro-fastopen-2026-08-20.mp4`:
+  **`preview-renders/tmb2-intro-overhaul/intro-walk-12frame-2026-08-21.mp4`** — 1591 frames each
+  asserting its own clock and audio state, then 20 checkpoints re-verified from the delivered file
+  (worst MAD 2.44). The harness that made it now lives in the repo at
+  `tools/intro/render-verified.mjs` rather than in a session scratchpad, where the last copy was
+  lost.
+- Known and **not** fixed here: every other Pop T sprite still carries the pale fringe the walk just
+  shed (gag poses 15–22% of silhouette edge, run sheet 13.3%). Sweeping them is the same one-line
+  change but each pose has hand-measured pivots and its own shared-ref scale in `POPT_CLIPS`, so it
+  needs its own pass and its own browser proof.
 
 Still at the owner gate. Nothing pushed.
