@@ -43,17 +43,23 @@ test('protects the Model Y request until the reward phase', async ({ page }) => 
   await seed(page, rewardState())
   await expect.poll(() => rewardRequests).toBe(1)
   const rewardCanvas = page.locator('canvas[data-reward-model-state="ready"]')
-  await expect(rewardCanvas).toBeVisible()
+  await expect(rewardCanvas).toBeVisible({ timeout: 15_000 })
   await expect(rewardCanvas).toHaveAttribute('data-reward-pose', 'stowed')
 })
 
 test('plays the authored reward and provides Skip and Replay', async ({ page }) => {
+  test.setTimeout(60_000)
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
   await seed(page, rewardState())
 
-  await expect(page.locator('canvas[data-reward-model-state="ready"]')).toBeVisible()
-  await expect.poll(async () => (await page.locator('canvas').boundingBox())?.width).toBe(1440)
+  await expect(page.locator('canvas[data-reward-model-state="ready"]')).toBeVisible({ timeout: 15_000 })
+  await expect.poll(
+    async () => (await page.locator('canvas').boundingBox())?.width,
+    { timeout: 15_000 },
+  ).toBe(1440)
+  await expect(page.locator('canvas')).toHaveAttribute('data-reward-camera', 'game')
+  await expect(page.locator('canvas')).toHaveAttribute('data-reward-pose', 'stowed')
   const skipButton = page.getByRole('button', { name: 'Skip cinematic' })
   await expect(skipButton).toBeVisible()
   await page.keyboard.press('Tab')
@@ -96,20 +102,27 @@ test('plays the authored reward and provides Skip and Replay', async ({ page }) 
   )).toBeLessThan(5)
   await expect(page.locator('[data-reward-stage]')).not.toHaveAttribute('data-reward-stage', 'complete')
   await expect(page.getByRole('button', { name: 'Skip cinematic' })).toBeVisible()
+  await expect(page.locator('canvas')).toHaveAttribute('data-reward-pose', 'stowed')
+  await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible({ timeout: 15_000 })
+  await expect(page.locator('canvas')).toHaveAttribute('data-reward-clip-time', '11.500')
+  await expect(page.locator('canvas')).toHaveAttribute('data-reward-pose', 'deployed')
 })
 
 test('reduced motion starts at the exact final pose and survives reload', async ({ page }) => {
+  test.setTimeout(45_000)
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
   await seed(page, rewardState())
 
-  await expect(page.locator('canvas[data-reward-model-state="ready"]')).toBeVisible()
+  await expect(page.locator('canvas[data-reward-model-state="ready"]')).toBeVisible({ timeout: 15_000 })
   await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible()
   await expect(page.locator('canvas')).toHaveAttribute('data-reward-clip-time', '11.500')
   await expect(page.getByText(/Reduced motion is on/)).toBeVisible()
   await expect(page.getByRole('button', { name: 'Skip cinematic' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Replay Flight Mode' })).toHaveCount(0)
 
   await page.reload()
+  await expect(page.locator('canvas[data-reward-model-state="ready"]')).toBeVisible({ timeout: 15_000 })
   await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible()
 })
 

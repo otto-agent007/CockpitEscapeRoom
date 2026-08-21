@@ -1,0 +1,152 @@
+{
+  "asset": "model-y-hangar-source",
+  "title": "Hangar",
+  "source": "https://sketchfab.com/3d-models/hangar-64f7d287f5274029bc29755a9839ebbf",
+  "author": {
+    "name": "nermin",
+    "url": "https://sketchfab.com/nermin"
+  },
+  "license": {
+    "name": "CC BY 4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/",
+    "attributionRequired": true
+  },
+  "archive": {
+    "path": ".cache/cockpit-pipeline/sources/model-y-hangar/sketchfab-hangar-64f7d287f5274029bc29755a9839ebbf/original/hangar.zip",
+    "byteLength": 8276403,
+    "sha256": "8ec631f27e40f6f1f3ac3448c96374c315a4874f2c8e4bdbe307f284fdf6e1fe"
+  },
+  "extractedSource": ".cache/cockpit-pipeline/sources/model-y-hangar/sketchfab-hangar-64f7d287f5274029bc29755a9839ebbf/extracted/scene.gltf",
+  "blenderVersion": "5.1.2",
+  "sourceObjectCount": 17,
+  "sourceMeshCount": 7,
+  "sourceTriangleCount": 9640,
+  "sourceMaterialCount": 7,
+  "sourceMaterials": [
+    "Walllamp",
+    "barrel",
+    "ceilinglamp",
+    "electricbox1",
+    "main",
+    "metaltrim",
+    "sidewalk"
+  ],
+  "sourceTextures": [
+    {
+      "name": "barrel_baseColor.png",
+      "dimensions": [
+        512,
+        512
+      ],
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/model-y-hangar/sketchfab-hangar-64f7d287f5274029bc29755a9839ebbf/extracted/textures/barrel_baseColor.png"
+    },
+    {
+      "name": "ceilinglamp_baseColor.png",
+      "dimensions": [
+        128,
+        256
+      ],
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/model-y-hangar/sketchfab-hangar-64f7d287f5274029bc29755a9839ebbf/extracted/textures/ceilinglamp_baseColor.png"
+    },
+    {
+      "name": "electricbox1_baseColor.png",
+      "dimensions": [
+        512,
+        512
+      ],
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/model-y-hangar/sketchfab-hangar-64f7d287f5274029bc29755a9839ebbf/extracted/textures/electricbox1_baseColor.png"
+    },
+    {
+      "name": "main_baseColor.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/model-y-hangar/sketchfab-hangar-64f7d287f5274029bc29755a9839ebbf/extracted/textures/main_baseColor.png"
+    },
+    {
+      "name": "metaltrim_baseColor.png",
+      "dimensions": [
+        2048,
+        32
+      ],
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/model-y-hangar/sketchfab-hangar-64f7d287f5274029bc29755a9839ebbf/extracted/textures/metaltrim_baseColor.png"
+    },
+    {
+      "name": "sidewalk_baseColor.png",
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/model-y-hangar/sketchfab-hangar-64f7d287f5274029bc29755a9839ebbf/extracted/textures/sidewalk_baseColor.png"
+    },
+    {
+      "name": "Walllamp_baseColor.png",
+      "dimensions": [
+        512,
+        512
+      ],
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.cache/cockpit-pipeline/sources/model-y-hangar/sketchfab-hangar-64f7d287f5274029bc29755a9839ebbf/extracted/textures/Walllamp_baseColor.png"
+    }
+  ],
+  "worldBounds": {
+    "minimum": [
+      -961.203308,
+      -1372.050903,
+      18.182926
+    ],
+    "maximum": [
+      961.203308,
+      1372.046753,
+      845.390442
+    ],
+    "size": [
+      1922.406616,
+      2744.097656,
+      827.20752
+    ],
+    "center": [
+      0.0,
+      -0.002075,
+      431.786682
+    ]
+  },
+  "inspectionNormalization": {
+    "uniformScale": 0.007288370351706575,
+    "worldBounds": {
+      "minimum": [
+        -7.005606,
+        -10.0,
+        -3.014498
+      ],
+      "maximum": [
+        7.005606,
+        10.0,
+        3.014498
+      ],
+      "size": [
+        14.011211,
+        20.0,
+        6.028995
+      ],
+      "center": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "orientation": {
+    "importer": "Blender glTF 2.0",
+    "upAxisAfterImport": "+Z",
+    "frontToBackAxis": "inspection pending"
+  },
+  "previewRenders": [
+    "preview-renders/model-y-hangar-source-intake/front.png",
+    "preview-renders/model-y-hangar-source-intake/right.png",
+    "preview-renders/model-y-hangar-source-intake/back.png",
+    "preview-renders/model-y-hangar-source-intake/left.png"
+  ],
+  "status": "approved-runtime-source",
+  "runtimePromotion": "Promoted by build_tesla_reward.py as TESLA_HANGAR_SOURCE_SHELL after owner review, normalization, stable naming, and seven-to-one material atlas consolidation."
+}
