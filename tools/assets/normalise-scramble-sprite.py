@@ -54,6 +54,7 @@ def normalise(
     height: int | None,
     width: int | None,
     ref: Image.Image | None = None,
+    coverage: int = 60,
 ) -> Image.Image:
     out = keyed(src)
     cw, ch = out.size
@@ -84,7 +85,12 @@ def normalise(
             r, g, b, a = lp[x, y]
             # Hard alpha: a pixel sprite has no soft edges. Verified 2026-08-18 —
             # semi-transparent fringes read as disconnected silhouette pieces.
-            if a < 60:
+            # `coverage` is how much of the cell must be inside the figure for the
+            # pixel to exist. At the old default of 60 (24% covered) a cell holding
+            # a sliver of white sleeve came back fully solid white, which is the
+            # pale fringe that shows outside the arms; 128 keeps only cells that
+            # are at least half figure.
+            if a < coverage:
                 continue
             up[x, y] = (min(255, r * 255 // a), min(255, g * 255 // a), min(255, b * 255 // a), 255)
     return drop_specks(un)
@@ -127,12 +133,16 @@ def main() -> None:
     group.add_argument('--height', type=int)
     group.add_argument('--width', type=int)
     ap.add_argument('--ref', help='reference frame that sets a shared scale for a cycle')
+    ap.add_argument('--coverage', type=int, default=60,
+                    help='alpha a cell needs to survive (0-255). 60 keeps quarter-covered cells and '
+                         'spreads a pale fringe; 128 keeps only half-covered ones')
     args = ap.parse_args()
     result = normalise(
         Image.open(args.src),
         args.height,
         args.width,
         Image.open(args.ref) if args.ref else None,
+        args.coverage,
     )
     result.save(args.out)
     print(f'{args.out}: {result.size[0]}x{result.size[1]}')

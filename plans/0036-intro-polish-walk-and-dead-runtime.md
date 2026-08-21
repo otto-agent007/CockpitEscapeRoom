@@ -144,6 +144,34 @@ owner-approved this arc); the ident run and gag (0034, complete); reinstating an
   reviewing, and swapping it for a dead-still hold is a one-line change either way — the owner's
   call, not a defect.
 
+- 2026-08-21 — **The pale fringe outside the arms is a normaliser bug, not a tween bug** (owner
+  spotted it on the proof sheet). `normalise-scramble-sprite.py` BOX-averages a ~12-20x reduction
+  and then kept any output pixel whose alpha reached **60 of 255** — a cell only 24% inside the
+  figure was promoted to fully solid. Along an arm that means a sliver of white sleeve becomes a
+  solid white pixel *outside* the silhouette, which is exactly what reads as a furry edge. Raising
+  the threshold to 128 — at least half the cell inside the figure — cuts pale edge pixels from
+  **20.6% to 12.8%** of the silhouette edge across the twelve cells, with every cell still one
+  connected component and every figure still 48 px tall with its feet on the pivot row. The
+  remaining pale edge is the white shirt and the art's own rim highlight, which belong there.
+- 2026-08-21 — **A modal-vote downsample was tried and rejected.** It removes the fringe completely
+  (one-off pixels 58% → 29%, 410 colours → 201) and the flats come out clean, but in cells that
+  straddle a shadow line the darkest colour wins outright, so it stamps hard black notches at the
+  collar, the waist and the ear — at display scale the character reads damaged. The experiment was
+  removed from the tool rather than left in as an unused flag; this note is its record. Related
+  suspicion also checked and dismissed: the "blue speckle" in the trousers is ±1 compression noise
+  in the generated art (one genuinely bright pixel in the whole band), invisible at display size.
+- 2026-08-21 — **Every other Pop T sprite still carries the fringe**: measured pale-edge share is
+  15–22% across the gag poses (`popt-swing` 19.0%, `popt-cover` 22.1%, `popt-salute` 18.9%) and
+  13.3% on the run sheet, against the walk's 12.8% after the fix. Not swept here — those are
+  approved close-up poses and each needs its own source-and-scale recipe confirmed the way the
+  walk's was — but the one-line fix is the same.
+- 2026-08-21 — **The walk's normalisation chain was mis-documented and had to be rediscovered.**
+  `generated/spr-popt-walk-{1..6}.png` are 1254x1254 single-figure generations that normalise to
+  24x48, while the deployed frames are 22x48: the real source is the six figures sliced out of
+  `s4-walk-sheet.png` (253x552 each, 253/552 x 48 = exactly 22). Re-normalising from the wrong
+  source silently rescaled the character. The slices are now committed as
+  `generated/s4-walk-slice-{1..6}.png` so the chain is reproducible.
+
 ## Decision log
 
 - 2026-08-21 — Generate each in-between as its own delta against a two-frame reference (the

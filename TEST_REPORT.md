@@ -1517,3 +1517,31 @@ Historical checkpoint; the 2026-07-11 transition and Tripo-intake sections above
   `e2e/airbus-workload.spec.ts:242`, the pre-existing width assertion (topbar bottom 183.94 against
   a 145.59 limit) — the identical numbers recorded when it was proven pre-existing on a clean tree
   during plan 0034. Not introduced and not fixed here.
+
+## 2026-08-21 The pale fringe outside the arms, and the quiet shot back on the grid
+
+- Owner note on the walk proof sheet: white pixels outside the arms, not sharp. Diagnosed as a
+  **normaliser bug affecting every Scramble sprite since Wave S4**, not the new tweens:
+  `normalise-scramble-sprite.py` BOX-averages the downsample and kept any output pixel reaching
+  alpha 60 of 255, so a cell only **24% inside the figure** became fully solid — a sliver of white
+  sleeve turned into a solid white pixel outside the silhouette. Threshold raised to 128 (at least
+  half the cell inside) via a new `--coverage` option, default unchanged for every other asset.
+- Measured on the twelve-cell walk sheet: pale edge pixels **20.6% → 12.8%** of the silhouette
+  edge, opaque pixels 7359 → 6886, every cell still a single connected component, every figure
+  still 48 px tall with feet on the pivot row. Browser before/after captured at 1440x900.
+- A modal-vote downsample was built, measured (one-off pixels 58% → 29%) and **rejected**: it
+  stamps hard black notches where a cell straddles a shadow line, and at display scale the
+  character reads damaged. Removed from the tool rather than left as an unused flag. The suspected
+  "blue speckle" in the trousers was measured and dismissed — ±1 compression noise in the source.
+- Rediscovering the walk's real source was necessary first: the deployed frames come from slicing
+  `s4-walk-sheet.png` (253x552 per figure → exactly 22x48), not from the 1254x1254 single-figure
+  generations, which normalise to 24x48. Re-normalising from the wrong source silently rescaled the
+  character; the slices are now committed so the chain is reproducible.
+- Still carrying the same fringe, not swept here: the gag poses at 15–22% pale edge and the run
+  sheet at 13.3%.
+- Owner call on the quiet shot: the `standing-alone` push-in is retired and the shot holds dead
+  still, guarded by a test that walks all 144 frames of the scene and requires the identity camera.
+  Pixel exactness across the intro rises from **88.0% to 91.0%** of frames; the remaining 4.75 s of
+  fractional zoom is all accent punch envelopes, which plan 0030 kept by design.
+- `npm run check`: ESLint, tsc, **418/418 Vitest across 33 files**, production build — all pass.
+  `npm run assets:check`: 56 assets / 49 preloads. Walk guard re-run in the browser: passed.

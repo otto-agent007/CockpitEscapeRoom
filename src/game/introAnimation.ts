@@ -742,15 +742,12 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
     }
     case 'standing-alone': {
       // The track's deepest quiet (measured 30.5-32.0 s). No accent, no shake,
-      // no flash: he stands in the lit doorway with his shadow reaching the
-      // camera, and the only motion is a slow push-in so the stillness reads as
-      // deliberate.
-      const p = clamp01((storyTime - CUES.standingAlone) / 2.4)
-      return {
-        ...base,
-        backgroundAssetId: 'card-shadow',
-        camera: { zoom: punchZoom(0.06 * p), x: 160, y: 150, offsetX: 0, offsetY: 0 },
-      }
+      // no flash, and — owner call 2026-08-21 — no push-in either: the shot
+      // holds dead still. The creep it used to carry moved 0.067 px a frame,
+      // inside the band plan 0030 measured as invisible, while costing this
+      // scene's whole 2.4 s hold its pixel grid. It is the strongest frame in
+      // the intro; it now sits on the grid for every frame of it.
+      return { ...base, backgroundAssetId: 'card-shadow' }
     }
     case 'walk': {
       // The scale shot: the 34 px walk cycle crossing toward the looming nose.

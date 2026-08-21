@@ -530,8 +530,8 @@
     {
       "id": "scramble-sprites-popt-walk-sheet-png",
       "path": "scramble/sprites/popt-walk-sheet.png",
-      "sha256": "ccc5238751b0b53c96c63a152071a97598c366650af08bf0c73b4ddedfd32e79",
-      "bytes": 18117,
+      "sha256": "d5bfe99bfb5863a465d2c812eefd17401d6759d22cd4a06a7f1fd1b1aea9fe6b",
+      "bytes": 17021,
       "width": 312,
       "height": 50,
       "hasAlpha": true

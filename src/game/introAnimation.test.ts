@@ -479,6 +479,18 @@ describe('Scramble sprite animation contract', () => {
     expect(deriveIntroAnimation(40, true).backgroundAssetId).toBe('card-overhead')
   })
 
+  it('holds the quiet shot on the pixel grid for its whole 2.4 seconds', () => {
+    // The push-in was retired (owner, 2026-08-21): a fractional world zoom
+    // point-samples every draw, and on a slow held card that is where creep
+    // shimmer shows. Nothing in this scene may move the camera off identity.
+    for (let time = 21; time < 23.4; time += 1 / 60) {
+      const frame = deriveIntroAnimation(time, false)
+      expect(frame.sceneId, `t=${time.toFixed(3)}`).toBe('standing-alone')
+      expect(frame.camera, `t=${time.toFixed(3)}`).toEqual(IDENTITY_CAMERA)
+      expect(frame.flash, `t=${time.toFixed(3)}`).toBeNull()
+    }
+  })
+
   it('produces only the fx kinds the surviving acts use', () => {
     // The takeoff act took its contrail, exhaust and nav-strobe with it, and the
     // attract loop took the pixel collapse. This fails if a retired kind comes

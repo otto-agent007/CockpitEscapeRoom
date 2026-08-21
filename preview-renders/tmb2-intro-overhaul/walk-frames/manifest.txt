@@ -1,12 +1,12 @@
-0 t=31.620 drawing=0 scene=walk audioFailed=false
-1 t=31.685 drawing=1 scene=walk audioFailed=false
-2 t=31.750 drawing=2 scene=walk audioFailed=false
-3 t=31.815 drawing=3 scene=walk audioFailed=false
-4 t=31.880 drawing=4 scene=walk audioFailed=false
-5 t=31.945 drawing=5 scene=walk audioFailed=false
-6 t=32.010 drawing=6 scene=walk audioFailed=false
-7 t=32.075 drawing=7 scene=walk audioFailed=false
-8 t=32.140 drawing=8 scene=walk audioFailed=false
-9 t=32.205 drawing=9 scene=walk audioFailed=false
-10 t=32.270 drawing=10 scene=walk audioFailed=false
-11 t=32.335 drawing=11 scene=walk audioFailed=false
+0 t=31.620 drawing=0 audioFailed=false
+1 t=31.685 drawing=1 audioFailed=false
+2 t=31.750 drawing=2 audioFailed=false
+3 t=31.815 drawing=3 audioFailed=false
+4 t=31.880 drawing=4 audioFailed=false
+5 t=31.945 drawing=5 audioFailed=false
+6 t=32.010 drawing=6 audioFailed=false
+7 t=32.075 drawing=7 audioFailed=false
+8 t=32.140 drawing=8 audioFailed=false
+9 t=32.205 drawing=9 audioFailed=false
+10 t=32.270 drawing=10 audioFailed=false
+11 t=32.335 drawing=11 audioFailed=false
