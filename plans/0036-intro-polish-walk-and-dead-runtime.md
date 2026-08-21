@@ -130,6 +130,20 @@ owner-approved this arc); the ident run and gag (0034, complete); reinstating an
   in `cell_pack`'s docstring. The residual spread is the art itself, measured at the alpha
   threshold, not the packer.
 
+- 2026-08-21 — **Pixel exactness now measures 88.0% of frames (2802/3183 at 60 fps), against the
+  93.3% plan 0030 recorded.** That is not a regression someone introduced — 0030 measured a
+  different edit — but the breakdown is worth stating. 4.75 s of the 6.35 s fractional total is
+  accent punch envelopes, which 0030 deliberately kept and which the current edit simply has more
+  of because it has more cuts. The remaining **1.60 s is one continuous push-in**: `standing-alone`
+  creeps from zoom 1 to 1.06 across its 2.4 s. Per frame that is 0.067–0.081 px of screen travel at
+  the stage edge — *inside* the 0.02–0.36 px/frame band 0030 measured on the held zooms it retired
+  as "moving nothing the eye can follow" — while cumulatively it is a 6% push (38 screen px of edge
+  travel at 4x) that does read over 2.4 s. The cost is that the intro's strongest frame,
+  `card-shadow`, is point-sampled off the grid for its whole hold, which is where creep shimmer is
+  easiest to notice. Left as it is: it is a directorial beat already in the render the owner is
+  reviewing, and swapping it for a dead-still hold is a one-line change either way — the owner's
+  call, not a defect.
+
 ## Decision log
 
 - 2026-08-21 — Generate each in-between as its own delta against a two-frame reference (the
