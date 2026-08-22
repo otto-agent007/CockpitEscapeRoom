@@ -1,7 +1,7 @@
 export type IntroAsset = {
   id: string
   path: string
-  role: 'background' | 'sprite' | 'logo-layer'
+  role: 'background' | 'sprite' | 'logo-layer' | 'card'
 }
 
 export type IntroAssetTier = 'initial' | 'full'
@@ -36,34 +36,83 @@ export const introAssets = [
   { id: 'logo-blue-mask', path: 'images/intro/tmb2/logo/tmb2-ident-blue-mask.png', role: 'logo-layer' },
   { id: 'logo-base', path: 'images/intro/tmb2/logo/tmb2-ident-base.png', role: 'logo-layer' },
   { id: 'logo-highlight-mask', path: 'images/intro/tmb2/logo/tmb2-ident-highlight-mask.png', role: 'logo-layer' },
-  { id: 'logo-productions', path: 'images/intro/tmb2/logo/tmb2-productions.png', role: 'logo-layer' },
-  { id: 'background-duffel', path: 'images/intro/tmb2/backgrounds/duffel-terminal.png', role: 'background' },
-  { id: 'popt-duffel-pull', path: 'images/intro/tmb2/popt/duffel-pull/duffel-pull-sheet.png', role: 'sprite' },
-  { id: 'popt-startle-stumble', path: 'images/intro/tmb2/popt/startle-stumble/startle-stumble-sheet.png', role: 'sprite' },
-  { id: 'key-poses', path: 'images/intro/tmb2/key/key-mascot-poses-sheet.png', role: 'sprite' },
-  { id: 'background-runway', path: 'images/intro/tmb2/backgrounds/runway-night.png', role: 'background' },
-  { id: 'background-ballpark', path: 'images/intro/tmb2/backgrounds/ballpark-night.png', role: 'background' },
-  { id: 'background-finance', path: 'images/intro/tmb2/backgrounds/finance-city.png', role: 'background' },
-  { id: 'background-clouds', path: 'images/intro/tmb2/backgrounds/cloud-chase.png', role: 'background' },
-  { id: 'popt-idle', path: 'images/intro/popt/idle-sheet.png', role: 'sprite' },
-  { id: 'popt-run', path: 'images/intro/popt/run-sheet.png', role: 'sprite' },
-  { id: 'popt-reach-catch', path: 'images/intro/popt/reach-catch-sheet.png', role: 'sprite' },
-  { id: 'popt-baseball-slide', path: 'images/intro/tmb2/popt/baseball-slide/baseball-slide-sheet.png', role: 'sprite' },
-  { id: 'popt-bull-spin', path: 'images/intro/tmb2/popt/bull-spin/bull-spin-sheet.png', role: 'sprite' },
-  { id: 'popt-pilot-glide', path: 'images/intro/tmb2/popt/pilot-glide/pilot-glide-sheet.png', role: 'sprite' },
-  { id: 'popt-victory-recovery', path: 'images/intro/tmb2/popt/victory-recovery/victory-recovery-sheet.png', role: 'sprite' },
+  // Wave S4 ident acting (the legacy 256-cell sheets are fully retired).
+  { id: 'popt-run', path: 'images/intro/tmb2/scramble/sprites/popt-run-sheet.png', role: 'sprite' },
+  { id: 'popt-skid', path: 'images/intro/tmb2/scramble/sprites/popt-skid.png', role: 'sprite' },
+  { id: 'popt-blinded', path: 'images/intro/tmb2/scramble/sprites/popt-blinded.png', role: 'sprite' },
+  { id: 'popt-forearm', path: 'images/intro/tmb2/scramble/sprites/popt-forearm.png', role: 'sprite' },
+  { id: 'popt-flick', path: 'images/intro/tmb2/scramble/sprites/popt-flick.png', role: 'sprite' },
+  { id: 'popt-crooked', path: 'images/intro/tmb2/scramble/sprites/popt-crooked.png', role: 'sprite' },
+  { id: 'popt-salute', path: 'images/intro/tmb2/scramble/sprites/popt-salute.png', role: 'sprite' },
+  { id: 'popt-tip', path: 'images/intro/tmb2/scramble/sprites/popt-tip.png', role: 'sprite' },
+  { id: 'popt-cover', path: 'images/intro/tmb2/scramble/sprites/popt-cover.png', role: 'sprite' },
+  { id: 'popt-fall', path: 'images/intro/tmb2/scramble/sprites/popt-fall.png', role: 'sprite' },
+  { id: 'popt-swing', path: 'images/intro/tmb2/scramble/sprites/popt-swing.png', role: 'sprite' },
+  { id: 'popt-lookup', path: 'images/intro/tmb2/scramble/sprites/popt-lookup.png', role: 'sprite' },
+  { id: 'popt-cap', path: 'images/intro/tmb2/scramble/sprites/popt-cap.png', role: 'sprite' },
+  { id: 'popt-landed', path: 'images/intro/tmb2/scramble/sprites/popt-landed.png', role: 'sprite' },
+  // Scramble plates (plan 0031), shipped at exactly 320×224 and drawn 1:1.
+  { id: 'plate-hangar-dark', path: 'images/intro/tmb2/scramble/plates/hangar-dark.png', role: 'background' },
+  { id: 'plate-hangar-reveal', path: 'images/intro/tmb2/scramble/plates/hangar-reveal.png', role: 'background' },
+  { id: 'plate-doorway', path: 'images/intro/tmb2/scramble/plates/doorway.png', role: 'background' },
+  { id: 'door-leaf', path: 'images/intro/tmb2/scramble/plates/door-leaf.png', role: 'background' },
+  { id: 'plate-walk-tarmac', path: 'images/intro/tmb2/scramble/plates/walk-tarmac.png', role: 'background' },
+  { id: 'plate-right-seat', path: 'images/intro/tmb2/scramble/plates/right-seat.png', role: 'background' },
+  // Scramble still cards — full-frame generated stills cut on the beats.
+  { id: 'card-boots', path: 'images/intro/tmb2/scramble/cards/boots.png', role: 'background' },
+  { id: 'card-coffee', path: 'images/intro/tmb2/scramble/cards/coffee.png', role: 'background' },
+  { id: 'card-watch', path: 'images/intro/tmb2/scramble/cards/watch.png', role: 'background' },
+  { id: 'card-stripes', path: 'images/intro/tmb2/scramble/cards/stripes.png', role: 'background' },
+  { id: 'card-logbook', path: 'images/intro/tmb2/scramble/cards/logbook.png', role: 'background' },
+  { id: 'card-wings', path: 'images/intro/tmb2/scramble/cards/wings.png', role: 'background' },
+  { id: 'card-cap-a', path: 'images/intro/tmb2/scramble/cards/cap-a.png', role: 'background' },
+  { id: 'card-cap-mid', path: 'images/intro/tmb2/scramble/cards/cap-mid.png', role: 'background' },
+  { id: 'card-cap-b', path: 'images/intro/tmb2/scramble/cards/cap-b.png', role: 'background' },
+  { id: 'card-shades', path: 'images/intro/tmb2/scramble/cards/shades.png', role: 'background' },
+  { id: 'card-headset', path: 'images/intro/tmb2/scramble/cards/headset.png', role: 'background' },
+  { id: 'card-overhead', path: 'images/intro/tmb2/scramble/cards/overhead.png', role: 'background' },
+  { id: 'card-nacelle-a', path: 'images/intro/tmb2/scramble/cards/nacelle-a.png', role: 'background' },
+  { id: 'card-nacelle-b', path: 'images/intro/tmb2/scramble/cards/nacelle-b.png', role: 'background' },
+  { id: 'card-nacelle-c', path: 'images/intro/tmb2/scramble/cards/nacelle-c.png', role: 'background' },
+  { id: 'card-logbook-books', path: 'images/intro/tmb2/scramble/cards/logbook-books.png', role: 'background' },
+  { id: 'card-logbook-sweep', path: 'images/intro/tmb2/scramble/cards/logbook-sweep.png', role: 'background' },
+  { id: 'card-logbook-lift', path: 'images/intro/tmb2/scramble/cards/logbook-lift.png', role: 'background' },
+  { id: 'card-shadow', path: 'images/intro/tmb2/scramble/cards/shadow.png', role: 'background' },
+  { id: 'card-instruments', path: 'images/intro/tmb2/scramble/cards/instruments.png', role: 'background' },
+  { id: 'card-instruments-b', path: 'images/intro/tmb2/scramble/cards/instruments-b.png', role: 'background' },
+  { id: 'card-throttles-a', path: 'images/intro/tmb2/scramble/cards/throttles-a.png', role: 'background' },
+  { id: 'card-throttles-b', path: 'images/intro/tmb2/scramble/cards/throttles-b.png', role: 'background' },
+  // Scramble sprites at exact on-stage sizes (whole-number scales only).
+  { id: 'popt-walk', path: 'images/intro/tmb2/scramble/sprites/popt-walk-sheet.png', role: 'sprite' },
+  { id: 'popt-backlit', path: 'images/intro/tmb2/scramble/sprites/popt-backlit.png', role: 'sprite' },
 ] as const satisfies readonly IntroAsset[]
 
+/** Everything the intro needs before the hangar reveal at 13.056 s: the
+ * ident (logo + legacy sheets), the beacon dark (code only), the four ritual
+ * cards, and both reveal plates. */
 export const INTRO_INITIAL_ASSET_IDS = [
   'logo-source',
   'logo-blue-mask',
   'logo-base',
   'logo-highlight-mask',
-  'logo-productions',
-  'background-duffel',
-  'popt-duffel-pull',
-  'popt-startle-stumble',
-  'key-poses',
+  'popt-run',
+  'popt-skid',
+  'popt-blinded',
+  'popt-forearm',
+  'popt-flick',
+  'popt-crooked',
+  'popt-salute',
+  'popt-tip',
+  'popt-cover',
+  'popt-fall',
+  'popt-swing',
+  'popt-lookup',
+  'popt-cap',
+  'popt-landed',
+  'card-boots',
+  'card-coffee',
+  'plate-hangar-dark',
+  'plate-hangar-reveal',
 ] as const
 
 export const INTRO_FULL_ASSET_IDS = introAssets.map((asset) => asset.id)

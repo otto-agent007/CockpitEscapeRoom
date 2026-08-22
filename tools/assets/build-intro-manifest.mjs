@@ -10,7 +10,6 @@ const logoMetadata = new Map([
   ['logo/tmb2-ident-blue-mask.png', 'logo-blue-mask'],
   ['logo/tmb2-ident-base.png', 'logo-base'],
   ['logo/tmb2-ident-highlight-mask.png', 'logo-highlight-mask'],
-  ['logo/tmb2-productions.png', 'logo-productions'],
 ])
 
 function portable(path) {
@@ -58,41 +57,58 @@ const assets = paths.map((path) => {
 })
 
 const assetsById = new Map(assets.map((asset) => [asset.id, asset]))
-const duplicates = [
-  {
-    source: 'ChatGPT Image Jul 20, 2026, 04_51_23 PM.png',
-    canonical: 'key-key-mascot-poses-01-png',
-    sourceSha256: 'cf63e5a292f18346e1228002c3c45e1ab1891f628b94d68e4fc89bb504a8dc2f',
-  },
-  {
-    source: 'ChatGPT Image Jul 20, 2026, 04_51_41 PM.png',
-    canonical: 'key-key-mascot-poses-05-png',
-    sourceSha256: 'f421ff5b333cb213a7945e508ab167eabf01a39e6f1a276e2ba583034f09dd19',
-  },
-].map(({ source, canonical, sourceSha256 }) => {
-  const asset = assetsById.get(canonical)
-  if (!asset) throw new Error(`Missing canonical duplicate asset: ${canonical}`)
-  return { source, canonical, sha256: asset.sha256, sourceSha256 }
-})
+const duplicates = []
 
 const preload = [
   'logo/tmb2-ident-source.png',
   'logo/tmb2-ident-blue-mask.png',
   'logo/tmb2-ident-base.png',
   'logo/tmb2-ident-highlight-mask.png',
-  'logo/tmb2-productions.png',
-  'backgrounds/duffel-terminal.png',
-  'backgrounds/runway-night.png',
-  'backgrounds/ballpark-night.png',
-  'backgrounds/finance-city.png',
-  'backgrounds/cloud-chase.png',
-  'popt/duffel-pull/duffel-pull-sheet.png',
-  'popt/startle-stumble/startle-stumble-sheet.png',
-  'popt/baseball-slide/baseball-slide-sheet.png',
-  'popt/bull-spin/bull-spin-sheet.png',
-  'popt/pilot-glide/pilot-glide-sheet.png',
-  'popt/victory-recovery/victory-recovery-sheet.png',
-  'key/key-mascot-poses-sheet.png',
+  'scramble/sprites/popt-run-sheet.png',
+  'scramble/sprites/popt-skid.png',
+  'scramble/sprites/popt-blinded.png',
+  'scramble/sprites/popt-forearm.png',
+  'scramble/sprites/popt-flick.png',
+  'scramble/sprites/popt-crooked.png',
+  'scramble/sprites/popt-salute.png',
+  'scramble/sprites/popt-tip.png',
+  'scramble/sprites/popt-cover.png',
+  'scramble/sprites/popt-fall.png',
+  'scramble/sprites/popt-swing.png',
+  'scramble/sprites/popt-lookup.png',
+  'scramble/sprites/popt-cap.png',
+  'scramble/sprites/popt-landed.png',
+  'scramble/plates/hangar-dark.png',
+  'scramble/plates/hangar-reveal.png',
+  'scramble/plates/doorway.png',
+  'scramble/plates/door-leaf.png',
+  'scramble/plates/walk-tarmac.png',
+  'scramble/plates/right-seat.png',
+  'scramble/cards/boots.png',
+  'scramble/cards/coffee.png',
+  'scramble/cards/watch.png',
+  'scramble/cards/stripes.png',
+  'scramble/cards/logbook.png',
+  'scramble/cards/wings.png',
+  'scramble/cards/cap-a.png',
+  'scramble/cards/cap-mid.png',
+  'scramble/cards/cap-b.png',
+  'scramble/cards/shades.png',
+  'scramble/cards/headset.png',
+  'scramble/cards/overhead.png',
+  'scramble/cards/nacelle-a.png',
+  'scramble/cards/nacelle-b.png',
+  'scramble/cards/nacelle-c.png',
+  'scramble/cards/logbook-books.png',
+  'scramble/cards/logbook-sweep.png',
+  'scramble/cards/logbook-lift.png',
+  'scramble/cards/shadow.png',
+  'scramble/cards/instruments.png',
+  'scramble/cards/instruments-b.png',
+  'scramble/cards/throttles-a.png',
+  'scramble/cards/throttles-b.png',
+  'scramble/sprites/popt-walk-sheet.png',
+  'scramble/sprites/popt-backlit.png',
 ]
 
 const manifest = {

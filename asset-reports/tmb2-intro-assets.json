@@ -15,11 +15,24 @@
   "runtimeIdent": {
     "builder": "tools/assets/build-tmb2-ident-assets.py",
     "command": "npm run asset:tmb2-ident",
-    "crop": [105, 261, 1573, 663],
-    "identPosition": [16, 72],
+    "crop": [
+      105,
+      261,
+      1573,
+      663
+    ],
+    "identPosition": [
+      16,
+      72
+    ],
     "productionsY": 168,
     "productionsScale": 0.5,
-    "productionsAlphaBounds": [127, 168, 193, 176],
+    "productionsAlphaBounds": [
+      127,
+      168,
+      193,
+      176
+    ],
     "derivation": "The exact approved artwork is cropped and resized with Pillow LANCZOS, then separated into base, blue, and gold-white highlight RGBA layers. PRODUCTIONS uses an embedded deterministic 5x7 uppercase bitmap alphabet in restrained gold; its owner-approved follow-up uses one-pixel cells and tracking for a 0.5 scale factor without inferring or redrawing the TMB2 typography.",
     "assets": [
       {
@@ -67,7 +80,12 @@
         "width": 320,
         "height": 224,
         "mode": "RGBA",
-        "color": [224, 175, 74, 255]
+        "color": [
+          224,
+          175,
+          74,
+          255
+        ]
       }
     ]
   },
@@ -76,15 +94,31 @@
       "group": "storyboards",
       "directory": "art-source/intro/tmb2/recovered/2026-07-19-storyboards",
       "files": [
-        { "name": "pilot Pop T with golden blond hair and blue eyes.png", "sha256": "0f9b2fed22597380c926028d39bf1c33470b32c42a7a59bbba335f1642f8b7d2", "bytes": 2109024, "width": 1672, "height": 941 },
-        { "name": "pop t chasing the brass key.png", "sha256": "c5b8dad0ceb9bf5ce083946e1691b63458d1e90e0c59d58748ef78c1649cc6db", "bytes": 2059109, "width": 1672, "height": 941 }
+        {
+          "name": "pilot Pop T with golden blond hair and blue eyes.png",
+          "sha256": "0f9b2fed22597380c926028d39bf1c33470b32c42a7a59bbba335f1642f8b7d2",
+          "bytes": 2109024,
+          "width": 1672,
+          "height": 941
+        },
+        {
+          "name": "pop t chasing the brass key.png",
+          "sha256": "c5b8dad0ceb9bf5ce083946e1691b63458d1e90e0c59d58748ef78c1649cc6db",
+          "bytes": 2059109,
+          "width": 1672,
+          "height": 941
+        }
       ]
     },
     {
       "group": "popt-runtime-archive",
       "directory": "art-source/intro/tmb2/recovered/2026-07-19-popt-runtime-archive",
       "files": [
-        { "name": "PopT-cinematic-runtime-assets.zip", "sha256": "a1c16a73da1462c1ca980fe7c4f60ce341519a097098979a2a058428094acc0e", "bytes": 70814 }
+        {
+          "name": "PopT-cinematic-runtime-assets.zip",
+          "sha256": "a1c16a73da1462c1ca980fe7c4f60ce341519a097098979a2a058428094acc0e",
+          "bytes": 70814
+        }
       ],
       "extractedFileCount": 43,
       "archiveValidation": "unzip -t passed with no errors"
@@ -93,26 +127,146 @@
       "group": "cartoon-key-and-runway",
       "directory": "art-source/intro/tmb2/recovered/2026-07-20-cartoon-key-and-runway/originals",
       "files": [
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (1).png", "sha256": "bfd7338197c5f1b8272d937dd57ddef6ae023fefa9a8dc2dd65c3214f325c0f2", "bytes": 1073319, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (10).png", "sha256": "cf63e5a292f18346e1228002c3c45e1ab1891f628b94d68e4fc89bb504a8dc2f", "bytes": 1080376, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (2).png", "sha256": "bed47d528c50c521b1b613c3fae9bdaec225d46309906389793d1f365370c247", "bytes": 1070197, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (3).png", "sha256": "ab5a3addb6b35179f81fd6f0bad186eb7959dd7f6c0a6eb9be1d75d6e811e60d", "bytes": 1066050, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (4).png", "sha256": "c34801dd73b61755051fcd2d74cbbe28b43e9206e6d91e92f9245990871c5567", "bytes": 1065283, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (5).png", "sha256": "f421ff5b333cb213a7945e508ab167eabf01a39e6f1a276e2ba583034f09dd19", "bytes": 1067196, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (6).png", "sha256": "d00c637613fc5d424a01387f4661d73e543c1ac08c40a93e4f633ec0f237d426", "bytes": 1071266, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (7).png", "sha256": "753534f06ec14ed78b8704fc3a31397621e3bffcbda3f3836afb57f179934f7b", "bytes": 1064119, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (8).png", "sha256": "da9d5c84f04b2df59de48164397af9afc2a2320749b895ec9b64d1016271b64f", "bytes": 1068502, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (9).png", "sha256": "c0dd9ee1e4004d8bf16943ded69fca1c3891a2a8e71789980636ebead0229e07", "bytes": 1078479, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_49_17 PM.png", "sha256": "982aa882c316a4dd047c812589dae0a5e4a27ae38d36eec797a10d89986ac762", "bytes": 2112799, "width": 1672, "height": 941 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_50_20 PM.png", "sha256": "79df23e5d7d8eb5361d81a96e7b2510fe71d7d4409735738806d6418024ddffc", "bytes": 1076803, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_50_29 PM.png", "sha256": "12ec1116cd1de31d6dbcb59c3fdc514b020cdec96c3b14de55e0e996a6f50624", "bytes": 1089444, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_50_42 PM.png", "sha256": "0bba34c94262afada9cb81cb97694a7872b72ebff26a923fc84fba2597c6a2a4", "bytes": 1071845, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_50_49 PM.png", "sha256": "aa8ef5889709a94d0619ac646cd996b6abe8f064933ac64b797f1d9cd724a9d2", "bytes": 1061282, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_51_00 PM.png", "sha256": "679eee391b1e8ffbd7a2b0bc6d0c0c4933006d551ea131811c0bc9e27c561da0", "bytes": 1080505, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_51_07 PM.png", "sha256": "f8aa7563110803dedd0067c96a2964be408ae6dc3d384a7de73ff277393f4bd0", "bytes": 1045074, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_51_14 PM.png", "sha256": "4eafe0d3ace9130d3d3940906ae4bf352748c4b27ec2f1c38a4e5d7360ac6732", "bytes": 1079407, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_51_23 PM.png", "sha256": "cf63e5a292f18346e1228002c3c45e1ab1891f628b94d68e4fc89bb504a8dc2f", "bytes": 1080376, "width": 1254, "height": 1254 },
-        { "name": "ChatGPT Image Jul 20, 2026, 04_51_41 PM.png", "sha256": "f421ff5b333cb213a7945e508ab167eabf01a39e6f1a276e2ba583034f09dd19", "bytes": 1067196, "width": 1254, "height": 1254 }
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (1).png",
+          "sha256": "bfd7338197c5f1b8272d937dd57ddef6ae023fefa9a8dc2dd65c3214f325c0f2",
+          "bytes": 1073319,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (10).png",
+          "sha256": "cf63e5a292f18346e1228002c3c45e1ab1891f628b94d68e4fc89bb504a8dc2f",
+          "bytes": 1080376,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (2).png",
+          "sha256": "bed47d528c50c521b1b613c3fae9bdaec225d46309906389793d1f365370c247",
+          "bytes": 1070197,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (3).png",
+          "sha256": "ab5a3addb6b35179f81fd6f0bad186eb7959dd7f6c0a6eb9be1d75d6e811e60d",
+          "bytes": 1066050,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (4).png",
+          "sha256": "c34801dd73b61755051fcd2d74cbbe28b43e9206e6d91e92f9245990871c5567",
+          "bytes": 1065283,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (5).png",
+          "sha256": "f421ff5b333cb213a7945e508ab167eabf01a39e6f1a276e2ba583034f09dd19",
+          "bytes": 1067196,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (6).png",
+          "sha256": "d00c637613fc5d424a01387f4661d73e543c1ac08c40a93e4f633ec0f237d426",
+          "bytes": 1071266,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (7).png",
+          "sha256": "753534f06ec14ed78b8704fc3a31397621e3bffcbda3f3836afb57f179934f7b",
+          "bytes": 1064119,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (8).png",
+          "sha256": "da9d5c84f04b2df59de48164397af9afc2a2320749b895ec9b64d1016271b64f",
+          "bytes": 1068502,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_42_52 PM (9).png",
+          "sha256": "c0dd9ee1e4004d8bf16943ded69fca1c3891a2a8e71789980636ebead0229e07",
+          "bytes": 1078479,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_49_17 PM.png",
+          "sha256": "982aa882c316a4dd047c812589dae0a5e4a27ae38d36eec797a10d89986ac762",
+          "bytes": 2112799,
+          "width": 1672,
+          "height": 941
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_50_20 PM.png",
+          "sha256": "79df23e5d7d8eb5361d81a96e7b2510fe71d7d4409735738806d6418024ddffc",
+          "bytes": 1076803,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_50_29 PM.png",
+          "sha256": "12ec1116cd1de31d6dbcb59c3fdc514b020cdec96c3b14de55e0e996a6f50624",
+          "bytes": 1089444,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_50_42 PM.png",
+          "sha256": "0bba34c94262afada9cb81cb97694a7872b72ebff26a923fc84fba2597c6a2a4",
+          "bytes": 1071845,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_50_49 PM.png",
+          "sha256": "aa8ef5889709a94d0619ac646cd996b6abe8f064933ac64b797f1d9cd724a9d2",
+          "bytes": 1061282,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_51_00 PM.png",
+          "sha256": "679eee391b1e8ffbd7a2b0bc6d0c0c4933006d551ea131811c0bc9e27c561da0",
+          "bytes": 1080505,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_51_07 PM.png",
+          "sha256": "f8aa7563110803dedd0067c96a2964be408ae6dc3d384a7de73ff277393f4bd0",
+          "bytes": 1045074,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_51_14 PM.png",
+          "sha256": "4eafe0d3ace9130d3d3940906ae4bf352748c4b27ec2f1c38a4e5d7360ac6732",
+          "bytes": 1079407,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_51_23 PM.png",
+          "sha256": "cf63e5a292f18346e1228002c3c45e1ab1891f628b94d68e4fc89bb504a8dc2f",
+          "bytes": 1080376,
+          "width": 1254,
+          "height": 1254
+        },
+        {
+          "name": "ChatGPT Image Jul 20, 2026, 04_51_41 PM.png",
+          "sha256": "f421ff5b333cb213a7945e508ab167eabf01a39e6f1a276e2ba583034f09dd19",
+          "bytes": 1067196,
+          "width": 1254,
+          "height": 1254
+        }
       ]
     }
   ],
@@ -168,10 +322,22 @@
     "cartoonKey": {
       "uniqueSourceFrames": 17,
       "backgroundTolerance": 45,
-      "canonicalSize": [128, 128],
-      "runtimeSize": [256, 256],
-      "canonicalPivot": [64, 112],
-      "runtimePivot": [128, 224],
+      "canonicalSize": [
+        128,
+        128
+      ],
+      "runtimeSize": [
+        256,
+        256
+      ],
+      "canonicalPivot": [
+        64,
+        112
+      ],
+      "runtimePivot": [
+        128,
+        224
+      ],
       "normalizedFrames": 17,
       "componentCountPerFrame": 1,
       "path": "public/images/intro/tmb2/key",
@@ -210,6 +376,183 @@
       "id": "cloud-chase-v1",
       "taxonomy": "illustration-story",
       "prompt": "Create a wide 16:10 pixel-art illustration-story background plate for the TMB2 browser-game intro, matching the authoritative blonde-haired Pop T storyboard's polished cinematic pixel work, layered cobalt and midnight-blue clouds, electric-blue star particles, crisp stepped cloud edges, luminous depth, and a joyful high-altitude adventure tone. Compose sweeping cloud banks and diagonal speed corridors with a clear central flight path for separately composited sprites, brighter blue horizon light toward the upper right, and crop-safe detail at both edges; the sky must feel dynamic without depicting danger or an emergency. Sky only: no person, no pilot, no Pop T, no cartoon key, no aircraft, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, planet, vehicle, or reward imagery."
+    },
+    {
+      "id": "runway-day-v1",
+      "taxonomy": "illustration-story",
+      "status": "recorded-awaiting-owner-generation",
+      "prompt": "Create a wide 16:10 pixel-art illustration-story background plate for the TMB2 browser-game intro, matching the authoritative blonde-haired Pop T storyboard's cinematic 16-bit-inspired finish, crisp stepped pixel clusters, and its panel-4 daylight look: a bright sunny airport runway under a vivid blue sky with bold white cumulus clouds. Show the runway surface receding from the lower left with clean markings and warm sunlit concrete, a distant parked airliner and a control tower on the right horizon, gentle heat-haze sparkle and subtle blue square particles, generous clear action space across the center-left for separately composited sprites, and crop-safe margins. Keep midnight-navy shadows, electric-blue accent glints, and warm gold sunlight consistent with the storyboard palette. Background/prop plate only: no person, no pilot, no Pop T, no cartoon key, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery."
+    },
+    {
+      "id": "ident-logo-tap-v1",
+      "taxonomy": "character-acting",
+      "status": "recorded-awaiting-owner-generation",
+      "generator": "chatgpt-image (owner account); one image per frame at 1024x1024",
+      "pipeline": "quantize through the Pop T animation contract (16-color palette, 128x128 canonical, bottom-center pivot, baseline 111) before any runtime use",
+      "priority": 1,
+      "replaces": "startle-stumble + victory-recovery stand-ins in the ident gag",
+      "scene": "tmb2-ident",
+      "styleBlock": "Create a single 1:1 pixel-art character acting frame for the TMB2 browser-game intro, drawing the blonde-haired, blue-eyed pilot Pop T exactly as he appears in the authoritative storyboard: navy pilot cap with gold wing emblem, white short-sleeve uniform shirt with dark tie and gold epaulette accents, navy trousers, dark shoes. Match the existing Pop T runtime sprites: strict limited palette (deep navy outlines, warm skin, golden blond hair, white shirt, restrained gold), chunky 8-pixel cluster look, crisp stepped edges, full body in side view facing right, feet on a consistent baseline near the bottom of frame, centered horizontally with generous margins, plain solid background for clean cutout, no floor shadow, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery. Pose: ",
+      "frames": [
+        "sprinting at full tilt, body leaning far forward, one fist pumping",
+        "skidding to a stop, body leaning far back, heels dug in, arms windmilling",
+        "leaning back on one heel, jaw dropped, eyes wide, staring up amazed",
+        "standing tall, one hand raised about to tap something above head height, other fist on hip",
+        "tapping upward with one finger, chest out, confident grin, eyes closed",
+        "proud pose, arms crossed, big wink at the viewer",
+        "thumbs-up at the viewer, chest out, beaming smile"
+      ]
+    },
+    {
+      "id": "duffel-struggle-v1",
+      "taxonomy": "character-acting",
+      "status": "recorded-awaiting-owner-generation",
+      "generator": "chatgpt-image (owner account); one image per frame at 1024x1024",
+      "pipeline": "quantize through the Pop T animation contract (16-color palette, 128x128 canonical, bottom-center pivot, baseline 111) before any runtime use",
+      "priority": 1,
+      "replaces": "duffel-pull 4-frame loop",
+      "scene": "duffel",
+      "styleBlock": "Create a single 1:1 pixel-art character acting frame for the TMB2 browser-game intro, drawing the blonde-haired, blue-eyed pilot Pop T exactly as he appears in the authoritative storyboard: navy pilot cap with gold wing emblem, white short-sleeve uniform shirt with dark tie and gold epaulette accents, navy trousers, dark shoes. Match the existing Pop T runtime sprites: strict limited palette (deep navy outlines, warm skin, golden blond hair, white shirt, restrained gold), chunky 8-pixel cluster look, crisp stepped edges, full body in side view facing right, feet on a consistent baseline near the bottom of frame, centered horizontally with generous margins, plain solid background for clean cutout, no floor shadow, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery. Pose: ",
+      "frames": [
+        "gripping an unseen handle at hip height with both hands, knees bent, about to pull",
+        "pulling hard, body at forty-five degrees, heels dug in, cheeks puffed",
+        "straining with all his might, body nearly horizontal, one foot slipping",
+        "yanked back upright, off balance, arms flailing",
+        "wiping brow with one forearm, exhausted slump, other hand still on the unseen handle",
+        "re-gripping with gritted teeth and furrowed brow, more determined than before"
+      ]
+    },
+    {
+      "id": "startle-big-take-v1",
+      "taxonomy": "character-acting",
+      "status": "recorded-awaiting-owner-generation",
+      "generator": "chatgpt-image (owner account); one image per frame at 1024x1024",
+      "pipeline": "quantize through the Pop T animation contract (16-color palette, 128x128 canonical, bottom-center pivot, baseline 111) before any runtime use",
+      "priority": 1,
+      "replaces": "startle-stumble 3-frame clip at the exclaim slam",
+      "scene": "key-escape",
+      "styleBlock": "Create a single 1:1 pixel-art character acting frame for the TMB2 browser-game intro, drawing the blonde-haired, blue-eyed pilot Pop T exactly as he appears in the authoritative storyboard: navy pilot cap with gold wing emblem, white short-sleeve uniform shirt with dark tie and gold epaulette accents, navy trousers, dark shoes. Match the existing Pop T runtime sprites: strict limited palette (deep navy outlines, warm skin, golden blond hair, white shirt, restrained gold), chunky 8-pixel cluster look, crisp stepped edges, full body in side view facing right, feet on a consistent baseline near the bottom of frame, centered horizontally with generous margins, plain solid background for clean cutout, no floor shadow, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery. Pose: ",
+      "frames": [
+        "recoiling, arms thrown up, cap lifting off his head, eyes popping wide",
+        "full comic take, cap in mid-air above him, hair standing up, mouth open in a yell",
+        "stumbling backward on one heel, arms wheeling, cap falling back toward his head",
+        "catching the cap with one hand, knees knocked together, sheepish grimace",
+        "jamming the cap back on, eyes narrowed at something above, fists clenched"
+      ]
+    },
+    {
+      "id": "catch-celebrate-v1",
+      "taxonomy": "character-acting",
+      "status": "recorded-awaiting-owner-generation",
+      "generator": "chatgpt-image (owner account); one image per frame at 1024x1024",
+      "pipeline": "quantize through the Pop T animation contract (16-color palette, 128x128 canonical, bottom-center pivot, baseline 111) before any runtime use",
+      "priority": 1,
+      "replaces": "victory-recovery + reach-catch in the catch finale",
+      "scene": "catch",
+      "styleBlock": "Create a single 1:1 pixel-art character acting frame for the TMB2 browser-game intro, drawing the blonde-haired, blue-eyed pilot Pop T exactly as he appears in the authoritative storyboard: navy pilot cap with gold wing emblem, white short-sleeve uniform shirt with dark tie and gold epaulette accents, navy trousers, dark shoes. Match the existing Pop T runtime sprites: strict limited palette (deep navy outlines, warm skin, golden blond hair, white shirt, restrained gold), chunky 8-pixel cluster look, crisp stepped edges, full body in side view facing right, feet on a consistent baseline near the bottom of frame, centered horizontally with generous margins, plain solid background for clean cutout, no floor shadow, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery. Pose: ",
+      "frames": [
+        "hoisting a clenched fist high overhead, chest out, mouth open in a cheer",
+        "both arms raised in a V, one knee lifted, jubilant laugh",
+        "heel-click jump to one side, both arms out",
+        "landing in a wide stance, one arm flexed, grinning at the viewer",
+        "relaxed proud stance, one hand adjusting the cap brim, satisfied smile"
+      ]
+    },
+    {
+      "id": "run-cycle-8f-v1",
+      "taxonomy": "character-acting",
+      "status": "recorded-awaiting-owner-generation",
+      "generator": "chatgpt-image (owner account); one image per frame at 1024x1024",
+      "pipeline": "quantize through the Pop T animation contract (16-color palette, 128x128 canonical, bottom-center pivot, baseline 111) before any runtime use",
+      "priority": 2,
+      "replaces": "legacy 8-frame run sheet reuse of 4 drawings",
+      "scene": "runway and chase beats",
+      "styleBlock": "Create a single 1:1 pixel-art character acting frame for the TMB2 browser-game intro, drawing the blonde-haired, blue-eyed pilot Pop T exactly as he appears in the authoritative storyboard: navy pilot cap with gold wing emblem, white short-sleeve uniform shirt with dark tie and gold epaulette accents, navy trousers, dark shoes. Match the existing Pop T runtime sprites: strict limited palette (deep navy outlines, warm skin, golden blond hair, white shirt, restrained gold), chunky 8-pixel cluster look, crisp stepped edges, full body in side view facing right, feet on a consistent baseline near the bottom of frame, centered horizontally with generous margins, plain solid background for clean cutout, no floor shadow, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery. Pose: ",
+      "frames": [
+        "sprint cycle contact pose, right foot down, deep forward lean",
+        "sprint cycle push-off, right leg extended behind, arms pumping",
+        "sprint cycle full flight, both feet off the ground, maximum stride",
+        "sprint cycle reach, left leg reaching forward, body coiled",
+        "sprint cycle contact pose, left foot down, deep forward lean",
+        "sprint cycle push-off, left leg extended behind, arms pumping",
+        "sprint cycle full flight, both feet off the ground, arms crossed mid-swing",
+        "sprint cycle reach, right leg reaching forward, cap brim pressed flat by speed"
+      ]
+    },
+    {
+      "id": "bull-spin-recover-v1",
+      "taxonomy": "character-acting",
+      "status": "recorded-awaiting-owner-generation",
+      "generator": "chatgpt-image (owner account); one image per frame at 1024x1024",
+      "pipeline": "quantize through the Pop T animation contract (16-color palette, 128x128 canonical, bottom-center pivot, baseline 111) before any runtime use",
+      "priority": 2,
+      "replaces": "bull-spin 6-frame once clip",
+      "scene": "city-finance",
+      "styleBlock": "Create a single 1:1 pixel-art character acting frame for the TMB2 browser-game intro, drawing the blonde-haired, blue-eyed pilot Pop T exactly as he appears in the authoritative storyboard: navy pilot cap with gold wing emblem, white short-sleeve uniform shirt with dark tie and gold epaulette accents, navy trousers, dark shoes. Match the existing Pop T runtime sprites: strict limited palette (deep navy outlines, warm skin, golden blond hair, white shirt, restrained gold), chunky 8-pixel cluster look, crisp stepped edges, full body in side view facing right, feet on a consistent baseline near the bottom of frame, centered horizontally with generous margins, plain solid background for clean cutout, no floor shadow, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery. Pose: ",
+      "frames": [
+        "slamming into an unseen obstacle, body compressed accordion-style, stars popping",
+        "launched backward in a full spin, limbs out like a pinwheel",
+        "second rotation of the spin, tighter, cap flying",
+        "landing seated, legs out, dazed spiral eyes, small stars circling his head",
+        "shaking his head clear, one hand on the ground pushing up",
+        "back on his feet mid-stride, cap back on, determined scowl"
+      ]
+    },
+    {
+      "id": "slide-dust-v1",
+      "taxonomy": "character-acting",
+      "status": "recorded-awaiting-owner-generation",
+      "generator": "chatgpt-image (owner account); one image per frame at 1024x1024",
+      "pipeline": "quantize through the Pop T animation contract (16-color palette, 128x128 canonical, bottom-center pivot, baseline 111) before any runtime use",
+      "priority": 2,
+      "replaces": "baseball-slide 4-frame clip",
+      "scene": "ballpark",
+      "styleBlock": "Create a single 1:1 pixel-art character acting frame for the TMB2 browser-game intro, drawing the blonde-haired, blue-eyed pilot Pop T exactly as he appears in the authoritative storyboard: navy pilot cap with gold wing emblem, white short-sleeve uniform shirt with dark tie and gold epaulette accents, navy trousers, dark shoes. Match the existing Pop T runtime sprites: strict limited palette (deep navy outlines, warm skin, golden blond hair, white shirt, restrained gold), chunky 8-pixel cluster look, crisp stepped edges, full body in side view facing right, feet on a consistent baseline near the bottom of frame, centered horizontally with generous margins, plain solid background for clean cutout, no floor shadow, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery. Pose: ",
+      "frames": [
+        "sprint dropping into a slide, arms back, one leg folding under",
+        "full slide, leading leg extended, body low, dust kicking behind",
+        "slide finishing, leading leg bent, torso rising, one hand down",
+        "popping up out of the slide onto both feet, dusting off his trousers",
+        "jogging onward, looking up and shaking a fist at the sky"
+      ]
+    },
+    {
+      "id": "glide-bank-v1",
+      "taxonomy": "character-acting",
+      "status": "recorded-awaiting-owner-generation",
+      "generator": "chatgpt-image (owner account); one image per frame at 1024x1024",
+      "pipeline": "quantize through the Pop T animation contract (16-color palette, 128x128 canonical, bottom-center pivot, baseline 111) before any runtime use",
+      "priority": 2,
+      "replaces": "pilot-glide 4-frame loop",
+      "scene": "sky and final-pursuit",
+      "styleBlock": "Create a single 1:1 pixel-art character acting frame for the TMB2 browser-game intro, drawing the blonde-haired, blue-eyed pilot Pop T exactly as he appears in the authoritative storyboard: navy pilot cap with gold wing emblem, white short-sleeve uniform shirt with dark tie and gold epaulette accents, navy trousers, dark shoes. Match the existing Pop T runtime sprites: strict limited palette (deep navy outlines, warm skin, golden blond hair, white shirt, restrained gold), chunky 8-pixel cluster look, crisp stepped edges, full body in side view facing right, feet on a consistent baseline near the bottom of frame, centered horizontally with generous margins, plain solid background for clean cutout, no floor shadow, no readable text, no logo, no watermark, no UI, and no Tesla, Model Y, Flight Mode, Mars, vehicle, or reward imagery. Pose: ",
+      "frames": [
+        "gliding flat-out like a superhero, arms swept back, tie fluttering",
+        "banking left, inside arm dipped, body rolled",
+        "leveling off, chin up, scanning ahead with a hand shading his eyes",
+        "banking right, outside arm dipped, trouser legs fluttering",
+        "surging forward with both fists ahead, cheeks puffed with effort",
+        "reaching far forward with one open glove, fingers spread, straining"
+      ]
+    },
+    {
+      "id": "key-taunt-plus-v1",
+      "taxonomy": "character-acting",
+      "status": "recorded-awaiting-owner-generation",
+      "generator": "chatgpt-image (owner account); one image per frame at 1024x1024",
+      "pipeline": "quantize through the Pop T animation contract (16-color palette, 128x128 canonical, bottom-center pivot, baseline 111) before any runtime use",
+      "priority": 2,
+      "replaces": "key taunt 4-pose reuse",
+      "scene": "key-escape and city-finance",
+      "styleBlock": "Create a single 1:1 pixel-art character acting frame for the TMB2 browser-game intro, drawing the living golden brass key mascot exactly as it appears in the existing runtime sprites: heart-shaped golden head with big cartoon eyes, white gloves, brown cartoon shoes, key-teeth tail held like a prop. Strict limited gold/brown/white palette with deep navy outlines, chunky 8-pixel cluster look, crisp stepped edges, full body in side view facing left, centered with generous margins, plain solid background for clean cutout, no floor shadow, no readable text, no logo, no watermark, no UI. Pose: ",
+      "frames": [
+        "hovering, thumbing its nose at the viewer with both hands, tongue out",
+        "doubled over in silent laughter, holding its belly, feet kicking",
+        "beckoning with one glove, half-lidded smug eyes",
+        "mock saluting with a grin, other glove behind its back",
+        "coiled like a sprinter about to launch, glove on an imaginary starting line",
+        "zipping away, body stretched into a speed streak, waving bye-bye"
+      ]
     }
   ],
   "generatedAssets": [
@@ -259,14 +602,14 @@
     "archiveIntegrity": "pass",
     "runtimeManifest": {
       "status": "pass",
-      "assets": 74,
-      "preloads": 17,
+      "assets": 78,
+      "preloads": 21,
       "path": "public/images/intro/tmb2/tmb2-intro-assets.json"
     },
     "runtimeDecodeContract": {
       "initialImages": 9,
-      "totalRenderedImages": 20,
-      "packagePreloads": 17,
+      "totalRenderedImages": 21,
+      "packagePreloads": 21,
       "note": "The five ident images and four opening story images decode sequentially before Start enables; remaining story images decode lazily. Sequential decoding avoids an observed Chromium stall when the existing large sheets decode concurrently."
     },
     "historicContractDelta": {
@@ -302,5 +645,68 @@
         "supersededByOwnerFollowUp": "The 50% Productions revision is validated locally and will receive a new Git-integrated preview after the PR branch update."
       }
     }
-  }
+  },
+  "legacySheetRelocation": {
+    "date": "2026-08-14",
+    "rationale": "The three legacy Pop T sheets were rendered at runtime but lived outside the hashed tmb2 package, so assets:check never verified them. Relocated byte-identically so every runtime image is hash-bound; a Vitest cross-check now requires every introAssets path to be a manifest preload.",
+    "moves": [
+      {
+        "from": "public/images/intro/popt/idle-sheet.png",
+        "to": "public/images/intro/tmb2/popt/legacy/idle-sheet.png",
+        "sha256": "8b302b8c90ed92d020a166d43719f8474c6e43c80b32c5c811594a1a98c67723"
+      },
+      {
+        "from": "public/images/intro/popt/run-sheet.png",
+        "to": "public/images/intro/tmb2/popt/legacy/run-sheet.png",
+        "sha256": "432ff43be2405e11e94ba9fc8b13d86ce9c2fc4ab0bc9ecea0735347d584f94f"
+      },
+      {
+        "from": "public/images/intro/popt/reach-catch-sheet.png",
+        "to": "public/images/intro/tmb2/popt/legacy/reach-catch-sheet.png",
+        "sha256": "8f02190f7ab2ab04608e44f383a59b80e7c9227879978d73e4bce1e82acee6b9"
+      }
+    ]
+  },
+  "derivedAssets": [
+    {
+      "id": "emblem-finale-v1",
+      "source": "art-source/intro/tmb2/recovered/2026-07-19-storyboards/pilot Pop T with golden blond hair and blue eyes.png",
+      "sourceSha256": "0f9b2fed22597380c926028d39bf1c33470b32c42a7a59bbba335f1642f8b7d2",
+      "builder": "tools/assets/build-intro-emblem.py",
+      "panelCrop": [
+        1237,
+        474,
+        1652,
+        919
+      ],
+      "chipPaintOut": {
+        "box": [
+          0,
+          0,
+          44,
+          30
+        ],
+        "fill": [
+          1,
+          1,
+          3
+        ],
+        "note": "storyboard \"8\" corner chip removed; faint sparkle noise inside the box sacrificed"
+      },
+      "emblemCrop": [
+        0,
+        0,
+        415,
+        278
+      ],
+      "runtime": "public/images/intro/tmb2/emblem/finale-card.png",
+      "artSourceCopy": "art-source/intro/tmb2/derived/emblem/finale-card.png",
+      "sha256": "dc76c4bbfd608ea44dc9987df2ece9cec4c78b08348040a20b850e1021a75f89",
+      "bytes": 80353,
+      "width": 248,
+      "height": 166,
+      "review": "Panel 8 winged-globe emblem with Pop T holding the key, cropped from the approved storyboard; LANCZOS once to the exact 248x166 display size so runtime never resamples at scale 1. Owner visual gate item: chip corner and stamp-vs-eased reveal.",
+      "date": "2026-08-14"
+    }
+  ]
 }

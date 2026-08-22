@@ -1,0 +1,32 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- One reference image is attached: the PREVIOUS VERSION of this same shot. Reproduce its scene,
+  framing, style and colours EXACTLY, changing only what the prompt states. It is the authority
+  for everything else.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s5-card-cap-b.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+Reproduce the attached reference image EXACTLY — the same gold-corded captain's hat, the same
+waiting upturned hand at the bottom of the frame, the same framing, light and palette — with ONE
+change only: the hat now rests CAUGHT in that upturned hand, brim level, the hand closing around
+its brim; the upper frame is empty darkness. Nothing else changes.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow; one flat pale wedge is allowed on the glossy visor only.
+- NO texture, NO noise, NO dithering, NO grain.
+
+Gold to use: bright gold #F5C424 with dark gold #CB8A06 shading.
+
+Absolutely NO text anywhere: no letters, no numbers, no monograms, no watermark, no border,
+no caption. The cap badge is pure shapes.

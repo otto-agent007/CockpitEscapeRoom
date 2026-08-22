@@ -1,0 +1,39 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1024x1024, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- No reference image attached.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/spr-dc9-liftoff.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+A flat cel-shaded 2D game sprite of a McDonnell Douglas DC-9 jetliner climbing steeply,
+seen from BELOW and BEHIND-LEFT so its white-and-grey belly and left flank are toward the
+viewer, nose up at about thirty degrees toward the upper right: narrow tubular fuselage with
+light warm-grey upper side #B9BCC0 and white lower belly, the ENTIRE vertical tail fin bright
+signal red #C8102E carrying a small white circular badge with a grey compass wedge, the
+horizontal stabiliser mounted across the TOP of the fin (T-tail), TWO slim cigar-shaped engine
+nacelles on the rear fuselage, clean low wings with NO engines under them, landing gear fully
+retracted, all gear doors closed. Two small flat pale-blue exhaust wedges trail from the rear
+nacelles. It will be shown at several sizes down to 80 pixels wide, so shapes must be bold and
+simple.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no texture, no noise, no dithering.
+
+Palette to draw from: near-black #0A0F22, steel blue #323E60, warm grey #B9BCC0, off-white
+#FFFDF0, signal red #C8102E, amber #FFB020, dark metal #4A5674.
+
+Background: a completely flat solid pure magenta field, RGB 255 0 255, filling the entire canvas
+edge to edge. The magenta must appear NOWHERE on the aircraft. No ground, no sky, no shadow, no
+text, no border, no watermark, no checkerboard.
+
+Absolutely NO lettering, numbers or logos anywhere on the aircraft.

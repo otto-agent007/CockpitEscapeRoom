@@ -15,11 +15,14 @@ export type IntroRuntimeState = {
   retryGeneration: number
   phase: IntroRuntimePhase
   handoffStartedAtMs: number | null
+  /** True once the intro has played through; it then holds its final frame. */
+  reachedEnd: boolean
   disposed: boolean
 }
 
 export type IntroRuntimeSample = {
   state: IntroRuntimeState
+  /** Retained for the handoff/fallback call sites; the intro no longer loops. */
   didLoop: boolean
 }
 
@@ -43,6 +46,7 @@ export function createIntroRuntimeState(): IntroRuntimeState {
     timeSeconds: 0,
     startAvailable: false,
     audioMode: 'media',
+    reachedEnd: false,
     fallbackStartedAtMs: 0,
     retryGeneration: 0,
     phase: 'playing',
@@ -64,14 +68,19 @@ export function sampleIntroRuntime(
   }
 
   const safeTimeSeconds = safeNonNegative(sampledTimeSeconds)
-  const didLoop = safeTimeSeconds >= INTRO_DURATION_SECONDS
+  // The intro plays ONCE and then holds on its final frame — the title over the
+  // empty right seat — until the player starts (owner decision 2026-08-20).
+  // It used to be an attract loop that restarted from the TMB2 ident, which
+  // read as a mistake once the ending became a title screen.
+  const reachedEnd = safeTimeSeconds >= INTRO_DURATION_SECONDS
   return {
     state: {
       ...state,
-      timeSeconds: didLoop ? 0 : safeTimeSeconds,
+      timeSeconds: reachedEnd ? INTRO_DURATION_SECONDS : safeTimeSeconds,
       startAvailable: state.startAvailable || safeTimeSeconds >= START_AVAILABLE_SECONDS,
+      reachedEnd: state.reachedEnd || reachedEnd,
     },
-    didLoop,
+    didLoop: false,
   }
 }
 

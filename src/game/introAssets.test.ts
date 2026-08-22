@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { KEY_CLIPS, POPT_CLIPS } from './introAnimation'
+import { POPT_CLIPS } from './introAnimation'
 import {
   INTRO_FULL_ASSET_IDS,
   INTRO_INITIAL_ASSET_IDS,
@@ -30,18 +30,15 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-describe('TMB2 runtime image tiers', () => {
+describe('Scramble runtime image tiers', () => {
   it('registers every rendered sheet and background as a safe local PNG', () => {
     expect(() => validateIntroAssets(introAssets)).not.toThrow()
     expect(new Set(introAssets.map((asset) => asset.id)).size).toBe(introAssets.length)
-    expect(introAssets).toHaveLength(20)
+    expect(introAssets).toHaveLength(49)
     expect(introAssets.every((asset) => asset.path.endsWith('.png'))).toBe(true)
     expect(JSON.stringify(introAssets)).not.toMatch(/\.webp|tesla|model[- ]?y|flight mode|mars/i)
 
-    const renderedSpriteIds = new Set([
-      ...Object.values(POPT_CLIPS).map((clip) => clip.assetId),
-      ...Object.values(KEY_CLIPS).map((clip) => clip.assetId),
-    ])
+    const renderedSpriteIds = new Set(Object.values(POPT_CLIPS).map((clip) => clip.assetId))
     expect(renderedSpriteIds).toEqual(new Set(
       introAssets.filter((asset) => asset.role === 'sprite').map((asset) => asset.id),
     ))
@@ -51,8 +48,14 @@ describe('TMB2 runtime image tiers', () => {
         'logo-blue-mask',
         'logo-base',
         'logo-highlight-mask',
-        'logo-productions',
       ])
+  })
+
+  it('keeps every runtime image inside the hashed tmb2 package', () => {
+    for (const asset of introAssets) {
+      expect(asset.path, `${asset.id} must live inside the hashed tmb2 package`)
+        .toMatch(/^images\/intro\/tmb2\//)
+    }
   })
 
   it('decodes only the opening tier before allowing playback', () => {
@@ -61,13 +64,27 @@ describe('TMB2 runtime image tiers', () => {
       'logo-blue-mask',
       'logo-base',
       'logo-highlight-mask',
-      'logo-productions',
-      'background-duffel',
-      'popt-duffel-pull',
-      'popt-startle-stumble',
-      'key-poses',
+      'popt-run',
+      'popt-skid',
+      'popt-blinded',
+      'popt-forearm',
+      'popt-flick',
+      'popt-crooked',
+      'popt-salute',
+      'popt-tip',
+      'popt-cover',
+      'popt-fall',
+      'popt-swing',
+      'popt-lookup',
+      'popt-cap',
+      'popt-landed',
+      'card-boots',
+      'card-coffee',
+      'plate-hangar-dark',
+      'plate-hangar-reveal',
     ])
-    expect(INTRO_FULL_ASSET_IDS).toHaveLength(20)
+    expect(INTRO_FULL_ASSET_IDS).toHaveLength(49)
+    expect(INTRO_INITIAL_ASSET_IDS).not.toContain('emblem-finale')
     expect(getIntroAssetsForTier('initial').map((asset) => asset.id)).toEqual(INTRO_INITIAL_ASSET_IDS)
     expect(getIntroAssetsForTier('full')).toEqual(introAssets)
   })

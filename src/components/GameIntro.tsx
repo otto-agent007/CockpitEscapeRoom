@@ -10,7 +10,7 @@ import {
   type IntroAssetLoadState,
   type IntroRenderAssets,
 } from '../game/introAssets'
-import { getIntroScene } from '../game/introConfig'
+import { getIntroScene, INTRO_DURATION_SECONDS } from '../game/introConfig'
 import {
   createIntroRuntimeState,
   disposeIntroRuntime,
@@ -24,6 +24,8 @@ import {
   sampleIntroRuntime,
   type IntroRuntimeState,
 } from '../game/introRuntime'
+import { deriveDueIntroSfx } from '../game/introSfx'
+import { IntroSfxPlayer } from '../game/introSfxPlayer'
 import { IntroCanvas } from './intro/IntroCanvas'
 
 interface GameIntroProps {
@@ -39,6 +41,8 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
   const animationFrameRef = useRef(0)
   const gamepadAnimationFrameRef = useRef(0)
   const runtimeRef = useRef<IntroRuntimeState>(createIntroRuntimeState())
+  const sfxPlayerRef = useRef<IntroSfxPlayer | null>(null)
+  const sfxTimeRef = useRef(0)
   const assetLoadStateRef = useRef<IntroAssetLoadState>(createIntroAssetLoadState())
   const assetLoadGenerationRef = useRef(0)
   const [started, setStarted] = useState(false)
@@ -108,8 +112,22 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
     setAudioFailed(true)
   }, [syncRuntimeForRender])
 
+  /**
+   * The track finishing no longer restarts the intro: it plays once and holds
+   * the title over the empty seat until the player starts. `resetLoop` stays
+   * for the audio-failure retry path, which does still rewind to zero.
+   */
+  const holdOnFinalFrame = useCallback(() => {
+    const runtime = runtimeRef.current
+    if (runtime.phase !== 'playing') return
+    runtimeRef.current = { ...runtime, timeSeconds: INTRO_DURATION_SECONDS, reachedEnd: true }
+    syncRuntimeForRender(runtimeRef.current)
+  }, [syncRuntimeForRender])
+
   const resetLoop = useCallback(() => {
     const audio = audioRef.current
+    // The gag scores from zero again on every loop.
+    sfxTimeRef.current = 0
     runtimeRef.current = resetIntroRuntimeLoop(runtimeRef.current, performance.now())
     syncRuntimeForRender(runtimeRef.current)
     if (!audio || runtimeRef.current.phase !== 'playing') return
@@ -188,6 +206,20 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
   }, [loadIntroAssets])
 
   useEffect(() => {
+    if (!started || reducedMotion) return
+    const player = new IntroSfxPlayer()
+    sfxPlayerRef.current = player
+    return () => {
+      sfxPlayerRef.current = null
+      player.dispose()
+    }
+  }, [reducedMotion, started])
+
+  useEffect(() => {
+    sfxPlayerRef.current?.setVolume(volume, muted)
+  }, [muted, volume])
+
+  useEffect(() => {
     if (!started) return
     const tick = () => {
       const audio = audioRef.current
@@ -198,6 +230,15 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
         })
         runtimeRef.current = sample.state
         syncRuntimeForRender(sample.state)
+        // Gag sound effects ride the same clock the animation does, so they stay
+        // aligned with the picture even when frames drop.
+        const previousSfxTime = sfxTimeRef.current
+        sfxTimeRef.current = sample.state.timeSeconds
+        if (!sample.didLoop) {
+          for (const cue of deriveDueIntroSfx(previousSfxTime, sample.state.timeSeconds, reducedMotion)) {
+            sfxPlayerRef.current?.play(cue, volume, muted)
+          }
+        }
         if (sample.didLoop) resetLoop()
       } else if (runtimeRef.current.phase === 'handoff') {
         const sample = sampleIntroHandoff(runtimeRef.current, performance.now())
@@ -216,7 +257,7 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
     }
     animationFrameRef.current = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(animationFrameRef.current)
-  }, [onComplete, resetLoop, started, syncRuntimeForRender, volume])
+  }, [muted, onComplete, reducedMotion, resetLoop, started, syncRuntimeForRender, volume])
 
   useEffect(() => {
     if (!started) return
@@ -268,7 +309,7 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
         ref={audioRef}
         preload="auto"
         src={`${import.meta.env.BASE_URL}audio/intro-audio-53s.mp3`}
-        onEnded={resetLoop}
+        onEnded={holdOnFinalFrame}
         onError={markAudioFailed}
         onTimeUpdate={(event) => updatePlaybackTime(event.currentTarget.currentTime)}
       />
@@ -316,6 +357,7 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
           className={`game-intro${phase === 'handoff' ? ' game-intro--handoff' : ''}`}
           aria-label="Game intro"
           data-intro-cue={scene.id}
+          data-audio-failed={audioFailed ? 'true' : 'false'}
           data-reduced-motion={reducedMotion ? 'true' : 'false'}
           data-start-available={startAvailable ? 'true' : 'false'}
           data-transition-state={phase}

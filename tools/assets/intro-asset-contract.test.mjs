@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import * as introAssetContract from './intro-asset-contract.mjs'
+import { introAssets } from '../../src/game/introAssets'
 
 const {
-  pngAlphaBounds,
   pngMetadata,
   sha256File,
   validateIntroManifest,
@@ -123,7 +123,7 @@ describe('TMB2 intro asset contract', () => {
     ]))
   })
 
-  it('binds the approved source and five manifest-backed ident layers', () => {
+  it('binds the approved source and four manifest-backed ident layers', () => {
     const validateTmb2LogoAuthority = introAssetContract.validateTmb2LogoAuthority
     expect(validateTmb2LogoAuthority).toBeTypeOf('function')
     if (typeof validateTmb2LogoAuthority !== 'function') return
@@ -139,28 +139,73 @@ describe('TMB2 intro asset contract', () => {
       'logo/tmb2-ident-blue-mask.png',
       'logo/tmb2-ident-base.png',
       'logo/tmb2-ident-highlight-mask.png',
-      'logo/tmb2-productions.png',
-      'backgrounds/duffel-terminal.png',
-      'backgrounds/runway-night.png',
-      'backgrounds/ballpark-night.png',
-      'backgrounds/finance-city.png',
-      'backgrounds/cloud-chase.png',
-      'popt/duffel-pull/duffel-pull-sheet.png',
-      'popt/startle-stumble/startle-stumble-sheet.png',
-      'popt/baseball-slide/baseball-slide-sheet.png',
-      'popt/bull-spin/bull-spin-sheet.png',
-      'popt/pilot-glide/pilot-glide-sheet.png',
-      'popt/victory-recovery/victory-recovery-sheet.png',
-      'key/key-mascot-poses-sheet.png',
+      'scramble/sprites/popt-run-sheet.png',
+      'scramble/sprites/popt-skid.png',
+      'scramble/sprites/popt-blinded.png',
+      'scramble/sprites/popt-forearm.png',
+      'scramble/sprites/popt-flick.png',
+      'scramble/sprites/popt-crooked.png',
+      'scramble/sprites/popt-salute.png',
+      'scramble/sprites/popt-tip.png',
+      'scramble/sprites/popt-cover.png',
+      'scramble/sprites/popt-fall.png',
+      'scramble/sprites/popt-swing.png',
+      'scramble/sprites/popt-lookup.png',
+      'scramble/sprites/popt-cap.png',
+      'scramble/sprites/popt-landed.png',
+      'scramble/plates/hangar-dark.png',
+      'scramble/plates/hangar-reveal.png',
+      'scramble/plates/doorway.png',
+      'scramble/plates/door-leaf.png',
+      'scramble/plates/walk-tarmac.png',
+      'scramble/plates/right-seat.png',
+      'scramble/cards/boots.png',
+      'scramble/cards/coffee.png',
+      'scramble/cards/watch.png',
+      'scramble/cards/stripes.png',
+      'scramble/cards/logbook.png',
+      'scramble/cards/wings.png',
+      'scramble/cards/cap-a.png',
+      'scramble/cards/cap-mid.png',
+      'scramble/cards/cap-b.png',
+      'scramble/cards/shades.png',
+      'scramble/cards/headset.png',
+      'scramble/cards/overhead.png',
+      'scramble/cards/nacelle-a.png',
+      'scramble/cards/nacelle-b.png',
+      'scramble/cards/nacelle-c.png',
+      'scramble/cards/logbook-books.png',
+      'scramble/cards/logbook-sweep.png',
+      'scramble/cards/logbook-lift.png',
+      'scramble/cards/shadow.png',
+      'scramble/cards/instruments.png',
+      'scramble/cards/instruments-b.png',
+      'scramble/cards/throttles-a.png',
+      'scramble/cards/throttles-b.png',
+      'scramble/sprites/popt-walk-sheet.png',
+      'scramble/sprites/popt-backlit.png',
     ])
   })
 
-  it('keeps the owner-approved Productions revision at half-size and centered', () => {
-    expect(pngAlphaBounds('public/images/intro/tmb2/logo/tmb2-productions.png'))
-      .toEqual([127, 168, 193, 176])
+  it('hash-binds every runtime image through the manifest preload list', () => {
+    const manifest = JSON.parse(readFileSync('public/images/intro/tmb2/tmb2-intro-assets.json', 'utf8'))
+    const preload = new Set(manifest.preload)
+    for (const asset of introAssets) {
+      const packagePath = asset.path.replace('images/intro/tmb2/', '')
+      expect(preload.has(packagePath), `${asset.id} (${packagePath}) must be a manifest preload`)
+        .toBe(true)
+    }
   })
 
-  it('rejects source drift and a missing Productions layer', () => {
+  it('keeps the ident layers at half the stage width and drops the PRODUCTIONS wordmark', () => {
+    for (const layer of ['blue-mask', 'base', 'highlight-mask']) {
+      const { width, height } = pngMetadata(`public/images/intro/tmb2/logo/tmb2-ident-${layer}.png`)
+      expect({ layer, width, height }).toEqual({ layer, width: 160, height: 44 })
+    }
+    expect(existsSync('public/images/intro/tmb2/logo/tmb2-productions.png')).toBe(false)
+  })
+
+  it('rejects source drift and a missing ident layer', () => {
     const validateTmb2LogoAuthority = introAssetContract.validateTmb2LogoAuthority
     expect(validateTmb2LogoAuthority).toBeTypeOf('function')
     if (typeof validateTmb2LogoAuthority !== 'function') return

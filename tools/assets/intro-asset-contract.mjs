@@ -11,10 +11,9 @@ const TMB2_LOGO_BYTES = 811_581
 const TMB2_LOGO_SIZE = [1659, 948]
 const TMB2_IDENT_LAYERS = [
   ['logo/tmb2-ident-source.png', 'logo-source', 1659, 948],
-  ['logo/tmb2-ident-blue-mask.png', 'logo-blue-mask', 288, 79],
-  ['logo/tmb2-ident-base.png', 'logo-base', 288, 79],
-  ['logo/tmb2-ident-highlight-mask.png', 'logo-highlight-mask', 288, 79],
-  ['logo/tmb2-productions.png', 'logo-productions', 320, 224],
+  ['logo/tmb2-ident-blue-mask.png', 'logo-blue-mask', 160, 44],
+  ['logo/tmb2-ident-base.png', 'logo-base', 160, 44],
+  ['logo/tmb2-ident-highlight-mask.png', 'logo-highlight-mask', 160, 44],
 ]
 
 export function sha256File(path) {

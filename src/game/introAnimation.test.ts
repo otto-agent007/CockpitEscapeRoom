@@ -1,14 +1,24 @@
 import { describe, expect, it } from 'vitest'
+import { gameCopy } from './config'
 import {
-  KEY_CLIPS,
+  IDENTITY_CAMERA,
+  TITLE_CARD,
   POPT_CLIPS,
+  accentFlash,
+  accentPunch,
+  accentShake,
   deriveHandoffAnimation,
   deriveIntroAnimation,
   getSpriteFrame,
+  hitstopTime,
   type SpriteTiming,
 } from './introAnimation'
+import { INTRO_DURATION_SECONDS } from './introConfig'
+import { INTRO_MUSIC_CUES } from './introMusicCues'
 
-describe('TMB2 sprite animation contract', () => {
+const CUES = INTRO_MUSIC_CUES
+
+describe('Scramble sprite animation contract', () => {
   it('selects frames from authored durations and loop modes', () => {
     const loop: SpriteTiming = { durations: [140, 120, 160, 180], loopMode: 'loop' }
     const hold: SpriteTiming = { durations: [90, 110, 260], loopMode: 'hold-last' }
@@ -23,71 +33,435 @@ describe('TMB2 sprite animation contract', () => {
     expect(getSpriteFrame(once, 999)).toBe(2)
   })
 
-  it('binds every recovered Pop T clip to the shared bottom-center pivot', () => {
+  it('binds every Pop T clip to its exact on-stage cell', () => {
     expect(Object.keys(POPT_CLIPS)).toEqual([
-      'idle',
-      'run',
-      'reach-catch',
-      'duffel-pull',
-      'startle-stumble',
-      'baseball-slide',
-      'bull-spin',
-      'pilot-glide',
-      'victory-recovery',
+      'run', 'skid', 'blinded', 'forearm', 'flick', 'crooked', 'salute',
+      'tip', 'cover', 'fall', 'swing', 'lookup', 'cap', 'landed', 'walk', 'backlit',
     ])
-    expect(Object.values(POPT_CLIPS).every((clip) => (
-      clip.frameWidth === 256
-      && clip.frameHeight === 256
-      && clip.pivot.x === 128
-      && clip.pivot.y === 224
-    ))).toBe(true)
-    expect(POPT_CLIPS['duffel-pull'].durations).toEqual([140, 120, 160, 180])
-    expect(POPT_CLIPS['startle-stumble'].loopMode).toBe('hold-last')
-    expect(POPT_CLIPS['bull-spin'].loopMode).toBe('once')
+    // Wave S7: every clip is pre-rendered at its exact on-stage size, and each
+    // pivot is the measured foot-span midpoint of its normalised sprite.
+    // Twelve frames at 40 ms = 25 fps, up from six at 80 ms = 12.5 fps.
+    expect(POPT_CLIPS.run).toMatchObject({
+      frameWidth: 50,
+      frameHeight: 66,
+      columns: 12,
+      pivot: { x: 25, y: 65 },
+      loopMode: 'loop',
+    })
+    expect(POPT_CLIPS.run.durations).toHaveLength(12)
+    expect(new Set(POPT_CLIPS.run.durations)).toEqual(new Set([40]))
+    expect(POPT_CLIPS.skid).toMatchObject({ frameWidth: 57, frameHeight: 68, pivot: { x: 43, y: 67 }, loopMode: 'hold-last' })
+    expect(POPT_CLIPS.blinded).toMatchObject({ frameWidth: 39, frameHeight: 67, pivot: { x: 13, y: 66 } })
+    expect(POPT_CLIPS.forearm).toMatchObject({ frameWidth: 44, frameHeight: 68, pivot: { x: 12, y: 67 } })
+    // The flick sprite is taller than the others because the cap is airborne
+    // above his hand; its feet still sit on the pivot row.
+    expect(POPT_CLIPS.flick).toMatchObject({ frameWidth: 39, frameHeight: 94, pivot: { x: 16, y: 93 } })
+    expect(POPT_CLIPS.crooked).toMatchObject({ frameWidth: 32, frameHeight: 68, pivot: { x: 18, y: 67 } })
+    expect(POPT_CLIPS.salute).toMatchObject({ frameWidth: 28, frameHeight: 73, pivot: { x: 18, y: 72 } })
+    for (const id of [
+      'skid', 'blinded', 'forearm', 'flick', 'crooked', 'salute',
+      'tip', 'cover', 'fall', 'swing', 'lookup', 'landed', 'cap',
+    ] as const) {
+      expect(POPT_CLIPS[id].columns, id).toBe(1)
+      expect(POPT_CLIPS[id].loopMode, id).toBe('hold-last')
+    }
+    expect(POPT_CLIPS.walk).toMatchObject({
+      frameWidth: 26,
+      frameHeight: 50,
+      columns: 12,
+      pivot: { x: 13, y: 49 },
+      loopMode: 'loop',
+    })
+    // Twelve drawings over the SAME 780 ms stride: the Wave S16 in-betweens
+    // smooth the walk without retiming a cycle the owner already approved.
+    expect(POPT_CLIPS.walk.durations).toHaveLength(12)
+    expect(POPT_CLIPS.walk.durations.reduce((total, ms) => total + ms, 0)).toBe(780)
+    expect(new Set(POPT_CLIPS.walk.durations).size).toBe(1)
+    expect(POPT_CLIPS.backlit).toMatchObject({
+      frameWidth: 28,
+      frameHeight: 64,
+      pivot: { x: 14, y: 63 },
+      loopMode: 'hold-last',
+    })
   })
 
-  it('uses exactly sixteen approved cartoon-key poses', () => {
-    expect(KEY_CLIPS.taunt.frameIndices).toHaveLength(4)
-    expect(KEY_CLIPS.run.frameIndices).toHaveLength(6)
-    expect(KEY_CLIPS.fly.frameIndices).toHaveLength(4)
-    expect(KEY_CLIPS.tug.frameIndices).toHaveLength(2)
-
-    const runtimeFrames = Object.values(KEY_CLIPS).flatMap((clip) => clip.frameIndices)
-    expect(runtimeFrames).toHaveLength(16)
-    expect(new Set(runtimeFrames).size).toBe(16)
-    expect(runtimeFrames).not.toContain(2)
-    expect(runtimeFrames.every((frame) => frame >= 0 && frame <= 16)).toBe(true)
+  it('ships no jet sprite at all now the departure happens off camera', () => {
+    // Plan 0035 retired every DC-9 sprite: a pale airliner cannot survive being
+    // drawn at the sizes this act played it. Nothing may reintroduce one.
+    for (let time = 0; time <= 53.04; time += 0.04) {
+      const frame = deriveIntroAnimation(time, false)
+      expect(frame.popt?.assetId ?? '', `t=${time.toFixed(2)}`).not.toMatch(/dc9/)
+      expect(frame.backgroundAssetId ?? '', `t=${time.toFixed(2)}`).not.toMatch(/dc9|night-sky/)
+    }
+    expect(JSON.stringify(POPT_CLIPS)).not.toMatch(/dc9|liftoff|runway-/)
   })
 
   it('derives the approved scene actions from normalized media time', () => {
     expect(deriveIntroAnimation(2, false)).toMatchObject({
       sceneId: 'tmb2-ident',
       logo: { visible: true },
-      popt: null,
-      key: null,
+      popt: { clipId: 'run' },
     })
-    expect(deriveIntroAnimation(8, false).popt?.clipId).toBe('duffel-pull')
-    expect(deriveIntroAnimation(13, false)).toMatchObject({
-      sceneId: 'key-escape',
-      popt: { clipId: 'startle-stumble' },
-      key: { clipId: 'taunt' },
+    expect(deriveIntroAnimation(6.8, false).sceneId).toBe('beacon-dark')
+    expect(deriveIntroAnimation(8, false).backgroundAssetId).toBe('card-boots')
+    expect(deriveIntroAnimation(36.2, false)).toMatchObject({
+      sceneId: 'aircraft-reveal',
+      backgroundAssetId: 'plate-hangar-dark',
+      backgroundReveal: { assetId: 'plate-hangar-reveal', progress: 1, axis: 'ttb' },
     })
-    expect(deriveIntroAnimation(18, false).popt?.clipId).toBe('run')
-    expect(deriveIntroAnimation(24, false).popt?.clipId).toBe('baseball-slide')
-    expect(deriveIntroAnimation(31, false).popt?.clipId).toBe('bull-spin')
-    expect(deriveIntroAnimation(44, false).popt?.clipId).toBe('pilot-glide')
-    expect(deriveIntroAnimation(49, false).popt?.clipId).toBe('victory-recovery')
-    expect(deriveIntroAnimation(52, false).key?.clipId).toBe('tug')
+    expect(deriveIntroAnimation(CUES.logbookSnap + 2, false).backgroundAssetId).toBe('card-logbook')
+    expect(deriveIntroAnimation(CUES.headsetUp + 0.5, false).backgroundAssetId).toBe('card-headset')
+    expect(deriveIntroAnimation(CUES.doorsParting + 0.5, false)).toMatchObject({
+      sceneId: 'doors',
+      popt: { clipId: 'backlit' },
+    })
+    expect(deriveIntroAnimation(34.8, false).sceneId).toBe('walk')
+    expect(deriveIntroAnimation(36.5, false).backgroundAssetId).toBe('plate-hangar-dark')
+    expect(deriveIntroAnimation(CUES.handOnThrottles + 0.5, false).backgroundAssetId).toBe('card-throttles-a')
+    expect(deriveIntroAnimation(44.5, false).backgroundAssetId).toBe('card-throttles-a')
+    expect(deriveIntroAnimation(48.5, false).backgroundAssetId).toBe('plate-right-seat')
+    expect(deriveIntroAnimation(50.2, false).title).toMatchObject({ text: TITLE_CARD.text })
+    expect(deriveIntroAnimation(52.5, false).title).not.toBeNull()
   })
 
-  it('moves actors smoothly rather than in ten or twelve CSS-sized jumps', () => {
-    const runwayPositions = Array.from({ length: 61 }, (_, index) => (
-      deriveIntroAnimation(16 + index / 60, false).key?.x
-    ))
-    expect(new Set(runwayPositions).size).toBeGreaterThan(48)
-    for (let index = 1; index < runwayPositions.length; index += 1) {
-      expect(Math.abs(runwayPositions[index]! - runwayPositions[index - 1]!)).toBeLessThan(4)
+  it('cuts every ritual still exactly on its cue', () => {
+    expect(deriveIntroAnimation(CUES.bootsDown + 0.01, false).backgroundAssetId).toBe('card-boots')
+    expect(deriveIntroAnimation(CUES.coffeeDown + 0.01, false).backgroundAssetId).toBe('card-coffee')
+    expect(deriveIntroAnimation(CUES.coffeeDown - 0.01, false).backgroundAssetId).toBe('card-boots')
+  })
+
+  it('carries no runtime lettering until the finale title', () => {
+    // The CAPT. POP T nameplate lived only on the retired flight-case card, so
+    // the intro now letters nothing until the title card at 49.704.
+    for (const time of [8, 12, 20, 40]) {
+      expect(deriveIntroAnimation(time, false).title, `t=${time}`).toBeNull()
     }
+    expect(deriveIntroAnimation(50.2, false).title).not.toBeNull()
+  })
+
+  it('slams the floodlights onto the dark plate when the aircraft arrives', () => {
+    // The owner moved the aircraft to the end of the ground act (2026-08-20):
+    // the reveal now follows the walk instead of opening the montage.
+    const before = deriveIntroAnimation(CUES.aircraftReveal - 0.5, false)
+    expect(before.sceneId).toBe('walk')
+
+    const slam = deriveIntroAnimation(CUES.aircraftReveal + 0.05, false)
+    expect(slam.backgroundAssetId).toBe('plate-hangar-dark')
+    expect(slam.backgroundReveal?.progress).toBeGreaterThan(0)
+    expect(slam.backgroundReveal?.progress).toBeLessThan(1)
+    expect(slam.backgroundReveal?.axis).toBe('ttb')
+    expect(slam.camera.zoom).toBeGreaterThan(1.1)
+    expect(slam.flash?.color).toBe('white')
+
+    const lit = deriveIntroAnimation(CUES.aircraftReveal + 0.5, false)
+    expect(lit.backgroundReveal?.progress).toBe(1)
+  })
+
+  it('lands every story cut on its cue, hat first for continuity', () => {
+    // The cap flip OPENS the montage (three frames: high, mid-fall, caught),
+    // so every later card may wear the hat.
+    expect(deriveIntroAnimation(CUES.capFlip + 0.2, false).backgroundAssetId).toBe('card-cap-a')
+    expect(deriveIntroAnimation(CUES.capFlip + 0.3, false).backgroundAssetId).toBe('card-cap-mid')
+    expect(deriveIntroAnimation(CUES.capFlip + 0.6, false).backgroundAssetId).toBe('card-cap-b')
+    expect(deriveIntroAnimation(CUES.wingsPinned + 0.05, false).backgroundAssetId).toBe('card-wings')
+    expect(deriveIntroAnimation(CUES.fourStripes + 0.1, false).backgroundAssetId).toBe('card-stripes')
+    expect(deriveIntroAnimation(CUES.watchCheck + 0.1, false).backgroundAssetId).toBe('card-watch')
+    // Each cut punches in and pops white.
+    const cut = deriveIntroAnimation(CUES.fourStripes + 0.03, false)
+    expect(cut.camera.zoom).toBeGreaterThan(1.05)
+    expect(cut.flash?.color).toBe('white')
+  })
+
+  it('sweeps the reading pile off the logbook, lettered at runtime', () => {
+    // Owner, 2026-08-20: the Isaacson biography and the Reacher paperbacks lie
+    // on the logbook, and the hand pushes them aside to reach it. The covers
+    // are generated textless (pack rule); the runtime letters them.
+    const books = deriveIntroAnimation(CUES.logbookSnap + 0.5, false)
+    expect(books.backgroundAssetId).toBe('card-logbook-books')
+    expect(books.labels.map((label) => label.text)).toEqual(['ELON MUSK', 'REACHER', 'LEE CHILD'])
+    expect(books.labels.every((label) => label.opacity === 1)).toBe(true)
+
+    // The beat animates: pile -> mid-sweep -> hand on the bare log -> lifted.
+    expect(deriveIntroAnimation(CUES.logbookSnap + 1.2, false).backgroundAssetId).toBe('card-logbook-sweep')
+    const cleared = deriveIntroAnimation(CUES.logbookSnap + 2.0, false)
+    expect(cleared.backgroundAssetId).toBe('card-logbook')
+    expect(cleared.labels.map((label) => label.text)).toEqual(['FLIGHT LOG', 'CAPT. POP T'])
+
+    const lifted = deriveIntroAnimation(CUES.logbookSnap + 2.8, false)
+    expect(lifted.backgroundAssetId).toBe('card-logbook-lift')
+    expect(lifted.labels.map((label) => label.text)).toEqual(['FLIGHT LOG', 'CAPT. POP T'])
+    // The pick-up lands with its own small punch.
+    expect(deriveIntroAnimation(CUES.logbookSnap + 2.45, false).camera.zoom).toBeGreaterThan(1.02)
+
+    // No labels ride the motion frame: the covers are mid-slide there.
+    expect(deriveIntroAnimation(CUES.logbookSnap + 1.2, false).labels).toEqual([])
+
+    // Nothing else in the intro letters labels.
+    for (const time of [8, 14, 20, 32, 37, 50]) {
+      expect(deriveIntroAnimation(time, false).labels, `t=${time}`).toEqual([])
+    }
+  })
+
+  it('gives the walk-out one long doorway beat rather than a run of quick cuts', () => {
+    // History: one 9.96 s held doorway (idling) -> six equal 1.44 s cuts (a
+    // metronome) -> this. The owner asked for it dramatically slower, and the
+    // ground act's 35.3 s is fixed at both ends, so it carries fewer images.
+    const parting = deriveIntroAnimation(CUES.doorsParting + 0.05, false)
+    expect(parting.backgroundAssetId).toBe('plate-doorway')
+    expect(parting.popt?.clipId).toBe('backlit')
+    const wider = deriveIntroAnimation(CUES.standingAlone - 0.05, false)
+    expect(wider.doors!.gap).toBeGreaterThan(parting.doors!.gap)
+  })
+
+  it('cuts the opening fast, then plays every post-gate beat long', () => {
+    // Owner shape: the ritual and suit-up drive hard so the stripes and watch
+    // both land before the gates, and everything after the 18 s vocal breathes.
+    const opening = [CUES.bootsDown, CUES.coffeeDown, CUES.capFlip, CUES.wingsPinned, CUES.fourStripes]
+    for (let index = 0; index < opening.length - 1; index += 1) {
+      expect(opening[index + 1]! - opening[index]!, `opening gap ${index}`).toBeLessThan(1.6)
+    }
+    expect(CUES.watchCheck).toBeLessThan(CUES.doorsParting)
+
+    const after = [CUES.standingAlone, CUES.logbookSnap, CUES.headsetUp, CUES.shadesDown, CUES.walkOut]
+    for (let index = 0; index < after.length - 1; index += 1) {
+      expect(after[index + 1]! - after[index]!, `post-gate gap ${index}`).toBeGreaterThanOrEqual(2.3)
+    }
+    // The doors still hold across the whole vocal.
+    expect(CUES.standingAlone - CUES.doorsParting).toBeGreaterThanOrEqual(3)
+    // And the story still runs deep into the track.
+    expect(CUES.throttlesUp).toBeGreaterThan(44)
+  })
+
+  it('holds no single shot longer than five seconds outside the walk and the ending', () => {
+    // Guards the pacing fix: the montage cuts every 1-2 s and the walk-out now
+    // matches it, so no image may sit still through the body of the intro.
+    let prev = ''
+    let start = 0
+    let worst = { dur: 0, key: '', at: 0 }
+    for (let t = 6; t <= CUES.walkOut; t += 1 / 24) {
+      const f = deriveIntroAnimation(t, false)
+      const key = `${f.backgroundAssetId}|${f.popt?.clipId ?? ''}`
+      if (key !== prev) {
+        if (prev && t - start > worst.dur) worst = { dur: t - start, key: prev, at: start }
+        prev = key
+        start = t
+      }
+    }
+    expect(worst.dur, `longest hold was ${worst.key} at ${worst.at.toFixed(2)}s`).toBeLessThan(3.2)
+  })
+
+  it('walks the 34px figure across the scale shot smoothly', () => {
+    const start = deriveIntroAnimation(CUES.walkOut + 0.1, false)
+    const end = deriveIntroAnimation(CUES.aircraftReveal - 0.2, false)
+    expect(start.popt?.clipId).toBe('walk')
+    expect(end.popt!.x).toBeGreaterThan(start.popt!.x + 90)
+    const positions = Array.from({ length: 121 }, (_, index) => (
+      deriveIntroAnimation(CUES.walkOut + 0.1 + index / 60, false).popt!.x
+    ))
+    for (let index = 1; index < positions.length; index += 1) {
+      expect(Math.abs(positions[index]! - positions[index - 1]!)).toBeLessThan(4)
+    }
+  })
+
+  it('wakes the instrument panel between its two generated states on the beat', () => {
+    const waking = deriveIntroAnimation(CUES.instrumentsAlive + 0.3, false)
+    expect(waking.backgroundAssetId).toBe('card-instruments')
+    expect(waking.backgroundReveal).toMatchObject({ assetId: 'card-instruments-b', axis: 'ltr' })
+    expect(waking.backgroundReveal!.progress).toBeGreaterThan(0.3)
+    expect(waking.backgroundReveal!.progress).toBeLessThan(0.8)
+    // Fully awake well before the next cut, now the photo beat between them is gone.
+    const awake = deriveIntroAnimation(CUES.instrumentsAlive + 1.2, false)
+    expect(awake.backgroundReveal?.progress).toBe(1)
+    expect(deriveIntroAnimation(CUES.handOnThrottles + 0.1, false).backgroundAssetId).toBe('card-throttles-a')
+  })
+
+  it('flies the departure from inside the cockpit, nacelles before the levers', () => {
+    // The owner cut the runway lineup act, so the panel and throttles carry the
+    // 45.12 and 46.008 hits and no exterior shot is needed at all.
+    expect(deriveIntroAnimation(CUES.instrumentsAlive + 0.3, false).backgroundAssetId).toBe('card-instruments')
+    expect(deriveIntroAnimation(CUES.overheadPanel + 0.3, false).backgroundAssetId).toBe('card-overhead')
+    expect(deriveIntroAnimation(CUES.nacelleLight + 0.2, false).backgroundAssetId).toBe('card-nacelle-a')
+    expect(deriveIntroAnimation(CUES.nacelleLight + 0.8, false).backgroundAssetId).toBe('card-nacelle-b')
+    expect(deriveIntroAnimation(CUES.nacelleLight + 1.5, false).backgroundAssetId).toBe('card-nacelle-c')
+    expect(CUES.nacelleLight).toBeLessThan(CUES.handOnThrottles)
+    expect(deriveIntroAnimation(CUES.handOnThrottles + 0.2, false).backgroundAssetId).toBe('card-throttles-a')
+    expect(deriveIntroAnimation(CUES.throttlesUp + 0.2, false).backgroundAssetId).toBe('card-throttles-b')
+
+    // Rotate surges the panel and rumbles on whole pixels.
+    const rotating = deriveIntroAnimation(CUES.rotate + 0.05, false)
+    expect(rotating.flash?.color).toBe('white')
+    for (let time = CUES.throttlesUp; time < CUES.intoTheSeat; time += 0.05) {
+      const { camera } = deriveIntroAnimation(time, false)
+      expect(Number.isInteger(camera.offsetX)).toBe(true)
+      expect(Number.isInteger(camera.offsetY)).toBe(true)
+    }
+
+    // No exterior plate survives anywhere in the intro.
+    for (let time = 6; time <= 53.04; time += 0.1) {
+      expect(deriveIntroAnimation(time, false).backgroundAssetId ?? '', `t=${time.toFixed(1)}`)
+        .not.toMatch(/runway/)
+    }
+  })
+
+  it('cuts to the empty right seat and letters the game title over it', () => {
+    const beforeCut = deriveIntroAnimation(CUES.intoTheSeat - 0.05, false)
+    expect(beforeCut.backgroundAssetId).toBe('card-throttles-b')
+
+    const seat = deriveIntroAnimation(CUES.intoTheSeat + 0.05, false)
+    expect(seat.backgroundAssetId).toBe('plate-right-seat')
+    expect(seat.title, 'the title waits until its own cue').toBeNull()
+    expect(seat.flash?.color).toBe('white')
+
+    const titled = deriveIntroAnimation(50.2, false)
+    expect(titled.backgroundAssetId).toBe('plate-right-seat')
+    expect(titled.title).toMatchObject({ text: TITLE_CARD.text, opacity: 1 })
+    expect(titled.fx.some((fx) => fx.kind === 'radial-rays')).toBe(true)
+
+    // The intro holds the title over the seat instead of collapsing and looping.
+    const held = deriveIntroAnimation(52.9, false)
+    expect(held.backgroundAssetId).toBe('plate-right-seat')
+    expect(held.title).toMatchObject({ opacity: 1 })
+  })
+
+  it('letters the title from the game config so the two can never diverge', () => {
+    // The opening screen renders gameCopy.title as its heading; the intro must
+    // show the same words, and no generated art may carry text.
+    expect(TITLE_CARD.text).toBe(gameCopy.title.toUpperCase())
+    expect(deriveIntroAnimation(50.2, false).title!.text).toBe(gameCopy.title.toUpperCase())
+  })
+
+  it('keeps every sprite on the stage pixel grid for the whole intro', () => {
+    // One source pixel must land on a whole number of stage pixels; any
+    // fractional scale point-samples the sheet unevenly (plans 0029/0030).
+    for (let time = 0; time <= 53.04; time += 0.04) {
+      const frame = deriveIntroAnimation(time, false)
+      for (const actor of [frame.popt]) {
+        if (!actor) continue
+        expect(Number.isInteger(actor.scale)).toBe(true)
+        expect(actor.scale).toBeGreaterThanOrEqual(1)
+      }
+    }
+    for (const time of [3, 8, 14, 28, 33, 44, 50]) {
+      const frame = deriveIntroAnimation(time, true)
+      for (const actor of [frame.popt]) {
+        if (!actor) continue
+        expect(Number.isInteger(actor.scale)).toBe(true)
+      }
+    }
+  })
+
+  it('rests the camera at identity and lifts it only for a punch', () => {
+    let lifted = 0
+    let total = 0
+    for (let time = 0; time <= 53.04; time += 0.04) {
+      const { camera } = deriveIntroAnimation(time, false)
+      total += 1
+      expect(Number.isInteger(camera.offsetX)).toBe(true)
+      expect(Number.isInteger(camera.offsetY)).toBe(true)
+      expect(camera.zoom).toBeGreaterThanOrEqual(1)
+      expect(camera.zoom === 1 || camera.zoom >= 1.02).toBe(true)
+      if (camera.zoom !== 1) lifted += 1
+    }
+    // Zoom is a punch, never a framing device (plan 0030). The Scramble's
+    // montage adds more cuts than the chase had, so the ceiling allows the
+    // extra accents while still forbidding held zooms.
+    expect(lifted / total).toBeLessThan(0.2)
+  })
+
+  it('plays the ident hat gag: sprint in, skid, blinded, forearm, flick, crooked, salute, sprint off', () => {
+    expect(deriveIntroAnimation(1.2, false).popt).toBeNull()
+
+    const entering = deriveIntroAnimation(2.1, false)
+    expect(entering.popt?.clipId).toBe('run')
+
+    const skid = deriveIntroAnimation(2.6, false)
+    expect(skid.popt?.clipId).toBe('skid')
+    expect(skid.props.some((sceneProp) => sceneProp.id === 'cloud-puff')).toBe(true)
+    // The slam that gusts the cap loose carries the punch, flash and highlight.
+    expect(skid.flash?.color).toBe('white')
+    expect(skid.camera.zoom).toBeGreaterThan(1.1)
+
+    // The key poses still land on the accents, with in-betweens between them.
+    expect(deriveIntroAnimation(3.3, false).popt?.clipId).toBe('blinded')
+    expect(deriveIntroAnimation(3.5, false).popt?.clipId).toBe('cover')
+    expect(deriveIntroAnimation(3.75, false).popt?.clipId).toBe('fall')
+    expect(deriveIntroAnimation(4.0, false).popt?.clipId).toBe('forearm')
+    expect(deriveIntroAnimation(4.25, false).popt?.clipId).toBe('swing')
+
+    const flick = deriveIntroAnimation(4.5, false)
+    expect(flick.popt?.clipId).toBe('flick')
+    expect(flick.logo.highlightOpacity).toBe(1)
+
+    expect(deriveIntroAnimation(4.7, false).popt?.clipId).toBe('lookup')
+
+    // The cap's flight is interpolated, not cut: it must move every frame.
+    const capAt = (time: number) => deriveIntroAnimation(time, false).cap
+    expect(capAt(4.45)).toBeNull()
+    const a = capAt(4.6)!
+    const b = capAt(4.75)!
+    expect(a).not.toBeNull()
+    expect(b.x).not.toBe(a.x)
+    expect(b.rotation).not.toBe(a.rotation)
+    // It arcs: higher in the middle of the flight than at either end.
+    expect(capAt(4.7)!.y).toBeLessThan(capAt(4.52)!.y)
+    expect(capAt(4.7)!.y).toBeLessThan(capAt(4.88)!.y)
+    expect(capAt(4.95)).toBeNull()
+    expect(deriveIntroAnimation(4.95, false).popt?.clipId).toBe('crooked')
+    expect(deriveIntroAnimation(5.2, false).popt?.clipId).toBe('landed')
+
+    const salute = deriveIntroAnimation(5.5, false)
+    expect(salute.popt?.clipId).toBe('salute')
+    expect(salute.fx.filter((fx) => fx.kind === 'sparkle').length).toBeGreaterThanOrEqual(3)
+
+    const exiting = deriveIntroAnimation(5.9, false)
+    expect(exiting.popt?.clipId).toBe('run')
+    expect(exiting.popt!.x).toBeGreaterThan(200)
+  })
+
+  it('never leaves Pop T bare-headed for more than the two cap-in-hand beats', () => {
+    // Owner contract: the cap stays on him or in his hands. Only the forearm
+    // and flick poses show his head uncovered, and both hold the cap in frame.
+    const bareHeaded = new Set(['forearm', 'flick', 'fall', 'swing', 'lookup'])
+    let bareSeconds = 0
+    for (let time = 0; time < 6; time += 0.02) {
+      const clipId = deriveIntroAnimation(time, false).popt?.clipId
+      if (clipId && bareHeaded.has(clipId)) bareSeconds += 0.02
+    }
+    expect(bareSeconds).toBeLessThan(1.8)
+  })
+
+  it('freezes the acting clock at an accent then catches smoothly back up', () => {
+    expect(hitstopTime(10, 10.5, 0.12)).toBe(10)
+    expect(hitstopTime(10.55, 10.5, 0.12)).toBe(10.5)
+    expect(hitstopTime(10.7, 10.5, 0.12)).toBeGreaterThan(10.5)
+    expect(hitstopTime(10.7, 10.5, 0.12)).toBeLessThan(10.7)
+    expect(hitstopTime(11.5, 10.5, 0.12)).toBe(11.5)
+    expect(hitstopTime(10.92, 10.5, 0.12)).toBeCloseTo(10.92, 10)
+  })
+
+  it('spikes the accent punch envelope at the hit and decays it away', () => {
+    expect(accentPunch(9, 10)).toBe(0)
+    expect(accentPunch(10.06, 10)).toBeCloseTo(1, 5)
+    expect(accentPunch(10.31, 10)).toBeLessThan(0.6)
+    expect(accentPunch(11.5, 10)).toBe(0)
+  })
+
+  it('shakes deterministically within its amplitude and settles to rest', () => {
+    expect(accentShake(10.1, 10, 3)).toEqual(accentShake(10.1, 10, 3))
+    const shaken = accentShake(10.05, 10, 3)
+    expect(Math.abs(shaken.x)).toBeLessThanOrEqual(3)
+    expect(Math.abs(shaken.y)).toBeLessThanOrEqual(3)
+    expect(Math.abs(shaken.x) + Math.abs(shaken.y)).toBeGreaterThan(0)
+    expect(accentShake(9.9, 10, 3)).toEqual({ x: 0, y: 0 })
+    expect(accentShake(11, 10, 3)).toEqual({ x: 0, y: 0 })
+  })
+
+  it('flashes hard on the accent frame and fades inside the window', () => {
+    expect(accentFlash(9.99, 10)).toBe(0)
+    expect(accentFlash(10, 10)).toBe(1)
+    expect(accentFlash(10.05, 10)).toBe(1)
+    expect(accentFlash(10.15, 10)).toBeLessThan(1)
+    expect(accentFlash(10.4, 10)).toBe(0)
   })
 
   it('holds a representative pose in reduced motion while preserving scene time', () => {
@@ -96,52 +470,64 @@ describe('TMB2 sprite animation contract', () => {
       buildProgress: 1,
       highlightOpacity: 0,
     })
-    const first = deriveIntroAnimation(17, true)
-    const second = deriveIntroAnimation(21, true)
-    expect(first.sceneId).toBe('runway')
-    expect(second.sceneId).toBe('runway')
+    const first = deriveIntroAnimation(33.8, true)
+    const second = deriveIntroAnimation(35.2, true)
+    expect(first.sceneId).toBe('walk')
+    expect(second.sceneId).toBe('walk')
     expect(second.popt).toEqual(first.popt)
-    expect(second.key).toEqual(first.key)
+    // The inserts hold the woken panel.
+    expect(deriveIntroAnimation(40, true).backgroundAssetId).toBe('card-overhead')
   })
 
-  it('stages Pop T as the readable comedy lead and keeps accent props restrained', () => {
-    for (const time of [8, 13, 18, 24, 31, 38, 44, 49]) {
+  it('holds the quiet shot on the pixel grid for its whole 2.4 seconds', () => {
+    // The push-in was retired (owner, 2026-08-21): a fractional world zoom
+    // point-samples every draw, and on a slow held card that is where creep
+    // shimmer shows. Nothing in this scene may move the camera off identity.
+    for (let time = 21; time < 23.4; time += 1 / 60) {
       const frame = deriveIntroAnimation(time, false)
-      expect(frame.popt?.scale).toBeGreaterThanOrEqual(1.05)
-      if (frame.key) expect(frame.key.scale).toBeLessThanOrEqual(0.4)
+      expect(frame.sceneId, `t=${time.toFixed(3)}`).toBe('standing-alone')
+      expect(frame.camera, `t=${time.toFixed(3)}`).toEqual(IDENTITY_CAMERA)
+      expect(frame.flash, `t=${time.toFixed(3)}`).toBeNull()
     }
-    expect(deriveIntroAnimation(18, false).props.find((prop) => prop.id === 'runway-cart')?.scale)
-      .toBeLessThanOrEqual(0.7)
-    expect(deriveIntroAnimation(31, false).props.find((prop) => prop.id === 'bull-impact')?.scale)
-      .toBeLessThanOrEqual(0.4)
-    expect(deriveIntroAnimation(44, false).props.find((prop) => prop.id === 'pilot-wings')?.scale)
-      .toBeLessThanOrEqual(0.6)
-    const pursuit = deriveIntroAnimation(44, false)
-    const wings = pursuit.props.find((prop) => prop.id === 'pilot-wings')
-    expect(wings?.x).toBeCloseTo(pursuit.popt!.x)
-    expect(wings!.y).toBeLessThan(pursuit.popt!.y)
   })
 
-  it('flies and rotates the key into the lock during the 650ms handoff', () => {
+  it('produces only the fx kinds the surviving acts use', () => {
+    // The takeoff act took its contrail, exhaust and nav-strobe with it, and the
+    // attract loop took the pixel collapse. This fails if a retired kind comes
+    // back at runtime, and equally if a live one silently disappears.
+    const seen = new Set<string>()
+    for (let time = 0; time < INTRO_DURATION_SECONDS; time += 1 / 30) {
+      for (const fx of deriveIntroAnimation(time, false).fx) seen.add(fx.kind)
+    }
+    expect([...seen].sort()).toEqual(['beacon', 'beacon-sweep', 'radial-rays', 'sparkle'])
+  })
+
+  it('suppresses transient fx and camera moves in reduced motion', () => {
+    const allowed = new Set(['radial-rays'])
+    for (const time of [3, 8, 10.6, 13.5, 20, 28, 33, 37, 40, 44, 50, 52]) {
+      const frame = deriveIntroAnimation(time, true)
+      for (const fx of frame.fx) {
+        expect(allowed.has(fx.kind), `${fx.kind} must not render in reduced motion`).toBe(true)
+      }
+      expect(frame.camera).toEqual(IDENTITY_CAMERA)
+      expect(frame.flash).toBeNull()
+    }
+  })
+
+  it('zooms the title out of the finale during the 650ms handoff', () => {
     expect(deriveHandoffAnimation(0)).toEqual({
       progress: 0,
-      keyX: 160,
-      keyY: 112,
-      keyScale: 0.45,
-      keyRotation: 0,
+      x: 160,
+      y: 44,
+      scale: 1,
       flashOpacity: 0,
     })
-    expect(deriveHandoffAnimation(0.5)).toMatchObject({
-      progress: 0.5,
-      keyX: 160,
-      keyY: 112,
-    })
+    expect(deriveHandoffAnimation(0.5)).toMatchObject({ progress: 0.5, x: 160, y: 44 })
     expect(deriveHandoffAnimation(1)).toEqual({
       progress: 1,
-      keyX: 160,
-      keyY: 112,
-      keyScale: 4.5,
-      keyRotation: Math.PI * 2,
+      x: 160,
+      y: 44,
+      scale: 4.5,
       flashOpacity: 1,
     })
   })

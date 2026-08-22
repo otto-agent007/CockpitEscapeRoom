@@ -1,0 +1,26 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- One reference image is attached: the PREVIOUS VERSION of this exact shot. Reproduce its scene,
+  framing, style and colours EXACTLY, changing only what the prompt states. It is the authority
+  for everything else.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/card-photo.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+Reproduce the attached reference image EXACTLY — the same photograph clipped by the same gold
+spring clip to the same dark cockpit glareshield, the same blond pilot with the navy cap, the
+same child in the same striped shirt and the same pose, the same background, framing and palette
+— with ONE change only: the CHILD's hair is now bright BLOND, the exact same blond hair colour
+as the pilot's. Nothing else changes.
+
+Absolutely NO text anywhere: no letters, no numbers, no logos, no watermark, no border, no
+caption.
