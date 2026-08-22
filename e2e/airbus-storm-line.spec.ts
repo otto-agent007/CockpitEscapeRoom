@@ -333,16 +333,21 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
   await expect.poll(async () => {
     const rawRoll = await canvas.getAttribute('data-storm-horizon-roll')
     return Math.abs(Number(rawRoll))
-  }, { timeout: 15_000 }).toBeGreaterThan(0.08)
+  }, { timeout: 150_000 }).toBeGreaterThan(0.08)
 
   // Banking must move the weather picture, not just the horizon. Turning left
   // swings the authored gap toward the nose and reports a left ownship track.
+  // The thresholds are the contract; the timeouts are wall-clock budget. This
+  // test's outer budget already allows for the fixed step advancing ~10x slower
+  // than wall time under SwiftShader, but these polls did not: 15 s of wall
+  // clock is ~1.5 s of simulated turn, and CI measured -0.64° where the turn
+  // needs to pass -1°. Same reasoning, same factor.
   await expect.poll(async () => Number(
     await canvas.getAttribute('data-airbus-ownship-heading'),
-  ), { timeout: 15_000 }).toBeLessThan(-1)
+  ), { timeout: 150_000 }).toBeLessThan(-1)
   await expect.poll(async () => Number(
     await canvas.getAttribute('data-airbus-weather-gap-bearing'),
-  ), { timeout: 15_000 }).toBeGreaterThan(gapBeforeBank + 1)
+  ), { timeout: 150_000 }).toBeGreaterThan(gapBeforeBank + 1)
   // The ND has to agree with the world outside, or the player is being lied to.
   await expect.poll(async () => {
     const weatherGap = Number(await canvas.getAttribute('data-airbus-weather-gap-bearing'))

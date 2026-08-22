@@ -212,7 +212,12 @@ test('Simulator Hub and Engine-Out controls remain usable at tablet and phone wi
 })
 
 test('production Airbus cockpit renders live Engine-Out displays and control response', async ({ page }) => {
-  test.setTimeout(180_000)
+  // Wall-clock budget, not a correctness bound — the same one the Storm Line
+  // production test carries. This drives the real 38 MiB GLB through a CPU
+  // rasteriser at roughly 1 fps, where the simulator's fixed step advances ~10x
+  // slower than wall time, and the live-radar assertions below wait on that
+  // simulated time rather than on wall time.
+  test.setTimeout(900_000)
   await page.setViewportSize({ width: 1440, height: 900 })
   const expectedBytes = statSync('public/models/airbus-captain.glb').size
   const consoleErrors: string[] = []
@@ -262,12 +267,12 @@ test('production Airbus cockpit renders live Engine-Out displays and control res
     const weatherSignature = await canvas.getAttribute('data-airbus-weather-signature')
     const radarSignature = await canvas.getAttribute('data-airbus-radar-signature')
     return Boolean(weatherSignature) && weatherSignature === radarSignature
-  }).toBe(true)
+  }, { timeout: 150_000 }).toBe(true)
   await expect.poll(async () => {
     const weatherGap = Number(await canvas.getAttribute('data-airbus-visible-gap-bearing'))
     const radarGap = Number(await canvas.getAttribute('data-airbus-radar-gap-bearing'))
     return Math.abs(weatherGap - radarGap)
-  }).toBeLessThanOrEqual(5)
+  }, { timeout: 150_000 }).toBeLessThanOrEqual(5)
   const initialSweep = Number(await canvas.getAttribute('data-airbus-radar-sweep-angle'))
   await expect.poll(async () => Number(
     await canvas.getAttribute('data-airbus-radar-sweep-angle'),
