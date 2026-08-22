@@ -1022,9 +1022,14 @@ test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
 })
 
 test('DC-9 production cockpit stages the Final Flight Log with the existing registry', async ({ page }) => {
-  // The complete real-GLB path can cross four minutes after neighboring asset
+  // The complete real-GLB path can cross four minutes after neighbouring asset
   // decodes; retain every assertion while allowing bounded full-suite contention.
-  test.setTimeout(300_000)
+  // Raised again after CI blew the 300s budget on the instrument scan while the
+  // Airbus GLB tests were competing for the same runner: the click was still
+  // waiting for a choice that had not finished rendering. A wall-clock bound on
+  // a CPU rasteriser, not a correctness bound — a passing run is unaffected
+  // because it never waits this long.
+  test.setTimeout(900_000)
   await page.emulateMedia({ reducedMotion: 'reduce' })
   const consoleErrors: string[] = []
   page.on('console', (message) => {
