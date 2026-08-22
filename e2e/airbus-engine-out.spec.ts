@@ -4,6 +4,22 @@ import { airbusCaptainFlow, dc9LegacyFlow, lockerFlow } from '../src/game/config
 import { createInitialState, type GameState } from '../src/game/state'
 import { STORAGE_KEY } from '../src/game/storage'
 
+/**
+ * The production tests drive the real 38 MiB GLB through a CPU rasteriser at
+ * roughly 1 fps, where the simulator's fixed step advances about 10x slower
+ * than wall time. Every assertion below waits on *simulated* state — a needle
+ * moving, a sweep advancing, a checkpoint failing — so the default 5s expect
+ * budget is around half a second of simulation, and CI failed on values that
+ * were simply not there yet (0.0002 against a 0.001 threshold, -0.64° against
+ * -1°).
+ *
+ * This raises the waiting budget only. Every threshold is unchanged, and a
+ * passing assertion still returns as soon as it is true, so green runs are no
+ * slower — only genuine failures now take longer to report.
+ */
+const SIM_TIMEOUT_MS = 240_000
+const expectSim = expect.configure({ timeout: SIM_TIMEOUT_MS })
+
 function engineOutState(status: 'not_started' | 'in_progress' = 'not_started'): GameState {
   return {
     ...createInitialState(),
@@ -217,7 +233,7 @@ test('production Airbus cockpit renders live Engine-Out displays and control res
   // rasteriser at roughly 1 fps, where the simulator's fixed step advances ~10x
   // slower than wall time, and the live-radar assertions below wait on that
   // simulated time rather than on wall time.
-  test.setTimeout(900_000)
+  test.setTimeout(1_500_000)
   await page.setViewportSize({ width: 1440, height: 900 })
   const expectedBytes = statSync('public/models/airbus-captain.glb').size
   const consoleErrors: string[] = []
@@ -263,43 +279,43 @@ test('production Airbus cockpit renders live Engine-Out displays and control res
   await expect(canvas).toHaveAttribute('data-airbus-weather-depth-bands', '3')
   await expect(canvas).toHaveAttribute('data-airbus-rain-shaft-count', '0')
   await expect(canvas).toHaveAttribute('data-airbus-lightning-active', 'false')
-  await expect.poll(async () => {
+  await expectSim.poll(async () => {
     const weatherSignature = await canvas.getAttribute('data-airbus-weather-signature')
     const radarSignature = await canvas.getAttribute('data-airbus-radar-signature')
     return Boolean(weatherSignature) && weatherSignature === radarSignature
-  }, { timeout: 150_000 }).toBe(true)
-  await expect.poll(async () => {
+  }, { timeout: SIM_TIMEOUT_MS }).toBe(true)
+  await expectSim.poll(async () => {
     const weatherGap = Number(await canvas.getAttribute('data-airbus-visible-gap-bearing'))
     const radarGap = Number(await canvas.getAttribute('data-airbus-radar-gap-bearing'))
     return Math.abs(weatherGap - radarGap)
-  }, { timeout: 150_000 }).toBeLessThanOrEqual(5)
+  }, { timeout: SIM_TIMEOUT_MS }).toBeLessThanOrEqual(5)
   const initialSweep = Number(await canvas.getAttribute('data-airbus-radar-sweep-angle'))
-  await expect.poll(async () => Number(
+  await expectSim.poll(async () => Number(
     await canvas.getAttribute('data-airbus-radar-sweep-angle'),
   )).not.toBe(initialSweep)
 
   await page.keyboard.down('d')
-  await expect.poll(async () => (
+  await expectSim.poll(async () => (
     page.getByRole('region', { name: 'Accessible Engine-Out instruments' }).textContent()
   )).toMatch(/Directional error(?:[1-9]\d?|100)%/)
-  await expect.poll(async () => {
+  await expectSim.poll(async () => {
     const rawCue = await canvas.getAttribute('data-engine-out-directional-cue')
     return Math.abs(Number(rawCue))
   }).toBeGreaterThan(0.05)
-  await expect.poll(async () => {
+  await expectSim.poll(async () => {
     const rawDrift = await canvas.getAttribute('data-engine-out-heading-drift')
     return Math.abs(Number(rawDrift))
   }).toBeGreaterThan(0.001)
   await page.keyboard.up('d')
 
   await page.keyboard.down('ArrowRight')
-  await expect.poll(async () => {
+  await expectSim.poll(async () => {
     const rawRoll = await canvas.getAttribute('data-engine-out-horizon-roll')
     return Math.abs(Number(rawRoll))
   }).toBeGreaterThan(0.08)
   await page.keyboard.up('ArrowRight')
 
-  await expect.poll(async () => {
+  await expectSim.poll(async () => {
     const text = await page
       .getByRole('region', { name: 'Accessible Engine-Out instruments' })
       .textContent()
