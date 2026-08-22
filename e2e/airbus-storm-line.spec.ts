@@ -4,6 +4,22 @@ import { airbusCaptainFlow, dc9LegacyFlow, lockerFlow } from '../src/game/config
 import { createInitialState, type GameState } from '../src/game/state'
 import { STORAGE_KEY } from '../src/game/storage'
 
+/**
+ * The production tests drive the real 38 MiB GLB through a CPU rasteriser at
+ * roughly 1 fps, where the simulator's fixed step advances about 10x slower
+ * than wall time. Every assertion below waits on *simulated* state — a needle
+ * moving, a sweep advancing, a checkpoint failing — so the default 5s expect
+ * budget is around half a second of simulation, and CI failed on values that
+ * were simply not there yet (0.0002 against a 0.001 threshold, -0.64° against
+ * -1°).
+ *
+ * This raises the waiting budget only. Every threshold is unchanged, and a
+ * passing assertion still returns as soon as it is true, so green runs are no
+ * slower — only genuine failures now take longer to report.
+ */
+const SIM_TIMEOUT_MS = 240_000
+const expectSim = expect.configure({ timeout: SIM_TIMEOUT_MS })
+
 function airbusState(): GameState {
   return {
     ...createInitialState(),
@@ -231,7 +247,7 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
   // Wall-clock budget, not a correctness bound. This suite drives the real
   // 38 MiB GLB through a CPU rasteriser (SwiftShader) at roughly 1 fps, where
   // the simulator's fixed step advances 10x slower than wall time.
-  test.setTimeout(900_000)
+  test.setTimeout(1_500_000)
   const expectedBytes = statSync('public/models/airbus-captain.glb').size
   const consoleErrors: string[] = []
   page.on('console', (message) => {
@@ -287,29 +303,29 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
   // Storm cells are drawn as instanced sprite towers. The floor matters as much
   // as the ceiling: the renderer once sized its instance buffers from a stale
   // duplicate of this budget and silently drew only the first 48 sprites.
-  await expect.poll(async () => Number(
+  await expectSim.poll(async () => Number(
     await canvas.getAttribute('data-airbus-weather-cloud-count'),
   )).toBeLessThanOrEqual(340)
   expect(Number(await canvas.getAttribute('data-airbus-weather-cloud-count')))
     .toBeGreaterThan(120)
-  await expect.poll(async () => Number(
+  await expectSim.poll(async () => Number(
     await canvas.getAttribute('data-airbus-rain-shaft-count'),
   )).toBeLessThanOrEqual(8)
-  await expect.poll(async () => {
+  await expectSim.poll(async () => {
     const weatherSignature = await canvas.getAttribute('data-airbus-weather-signature')
     const radarSignature = await canvas.getAttribute('data-airbus-radar-signature')
     return Boolean(weatherSignature) && weatherSignature === radarSignature
   }).toBe(true)
-  await expect.poll(async () => {
+  await expectSim.poll(async () => {
     const weatherGap = Number(await canvas.getAttribute('data-airbus-visible-gap-bearing'))
     const radarGap = Number(await canvas.getAttribute('data-airbus-radar-gap-bearing'))
     return Math.abs(weatherGap - radarGap)
   }).toBeLessThanOrEqual(5)
-  await expect.poll(async () => Number(
+  await expectSim.poll(async () => Number(
     await canvas.getAttribute('data-airbus-radar-visible-return-count'),
   )).toBeGreaterThan(0)
   const initialSweep = Number(await canvas.getAttribute('data-airbus-radar-sweep-angle'))
-  await expect.poll(async () => Number(
+  await expectSim.poll(async () => Number(
     await canvas.getAttribute('data-airbus-radar-sweep-angle'),
   )).not.toBe(initialSweep)
   await page.getByRole('button', { name: 'Pause' }).click()
@@ -318,7 +334,7 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
   await page.waitForTimeout(750)
   await expect(canvas).toHaveAttribute('data-airbus-radar-sweep-angle', pausedSweep ?? '')
   await page.getByRole('button', { name: 'Resume' }).click()
-  await expect.poll(async () => Number(
+  await expectSim.poll(async () => Number(
     await canvas.getAttribute('data-airbus-radar-sweep-angle'),
   )).not.toBe(Number(pausedSweep))
   await expect(page.getByRole('region', { name: 'Accessible flight instruments' })).toBeVisible()
@@ -330,10 +346,10 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
   const bankLeftControl = page.getByRole('button', { name: 'Hold Bank left' })
   await bankLeftControl.focus()
   await page.keyboard.down('Space')
-  await expect.poll(async () => {
+  await expectSim.poll(async () => {
     const rawRoll = await canvas.getAttribute('data-storm-horizon-roll')
     return Math.abs(Number(rawRoll))
-  }, { timeout: 150_000 }).toBeGreaterThan(0.08)
+  }, { timeout: SIM_TIMEOUT_MS }).toBeGreaterThan(0.08)
 
   // Banking must move the weather picture, not just the horizon. Turning left
   // swings the authored gap toward the nose and reports a left ownship track.
@@ -342,26 +358,26 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
   // than wall time under SwiftShader, but these polls did not: 15 s of wall
   // clock is ~1.5 s of simulated turn, and CI measured -0.64° where the turn
   // needs to pass -1°. Same reasoning, same factor.
-  await expect.poll(async () => Number(
+  await expectSim.poll(async () => Number(
     await canvas.getAttribute('data-airbus-ownship-heading'),
-  ), { timeout: 150_000 }).toBeLessThan(-1)
-  await expect.poll(async () => Number(
+  ), { timeout: SIM_TIMEOUT_MS }).toBeLessThan(-1)
+  await expectSim.poll(async () => Number(
     await canvas.getAttribute('data-airbus-weather-gap-bearing'),
-  ), { timeout: 150_000 }).toBeGreaterThan(gapBeforeBank + 1)
+  ), { timeout: SIM_TIMEOUT_MS }).toBeGreaterThan(gapBeforeBank + 1)
   // The ND has to agree with the world outside, or the player is being lied to.
-  await expect.poll(async () => {
+  await expectSim.poll(async () => {
     const weatherGap = Number(await canvas.getAttribute('data-airbus-weather-gap-bearing'))
     const radarGap = Number(await canvas.getAttribute('data-airbus-radar-gap-bearing'))
     return Math.abs(weatherGap - radarGap)
   }, { timeout: 15_000 }).toBeLessThanOrEqual(2)
-  await expect.poll(async () => Number(
+  await expectSim.poll(async () => Number(
     await canvas.getAttribute('data-storm-horizon-roll'),
   ), { timeout: 15_000 }).toBeLessThan(-0.08)
-  await expect.poll(async () => Number(
+  await expectSim.poll(async () => Number(
     await canvas.getAttribute('data-airbus-pfd-horizon-roll'),
   ), { timeout: 15_000 }).toBeLessThan(0)
   await page.keyboard.up('Space')
-  await expect.poll(async () => Number(
+  await expectSim.poll(async () => Number(
     await canvas.getAttribute('data-airbus-input-bank'),
   ), { timeout: 5_000 }).toBe(0)
   const reloadedModel = page.waitForResponse(
@@ -379,10 +395,10 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
   const bankRightControl = page.getByRole('button', { name: 'Hold Bank right' })
   await bankRightControl.focus()
   await page.keyboard.down('Space')
-  await expect.poll(async () => Number(
+  await expectSim.poll(async () => Number(
     await canvas.getAttribute('data-storm-horizon-roll'),
   ), { timeout: 15_000 }).toBeGreaterThan(0.08)
-  await expect.poll(async () => Number(
+  await expectSim.poll(async () => Number(
     await canvas.getAttribute('data-airbus-pfd-horizon-roll'),
   ), { timeout: 15_000 }).toBeGreaterThan(0)
   await page.keyboard.up('Space')
@@ -393,7 +409,7 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
   await page.mouse.down()
   await page.mouse.move(canvasBox.x + canvasBox.width * 0.62, canvasBox.y + canvasBox.height * 0.42)
   await page.mouse.up()
-  await expect.poll(async () => canvas.getAttribute('data-airbus-look-state')).not.toBe('0.0000,0.0000,0.0000,0.0000')
+  await expectSim.poll(async () => canvas.getAttribute('data-airbus-look-state')).not.toBe('0.0000,0.0000,0.0000,0.0000')
   const lookValues = (await canvas.getAttribute('data-airbus-look-state'))?.split(',').map(Number) ?? []
   expect(Math.abs(lookValues[0])).toBeLessThanOrEqual(10)
   expect(Math.abs(lookValues[1])).toBeLessThanOrEqual(6)
@@ -406,7 +422,7 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
   // A live gap bearing must not be part of the field signature: if it were, the
   // radar would reset on every frame the aircraft was turning.
   expect(Number(await canvas.getAttribute('data-airbus-radar-reset-count'))).toBeLessThanOrEqual(2)
-  await expect.poll(async () => Number(
+  await expectSim.poll(async () => Number(
     await canvas.getAttribute('data-airbus-radar-visible-return-count'),
   )).toBeGreaterThan(0)
 
@@ -418,15 +434,15 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
   await page.keyboard.down('ArrowLeft')
   await expect(
     page.getByRole('alertdialog', { name: /storm core needs another pass/i }),
-  ).toBeVisible({ timeout: 150_000 })
+  ).toBeVisible({ timeout: SIM_TIMEOUT_MS })
   await page.keyboard.up('Space')
   await page.keyboard.up('ArrowLeft')
   await page.getByRole('button', { name: 'Retry this checkpoint' }).click()
-  await expect.poll(async () => Number(
+  await expectSim.poll(async () => Number(
     await canvas.getAttribute('data-airbus-radar-reset-count'),
   )).toBeGreaterThan(resetsBeforeRetry)
   const retrySweep = Number(await canvas.getAttribute('data-airbus-radar-sweep-angle'))
-  await expect.poll(async () => Number(
+  await expectSim.poll(async () => Number(
     await canvas.getAttribute('data-airbus-radar-sweep-angle'),
   )).not.toBe(retrySweep)
 
