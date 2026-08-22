@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { dc9LegacyFlow, lockerFlow } from '../src/game/config'
+import { airbusCaptainFlow, dc9LegacyFlow, lockerFlow } from '../src/game/config'
 import { createInitialState, type GameState } from '../src/game/state'
 import { STORAGE_KEY } from '../src/game/storage'
 
@@ -73,6 +73,51 @@ function createAirbusState(): GameState {
     airbusCaptainModeUnlocked: true,
     completedPuzzles: ['dc9', 'locker'],
     statusMessage: 'Airbus Pop T Captain experience ready.',
+  }
+}
+
+function createCompletedAirbusState(): GameState {
+  const state = createAirbusState()
+  return {
+    ...state,
+    airbusAssignments: { ...airbusCaptainFlow.controlMatch },
+    airbusSimulator: {
+      ...state.airbusSimulator,
+      familiarization: 'completed',
+      cameraPhase: 'qualified',
+      location: 'hub',
+      stormLine: {
+        status: 'completed',
+        checkpoint: 'clearAir',
+        attempts: { stormEntry: 0, stormCore: 0, clearAir: 0 },
+        bestTraits: ['calmControl', 'weatherJudgment', 'energyManagement'],
+      },
+      engineOut: {
+        status: 'completed',
+        checkpoint: 'diversion',
+        attempts: { recognition: 0, stabilization: 0, diversion: 0 },
+        bestTraits: ['directionalControl', 'energyDiscipline', 'calmDiversion'],
+      },
+      workload: {
+        scanRange: 'mid',
+        selectedWeatherSector: 'west',
+        selectedSafeReturnSide: 'right',
+        completedTasks: [
+          'stormScanRange',
+          'stormGapSelection',
+          'engineEventAcknowledgement',
+          'engineSafeReturnSelection',
+        ],
+        attempts: {
+          stormScanRange: 0,
+          stormGapSelection: 0,
+          engineEventAcknowledgement: 0,
+          engineSafeReturnSelection: 0,
+        },
+      },
+    },
+    completedPuzzles: ['dc9', 'locker', 'airbus'],
+    statusMessage: 'POP T CAPTAIN MODE COMPLETE. Engine-Out Handling complete.',
   }
 }
 
@@ -838,8 +883,14 @@ test('complete reordered journey', async ({ page }) => {
   await placeAirbusCard(page, 'RADIO', 'Radio panel')
   await placeAirbusCard(page, 'ALTITUDE', 'Altitude area')
 
+  await expect(page.getByRole('heading', { name: 'Storm Line' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Open Storm Line' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })).toHaveCount(0)
+
+  await seedGameState(page, createCompletedAirbusState())
   const completion = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
   await expect(completion).toBeVisible()
+  await expect(completion).toContainText('Directional Control · Energy Discipline · Calm Diversion')
   await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toHaveCount(0)
   await completion.getByRole('button', { name: 'Continue' }).click()
   await expect(page.getByText('Ground Transport Upgrade Authorized', { exact: true })).toBeVisible()
@@ -890,8 +941,9 @@ test('Airbus cards show immediate placement feedback and recover', async ({ page
   await placeAirbusCard(page, 'THRUST', 'Thrust levers')
   await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toHaveCount(0)
   await expect(page.getByRole('heading', { name: "Before the captain's seat" })).toHaveCount(0)
-  await page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' }).getByRole('button', { name: 'Continue' }).click()
-  await expect(page.getByText('Ground Transport Upgrade Authorized', { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Storm Line' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Open Storm Line' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })).toHaveCount(0)
 })
 
 test('saved progress persists during Airbus phase', async ({ page }) => {

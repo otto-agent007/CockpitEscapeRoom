@@ -25,7 +25,7 @@ The owner must answer “yes” to: **Does this feel unmistakably like the DC-9 
 
 ## Airbus approval criteria
 
-**Status:** The 2026-07-10 right-seat presentation was superseded on 2026-07-15. The current Airbus A320 Pop T Captain contract uses the exported left-seat camera and captain-side sidestick; owner visual approval is reopened and requires new browser evidence.
+**Status:** The 2026-07-10 right-seat presentation was superseded on 2026-07-15. The current Airbus A320 Pop T Captain contract uses the exported left-seat camera, captain-side sidestick, live Storm Line PFD/ND/ECAM surfaces, and paired-thrust motion. Actual-browser evidence is tracked under `preview-renders/storm-line/`; owner visual approval remains open.
 
 Do not model the production Airbus cockpit until the exact model is confirmed. The blockout must demonstrate model-specific:
 
@@ -34,6 +34,8 @@ Do not model the production Airbus cockpit until the exact model is confirmed. T
 - Flight-control-unit geometry.
 - Glareshield, pedestal, overhead, and window proportions.
 - Display color/brightness treatment.
+- Storm weather that remains legible through the windshield without hiding cockpit geometry.
+- PFD, ND, and ECAM symbology that reads as fictional arcade feedback rather than operational instruction.
 - Panel typography and pushbutton visual language.
 
 The Airbus may not reuse DC-9 geometry, labels, or control placement.

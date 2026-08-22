@@ -91,7 +91,431 @@ function loadRaw(raw: Record<string, unknown>): GameState {
   return loadGameState(createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(raw) }))
 }
 
-describe('schema-v7 to schema-v8 migration', () => {
+function canonicalV8(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  const state: Record<string, unknown> = { ...createInitialState() }
+  delete state.airbusSimulator
+  return {
+    ...state,
+    schemaVersion: 8,
+    ...overrides,
+  }
+}
+
+function canonicalV9(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    ...createInitialState(),
+    schemaVersion: 9,
+    ...overrides,
+  }
+}
+
+function canonicalV10(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  const state = createInitialState()
+  return {
+    ...state,
+    schemaVersion: 10,
+    airbusSimulator: {
+      familiarization: state.airbusSimulator.familiarization,
+      cameraPhase: state.airbusSimulator.cameraPhase,
+      stormLine: state.airbusSimulator.stormLine,
+    },
+    ...overrides,
+  }
+}
+
+function canonicalV11(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  const state = createInitialState()
+  const airbusSimulator = { ...state.airbusSimulator } as Record<string, unknown>
+  delete airbusSimulator.workload
+  return {
+    ...state,
+    schemaVersion: 11,
+    phase: 'airbus',
+    airbusAssignments: { ...airbusCaptainFlow.controlMatch },
+    airbusSimulator: {
+      ...airbusSimulator,
+      familiarization: 'completed',
+      cameraPhase: 'qualified',
+      location: 'hub',
+    },
+    ...overrides,
+  }
+}
+
+describe('schema-v11 to schema-v12 Airbus workload migration', () => {
+  it.each([
+    ['stormEntry', []],
+    ['stormCore', ['stormScanRange']],
+    ['clearAir', ['stormScanRange', 'stormGapSelection']],
+  ] as const)('derives earned Storm tasks at %s', (checkpoint, completedTasks) => {
+    const migrated = loadRaw(canonicalV11({
+      airbusSimulator: {
+        ...(canonicalV11().airbusSimulator as Record<string, unknown>),
+        cameraPhase: 'storm',
+        location: 'stormLine',
+        stormLine: {
+          status: 'in_progress',
+          checkpoint,
+          attempts: { stormEntry: 0, stormCore: 0, clearAir: 0 },
+          bestTraits: [],
+        },
+        engineOut: {
+          status: 'locked',
+          checkpoint: 'recognition',
+          attempts: { recognition: 0, stabilization: 0, diversion: 0 },
+          bestTraits: [],
+        },
+      },
+    }))
+
+    expect(migrated.schemaVersion).toBe(12)
+    expect(migrated.airbusSimulator.workload.completedTasks).toEqual(completedTasks)
+  })
+
+  it.each([
+    ['recognition', ['stormScanRange', 'stormGapSelection']],
+    ['stabilization', ['stormScanRange', 'stormGapSelection', 'engineEventAcknowledgement']],
+    ['diversion', ['stormScanRange', 'stormGapSelection', 'engineEventAcknowledgement']],
+  ] as const)('derives earned Engine-Out tasks at %s', (checkpoint, completedTasks) => {
+    const migrated = loadRaw(canonicalV11({
+      airbusSimulator: {
+        ...(canonicalV11().airbusSimulator as Record<string, unknown>),
+        cameraPhase: 'storm',
+        location: 'engineOut',
+        stormLine: {
+          status: 'completed',
+          checkpoint: 'clearAir',
+          attempts: { stormEntry: 0, stormCore: 0, clearAir: 0 },
+          bestTraits: [],
+        },
+        engineOut: {
+          status: 'in_progress',
+          checkpoint,
+          attempts: { recognition: 0, stabilization: 0, diversion: 0 },
+          bestTraits: [],
+        },
+      },
+    }))
+
+    expect(migrated.airbusSimulator.workload.completedTasks).toEqual(completedTasks)
+  })
+
+  it('preserves old completed reward saves with every workload task earned', () => {
+    const migrated = loadRaw(canonicalV11({
+      phase: 'reward',
+      completedPuzzles: ['dc9', 'locker', 'airbus'],
+      rewardUnlocked: true,
+      airbusSimulator: {
+        ...(canonicalV11().airbusSimulator as Record<string, unknown>),
+        familiarization: 'completed',
+        cameraPhase: 'qualified',
+        location: 'hub',
+        stormLine: {
+          status: 'completed',
+          checkpoint: 'clearAir',
+          attempts: { stormEntry: 0, stormCore: 0, clearAir: 0 },
+          bestTraits: [],
+        },
+        engineOut: {
+          status: 'completed',
+          checkpoint: 'diversion',
+          attempts: { recognition: 0, stabilization: 0, diversion: 0 },
+          bestTraits: [],
+        },
+      },
+    }))
+
+    expect(migrated.airbusSimulator.workload.completedTasks).toEqual([
+      'stormScanRange',
+      'stormGapSelection',
+      'engineEventAcknowledgement',
+      'engineSafeReturnSelection',
+    ])
+  })
+})
+
+describe('schema-v10 to schema-v12 Airbus scenario migration', () => {
+  it('opens the hub with Storm ready and Engine-Out locked for a qualified save', () => {
+    const migrated = loadRaw(canonicalV10({
+      phase: 'airbus',
+      airbusAssignments: { ...airbusCaptainFlow.controlMatch },
+      airbusSimulator: {
+        familiarization: 'completed',
+        cameraPhase: 'qualified',
+        stormLine: {
+          status: 'not_started',
+          checkpoint: 'stormEntry',
+          attempts: { stormEntry: 0, stormCore: 0, clearAir: 0 },
+          bestTraits: [],
+        },
+      },
+    }))
+
+    expect(migrated.schemaVersion).toBe(12)
+    expect(migrated.airbusSimulator.location).toBe('hub')
+    expect(migrated.airbusSimulator.stormLine.status).toBe('not_started')
+    expect(migrated.airbusSimulator.engineOut.status).toBe('locked')
+  })
+
+  it('preserves an in-progress Storm checkpoint and attempts', () => {
+    const migrated = loadRaw(canonicalV10({
+      phase: 'airbus',
+      airbusAssignments: { ...airbusCaptainFlow.controlMatch },
+      airbusSimulator: {
+        familiarization: 'completed',
+        cameraPhase: 'storm',
+        stormLine: {
+          status: 'in_progress',
+          checkpoint: 'stormCore',
+          attempts: { stormEntry: 2, stormCore: 1, clearAir: 0 },
+          bestTraits: ['calmControl'],
+        },
+      },
+    }))
+
+    expect(migrated.airbusSimulator.location).toBe('stormLine')
+    expect(migrated.airbusSimulator.stormLine).toEqual({
+      status: 'in_progress',
+      checkpoint: 'stormCore',
+      attempts: { stormEntry: 2, stormCore: 1, clearAir: 0 },
+      bestTraits: ['calmControl'],
+    })
+    expect(migrated.airbusSimulator.engineOut.status).toBe('locked')
+  })
+
+  it('returns a completed Storm save to the hub with Engine-Out ready', () => {
+    const migrated = loadRaw(canonicalV10({
+      phase: 'airbus',
+      airbusAssignments: { ...airbusCaptainFlow.controlMatch },
+      airbusSimulator: {
+        familiarization: 'completed',
+        cameraPhase: 'storm',
+        stormLine: {
+          status: 'completed',
+          checkpoint: 'clearAir',
+          attempts: { stormEntry: 1, stormCore: 0, clearAir: 0 },
+          bestTraits: ['weatherJudgment'],
+        },
+      },
+    }))
+
+    expect(migrated.completedPuzzles).not.toContain('airbus')
+    expect(migrated.airbusSimulator.location).toBe('hub')
+    expect(migrated.airbusSimulator.stormLine.status).toBe('completed')
+    expect(migrated.airbusSimulator.engineOut.status).toBe('not_started')
+  })
+})
+
+describe('canonical schema-v12 Airbus scenario recovery', () => {
+  it('restores the focused captain camera for an in-progress Engine-Out exercise', () => {
+    const state = createInitialState()
+    const loaded = loadRaw({
+      ...state,
+      phase: 'airbus',
+      airbusAssignments: { ...airbusCaptainFlow.controlMatch },
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        familiarization: 'completed',
+        cameraPhase: 'qualified',
+        location: 'engineOut',
+        stormLine: {
+          status: 'completed',
+          checkpoint: 'clearAir',
+          attempts: { stormEntry: 0, stormCore: 0, clearAir: 0 },
+          bestTraits: ['weatherJudgment'],
+        },
+        engineOut: {
+          status: 'in_progress',
+          checkpoint: 'recognition',
+          attempts: { recognition: 0, stabilization: 0, diversion: 0 },
+          bestTraits: [],
+        },
+      },
+    })
+
+    expect(loaded.airbusSimulator.location).toBe('engineOut')
+    expect(loaded.airbusSimulator.cameraPhase).toBe('storm')
+    expect(loaded.airbusSimulator.engineOut.status).toBe('in_progress')
+  })
+
+  it('resets malformed Engine-Out progress to the hub without erasing Storm completion', () => {
+    const state = createInitialState()
+    const loaded = loadRaw({
+      ...state,
+      phase: 'airbus',
+      airbusAssignments: { ...airbusCaptainFlow.controlMatch },
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        familiarization: 'completed',
+        cameraPhase: 'qualified',
+        location: 'engineOut',
+        stormLine: {
+          status: 'completed',
+          checkpoint: 'clearAir',
+          attempts: { stormEntry: 1, stormCore: 2, clearAir: 0 },
+          bestTraits: ['weatherJudgment'],
+        },
+        engineOut: {
+          status: 'in_progress',
+          checkpoint: 'diversion',
+          attempts: { recognition: 0, stabilization: -1, diversion: 4 },
+          bestTraits: ['directionalControl'],
+        },
+      },
+    })
+
+    expect(loaded.airbusSimulator.location).toBe('hub')
+    expect(loaded.airbusSimulator.stormLine).toEqual({
+      status: 'completed',
+      checkpoint: 'clearAir',
+      attempts: { stormEntry: 1, stormCore: 2, clearAir: 0 },
+      bestTraits: ['weatherJudgment'],
+    })
+    expect(loaded.airbusSimulator.engineOut).toEqual({
+      status: 'not_started',
+      checkpoint: 'recognition',
+      attempts: { recognition: 0, stabilization: 0, diversion: 0 },
+      bestTraits: [],
+    })
+  })
+
+  it('does not trust an Engine-Out completion without canonical Airbus completion', () => {
+    const state = createInitialState()
+    const loaded = loadRaw({
+      ...state,
+      phase: 'airbus',
+      airbusAssignments: { ...airbusCaptainFlow.controlMatch },
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        familiarization: 'completed',
+        location: 'hub',
+        stormLine: {
+          ...state.airbusSimulator.stormLine,
+          status: 'completed',
+        },
+        engineOut: {
+          ...state.airbusSimulator.engineOut,
+          status: 'completed',
+          checkpoint: 'diversion',
+          bestTraits: ['calmDiversion'],
+        },
+      },
+    })
+
+    expect(loaded.completedPuzzles).not.toContain('airbus')
+    expect(loaded.airbusSimulator.location).toBe('hub')
+    expect(loaded.airbusSimulator.engineOut).toEqual({
+      status: 'not_started',
+      checkpoint: 'recognition',
+      attempts: { recognition: 0, stabilization: 0, diversion: 0 },
+      bestTraits: [],
+    })
+  })
+})
+
+describe('schema-v9 to schema-v12 mandatory qualification migration', () => {
+  it('promotes a skipped save with all correct assignments to the qualified camera phase', () => {
+    const migrated = loadRaw(canonicalV9({
+      phase: 'airbus',
+      airbusAssignments: { ...airbusCaptainFlow.controlMatch },
+      airbusSimulator: {
+        familiarization: 'skipped',
+        stormLine: {
+          status: 'not_started',
+          checkpoint: 'stormEntry',
+          attempts: { stormEntry: 0, stormCore: 0, clearAir: 0 },
+          bestTraits: [],
+        },
+      },
+    }))
+
+    expect(migrated.schemaVersion).toBe(12)
+    expect(migrated.airbusSimulator.familiarization).toBe('completed')
+    expect(migrated.airbusSimulator.cameraPhase).toBe('qualified')
+    expect(migrated.airbusSimulator.stormLine.status).toBe('not_started')
+  })
+
+  it('relocks a skipped save whose assignments do not prove qualification', () => {
+    const migrated = loadRaw(canonicalV9({
+      phase: 'airbus',
+      airbusAssignments: {
+        sidestick: 'SIDESTICK',
+        thrust: null,
+        gear: null,
+        radio: null,
+        altitude: null,
+      },
+      airbusSimulator: {
+        familiarization: 'skipped',
+        stormLine: {
+          status: 'in_progress',
+          checkpoint: 'stormCore',
+          attempts: { stormEntry: 2, stormCore: 1, clearAir: 0 },
+          bestTraits: ['calmControl'],
+        },
+      },
+    }))
+
+    expect(migrated.schemaVersion).toBe(12)
+    expect(migrated.airbusSimulator).toEqual({
+      familiarization: 'unseen',
+      cameraPhase: 'familiarization',
+      location: 'qualification',
+      stormLine: {
+        status: 'not_started',
+        checkpoint: 'stormEntry',
+        attempts: { stormEntry: 0, stormCore: 0, clearAir: 0 },
+        bestTraits: [],
+      },
+      engineOut: {
+        status: 'locked',
+        checkpoint: 'recognition',
+        attempts: { recognition: 0, stabilization: 0, diversion: 0 },
+        bestTraits: [],
+      },
+      workload: {
+        scanRange: 'near',
+        selectedWeatherSector: null,
+        selectedSafeReturnSide: null,
+        completedTasks: [],
+        attempts: {
+          stormScanRange: 0,
+          stormGapSelection: 0,
+          engineEventAcknowledgement: 0,
+          engineSafeReturnSelection: 0,
+        },
+      },
+    })
+  })
+
+  it('preserves an earned Airbus completion while retiring the skipped value', () => {
+    const migrated = loadRaw(canonicalV9({
+      phase: 'reward',
+      completedPuzzles: ['dc9', 'locker', 'airbus'],
+      rewardUnlocked: true,
+      airbusSimulator: {
+        familiarization: 'skipped',
+        stormLine: {
+          status: 'completed',
+          checkpoint: 'clearAir',
+          attempts: { stormEntry: 2, stormCore: 3, clearAir: 1 },
+          bestTraits: ['weatherJudgment'],
+        },
+      },
+    }))
+
+    expect(migrated.schemaVersion).toBe(12)
+    expect(migrated.completedPuzzles).toContain('airbus')
+    expect(migrated.rewardUnlocked).toBe(true)
+    expect(migrated.airbusSimulator.familiarization).toBe('completed')
+    expect(migrated.airbusSimulator.cameraPhase).toBe('qualified')
+    expect(migrated.airbusSimulator.location).toBe('hub')
+    expect(migrated.airbusSimulator.stormLine.status).toBe('completed')
+    expect(migrated.airbusSimulator.engineOut.status).toBe('completed')
+  })
+})
+
+describe('schema-v7 through schema-v12 migration', () => {
   it('preserves completed DC-9 route and secure attempt history', () => {
     const dc9 = completedDc9(4, 5)
     const legacyDc9: Record<string, unknown> = { ...dc9 }
@@ -124,7 +548,7 @@ describe('schema-v7 to schema-v8 migration', () => {
       dc9: completedPuzzles.some((id) => id === 'captain') ? completedDc9() : legacyV7().dc9,
     }))
 
-    expect(migrated.schemaVersion).toBe(8)
+    expect(migrated.schemaVersion).toBe(12)
     expect(migrated.phase).toBe(phase)
   })
 
@@ -255,7 +679,7 @@ describe('schema-v3 through schema-v6 migration chain', () => {
       }),
     })
 
-    expect(migrated.schemaVersion).toBe(8)
+    expect(migrated.schemaVersion).toBe(12)
     expect(migrated.phase).toBe('mars')
     expect(migrated.dc9.stage).toBe('complete')
     expect(migrated.completedPuzzles).toEqual(['airbus', 'locker', 'dc9'])
@@ -292,7 +716,7 @@ describe('schema-v3 through schema-v6 migration chain', () => {
       lockerAttempts: undefined,
     })
 
-    expect(migrated.schemaVersion).toBe(8)
+    expect(migrated.schemaVersion).toBe(12)
     expect(migrated.phase).toBe('dc9')
     expect(migrated.lockerCompleted).toEqual(['watch'])
     expect(migrated.lockerAttempts).toEqual({ watch: 0, baseball: 0, chargingBull: 0, wings: 0 })
@@ -310,7 +734,7 @@ describe('schema-v3 through schema-v6 migration chain', () => {
       lockerIntroCompleted: undefined,
     })
 
-    expect(migrated.schemaVersion).toBe(8)
+    expect(migrated.schemaVersion).toBe(12)
     expect(migrated.phase).toBe('dc9')
     expect(migrated.lockerIntroCompleted).toBe(true)
     expect(migrated.completedPuzzles).toEqual(['airbus'])
@@ -348,7 +772,40 @@ describe('schema-v3 through schema-v6 migration chain', () => {
   })
 })
 
-describe('canonical schema-v8 storage', () => {
+describe('schema-v8 to schema-v12 Airbus simulator migration', () => {
+  it('preserves an incomplete familiarization without inventing Storm Line progress', () => {
+    const migrated = loadRaw(canonicalV8({
+      phase: 'airbus',
+      airbusAssignments: {
+        sidestick: 'SIDESTICK',
+        thrust: 'THRUST',
+        gear: null,
+        radio: null,
+        altitude: null,
+      },
+    }))
+
+    expect(migrated.schemaVersion).toBe(12)
+    expect(migrated.phase).toBe('airbus')
+    expect(migrated.airbusSimulator.familiarization).toBe('unseen')
+    expect(migrated.airbusSimulator.stormLine.status).toBe('not_started')
+  })
+
+  it('preserves completed Airbus and reward saves without relocking the journey', () => {
+    const migrated = loadRaw(canonicalV8({
+      phase: 'reward',
+      completedPuzzles: ['dc9', 'locker', 'airbus'],
+      rewardUnlocked: true,
+    }))
+
+    expect(migrated.phase).toBe('reward')
+    expect(migrated.rewardUnlocked).toBe(true)
+    expect(migrated.airbusSimulator.familiarization).toBe('completed')
+    expect(migrated.airbusSimulator.stormLine.status).toBe('completed')
+  })
+})
+
+describe('canonical schema-v12 storage', () => {
   it('round-trips completed DC-9 attempt history', () => {
     const storage = createMemoryStorage()
     const state: GameState = {
@@ -389,12 +846,109 @@ describe('canonical schema-v8 storage', () => {
     expect(loadGameState(storage)).toEqual(state)
   })
 
+  it('normalizes corrupt schema-v12 workload fields without inventing completion', () => {
+    const state = createInitialState()
+    const loaded = loadRaw({
+      ...state,
+      schemaVersion: 12,
+      phase: 'airbus',
+      airbusAssignments: { ...airbusCaptainFlow.controlMatch },
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        familiarization: 'completed',
+        cameraPhase: 'storm',
+        location: 'stormLine',
+        stormLine: {
+          status: 'in_progress',
+          checkpoint: 'stormEntry',
+          attempts: { stormEntry: 0, stormCore: 0, clearAir: 0 },
+          bestTraits: [],
+        },
+        workload: {
+          scanRange: 'planet',
+          selectedWeatherSector: 'north',
+          selectedSafeReturnSide: 'up',
+          completedTasks: ['inventedTask', 'stormGapSelection'],
+          attempts: {
+            stormScanRange: -4,
+            stormGapSelection: 'many',
+            engineEventAcknowledgement: 2,
+            engineSafeReturnSelection: 3,
+          },
+        },
+      },
+    })
+
+    expect(loaded.airbusSimulator.workload).toEqual({
+      scanRange: 'near',
+      selectedWeatherSector: null,
+      selectedSafeReturnSide: null,
+      completedTasks: [],
+      attempts: {
+        stormScanRange: 0,
+        stormGapSelection: 0,
+        engineEventAcknowledgement: 2,
+        engineSafeReturnSelection: 3,
+      },
+    })
+    expect(loaded.completedPuzzles).not.toContain('airbus')
+  })
+
+  it('normalizes corrupt schema-v9 simulator fields to a safe durable checkpoint', () => {
+    const saved = {
+      ...createInitialState(),
+      phase: 'airbus',
+      airbusSimulator: {
+        familiarization: 'unknown',
+        stormLine: {
+          status: 'flying-now',
+          checkpoint: 'midair',
+          attempts: { stormEntry: -4, stormCore: 'many', clearAir: 2 },
+          bestTraits: ['weatherJudgment', 'inventedTrait'],
+        },
+      },
+    }
+
+    const loaded = loadRaw(saved)
+
+    expect(loaded.airbusSimulator).toEqual({
+      familiarization: 'unseen',
+      cameraPhase: 'familiarization',
+      location: 'qualification',
+      stormLine: {
+        status: 'not_started',
+        checkpoint: 'stormEntry',
+        attempts: { stormEntry: 0, stormCore: 0, clearAir: 0 },
+        bestTraits: [],
+      },
+      engineOut: {
+        status: 'locked',
+        checkpoint: 'recognition',
+        attempts: { recognition: 0, stabilization: 0, diversion: 0 },
+        bestTraits: [],
+      },
+      workload: {
+        scanRange: 'near',
+        selectedWeatherSector: null,
+        selectedSafeReturnSide: null,
+        completedTasks: [],
+        attempts: {
+          stormScanRange: 0,
+          stormGapSelection: 0,
+          engineEventAcknowledgement: 0,
+          engineSafeReturnSelection: 0,
+        },
+      },
+    })
+  })
+
   it('writes only canonical state fields', () => {
     const storage = createMemoryStorage()
     saveGameState(createInitialState(), storage)
     const saved = JSON.parse(storage.getItem(STORAGE_KEY) ?? '{}') as Record<string, unknown>
 
-    expect(saved.schemaVersion).toBe(8)
+    expect(saved.schemaVersion).toBe(12)
+    expect(saved).toHaveProperty('airbusSimulator')
     expect(saved).toHaveProperty('airbusQualificationAnswer')
     expect(saved).toHaveProperty('airbusCaptainModeUnlocked')
     expect(saved).toHaveProperty('rewardUnlocked')

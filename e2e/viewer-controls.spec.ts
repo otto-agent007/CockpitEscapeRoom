@@ -36,7 +36,7 @@ async function seed(page: Page, state: GameState) {
 
 test('loading failure offers retry and accessible completion path', async ({ page }) => {
   let requests = 0
-  await page.route('**/models/airbus-captain.glb', (route) => {
+  await page.route('**/models/airbus-captain.glb*', (route) => {
     requests += 1
     return route.fulfill({ status: 503, body: 'offline' })
   })

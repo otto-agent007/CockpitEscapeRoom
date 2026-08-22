@@ -1,7 +1,7 @@
 {
   "gate": "runtime-contract",
-  "artifactId": "a320-cockpit-2-captain-runtime-contract-002",
-  "createdAt": "2026-07-27T04:20:06Z",
+  "artifactId": "a320-cockpit-2-captain-runtime-contract-003",
+  "createdAt": "2026-07-31T22:00:01Z",
   "sceneGroup": "Airbus A320 Pop T Captain cockpit",
   "assetPath": "public/models/airbus-captain.glb",
   "rootObject": "AIRBUS_ROOT",
@@ -28,7 +28,7 @@
       "pivotVerified": false,
       "pivotExportVerified": false,
       "localAxis": "GROUP_ROOT",
-      "htmlEquivalent": "Display inspection candidate; future HTML panel mirror required if interactive."
+      "htmlEquivalent": "Source display group; live PFD, ND, and ECAM surfaces have native HTML instrument mirrors."
     },
     {
       "name": "AIRBUS_A320_INTERACTIVE_CANDIDATES",
@@ -71,12 +71,68 @@
       "htmlEquivalent": "Keyboard and pointer seated-look controls plus accessible placement controls."
     },
     {
+      "name": "CAM_AIRBUS_CAPTAIN_STORM_FLIGHT",
+      "gameId": "airbus.a320.camera.captain_storm_flight",
+      "pivotVerified": false,
+      "pivotExportVerified": false,
+      "localAxis": "CAMERA_LOCAL",
+      "htmlEquivalent": "Limited pointer/touch look plus native Recenter and flight controls."
+    },
+    {
       "name": "AIRBUS_A320_CAM_CAPTAIN_APPROVAL",
       "gameId": "airbus.a320.camera.captain_approval",
       "pivotVerified": false,
       "pivotExportVerified": false,
       "localAxis": "CAMERA_LOCAL",
       "htmlEquivalent": "Approval camera; no direct HTML control."
+    },
+    {
+      "name": "AIRBUS_A320_DISPLAY_CAPTAIN_PFD_SURFACE",
+      "gameId": "airbus.sim.display.pfd",
+      "pivotVerified": false,
+      "pivotExportVerified": false,
+      "localAxis": "GROUP_ROOT",
+      "htmlEquivalent": "Pitch, bank, and energy values are mirrored in the accessible flight instruments region."
+    },
+    {
+      "name": "AIRBUS_A320_DISPLAY_CAPTAIN_ND_SURFACE",
+      "gameId": "airbus.sim.display.nd",
+      "pivotVerified": false,
+      "pivotExportVerified": false,
+      "localAxis": "GROUP_ROOT",
+      "htmlEquivalent": "Weather intensity, corridor guidance, and cross-track state are mirrored in native HTML."
+    },
+    {
+      "name": "AIRBUS_A320_DISPLAY_UPPER_ECAM_SURFACE",
+      "gameId": "airbus.sim.display.ecam",
+      "pivotVerified": false,
+      "pivotExportVerified": false,
+      "localAxis": "CAMERA_LOCAL",
+      "htmlEquivalent": "Paired thrust, energy, and weather state are mirrored in native HTML."
+    },
+    {
+      "name": "AIRBUS_A320_CONTROL_CAPTAIN_SIDESTICK_ROLL_PIVOT",
+      "gameId": "airbus.sim.control.sidestick",
+      "pivotVerified": false,
+      "pivotExportVerified": false,
+      "localAxis": "Y",
+      "htmlEquivalent": "Native Bank left and Bank right hold buttons."
+    },
+    {
+      "name": "AIRBUS_A320_CONTROL_CAPTAIN_SIDESTICK_PITCH_PIVOT",
+      "gameId": "airbus.sim.control.sidestick.pitch",
+      "pivotVerified": false,
+      "pivotExportVerified": false,
+      "localAxis": "X",
+      "htmlEquivalent": "Native Pitch up and Pitch down hold buttons."
+    },
+    {
+      "name": "AIRBUS_A320_CONTROL_THRUST_PAIRED_PIVOT",
+      "gameId": "airbus.sim.control.thrust",
+      "pivotVerified": false,
+      "pivotExportVerified": false,
+      "localAxis": "X",
+      "htmlEquivalent": "Native Increase and Decrease paired-thrust hold buttons."
     },
     {
       "name": "AIRBUS_A320_TARGET_SIDESTICK_PIVOT",
@@ -233,12 +289,13 @@
   "reimportValidation": "pass",
   "visualAlignmentValidation": {
     "status": "verified",
-    "evidence": "The real captain-seat GLB was inspected at 1440x900 with the owner-approved Radio and Thrust placements in preview-renders/placement-polish/airbus-radio-thrust-1440.png and after seated head-look drag in preview-renders/seat-role-swap/airbus-captain-targets-dragged-1440.png. Both states reported five projected targets; Playwright verifies reachability."
+    "evidence": "The real captain-seat GLB retains the owner-approved Radio and Thrust placements and now renders live PFD, ND, and ECAM surfaces plus accessible Storm Line controls in preview-renders/storm-line. The final 1440x900 frame is airbus-pfd-triangle-fixed-1440.png; functional responsive evidence is retained at 768x900 and 375x812. Playwright verifies all seven simulator nodes, no-cache runtime bytes, and the native control path."
   },
-  "scaleAndCameraAssumptions": "Source model is kept in imported Blender scale. The browser starts from CAM_AIRBUS_CAPTAIN_GAME_VIEW, consumes its exported 68-degree vertical FOV, uses restrained seated head-look, raycasts exported colliders, and projects accessible HTML cues from exported pivots.",
+  "scaleAndCameraAssumptions": "Source model is kept in imported Blender scale. Qualification starts from CAM_AIRBUS_CAPTAIN_GAME_VIEW at 68 degrees vertical FOV. Begin Storm Line transitions to CAM_AIRBUS_CAPTAIN_STORM_FLIGHT at 58 degrees vertical FOV with constrained head-look. The browser raycasts exported colliders, projects accessible HTML cues, paints runtime CanvasTextures onto three authored display planes, and animates the authored sidestick and paired-thrust pivots.",
   "knownReferenceDeviations": [
     "Prebuilt Sketchfab source still needs model-correct A320 reference review before production promotion.",
     "Five Pop T Captain targets have export-verified pivots, invisible hitboxes, and cue proxies. Captain-seat browser alignment is verified at 1440x900; imported source controls outside that player-facing set remain deferred.",
-    "Display content is dark/static source geometry; live display materials and deeper imported-control mesh splitting belong to later stages."
+    "Storm Line uses a paired-thrust pivot; independent left/right lever splitting remains intentionally deferred.",
+    "The scenario is an arcade fictional simulator, not an operational A320 training model."
   ]
 }

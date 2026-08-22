@@ -142,7 +142,7 @@ Do not run a flattening, joining, or destructive deduplication optimization unle
 
 The active DC-9 camera family is `CAM_DC9_FIRST_OFFICER_GAME`, `CAM_DC9_FIRST_OFFICER_APPROVAL`, and the `CAM_DC9_FIRST_OFFICER_*_APPROVAL` route, main-panel, overhead, and pedestal cameras. The active Airbus cameras are `CAM_AIRBUS_CAPTAIN_GAME_VIEW` and `AIRBUS_A320_CAM_CAPTAIN_APPROVAL`. Old seat cameras may remain only with explicit `deprecated`, `compatibility_only`, and `replacement_camera` metadata.
 
-The deployable Airbus path is `public/models/airbus-captain.glb`. React Three Fiber consumes its exported captain camera transform and 68° vertical field of view directly. The DC-9 route strip and colliders are children of the actual first-officer yoke while retaining their stable route and shutdown `game_id` values.
+The deployable Airbus path is `public/models/airbus-captain.glb`. React Three Fiber consumes `CAM_AIRBUS_CAPTAIN_GAME_VIEW` and its 68° vertical field of view during qualification, then transitions to `CAM_AIRBUS_CAPTAIN_STORM_FLIGHT` and its 58° vertical field of view for the Storm Flight simulator. The Storm camera exports `game_id = airbus.a320.camera.captain_storm_flight`, `purpose = storm-flight`, `seat_role = captain`, and `aircraft = Airbus A320`. The DC-9 route strip and colliders are children of the actual first-officer yoke while retaining their stable route and shutdown `game_id` values.
 
 The deployable Model Y path is `public/models/model-y-reward.glb`. It is loaded
 only in the protected reward phase after DC-9, locker, and Airbus completion.

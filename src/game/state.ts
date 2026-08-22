@@ -7,8 +7,26 @@ import {
   type LockerMemoryId,
   type LockerQuestionId,
 } from './config'
+import type { StormLineCheckpoint, StormLineTrait } from './airbusSimulator'
+import {
+  getAirbusScenarioAvailability,
+  type AirbusScenarioId,
+  type AirbusScenarioLocation,
+  type EngineOutCheckpoint,
+  type EngineOutTrait,
+} from './airbusScenario'
+import {
+  airbusWorkloadHint,
+  applyAirbusWorkloadAction,
+  createInitialAirbusWorkloadProgress,
+  deriveAirbusWorkloadTask,
+  resetAirbusScenarioWorkload,
+  type AirbusWorkloadAction,
+  type AirbusWorkloadProgress,
+  type AirbusWorkloadTaskId,
+} from './airbusWorkload'
 
-export const GAME_SCHEMA_VERSION = 8 as const
+export const GAME_SCHEMA_VERSION = 12 as const
 export const DC9_SECURE_ORDER = dc9LegacyFlow.secureSequence
 export const PUZZLE_IDS = ['dc9', 'locker', 'airbus'] as const
 export type GamePhase = 'briefing' | 'dc9' | 'locker' | 'airbus' | 'reward' | 'mars'
@@ -36,6 +54,24 @@ export type GameAction =
   | { type: 'START' }
   | { type: 'ASSIGN_AIRBUS_CARD'; control: AirbusControl; card: string }
   | { type: 'ASSIGN_AIRBUS_DECOY_CARD'; decoy: AirbusDecoy; card: string }
+  | { type: 'SELECT_AIRBUS_SCENARIO'; scenario: AirbusScenarioId }
+  | { type: 'BEGIN_AIRBUS_STORM_TRANSITION' }
+  | { type: 'START_AIRBUS_STORM_LINE' }
+  | {
+      type: 'SAVE_AIRBUS_STORM_CHECKPOINT'
+      checkpoint: StormLineCheckpoint
+      attempts: Record<StormLineCheckpoint, number>
+    }
+  | { type: 'COMPLETE_AIRBUS_STORM_LINE'; traits: StormLineTrait[] }
+  | { type: 'BEGIN_AIRBUS_ENGINE_OUT' }
+  | {
+      type: 'SAVE_AIRBUS_ENGINE_OUT_CHECKPOINT'
+      checkpoint: EngineOutCheckpoint
+      attempts: Record<EngineOutCheckpoint, number>
+    }
+  | { type: 'COMPLETE_AIRBUS_ENGINE_OUT'; traits: EngineOutTrait[] }
+  | { type: 'APPLY_AIRBUS_WORKLOAD_ACTION'; action: AirbusWorkloadAction }
+  | { type: 'RETURN_TO_AIRBUS_SCENARIO_HUB' }
   | { type: 'SET_ATP_QUALIFICATION_ANSWER'; value: string }
   | { type: 'SUBMIT_DC9_ATP_QUALIFICATION' }
   | { type: 'CONTINUE_FROM_AIRBUS_TO_REWARD' }
@@ -67,6 +103,28 @@ export type AirbusDecoyAssignments = {
   [K in AirbusDecoy]: string | null
 }
 
+export type AirbusFamiliarizationStatus = 'unseen' | 'completed'
+export type AirbusCameraPhase = 'familiarization' | 'qualified' | 'transitioning' | 'storm'
+
+export interface AirbusSimulatorProgress {
+  familiarization: AirbusFamiliarizationStatus
+  cameraPhase: AirbusCameraPhase
+  location: AirbusScenarioLocation
+  stormLine: {
+    status: 'not_started' | 'in_progress' | 'completed'
+    checkpoint: StormLineCheckpoint
+    attempts: Record<StormLineCheckpoint, number>
+    bestTraits: StormLineTrait[]
+  }
+  engineOut: {
+    status: 'locked' | 'not_started' | 'in_progress' | 'completed'
+    checkpoint: EngineOutCheckpoint
+    attempts: Record<EngineOutCheckpoint, number>
+    bestTraits: EngineOutTrait[]
+  }
+  workload: AirbusWorkloadProgress
+}
+
 interface LockerPayload {
   completed: LockerMemoryId[]
   hatRevealed: boolean
@@ -80,6 +138,7 @@ export interface GameState {
   airbusAssignments: AirbusAssignments
   airbusDecoyAssignments: AirbusDecoyAssignments
   airbusQualificationAnswer: string
+  airbusSimulator: AirbusSimulatorProgress
   lockerCompleted: LockerMemoryId[]
   lockerAttempts: LockerAttempts
   lockerIntroCompleted: boolean
@@ -123,6 +182,66 @@ function createEmptyDecoyAssignments(): AirbusDecoyAssignments {
     sideConsole: null,
     windshieldLights: null,
   }
+}
+
+export function createInitialAirbusSimulatorProgress(): AirbusSimulatorProgress {
+  return {
+    familiarization: 'unseen',
+    cameraPhase: 'familiarization',
+    location: 'qualification',
+    stormLine: {
+      status: 'not_started',
+      checkpoint: 'stormEntry',
+      attempts: {
+        stormEntry: 0,
+        stormCore: 0,
+        clearAir: 0,
+      },
+      bestTraits: [],
+    },
+    engineOut: {
+      status: 'locked',
+      checkpoint: 'recognition',
+      attempts: {
+        recognition: 0,
+        stabilization: 0,
+        diversion: 0,
+      },
+      bestTraits: [],
+    },
+    workload: createInitialAirbusWorkloadProgress(),
+  }
+}
+
+function hasAirbusWorkloadTasks(
+  progress: AirbusWorkloadProgress,
+  tasks: readonly AirbusWorkloadTaskId[],
+): boolean {
+  return tasks.every((task) => progress.completedTasks.includes(task))
+}
+
+function activeAirbusWorkloadTask(state: GameState): AirbusWorkloadTaskId | null {
+  if (state.phase !== 'airbus') return null
+  if (
+    state.airbusSimulator.location === 'stormLine' &&
+    state.airbusSimulator.stormLine.status === 'in_progress'
+  ) {
+    return deriveAirbusWorkloadTask('stormLine', state.airbusSimulator.stormLine.checkpoint)
+  }
+  if (
+    state.airbusSimulator.location === 'engineOut' &&
+    state.airbusSimulator.engineOut.status === 'in_progress'
+  ) {
+    return deriveAirbusWorkloadTask('engineOut', state.airbusSimulator.engineOut.checkpoint)
+  }
+  return null
+}
+
+function completedAirbusWorkloadMessage(task: AirbusWorkloadTaskId): string {
+  if (task === 'stormScanRange') return 'Captain ND training range set to MID.'
+  if (task === 'stormGapSelection') return 'Stable western weather gap confirmed.'
+  if (task === 'engineEventAcknowledgement') return 'Deliberate simulator event acknowledged.'
+  return 'Right-side SAFE RETURN corridor selected.'
 }
 
 function allControlsCorrect(assignments: AirbusAssignments): boolean {
@@ -257,6 +376,7 @@ export function createInitialState(): GameState {
     airbusAssignments: createEmptyAssignments(),
     airbusDecoyAssignments: createEmptyDecoyAssignments(),
     airbusQualificationAnswer: '',
+    airbusSimulator: createInitialAirbusSimulatorProgress(),
     lockerCompleted: [],
     lockerAttempts: { watch: 0, baseball: 0, chargingBull: 0, wings: 0 },
     lockerIntroCompleted: false,
@@ -422,18 +542,281 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         const card = nextAssignments[control]
         return card !== null && card !== airbusCaptainFlow.controlMatch[control]
       })
+      const familiarizationComplete = allControlsCorrect(nextAssignments)
+      const qualificationProgress = familiarizationComplete
+        ? {
+            ...state.airbusSimulator,
+            familiarization: 'completed' as const,
+            location: state.airbusSimulator.location === 'qualification'
+              ? 'hub' as const
+              : state.airbusSimulator.location,
+            cameraPhase: state.airbusSimulator.stormLine.status === 'not_started'
+              ? 'qualified' as const
+              : state.airbusSimulator.cameraPhase,
+          }
+        : state.airbusSimulator.stormLine.status === 'not_started'
+          ? {
+              ...state.airbusSimulator,
+              familiarization: 'unseen' as const,
+              location: 'qualification' as const,
+              cameraPhase: 'familiarization' as const,
+            }
+          : state.airbusSimulator
       return {
         ...state,
         airbusAssignments: nextAssignments,
         airbusDecoyAssignments: cleared.decoyAssignments,
-        completedPuzzles: allControlsCorrect(nextAssignments)
-          ? unique([...state.completedPuzzles, 'airbus'])
-          : state.completedPuzzles,
-        statusMessage: correctPlacement && !hasWrongPlacement && !allControlsCorrect(nextAssignments)
+        airbusSimulator: qualificationProgress,
+        statusMessage: familiarizationComplete
+          ? 'Cockpit familiarization complete. Storm Line simulator ready.'
+          : correctPlacement && !hasWrongPlacement
           ? airbusCaptainFlow.controlHints[action.control]
           : feedback,
       }
     }
+
+    case 'SELECT_AIRBUS_SCENARIO': {
+      if (
+        state.phase !== 'airbus' ||
+        state.airbusSimulator.familiarization !== 'completed' ||
+        state.airbusSimulator.location !== 'hub'
+      ) return state
+      const availability = getAirbusScenarioAvailability(action.scenario, {
+        qualified: true,
+        stormCompleted: state.airbusSimulator.stormLine.status === 'completed',
+        engineOutCompleted: state.airbusSimulator.engineOut.status === 'completed',
+      })
+      if (availability === 'locked') return state
+      return {
+        ...state,
+        airbusSimulator: {
+          ...state.airbusSimulator,
+          location: action.scenario,
+        },
+        statusMessage: action.scenario === 'stormLine'
+          ? 'Storm Line selected. Begin when ready.'
+          : 'Engine-Out Handling selected. Begin when ready.',
+      }
+    }
+
+    case 'BEGIN_AIRBUS_STORM_TRANSITION':
+      if (
+        state.phase !== 'airbus' ||
+        state.airbusSimulator.familiarization !== 'completed' ||
+        state.airbusSimulator.cameraPhase !== 'qualified' ||
+        (state.airbusSimulator.stormLine.status !== 'not_started' &&
+          state.airbusSimulator.stormLine.status !== 'completed') ||
+        !allControlsCorrect(state.airbusAssignments)
+      ) return state
+      return {
+        ...state,
+        airbusSimulator: {
+          ...state.airbusSimulator,
+          location: 'stormLine',
+          cameraPhase: 'transitioning',
+          workload: state.airbusSimulator.stormLine.status === 'completed'
+            ? resetAirbusScenarioWorkload(state.airbusSimulator.workload, 'stormLine')
+            : state.airbusSimulator.workload,
+          stormLine: state.airbusSimulator.stormLine.status === 'completed'
+            ? {
+                ...state.airbusSimulator.stormLine,
+                checkpoint: 'stormEntry',
+                attempts: { stormEntry: 0, stormCore: 0, clearAir: 0 },
+              }
+            : state.airbusSimulator.stormLine,
+        },
+        statusMessage: 'Captain view moving forward. Storm Flight instruments coming into focus.',
+      }
+
+    case 'START_AIRBUS_STORM_LINE':
+      if (
+        state.phase !== 'airbus' ||
+        state.airbusSimulator.familiarization !== 'completed' ||
+        state.airbusSimulator.cameraPhase !== 'transitioning' ||
+        !allControlsCorrect(state.airbusAssignments)
+      ) return state
+      return {
+        ...state,
+        airbusSimulator: {
+          ...state.airbusSimulator,
+          location: 'stormLine',
+          cameraPhase: 'storm',
+          stormLine: {
+            ...state.airbusSimulator.stormLine,
+            status: 'in_progress',
+          },
+        },
+        statusMessage: 'Storm Line active. Fly the captain’s seat through the stable weather gap.',
+      }
+
+    case 'SAVE_AIRBUS_STORM_CHECKPOINT':
+      if (state.phase !== 'airbus' || state.airbusSimulator.stormLine.status !== 'in_progress') return state
+      return {
+        ...state,
+        airbusSimulator: {
+          ...state.airbusSimulator,
+          stormLine: {
+            ...state.airbusSimulator.stormLine,
+            checkpoint: action.checkpoint,
+            attempts: { ...action.attempts },
+          },
+        },
+        statusMessage: action.checkpoint === 'clearAir'
+          ? 'Clear air ahead. Stabilize the aircraft to finish Storm Line.'
+          : 'Storm checkpoint recorded.',
+      }
+
+    case 'COMPLETE_AIRBUS_STORM_LINE': {
+      if (
+        state.phase !== 'airbus' ||
+        state.airbusSimulator.stormLine.status !== 'in_progress' ||
+        !hasAirbusWorkloadTasks(state.airbusSimulator.workload, [
+          'stormScanRange',
+          'stormGapSelection',
+        ])
+      ) return state
+      const bestTraits = unique([...state.airbusSimulator.stormLine.bestTraits, ...action.traits])
+      return {
+        ...state,
+        airbusSimulator: {
+          ...state.airbusSimulator,
+          location: 'hub',
+          cameraPhase: 'qualified',
+          stormLine: {
+            ...state.airbusSimulator.stormLine,
+            status: 'completed',
+            bestTraits,
+          },
+          engineOut: {
+            ...state.airbusSimulator.engineOut,
+            status: state.airbusSimulator.engineOut.status === 'completed'
+              ? 'completed'
+              : 'not_started',
+          },
+        },
+        statusMessage: 'Storm Line clear. Engine-Out Handling unlocked in the Simulator Hub.',
+      }
+    }
+
+    case 'BEGIN_AIRBUS_ENGINE_OUT':
+      if (
+        state.phase !== 'airbus' ||
+        (state.airbusSimulator.location !== 'hub' &&
+          state.airbusSimulator.location !== 'engineOut') ||
+        state.airbusSimulator.stormLine.status !== 'completed' ||
+        (state.airbusSimulator.engineOut.status !== 'not_started' &&
+          state.airbusSimulator.engineOut.status !== 'completed')
+      ) return state
+      return {
+        ...state,
+        airbusSimulator: {
+          ...state.airbusSimulator,
+          location: 'engineOut',
+          cameraPhase: 'storm',
+          workload: state.airbusSimulator.engineOut.status === 'completed'
+            ? resetAirbusScenarioWorkload(state.airbusSimulator.workload, 'engineOut')
+            : state.airbusSimulator.workload,
+          engineOut: {
+            ...state.airbusSimulator.engineOut,
+            status: 'in_progress',
+            checkpoint: state.airbusSimulator.engineOut.status === 'completed'
+              ? 'recognition'
+              : state.airbusSimulator.engineOut.checkpoint,
+            attempts: state.airbusSimulator.engineOut.status === 'completed'
+              ? { recognition: 0, stabilization: 0, diversion: 0 }
+              : state.airbusSimulator.engineOut.attempts,
+          },
+        },
+        statusMessage: 'Engine-Out Handling is a deliberate cruise training exercise. Maintain calm control.',
+      }
+
+    case 'SAVE_AIRBUS_ENGINE_OUT_CHECKPOINT':
+      if (
+        state.phase !== 'airbus' ||
+        state.airbusSimulator.location !== 'engineOut' ||
+        state.airbusSimulator.engineOut.status !== 'in_progress'
+      ) return state
+      return {
+        ...state,
+        airbusSimulator: {
+          ...state.airbusSimulator,
+          engineOut: {
+            ...state.airbusSimulator.engineOut,
+            checkpoint: action.checkpoint,
+            attempts: { ...action.attempts },
+          },
+        },
+        statusMessage: action.checkpoint === 'stabilization'
+          ? 'Stabilization checkpoint recorded.'
+          : action.checkpoint === 'diversion'
+            ? 'Diversion checkpoint recorded. SAFE RETURN is available.'
+            : 'Recognition checkpoint recorded.',
+      }
+
+    case 'COMPLETE_AIRBUS_ENGINE_OUT': {
+      if (
+        state.phase !== 'airbus' ||
+        state.airbusSimulator.location !== 'engineOut' ||
+        state.airbusSimulator.engineOut.status !== 'in_progress' ||
+        !hasAirbusWorkloadTasks(state.airbusSimulator.workload, [
+          'engineEventAcknowledgement',
+          'engineSafeReturnSelection',
+        ])
+      ) return state
+      const bestTraits = unique([...state.airbusSimulator.engineOut.bestTraits, ...action.traits])
+      return {
+        ...state,
+        airbusSimulator: {
+          ...state.airbusSimulator,
+          location: 'hub',
+          cameraPhase: 'qualified',
+          engineOut: {
+            ...state.airbusSimulator.engineOut,
+            status: 'completed',
+            bestTraits,
+          },
+        },
+        completedPuzzles: unique([...state.completedPuzzles, 'airbus']),
+        statusMessage: `${airbusCaptainFlow.firstCompleteBanner}. Engine-Out Handling complete.`,
+      }
+    }
+
+    case 'APPLY_AIRBUS_WORKLOAD_ACTION': {
+      const task = activeAirbusWorkloadTask(state)
+      if (!task) return state
+      const result = applyAirbusWorkloadAction(
+        state.airbusSimulator.workload,
+        task,
+        action.action,
+      )
+      if (result.outcome === 'ignored') return state
+      return {
+        ...state,
+        airbusSimulator: {
+          ...state.airbusSimulator,
+          workload: result.progress,
+        },
+        statusMessage: result.outcome === 'correct'
+          ? completedAirbusWorkloadMessage(task)
+          : airbusWorkloadHint(task, result.progress.attempts[task]),
+      }
+    }
+
+    case 'RETURN_TO_AIRBUS_SCENARIO_HUB':
+      if (
+        state.phase !== 'airbus' ||
+        state.airbusSimulator.familiarization !== 'completed' ||
+        state.airbusSimulator.location === 'qualification'
+      ) return state
+      return {
+        ...state,
+        airbusSimulator: {
+          ...state.airbusSimulator,
+          location: 'hub',
+          cameraPhase: 'qualified',
+        },
+        statusMessage: 'Simulator Hub ready.',
+      }
 
     case 'ASSIGN_AIRBUS_DECOY_CARD': {
       if (state.phase !== 'airbus') return state

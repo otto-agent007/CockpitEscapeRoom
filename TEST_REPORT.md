@@ -1,5 +1,161 @@
 # Test report
 
+
+## 2026-08-19 Airbus live weather radar and rebuilt storm exterior
+
+Plan: `plans/0033-airbus-live-radar-storm-visuals.md`. Airbus gameplay/presentation only. No Blender source, GLB, asset report, persistence schema, reward, or non-Airbus file changed.
+
+### Live radar
+
+- `deriveAirbusWeatherField` previously took only `{scenario, checkpoint, elapsedSeconds, intensity, seed}` — no aircraft term at all, so **banking the sidestick moved no return and no gap line**. The only player-driven radar change was the scan-range cycle. A new pure `src/game/airbusOwnshipTrack.ts` supplies a heading offset and a closure distance; cells and the gap now rotate by the same offset and close radially.
+- Heading needs no new integrator: cross-track is `∫ sin(bank)·0.2 dt` and turn rate is also proportional to `sin(bank)`, so heading is exactly proportional to cross-track travelled since the checkpoint began. Closure does need state, because it depends on thrust, so `trackDistanceNm` joins `StormLineAircraftState`.
+- Measured response at Storm Core: turning to a −21° heading swings the gap from −24° to −3° and shifts every cell bearing by the same +21°, with the cell-to-gap geometry unchanged by construction. The WEST answer and the MID range answer are untouched.
+- Three defects fixed on the way. (1) `hashSignature` included the gap bearing, so a live gap would have changed the field signature every frame and reset the radar continuously; the signature is now field identity only. (2) A return whose cell rotated out of the ±70° fan could never be repainted and left a permanent ghost at its last bearing; returns outside the fan plus a 6° margin are now dropped. (3) The sweep was advanced with the 12 Hz weather-snapshot clock rather than the live scenario clock, so it stalled on frames where the two throttles disagreed; `shouldResetAirbusWeatherRadar` now takes the live clock explicitly so a lagging snapshot is not read as a retry rewind.
+
+### Storm exterior
+
+- Rebuilt after the owner asked for it to be "really top tier". Cells are convective towers of 15–29 instanced sprites placed on a golden-angle spiral through a tapered cylinder — wide turbulent base, pinched waist, sheared anvil — with a shade ramp from dark rain base to lit anvil, per-instance depth haze, full seeded roll and mirror, and billboarding. Previously 39 flat, never-billboarded cards sharing one material opacity, so near and far cloud were equally solid and a cell at 67° bearing rendered ~40% foreshortened.
+- The horizon was 13.9° above eye level in both the sky shader (`direction.y - 0.24`) and the cloud layout (`distance * 0.24`), which parked the entire storm above the windscreen. Both biases are removed; towers now straddle the eye line. The undercast is ray-marched against a virtual deck plane inside the sky shader, which gives a horizon with no extra draw call — an earlier 560-unit undercast disc drew over the entire cockpit.
+- Lightning was a `pointLight` only, which `meshBasicMaterial` clouds and a `ShaderMaterial` sky both ignore, gated by `elapsedSeconds % 19 < 0.12` evaluated inside a 12 Hz throttle that usually skipped the window. It is now a pure deterministic multi-stroke envelope sampled every frame (measured: three peaks per strike at 1.00/0.55/0.45, lit 5.9% of the time) driven into the sky uniform, the cloud uniform and the point light together.
+
+### Three silent rendering failures
+
+Each made the scene look wrong with nothing surfaced to the developer, and each was found by measurement, not by looking at screenshots.
+
+1. **Raw `ShaderMaterial` wrote linear colour into an sRGB framebuffer.** It includes neither the tonemapping nor the colour-space chunk while `THREE.Color` converts hex to linear, so `#39464e` displayed as near-black and the whole atmosphere read as a dark void. Fixed with `#include <colorspace_fragment>` in all five fragment shaders.
+2. **The cloud instance budget was duplicated and drifted.** The layout emitted up to 300 sprites while the renderer still sized its `InstancedMesh` and instanced attributes for 48, so only the first 48 — the leftmost cells — ever drew, and writes past the `Float32Array` end were silent. One exported constant now feeds both, guarded by a test.
+3. **The sky fragment shader never compiled.** `flat` is a reserved interpolation qualifier in GLSL ES 3.0 and was used as a variable name, so the sky sphere rendered nothing and the scene background showed through. Every sky, horizon and undercast change made after that point was dead code. Caught by the existing `expect(consoleErrors).toEqual([])` assertion, not by inspection.
+
+### Deliberate contract changes
+
+- **Cloud budget raised from 48 to 340 sprites**, superseding the figure approved in `plans/0026`. The browser assertion now bounds it both ways (>120 and ≤340) so a silent under-draw fails as loudly as an over-draw. **This wants owner review.**
+- **One existing unit assertion was replaced, not relaxed.** `keeps Engine-Out calm but spatially layered` required every cluster above a rising slope, which encoded the 0.24 horizon bias. It now asserts what was actually intended: fair-weather cloud is a shallow layer at and below cruise level, never a tower, and stays under a third of the storm's maximum height.
+- `deriveVisibleGapBearing` searched ±12° unpenalised. With a denser sprite field it began choosing a bearing more than 5° from the one the ND prints, breaking the window-agrees-with-instrument contract that the browser suite asserts. The search is now ±4° with a drift penalty, and a unit test sweeps five seeds × five heading offsets × three checkpoints.
+- `test.setTimeout` on the one production Storm Line test was raised from 480 s to 900 s. That is a wall-clock budget, not a correctness bound; see the performance note. The real cause of the earlier overrun was a harness race, now fixed: `if (await x.isVisible()) await x.click()` does not retry, so under a slow renderer the flight-controls toggle was skipped and every later hold-control lookup stranded until timeout. Replaced with a retrying `ensureFlightControlsExpanded` helper. No product assertion was weakened.
+
+### Performance
+
+Measured in the Playwright environment, which reports `SwiftShader` — a CPU rasteriser, not a GPU. The whole scene runs there at ~0.93 fps; hiding the entire atmosphere group gives 1.06 fps, so the weather is ~12% of frame time and the cockpit GLB dominates. Sweeping the cloud budget from 20 to 303 sprites moved the frame rate by less than 0.1 fps, so sprite count is not the constraint. Cells beyond ±62° of the nose are not built at all. **No GPU hardware measurement was taken, so no claim is made about real-device frame rate.**
+
+### Results
+
+- `npm run check`: ESLint, TypeScript, **405/405 Vitest across 32 files** (377/31 before), production build — all pass. `npm run assets:check` passes. `git diff --check` clean.
+- Browser: `PLAYWRIGHT_PORT=4179 npx playwright test e2e/airbus-storm-line.spec.ts e2e/airbus-engine-out.spec.ts` → **12/12 passed in 9.3 minutes** against the real 38 MiB Airbus GLB, including both production-GLB tests and their zero-console-error assertions, which is what proves every shader compiles.
+- New browser coverage in the Storm Line production test: holding Bank left drives `data-airbus-ownship-heading` negative and moves `data-airbus-weather-gap-bearing` in the matching direction, the ND gap and the world gap agree within 2°, the radar keeps painting returns through the turn, and the radar reset count stays ≤2 — the guard against a live gap bearing re-entering the field signature.
+- Captures inspected at 1440×900, 768 and 375 px, plus a reduced-motion run: weather present at every width; reduced motion keeps the full cloud field while suppressing rain streaks and lightning.
+
+## 2026-08-19 Airbus cockpit PFD bank-sign correction
+
+- Owner feedback isolated a second sign inversion on the cockpit screen: both `drawPfd` and `drawEngineOutPfd` used `context.rotate(-bank)`, while the corrected Storm Line windshield path used the captain-control sign. Both PFD renderers now use the shared `airbusPfdHorizonRollRadians` conversion; the simulator input and aircraft physics were not changed.
+- TDD red: the new PFD-sign test failed because the conversion did not exist. Green focused run: `src/scenes/airbusStormVisuals.test.ts` and `src/scenes/airbusWeatherRadar.test.ts` passed **15/15**.
+- Production proof: `PLAYWRIGHT_PORT=4192 npx playwright test e2e/airbus-storm-line.spec.ts -g "production Airbus GLB renders Storm Line" --workers=1` passed **1/1 in 5.9 minutes** against the real Airbus GLB. It verifies Bank left and Bank right on the windshield and cockpit PFD after a neutral persisted reload, plus live radar returns, pause/resume, retry, and no console errors.
+- Final repository check: `npm run check` passed lint, typecheck, **377/377 Vitest tests**, and build; `git diff --check` remains clean. No Blender source, GLB, or asset bytes changed.
+
+## 2026-08-19 Airbus Storm Line bank and live-radar visual repair
+
+- Corrected the Storm Line atmosphere adapter so positive aircraft bank (Bank right) produces positive horizon roll and negative bank (Bank left) produces negative roll. The PFD/game input contract remains unchanged; no GLB or Blender source was edited.
+- Moved the ND radar fan from the lower clipped band into the readable upper portion of the captain display, while preserving the shared weather-field signature, sweep timing, bearing projection, range filtering, precipitation colors, gap line, and reduced-motion behavior. The runtime now exposes the selected-range visible-return count for browser evidence.
+- TDD red: the new bank-direction test failed with the old inverted sign; the new radar display-band test failed before the geometry contract existed. Green focused tests: `npm test -- --run src/scenes/airbusStormVisuals.test.ts` (3/3) and `npm test -- --run src/scenes/airbusWeatherRadar.test.ts` (11/11).
+- Browser proof: `PLAYWRIGHT_PORT=4187 npx playwright test e2e/airbus-storm-line.spec.ts -g "production Airbus GLB renders Storm Line" --workers=1` passed **1/1 in 5.8 minutes** against the rebuilt production GLB. It verified both signed bank directions, a nonzero selected-range radar return count, pause/resume, checkpoint retry, and no console errors. The corrected 1440×900 capture was inspected at `/tmp/airbus-storm-core-weather-radar-1440.png` and now shows the radar fan in-frame.
+- An initial browser attempt reused a stale 4173 preview and a later attempt exposed only a test-harness control-toggle assumption; both were repaired without weakening product assertions. `playwright.config.ts` now accepts `PLAYWRIGHT_PORT` for deterministic local preview proof.
+
+## 2026-08-19 Airbus active-simulator restart control
+
+- Added a visible `Restart` button to the active Storm Line and Engine-Out top bars. It reuses the existing confirmed full-game reset, while `Retry this checkpoint/stage` remains local recovery and Hub `Replay` remains scenario-only replay.
+- Added browser regressions for both active scenarios. The tests verify the button is visible and that accepting its confirmation returns to the opening **Start Game** screen.
+- TDD red run: both new tests failed because the active HUDs had no `Restart` button. Green run: both passed. The focused non-production Airbus suites passed **10/10** with the new coverage, including pause/retry, keyboard/gamepad, and responsive 375/768 checks.
+- `npm run check` passed ESLint, TypeScript, **374/374 Vitest tests**, and the production build. `git diff --check` passed. No Blender source, GLB, asset report, persistence schema, reward, or non-Airbus implementation changed.
+
+## 2026-07-31 Airbus PR browser-smoke and asset-contract repair
+
+- GitHub Actions run `30662072268` first cleared checkout and quality after CI was made independent of exhausted Git LFS bandwidth, then exposed six real Playwright failures. Four production-browser failures traced to the committed `airbus-captain.glb` missing the display, control-pivot, and Storm Flight camera nodes already required by the branch runtime. Two smoke failures traced to obsolete expectations that five-card qualification still completed Airbus by itself.
+- Rebuilt the authoritative Airbus source with Blender 5.1.2 through `npm run asset:airbus`; no GLB was hand-edited. The deployable model is 39,884,100 bytes at SHA-256 `0a6c8aeb1e1fdbfc85db01becb812ca0c3b7810208d03fba65f26c4fa4306251`. It exports 164 selected objects and 163 `game_id` nodes, including all three live display surfaces, both nested sidestick pivots, the paired-thrust pivot, and the raised Storm Flight camera. `npm run asset:airbus:promote-gate` and runtime-gate validation passed.
+- Updated the browser cache key to `storm-flight-0a6c8aeb`, made the model-failure route include query strings, and repaired the journey fixture so qualification opens the Simulator Hub while only completed Storm Line, Engine-Out, and all four schema-12 workload tasks open `POP T CAPTAIN MODE COMPLETE`.
+- Exact failed-case reruns passed: reordered journey and card recovery 2/2; production A320 load/placement 1/1 in 1.5 minutes; Engine-Out live displays/control response 1/1 in 2.5 minutes; ND/ECAM real-mesh interaction and drag rejection 1/1 in 2.6 minutes; Storm Line production displays/controls/responsive views 1/1 in 4.5 minutes; and model-load failure/retry 1/1.
+- `npm run check` passed ESLint, TypeScript, 24 Vitest files / 238 tests, and the production build. `npm run assets:check`, `npm run pipeline:evals` (6/6), and `git diff --check` passed. Existing imported-source scale/metadata notices and informational unused-UV/empty-node glTF notices remain recorded; the validators reported no Airbus glTF errors or warnings.
+- No Tesla/Model Y, Flight Mode, reward, locker, DC-9, or Mars implementation file changed in this repair. Owner play/visual approval remains a separate gate from CI correctness.
+
+## 2026-07-30 Airbus interactive captain workload — owner visual gate open
+
+- Added four required-but-forgiving in-flight captain tasks after the mandatory five-card qualification: fictional ND range `MID`, western weather-gap confirmation, upper-ECAM training-event acknowledgement, and right-side SAFE RETURN selection. Every task works through the Blender-authored cockpit display and an equivalent native HTML button. Wrong choices increase only task-local coaching; unfinished tasks hold the next stable simulator boundary without failing the flight or erasing progress.
+- Schema 12 stores task completion, task-local attempts, scan range, and the last weather/Safe Return selection. Focused migration coverage proves schema 11 upgrades, corrupt schema 12 data cannot bypass progression, completed tasks survive retry/reload, and explicit replay resets only the selected scenario.
+- The captain ND now renders fictional `RANGE 20`, `RANGE 40`, and `RANGE 80` views with range-filtered returns, cyan active outlines, amber wrong selections, and green confirmations. The upper ECAM renders `ACK REQUIRED` and `TRAINING EVENT ACKNOWLEDGED`. All screens retain `SIM — NON OPERATIONAL`.
+- A dedicated display raycaster targets only the existing captain ND and upper ECAM surfaces while the relevant task is active. A pointer gesture must move less than six pixels to dispatch, so camera drags do not accidentally answer a task. The real-GLB workload test proved a 12-pixel ND drag did nothing, then completed the ND and ECAM tasks through actual mesh clicks. Final west-sector and right-corridor mesh hits were also exercised in the connected production Brave session; the canvas reported exact `selectWeatherSector/west` and `selectSafeReturn/right` actions and schema 12 stored both confirmations.
+- `npm run check` passed full lint, TypeScript, 238/238 Vitest tests, and the production build. `npm run assets:check` passed with the existing glTF informational notices. The focused workload suite passed 4/4 Chromium cases in 3.9 minutes; the Engine-Out suite passed 5/5 in 3.1 minutes after its diversion fixture was updated to make the newly required right-corridor decision.
+- The Storm Line suite passed all four native cases. Its production-GLB case was externally terminated with exit 143 three times, including an isolated debug run, before returning an assertion result. A later Playwright sector-proof rerun was terminated by the same external browser cleanup, so the final two physical-sector checks were completed against the already-open Brave production session instead. The terminated cases are not recorded as passes. The overlapping production boundary is covered by the earlier green real-GLB workload case plus the exact live Brave ND-sector actions.
+- Inspected production captures are tracked under `preview-renders/airbus-workload/`: Storm Entry `RANGE 40`, Storm Core west-gap confirmation, Engine Recognition acknowledgement, Engine Diversion right SAFE RETURN, and native 375/768/1440 layouts. The first 768 capture exposed a topbar/task/instrument overlap; the tablet topbar was compacted and the task/instrument row moved below it. The final geometry test proves no horizontal overflow or overlap among the topbar, task, instrument mirror, and control deck at all three widths.
+- No Blender source, deployable GLB, Tesla/Model Y, Flight Mode, reward, locker, DC-9, or Mars implementation was changed for this workload milestone. Owner play/visual approval remains open.
+
+- Tesla/Model Y gameplay and assets were not changed by this milestone. Vercel preview `dpl_8ueJ8NdvyWcJTx2FBom8vcpPMggi` is `READY` at `https://cockpit-escape-room-iztt8224x-ottoagent007-gmailcoms-projects.vercel.app`; authenticated checks returned HTTP 200 for the 581-byte app shell and 39,884,060-byte Airbus GLB. The preview retains team authentication because the disconnected Vercel app could not issue a temporary public share URL.
+
+## 2026-07-29 Airbus Storm Line simulator — owner visual gate open
+
+- Evolved Airbus A320 Pop T Captain Mode into the 2:45 **Storm Line**
+  fictional simulator. Players manually control pitch, bank, and paired thrust,
+  choose the safer western corridor, recover through checkpoint-local retries,
+  and earn Calm Control, Weather Judgment, and Energy Management traits.
+  Keyboard, standard gamepad, native HTML hold controls, pause, opt-in
+  soundscape, reduced motion, reload, no-WebGL fallback, and the retained
+  skippable five-card familiarization are covered. Existing completion and
+  reward handoff behavior is preserved.
+- Persistence is schema v9. Focused unit coverage proves fixed-step
+  determinism, storm progression, corridor choice, control/energy failures,
+  checkpoint recovery, traits, v8 migration, corrupt-v9 normalization, and
+  preservation of already-completed Airbus/reward progress.
+- Rebuilt the authoritative Blender 5.1.2 source and deployable Airbus GLB with
+  three semantic PFD/ND/ECAM display surfaces, nested captain sidestick
+  roll/pitch pivots, and one paired-thrust pivot. The accepted GLB is
+  39,883,148 bytes at SHA-256
+  `9e747fcdf36cbf6fbac475997423d3805bd6681a2be316d14523daface29b82c`;
+  it contains 163 selected objects, 162 `game_id` nodes, 13 materials, and 10
+  textures. No destructive optimization was used.
+- The first actual-browser visual gate correctly rejected an export whose new
+  display/control nodes inherited stale world matrices and appeared at the
+  origin. Updating Blender's view layer before reparenting repaired the source
+  cause. A later 375 px capture exposed viewer tools covering Decrease thrust,
+  and the 1280×720 smoke path exposed a status-dock/drop-zone pointer overlap;
+  both layout defects were repaired and their focused browser paths passed.
+- Inspected actual-browser captures from the production GLB are tracked at
+  `preview-renders/storm-line/airbus-storm-line-{1440,768,375}.png`. The final
+  images show live cockpit-mounted PFD/ND/ECAM graphics, an unobstructed control
+  deck, and preserved captain-seat composition.
+- `BLENDER_BIN=/home/user1/.local/bin/blender BLENDER_EXPECTED_VERSION=5.1 npm
+  run asset:airbus` passed source preparation, validation, preview rendering,
+  export, and glTF inspection. `npm run asset:airbus:promote-gate`,
+  `npm run assets:check`, and `npm run pipeline:evals` passed. `npm run check`
+  passed ESLint, TypeScript, 138/138 Vitest tests, and the production build.
+- Bounded Chromium runs account for all 40 selected cases: Airbus Storm Line
+  3/3, locker 6/6, reward 6/6, viewer controls 3/3, and smoke 22/22 with its
+  capture-only owner-evidence case intentionally skipped. A monolithic attempt
+  was externally terminated after seven green cases without an assertion
+  failure; the slower real-asset cases and every remaining case passed in
+  bounded runs. The one genuine smoke failure was reproduced, repaired, and
+  passed on an exact fresh-build rerun.
+- The branch is `agent/airbus-gameplay-evolution`, created from
+  `origin/main` commit `7252c2c`. No Tesla/Model Y implementation or asset file
+  is part of this milestone.
+- Vercel preview deployment `dpl_Cqcac6J4JoyBbEtEKdQgYoN34aQM` reached
+  `READY` at
+  `https://cockpit-escape-room-mg2122811-ottoagent007-gmailcoms-projects.vercel.app`.
+  Authenticated requests returned HTTP 200 for the app and Airbus GLB; the
+  deployed model is 39,883,148 bytes and its SHA-256 exactly matches local.
+  The connected share-link helper returned 403 for this protected deployment,
+  so owner access remains subject to Vercel authentication. Owner visual/play
+  approval remains open.
+
+
+## 2026-07-30 Airbus Simulator Hub and Engine-Out Handling
+
+- The mandatory five-card Airbus qualification now opens a two-card Simulator Hub. Storm Line is ready first; completing it returns to the Hub and unlocks Engine-Out Handling without completing Airbus. Engine-Out completion records its debrief traits and completes Airbus while the existing reward remains locked until the player explicitly continues.
+- Engine-Out is a deliberate, fictional, non-operational cruise-training exercise with deterministic Recognition, Stabilization, and Diversion stages. Pitch, bank, paired thrust, and directional balance share one normalized keyboard/gamepad/native-control contract. Five cumulative unsafe seconds retry only the active stage, and replay starts from the opening checkpoint while preserving best traits.
+- Schema 11 migration preserves old completed/reward saves, keeps both scenarios replayable, and safely normalizes corrupt Engine-Out progress without erasing qualification or completed Storm progress. A browser-discovered regression now proves an in-progress Engine-Out reload restores the focused captain camera.
+- The production Airbus cockpit renders scenario-aware PFD, ND, and ECAM screens inside their physical bezels, live sidestick/thrust response, restrained heading/bank motion, and a SAFE RETURN corridor that appears outside the windshield only during Diversion. All operational-looking copy remains explicitly simulator/training-only.
+- `npm run check` passed ESLint, TypeScript, 195/195 Vitest tests across 20 files, and the production Vite build. `npm run assets:check` passed the current deployable assets, and `git diff --check` passed.
+- `npx playwright test e2e/airbus-storm-line.spec.ts --project=chromium` passed 5/5 in 2.3 minutes. `npx playwright test e2e/airbus-engine-out.spec.ts --project=chromium` passed its four then-current cases in 2.5 minutes, including the real 38 MiB Airbus GLB; the subsequently added clock-controlled Diversion completion case passed 1/1 in 17.5 seconds.
+- Browser coverage proves qualification gating, Hub unlocks, keyboard directional response, gamepad normalization, native controls, pause/resume, focused failure/retry, durable reload, reduced motion, full Diversion completion, and no early reward unlock. The 375 px geometry gate verifies the instructor panel, telemetry, viewer tools, and control deck do not overlap and every hold control stays inside the viewport.
+- Inspected 1440×900 owner-gate evidence is tracked at `preview-renders/airbus-scenarios/airbus-simulator-hub-1440.png`, `airbus-engine-out-briefing-1440.png`, and `airbus-engine-out-recognition-1440.png`. Inspected 768×900 and 375×812 captures remain local validation evidence. The milestone is automated-check complete and awaits owner visual approval.
+- Tesla/Model Y gameplay and assets were not changed by this milestone. No Vercel preview was published.
+
 ## 2026-07-27 Legacy Hangar visibility, source replacement, and Replay — owner approved
 
 - Replaced the featureless procedural hangar walls with the owner-selected

@@ -2,15 +2,44 @@ import { describe, expect, it } from 'vitest'
 import { dc9LegacyFlow, airbusCaptainFlow, lockerFlow } from './config'
 import { createInitialState, gameReducer, isLockerMemoryAvailable, type GameState } from './state'
 
-describe('schema-v8 canonical state', () => {
+describe('schema-v12 canonical state', () => {
   it('starts with seat-role semantic fields and no schema-v6 compatibility fields', () => {
     const state = createInitialState() as unknown as Record<string, unknown>
     const dc9 = state.dc9 as Record<string, unknown>
 
-    expect(state.schemaVersion).toBe(8)
+    expect(state.schemaVersion).toBe(12)
     expect(state.phase).toBe('briefing')
     expect(state.airbusQualificationAnswer).toBe('')
     expect(state.airbusCaptainModeUnlocked).toBe(false)
+    expect(state.airbusSimulator).toEqual({
+      familiarization: 'unseen',
+      cameraPhase: 'familiarization',
+      location: 'qualification',
+      stormLine: {
+        status: 'not_started',
+        checkpoint: 'stormEntry',
+        attempts: { stormEntry: 0, stormCore: 0, clearAir: 0 },
+        bestTraits: [],
+      },
+      engineOut: {
+        status: 'locked',
+        checkpoint: 'recognition',
+        attempts: { recognition: 0, stabilization: 0, diversion: 0 },
+        bestTraits: [],
+      },
+      workload: {
+        scanRange: 'near',
+        selectedWeatherSector: null,
+        selectedSafeReturnSide: null,
+        completedTasks: [],
+        attempts: {
+          stormScanRange: 0,
+          stormGapSelection: 0,
+          engineEventAcknowledgement: 0,
+          engineSafeReturnSelection: 0,
+        },
+      },
+    })
     expect(state.rewardUnlocked).toBe(false)
     expect(dc9.secureAttempts).toBe(0)
     expect(state).not.toHaveProperty('airbusClockAnswer')
@@ -46,6 +75,34 @@ function completeAirbusLabels(): GameState {
     })
   }
   return state
+}
+
+function completeStormLine(): GameState {
+  let state = completeAirbusLabels()
+  state = gameReducer(state, { type: 'BEGIN_AIRBUS_STORM_TRANSITION' })
+  state = gameReducer(state, { type: 'START_AIRBUS_STORM_LINE' })
+  state = gameReducer(state, {
+    type: 'APPLY_AIRBUS_WORKLOAD_ACTION',
+    action: { type: 'cycleScanRange' },
+  })
+  state = {
+    ...state,
+    airbusSimulator: {
+      ...state.airbusSimulator,
+      stormLine: {
+        ...state.airbusSimulator.stormLine,
+        checkpoint: 'stormCore',
+      },
+    },
+  }
+  state = gameReducer(state, {
+    type: 'APPLY_AIRBUS_WORKLOAD_ACTION',
+    action: { type: 'selectWeatherSector', sector: 'west' },
+  })
+  return gameReducer(state, {
+    type: 'COMPLETE_AIRBUS_STORM_LINE',
+    traits: ['weatherJudgment', 'energyManagement'],
+  })
 }
 
 function enterDc9HomeOperations(): GameState {
@@ -193,7 +250,7 @@ describe('DC-9 Final Flight Log reducer', () => {
     expect(next.statusMessage).toContain('already complete')
   })
 
-  it('completes Airbus after the five correct labels before the reward handoff', () => {
+  it('opens Storm Line after the five correct labels without unlocking the reward', () => {
     let state: GameState = {
       ...createInitialState(),
       phase: 'airbus',
@@ -218,7 +275,8 @@ describe('DC-9 Final Flight Log reducer', () => {
       })
     }
     expect(state.phase).toBe('airbus')
-    expect(state.completedPuzzles).toEqual(['dc9', 'locker', 'airbus'])
+    expect(state.completedPuzzles).toEqual(['dc9', 'locker'])
+    expect(state.airbusSimulator.familiarization).toBe('completed')
     expect(state.rewardUnlocked).toBe(false)
   })
 
@@ -292,13 +350,330 @@ describe('gameReducer', () => {
     expect(state.phase).toBe('airbus')
   })
 
-  it('completes Airbus immediately after all five labels are correct', () => {
+  it('opens Storm Line without completing Airbus after all five labels are correct', () => {
     const state = completeAirbusLabels()
 
     expect(state.phase).toBe('airbus')
+    expect(state.completedPuzzles).toEqual([])
+    expect(state.airbusSimulator.familiarization).toBe('completed')
+    expect(state.airbusSimulator.cameraPhase).toBe('qualified')
+    expect(state.airbusSimulator.stormLine.status).toBe('not_started')
+    expect(state.statusMessage).toContain('Storm Line simulator ready')
+  })
+
+  it('does not begin the Storm Line transition before every label is correct', () => {
+    const initial = { ...createInitialState(), phase: 'airbus' as const }
+    const next = gameReducer(initial, { type: 'BEGIN_AIRBUS_STORM_TRANSITION' })
+
+    expect(next).toBe(initial)
+  })
+
+  it('does not begin Engine-Out Handling before Storm Line is complete', () => {
+    const initial = completeAirbusLabels()
+    const next = gameReducer(initial, { type: 'BEGIN_AIRBUS_ENGINE_OUT' })
+
+    expect(next).toBe(initial)
+  })
+
+  it('selects only scenarios that are unlocked from the hub', () => {
+    const qualified = completeAirbusLabels()
+    const lockedSelection = gameReducer(qualified, {
+      type: 'SELECT_AIRBUS_SCENARIO',
+      scenario: 'engineOut',
+    })
+    const stormSelection = gameReducer(qualified, {
+      type: 'SELECT_AIRBUS_SCENARIO',
+      scenario: 'stormLine',
+    })
+
+    expect(lockedSelection).toBe(qualified)
+    expect(stormSelection.airbusSimulator.location).toBe('stormLine')
+  })
+
+  it('returns a selected scenario briefing to the hub without erasing progress', () => {
+    let state = completeAirbusLabels()
+    state = gameReducer(state, { type: 'SELECT_AIRBUS_SCENARIO', scenario: 'stormLine' })
+    const next = gameReducer(state, { type: 'RETURN_TO_AIRBUS_SCENARIO_HUB' })
+
+    expect(next.airbusSimulator.location).toBe('hub')
+    expect(next.airbusSimulator.stormLine.status).toBe('not_started')
+    expect(next.airbusSimulator.engineOut.status).toBe('locked')
+  })
+
+  it('moves from qualification through the camera transition into Storm Flight View', () => {
+    let state = completeAirbusLabels()
+
+    state = gameReducer(state, { type: 'BEGIN_AIRBUS_STORM_TRANSITION' })
+    expect(state.airbusSimulator.cameraPhase).toBe('transitioning')
+    expect(state.airbusSimulator.stormLine.status).toBe('not_started')
+
+    state = gameReducer(state, { type: 'START_AIRBUS_STORM_LINE' })
+    expect(state.airbusSimulator.cameraPhase).toBe('storm')
+    expect(state.airbusSimulator.stormLine.status).toBe('in_progress')
+  })
+
+  it('returns to the scenario hub and unlocks Engine-Out after Storm Line reaches clear air', () => {
+    let state = completeAirbusLabels()
+    state = gameReducer(state, { type: 'BEGIN_AIRBUS_STORM_TRANSITION' })
+    state = gameReducer(state, { type: 'START_AIRBUS_STORM_LINE' })
+    state = gameReducer(state, {
+      type: 'SAVE_AIRBUS_STORM_CHECKPOINT',
+      checkpoint: 'clearAir',
+      attempts: { stormEntry: 1, stormCore: 0, clearAir: 0 },
+    })
+    state = {
+      ...state,
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        workload: {
+          ...state.airbusSimulator.workload,
+          completedTasks: ['stormScanRange', 'stormGapSelection'],
+        },
+      },
+    }
+    state = gameReducer(state, {
+      type: 'COMPLETE_AIRBUS_STORM_LINE',
+      traits: ['weatherJudgment', 'energyManagement'],
+    })
+
+    expect(state.completedPuzzles).toEqual([])
+    expect(state.airbusSimulator.location).toBe('hub')
+    expect(state.airbusSimulator.stormLine).toEqual({
+      status: 'completed',
+      checkpoint: 'clearAir',
+      attempts: { stormEntry: 1, stormCore: 0, clearAir: 0 },
+      bestTraits: ['weatherJudgment', 'energyManagement'],
+    })
+    expect(state.airbusSimulator.engineOut.status).toBe('not_started')
+    expect(state.statusMessage).toContain('Engine-Out Handling unlocked')
+  })
+
+  it('begins Engine-Out Handling from the hub after Storm Line is complete', () => {
+    let state = completeStormLine()
+    state = gameReducer(state, { type: 'SELECT_AIRBUS_SCENARIO', scenario: 'engineOut' })
+    const next = gameReducer(state, { type: 'BEGIN_AIRBUS_ENGINE_OUT' })
+
+    expect(next.airbusSimulator.location).toBe('engineOut')
+    expect(next.airbusSimulator.engineOut.status).toBe('in_progress')
+    expect(next.airbusSimulator.cameraPhase).toBe('storm')
+    expect(next.statusMessage).toContain('deliberate cruise training exercise')
+  })
+
+  it('replays a completed Storm Line through the focused camera transition', () => {
+    let state = completeStormLine()
+    state = {
+      ...state,
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        stormLine: {
+          ...state.airbusSimulator.stormLine,
+          checkpoint: 'clearAir',
+          attempts: { stormEntry: 1, stormCore: 2, clearAir: 1 },
+        },
+      },
+    }
+    state = gameReducer(state, { type: 'SELECT_AIRBUS_SCENARIO', scenario: 'stormLine' })
+    state = gameReducer(state, { type: 'BEGIN_AIRBUS_STORM_TRANSITION' })
+
+    expect(state.airbusSimulator.cameraPhase).toBe('transitioning')
+    expect(state.airbusSimulator.stormLine.checkpoint).toBe('stormEntry')
+    expect(state.airbusSimulator.stormLine.attempts).toEqual({
+      stormEntry: 0,
+      stormCore: 0,
+      clearAir: 0,
+    })
+
+    state = gameReducer(state, { type: 'START_AIRBUS_STORM_LINE' })
+    expect(state.airbusSimulator.location).toBe('stormLine')
+    expect(state.airbusSimulator.stormLine.status).toBe('in_progress')
+  })
+
+  it('completes Airbus only after Engine-Out Handling is complete', () => {
+    let state = completeStormLine()
+    state = gameReducer(state, { type: 'BEGIN_AIRBUS_ENGINE_OUT' })
+    state = gameReducer(state, {
+      type: 'APPLY_AIRBUS_WORKLOAD_ACTION',
+      action: { type: 'acknowledgeEngineEvent' },
+    })
+    state = {
+      ...state,
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        engineOut: {
+          ...state.airbusSimulator.engineOut,
+          checkpoint: 'diversion',
+        },
+      },
+    }
+    state = gameReducer(state, {
+      type: 'APPLY_AIRBUS_WORKLOAD_ACTION',
+      action: { type: 'selectSafeReturn', side: 'right' },
+    })
+    state = gameReducer(state, {
+      type: 'COMPLETE_AIRBUS_ENGINE_OUT',
+      traits: ['directionalControl', 'calmDiversion'],
+    })
+
     expect(state.completedPuzzles).toEqual(['airbus'])
+    expect(state.rewardUnlocked).toBe(false)
+    expect(state.airbusSimulator.location).toBe('hub')
+    expect(state.airbusSimulator.engineOut).toEqual({
+      status: 'completed',
+      checkpoint: 'diversion',
+      attempts: { recognition: 0, stabilization: 0, diversion: 0 },
+      bestTraits: ['directionalControl', 'calmDiversion'],
+    })
     expect(state.statusMessage).toContain('POP T CAPTAIN MODE COMPLETE')
-    expect(state.statusMessage).toContain('Captain knowledge logged')
+  })
+
+  it('saves only durable Engine-Out checkpoint progress during the exercise', () => {
+    let state = completeStormLine()
+    state = gameReducer(state, { type: 'BEGIN_AIRBUS_ENGINE_OUT' })
+    state = gameReducer(state, {
+      type: 'SAVE_AIRBUS_ENGINE_OUT_CHECKPOINT',
+      checkpoint: 'stabilization',
+      attempts: { recognition: 0, stabilization: 2, diversion: 0 },
+    })
+
+    expect(state.airbusSimulator.engineOut.checkpoint).toBe('stabilization')
+    expect(state.airbusSimulator.engineOut.attempts).toEqual({
+      recognition: 0,
+      stabilization: 2,
+      diversion: 0,
+    })
+    expect(state.statusMessage).toContain('Stabilization checkpoint recorded')
+  })
+
+  it('preserves the best Engine-Out traits and one Airbus completion across replay', () => {
+    let state = completeStormLine()
+    state = gameReducer(state, { type: 'BEGIN_AIRBUS_ENGINE_OUT' })
+    state = {
+      ...state,
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        workload: {
+          ...state.airbusSimulator.workload,
+          completedTasks: [
+            ...state.airbusSimulator.workload.completedTasks,
+            'engineEventAcknowledgement',
+            'engineSafeReturnSelection',
+          ],
+        },
+      },
+    }
+    state = gameReducer(state, {
+      type: 'COMPLETE_AIRBUS_ENGINE_OUT',
+      traits: ['directionalControl'],
+    })
+    state = {
+      ...state,
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        engineOut: {
+          ...state.airbusSimulator.engineOut,
+          checkpoint: 'diversion',
+          attempts: { recognition: 0, stabilization: 2, diversion: 1 },
+        },
+      },
+    }
+    state = gameReducer(state, { type: 'SELECT_AIRBUS_SCENARIO', scenario: 'engineOut' })
+    state = gameReducer(state, { type: 'BEGIN_AIRBUS_ENGINE_OUT' })
+
+    expect(state.airbusSimulator.engineOut.checkpoint).toBe('recognition')
+    expect(state.airbusSimulator.engineOut.attempts).toEqual({
+      recognition: 0,
+      stabilization: 0,
+      diversion: 0,
+    })
+    expect(state.airbusSimulator.engineOut.bestTraits).toEqual(['directionalControl'])
+    expect(state.airbusSimulator.workload.completedTasks).toEqual([
+      'stormScanRange',
+      'stormGapSelection',
+    ])
+
+    state = gameReducer(state, {
+      type: 'APPLY_AIRBUS_WORKLOAD_ACTION',
+      action: { type: 'acknowledgeEngineEvent' },
+    })
+    state = {
+      ...state,
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        engineOut: {
+          ...state.airbusSimulator.engineOut,
+          checkpoint: 'diversion',
+        },
+      },
+    }
+    state = gameReducer(state, {
+      type: 'APPLY_AIRBUS_WORKLOAD_ACTION',
+      action: { type: 'selectSafeReturn', side: 'right' },
+    })
+
+    state = gameReducer(state, {
+      type: 'COMPLETE_AIRBUS_ENGINE_OUT',
+      traits: ['energyDiscipline', 'directionalControl'],
+    })
+
+    expect(state.completedPuzzles).toEqual(['airbus'])
+    expect(state.airbusSimulator.engineOut.bestTraits).toEqual([
+      'directionalControl',
+      'energyDiscipline',
+    ])
+  })
+
+  it('applies only the active cockpit workload and strengthens safe coaching', () => {
+    const qualified = completeAirbusLabels()
+    const ignored = gameReducer(qualified, {
+      type: 'APPLY_AIRBUS_WORKLOAD_ACTION',
+      action: { type: 'cycleScanRange' },
+    })
+    expect(ignored).toBe(qualified)
+
+    let state = gameReducer(qualified, { type: 'BEGIN_AIRBUS_STORM_TRANSITION' })
+    state = gameReducer(state, { type: 'START_AIRBUS_STORM_LINE' })
+    state = {
+      ...state,
+      airbusSimulator: {
+        ...state.airbusSimulator,
+        workload: {
+          ...state.airbusSimulator.workload,
+          scanRange: 'far',
+        },
+      },
+    }
+    state = gameReducer(state, {
+      type: 'APPLY_AIRBUS_WORKLOAD_ACTION',
+      action: { type: 'cycleScanRange' },
+    })
+    expect(state.airbusSimulator.workload.scanRange).toBe('near')
+    expect(state.airbusSimulator.workload.attempts.stormScanRange).toBe(1)
+    expect(state.statusMessage).toContain('weather scan')
+
+    state = gameReducer(state, {
+      type: 'APPLY_AIRBUS_WORKLOAD_ACTION',
+      action: { type: 'cycleScanRange' },
+    })
+    expect(state.airbusSimulator.workload.scanRange).toBe('mid')
+    expect(state.airbusSimulator.workload.completedTasks).toEqual(['stormScanRange'])
+    expect(state.statusMessage).toContain('MID')
+  })
+
+  it('guards scenario completion until the required captain tasks are complete', () => {
+    let storm = completeAirbusLabels()
+    storm = gameReducer(storm, { type: 'BEGIN_AIRBUS_STORM_TRANSITION' })
+    storm = gameReducer(storm, { type: 'START_AIRBUS_STORM_LINE' })
+    expect(gameReducer(storm, {
+      type: 'COMPLETE_AIRBUS_STORM_LINE',
+      traits: [],
+    })).toBe(storm)
+
+    let engine = completeStormLine()
+    engine = gameReducer(engine, { type: 'BEGIN_AIRBUS_ENGINE_OUT' })
+    expect(gameReducer(engine, {
+      type: 'COMPLETE_AIRBUS_ENGINE_OUT',
+      traits: [],
+    })).toBe(engine)
   })
 
   it.each(['1500', '1,500', '1500 hour', '1500 hours'])('accepts the DC-9 ATP answer %s', (answer) => {

@@ -4,6 +4,10 @@ import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 
 import { MODEL_Y_REQUIRED_NODES, validateModelYContract } from './model-y-contract.mjs'
+import {
+  AIRBUS_SIMULATOR_REQUIRED_NODES,
+  validateAirbusSimulatorContract,
+} from './airbus-simulator-contract.mjs'
 
 const modelDir = 'public/models'
 const models = existsSync(modelDir)
@@ -79,6 +83,7 @@ const requiredModelContracts = {
     'AIRBUS_A320_TARGET_GEAR_PIVOT',
     'AIRBUS_A320_TARGET_RADIO_PIVOT',
     'AIRBUS_A320_TARGET_ALTITUDE_PIVOT',
+    ...AIRBUS_SIMULATOR_REQUIRED_NODES,
   ],
   'model-y-reward.glb': MODEL_Y_REQUIRED_NODES,
 }
@@ -238,6 +243,11 @@ for (const [model, requiredNodes] of Object.entries(requiredModelContracts)) {
       }
     }
     if (model === 'airbus-captain.glb') {
+      const simulatorErrors = validateAirbusSimulatorContract({ nodes: json.nodes })
+      for (const error of simulatorErrors) {
+        console.error(error)
+        failed = true
+      }
       const cameraNode = (json.nodes ?? []).find((node) => node.name === 'CAM_AIRBUS_CAPTAIN_GAME_VIEW')
       const camera = cameraNode && Number.isInteger(cameraNode.camera) ? json.cameras?.[cameraNode.camera] : null
       const verticalFov = camera?.perspective?.yfov
