@@ -287,6 +287,8 @@ sampled `node.type` at creation, before the player assigns it — re-read at `st
 - `e2e/airbus-workload.spec.ts:242` is pre-existing, proven by stash-and-rerun on the clean tree.
   Untouched.
 
+  **Corrected 2026-08-21 — this attribution was wrong.** `airbus-workload.spec.ts:242` is not pre-existing: it passes at `0719d8e` and fails at `3dbd47d`, so the Airbus radar/storm commit introduced it (Restart button -> five-button topbar grid at 621-900 px, 143 px to 184 px, over the panels pinned at a hardcoded 9.1rem). The stash-and-rerun stashed only the intro work, so the tree it re-ran on still contained the cause. Fixed in PR #58.
+
 **Responsive.** 375 / 768 / 1440 captured, horizontal overflow **0 px at all three**. At 768 and
 1440 the gag reads clearly; at 375 the controls panel covers it — see Discoveries.
 

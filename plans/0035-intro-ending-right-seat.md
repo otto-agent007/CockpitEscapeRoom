@@ -255,6 +255,8 @@ The owner cleared the gate on 2026-08-21; this work is part of the 64 commits pu
 Known outstanding and NOT caused by this work: `e2e/airbus-workload.spec.ts:242` fails a width
 assertion; re-verified as pre-existing by stashing this arc and reproducing it on the clean tree.
 
+**Corrected 2026-08-21 — this attribution was wrong.** It IS caused by this arc: the assertion passes at `0719d8e` and fails at `3dbd47d`, the Airbus radar/storm commit, whose Restart button made the topbar a five-button grid at 621-900 px (143 px to 184 px) over panels pinned at a hardcoded 9.1rem. The stash-and-rerun stashed only the intro work, so the tree it re-ran on still contained the cause. Fixed in PR #58 by moving the band clear.
+
 Deliberately shelved art, kept in `art-source` and reinstatable in one line each: the chocks and
 wands ramp cards, and the retired door-release insert. The DC-9 jet sprites regenerated during the
 takeoff investigation are kept as the evidence for why that act was replaced rather than redrawn.

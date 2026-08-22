@@ -275,6 +275,8 @@ production build) — passed. `npm run assets:check` — passed, 56 assets / 49 
 0035 and reproduced there on a clean tree, failing here with the identical numbers (topbar bottom
 183.94 against a 145.59 limit). Not touched by this work.
 
+**Corrected 2026-08-21 — this attribution was wrong.** `airbus-workload.spec.ts:242` is not pre-existing: it passes at `0719d8e` and fails at `3dbd47d`, so the Airbus radar/storm commit introduced it (Restart button -> five-button topbar grid at 621-900 px, 143 px to 184 px, over the panels pinned at a hardcoded 9.1rem). The stash-and-rerun stashed only the intro work, so the tree it re-ran on still contained the cause. Fixed in PR #58.
+
 Placeholders and limitations, stated plainly:
 
 - Three of the twelve walk drawings sit just outside the ideal bracket at deployed size — t2 by
