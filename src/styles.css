@@ -3374,6 +3374,13 @@ progress {
 }
 
 @media (min-width: 621px) and (max-width: 900px) {
+  /* The topbar overlays the scene and its actions stack into a two-column grid
+     at this width, so its height grows a whole row every time a control is
+     added — the restart button took it from 143px to 184px. Everything in the
+     band below it is absolutely positioned too, so these tops have to clear the
+     topbar's bottom edge or the band disappears underneath it. Guarded by
+     "workload controls remain reachable without WebGL" in
+     e2e/airbus-workload.spec.ts, which measures exactly that. */
   .storm-topbar-actions {
     display: grid;
     grid-template-columns: repeat(2, auto);
@@ -3386,15 +3393,15 @@ progress {
   }
 
   .storm-progress {
-    top: 8.45rem;
+    top: 11.1rem;
   }
 
   .storm-instrument-mirror {
-    top: 9.1rem;
+    top: 11.75rem;
   }
 
   .airbus-workload-task {
-    top: 9.1rem;
+    top: 11.75rem;
     right: 0.7rem;
     left: 12.8rem;
     width: auto;
