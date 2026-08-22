@@ -1,0 +1,36 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- One reference image is attached: the PREVIOUS FRAME of this same shot. Reproduce
+  its scene, framing, style and colours EXACTLY, changing only what the prompt
+  states. It is the authority for everything else.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/card-cap-b.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+Reproduce the attached reference image EXACTLY — same cap, same waiting hand, same framing,
+light and palette — with ONE change only: the cap is no longer in the air; it now rests caught
+in the upturned hand at the bottom of the frame, brim level. The upper frame is empty darkness.
+Nothing else changes.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material: a base, one darker shade, one lighter shade.
+- Every colour region is a solid area of ONE flat colour with a hard edge. No gradients, no
+  blending, no soft edges, no glow, no bloom. Any light pool is one broad flat lighter shape.
+- NO specular highlights, NO shine streaks, NO texture, NO noise, NO dithering, NO grain.
+
+Palette to draw from: near-black #0A0F22, matte black #16161C, hangar blue #141A2E, panel navy
+#181E36, steel blue #323E60, brushed steel #9AA2B4, off-white #FFFDF0, shirt white #F1EFF0,
+uniform navy #1A203F, gold #F5C424, dark gold #CB8A06, signal red #C8102E, skin #F8AC75,
+amber #FFB020.
+
+Absolutely NO text anywhere: no letters, no numbers, no logos, no placards, no monograms, no
+watermark, no border, no caption.

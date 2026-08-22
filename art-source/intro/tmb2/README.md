@@ -31,13 +31,27 @@ Its owner-approved follow-up is 50% of the initial caption treatment, with
 alpha bounds `[127, 168, 193, 176]`. This caption does not recreate, trace, or
 infer the protected TMB2 letterforms.
 
+## Derived storyboard assets
+
+Run `npm run asset:tmb2-emblem` to rebuild the finale emblem card. The builder
+verifies the storyboard sheet hash, crops panel 8 at `(1237, 474, 1652, 919)`,
+paints out the blue "8" corner chip, trims to the emblem's luminance bounds,
+and downsamples once to the exact 248x166 display size. Outputs land at
+`public/images/intro/tmb2/emblem/finale-card.png` with a byte-identical copy
+under `derived/emblem/`. Derivation details live in
+`asset-reports/tmb2-intro-assets.json` under `derivedAssets`.
+
 ## Processing boundary
 
 GameDevStuff is build tooling only. Sprite processing is pinned to repository `https://github.com/otto-agent007/GameDevStuff` at commit `22722eabc8f09a706013305a0911a9d322ca9f4f`. Runtime files remain committed under `public/images/intro/tmb2/`; the browser never depends on GameDevStuff or a local cache.
 
 Authenticated GameDevStuff state must be created under `umask 0077` on this workstation. Its verified Pixel Snapper release is `pixel-snapper-v1.0.0-commit.5743009` (binary SHA-256 `bd03110406efc2efc0b094c0442a2265cb44f935a3f418fc30fdc20e77eb3f96`). The recovered key plates require configured chroma tolerance `45`; inspection then reports one unclipped foreground component per unique pose. The pinned standalone `snap` CLI currently fails signed-receipt validation after managed installation, so this recovery retains its manual handoff and executes the hash-verified binary with explicit arguments before returning to pipeline normalization and export.
 
-ImageGen may create only the four missing storyboard scene plates under `generated/backgrounds/`. Recovered sources are not regenerated for convenience.
+ImageGen may create only the storyboard scene plates recorded in
+`asset-reports/tmb2-intro-assets.json` `generationPrompts` under
+`generated/backgrounds/` (the original four, plus the owner-decided
+`runway-day-v1` daylight plate awaiting owner generation). Recovered sources
+are not regenerated for convenience.
 
 ## Intentionally excluded binaries
 

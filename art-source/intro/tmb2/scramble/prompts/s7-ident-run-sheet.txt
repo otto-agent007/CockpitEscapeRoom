@@ -1,0 +1,53 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- TWO reference images are attached.
+  * Reference 1 is the CHARACTER IDENTITY SHEET. It is the sole authority for who this man is:
+    golden-yellow blond hair swept forward with pointed temple spikes, BLOND eyebrows in deep gold,
+    rounded boyish face, small button nose, large dark navy eyes, warm peach skin, and the
+    captain's hat with its braided gold cord and round red-ringed badge. Match him exactly.
+  * Reference 2 is the PREVIOUS run sheet. It is the authority for the ANIMATION only: the same six
+    running poses in the same order, the same side-on camera, the same scale. Its face, eyebrows,
+    epaulettes and cap are OUT OF DATE — do not copy them.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s7-ident-run-sheet.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+A six-frame run cycle of ONE cartoon airline captain, drawn as SIX separate full-body figures in a
+single horizontal row, evenly spaced left to right on a completely flat solid magenta #FF00FF
+background. Clear magenta gaps between the figures; no figure touches another; nothing else in the
+frame.
+
+All six figures are the SAME man, at the SAME scale, seen from the SIDE running to the right. He is
+the man in reference 1: golden-yellow blond hair in pointed forward spikes, blond eyebrows in deep
+gold, rounded boyish face, small button nose, large dark navy eyes, warm peach skin, clean shaven,
+calm determined expression with the mouth closed.
+
+He wears: the captain's hat from reference 1 — charcoal-navy peaked crown, braided gold chin cord
+with a gold button at each end, black visor, round badge of red outer ring, cream disc, deep blue
+centre and small gold wings; a white short-sleeve uniform shirt; a navy tie; navy epaulettes with
+FOUR gold stripes; navy trousers with a gold belt buckle; black shoes.
+
+The six poses are one full running stride, matching the pose order of reference 2: contact, down,
+passing, contact opposite, down opposite, passing opposite. Arms pumping, knees driving. His feet
+must land on a consistent invisible ground line across all six frames.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no fabric texture, no creases.
+- NO texture, NO noise, NO dithering, NO grain.
+- Eyes, eyebrows and mouth must each be a SOLID dark shape with strong contrast, never a faint
+  tonal crease — this art will be reduced to a 64 pixel tall sprite and thin detail will vanish.
+
+Gold to use: bright gold #F5C424 with dark gold #CB8A06 shading.
+
+Absolutely NO text anywhere: no letters, no numbers, no frame labels, no watermark, no border,
+no caption, no grid lines. The cap badge is pure shapes.

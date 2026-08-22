@@ -1,0 +1,46 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached: the PREVIOUS VERSION of this exact run sheet. Reproduce it
+  EXACTLY — the same six running poses in the same order, the same man, the same scale, the same
+  spacing, the same magenta field, the same colours — changing ONLY the two things below.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s7-ident-run-sheet-b.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+Reproduce the attached six-frame run cycle EXACTLY, with exactly TWO changes, applied to ALL SIX
+figures:
+
+CHANGE 1 — EYEBROWS. His eyebrows are currently thick BLACK bars. Redraw every eyebrow in deep
+gold #CB8A06 so he reads as a blond man with blond eyebrows. They must stay solid, thick, clearly
+visible shapes with hard edges — do not make them thin, faint or blurry, just gold instead of
+black. This applies to all six figures.
+
+CHANGE 2 — RANK. Each navy epaulette currently carries THREE gold stripes. It must carry FOUR
+evenly spaced gold stripes. This man is a captain. Count them: four, on every visible shoulder
+board, in all six figures.
+
+Nothing else changes: the same six poses, the same hair, the same face shape, eyes, nose and mouth,
+the same captain's hat with its gold cord and round badge, the same white shirt, navy tie, navy
+trousers, gold belt buckle and black shoes, the same magenta background, the same spacing and
+scale.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no fabric texture, no creases.
+- NO texture, NO noise, NO dithering, NO grain.
+- Eyes, eyebrows and mouth must each be a SOLID dark shape with strong contrast — this art will be
+  reduced to a 64 pixel tall sprite and thin detail will vanish.
+
+Gold to use: bright gold #F5C424 with dark gold #CB8A06 shading.
+
+Absolutely NO text anywhere: no letters, no numbers, no frame labels, no watermark, no border,
+no caption, no grid lines. The cap badge is pure shapes.

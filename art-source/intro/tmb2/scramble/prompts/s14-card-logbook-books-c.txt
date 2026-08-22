@@ -1,0 +1,44 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached: the PREVIOUS VERSION of this exact shot. Reproduce it EXACTLY —
+  the same uniformed hand mid-sweep, the same navy logbook emerging beneath, the same two worn
+  navy paperbacks with their lone-walking-figure covers and blank top bands, the same table,
+  lighting, palette and camera — changing ONLY the hardcover's jacket design as described below.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s14-card-logbook-books-c.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+Reproduce the attached image EXACTLY, with ONE change: the white hardcover's dust jacket is
+redesigned to match the real Walter Isaacson ELON MUSK biography jacket. The book itself stays a
+thick hardcover in exactly the same position, size and tilt on the pile; only its cover artwork
+changes:
+
+- The jacket ground is now BLACK, edge to edge.
+- Elon Musk's face fills almost the entire cover: a large front-on portrait from the hairline to
+  the chin, rendered in flat cel grey-tones against the black — rounded face, strong chin, short
+  dark neatly-cut hair, slightly arched eyebrows, a faint knowing half-smile, direct intense gaze
+  straight at the viewer, with dramatic light on one side of the face falling to deep shadow on
+  the other.
+- At the bottom of the cover, his two hands pressed together fingertip-to-fingertip — steepled —
+  rise in front of his chin, drawn in the same flat grey-tones.
+- Across the very top of the jacket leave a wide, completely BLANK BLACK band, clear of the
+  hairline, where a title would sit. It stays perfectly blank.
+
+Everything else stays exactly as it is: the paperbacks and their covers, the sweeping hand and
+sleeve, the emerging navy logbook, the table, the palette, the framing.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no texture, no noise, no dithering, no grain.
+
+Absolutely NO text anywhere: no letters, no numbers, no titles, no author names, no watermark, no
+border, no caption. The blank cover bands stay perfectly blank.

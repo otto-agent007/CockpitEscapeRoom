@@ -6,6 +6,9 @@ import { LockerTransition, type LockerIntroStage } from './components/LockerTran
 import { AirbusCompletionCelebration, CaptainHatCelebration } from './components/QualificationCelebration'
 import { SceneHelp } from './components/SceneHelp'
 import { dc9LegacyFlow, gameCopy, lockerFlow, type AirbusControl, type LockerMemoryId } from './game/config'
+import { dc9InstrumentIdFromGameId } from './game/dc9FlightDeck'
+import { useDc9FlightControls } from './game/useDc9FlightControls'
+import type { Dc9ControlState } from './game/dc9Input'
 import type { EngineOutCheckpoint, EngineOutTrait } from './game/airbusEngineOut'
 import type { StormLineCheckpoint, StormLineTrait } from './game/airbusSimulator'
 import {
@@ -494,7 +497,23 @@ export default function App() {
     beginLockerIntro()
   }, [beginLockerIntro, lockerIntroStage])
 
+  const applyDc9ControlCheck = useCallback((controls: Dc9ControlState) => {
+    dispatch({ type: 'APPLY_DC9_CONTROL_CHECK', controls })
+  }, [dispatch])
+
+  const dc9FlightControls = useDc9FlightControls({
+    active: state.phase === 'dc9' && state.dc9.stage === 'controlCheck',
+    completed: state.dc9.controlCheck,
+    reducedMotion,
+    onReached: applyDc9ControlCheck,
+  })
+
   const handleDc9Interaction = useCallback((gameId: string) => {
+    const instrument = dc9InstrumentIdFromGameId(gameId)
+    if (instrument) {
+      dispatch({ type: 'IDENTIFY_DC9_INSTRUMENT', instrument })
+      return
+    }
     if (gameId === 'dc9.key.open') {
       dispatch({ type: 'OPEN_CAPTAINS_KEY' })
       return
@@ -617,6 +636,9 @@ export default function App() {
             phase={state.phase}
             activeDc9Controls={state.dc9.secureSequence}
             dc9ChapterStage={state.dc9.stage}
+            dc9FlightControlsRef={dc9FlightControls.controlsRef}
+            dc9IdentifiedInstruments={state.dc9.instrumentScan.identified}
+            onDc9YokeDrag={dc9FlightControls.setPointerInput}
             reducedMotion={reducedMotion}
             lockerHatRevealed={state.lockerHatRevealed}
             selectedAirbusCard={activeSelectedAirbusCard}
@@ -676,6 +698,9 @@ export default function App() {
           onUseFallback={() => setDc9LoadState({ status: 'accessible-fallback' })}
           reducedMotion={reducedMotion}
           onClaimKey={claimCaptainsKey}
+          controls={dc9FlightControls.controls}
+          inputMethod={dc9FlightControls.inputMethod}
+          onHoldControl={dc9FlightControls.setHoldControl}
         />
       )}
       {state.phase === 'airbus' && !skipPrototypeScene && showAirbusLoader && airbusLoadState.status !== 'accessible-fallback' && (

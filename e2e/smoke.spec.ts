@@ -1,6 +1,9 @@
 import { expect, test, type Page } from '@playwright/test'
 import { airbusCaptainFlow, dc9LegacyFlow, lockerFlow } from '../src/game/config'
 import { createInitialState, type GameState } from '../src/game/state'
+import { DC9_CONTROL_CHECK_ITEM_IDS } from '../src/game/dc9ControlCheck'
+import { DC9_INSTRUMENT_SCAN_ORDER } from '../src/game/dc9InstrumentScan'
+import { introScenes } from '../src/game/introConfig'
 import { STORAGE_KEY } from '../src/game/storage'
 
 async function placeAirbusCard(page: Page, card: string, targetName: string): Promise<void> {
@@ -21,6 +24,8 @@ function createLockerState(): GameState {
     phase: 'locker',
     dc9: {
       stage: 'complete',
+      controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS],
+      instrumentScan: { identified: [...DC9_INSTRUMENT_SCAN_ORDER], attempts: 0 },
       routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
       routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
       routeAttempts: 0,
@@ -41,7 +46,33 @@ function createDc9State(): GameState {
   return {
     ...createInitialState(),
     phase: 'dc9',
-    statusMessage: 'The parked DC-9 is ready. Find the route strip on the first-officer yoke.',
+    statusMessage: 'The parked DC-9 is ready. Walk every right-seat control to its stops.',
+  }
+}
+
+/** The chapter as it stands once the opening flight-control sweep is complete. */
+function createDc9RouteRecordState(): GameState {
+  const state = createDc9State()
+  return {
+    ...state,
+    dc9: { ...state.dc9, stage: 'intro', controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS] },
+  }
+}
+
+/** Home Operations finished, with the instrument scan still to run. */
+function createDc9InstrumentScanState(): GameState {
+  const state = createDc9State()
+  return {
+    ...state,
+    dc9: {
+      ...state.dc9,
+      stage: 'instrumentScan',
+      controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS],
+      routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
+      routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
+      homePage: dc9LegacyFlow.homeOperationsPages.length - 1,
+      homeOperationsCompleted: true,
+    },
   }
 }
 
@@ -50,6 +81,8 @@ function createDc9QualificationState(): GameState {
     ...createDc9State(),
     dc9: {
       stage: 'qualification',
+      controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS],
+      instrumentScan: { identified: [...DC9_INSTRUMENT_SCAN_ORDER], attempts: 0 },
       routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
       routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
       routeAttempts: 0,
@@ -121,6 +154,53 @@ function createCompletedAirbusState(): GameState {
   }
 }
 
+/** Walk every right-seat control to its stops using the native hold buttons. */
+async function sweepDc9ControlCheck(page: Page): Promise<void> {
+  const panel = page.getByRole('region', { name: 'Flight controls — free and correct' })
+  await expect(panel).toBeVisible()
+  const holds: [string, string][] = [
+    ['Pull column aft', 'yokeAft'],
+    ['Push column forward', 'yokeForward'],
+    ['Roll wheel left', 'wheelLeft'],
+    ['Roll wheel right', 'wheelRight'],
+    ['Left rudder pedal', 'rudderLeft'],
+    ['Right rudder pedal', 'rudderRight'],
+    ['Advance thrust levers', 'thrustAdvance'],
+    ['Close thrust levers', 'thrustClosed'],
+  ]
+  for (const [index, [label, item]] of holds.entries()) {
+    await page.getByRole('button', { name: new RegExp(`^${label}`) }).hover()
+    await page.mouse.down()
+    if (index < holds.length - 1) {
+      await expect(page.locator(`[data-item="${item}"]`)).toHaveAttribute('data-complete', 'true', { timeout: 15_000 })
+    } else {
+      // The last movement ends the stage, so its tick unmounts before it can be read.
+      await expect(panel).toHaveCount(0, { timeout: 15_000 })
+    }
+    await page.mouse.up()
+  }
+}
+
+/** Identify all six right-seat instruments from the native list. */
+async function completeDc9InstrumentScan(page: Page): Promise<void> {
+  const scan = page.getByRole('region', { name: 'The scan he flew by' })
+  await expect(scan).toBeVisible()
+  for (const name of [
+    'Airspeed indicator',
+    'Attitude director indicator',
+    'Altimeter',
+    'Horizontal situation indicator',
+    'Vertical speed indicator',
+    'Engine pressure ratio gauges',
+  ]) {
+    const choice = scan.locator('.dc9-instrument-choice').filter({ hasText: name })
+    // A gauge may already have been identified by clicking it in the cockpit.
+    if (await choice.isDisabled()) continue
+    await choice.click()
+  }
+  await expect(scan).toHaveCount(0)
+}
+
 async function seedGameState(page: Page, state: GameState): Promise<void> {
   await page.evaluate(
     ({ key, savedState }) => {
@@ -166,6 +246,61 @@ async function openGameIntro(page: Page) {
   return intro
 }
 
+// The ident gag acts on stage rows 128-196 of the 320x224 stage (Pop T's feet
+// sit on row 196). The intro's audio controls float over the stage, so this
+// pins the invariant that matters: whatever they cover, it is never the gag.
+// Measured 2026-08-20 on the original layout: portrait phones cover 0 rows,
+// landscape phones cover the bottom 19-22, all of them empty.
+const GAG_BOTTOM_STAGE_ROW = 200
+
+for (const [width, height, label] of [
+  [375, 667, 'portrait phone'],
+  [667, 375, 'landscape phone'],
+] as const) {
+  test(`the intro audio controls never cover the ident gag on a ${label}`, async ({ page }) => {
+    test.setTimeout(45_000)
+    await page.setViewportSize({ width, height })
+    await page.goto('/')
+    const startGame = page.getByRole('button', { name: 'Start Game' })
+    await expect(startGame).toBeEnabled({ timeout: 60_000 })
+    await startGame.click()
+
+    const intro = page.getByRole('region', { name: 'Game intro' })
+    await expect(intro).toHaveAttribute('data-intro-cue', 'tmb2-ident')
+    // Park the clock on the salute, the last beat of the gag.
+    await page.locator('audio').evaluate((media) => {
+      const audio = media as HTMLAudioElement
+      audio.pause()
+      audio.currentTime = 5.5
+      audio.dispatchEvent(new Event('timeupdate'))
+    })
+
+    const covered = await page.evaluate(() => {
+      const stageElement = document.querySelector('.game-intro__stage') as HTMLCanvasElement | null
+      const controlsElement = document.querySelector('.game-intro__controls')
+      if (!stageElement || !controlsElement) return null
+      const stage = stageElement.getBoundingClientRect()
+      const controls = controlsElement.getBoundingClientRect()
+      const scale = Number(stageElement.dataset.presentationScale)
+      const horizontal = Math.min(stage.right, controls.right) - Math.max(stage.left, controls.left)
+      if (horizontal <= 0) return { topRow: Infinity, scale }
+      const coveredTop = Math.max(stage.top, controls.top)
+      if (coveredTop >= stage.bottom) return { topRow: Infinity, scale }
+      return { topRow: (coveredTop - stage.top) / scale, scale }
+    })
+    expect(covered).not.toBeNull()
+    expect(covered!.scale).toBeGreaterThanOrEqual(1)
+    expect(
+      covered!.topRow,
+      'the audio controls must stay below the rows the ident gag acts on',
+    ).toBeGreaterThanOrEqual(GAG_BOTTOM_STAGE_ROW)
+
+    expect(await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    )).toBe(0)
+  })
+}
+
 test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the TMB2 handoff', async ({ page }) => {
   test.setTimeout(45_000)
   const requestedPaths: string[] = []
@@ -195,8 +330,10 @@ test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the 
     '/images/intro/tmb2/logo/tmb2-ident-base.png',
     '/images/intro/tmb2/logo/tmb2-ident-blue-mask.png',
     '/images/intro/tmb2/logo/tmb2-ident-highlight-mask.png',
-    '/images/intro/tmb2/logo/tmb2-productions.png',
   ]))
+  // The PRODUCTIONS wordmark was removed with the ident resize (plan 0034);
+  // nothing may still request it.
+  expect(requestedPaths).not.toContain('/images/intro/tmb2/logo/tmb2-productions.png')
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toHaveCount(0)
   const audio = page.locator('audio')
   await audio.evaluate((media) => {
@@ -207,7 +344,7 @@ test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the 
   await expect.poll(async () => intro.locator('.game-intro__stage').evaluate((element) => {
     const canvas = element as HTMLCanvasElement
     const context = canvas.getContext('2d')
-    if (!context) return { logo: 0, productions: 0 }
+    if (!context) return { logo: 0, wordmarkBand: 0 }
     const countNonBackgroundPixels = (x: number, y: number, width: number, height: number) => {
       const pixels = context.getImageData(x, y, width, height).data
       let count = 0
@@ -220,8 +357,8 @@ test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the 
       }
       return count
     }
-    return countNonBackgroundPixels(16, 72, 288, 79) > 1_000
-      && countNonBackgroundPixels(0, 164, 320, 15) > 100
+    // Ident geometry is now 160x44 at (80, 78) — half the stage width, centred.
+    return countNonBackgroundPixels(80, 78, 160, 44) > 1_000
   })).toBe(true)
   const identPixels = await intro.locator('.game-intro__stage').evaluate((element) => {
     const context = (element as HTMLCanvasElement).getContext('2d')!
@@ -233,10 +370,35 @@ test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the 
       }
       return total
     }
-    return { logo: count(16, 72, 288, 79), productions: count(0, 164, 320, 15) }
+    return { logo: count(80, 78, 160, 44) }
   })
   expect(identPixels.logo).toBeGreaterThan(1_000)
-  expect(identPixels.productions).toBeGreaterThan(100)
+
+  // Emptiness is measured at 1.5 s, while the logo is building and before Pop T
+  // enters at 1.776 — at 4.8 he is standing in the band the wordmark used to
+  // occupy, so nothing there could be attributed to the wordmark.
+  await audio.evaluate((media) => {
+    media.currentTime = 1.5
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await expect.poll(async () => intro.locator('.game-intro__stage').evaluate((element) => {
+    const context = (element as HTMLCanvasElement).getContext('2d')!
+    const count = (x: number, y: number, width: number, height: number) => {
+      const pixels = context.getImageData(x, y, width, height).data
+      let total = 0
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (pixels[index] !== 2 || pixels[index + 1] !== 3 || pixels[index + 2] !== 10) total += 1
+      }
+      return total
+    }
+    return {
+      // The band the PRODUCTIONS wordmark used to occupy, and the side margins
+      // the old 288 px logo used to cover. All three are background now.
+      wordmarkBand: count(0, 160, 320, 24),
+      leftMargin: count(0, 78, 80, 44),
+      rightMargin: count(240, 78, 80, 44),
+    }
+  })).toEqual({ wordmarkBand: 0, leftMargin: 0, rightMargin: 0 })
 
   await audio.evaluate((media) => {
     media.currentTime = 6
@@ -250,7 +412,7 @@ test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the 
   await expect(page.locator('.dc9-entry-transition')).toHaveCount(0, { timeout: 5_000 })
 })
 
-test('TMB2 cinematic follows exact boundaries and loops without entering gameplay', async ({ page }) => {
+test('TMB2 cinematic follows exact boundaries and holds its title without entering gameplay', async ({ page }) => {
   const intro = await openGameIntro(page)
   const audio = page.locator('audio')
   await audio.evaluate(async (media) => {
@@ -272,58 +434,15 @@ test('TMB2 cinematic follows exact boundaries and loops without entering gamepla
   })
   await expect(intro.getByRole('button', { name: 'Start game' })).toBeVisible()
 
-  const scenes = [
-    {
-      time: 0,
-      id: 'tmb2-ident',
-      summary: 'Blue pixels assemble the TMB2 console logo before a bright gold-white overload.',
-    },
-    {
-      time: 6,
-      id: 'duffel',
-      summary: 'Pop T enters confidently and struggles with an oversized rattling duffel bag.',
-    },
-    {
-      time: 12,
-      id: 'key-escape',
-      summary: 'A living golden key bursts from the luggage, startles Pop T, taunts him, and escapes.',
-    },
-    {
-      time: 16,
-      id: 'runway',
-      summary: 'Pop T chases the key past airport equipment and narrowly avoids a runway cart.',
-    },
-    {
-      time: 22,
-      id: 'ballpark',
-      summary: 'The key redirects a baseball while Pop T performs a dramatic slide past the base.',
-    },
-    {
-      time: 28,
-      id: 'city-finance',
-      summary: 'The key runs along a rising neon graph and Pop T collides with comic bull imagery.',
-    },
-    {
-      time: 35,
-      id: 'sky',
-      summary: 'Clouds and a red digital horizon launch the chase into the sky.',
-    },
-    {
-      time: 42,
-      id: 'final-pursuit',
-      summary: 'Pop T glides on pilot wings, misses the key once, recovers, and catches it.',
-    },
-    {
-      time: 48,
-      id: 'catch',
-      summary: 'Pop T holds a brief victory pose before the key delivers one last joke.',
-    },
-    {
-      time: 51,
-      id: 'loop-reset',
-      summary: 'The key drags Pop T away and the picture collapses into blue pixels.',
-    },
-  ] as const
+  // Sampled from the scene table itself rather than a copy of it: this test
+  // has drifted twice as the owner reordered the story, and a duplicated list
+  // only ever restates what introConfig already says. What is worth asserting
+  // is that the DOM reports the SAME scene the config resolves at that time.
+  const scenes = introScenes.map((scene) => ({
+    time: scene.startSeconds + (scene.endSeconds - scene.startSeconds) / 2,
+    id: scene.id,
+    summary: scene.summary,
+  }))
 
   for (const scene of scenes) {
     await audio.evaluate((media, time) => {
@@ -336,13 +455,84 @@ test('TMB2 cinematic follows exact boundaries and loops without entering gamepla
     await expect(intro.locator('h1')).toHaveCount(0)
   }
 
+  // The attract loop was removed: the track ending must HOLD the title over the
+  // right seat, not restart from the ident.
   await audio.evaluate((media) => {
     media.dispatchEvent(new Event('ended'))
   })
   await expect(intro).toBeVisible()
-  await expect(intro.locator('.game-intro__stage')).toHaveAttribute('data-scene', 'tmb2-ident')
+  await expect(intro.locator('.game-intro__stage')).toHaveAttribute('data-scene', 'title')
+  await expect(intro).toHaveAttribute('data-intro-cue', 'title')
   await expect(intro.getByRole('button', { name: 'Start game' })).toBeVisible()
   await expect(page.locator('.dc9-entry-transition')).toHaveCount(0)
+})
+
+test('TMB2 cinematic lands the aircraft reveal and holds the lettered title finale', async ({ page }) => {
+  // Replaces the retired laser-grid/emblem assertions: the emblem finale was
+  // cut as meaningless (it appeared nowhere else in the game) and the takeoff
+  // act with it. The two moments worth pinning now are the floodlit reveal and
+  // the runtime-lettered title over the empty right seat.
+  const intro = await openGameIntro(page)
+  const audio = page.locator('audio')
+  await audio.evaluate(async (media) => {
+    media.pause()
+    if (media.readyState < HTMLMediaElement.HAVE_METADATA) {
+      await new Promise<void>((resolve, reject) => {
+        media.addEventListener('loadedmetadata', () => resolve(), { once: true })
+        media.addEventListener('error', () => reject(new Error('Intro audio metadata failed')), { once: true })
+      })
+    }
+  })
+
+  const litPixels = async (x: number, y: number, width: number, height: number) =>
+    intro.locator('.game-intro__stage').evaluate((element, box) => {
+      const context = (element as HTMLCanvasElement).getContext('2d')
+      if (!context) return 0
+      const pixels = context.getImageData(box.x, box.y, box.width, box.height).data
+      let lit = 0
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (pixels[index] !== 2 || pixels[index + 1] !== 3 || pixels[index + 2] !== 10) lit += 1
+      }
+      return lit
+    }, { x, y, width, height })
+
+  // The floodlights slam on and the DC-9 fills the frame.
+  await audio.evaluate((media) => {
+    media.currentTime = 37
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await expect(intro).toHaveAttribute('data-intro-cue', 'aircraft-reveal')
+  await expect.poll(() => litPixels(36, 60, 248, 120)).toBeGreaterThan(15_000)
+
+  // The finale: the title lettered over the waiting seat, held to the end.
+  await audio.evaluate((media) => {
+    media.currentTime = 50.2
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await expect(intro).toHaveAttribute('data-intro-cue', 'title')
+  await expect.poll(() => litPixels(36, 23, 248, 166)).toBeGreaterThan(15_000)
+  // The lettering is near-white on a dark navy plate, so BRIGHT pixels are the
+  // discriminator; counting non-background cannot work here because the seat
+  // plate fills the frame at both times.
+  const brightPixels = async () =>
+    intro.locator('.game-intro__stage').evaluate((element) => {
+      const context = (element as HTMLCanvasElement).getContext('2d')
+      if (!context) return 0
+      const pixels = context.getImageData(80, 36, 160, 18).data
+      let bright = 0
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (pixels[index]! > 200 && pixels[index + 1]! > 200 && pixels[index + 2]! > 200) bright += 1
+      }
+      return bright
+    })
+  const titled = await brightPixels()
+  expect(titled, 'the title band must carry lettering').toBeGreaterThan(80)
+
+  await audio.evaluate((media) => {
+    media.currentTime = 48.5
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  expect(await brightPixels(), 'the seat holds before the title arrives').toBeLessThan(titled / 2)
 })
 
 test('TMB2 cinematic blocks playback with an exact retry when opening art fails', async ({ page }) => {
@@ -474,6 +664,36 @@ for (const input of ['pointer', 'Enter', 'Space', 'controller'] as const) {
   })
 }
 
+test('TMB2 cinematic plays the walk at twelve drawings a stride', async ({ page }) => {
+  // The walk shipped as six drawings over a 780 ms stride — 7.7 a second, the
+  // choppiest thing in the intro next to a 25 fps ident run. Wave S16 doubled
+  // it. Sampling one whole stride every 32.5 ms must therefore surface all
+  // twelve; with the old sheet this test sees six and fails.
+  const intro = await openGameIntro(page)
+  const canvas = intro.locator('.game-intro__stage')
+  const audio = page.locator('audio')
+  const seen = new Set<string>()
+
+  for (let index = 0; index < 24; index += 1) {
+    const time = 31.62 + index * 0.0325
+    await audio.evaluate((media, value) => {
+      media.currentTime = value
+      media.dispatchEvent(new Event('timeupdate'))
+    }, time)
+    // Assert the clock actually landed: a decoder that drops the runtime into
+    // wall-clock fallback would otherwise let this pass on the wrong frames.
+    await expect.poll(async () => Number(await canvas.getAttribute('data-time'))).toBeCloseTo(time, 2)
+    await expect(canvas).toHaveAttribute('data-scene', 'walk')
+    const drawing = await canvas.getAttribute('data-popt-frame')
+    expect(drawing, `t=${time.toFixed(3)} must draw a walk frame`).toBeTruthy()
+    seen.add(drawing!)
+  }
+
+  expect([...seen].map(Number).sort((a, b) => a - b)).toEqual(
+    Array.from({ length: 12 }, (_, index) => index),
+  )
+})
+
 test('TMB2 cinematic holds scene poses for reduced motion and fits required viewports', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.setViewportSize({ width: 375, height: 812 })
@@ -483,22 +703,17 @@ test('TMB2 cinematic holds scene poses for reduced motion and fits required view
   const canvas = intro.locator('.game-intro__stage')
   const audio = page.locator('audio')
   await audio.evaluate((media) => {
-    media.currentTime = 17
+    media.currentTime = 32.2
     media.dispatchEvent(new Event('timeupdate'))
   })
-  const firstPose = await canvas.evaluate((element) => ({
-    popt: element.getAttribute('data-popt-frame'),
-    key: element.getAttribute('data-key-frame'),
-  }))
+  const firstPose = await canvas.evaluate((element) => element.getAttribute('data-popt-frame'))
   await audio.evaluate((media) => {
-    media.currentTime = 21
+    media.currentTime = 35.2
     media.dispatchEvent(new Event('timeupdate'))
   })
-  await expect(canvas).toHaveAttribute('data-scene', 'runway')
-  expect(await canvas.evaluate((element) => ({
-    popt: element.getAttribute('data-popt-frame'),
-    key: element.getAttribute('data-key-frame'),
-  }))).toEqual(firstPose)
+  await expect(canvas).toHaveAttribute('data-scene', 'walk')
+  expect(firstPose, 'the held walk pose must be a real drawing, not a missing attribute').not.toBeNull()
+  expect(await canvas.evaluate((element) => element.getAttribute('data-popt-frame'))).toEqual(firstPose)
 
   for (const viewport of [
     { width: 375, height: 812, scale: '1' },
@@ -542,7 +757,7 @@ test('saved DC-9 reload hides the route opener until loading settles', async ({ 
   test.setTimeout(30_000)
   await page.addInitScript(
     ({ key, savedState }) => window.localStorage.setItem(key, JSON.stringify(savedState)),
-    { key: STORAGE_KEY, savedState: createDc9State() },
+    { key: STORAGE_KEY, savedState: createDc9RouteRecordState() },
   )
   await page.route('**/models/dc9-cockpit.glb*', async (route) => {
     await new Promise((resolve) => setTimeout(resolve, 1_500))
@@ -560,11 +775,7 @@ test('saved DC-9 reload hides the route opener until loading settles', async ({ 
 test('DC-9 Final Flight Log accessible flow', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/?skip3d=1')
-  await seedGameState(page, {
-    ...createInitialState(),
-    phase: 'dc9',
-    statusMessage: 'The parked DC-9 is ready. Find the route strip on the first-officer yoke.',
-  })
+  await seedGameState(page, createDc9RouteRecordState())
 
   await page.getByRole('button', { name: 'Open Legacy Route Record' }).click()
   await expect(page.getByRole('dialog', { name: 'Legacy Route Record' })).toBeVisible()
@@ -593,10 +804,130 @@ test('DC-9 Final Flight Log accessible flow', async ({ page }) => {
   expect(internalScroll).toBeLessThanOrEqual(1)
 })
 
-test('DC-9 route record uses the yoke hotspot and a compact dialog', async ({ page }) => {
+test('DC-9 control check sweeps every right-seat control and opens the route strip', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/?skip3d=1')
   await seedGameState(page, createDc9State())
+
+  const panel = page.getByRole('region', { name: 'Flight controls — free and correct' })
+  await expect(panel).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Open Legacy Route Record' })).toHaveCount(0)
+
+  // Every movement has a native hold button, so the sweep never needs the 3D cockpit.
+  const holds: [string, string][] = [
+    ['Pull column aft', 'yokeAft'],
+    ['Push column forward', 'yokeForward'],
+    ['Roll wheel left', 'wheelLeft'],
+    ['Roll wheel right', 'wheelRight'],
+    ['Left rudder pedal', 'rudderLeft'],
+    ['Right rudder pedal', 'rudderRight'],
+    ['Advance thrust levers', 'thrustAdvance'],
+    ['Close thrust levers', 'thrustClosed'],
+  ]
+  for (const [index, [label, item]] of holds.entries()) {
+    const button = page.getByRole('button', { name: new RegExp(`^${label}`) })
+    await button.hover()
+    await page.mouse.down()
+    if (index < holds.length - 1) {
+      await expect(page.locator(`[data-item="${item}"]`)).toHaveAttribute('data-complete', 'true', { timeout: 15_000 })
+    } else {
+      // Latching the final movement ends the stage, so the panel carrying that tick is
+      // already gone by the time it could be read. Watch for the handoff instead.
+      await expect(panel).toHaveCount(0, { timeout: 15_000 })
+    }
+    await page.mouse.up()
+  }
+
+  await expect(page.locator('.dc9-chapter')).toHaveClass(/dc9-chapter--intro/)
+  await expect(page.getByRole('button', { name: 'Open Legacy Route Record' })).toBeVisible()
+})
+
+test('DC-9 control check answers the keyboard and springs back to neutral', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/?skip3d=1')
+  await seedGameState(page, createDc9State())
+
+  await expect(page.getByRole('region', { name: 'Flight controls — free and correct' })).toBeVisible()
+  const columnReadout = page.locator('.dc9-axis').filter({ hasText: 'Control column' }).locator('strong')
+  await expect(columnReadout).toHaveText('Neutral')
+
+  await page.keyboard.down('ArrowUp')
+  await expect(page.locator('[data-item="yokeAft"]')).toHaveAttribute('data-complete', 'true', { timeout: 15_000 })
+  await page.keyboard.up('ArrowUp')
+  await expect(columnReadout).toHaveText('Neutral', { timeout: 15_000 })
+
+  // The levers are not spring-loaded; they stay where the player leaves them.
+  const thrustReadout = page.locator('.dc9-axis').filter({ hasText: 'Thrust levers' }).locator('strong')
+  await page.keyboard.down('KeyW')
+  await expect(thrustReadout).not.toHaveText('Closed', { timeout: 15_000 })
+  await page.keyboard.up('KeyW')
+  // The readout is republished a few times a second, so let it catch up to the levers
+  // before sampling the position it has to hold.
+  await page.waitForTimeout(500)
+  const parked = await thrustReadout.textContent()
+  await page.waitForTimeout(800)
+  await expect(thrustReadout).toHaveText(parked ?? '')
+})
+
+test('DC-9 control check progress survives a reload', async ({ page }) => {
+  await page.goto('/?skip3d=1')
+  await seedGameState(page, createDc9State())
+  // A key press only registers once the chapter is listening for it.
+  await expect(page.getByRole('region', { name: 'Flight controls — free and correct' })).toBeVisible()
+  await page.keyboard.down('ArrowUp')
+  await expect(page.locator('[data-item="yokeAft"]')).toHaveAttribute('data-complete', 'true', { timeout: 15_000 })
+  await page.keyboard.up('ArrowUp')
+
+  await page.reload()
+  await expect(page.getByRole('region', { name: 'Flight controls — free and correct' })).toBeVisible()
+  await expect(page.locator('[data-item="yokeAft"]')).toHaveAttribute('data-complete', 'true')
+  await expect(page.locator('[data-item="wheelLeft"]')).toHaveAttribute('data-complete', 'false')
+})
+
+test('DC-9 instrument scan coaches wrong gauges and never loses a correct one', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/?skip3d=1')
+  await seedGameState(page, createDc9InstrumentScanState())
+
+  const scan = page.getByRole('region', { name: 'The scan he flew by' })
+  await expect(scan).toBeVisible()
+  await expect(scan).toContainText('Which gauge shows how fast the aircraft is moving through the air?')
+
+  const choice = (name: string) => scan.locator('.dc9-instrument-choice').filter({ hasText: name })
+  await choice('Engine pressure ratio gauges').click()
+  await expect(page.locator('.dc9-chapter__status p')).toContainText('Not that one')
+  await expect(scan).toContainText('0 of 6 identified')
+
+  await choice('Airspeed indicator').click()
+  await expect(page.locator('.dc9-chapter__status p')).toContainText('the airspeed indicator')
+  await expect(scan).toContainText('1 of 6 identified')
+
+  // A later mistake must not take the identified gauge away.
+  await choice('Vertical speed indicator').click()
+  await expect(scan).toContainText('1 of 6 identified')
+  await expect(choice('Airspeed indicator')).toBeDisabled()
+
+  for (const name of ['Attitude director indicator', 'Altimeter', 'Horizontal situation indicator', 'Vertical speed indicator', 'Engine pressure ratio gauges']) {
+    await choice(name).click()
+  }
+  await expect(page.locator('.dc9-chapter')).toHaveClass(/dc9-chapter--shutdown/)
+  await expect(page.getByRole('heading', { name: 'Secure the parked aircraft' })).toBeVisible()
+})
+
+test('DC-9 instrument scan offers final support after three misses on one gauge', async ({ page }) => {
+  await page.goto('/?skip3d=1')
+  await seedGameState(page, createDc9InstrumentScanState())
+  const scan = page.getByRole('region', { name: 'The scan he flew by' })
+  const wrong = scan.locator('.dc9-instrument-choice').filter({ hasText: 'Engine pressure ratio gauges' })
+  for (let attempt = 0; attempt < 3; attempt += 1) await wrong.click()
+  await expect(page.locator('.dc9-chapter__status p')).toContainText('outlined for you now')
+  await expect(scan.locator('.dc9-instrument-choice.is-final-hint')).toHaveCount(1)
+})
+
+test('DC-9 route record uses the yoke hotspot and a compact dialog', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/?skip3d=1')
+  await seedGameState(page, createDc9RouteRecordState())
 
   const routeTrigger = page.getByRole('button', { name: 'Open Legacy Route Record' })
   await expect(routeTrigger).toHaveClass(/dc9-route-record-trigger/)
@@ -691,9 +1022,14 @@ test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
 })
 
 test('DC-9 production cockpit stages the Final Flight Log with the existing registry', async ({ page }) => {
-  // The complete real-GLB path can cross four minutes after neighboring asset
+  // The complete real-GLB path can cross four minutes after neighbouring asset
   // decodes; retain every assertion while allowing bounded full-suite contention.
-  test.setTimeout(300_000)
+  // Raised again after CI blew the 300s budget on the instrument scan while the
+  // Airbus GLB tests were competing for the same runner: the click was still
+  // waiting for a choice that had not finished rendering. A wall-clock bound on
+  // a CPU rasteriser, not a correctness bound — a passing run is unaffected
+  // because it never waits this long.
+  test.setTimeout(900_000)
   await page.emulateMedia({ reducedMotion: 'reduce' })
   const consoleErrors: string[] = []
   page.on('console', (message) => {
@@ -705,7 +1041,7 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
     (response) => response.url().includes('/models/dc9-cockpit.glb') && response.status() === 200,
     { timeout: 30_000 },
   )
-  await seedGameState(page, { ...createInitialState(), phase: 'dc9' })
+  await seedGameState(page, createDc9RouteRecordState())
   const response = await modelResponse
   expect(Number(response.headers()['content-length'])).toBeGreaterThan(20_000_000)
 
@@ -750,6 +1086,32 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
     await page.getByRole('button', { name: 'Next page' }).press('Enter')
   }
   await page.getByRole('button', { name: 'Record this legacy' }).press('Enter')
+
+  // The instrument scan reads the right-seat panel, so it keeps the panel framing and
+  // projects a click target onto each real gauge before the overhead shutdown view.
+  await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_FIRST_OFFICER_ROUTE_APPROVAL')
+  await expect(canvas).toHaveAttribute('data-dc9-targets', /dc9\.gauge\.airspeed/)
+  await expect(page.locator('.dc9-gauge-target')).toHaveCount(6)
+  await page.locator('.dc9-gauge-target[data-gauge="airspeed"]').click()
+  await expect(page.locator('.dc9-chapter__status p')).toContainText('the airspeed indicator')
+
+  // The EPR pair is the one gauge off the first-officer panel, at the very edge of this
+  // framing, so it is the one that falls out of reach. Whatever the window does, the
+  // gauge being asked for must stay wholly on screen and answerable from the cockpit.
+  const eprTarget = page.locator('.dc9-gauge-target[data-gauge="epr"]')
+  for (const size of [{ width: 1024, height: 768 }, { width: 1280, height: 720 }]) {
+    await page.setViewportSize(size)
+    await expect(eprTarget).toHaveCount(1)
+    const box = await eprTarget.boundingBox()
+    expect(box, `EPR target at ${size.width}x${size.height}`).not.toBeNull()
+    expect(box!.x, `EPR left edge at ${size.width}`).toBeGreaterThanOrEqual(0)
+    expect(box!.y, `EPR top edge at ${size.width}`).toBeGreaterThanOrEqual(0)
+    expect(box!.x + box!.width, `EPR right edge at ${size.width}`).toBeLessThanOrEqual(size.width)
+    expect(box!.y + box!.height, `EPR bottom edge at ${size.width}`).toBeLessThanOrEqual(size.height)
+  }
+
+  await completeDc9InstrumentScan(page)
+
   await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_FIRST_OFFICER_OVERHEAD_APPROVAL')
   await expect(canvas).toHaveAttribute(
     'data-dc9-camera-state',
@@ -762,11 +1124,25 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   await expect(apuBuses).toHaveAttribute('data-projection', 'mesh')
   await expect(apuMaster).toHaveAttribute('data-projection', 'mesh')
   await expect(battery).toHaveAttribute('data-projection', 'mesh')
-  await battery.press('Enter')
-  await apuBuses.press('Enter')
-  await battery.press('Enter')
+
+  // Clicking a switch on the real overhead panel must action that switch. The shipped hit
+  // volumes are far larger than the 70mm between the switches and overlapped, so a ray
+  // aimed at the APU buses struck the battery box in front of it and the first step of the
+  // checklist reported "that step comes later".
+  const apuBusesPoint = (await apuBuses.getAttribute('data-projection-point'))?.split(',').map(Number) ?? []
+  expect(apuBusesPoint.length).toBeGreaterThanOrEqual(2)
+  await page.mouse.click(apuBusesPoint[0]!, apuBusesPoint[1]!)
+  await expect(page.locator('.dc9-chapter__status p')).toContainText('APU bus switches off')
   await expect(apuBuses).toHaveAttribute('aria-pressed', 'true')
+
+  // An out-of-order selection still coaches without clearing the finished step.
+  await battery.press('Enter')
+  await expect(page.locator('.dc9-chapter__status p')).toContainText('That step comes later')
+  await expect(apuBuses).toHaveAttribute('aria-pressed', 'true')
+  await expect(apuMaster).toHaveAttribute('aria-pressed', 'false')
+
   await apuMaster.press('Enter')
+  await expect(apuMaster).toHaveAttribute('aria-pressed', 'true')
   await battery.press('Enter')
   const atpAnswer = page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })
   await atpAnswer.fill('1500 hours')
@@ -795,7 +1171,7 @@ test('DC-9 model failure keeps the compact accessible captain controls', async (
   test.setTimeout(30_000)
   await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
   await page.goto('/')
-  await seedGameState(page, createDc9State())
+  await seedGameState(page, createDc9RouteRecordState())
 
   const canvas = page.locator('canvas')
   await expect(canvas).toHaveAttribute('data-dc9-model-state', 'fallback')
@@ -820,6 +1196,8 @@ test('complete reordered journey', async ({ page }) => {
   await intro.getByRole('button', { name: 'Start game' }).click()
   await expect(page.getByRole('heading', { name: 'DC-9 Final Flight Log' })).toBeVisible()
 
+  await sweepDc9ControlCheck(page)
+
   await page.getByRole('button', { name: 'Open Legacy Route Record' }).click()
   for (const code of dc9LegacyFlow.routePuzzleAnswers) {
     await page.getByRole('button', { name: new RegExp(`^${code},`) }).click()
@@ -829,6 +1207,7 @@ test('complete reordered journey', async ({ page }) => {
     await page.getByRole('button', { name: 'Next page' }).click()
   }
   await page.getByRole('button', { name: 'Record this legacy' }).click()
+  await completeDc9InstrumentScan(page)
   await page.getByRole('button', { name: /APU bus switches/ }).click()
   await page.getByRole('button', { name: /APU master switch/ }).click()
   await page.getByRole('button', { name: /Battery switch/ }).click()

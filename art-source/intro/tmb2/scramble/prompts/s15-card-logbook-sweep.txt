@@ -1,0 +1,39 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached: the PREVIOUS FRAME of this exact shot — books lying on a navy
+  logbook, a uniformed hand beginning to sweep them. Reproduce its scene EXACTLY — the same
+  table, lighting, palette, camera, the same black Elon Musk biography hardcover, the same two
+  worn navy paperbacks with lone-figure covers, the same hand and sleeve — changing ONLY the
+  positions described below. This is the NEXT frame of the same motion.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s15-card-logbook-sweep.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+Reproduce the attached image EXACTLY, advanced one beat in time: the sweep is now HALFWAY done.
+
+- The three books have been pushed together toward the RIGHT edge of the frame: the black
+  biography hardcover and the two paperbacks now overlap in a loose tipped pile at the right,
+  sliding, one paperback tilted up against another mid-motion.
+- The navy logbook they were covering is now MOSTLY EXPOSED in the centre-left, flat on the
+  table, its gold diagonal band clearly visible.
+- The uniformed hand is at the right side of the book pile, palm and fingers against the books,
+  caught mid-push. Two or three small flat motion chips trail behind the sliding pile.
+
+Everything else stays exactly as it is: the table, the pool of light, the palette, the framing,
+the sleeve with its gold stripes.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no texture, no noise, no dithering, no grain.
+
+Absolutely NO text anywhere: no letters, no numbers, no titles, no watermark, no border, no
+caption. The blank cover bands stay perfectly blank.

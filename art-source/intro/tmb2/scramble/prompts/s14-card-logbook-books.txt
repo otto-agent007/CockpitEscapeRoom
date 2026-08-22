@@ -1,0 +1,44 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached: the PREVIOUS VERSION of this exact shot — a uniformed hand
+  resting on a navy logbook on a dark metal table. Reproduce its scene EXACTLY: the same table,
+  the same lighting, the same palette, the same camera, the same navy logbook in the same place,
+  and the same uniform sleeve (white cuff, navy sleeve with gold stripes). Change ONLY what is
+  listed below.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s14-card-logbook-books.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+Reproduce the attached scene EXACTLY, with ONE change: a small pile of well-read books now lies
+ON TOP of the navy logbook, and the uniformed hand is caught MID-SWEEP pushing those books aside
+to get to the logbook underneath.
+
+The books, drawn as clean flat cel shapes:
+- A thick HARDCOVER with a clean WHITE dust jacket, lying half across the logbook. Its cover
+  carries ONE thing only: a large flat MONOCHROME PORTRAIT of a middle-aged man's face, front-on,
+  rendered in flat grey tones with hard edges. Above the portrait leave a wide, completely BLANK
+  white band across the full cover width. No letters anywhere on it.
+- TWO worn PAPERBACKS, slightly splayed, with deep navy-blue covers. Each cover carries ONE
+  thing only: a small pale silhouette of a lone man seen from behind, walking away down an empty
+  road toward a flat horizon. Leave a wide, completely BLANK darker band across the top of each
+  cover. Creased spines, softened corners — books that have been read many times. No letters
+  anywhere on them.
+- The hand and sleeve from the reference is mid-motion, sweeping the books toward the edge of the
+  table; the books are tipping and sliding with the push, and a corner of the navy logbook is
+  clearly emerging from underneath.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no texture, no noise, no dithering, no grain.
+
+Absolutely NO text anywhere: no letters, no numbers, no titles, no author names, no spine text,
+no watermark, no border, no caption. The blank bands on the covers stay perfectly blank.

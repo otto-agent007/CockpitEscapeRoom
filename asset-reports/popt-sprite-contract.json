@@ -1,0 +1,346 @@
+{
+  "schemaVersion": 1,
+  "asset": "popt",
+  "contractVersion": 3,
+  "status": "v3-full-colour-anchor-approved-awaiting-waves",
+  "supersedes": {
+    "file": "public/images/intro/tmb2/popt/animation-contract-export.json",
+    "animationContractSha256": "ee79610510df36c5d73c98103a4cb1be563b0a936d8d48d8304c33854e165e01",
+    "reason": "The v1 cell size, character size, and runtime draw scale were pipeline defaults that were never derived from the 320x224 intro stage. See defectsMeasured."
+  },
+  "derivation": {
+    "principle": "Every number below is derived from the intro stage, not from a tool default. One art pixel must occupy a whole number of stage pixels, and the character must carry the detail its on-stage size demands.",
+    "stage": {
+      "width": 320,
+      "height": 224,
+      "source": "src/game/introGeometry.ts",
+      "displayScale": "integer only; computeIntroStagePlacement floors it (measured 4x at a 1440x900 viewport)"
+    },
+    "characterOnStage": {
+      "standingHeightStagePx": 104,
+      "shareOfStageHeight": 0.46,
+      "rationale": "Chosen after plan 0030 retired the held camera zoom. Under 0028 he rendered 105 stage px from 47 art px and the scene baseline magnified that to 100-120 depending on scene, ~114 on average. With the camera resting at 1 there is no magnification left, so the art must carry the size: 104 art px drawn 1:1. That is the tallest a standing pose can be and still leave the 128 cell headroom for raised-arm poses, and it lands ~9% under the 0028 average apparent size."
+    }
+  },
+  "cell": {
+    "canonical": [
+      128,
+      128
+    ],
+    "pivot": {
+      "x": 64,
+      "y": 120
+    },
+    "baseline": 119,
+    "pivotUnchangedFromV1": false,
+    "v1Pivot": {
+      "x": 64,
+      "y": 112
+    },
+    "note": "The pivot moved down 8 rows inside the cell purely to buy headroom for the taller standing pose. It does not move him on stage: the renderer places the pivot at the choreographed (x, y), so every foot position from 0022 and 0028 stays valid."
+  },
+  "character": {
+    "standingHeightPx": 104,
+    "standingHeightTolerancePx": 2,
+    "standingWidthPx": 34,
+    "maxPoseHeightPx": 112,
+    "maxPoseWidthPx": 118,
+    "envelope": "A pose must fit x in [5,123] and y in [7,127] of the cell. Widest v1 pose was the baseball slide at 54x30 art px; at the v2 scale factor of 2.21 that is 119x66, which clears the cell by 4 px a side.",
+    "v1StandingHeightPx": 46,
+    "envelopeBounds": {
+      "x": [
+        5,
+        123
+      ],
+      "y": [
+        7,
+        127
+      ]
+    }
+  },
+  "generation": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "blockPx": 8,
+    "logicalGrid": [
+      128,
+      128
+    ],
+    "unchangedFromV1": true,
+    "note": "1024 / 8 = 128 exactly, so the generation setup does not change. What changes is composition: the character fills 104 of the 128 rows instead of 46."
+  },
+  "runtime": {
+    "framePng": [
+      128,
+      128
+    ],
+    "artPixelsPerFilePixel": 1,
+    "sheetColumns": 4,
+    "drawScale": 1,
+    "artPixelsPerStagePixel": 1,
+    "v1": {
+      "framePng": [
+        256,
+        256
+      ],
+      "artPixelsPerFilePixel": 2,
+      "drawScale": "1.08 - 1.18 depending on call site",
+      "artPixelToStagePixel": 2.24
+    }
+  },
+  "palette": {
+    "opaqueColors": [
+      "#040614",
+      "#1A203F",
+      "#F1EFF0",
+      "#F8AC75",
+      "#280B02",
+      "#BAB7CB",
+      "#D5773F",
+      "#F5C424",
+      "#20251E",
+      "#3A4772",
+      "#A35616",
+      "#CB8A06",
+      "#6A320A",
+      "#82819A"
+    ],
+    "count": 14,
+    "freeSlots": 1,
+    "totalBudget": 16,
+    "budgetNote": "15 opaque + transparent, one Genesis palette line. One slot is unused and may be spent on a single new shading step if the redraw needs it.",
+    "keyColorNeverInArt": "#06FD08",
+    "identityRule": "The 14 colors are the character's identity and must not be re-picked. Verified present in every shipped v1 frame.",
+    "source": "measured across all 24 v1 pipeline frames",
+    "binding": false,
+    "role": "Origin reference only as of v3. These 14 colours describe where the character came from and should still read as his identity, but frames are no longer quantised to them and conformance is no longer gated."
+  },
+  "clips": [
+    {
+      "id": "idle",
+      "loopMode": "loop",
+      "grounded": true,
+      "v1Frames": 4,
+      "v2Frames": 4,
+      "durations": [
+        220,
+        220,
+        220,
+        220
+      ]
+    },
+    {
+      "id": "run",
+      "loopMode": "loop",
+      "grounded": true,
+      "v1Frames": 8,
+      "v2Frames": 8,
+      "durations": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ]
+    },
+    {
+      "id": "duffel-pull",
+      "loopMode": "loop",
+      "grounded": true,
+      "v1Frames": 4,
+      "v2Frames": 6,
+      "durations": [
+        140,
+        120,
+        120,
+        160,
+        140,
+        180
+      ]
+    },
+    {
+      "id": "startle-stumble",
+      "loopMode": "hold-last",
+      "grounded": true,
+      "v1Frames": 3,
+      "v2Frames": 5,
+      "durations": [
+        70,
+        90,
+        110,
+        140,
+        260
+      ]
+    },
+    {
+      "id": "baseball-slide",
+      "loopMode": "hold-last",
+      "grounded": true,
+      "v1Frames": 4,
+      "v2Frames": 6,
+      "durations": [
+        70,
+        90,
+        90,
+        110,
+        120,
+        220
+      ]
+    },
+    {
+      "id": "bull-spin",
+      "loopMode": "once",
+      "grounded": true,
+      "v1Frames": 6,
+      "v2Frames": 8,
+      "durations": [
+        70,
+        70,
+        80,
+        80,
+        80,
+        80,
+        90,
+        160
+      ]
+    },
+    {
+      "id": "pilot-glide",
+      "loopMode": "loop",
+      "grounded": false,
+      "v1Frames": 4,
+      "v2Frames": 6,
+      "durations": [
+        120,
+        120,
+        120,
+        120,
+        120,
+        120
+      ]
+    },
+    {
+      "id": "reach-catch",
+      "loopMode": "hold-last",
+      "grounded": false,
+      "v1Frames": 4,
+      "v2Frames": 6,
+      "durations": [
+        90,
+        110,
+        110,
+        140,
+        160,
+        260
+      ]
+    },
+    {
+      "id": "victory-recovery",
+      "loopMode": "hold-last",
+      "grounded": true,
+      "v1Frames": 3,
+      "v2Frames": 6,
+      "durations": [
+        110,
+        140,
+        140,
+        180,
+        200,
+        300
+      ]
+    }
+  ],
+  "frameTotals": {
+    "v1": 40,
+    "v2": 55,
+    "plusAnchor": 56
+  },
+  "clipIdsAreRuntimeContract": "Clip ids, loop modes, and total clip durations are consumed by src/game/introAnimation.ts. Ids and loop modes must not change. Durations may only be re-split within the same total.",
+  "qualityGates": {
+    "orphanPixelRate": {
+      "max": 0.06,
+      "definition": "Share of opaque art pixels having no 4-neighbour of the same colour. Measures snap/quantize speckle.",
+      "measuredV1Popt": 0.131,
+      "measuredKeyMascot": 0.085,
+      "rationale": "Both shipped assets are machine-snapped and speckled. 0.06 is stricter than either and still reachable for authored art."
+    },
+    "paletteConformance": "Every opaque pixel exactly one of the 14 colours. No intermediate or anti-aliased values.",
+    "integerDrawScale": "Enforced in code by the 'keeps Pop T on the stage pixel grid' test in src/game/introAnimation.test.ts.",
+    "silhouette": "One connected opaque region per frame, ignoring deliberately detached props. No floating single pixels outside the body.",
+    "baselineDrift": "Feet touch y=111 in every grounded frame; airborne clips declare their own offset once and hold it.",
+    "identity": "Owner review against art-source/intro/tmb2/popt-v2/references/identity-anchor-1024.png."
+  },
+  "defectsMeasured": {
+    "date": "2026-08-16",
+    "fractionalSpriteScale": {
+      "finding": "v1 drew 256 px frames with a 2 px art grid at scale 1.12, so one art pixel covered 2.24 stage pixels.",
+      "evidence": "Horizontal run-length census of duffel-pull-01 at the runtime scale: 44.8% of runs came out an odd number of pixels wide (2 px 34.9%, 3 px 11.1%). At scale 1 the same census is 0.0% odd.",
+      "status": "fixed in code; every poptActor call now passes scale 1"
+    },
+    "underResolvedForItsSize": {
+      "finding": "The character is 37x46 art pixels but plays at ~41% of stage height. The key mascot in the same frames is 84x75 art pixels at a smaller on-stage size.",
+      "evidence": "Pop T resolves 0.45 art px per stage px; the key resolves 1.3. Roughly a 5x detail gap at comparable screen size.",
+      "status": "addressed by this contract; needs new frames"
+    },
+    "snapSpeckle": {
+      "finding": "13.1% of Pop T's opaque pixels are orphans, versus 8.5% for the key mascot.",
+      "evidence": "4-neighbour census over all 24 v1 pipeline frames.",
+      "status": "gated by qualityGates.orphanPixelRate; needs new frames"
+    },
+    "fractionalCameraZoom": {
+      "finding": "The 0028 punch camera applies a fractional world zoom on 93.5% of the intro, which point-samples the whole stage off-grid regardless of sprite scale.",
+      "evidence": "1327 frames sampled at 25 Hz: zoom exactly 1 on 86 frames (6.5%); 1.00-1.05 on 268; 1.05-1.15 on 932; 1.15-1.25 on 37; >=1.25 on 4. Reduced motion is identity.",
+      "status": "OUT OF SCOPE for this contract and unresolved. Documented in plans/0029 as a required follow-up; new art will still be resampled by the camera until it is addressed."
+    },
+    "runtimeRotation": {
+      "finding": "Eight call sites rotate Pop T at runtime (slide tilt, glide sway, bull tumble, sag, exit roll). Any non-zero rotation resamples a pixel sprite.",
+      "status": "not changed. The v2 frame budget adds authored tilt frames to pilot-glide and bull-spin so runtime rotation can be retired later without losing the motion."
+    }
+  },
+  "references": {
+    "directory": "art-source/intro/tmb2/popt-v2/references",
+    "files": {
+      "identity-anchor-1024.png": "The v1 idle pose at 22x nearest-neighbour. The character's identity; hand this to every generation.",
+      "target-scale-mockup-1024.png": "The same pose placed in the v2 cell at the v2 size. Shows the target composition, with doubled pixels standing in for the detail the redraw must supply.",
+      "scale-before-after-1024.png": "v1 cell occupancy beside v2 cell occupancy.",
+      "composition-guide-1024.png": "Cell, pivot, baseline, standing envelope, max pose envelope.",
+      "pixel-matrix-8x8-1024.png": "The 8x8 block constraint reference. Never composite it into the artwork.",
+      "palette-swatch.png": "The 14 colours as swatches.",
+      "palette.txt": "The 14 colours as hex."
+    }
+  },
+  "promptPack": "asset-reports/popt-frame-prompt-pack.md",
+  "plan": "plans/0029-popt-native-resolution.md",
+  "dependsOn": {
+    "plan": "plans/0030-pixel-safe-punch-camera.md",
+    "decision": "Owner approved retiring the held camera zoom on 2026-08-16.",
+    "consequence": "The camera no longer magnifies actors, so the standing height moved from 92 to 104 and the pivot from (64,112) to (64,120). Had the zoom stayed, 92 with pivot (64,112) would have been correct. Do not mix the two sets."
+  },
+  "supersedesV2": {
+    "decision": "2026-08-17: the 14-colour flat pixel-art constraint is retired for Pop T. Frames are authored as flat-shaded high-resolution illustrations and alpha-downsampled to the contract cell in full colour.",
+    "reason": "The v2 premise was that Pop T should sit 'on the same pixel grid as everything else in the frame'. Measured 2026-08-17: there is no such grid. The five background plates are 1586x992 paintings carrying 118k-208k distinct colours with ~50% single-pixel runs. Enforcing a 14-colour palette on the character alone is what made him read as a composite over the artwork, which is the defect this plan exists to remove.",
+    "evidence": {
+      "backgroundPlateOrphanRate": 0.929,
+      "fullColourPoptOrphanRate": 0.786,
+      "quantisedPoptOrphanRate": 0.007,
+      "note": "The orphan-pixel ceiling is a pixel-art-specific measure. The intro's own plates fail it at 92.9%, and full-colour Pop T scores below the artwork he stands in front of. It is not a meaningful quality signal for this asset.",
+      "quantisationDamage": "At the 19x reduction the 14-colour modal vote deleted the mouth entirely, fragmented the belt with off-white pixels punched through the near-black band, and flattened both thumbs."
+    },
+    "whatIsUnchanged": "The pixel-grid invariant that matters is untouched: the sprite is pre-rendered at exactly its on-stage size and blitted 1:1 into the 320x224 stage, which scales to screen by an integer. No fractional resampling is reintroduced and plans 0029/0030 stand."
+  },
+  "render": {
+    "route": "full-colour",
+    "sourceArt": "Flat cel-shaded illustration on a solid #FF00FF chroma field, generated at the largest native size the generator will produce without upscaling.",
+    "normaliser": "tools/assets/normalise-popt-frame.py",
+    "gate": "tools/assets/check-popt-frames-fullcolour.py",
+    "retiredGate": "tools/assets/check-popt-frames.py - palette and orphan checks are specific to the v2 contract; kept for any asset still on a flat palette.",
+    "sourcePxPerCellPx": 19.0,
+    "sourcePxPerCellPxNote": "Derived once from the Wave 0 anchor and applied unchanged to every later frame. Re-fitting per frame would make the character change size between clips.",
+    "alignment": "feet - the horizontal midpoint of the foot span sits on the pivot column and the lowest opaque row sits on the baseline, so choreographed foot positions from 0022 and 0028 stay valid."
+  }
+}

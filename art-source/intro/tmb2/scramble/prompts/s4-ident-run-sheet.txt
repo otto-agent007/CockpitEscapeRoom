@@ -1,0 +1,46 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- One reference image is attached: the character identity reference. Match the character exactly.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s4-ident-run-sheet.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+A character animation sheet in flat cel-shaded 2D style: SIX poses of
+the SAME cartoon airline pilot from the attached reference, arranged in ONE horizontal row with
+equal spacing and identical scale, together forming one complete smooth RUN cycle, full body,
+side view facing RIGHT, in classic six-phase order from left to right: (1) contact — right foot
+planted forward, left leg trailing, arms in opposite swing; (2) recoil — weight low on the bent
+right leg; (3) push-off — driving forward, left knee rising; (4) airborne — both feet off the
+ground mid-stride; (5) contact mirrored — left foot planted forward; (6) push-off mirrored —
+right knee rising. Every figure is the identical character at the identical size on one shared
+invisible ground line, energetic sprint posture, elbows pumping.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material: a base, one darker shade, one lighter shade.
+- Every colour region is a solid area of ONE flat colour with a hard edge. No gradients, no
+  soft edges, no glow. NO specular highlights, NO fabric texture, NO noise, NO dithering.
+
+Palette to draw from: near-black #040614, dark navy #1A203F, mid navy #3A4772, off-white
+#F1EFF0, skin #F8AC75, BLOND hair #F5C424 highlights with #CB8A06 shading, gold #F5C424,
+dark gold #CB8A06, black-green #20251E.
+
+Proportions - IMPORTANT: a stylised cartoon mascot about FIVE head-heights tall, big head,
+compact torso, short legs, small hands and feet, matching the attached character reference
+exactly (young male pilot, BLOND hair, navy peaked cap with gold band, white short-sleeve
+uniform shirt, navy trousers, dark boots).
+
+This artwork will be reduced to a small sprite, so every shape must be BOLD and SIMPLIFIED with
+high contrast between regions; no fine detail survives.
+
+Background: a completely flat solid pure magenta field, RGB 255 0 255, filling the entire canvas
+edge to edge. The magenta must appear NOWHERE on the character. No ground, no shadow, no props,
+no text, no border, no watermark, no checkerboard.

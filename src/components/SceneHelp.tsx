@@ -4,7 +4,7 @@ import type { GamePhase } from '../game/state'
 const phaseGuidance: Record<Exclude<GamePhase, 'briefing'>, string> = {
   airbus: 'Select a label, then place it on the matching cockpit control from the captain seat.',
   locker: 'Inspect the personal objects, then reveal the captain’s hat.',
-  dc9: 'Inspect the analog panel from the first-officer seat and use the mirrored checklist controls.',
+  dc9: 'Work the right-seat controls and analog panel. Arrow keys move the yoke, W and S the thrust levers, A and D the rudder pedals; every action also has a native button.',
   reward: 'Explore the hangar reward after Captain Mode completion.',
   mars: 'Explore the optional mission control after the main ending.',
 }
@@ -20,7 +20,7 @@ export function SceneHelp({ phase, open, onClose }: { phase: Exclude<GamePhase, 
   const lookDirection = phase === 'airbus'
     ? 'Look from the left seat'
     : phase === 'dc9'
-      ? 'Look from the right seat'
+      ? 'Look from the right seat, or grab the yoke itself'
       : 'Orbit the scene'
   return (
     <div className="scene-help-popover" role="dialog" aria-modal="false" aria-labelledby="scene-help-title">

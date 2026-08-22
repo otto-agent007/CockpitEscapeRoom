@@ -1,4 +1,15 @@
 import {
+  DC9_CONTROL_CHECK_ITEM_IDS,
+  dc9ControlCheckComplete,
+  normalizeDc9ControlCheckProgress,
+} from './dc9ControlCheck'
+import {
+  DC9_INSTRUMENT_SCAN_ORDER,
+  createInitialDc9InstrumentScanProgress,
+  dc9InstrumentScanComplete,
+  normalizeDc9InstrumentScanProgress,
+} from './dc9InstrumentScan'
+import {
   createInitialAirbusSimulatorProgress,
   createInitialState,
   DC9_SECURE_ORDER,
@@ -201,6 +212,8 @@ function isLegacyV7State(value: unknown): value is LegacyV7State {
 function fullDc9Progress(routeAttempts = 0, secureAttempts = 0): Dc9ChapterProgress {
   return {
     stage: 'complete',
+    controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS],
+    instrumentScan: { identified: [...DC9_INSTRUMENT_SCAN_ORDER], attempts: 0 },
     routeSelections: [...APPROVED_ROUTE_CODES],
     routeCompleted: [...APPROVED_ROUTE_CODES],
     routeAttempts,
@@ -246,30 +259,49 @@ function normalizeDc9Progress(
   const routesComplete = routeCompleted.length === APPROVED_ROUTE_CODES.length
   const homeOperationsCompleted = routesComplete && candidate.homeOperationsCompleted === true
   const secureSequence = homeOperationsCompleted ? normalizeSecureSequence(candidate.secureSequence) : []
+  const secureStarted = secureSequence.length > 0
   const shutdownComplete = secureSequence.length === DC9_SECURE_ORDER.length
   const keyClaimed = shutdownComplete && candidate.keyClaimed === true
   const keyRevealed = shutdownComplete && (candidate.keyRevealed === true || keyClaimed)
   const hasRouteEvidence = routeSelections.length > 0 || routeCompleted.length > 0 || routeAttempts > 0
   const savedStage = candidate.stage
+  // Saves written before schema 13 have no control check or instrument scan. Anyone who
+  // was already past where those stages now sit keeps their place rather than being
+  // sent back to repeat content the chapter never asked them for.
+  const savedControlCheck = normalizeDc9ControlCheckProgress(candidate.controlCheck)
+  const controlCheckComplete = dc9ControlCheckComplete(savedControlCheck) || hasRouteEvidence
+  const savedInstrumentScan = normalizeDc9InstrumentScanProgress(candidate.instrumentScan)
+  const instrumentScanComplete = dc9InstrumentScanComplete(savedInstrumentScan) || secureStarted
   const stage: Dc9ChapterProgress['stage'] = keyClaimed
     ? 'complete'
     : shutdownComplete
       ? savedStage === 'qualification' ? 'qualification' : 'keyReveal'
-      : homeOperationsCompleted
+      : secureStarted
         ? 'shutdown'
-        : routesComplete
-          ? 'homeOperations'
-          : hasRouteEvidence
-            ? 'routeRecord'
-            : 'intro'
+        : homeOperationsCompleted
+          ? instrumentScanComplete ? 'shutdown' : 'instrumentScan'
+          : routesComplete
+            ? 'homeOperations'
+            : hasRouteEvidence
+              ? 'routeRecord'
+              : controlCheckComplete
+                ? 'intro'
+                : 'controlCheck'
   const finalPage = dc9LegacyFlow.homeOperationsPages.length - 1
   const homePage = routesComplete && isSafeNonNegativeInteger(candidate.homePage) ? Math.min(candidate.homePage, finalPage) : 0
 
+  const beforeRouteRecord = stage === 'intro' || stage === 'controlCheck'
   return {
     stage,
-    routeSelections: stage === 'intro' ? [] : routeSelections,
-    routeCompleted: stage === 'intro' ? [] : routeCompleted,
-    routeAttempts: stage === 'intro' ? 0 : routeAttempts,
+    controlCheck: controlCheckComplete ? [...DC9_CONTROL_CHECK_ITEM_IDS] : savedControlCheck,
+    instrumentScan: !homeOperationsCompleted
+      ? createInitialDc9InstrumentScanProgress()
+      : instrumentScanComplete
+        ? { identified: [...DC9_INSTRUMENT_SCAN_ORDER], attempts: 0 }
+        : savedInstrumentScan,
+    routeSelections: beforeRouteRecord ? [] : routeSelections,
+    routeCompleted: beforeRouteRecord ? [] : routeCompleted,
+    routeAttempts: beforeRouteRecord ? 0 : routeAttempts,
     homePage,
     homeOperationsCompleted,
     secureSequence,
@@ -670,7 +702,7 @@ function normalizeV9(value: unknown): GameState | null {
   }
 }
 
-function normalizeCanonicalScenarioState(value: unknown, schemaVersion: 10 | 11 | 12): GameState | null {
+function normalizeCanonicalScenarioState(value: unknown, schemaVersion: 10 | 11 | 12 | 13): GameState | null {
   if (!value || typeof value !== 'object') return null
   const candidate = value as Record<string, unknown>
   if (candidate.schemaVersion !== schemaVersion || !hasSafeCanonicalCommonState(candidate)) return null
@@ -711,8 +743,12 @@ function migrateV11(value: unknown): GameState | null {
   return normalizeCanonicalScenarioState(value, 11)
 }
 
-function normalizeV12(value: unknown): GameState | null {
+function migrateV12(value: unknown): GameState | null {
   return normalizeCanonicalScenarioState(value, 12)
+}
+
+function normalizeV13(value: unknown): GameState | null {
+  return normalizeCanonicalScenarioState(value, 13)
 }
 
 function migrateV6ToV7(value: unknown): LegacyV7State | null {
@@ -840,7 +876,8 @@ export function loadGameState(storage: Pick<Storage, 'getItem' | 'removeItem'> =
       : migrateV5(normalizedParsed) ?? migrateV4(normalizedParsed) ?? migrateV3(normalizedParsed)
     const legacyV7 = isLegacyV7State(normalizedParsed) ? normalizedParsed : legacyV6 ? migrateV6ToV7(legacyV6) : null
     const migratedV8 = legacyV7 ? migrateV7ToV8(legacyV7) : null
-    const state = normalizeV12(normalizedParsed)
+    const state = normalizeV13(normalizedParsed)
+      ?? migrateV12(normalizedParsed)
       ?? migrateV11(normalizedParsed)
       ?? migrateV10(normalizedParsed)
       ?? normalizeV9(normalizedParsed)

@@ -1,0 +1,47 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- One reference image is attached: a rough placeholder layout mock. Follow it for COMPOSITION
+  ONLY (the aircraft nose looming from the right, a clear walking lane across the lower
+  foreground); its blocky style, colours and any text overlays must be ignored, and no text from
+  it may appear in the output.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/plate-walk-tarmac.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+A flat cel-shaded 2D background illustration in clean 16-bit video-game cutscene style: inside a
+floodlit aircraft hangar at night, low wide shot along the floor, the aircraft looming large.
+
+Scene, matching the attached layout reference: the rounded nose and forward fuselage of a
+McDonnell Douglas DC-9 jetliner enters from the RIGHT side of the frame, large and slightly above
+the eye line, angled gently toward the viewer: light warm-grey upper fuselage over white lower
+fuselage split at the passenger-window line, a simple dark cockpit-window band, and a twin-wheel
+nose landing gear strut reaching down to the floor with a clear gap under the belly. The lower
+third of the frame is open polished hangar floor forming a clear walking lane from left toward
+the aircraft, with a broad flat reflection of the fuselage. Background: the hangar's dark depth
+with simple structural ribs and two ceiling floodlights throwing flat light cones from above.
+The left half of the frame stays open and uncluttered — a small walking figure will be composited
+there at runtime.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material: a base, one darker shade, one lighter shade.
+- Every colour region is a solid area of ONE flat colour with a hard edge. No gradients, no
+  blending, no soft edges, no glow, no bloom.
+- NO specular highlights, NO shine streaks. The floor reflection is a broad flat darker shape.
+- NO texture, NO noise, NO speckling, NO dithering, NO grain.
+
+Palette to draw from: near-black #0A0F22, hangar blue #141A2E, panel navy #181E36, steel blue
+#323E60, off-white #FFFDF0, warm grey #B9BCC0, pale light #C8D2E8, amber #FFB020.
+
+Mood: the long walk to the ship — quiet scale, the aircraft towering over the empty lane.
+
+Absolutely NO text anywhere: no letters, no numbers, no logos, no registration, no placards, no
+watermark, no border, no caption.

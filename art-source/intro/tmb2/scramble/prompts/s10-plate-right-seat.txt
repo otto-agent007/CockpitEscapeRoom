@@ -1,0 +1,60 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- TWO reference images are attached with DIFFERENT jobs.
+  * Reference 1 is a photographic render of the REAL DC-9 first officer's station. It is the
+    authority for WHAT IS IN THE COCKPIT: the pale seafoam-green panel structure, the dense
+    clusters of round steel-rimmed gauges, the black control yoke with its horn-shaped grip and
+    central column, the throttle quadrant with pale levers, the overhead panel edge and the angled
+    window posts. Keep those elements recognisable.
+  * Reference 2 is an existing artwork from this film. It is the authority for HOW to draw:
+    flat cel shading, hard-edged colour regions, a deep navy night palette, chunky simplified
+    steel rings, no photographic detail.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s10-plate-right-seat.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+The interior of a DC-9 airliner flight deck at night, drawn as flat cel-shaded artwork in a deep
+navy night palette, seen from BEHIND AND SLIGHTLY LEFT — the viewpoint of someone who has just
+stepped through the cockpit door and is about to sit down.
+
+The subject of the picture is the EMPTY RIGHT-HAND SEAT, the first officer's seat, sitting in the
+lower centre-right of the frame with nobody in it. Draw it as a simple bold shape: a dark padded
+seat back with a headrest, seen from behind and slightly to its left. Its shoulder harness straps
+hang loose and unbuckled, draped over the seat back and down across the armrest — clearly waiting,
+clearly unoccupied.
+
+Beyond and above the seat, the instrument panel is awake and glowing: clusters of round
+steel-rimmed gauges with softly lit faces in warm amber, the black control yoke on its column
+standing in front of the seat, and the throttle quadrant with pale levers off to the left. The
+panel structure is the pale seafoam green of the reference, but heavily darkened by night so it
+reads as a muted blue-green against the navy.
+
+The upper third of the frame is the windscreen, and beyond it is plain dark night sky — nearly
+black, empty, with no stars, no clouds, no ground and no aircraft. Keep this area simple and
+uncluttered.
+
+The only light in the scene comes from the instruments themselves: a soft warm amber wash rising
+from the panel onto the seat back and the window posts, falling off quickly into darkness at the
+edges of the frame. No lamps, no overhead lights, no lens flares.
+
+Mood: quiet, still, expectant. Nobody is in the picture. There is no pilot, no hands, no figure of
+any kind.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow bloom, no specular highlights, no photographic texture, no noise, no
+  dithering, no grain.
+- Instrument faces are simple dark discs inside chunky steel rings; do not draw dials, needles,
+  scales or markings on them.
+
+Absolutely NO text anywhere: no letters, no numbers, no labels, no placards, no switch legends, no
+instrument markings, no watermark, no border, no caption.

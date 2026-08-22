@@ -34,11 +34,15 @@ Wrong answers must never erase completed progress or force a restart.
 
 The existing opening screen remains unchanged except that its button is titled **Start Game**. That button opens Pop T’s safely parked DC-9-32 from the first-officer/right seat. This is a warm, lightly realistic family-memory chapter, not a simulator emergency and not a claim about a literal final itinerary. Keep the production GLB, interaction registry, first-officer yoke trigger, first-officer game/route/overhead cameras, and the three supported shutdown pivots.
 
+The chapter opens with hands on the controls. **Flight controls — free and correct** is the ordinary pre-taxi sweep every leg started with: the player walks the control column full aft and full forward, rolls the wheel to both stops, walks both rudder pedals, then advances both thrust levers and closes them again. The real donor yoke, levers and pedals move on their own pivots, and the captain's linked column and pedals track with them. Arrow keys drive the yoke, `W`/`S` the levers, `A`/`D` the pedals; every movement also has a native hold button, and the yoke can be dragged directly in the cockpit. There is no failure state and no timer — each of the eight movements latches when it reaches its stop and is never taken away. Completing the sweep is what brings the narrow paper strip clipped to the yoke into view, which opens the readable Legacy Route Record.
+
 The narrow strip attached to the first-officer yoke opens the readable Legacy Route Record. The representative familiar routes are `DTW`, `MSP`, and `STL`. Wrong submissions progressively offer a Northwest-hubs/Midwestern-stop annotation, then Michigan/Minnesota/Missouri, then a warm outline on the three codes. Correct stamps are permanent and later mistakes never remove them.
 
 The completed route record opens the five-page **Home Operations Log**. This is recognition, never a puzzle: it has no answers, sorting, timer, failure state, or test. Its pages recognize the care and steady logistics required to feed and prepare three children, support sports and cheerleading schedules, shop for school clothes, and manage changing household needs while Pop T traveled. The key sentiment is: **“Pop T kept his passengers and crews on course. Momma Cheryl kept the family on course. Both were essential to bringing the crew home.”** The family-photo montage remains deferred to the end-game movie-style credits and is not part of this chapter.
 
-After both records are complete, the existing overhead view supports a forgiving ceremonial shutdown: APU buses off, APU master off, then battery off. Out-of-order actions receive calm guidance and never clear a completed step. Completion reveals a lightweight HTML Captain’s Key cinematic with the engravings **“THE CAPTAIN’S KEY”** and **“POP T & MOMMA CHERYL.”** Taking it opens the locker.
+The completed Home Operations Log opens the **instrument scan**. Six right-seat instruments are called one at a time in the order a DC-9 crew read them — airspeed indicator, attitude director indicator, altimeter, horizontal situation indicator, vertical speed indicator, and the EPR gauges that set JT8D thrust. The player answers by clicking the gauge in the cockpit or by choosing it from a keyboard-reachable list; both paths are equivalent. A correct answer is permanent and runs that instrument's own needle through a power-on self-test sweep on the real donor geometry. Wrong answers cost nothing, never clear a correct answer, and produce steadily clearer coaching until the third miss outlines the right gauge. The scan is a power-on instrument test on a parked aeroplane, not a claim about what the aircraft is doing.
+
+After both records and the scan are complete, the existing overhead view supports a forgiving ceremonial shutdown: APU buses off, APU master off, then battery off. Out-of-order actions receive calm guidance and never clear a completed step. Completion reveals a lightweight HTML Captain’s Key cinematic with the engravings **“THE CAPTAIN’S KEY”** and **“POP T & MOMMA CHERYL.”** Taking it opens the locker.
 
 ## Locker Room / Captain’s Locker Scene
 
@@ -132,6 +136,8 @@ This should never block the main ending.
 - Northwest-era blue-green/gray surfaces.
 - Layered glass and restrained reflections.
 - Yokes, pedestal, overhead presence, labels, and panel wear.
+- Control column, wheel, thrust levers and rudder pedals that move on their donor pivots.
+- Readable first-officer basic-T with instrument needles that can be driven.
 - Lighting that makes the cockpit feel real but still readable.
 
 ### Model Y Flight Mode reward

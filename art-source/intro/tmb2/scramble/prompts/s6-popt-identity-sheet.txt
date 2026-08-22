@@ -1,0 +1,59 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- TWO reference images are attached and they have DIFFERENT jobs. Do not blend their jobs.
+  * Reference 1 (a cartoon pilot's head on a magenta field) is the CHARACTER. It is the sole
+    authority for WHO this man is: his hair colour and hair shape, face shape, jaw, chin, nose,
+    ear, eye shape and skin tone. Keep every one of those features.
+  * Reference 2 (a peaked cap held in a hand) is the RENDERING STYLE and the HAT. It is the sole
+    authority for HOW the image is drawn — line quality, flat cel shading, colour depth — and for
+    the exact captain's hat to draw. It contains no face; do not invent one from it.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s6-popt-identity-sheet.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+A character identity sheet: THREE head-and-shoulders views of ONE single man, the same man in all
+three, drawn at the SAME size and on the SAME horizontal eye line, evenly spaced left to right
+across a plain flat dark charcoal field. Left view: facing straight forward. Centre view: turned
+three-quarters to his left. Right view: full profile facing left. Even neutral lighting on all
+three, no dramatic shadow, no spotlight, no background scenery.
+
+THE MAN, copied faithfully from reference 1:
+- Saturated golden-yellow blond hair, thick and swept forward, with pointed spikes at the temple
+  and a wedge of hair in front of the ear. The hair is BRIGHT YELLOW-GOLD, not brown, not ochre,
+  not sandy.
+- EYEBROWS ARE BLOND: draw them in a deep gold, one clear step darker than the hair so they read
+  as blond eyebrows. They must NOT be black, brown or near-black.
+- A rounded, boyish face: broad soft cheeks, a soft jawline and a short rounded chin. NOT a
+  narrow angular face, NOT a long chin, NOT high sharp cheekbones.
+- A small, softly drawn button nose. NOT a long or prominent straight nose.
+- Large dark navy eyes, simple tall rounded shapes, each with one small white highlight block.
+- Warm peach skin.
+- A calm, level, confident expression with the mouth closed. No grin, no open mouth, no teeth.
+- He is a young adult, clean shaven. No stubble, no lines, no age in the face.
+
+WHAT HE WEARS, in the rendering style of reference 2:
+- The captain's hat exactly as drawn in reference 2: charcoal-navy peaked crown, braided GOLD chin
+  cord across the base of the crown with a small gold button at each end, black visor, and on the
+  crown front a round cap badge of red outer ring, cream disc, deep blue centre and small gold
+  wings. In the profile view the badge is not visible; the gold cord and the crown shape are.
+- A white short-sleeve uniform shirt with a navy tie, and navy epaulettes carrying FOUR gold
+  stripes.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow; one flat pale wedge is allowed on the glossy visor only.
+- NO texture, NO noise, NO dithering, NO grain.
+
+Gold to use: bright gold #F5C424 with dark gold #CB8A06 shading.
+
+Absolutely NO text anywhere: no letters, no numbers, no labels under the views, no monograms, no
+watermark, no border, no caption. The cap badge is pure shapes.

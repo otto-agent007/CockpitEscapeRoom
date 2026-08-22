@@ -1,0 +1,39 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached: the PREVIOUS VERSION of this exact shot. Reproduce it EXACTLY —
+  the same man, the same face, the same blond hair and gold eyebrows, the same gold watch with its
+  red-and-blue split bezel, the same pose, lamp, framing, palette and epaulettes — changing ONLY
+  the one thing below.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s8-card-watch-b.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+Reproduce the attached image EXACTLY, with ONE change:
+
+On the captain's hat, the small gold slide in the middle of the gold cord currently has the LETTER
+"M" embossed on it. Remove that letter completely. The slide stays exactly where it is and keeps
+its shape, but its face must be plain smooth gold with no letter, no monogram, no initial, no
+symbol and no engraving of any kind on it.
+
+Nothing else changes at all: the same face, the same blond hair and deep gold eyebrows, the same
+cap badge with its red ring, cream disc, blue centre and gold wings, the same white shirt, navy
+tie, the same FOUR gold stripes on each epaulette, the same gold GMT-style watch with its black
+dial and split red-and-blue bezel, the same hanging lamp, the same dark background, the same
+framing and palette.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow; one flat pale wedge is allowed on the glossy watch crystal only.
+- NO texture, NO noise, NO dithering, NO grain.
+
+Absolutely NO text anywhere in the image: no letters, no numbers, no numerals on the watch dial,
+no monograms, no initials, no watermark, no border, no caption. Every emblem is pure shapes.

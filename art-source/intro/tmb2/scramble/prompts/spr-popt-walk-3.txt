@@ -1,0 +1,40 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1024x1024, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- Reference images attached: the character identity reference and, second, frame 1 of this same walk cycle for scale and style continuity. Match the character exactly.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/spr-popt-walk-3.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+A flat cel-shaded 2D character sprite frame of the cartoon airline pilot from the attached reference, full body, seen from a THREE-QUARTER BACK view walking toward the RIGHT of the frame (his back and right side toward the viewer, face mostly hidden, a sliver of right cheek visible). Passing: left leg swinging forward past the planted right leg, left foot clear of the ground, body risen to its tallest, arms passing his sides.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material: a base, one darker shade, one lighter shade.
+- Every colour region is a solid area of ONE flat colour with a hard edge. No gradients, no
+  soft edges, no glow. NO specular highlights, NO fabric texture, NO noise, NO dithering.
+
+Palette to draw from: near-black #040614, dark navy #1A203F, mid navy #3A4772, off-white
+#F1EFF0, skin #F8AC75, gold #F5C424, dark gold #CB8A06, black-green #20251E.
+
+Proportions - IMPORTANT: this is a stylised cartoon mascot, not a realistic figure: about FIVE
+head-heights tall, big head, compact torso, short legs, small hands and feet, matching the
+attached character reference exactly (young male pilot, blond hair, navy peaked cap with gold
+band, white short-sleeve uniform shirt, navy trousers, dark boots).
+
+This artwork will be reduced to a sprite only 34 pixels tall, so every shape must be BOLD and
+SIMPLIFIED with high contrast between regions; no fine detail survives.
+
+Framing: the whole figure fully visible, vertically centred, occupying about 85 percent of the
+image height, with even margins.
+
+Background: a completely flat solid pure magenta field, RGB 255 0 255, filling the entire canvas
+edge to edge. The magenta must appear NOWHERE on the character. No ground, no shadow, no props,
+no text, no border, no watermark, no checkerboard.

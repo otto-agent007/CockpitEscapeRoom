@@ -4,6 +4,10 @@ import { DC9_SECURE_ORDER, type GameAction, type GameState } from '../../game/st
 import { HomeOperationsLog } from './HomeOperationsLog'
 import { LegacyRouteRecord } from './LegacyRouteRecord'
 import { CaptainsKeyReveal } from './CaptainsKeyReveal'
+import { ControlCheckPanel } from './ControlCheckPanel'
+import { InstrumentScanPanel } from './InstrumentScanPanel'
+import type { Dc9InstrumentId } from '../../game/dc9FlightDeck'
+import type { Dc9ControlState, Dc9HoldControl, Dc9InputMethod } from '../../game/dc9Input'
 import type { Dc9HotspotScreenPositions, Dc9LoadState } from '../../scenes/PrototypeScene'
 import './dc9Chapter.css'
 
@@ -16,9 +20,24 @@ interface Dc9ChapterProps {
   onUseFallback: () => void
   reducedMotion: boolean
   onClaimKey: () => void
+  controls: Dc9ControlState
+  inputMethod: Dc9InputMethod
+  onHoldControl: (control: Dc9HoldControl, pressed: boolean) => void
 }
 
-export function Dc9Chapter({ state, dispatch, onRestart, loadState, hotspots, onUseFallback, reducedMotion, onClaimKey }: Dc9ChapterProps) {
+export function Dc9Chapter({
+  state,
+  dispatch,
+  onRestart,
+  loadState,
+  hotspots,
+  onUseFallback,
+  reducedMotion,
+  onClaimKey,
+  controls,
+  inputMethod,
+  onHoldControl,
+}: Dc9ChapterProps) {
   const [routeRecordDismissed, setRouteRecordDismissed] = useState(false)
   const [keyRevealDismissed, setKeyRevealDismissed] = useState(false)
   const [restoreKeyFocus, setRestoreKeyFocus] = useState(false)
@@ -58,6 +77,10 @@ export function Dc9Chapter({ state, dispatch, onRestart, loadState, hotspots, on
     setKeyRevealDismissed(true)
   }
 
+  const identifyInstrument = (instrument: Dc9InstrumentId) => {
+    dispatch({ type: 'IDENTIFY_DC9_INSTRUMENT', instrument })
+  }
+
   const claimCaptainsKey = () => {
     setRestoreKeyFocus(false)
     setKeyRevealDismissed(true)
@@ -73,6 +96,24 @@ export function Dc9Chapter({ state, dispatch, onRestart, loadState, hotspots, on
         </div>
         <span className="dc9-chapter__greybox">GREYBOX</span>
       </header>
+
+      {state.dc9.stage === 'controlCheck' ? (
+        <ControlCheckPanel
+          completed={state.dc9.controlCheck}
+          controls={controls}
+          inputMethod={inputMethod}
+          onHold={onHoldControl}
+        />
+      ) : null}
+
+      {state.dc9.stage === 'instrumentScan' ? (
+        <InstrumentScanPanel
+          progress={state.dc9.instrumentScan}
+          hotspots={hotspots}
+          projectionReady={loadState.status === 'ready'}
+          onIdentify={identifyInstrument}
+        />
+      ) : null}
 
       {routeTriggerVisible ? (
         <button

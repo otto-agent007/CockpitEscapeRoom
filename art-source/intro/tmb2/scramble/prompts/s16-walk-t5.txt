@@ -1,0 +1,61 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1024x1024, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached. It holds TWO frames of an approved walk cycle for this exact
+  character on a magenta field: pose A on the LEFT and pose B on the RIGHT. Both are the authority
+  for the character, the camera, the uniform, the drawing style and the figure's height.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s16-walk-t5.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+ONE single cartoon airline captain, alone, centred on a completely flat solid magenta #FF00FF
+background that fills the whole canvas. Draw exactly one figure — not two, not a row, not a sheet.
+
+He is the same man as the two figures in the attached image, drawn in exactly the same flat
+cel-shaded style, and his pose is the exact HALFWAY point between the LEFT figure's pose and the
+RIGHT figure's pose — the frame that would sit between them in the animation.
+
+The pose: His rear leg is swinging through beneath his body on the opposite side and his support leg is straightening, so he is rising toward his tallest. His feet are closer together than in the LEFT figure but not yet as close as in the RIGHT figure.
+
+1. CAMERA — copy it exactly from the attached figures: a three-quarter view from BEHIND, walking to
+   the RIGHT, so the viewer sees the BACK of his head and the back of his navy peaked cap. His face
+   is turned away: no eyes, no nose and no mouth are visible, only the back of his blond hair and
+   the side of one ear. Do not turn him toward the viewer and do not draw him in profile.
+
+2. UNIFORM — copy it exactly from the attached figures and add nothing: plain dark navy peaked cap
+   with a small gold clip at the side and NO round badge; blond hair; white short-sleeve shirt;
+   NO gold stripes and NO shoulder boards on his shoulders; NO tie visible; dark navy trousers with
+   a thin dark belt; black boots.
+
+3. SIZE — his height must match the attached figures exactly: the top of his cap and the soles of
+   his boots sit at the same heights as theirs, and his head, torso, arms and legs are the same
+   size and proportion. His arms hang fairly relaxed at his sides with a slight bend, swinging in
+   opposition to his legs.
+
+4. HEAD SIZE — measure it: the width of his peaked cap must be about 36% of his total height from
+   the top of the cap to the sole of his lower boot. He is a big-headed cartoon mascot about five
+   head-heights tall, exactly like the attached figures. Do not draw a smaller, more realistic head.
+
+5. STRIDE WIDTH — measure it: the horizontal distance from the toe of his leading boot to the heel
+   of his trailing boot must be about 25% of his total height, and must stay between 23% and 27%.
+   This is what makes the frame sit between the two attached poses; a wider stride is wrong.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no fabric texture, no creases.
+- NO texture, NO noise, NO dithering, NO grain, no outline sketch marks.
+- This art will be reduced to a 48 pixel tall sprite, so every shape must be bold and simplified.
+
+Palette to draw from: near-black #040614, dark navy #1A203F, mid navy #3A4772, off-white #F1EFF0,
+skin #F8AC75, blond hair #F5C424 with #CB8A06 shading, gold #F5C424, dark gold #CB8A06.
+
+Absolutely NO text anywhere: no letters, no numbers, no labels, no watermark, no border, no
+caption, no grid lines, no ground line and no shadow.

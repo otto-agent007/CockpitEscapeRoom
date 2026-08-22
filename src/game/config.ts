@@ -169,6 +169,85 @@ export const dc9LegacyFlow = {
     apuMaster: 'run',
     battery: 'on',
   },
+  controlCheck: {
+    eyebrow: 'Right seat · before the log',
+    title: 'Flight controls — free and correct',
+    intro:
+      'Every leg started the same way. Parked at the gate with the checklist open, the crew walked each control to its stops and felt it come back. Take the right seat and do it once more.',
+    instructions:
+      'Arrow keys move the yoke, W and S walk the thrust levers, A and D work the rudder pedals. You can also hold the buttons here, or drag the yoke itself.',
+    groupLabels: {
+      yoke: 'Control column and wheel',
+      rudder: 'Rudder pedals',
+      thrust: 'Thrust levers',
+    } as const,
+    items: {
+      yokeAft: { label: 'Column full aft', detail: 'Pull the yoke back to the stop.' },
+      yokeForward: { label: 'Column full forward', detail: 'Push the yoke all the way forward.' },
+      wheelLeft: { label: 'Wheel full left', detail: 'Roll the wheel left to the stop.' },
+      wheelRight: { label: 'Wheel full right', detail: 'Roll the wheel right to the stop.' },
+      rudderLeft: { label: 'Left pedal full travel', detail: 'Walk the left pedal all the way forward.' },
+      rudderRight: { label: 'Right pedal full travel', detail: 'Walk the right pedal all the way forward.' },
+      thrustAdvance: { label: 'Levers full forward', detail: 'Advance both thrust levers to the stop.' },
+      thrustClosed: { label: 'Levers closed', detail: 'Bring both levers all the way back to idle.' },
+    } as const,
+    completionText:
+      'Controls free and correct. With both hands on the yoke, a narrow paper strip clipped to the column comes into view.',
+    disclaimer: 'The aircraft is parked and powered down. Nothing here commands the aeroplane.',
+  } as const,
+  instrumentScan: {
+    eyebrow: 'Right seat · instrument scan',
+    title: 'The scan he flew by',
+    intro:
+      'No screens, no map, no magenta line. Six dials in a fixed pattern, read in the same order every minute of every flight. Find each one as it is called.',
+    instruction: 'Click the gauge in the cockpit, or choose it from the list.',
+    prompts: {
+      airspeed: {
+        question: 'Which gauge shows how fast the aircraft is moving through the air?',
+        reading: 'Airspeed, in knots. The first number called on every takeoff roll.',
+        feedback: 'Correct — the airspeed indicator. Watch it run up and settle.',
+        retry: 'Not that one. Look to the inboard side of the panel, left of the big attitude ball.',
+        strongerHint: 'It sits at the top-left of the basic T, nearest the centre of the cockpit.',
+      },
+      attitude: {
+        question: 'Which instrument shows the aircraft’s pitch and bank against the horizon?',
+        reading: 'Attitude director indicator. A lit ball that stays level while the aeroplane moves around it.',
+        feedback: 'Correct — the attitude director indicator. The horizon rolls and re-levels.',
+        retry: 'Not that one. It is the largest dial in front of the right seat.',
+        strongerHint: 'Top-centre of the basic T, directly under the glareshield — the big ball.',
+      },
+      altimeter: {
+        question: 'Which gauge shows how high the aircraft is above sea level?',
+        reading: 'Altimeter, in feet, set against the barometric pressure of the day.',
+        feedback: 'Correct — the altimeter. The needle winds up through two thousand feet and back.',
+        retry: 'Not that one. Look outboard, to the right of the attitude ball.',
+        strongerHint: 'Top-right of the basic T, beside the window post.',
+      },
+      heading: {
+        question: 'Which instrument shows the heading the aircraft is pointing, with the course to fly?',
+        reading: 'Horizontal situation indicator. A rotating compass card with the selected course laid over it.',
+        feedback: 'Correct — the horizontal situation indicator. The card swings round to a new heading.',
+        retry: 'Not that one. It sits below the attitude ball, at the bottom of the T.',
+        strongerHint: 'Bottom-centre of the basic T: the round compass card.',
+      },
+      verticalSpeed: {
+        question: 'Which gauge shows how quickly the aircraft is climbing or descending?',
+        reading: 'Vertical speed, in feet per minute. Five hundred a minute on a gentle descent.',
+        feedback: 'Correct — the vertical speed indicator. The needle lifts to a thousand up and settles.',
+        retry: 'Not that one. It is the outboard dial, furthest from the cockpit centreline.',
+        strongerHint: 'Far right of the right-seat panel, outboard of the altimeter.',
+      },
+      epr: {
+        question: 'The JT8Ds were set by a pressure ratio, not by fan speed. Which pair of gauges is it?',
+        reading: 'Engine pressure ratio — the DC-9 thrust reference, one gauge per engine.',
+        feedback: 'Correct — the EPR gauges. Both needles spool up together and come back.',
+        retry: 'Not that one. Look to the engine stack in the centre of the panel, between the two seats.',
+        strongerHint: 'Centre panel, the top pair of engine dials above the N1 and EGT rows.',
+      },
+    } as const,
+    completionText: 'Instrument scan complete. The panel is read and the aircraft is ready to be put to bed.',
+    disclaimer: 'A power-on self-test on a parked aeroplane. The needles are showing what they can do, not what the aircraft is doing.',
+  } as const,
   routePuzzleAnswers: ['DTW', 'MSP', 'STL'] as const,
   routePuzzleOptions: [
     { code: 'DTW', city: 'Detroit', familiar: true },

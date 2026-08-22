@@ -1,0 +1,44 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached: the PREVIOUS VERSION of this exact six-pose row. Reproduce it
+  EXACTLY — the same six poses in the same order, the same man, the same scale, the same spacing,
+  the same magenta field, the same colours — changing ONLY the two things below.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s7-gag-poses-b.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+Reproduce the attached six-pose row EXACTLY, with exactly TWO changes:
+
+CHANGE 1 — RANK, on ALL SIX figures. Every navy epaulette currently carries THREE gold stripes. It
+must carry FOUR evenly spaced gold stripes. This man is a captain, and a captain wears four. Look
+at every shoulder board in every one of the six figures and make sure it has FOUR gold bars, not
+three. This is the single most important change.
+
+CHANGE 2 — the FIFTH figure only. Its hat is currently sitting level and neat on his head, which is
+wrong: that pose is the moment the hat lands back on his head BADLY. Tilt the hat steeply off
+level — rotated clearly to one side, sitting low and lopsided, obviously comically askew — while
+his raised hand reaches for the brim to fix it. The tilt must be big enough to read instantly at
+small size. The other five figures keep their hats exactly as they are.
+
+Nothing else changes: the same six poses, the same gold eyebrows, the same blond hair, the same
+face, the same uniform, the same magenta background, the same spacing and scale.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no fabric texture, no creases.
+- NO texture, NO noise, NO dithering, NO grain.
+- Eyes, eyebrows and mouth must each be a SOLID dark shape with strong contrast.
+
+Gold to use: bright gold #F5C424 with dark gold #CB8A06 shading.
+
+Absolutely NO text anywhere: no letters, no numbers, no pose labels, no watermark, no border,
+no caption, no grid lines. The cap badge is pure shapes.

@@ -16,6 +16,23 @@ import {
   type EngineOutTrait,
 } from './airbusScenario'
 import {
+  DC9_CONTROL_CHECK_ITEM_IDS,
+  dc9ControlCheckComplete,
+  dc9ControlCheckNextItem,
+  dc9ControlCheckReached,
+  type Dc9ControlCheckItemId,
+} from './dc9ControlCheck'
+import type { Dc9ControlState } from './dc9Input'
+import { DC9_INSTRUMENTS, type Dc9InstrumentId } from './dc9FlightDeck'
+import {
+  applyDc9InstrumentAnswer,
+  createInitialDc9InstrumentScanProgress,
+  dc9InstrumentScanComplete,
+  dc9InstrumentScanPrompt,
+  dc9InstrumentScanShowsFinalSupport,
+  type Dc9InstrumentScanProgress,
+} from './dc9InstrumentScan'
+import {
   airbusWorkloadHint,
   applyAirbusWorkloadAction,
   createInitialAirbusWorkloadProgress,
@@ -26,20 +43,24 @@ import {
   type AirbusWorkloadTaskId,
 } from './airbusWorkload'
 
-export const GAME_SCHEMA_VERSION = 12 as const
+export const GAME_SCHEMA_VERSION = 13 as const
 export const DC9_SECURE_ORDER = dc9LegacyFlow.secureSequence
 export const PUZZLE_IDS = ['dc9', 'locker', 'airbus'] as const
 export type GamePhase = 'briefing' | 'dc9' | 'locker' | 'airbus' | 'reward' | 'mars'
 export type Dc9ChapterStage =
+  | 'controlCheck'
   | 'intro'
   | 'routeRecord'
   | 'homeOperations'
+  | 'instrumentScan'
   | 'shutdown'
   | 'qualification'
   | 'keyReveal'
   | 'complete'
 export interface Dc9ChapterProgress {
   stage: Dc9ChapterStage
+  controlCheck: Dc9ControlCheckItemId[]
+  instrumentScan: Dc9InstrumentScanProgress
   routeSelections: string[]
   routeCompleted: string[]
   routeAttempts: number
@@ -79,6 +100,8 @@ export type GameAction =
   | { type: 'SUBMIT_LOCKER_ANSWER'; memoryId: LockerQuestionId; response: string }
   | { type: 'USE_LOCKER_HINT'; memoryId?: LockerQuestionId }
   | { type: 'CLAIM_CAPTAIN_HAT' }
+  | { type: 'APPLY_DC9_CONTROL_CHECK'; controls: Dc9ControlState }
+  | { type: 'IDENTIFY_DC9_INSTRUMENT'; instrument: Dc9InstrumentId }
   | { type: 'OPEN_DC9_ROUTE_RECORD' }
   | { type: 'TOGGLE_DC9_ROUTE'; code: string }
   | { type: 'SUBMIT_DC9_ROUTES' }
@@ -346,6 +369,20 @@ function hintFor(state: GameState): string {
     return `Look for ${available.map((id) => lockerFlow.memories[id].label).join(', ')}.`
   }
 
+  if (state.phase === 'dc9' && state.dc9.stage === 'controlCheck') {
+    const next = dc9ControlCheckNextItem(state.dc9.controlCheck)
+    return next
+      ? `${dc9LegacyFlow.controlCheck.items[next].detail} ${dc9LegacyFlow.controlCheck.instructions}`
+      : dc9LegacyFlow.controlCheck.completionText
+  }
+
+  if (state.phase === 'dc9' && state.dc9.stage === 'instrumentScan') {
+    const prompt = dc9InstrumentScanPrompt(state.dc9.instrumentScan)
+    return prompt
+      ? `${dc9LegacyFlow.instrumentScan.prompts[prompt].strongerHint} Looking for the ${DC9_INSTRUMENTS[prompt].label.toLowerCase()}.`
+      : dc9LegacyFlow.instrumentScan.completionText
+  }
+
   if (state.phase === 'dc9') {
     if (state.dc9.routeCompleted.length !== dc9LegacyFlow.routePuzzleAnswers.length) {
       return state.dc9.routeAttempts > 0
@@ -382,7 +419,9 @@ export function createInitialState(): GameState {
     lockerIntroCompleted: false,
     lockerHatRevealed: false,
     dc9: {
-      stage: 'intro',
+      stage: 'controlCheck',
+      controlCheck: [],
+      instrumentScan: createInitialDc9InstrumentScanProgress(),
       routeSelections: [],
       routeCompleted: [],
       routeAttempts: 0,
@@ -409,7 +448,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         phase: 'dc9',
-        statusMessage: 'The parked DC-9 is ready. Find the route strip on the first-officer yoke.',
+        statusMessage: 'The parked DC-9 is ready. Walk every right-seat control to its stops.',
       }
 
     case 'OPEN_DC9_ROUTE_RECORD':
@@ -511,10 +550,69 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         dc9: {
           ...state.dc9,
-          stage: 'shutdown',
+          stage: 'instrumentScan',
           homeOperationsCompleted: true,
         },
-        statusMessage: dc9LegacyFlow.secureInstruction,
+        statusMessage: dc9LegacyFlow.instrumentScan.intro,
+      }
+    }
+
+    case 'APPLY_DC9_CONTROL_CHECK': {
+      if (state.phase !== 'dc9' || state.dc9.stage !== 'controlCheck') return state
+      const reached = dc9ControlCheckReached(action.controls, state.dc9.controlCheck)
+      if (reached.length === 0) return state
+      const controlCheck = DC9_CONTROL_CHECK_ITEM_IDS.filter(
+        (id) => state.dc9.controlCheck.includes(id) || reached.includes(id),
+      )
+      if (dc9ControlCheckComplete(controlCheck)) {
+        return {
+          ...state,
+          dc9: { ...state.dc9, stage: 'intro', controlCheck },
+          statusMessage: dc9LegacyFlow.controlCheck.completionText,
+        }
+      }
+      const remaining = DC9_CONTROL_CHECK_ITEM_IDS.length - controlCheck.length
+      const justChecked = reached[reached.length - 1]
+      const checkedLabel = justChecked ? dc9LegacyFlow.controlCheck.items[justChecked].label : 'Control'
+      return {
+        ...state,
+        dc9: { ...state.dc9, controlCheck },
+        statusMessage: `${checkedLabel} checked. `
+          + `${remaining} control movement${remaining === 1 ? '' : 's'} remaining.`,
+      }
+    }
+
+    case 'IDENTIFY_DC9_INSTRUMENT': {
+      if (state.phase !== 'dc9' || state.dc9.stage !== 'instrumentScan') return state
+      const prompt = dc9InstrumentScanPrompt(state.dc9.instrumentScan)
+      if (prompt === null) return state
+      const result = applyDc9InstrumentAnswer(state.dc9.instrumentScan, action.instrument)
+      if (result.outcome === 'ignored') return state
+      if (result.outcome === 'incorrect') {
+        const copy = dc9LegacyFlow.instrumentScan.prompts[prompt]
+        return {
+          ...state,
+          dc9: { ...state.dc9, instrumentScan: result.progress },
+          statusMessage: dc9InstrumentScanShowsFinalSupport(result.progress)
+            ? `${copy.strongerHint} It is outlined for you now.`
+            : result.progress.attempts >= 2
+              ? copy.strongerHint
+              : copy.retry,
+        }
+      }
+      const identifiedCopy = dc9LegacyFlow.instrumentScan.prompts[prompt]
+      if (dc9InstrumentScanComplete(result.progress)) {
+        return {
+          ...state,
+          dc9: { ...state.dc9, stage: 'shutdown', instrumentScan: result.progress },
+          statusMessage: `${identifiedCopy.feedback} ${dc9LegacyFlow.instrumentScan.completionText} `
+            + dc9LegacyFlow.secureInstruction,
+        }
+      }
+      return {
+        ...state,
+        dc9: { ...state.dc9, instrumentScan: result.progress },
+        statusMessage: `${identifiedCopy.feedback} ${identifiedCopy.reading}`,
       }
     }
 

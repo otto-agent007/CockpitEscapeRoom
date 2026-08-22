@@ -1,0 +1,47 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- TWO reference images are attached.
+  * Reference 1 is the PREVIOUS VERSION of this exact sheet. Reproduce it EXACTLY — the same three
+    head-and-shoulders views of the same man, same order, same size, same eye line, same spacing,
+    same charcoal field, same face, same hat, same palette, same lighting — changing ONLY the two
+    things listed below. It is the authority for everything not listed.
+  * Reference 2 is the original cartoon character on a magenta field. It is the authority for ONE
+    thing only: the SHAPE OF HIS HAIR. Do not copy its rendering, framing or proportions.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s6-popt-identity-sheet-b.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+Reproduce the attached identity sheet (reference 1) EXACTLY, with exactly TWO changes:
+
+CHANGE 1 — RANK. Every navy epaulette on every one of the three views must carry FOUR gold
+stripes, not three. Four evenly spaced gold bars on each shoulder board, in all three views. This
+man is a captain; three stripes is the wrong rank. Count them: four.
+
+CHANGE 2 — HAIR SHAPE. Give him the hair shape of reference 2: golden-yellow hair swept FORWARD,
+coming to distinct pointed spikes at the temple where it meets the face, and a clear pointed wedge
+of sideburn hair in front of the ear. The hair should read spiky and swept, not as a smooth round
+helmet or bowl. This matters most in the right-hand profile view, which currently has no spikes at
+all. Keep the hair colour exactly as it is in reference 1.
+
+Everything else is unchanged: the same face, the same blond eyebrows, the same calm closed-mouth
+expression, the same captain's hat with its gold cord and round badge, the same white shirt and
+navy tie, the same charcoal background, the same three viewing angles.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow; one flat pale wedge is allowed on the glossy visor only.
+- NO texture, NO noise, NO dithering, NO grain.
+
+Gold to use: bright gold #F5C424 with dark gold #CB8A06 shading.
+
+Absolutely NO text anywhere: no letters, no numbers, no labels under the views, no monograms, no
+watermark, no border, no caption. The cap badge is pure shapes.

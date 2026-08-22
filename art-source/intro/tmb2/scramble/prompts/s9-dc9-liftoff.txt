@@ -1,0 +1,61 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- ONE reference image is attached: a night hangar scene containing THIS EXACT AIRCRAFT in side
+  view. It is the authority for the aircraft type and its livery — the shape of the fuselage and
+  wings, the two rear-fuselage engines, the T-tail, the white and light-grey body, the red fin and
+  the roundel on it. Copy those faithfully. Ignore its hangar, lighting and camera entirely.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s9-dc9-liftoff.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+A flat cel-shaded 2D game sprite of the McDonnell Douglas DC-9 jetliner from the attached
+reference, now climbing steeply after takeoff, seen from BELOW AND BEHIND-LEFT so its pale belly
+and left flank face the viewer, nose pitched up about thirty degrees toward the upper right. The
+aircraft fills the frame. Nothing else is in the picture.
+
+THE AIRCRAFT IS A TWIN-ENGINE JET. This is the single most important requirement:
+- It has EXACTLY TWO engines. Both are slim cigar-shaped nacelles mounted on the SIDES of the REAR
+  fuselage, just ahead of the tail, one on each side.
+- There is NO third engine. There is NO engine, air intake, inlet duct, opening or hole anywhere
+  in the vertical fin, at the base of the fin, or in the top of the rear fuselage. The fin is a
+  solid, smooth, unbroken red surface with no opening in it of any kind.
+- There are NO engines mounted under or on the wings. The wings are completely clean.
+
+The rest of the aircraft:
+- A long narrow tubular fuselage, off-white underside and light warm grey upper surfaces, with a
+  single row of small dark square windows.
+- Low-mounted swept wings, thin and clean, spread to the sides.
+- A T-TAIL: the vertical fin rises from the rear fuselage and the horizontal stabiliser sits
+  across the very TOP of it, forming a clear letter T.
+- The whole vertical fin is bright signal red. On the fin is a WHITE CIRCULAR DISC containing a
+  solid GREY TRIANGLE that points DOWNWARD, exactly as on the reference aircraft.
+- Landing gear fully retracted with all gear doors closed and flush. No wheels visible.
+- No exhaust trails, no smoke, no vapour, no speed lines, no motion streaks of any kind. The
+  silhouette must be clean and closed, with nothing hanging off the wings or the engines.
+
+This sprite will be shown at sizes down to 48 pixels wide, so every shape must be bold, simple and
+clearly separated. Avoid thin slivers and narrow protrusions that would disappear or turn to mush
+when reduced.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material, every region one flat colour with a hard edge.
+- No gradients, no glow, no specular highlights, no texture, no noise, no dithering.
+
+Palette: near-black #0A0F22, steel blue #323E60, warm grey #B9BCC0, off-white #FFFDF0, signal red
+#C8102E, dark metal #4A5674.
+
+Background: a completely flat solid pure magenta field, RGB 255 0 255, filling the entire canvas
+edge to edge. The magenta must appear NOWHERE on the aircraft. No ground, no sky, no clouds, no
+shadow, no border, no watermark, no checkerboard.
+
+Absolutely NO lettering, numbers, registration marks, airline names or logos anywhere on the
+aircraft. The fin roundel is pure shapes: a white disc with a grey downward triangle.

@@ -1,0 +1,39 @@
+Generate exactly ONE image using your BUILT-IN `image_gen` tool.
+
+Constraints on HOW you generate:
+- Built-in `image_gen` only. Do NOT use any MCP server and do NOT use `scripts/image_gen.py` or
+  anything reading OPENAI_API_KEY. This must run on the ChatGPT plan. If the built-in tool is
+  unavailable, stop and say so.
+- Size 1536x1024 landscape, highest quality. Generate once, no variants.
+- Report the NATIVE size the tool returned and do NOT resize or upscale the result.
+- One reference image is attached: a card showing the gold wings badge whose feather style and
+  gold palette the emblem must match.
+
+Then copy the result to exactly:
+  /mnt/2TBHDD/CockpitEscapeRoom/art-source/intro/tmb2/scramble/generated/s5-emblem-finale.png
+Print the absolute path and pixel dimensions. Change no other file, do not run git.
+
+=== THE IMAGE PROMPT (use verbatim) ===
+
+A flat cel-shaded 2D emblem in clean 16-bit video-game style: a single winged-globe insignia,
+centred, filling most of the frame width.
+
+The emblem: a deep blue globe at the centre with simple gold meridian and equator lines and a
+gold ring around it, flanked left and right by two broad spread WINGS of layered gold feathers
+in the same style as the wings badge in the attached reference — three tiers of feathers each
+side, bright gold with one darker gold shade. Beneath the globe, a small flowing signal-red
+ribbon banner with a thin gold edge, completely BLANK with no lettering. Nothing else — no key,
+no characters, no stars, no rays (light rays are drawn by the game at runtime).
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material: a base, one darker shade, one lighter shade.
+- Every colour region is a solid area of ONE flat colour with a hard edge. No gradients, no
+  blending, no soft edges, no glow, no bloom.
+- NO specular highlights, NO texture, NO noise, NO dithering, NO grain.
+
+Palette to draw from: gold #F5C424, dark gold #CB8A06, deep blue #1A3C8C, navy #1A203F,
+signal red #C8102E, off-white #FFFDF0.
+
+Background: a completely flat solid pure magenta field, RGB 255 0 255, filling the entire canvas
+edge to edge. The magenta must appear NOWHERE on the emblem. No ground, no shadow, no text, no
+border, no watermark, no checkerboard.
