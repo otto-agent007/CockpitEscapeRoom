@@ -23,6 +23,53 @@ function rewardState(overrides: Partial<GameState> = {}): GameState {
   }
 }
 
+/**
+ * Records every value `data-reward-pose` ever takes, from the first frame the
+ * canvas exists.
+ *
+ * The cinematic advances on wall time, so sampling the attribute after waiting
+ * for the model to load asserts whatever the clock happens to say by then. On a
+ * CI runner the clip had already reached 10.955s and the pose had left `stowed`
+ * for `deployed`, so the test failed for being slow rather than for being wrong
+ * — reproduced locally at 20x CPU throttling, where the pose leaves `stowed` at
+ * clip time 9.7s. Watching the sequence tests the actual contract, that the
+ * reveal begins stowed, at any machine speed.
+ */
+async function recordRewardPoses(page: Page) {
+  await page.addInitScript(() => {
+    const seen: string[] = []
+    Object.defineProperty(window, '__rewardPoses', { configurable: true, get: () => seen })
+    const record = () => {
+      // Query by the attribute, not by tag: another canvas can be in the DOM
+      // first, and `querySelector('canvas')` then returns one that never
+      // carries a pose, so nothing is ever recorded.
+      const pose = document.querySelector('canvas[data-reward-pose]')?.getAttribute('data-reward-pose')
+      if (pose && seen[seen.length - 1] !== pose) seen.push(pose)
+    }
+    // Init scripts run before the document exists, so observing
+    // documentElement here throws and the recorder is silently never
+    // installed. Wait for a root to attach to.
+    const install = () => {
+      if (!document.documentElement) {
+        setTimeout(install, 0)
+        return
+      }
+      new MutationObserver(record).observe(document.documentElement, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ['data-reward-pose'],
+      })
+      record()
+    }
+    install()
+  })
+}
+
+async function observedPoses(page: Page): Promise<string[]> {
+  return page.evaluate(() => (window as unknown as { __rewardPoses: string[] }).__rewardPoses ?? [])
+}
+
 async function seed(page: Page, state: GameState) {
   await page.evaluate(({ key, value }) => {
     localStorage.setItem(key, JSON.stringify(value))
@@ -50,6 +97,7 @@ test('protects the Model Y request until the reward phase', async ({ page }) => 
 test('plays the authored reward and provides Skip and Replay', async ({ page }) => {
   test.setTimeout(60_000)
   await page.setViewportSize({ width: 1440, height: 900 })
+  await recordRewardPoses(page)
   await page.goto('/')
   await seed(page, rewardState())
 
@@ -59,7 +107,9 @@ test('plays the authored reward and provides Skip and Replay', async ({ page }) 
     { timeout: 15_000 },
   ).toBe(1440)
   await expect(page.locator('canvas')).toHaveAttribute('data-reward-camera', 'game')
-  await expect(page.locator('canvas')).toHaveAttribute('data-reward-pose', 'stowed')
+  // The reveal must BEGIN stowed. Asserting the attribute here would instead
+  // assert how fast this machine is — see recordRewardPoses.
+  await expect.poll(async () => (await observedPoses(page))[0], { timeout: 15_000 }).toBe('stowed')
   const skipButton = page.getByRole('button', { name: 'Skip cinematic' })
   await expect(skipButton).toBeVisible()
   await page.keyboard.press('Tab')
@@ -135,7 +185,11 @@ test('failed reward loading preserves the tribute and offers retry or accessible
   await page.goto('/')
   await seed(page, rewardState())
 
-  await expect(page.getByRole('alert')).toContainText('Your completed journey is safe.')
+  // The tribute alert renders only once the loader gives up on the GLB, measured
+  // at ~6s under CPU throttling against the 5s default.
+  await expect(page.getByRole('alert')).toContainText('Your completed journey is safe.', {
+    timeout: 30_000,
+  })
   await expect(page.getByText(/Your crew loves you/)).toBeVisible()
   await page.getByRole('button', { name: 'Retry 3D' }).click()
   await expect.poll(() => requests).toBe(2)
