@@ -1,6 +1,49 @@
 # Test report
 
 
+## 2026-08-23 DC-9 overhead switch markers, look-down key cue, key laid along the ledge
+
+- **Yellow markers on the three shutdown switches, measured on the real GLB at 1440x900.**
+  `apuBuses 88x63 at 243,484`, `apuMaster 85x63 at 418,523`, `battery 81x60 at 496,558`; exactly one
+  carries `is-next`, and securing the APU buses moves `is-next` to the APU master while the first
+  box turns `is-complete` — every box stays at the same coordinates. The markers are
+  `pointer-events: none` so the click still reaches the switch in the 3D scene, which the
+  real-asset e2e test now asserts alongside the mesh click it already made.
+- **The cue rule had to be measured twice, and the first version was wrong on every narrow screen.**
+  The trigger is the key's angle below the view centre as a fraction of the vertical half-angle, not
+  its visibility: after a full pan right the key is on screen but 1 px from the bottom edge behind
+  the status bar. Measured after the pan: **0.92** of the half-angle at 1440x900 and **0.78** at both
+  768x1024 and 375x812 (narrow screens use the 76-degree field); after pitching down to the seat's
+  limit, **0.62** and **0.52**. A threshold of 0.80 passed at 1440 and silently failed at 768 and
+  375; it is now **0.70**, with 0.08 of margin either side.
+- **A second narrow-screen bug found by the same sweep.** At 375x812 the horizontal half-angle is
+  0.35 rad, so at the right-hand yaw stop the key is still 0.028 rad past the edge — the cue kept
+  saying "keep panning right" when there was no pan left. Horizontal excess under 0.06 rad now
+  counts as a finished pan. The component also no longer invents a "right" arrow when the projector
+  has no opinion, which is what had been hiding the stuck state.
+- **Journey re-measured at all three widths**, panning in strokes that fit the viewport (Playwright
+  clamps pointer coordinates, so one long drag silently pans a fraction as far on a phone):
+  1440x900, 768x1024 and 375x812 all read **right → down → clear**.
+- **Key rotation.** Read from the GLB with `@gltf-transform`: mesh 0.185 x 0.033 x 0.084 on X/Y/Z
+  with identity rotation, so it was already flat but lying across the fore-and-aft ledge. Corrected
+  with a runtime `+90°` yaw on both the prop and its collider, covered by four unit tests
+  (position unchanged, long axis moves from lateral to fore-and-aft, thickness unchanged so it
+  cannot have been stood on edge, collider still coincident, idempotent). Before/after render
+  captured.
+- **`npm run check`** — ESLint, `tsc -b`, **425/425 Vitest across 33 files**, production build:
+  pass. **`npx playwright test e2e/smoke.spec.ts`** — **30 passed, 1 skipped**, including the
+  2.5-minute real-GLB DC-9 test.
+- One e2e assertion had to change rather than be dropped: the old cue was one glyph run and the test
+  asserted `font-size >= 56`, which is meaningless for chevrons drawn from borders. It now asserts
+  the cue's rendered box is at least 56 px on its long edge, that it has three arrows, and — new
+  coverage — that it turns from `right` to `down` after the pan and clears only after the player
+  looks down.
+- Owner-review screenshots at 1440 / 768 / 375 in `preview-renders/dc9-overhead-and-key/`.
+- Known and not fixed: at 375x812 only the battery marker draws, because the shutdown stage's
+  approved framing leaves the other two outside the frame or within the 48 px edge clearance a
+  labelled marker needs. Changing that means changing approved camera framing.
+
+
 ## 2026-08-23 DC-9 loading page, clean chapter frame, Legacy Route Record facelift
 
 - **Loading page proved against the real 36.1 MB GLB, not a stub.** Chromium with a 6 Mbit/s CDP

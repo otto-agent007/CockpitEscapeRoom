@@ -11,6 +11,20 @@ import type { Dc9ControlState, Dc9HoldControl, Dc9InputMethod } from '../../game
 import type { Dc9HotspotScreenPositions, Dc9LoadState } from '../../scenes/PrototypeScene'
 import './dc9Chapter.css'
 
+/**
+ * Smallest on-screen edge for a switch marker, so a 42 mm collider stays pointable. The
+ * colliders are deliberately separated in 3D, so the marker grows as little as it can get
+ * away with or the three boxes start overlapping again on screen.
+ */
+const DC9_SECURE_MARKER_MIN_PX = 44
+
+/**
+ * How far across the viewport the look-down cue may track the key. The right-hand stop keeps
+ * it clear of the fullscreen and help buttons pinned to the bottom-right corner, which it
+ * otherwise sits on top of at 375 and 768.
+ */
+const DC9_KEY_CUE_TRACK_RANGE = ['15%', '80%'] as const
+
 interface Dc9ChapterProps {
   state: GameState
   dispatch: React.Dispatch<GameAction>
@@ -54,6 +68,16 @@ export function Dc9Chapter({
   const routeTriggerVisible = routeTriggerStageVisible && (routeProjected || routeFallback || routeKeyboardOnly)
   const keyProjected = loadState.status === 'ready' && keyProjection?.visible === true
   const keyFallback = loadState.status === 'accessible-fallback' || loadState.status === 'error'
+  // The key sits low on the ledge beside the seat, so it is off both the right edge and the
+  // bottom edge to start with. The projector reports whichever way is further out of view,
+  // which turns the cue from "scan right" into "look down" once the pan has come round.
+  // Only the two directions the seat can actually produce get a cue. Anything else is the
+  // projector saying it has no useful instruction, which is better than a wrong arrow.
+  const keyScanCue = keyTriggerVisible
+    && loadState.status === 'ready'
+    && (keyProjection?.offscreen === 'down' || keyProjection?.offscreen === 'right')
+    ? keyProjection.offscreen
+    : null
 
   useEffect(() => {
     if (!restoreKeyFocus) return
@@ -143,6 +167,33 @@ export function Dc9Chapter({
 
       {state.dc9.stage === 'homeOperations' ? <HomeOperationsLog progress={state.dc9} dispatch={dispatch} /> : null}
 
+      {state.dc9.stage === 'shutdown' && loadState.status === 'ready' ? (
+        <div className="dc9-secure-markers" aria-hidden="true">
+          {DC9_SECURE_ORDER.map((controlId) => {
+            const projection = hotspots[`dc9.secure.${controlId}`]
+            if (!projection?.inView || projection.width === undefined || projection.height === undefined) return null
+            const complete = state.dc9.secureSequence.includes(controlId)
+            const next = DC9_SECURE_ORDER[state.dc9.secureSequence.length] === controlId
+            // The colliders are 42 mm cubes, so on a wide view they project to a box too
+            // small to read as a target. Grow the marker without moving its centre.
+            const width = Math.max(projection.width + 6, DC9_SECURE_MARKER_MIN_PX)
+            const height = Math.max(projection.height + 6, DC9_SECURE_MARKER_MIN_PX)
+            return (
+              <span
+                key={controlId}
+                className={`dc9-secure-marker${complete ? ' is-complete' : next ? ' is-next' : ''}`}
+                data-control={controlId}
+                style={{ left: projection.x, top: projection.y, width, height }}
+              >
+                <span className="dc9-secure-marker__label">
+                  {dc9LegacyFlow.secureControls[controlId].shortLabel}
+                </span>
+              </span>
+            )
+          })}
+        </div>
+      ) : null}
+
       {state.dc9.stage === 'shutdown' ? (
         <section className="dc9-shutdown" aria-labelledby="dc9-shutdown-title">
           <p className="eyebrow">Ceremonial shutdown</p>
@@ -199,8 +250,19 @@ export function Dc9Chapter({
         </section>
       ) : null}
 
-      {keyTriggerVisible && loadState.status === 'ready' && !keyProjected ? (
-        <div className="dc9-key-scan-cue" aria-hidden="true">&gt;&gt;&gt;</div>
+      {keyScanCue ? (
+        <div
+          className={`dc9-key-scan-cue dc9-key-scan-cue--${keyScanCue}`}
+          data-cue={keyScanCue}
+          aria-hidden="true"
+          // The key can project thousands of pixels off the edge, so CSS clamps the cue
+          // back into the viewport rather than the component guessing at its width.
+          style={keyScanCue === 'down' && Number.isFinite(keyProjection?.x)
+            ? { left: `clamp(${DC9_KEY_CUE_TRACK_RANGE[0]}, ${Math.round(keyProjection?.x ?? 0)}px, ${DC9_KEY_CUE_TRACK_RANGE[1]})` }
+            : undefined}
+        >
+          <span /><span /><span />
+        </div>
       ) : null}
 
       {keyTriggerVisible ? (

@@ -16,6 +16,9 @@ import {
   createDc9GaugeTargets,
   dc9SelfTestChannelValues,
   dc9YokeDemandFromDrag,
+  DC9_KEY_NODES,
+  DC9_KEY_YAW_CORRECTION,
+  applyDc9KeyYawCorrection,
   DC9_OVERHEAD_HITBOX_EDGE_METRES,
   DC9_OVERHEAD_HITBOX_NODES,
   separateDc9OverheadHitboxes,
@@ -331,5 +334,65 @@ describe('separateDc9OverheadHitboxes', () => {
     expect(separateDc9OverheadHitboxes(root)).toBe(0)
     expect(boxes(root).map((box) => box.getSize(new THREE.Vector3()).x)).toEqual(after)
     expect(separateDc9OverheadHitboxes(new THREE.Object3D())).toBe(0)
+  })
+})
+
+describe('applyDc9KeyYawCorrection', () => {
+  function ledge(): THREE.Object3D {
+    const root = new THREE.Object3D()
+    for (const name of DC9_KEY_NODES) {
+      const node = new THREE.Object3D()
+      node.name = name
+      // Both the prop and its collider are placed at the same point on the ledge.
+      node.position.set(1.168, 0.122, 3.012)
+      root.add(node)
+    }
+    // The prop's mesh runs along local X, which is what the quarter turn swings to Z.
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(0.185, 0.033, 0.084))
+    mesh.name = 'DC9_PROP_CAPTAINS_KEY_MESH'
+    root.getObjectByName('DC9_PROP_CAPTAINS_KEY')?.add(mesh)
+    root.updateMatrixWorld(true)
+    return root
+  }
+
+  it('swings the key a quarter turn about the vertical axis without moving it', () => {
+    const root = ledge()
+    expect(applyDc9KeyYawCorrection(root)).toBe(DC9_KEY_NODES.length)
+    for (const name of DC9_KEY_NODES) {
+      const node = root.getObjectByName(name)
+      if (!node) throw new Error(`missing ${name}`)
+      expect(node.getWorldPosition(new THREE.Vector3()).toArray()).toEqual([1.168, 0.122, 3.012])
+      expect(node.rotation.y).toBeCloseTo(DC9_KEY_YAW_CORRECTION, 9)
+      expect(node.rotation.x).toBeCloseTo(0, 9)
+      expect(node.rotation.z).toBeCloseTo(0, 9)
+    }
+  })
+
+  it('turns the long axis of the key from lateral to fore-and-aft', () => {
+    const root = ledge()
+    const before = new THREE.Box3().setFromObject(root.getObjectByName('DC9_PROP_CAPTAINS_KEY')!).getSize(new THREE.Vector3())
+    expect(before.x).toBeGreaterThan(before.z)
+    applyDc9KeyYawCorrection(root)
+    const after = new THREE.Box3().setFromObject(root.getObjectByName('DC9_PROP_CAPTAINS_KEY')!).getSize(new THREE.Vector3())
+    expect(after.z).toBeGreaterThan(after.x)
+    // A yaw cannot stand the key up: it stays as flat on the ledge as it started.
+    expect(after.y).toBeCloseTo(before.y, 6)
+  })
+
+  it('keeps the collider on the key', () => {
+    const root = ledge()
+    applyDc9KeyYawCorrection(root)
+    const prop = root.getObjectByName('DC9_PROP_CAPTAINS_KEY')
+    const collider = root.getObjectByName('DC9_HITBOX_CAPTAINS_KEY')
+    if (!prop || !collider) throw new Error('missing key nodes')
+    expect(collider.quaternion.angleTo(prop.quaternion)).toBeCloseTo(0, 9)
+  })
+
+  it('is safe to run twice and on a cockpit that lacks the nodes', () => {
+    const root = ledge()
+    applyDc9KeyYawCorrection(root)
+    expect(applyDc9KeyYawCorrection(root)).toBe(0)
+    expect(root.getObjectByName('DC9_PROP_CAPTAINS_KEY')?.rotation.y).toBeCloseTo(DC9_KEY_YAW_CORRECTION, 9)
+    expect(applyDc9KeyYawCorrection(new THREE.Object3D())).toBe(0)
   })
 })

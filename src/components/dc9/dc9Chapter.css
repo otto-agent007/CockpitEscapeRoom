@@ -529,19 +529,118 @@
   color: #a9c7b1;
 }
 
+/* Overhead shutdown markers -----------------------------------------------
+   The three switches sit 70 mm apart on the overhead panel and read as identical
+   black toggles from the seat, so each gets a yellow box on the cockpit itself.
+   These are sight guides only: the click goes through to the switch, and the
+   shutdown panel beside them is the accessible control. */
+
+.dc9-secure-markers {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.dc9-secure-marker {
+  position: absolute;
+  display: block;
+  border: 2px solid rgb(255 210 63 / 55%);
+  border-radius: .2rem;
+  box-shadow: 0 0 0 1px rgb(24 18 4 / 45%), 0 0 1.1rem rgb(255 210 63 / 22%);
+  transform: translate(-50%, -50%);
+}
+
+.dc9-secure-marker__label {
+  position: absolute;
+  bottom: calc(100% + .3rem);
+  left: 50%;
+  padding: .1rem .34rem;
+  border: 1px solid rgb(255 210 63 / 45%);
+  color: #ffd23f;
+  background: rgb(10 16 18 / 88%);
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+/* The next switch in the shutdown order is the only one the player should touch. */
+.dc9-secure-marker.is-next {
+  border-color: #ffd23f;
+  background: rgb(255 210 63 / 10%);
+  box-shadow: 0 0 0 1px rgb(24 18 4 / 55%), 0 0 1.6rem rgb(255 210 63 / 55%);
+  animation: dc9-secure-marker-pulse 1.4s ease-in-out infinite alternate;
+}
+
+.dc9-secure-marker.is-complete {
+  border-color: rgb(139 187 154 / 65%);
+  box-shadow: none;
+}
+
+.dc9-secure-marker.is-complete .dc9-secure-marker__label {
+  border-color: rgb(139 187 154 / 45%);
+  color: #a9c7b1;
+}
+
+@keyframes dc9-secure-marker-pulse {
+  from { box-shadow: 0 0 0 1px rgb(24 18 4 / 55%), 0 0 .7rem rgb(255 210 63 / 34%); }
+  to { box-shadow: 0 0 0 1px rgb(24 18 4 / 55%), 0 0 1.9rem rgb(255 210 63 / 72%); }
+}
+
+/* Key scan cue -------------------------------------------------------------
+   Chevrons drawn from borders rather than glyphs, so the arrow shape does not
+   depend on which monospace font the browser picked. */
+
 .dc9-key-scan-cue {
   position: absolute;
   z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  color: #ffd23f;
+  filter: drop-shadow(0 0 .55rem rgb(0 0 0 / 85%)) drop-shadow(0 0 .9rem rgb(255 210 63 / 75%));
+}
+
+.dc9-key-scan-cue span {
+  width: clamp(1.15rem, 2.2vw, 1.7rem);
+  height: clamp(1.15rem, 2.2vw, 1.7rem);
+  border-right: .34rem solid currentColor;
+  border-bottom: .34rem solid currentColor;
+  opacity: .35;
+  animation: dc9-key-scan 1.35s ease-in-out infinite;
+}
+
+.dc9-key-scan-cue span:nth-child(2) { animation-delay: .18s; }
+.dc9-key-scan-cue span:nth-child(3) { animation-delay: .36s; }
+
+.dc9-key-scan-cue--right {
   top: 50%;
-  right: 1.25rem;
-  color: #f3ce75;
-  font-family: ui-monospace, monospace;
-  font-size: clamp(2.6rem, 5vw, 4rem);
-  font-weight: 900;
-  letter-spacing: -.08em;
-  text-shadow: 0 0 1.4rem rgb(240 200 117 / 72%);
+  right: 1.75rem;
   transform: translateY(-50%);
-  animation: dc9-key-scan 1.25s ease-in-out infinite alternate;
+}
+
+.dc9-key-scan-cue--right span {
+  rotate: -45deg;
+}
+
+/* Three arrows straight down the view, once the pan has brought the ledge round. */
+.dc9-key-scan-cue--down {
+  bottom: 7.5rem;
+  flex-direction: column;
+  transform: translateX(-50%);
+}
+
+.dc9-key-scan-cue--down span {
+  rotate: 45deg;
+}
+
+@keyframes dc9-key-scan {
+  0% { opacity: .25; }
+  45% { opacity: 1; }
+  100% { opacity: .25; }
 }
 
 .dc9-key-trigger {
@@ -606,11 +705,6 @@
   outline: 2px solid #f0c875;
   outline-offset: .25rem;
   transform: translateY(-50%);
-}
-
-@keyframes dc9-key-scan {
-  from { opacity: .5; transform: translate(-.35rem, -50%); }
-  to { opacity: 1; transform: translate(.2rem, -50%); }
 }
 
 .dc9-chapter__load-error {
@@ -730,9 +824,16 @@
   .dc9-route-choice,
   .dc9-route-record-trigger,
   .dc9-key-trigger,
-  .dc9-key-scan-cue {
+  .dc9-key-scan-cue,
+  .dc9-key-scan-cue span,
+  .dc9-secure-marker {
     animation: none;
     transition: none;
+  }
+
+  /* Without the pulse the chevrons still have to be readable. */
+  .dc9-key-scan-cue span {
+    opacity: 1;
   }
 }
 .dc9-atp-gate {

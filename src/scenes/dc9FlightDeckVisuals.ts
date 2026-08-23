@@ -211,6 +211,40 @@ export const DC9_OVERHEAD_HITBOX_NODES = [
  */
 export const DC9_OVERHEAD_HITBOX_EDGE_METRES = 0.042
 
+/**
+ * The golden key and its hit volume, which are placed at the same point on the ledge
+ * beside the first-officer seat.
+ */
+export const DC9_KEY_NODES = ['DC9_PROP_CAPTAINS_KEY', 'DC9_HITBOX_CAPTAINS_KEY'] as const
+
+/**
+ * The donor key lies flat but along the aircraft's lateral axis, so from the right seat it
+ * points away from the viewer and reads as a smudge on the ledge rather than as a key.
+ * A quarter turn about the vertical axis lays it along the ledge and turns it broadside to
+ * the seat. Both the prop and its collider sit at the same origin, so rotating each about
+ * its own origin keeps the hit volume on the key.
+ *
+ * This is a runtime correction, in the same spirit as the flight-deck pivots rebuilt above
+ * the donor draw ranges. The durable fix is `KEY_ROTATION` in
+ * `tools/blender/import_dc9_golden_key.py`, which needs a full asset rebuild.
+ */
+export const DC9_KEY_YAW_CORRECTION = Math.PI / 2
+
+export function applyDc9KeyYawCorrection(root: THREE.Object3D, yaw = DC9_KEY_YAW_CORRECTION): number {
+  let rotated = 0
+  for (const name of DC9_KEY_NODES) {
+    const node = root.getObjectByName(name)
+    // Cloned scenes carry userData across, so the flag also stops a second pass on a
+    // cockpit that was already corrected.
+    if (!node || node.userData.dc9KeyYawCorrected === true) continue
+    node.rotateY(yaw)
+    node.userData.dc9KeyYawCorrected = true
+    rotated += 1
+  }
+  if (rotated > 0) root.updateMatrixWorld(true)
+  return rotated
+}
+
 export function separateDc9OverheadHitboxes(root: THREE.Object3D): number {
   let adjusted = 0
   for (const name of DC9_OVERHEAD_HITBOX_NODES) {

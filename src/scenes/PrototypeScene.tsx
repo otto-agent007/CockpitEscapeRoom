@@ -53,6 +53,7 @@ import {
   createDc9GaugeTargets,
   dc9SelfTestChannelValues,
   dc9YokeDemandFromDrag,
+  applyDc9KeyYawCorrection,
   separateDc9OverheadHitboxes,
   type Dc9ActiveSelfTest,
   type Dc9JointHandle,
@@ -197,7 +198,22 @@ export type Dc9LoadState = {
   totalBytes?: number
   percentage?: number
 }
-export type Dc9HotspotScreenPositions = Record<string, { x: number; y: number; visible: boolean; width?: number; height?: number }>
+/** Which way the player has to look to bring a target into comfortable view. */
+export type Dc9OffscreenDirection = 'left' | 'right' | 'up' | 'down'
+export type Dc9HotspotScreenPositions = Record<string, {
+  x: number
+  y: number
+  visible: boolean
+  width?: number
+  height?: number
+  offscreen?: Dc9OffscreenDirection
+  /**
+   * The projected centre is far enough inside the viewport to hang a labelled marker on.
+   * `visible` only says the point is inside the frustum, which on a portrait phone is true
+   * for a switch sitting exactly on the left edge.
+   */
+  inView?: boolean
+}>
 
 interface PrototypeSceneProps {
   phase: Exclude<GamePhase, 'briefing' | 'reward' | 'mars'>
@@ -2462,6 +2478,81 @@ function Dc9YokeDragControls({
   return null
 }
 
+/**
+ * Clearance a projected centre needs from the viewport edge before a labelled marker is
+ * worth drawing on it: half the smallest marker plus room for its caption.
+ */
+const DC9_MARKER_EDGE_MARGIN_PX = 48
+
+/**
+ * Horizontal excess below which a sideways cue stops being worth showing, in radians.
+ *
+ * The seat's yaw stops are tighter than the cockpit is wide, so on a portrait phone the key
+ * is still 1.6 degrees past the right edge when the player has already panned to the stop:
+ * "keep going right" is then an instruction they cannot follow. Anything under this is
+ * treated as a finished pan so the vertical rule below can take over. It sits far under the
+ * frustum half-angles in play, which run from 0.35 to 0.79 radians.
+ */
+const DC9_LOOK_HINT_SETTLED_RADIANS = 0.06
+
+/**
+ * How far down the frame a target may sit before it still needs a "look down" cue, as a
+ * fraction of the vertical half-angle.
+ *
+ * Measured on the golden key at the three reference widths. Once the player has panned fully
+ * right the key is technically on screen but pinned to the bottom edge, at 0.92 of the
+ * half-angle at 1440x900 and 0.78 at 768x1024 and 375x812, where it reads as part of the
+ * floor; pitching down to the seat's limit brings it to 0.62 and 0.52. The threshold sits in
+ * that gap. A fraction of the half-angle rather than of the viewport is what makes one
+ * number work across all three, since narrow screens swap to a wider field of view.
+ */
+const DC9_LOOK_HINT_LOW_IN_FRAME = 0.7
+
+/**
+ * Which way the player has to look to bring a target into comfortable view, measured as an
+ * angle in camera space rather than from the projected pixel: a point behind the camera
+ * projects with flipped sign, so screen coordinates cannot say "to the right" once the
+ * player has looked past it.
+ *
+ * The largest angular excess beyond the frustum wins, which is what turns the key cue from
+ * "scan right" into "look down": from the right seat the key starts far off to the right
+ * and moderately below, and the horizontal excess is the one that closes first.
+ */
+function lookHintDirection(
+  object: THREE.Object3D,
+  camera: THREE.Camera,
+  scratch: THREE.Vector3,
+): Dc9OffscreenDirection | null {
+  object.getWorldPosition(scratch)
+  camera.worldToLocal(scratch)
+  // Camera space looks down -Z, with +X right and +Y up.
+  const forward = Math.max(-scratch.z, 1e-6)
+  const horizontal = Math.atan2(scratch.x, forward)
+  const vertical = Math.atan2(scratch.y, Math.hypot(scratch.x, forward))
+  const halfVertical = camera instanceof THREE.PerspectiveCamera
+    ? THREE.MathUtils.degToRad(camera.fov) / 2
+    : Math.PI / 4
+  const halfHorizontal = camera instanceof THREE.PerspectiveCamera
+    ? Math.atan(Math.tan(halfVertical) * camera.aspect)
+    : halfVertical
+  const excess: [Dc9OffscreenDirection, number][] = [
+    ['right', horizontal - halfHorizontal],
+    ['left', -horizontal - halfHorizontal],
+    ['up', vertical - halfVertical],
+    ['down', -vertical - halfVertical],
+  ]
+  let best: Dc9OffscreenDirection | null = null
+  let bestExcess = DC9_LOOK_HINT_SETTLED_RADIANS
+  for (const [direction, value] of excess) {
+    if (value > bestExcess) {
+      best = direction
+      bestExcess = value
+    }
+  }
+  if (best) return best
+  return -vertical > halfVertical * DC9_LOOK_HINT_LOW_IN_FRAME ? 'down' : null
+}
+
 function Dc9HotspotProjector({
   targets,
   onChange,
@@ -2472,6 +2563,7 @@ function Dc9HotspotProjector({
   const { camera, size } = useThree()
   const lastPayload = useRef('')
   const point = useMemo(() => new THREE.Vector3(), [])
+  const local = useMemo(() => new THREE.Vector3(), [])
   const bounds = useMemo(() => new THREE.Box3(), [])
   const corner = useMemo(() => new THREE.Vector3(), [])
   useFrame(() => {
@@ -2487,7 +2579,19 @@ function Dc9HotspotProjector({
         y: ((1 - point.y) / 2) * size.height,
         visible: visibleInHierarchy && point.z >= -1 && point.z <= 1 && point.x >= -1 && point.x <= 1 && point.y >= -1 && point.y <= 1,
       }
-      if ((gameId === 'dc9.route.card' || gameId.startsWith('dc9.gauge.')) && position.visible) {
+      // The key is the only target the player has to hunt for, so it is the only one that
+      // pays for the extra camera-space work.
+      if (gameId === 'dc9.key.open') {
+        position.offscreen = lookHintDirection(object, camera, local) ?? undefined
+      }
+      if (gameId.startsWith('dc9.secure.')) {
+        position.inView = position.visible
+          && position.x >= DC9_MARKER_EDGE_MARGIN_PX
+          && position.x <= size.width - DC9_MARKER_EDGE_MARGIN_PX
+          && position.y >= DC9_MARKER_EDGE_MARGIN_PX
+          && position.y <= size.height - DC9_MARKER_EDGE_MARGIN_PX
+      }
+      if ((gameId === 'dc9.route.card' || gameId.startsWith('dc9.gauge.') || gameId.startsWith('dc9.secure.')) && position.visible) {
         bounds.setFromObject(object)
         let minX = Number.POSITIVE_INFINITY
         let minY = Number.POSITIVE_INFINITY
@@ -2721,6 +2825,7 @@ function Dc9Cockpit({
         ]
         for (const [gameId, target] of createDc9GaugeTargets(scene)) targets.set(gameId, target)
         separateDc9OverheadHitboxes(scene)
+        applyDc9KeyYawCorrection(scene)
         const yokeTarget = scene.getObjectByName('OBJ8_DC9VC2_RANGE_015') ?? null
         scene.updateMatrixWorld(true)
         const sourceCamera = scene.getObjectByName(DC9_GAME_CAMERA)

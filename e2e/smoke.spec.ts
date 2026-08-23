@@ -1126,6 +1126,17 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   await expect(apuMaster).toHaveAttribute('data-projection', 'mesh')
   await expect(battery).toHaveAttribute('data-projection', 'mesh')
 
+  // Each switch carries a yellow box on the panel itself, because all three are identical
+  // black toggles among sixty identical black toggles. Exactly one is the next step, and the
+  // boxes must not swallow the click that the 3D raycaster needs.
+  const markers = page.locator('.dc9-secure-marker')
+  await expect(markers).toHaveCount(3)
+  await expect(page.locator('.dc9-secure-marker.is-next')).toHaveCount(1)
+  await expect(page.locator('.dc9-secure-marker.is-next')).toHaveAttribute('data-control', 'apuBuses')
+  await expect(page.locator('.dc9-secure-markers')).toHaveCSS('pointer-events', 'none')
+  const markerBounds = await markers.first().boundingBox()
+  expect(Math.min(markerBounds?.width ?? 0, markerBounds?.height ?? 0)).toBeGreaterThanOrEqual(44)
+
   // Clicking a switch on the real overhead panel must action that switch. The shipped hit
   // volumes are far larger than the 70mm between the switches and overlapped, so a ray
   // aimed at the APU buses struck the battery box in front of it and the first step of the
@@ -1135,6 +1146,9 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   await page.mouse.click(apuBusesPoint[0]!, apuBusesPoint[1]!)
   await expect(page.locator('.dc9-chapter__status p')).toContainText('APU bus switches off')
   await expect(apuBuses).toHaveAttribute('aria-pressed', 'true')
+
+  await expect(page.locator('.dc9-secure-marker.is-complete')).toHaveAttribute('data-control', 'apuBuses')
+  await expect(page.locator('.dc9-secure-marker.is-next')).toHaveAttribute('data-control', 'apuMaster')
 
   // An out-of-order selection still coaches without clearing the finished step.
   await battery.press('Enter')
@@ -1151,10 +1165,15 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   const keyTrigger = page.getByRole('button', { name: "Open The Captain's Key" })
   await expect(keyTrigger).toHaveClass(/dc9-key-trigger/)
   await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_FIRST_OFFICER_GAME')
+  // The cue is three chevrons drawn from borders rather than one glyph run, so its size is
+  // measured from the rendered box; it still has to read as a large mark on the cockpit.
   const scanCue = page.locator('.dc9-key-scan-cue')
   await expect(scanCue).toBeVisible()
-  const scanCueFontSize = Number.parseFloat(await scanCue.evaluate((element) => getComputedStyle(element).fontSize))
-  expect(scanCueFontSize).toBeGreaterThanOrEqual(56)
+  await expect(scanCue).toHaveAttribute('data-cue', 'right')
+  await expect(scanCue.locator('span')).toHaveCount(3)
+  const scanCueBounds = await scanCue.boundingBox()
+  expect(scanCueBounds).not.toBeNull()
+  expect(Math.max(scanCueBounds?.width ?? 0, scanCueBounds?.height ?? 0)).toBeGreaterThanOrEqual(56)
   const canvasBounds = await canvas.boundingBox()
   expect(canvasBounds).not.toBeNull()
   if (canvasBounds) {
@@ -1163,7 +1182,16 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
     await page.mouse.move(canvasBounds.x + canvasBounds.width * 0.8, canvasBounds.y + canvasBounds.height * 0.5, { steps: 8 })
     await page.mouse.up()
   }
+  // Panning fully right puts the key on screen but pinned to the bottom edge, so the cue
+  // turns into the downward arrows instead of disappearing while the key is still unseen.
   await expect(keyTrigger).toHaveAttribute('data-projection', 'mesh')
+  await expect(scanCue).toHaveAttribute('data-cue', 'down')
+  if (canvasBounds) {
+    await page.mouse.move(canvasBounds.x + canvasBounds.width * 0.5, canvasBounds.y + canvasBounds.height * 0.32)
+    await page.mouse.down()
+    await page.mouse.move(canvasBounds.x + canvasBounds.width * 0.5, canvasBounds.y + canvasBounds.height * 0.5, { steps: 8 })
+    await page.mouse.up()
+  }
   await expect(page.locator('.dc9-key-scan-cue')).toHaveCount(0)
   expect(consoleErrors).toEqual([])
 })
