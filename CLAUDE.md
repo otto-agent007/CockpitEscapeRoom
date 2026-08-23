@@ -37,7 +37,7 @@ Standard scripts are in `package.json`. The asset builds (`asset:dc9`, `asset:ai
 - Tripo AI is a rapid candidate/proxy generator only, never production authority, and must not silently override aircraft-specific references. Its output must be imported into Blender, cleaned, optimized, given stable object names, checked for pivots and local axes, and documented in `asset-reports/` before runtime use.
 - Blender MCP is appropriate for scene inspection, controlled cleanup, validation, naming, pivots, metadata, preview renders, and export support.
 - Keep generated assets separated by scene group: A320 Pop T Captain cockpit, locker room, DC-9-32 First-Officer cockpit, Model Y hangar reward and Flight Mode, Mars Easter egg.
-- The DC-9-32 must be model-correct in major visible geometry — do not invent a generic retro cockpit. The current 3D panel is a greybox and stays labeled as such until approval.
+- The DC-9-32 must be model-correct in major visible geometry — do not invent a generic retro cockpit. The greybox label was retired at owner request on 2026-08-23; do not reintroduce it.
 - Record material count, texture sizes, optimization decisions, validation output, and preview-render evidence before treating an asset as production-ready.
 - Flight Mode stays sleek, plausible-futuristic, and premium: clean mechanical panels, wing/stabilizer deployment, hidden lift fans or concealed propulsion accents, restrained lighting. No aggressive sci-fi styling, no humanoid robot transformation.
 - Owner-approved airline artwork, logos, and textures may be used when they match the current scene group and asset authority.

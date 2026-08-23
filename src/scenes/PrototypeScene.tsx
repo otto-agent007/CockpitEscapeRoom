@@ -37,7 +37,7 @@ import {
   visibleAirbusRadarReturns,
   type AirbusWeatherRadarFrame,
 } from './airbusWeatherRadar'
-import { AIRBUS_MODEL_URL, clearCockpitModel, DC9_MODEL_URL, loadCockpitModel, LOCKER_MODEL_URL } from './cockpitModelLoader'
+import { AIRBUS_MODEL_URL, clearCockpitModel, DC9_MODEL_URL, loadCockpitModel, LOCKER_MODEL_URL, observeCockpitModelProgress } from './cockpitModelLoader'
 import {
   DC9_FLIGHT_CONTROL_BINDINGS,
   DC9_FLIGHT_CONTROL_JOINTS,
@@ -190,7 +190,13 @@ export type AirbusLoadState =
   | { status: 'accessible-fallback'; loadedBytes: number; totalBytes?: number }
 
 export type LockerLoadState = { status: 'idle' | 'loading' | 'ready' | 'error' | 'accessible-fallback' }
-export type Dc9LoadState = { status: 'idle' | 'loading' | 'ready' | 'error' | 'accessible-fallback'; message?: string }
+export type Dc9LoadState = {
+  status: 'idle' | 'loading' | 'ready' | 'error' | 'accessible-fallback'
+  message?: string
+  loadedBytes?: number
+  totalBytes?: number
+  percentage?: number
+}
 export type Dc9HotspotScreenPositions = Record<string, { x: number; y: number; visible: boolean; width?: number; height?: number }>
 
 interface PrototypeSceneProps {
@@ -2649,8 +2655,23 @@ function Dc9Cockpit({
   useEffect(() => {
     let active = true
     const canvas = canvasRef.current
-    onLoadState({ status: 'loading' })
+    let loadedBytes = 0
+    let totalBytes: number | undefined
+    onLoadState({ status: 'loading', loadedBytes: 0 })
     canvas.dataset.dc9ModelState = 'loading'
+    const stopObservingProgress = observeCockpitModelProgress(DC9_MODEL_URL, (progress) => {
+      if (!active) return
+      loadedBytes = progress.loadedBytes
+      totalBytes = progress.totalBytes
+      onLoadState({
+        status: 'loading',
+        loadedBytes,
+        totalBytes,
+        // Hold at 99 until the parsed scene is actually staged: the last percent of the
+        // 36 MiB GLB is glTF parsing, not download.
+        percentage: totalBytes ? Math.min(99, Math.round((loadedBytes / totalBytes) * 100)) : undefined,
+      })
+    })
     loadCockpitModel(DC9_MODEL_URL)
       .then((source) => {
         if (!active) return
@@ -2723,7 +2744,7 @@ function Dc9Cockpit({
         canvas.dataset.dc9CameraNode = sourceCamera.name
         canvas.dataset.dc9TargetCount = String(targets.size)
         canvas.dataset.dc9Targets = [...targets.keys()].join(',')
-        onLoadState({ status: 'ready' })
+        onLoadState({ status: 'ready', loadedBytes, totalBytes, percentage: 100 })
       })
       .catch((error) => {
         clearCockpitModel(DC9_MODEL_URL)
@@ -2732,10 +2753,16 @@ function Dc9Cockpit({
         setLoadFailed(true)
         setLoaded(null)
         canvas.dataset.dc9ModelState = 'fallback'
-        onLoadState({ status: 'error', message: error instanceof Error ? error.message : 'DC-9 cockpit failed to load.' })
+        onLoadState({
+          status: 'error',
+          message: error instanceof Error ? error.message : 'DC-9 cockpit failed to load.',
+          loadedBytes,
+          totalBytes,
+        })
       })
     return () => {
       active = false
+      stopObservingProgress()
       delete canvas.dataset.dc9ModelState
       delete canvas.dataset.dc9CameraNode
       delete canvas.dataset.dc9CameraState
@@ -2999,11 +3026,6 @@ export function PrototypeScene({
           />
         )}
       </Canvas>
-      {phase !== 'airbus' && phase !== 'locker' && (
-        <div className="prototype-badge">
-          GREYBOX — DC-9 FINAL FLIGHT LOG
-        </div>
-      )}
     </div>
   )
 }

@@ -285,7 +285,6 @@ export const dc9LegacyFlow = {
     'What is the minimum total flight time (hours) required to qualify for a standard Airline Transport Pilot certificate?',
   atpAnswers: ['1500', '1500hour', '1500hours'] as const,
   atpFeedback: 'Airline Transport Pilot milestone recognized.',
-  disclaimer: 'Commemorative, non-operational interaction in a safely parked cockpit.',
 } as const
 
 export const gameCopy = {

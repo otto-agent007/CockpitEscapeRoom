@@ -1,6 +1,49 @@
 # Test report
 
 
+## 2026-08-23 DC-9 loading page, clean chapter frame, Legacy Route Record facelift
+
+- **Loading page proved against the real 36.1 MB GLB, not a stub.** Chromium with a 6 Mbit/s CDP
+  throttle, at 1440 / 768 / 375: the read-out advanced through
+  `Preparing the DC-9-32 flight deck / 37% / 13.3 of 36.1 MB downloaded` (1440),
+  `39% / 14.1 of 36.1 MB` (768) and `36% / 13.0 of 36.1 MB` (375), the page then detached on its
+  own and the live cockpit rendered behind it. Byte counts come from a new
+  `observeCockpitModelProgress` subscription, which replays the last known position because the
+  DC-9 download is already in flight (preloaded from the opening screen) by the time the chapter
+  subscribes.
+- **Two bugs the change surfaced, both fixed and both re-measured:**
+  - The route record's hint paragraph was rendering **`rgb(191, 201, 187)` on cream** — the global
+    `p { color: var(--text-soft) }` meant for the dark cockpit panels, roughly 1.5:1 against the
+    paper. Now `rgb(94, 61, 28)`. `.dc9-document__question` is untouched at `rgb(40, 33, 23)`,
+    which is what the existing e2e contrast assertion checks.
+  - `Minneapolis–St. Paul` was clipped at 1440 (`scrollWidth` 148 in a 135 px cell). Trading the
+    "Open entry"/"Selected" words for a tick box gave the city 187 px; every city now measures
+    `scrollWidth == clientWidth`.
+- **A regression I introduced and caught on the evidence pass, not by a test.** One-line ledger rows
+  overlapped their tick box and stamp at 768 px, where `.dc9-document`'s `min(47vw, 43rem)` leaves
+  only a 361 px page. The grid is now one column by default and two only from 1240 px, where the
+  document is finally wide enough. Swept **375 / 480 / 640 / 768 / 900 / 1024 / 1180 / 1239 / 1241 /
+  1366 / 1440 / 1920** with one stop stamped and one selected: columns flip 1 → 2 between 1239 and
+  1241, **zero clipped rows and zero child boxes outside their row at every width**.
+- **Dialog height** (the e2e bound is 650 at 1440×900): 499 px at 1440×900, 709 px at 768×1024,
+  608 px at 375×812. Scroll overflow 497/497, 707/707 and 613/606 — at 375 the whole form including
+  the stamp button is reachable, where before the narrow-screen tightening it was 669 px of content
+  in a 578 px frame.
+- **`npm run lint`, `npx tsc -b`, `npx vitest run` — clean, 421/421 across 33 files.**
+- **Full `npx playwright test` (preview servers killed first): 60 passed, 1 skipped, 1 failed.** The
+  failure was mine and real: `smoke.spec.ts:304` hit a strict-mode violation because the loading
+  page's `h1` and the chapter title bar's `h1` both read `DC-9 Final Flight Log` — a genuine
+  duplicate accessible name, not a test artefact. Fixed in the app by giving the loading page the
+  journey's full name, **DC-9 First-Officer Final Flight Log**. `npx playwright test
+  e2e/smoke.spec.ts` then passed **30/30 (1 skipped)**, and again after the two-column fix — both
+  runs including the 2.5-minute real-GLB
+  `DC-9 production cockpit stages the Final Flight Log with the existing registry`.
+- Owner-review screenshots at all three widths in `preview-renders/dc9-loader-route-record/`.
+- The `GREYBOX` chip, the canvas `.prototype-badge`, the `DC-9-32 · safely parked` eyebrow and the
+  `Commemorative, non-operational…` footer are gone; the "do not remove the greybox label" rule in
+  `CLAUDE.md`, `AGENTS.md` and `README.md` was retired at the same time so it is not reinstated.
+
+
 ## 2026-08-21 Fringe fix swept across every Pop T sprite
 
 - The coverage fix that sharpened the walk was applied to the rest of the set. Pale edge across all

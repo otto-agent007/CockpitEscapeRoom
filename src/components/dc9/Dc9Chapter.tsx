@@ -90,11 +90,7 @@ export function Dc9Chapter({
   return (
     <section className={`dc9-chapter dc9-chapter--${state.dc9.stage}`} aria-labelledby="dc9-chapter-title">
       <header className="dc9-chapter__topbar">
-        <div>
-          <p className="eyebrow">DC-9-32 · safely parked</p>
-          <h1 id="dc9-chapter-title">DC-9 Final Flight Log</h1>
-        </div>
-        <span className="dc9-chapter__greybox">GREYBOX</span>
+        <h1 id="dc9-chapter-title">DC-9 Final Flight Log</h1>
       </header>
 
       {state.dc9.stage === 'controlCheck' ? (
@@ -240,7 +236,6 @@ export function Dc9Chapter({
 
       <footer className="dc9-chapter__status">
         <p aria-live="polite" aria-atomic="true">{state.statusMessage}</p>
-        <small>{dc9LegacyFlow.disclaimer}</small>
         <button type="button" className="text-button" onClick={onRestart}>Restart</button>
       </footer>
     </section>

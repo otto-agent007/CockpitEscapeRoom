@@ -19,26 +19,17 @@
   position: absolute;
   top: 1rem;
   left: 1rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: .65rem .8rem;
+  padding: .5rem .85rem;
   border: 1px solid rgb(235 207 143 / 24%);
   background: rgb(12 19 21 / 78%);
   backdrop-filter: blur(12px);
 }
 
 .dc9-chapter__topbar h1 {
-  margin: .15rem 0 0;
+  max-width: none;
+  margin: 0;
   font-size: clamp(1rem, 2vw, 1.35rem);
-}
-
-.dc9-chapter__greybox {
-  border: 1px solid #d3ad62;
-  padding: .2rem .42rem;
-  color: #e8c57f;
-  font-size: .66rem;
-  letter-spacing: .14em;
+  white-space: nowrap;
 }
 
 .dc9-document {
@@ -131,9 +122,99 @@
   border-color: #f0c875;
 }
 
+/* Legacy Route Record ------------------------------------------------------
+   A printed route-record page from the type-rated era: buff stock in a binder,
+   a ruled masthead, typed form fields, and station entries that carry a red ink
+   stamp once they are recorded. */
+
 .dc9-route-record {
   bottom: auto;
   max-height: calc(100vh - 8rem);
+  padding-left: clamp(2.6rem, 4vw, 3.4rem);
+  border: 1px solid rgb(96 68 32 / 55%);
+  border-radius: 2px;
+  background:
+    /* binder margin, its red rule, and the page edge shading */
+    linear-gradient(90deg, rgb(198 173 124 / 55%) 0 clamp(1.9rem, 3vw, 2.5rem), transparent clamp(1.9rem, 3vw, 2.5rem)),
+    linear-gradient(90deg, transparent 0 calc(clamp(1.9rem, 3vw, 2.5rem) - 1px), rgb(150 55 40 / 45%) 0 clamp(1.9rem, 3vw, 2.5rem), transparent 0),
+    radial-gradient(120% 80% at 92% 4%, rgb(120 92 46 / 16%), transparent 55%),
+    linear-gradient(rgb(255 251 235 / 95%), rgb(233 220 187 / 97%)),
+    repeating-linear-gradient(0deg, transparent 0 28px, rgb(82 64 37 / 8%) 29px 30px);
+  box-shadow: 0 24px 70px rgb(0 0 0 / 52%), inset 0 0 0 1px rgb(255 255 255 / 30%);
+}
+
+/* Three punched holes down the binder margin. */
+.dc9-route-record__binding {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  width: clamp(1.9rem, 3vw, 2.5rem);
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 2.5rem 0;
+  pointer-events: none;
+}
+
+.dc9-route-record__binding span {
+  width: .78rem;
+  height: .78rem;
+  border-radius: 50%;
+  background: rgb(28 22 14 / 62%);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 55%), 0 1px 0 rgb(255 250 232 / 55%);
+}
+
+.dc9-route-record .dc9-document__header {
+  border-bottom-width: 3px;
+  border-bottom-style: double;
+  border-bottom-color: rgb(76 54 25 / 55%);
+}
+
+.dc9-route-record .eyebrow {
+  color: #8a5a20;
+  font-size: .64rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.dc9-route-record .dc9-document__header h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.3rem, 2.4vw, 1.75rem);
+  letter-spacing: -.01em;
+}
+
+/* Typed form fields under the masthead. */
+.dc9-route-record__fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem 1.6rem;
+  margin: .7rem 0 0;
+  padding-bottom: .55rem;
+  border-bottom: 1px solid rgb(76 54 25 / 28%);
+}
+
+.dc9-route-record__fields > div {
+  display: flex;
+  align-items: baseline;
+  gap: .45rem;
+}
+
+.dc9-route-record__fields dt {
+  color: #8b7550;
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.dc9-route-record__fields dd {
+  margin: 0;
+  color: #3c3120;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: .78rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .dc9-document__header {
@@ -173,54 +254,177 @@
 
 .dc9-route-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: .65rem;
-  margin: 1rem 0;
+  grid-template-columns: minmax(0, 1fr);
+  gap: .4rem 1.6rem;
+  margin: .85rem 0 .6rem;
 }
 
+/* The document is `min(47vw, 43rem)` wide, so a two-column form only has room for a
+   station code, the longest city on one line and its entry box once the viewport is
+   past about 1220px. Below that the entries run down the page in one column. */
+@media (min-width: 1240px) {
+  .dc9-route-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Printed gutter rule between the two columns of the form. */
+  .dc9-route-record .dc9-route-grid {
+    background: linear-gradient(90deg, transparent calc(50% - .5px), rgb(76 54 25 / 22%) calc(50% - .5px) calc(50% + .5px), transparent calc(50% + .5px));
+  }
+}
+
+/* One ledger line per station: boxed code, city, and the entry's standing. */
 .dc9-route-choice {
+  position: relative;
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: .15rem .65rem;
-  min-height: 4.5rem;
-  padding: .65rem .75rem;
-  border: 1px solid rgb(75 52 23 / 28%);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .7rem;
+  min-height: 2.9rem;
+  padding: .4rem .55rem .4rem .4rem;
+  border: 0;
+  border-bottom: 1px solid rgb(75 52 23 / 30%);
+  border-radius: 0;
   color: #2c2316;
-  background: rgb(255 253 243 / 65%);
+  background: transparent;
   text-align: left;
+  transition: background-color 120ms ease;
 }
 
-.dc9-route-choice strong {
-  grid-row: span 2;
-  font-size: 1.15rem;
+.dc9-route-choice:hover,
+.dc9-route-choice:focus-visible {
+  background: rgb(140 100 40 / 12%);
 }
 
-.dc9-route-choice small {
-  color: #776348;
+.dc9-route-choice:focus-visible {
+  outline: 2px solid #8b5b1f;
+  outline-offset: -2px;
+}
+
+.dc9-route-choice__code {
+  padding: .18rem .4rem;
+  border: 1px solid rgb(75 52 23 / 45%);
+  color: #231c11;
+  background: rgb(255 253 243 / 72%);
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: .92rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+
+.dc9-route-choice__city {
+  font-size: .95rem;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+}
+
+/* The entry box on the form: empty until the stop is selected. */
+.dc9-route-choice__mark {
+  display: grid;
+  width: 1.05rem;
+  height: 1.05rem;
+  place-items: center;
+  border: 1px solid rgb(75 52 23 / 50%);
+  background: rgb(255 253 243 / 72%);
+}
+
+.dc9-route-choice.is-selected .dc9-route-choice__mark {
+  border-color: #6d4715;
+  background: #fdf3d9;
+}
+
+.dc9-route-choice.is-selected .dc9-route-choice__mark::after {
+  color: #6d4715;
+  font-size: .8rem;
+  font-weight: 800;
+  line-height: 1;
+  content: "\2713";
 }
 
 .dc9-route-choice.is-selected {
-  border-color: #8b5b1f;
-  background: #f0d79e;
+  background: rgb(226 190 118 / 45%);
 }
 
-.dc9-route-choice.is-stamped {
-  border-color: #823f28;
-  box-shadow: inset 0 0 0 2px rgb(130 63 40 / 18%);
+.dc9-route-choice.is-selected .dc9-route-choice__code {
+  border-color: #8b5b1f;
+  background: #fdf3d9;
+}
+
+/* A recorded stop carries a rubber stamp rather than a status word: it is the one
+   state in this record that can never be taken away. */
+.dc9-route-choice__stamp {
+  padding: .1rem .34rem;
+  border: 2px solid rgb(150 55 40 / 72%);
+  border-radius: 2px;
+  color: rgb(143 49 35 / 92%);
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: rotate(-4deg);
+}
+
+/* A recorded row reads as filed, not as a live selection. */
+.dc9-route-choice.is-stamped,
+.dc9-route-choice.is-stamped.is-selected {
+  cursor: default;
+  background: rgb(150 55 40 / 9%);
+}
+
+.dc9-route-choice.is-stamped .dc9-route-choice__code {
+  border-color: rgb(150 55 40 / 60%);
+  color: #6a2a1d;
 }
 
 .dc9-route-choice.is-final-hint {
-  outline: 3px solid rgb(184 120 48 / 38%);
-  outline-offset: 2px;
+  box-shadow: inset 0 0 0 2px rgb(184 120 48 / 55%);
 }
 
+/* Pencil annotation in the margin of the form. */
 .dc9-document__feedback {
   min-height: 2.5rem;
+  padding-left: .6rem;
+  border-left: 2px solid rgb(150 55 40 / 40%);
   color: #5e3d1c;
+}
+
+/* The global paragraph colour is tuned for the dark cockpit panels, so a paragraph
+   on the paper documents has to restate its ink or it lands pale on cream. */
+.dc9-document__feedback p {
+  margin: 0;
+  color: #5e3d1c;
+}
+
+.dc9-route-record .dc9-document__feedback p {
+  font-size: .86rem;
+  font-style: italic;
+  line-height: 1.5;
 }
 
 .dc9-document__primary {
   width: 100%;
+}
+
+/* The submit reads as the stamp itself, not a web button. */
+.dc9-route-record .dc9-document__primary {
+  margin-top: .3rem;
+  border: 1px solid #6d2618;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #9a3a28, #722618);
+  color: #fdf1dd;
+  font-size: .82rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.dc9-route-record .dc9-document__primary:disabled {
+  border-color: rgb(75 52 23 / 35%);
+  background: rgb(120 96 58 / 22%);
+  color: #6a5b40;
+  opacity: 1;
 }
 
 .dc9-home-log__folio {
@@ -445,13 +649,14 @@
     right: 1rem;
   }
 
+  /* The chapter title bar is a single line now, so the documents start higher. */
   .dc9-document {
-    top: 7rem;
+    top: 5.25rem;
     left: .75rem;
     right: .75rem;
     bottom: 7.5rem;
     width: auto;
-    max-height: calc(100vh - 14.5rem);
+    max-height: calc(100vh - 12.75rem);
   }
 
   .dc9-chapter--homeOperations {
@@ -479,17 +684,39 @@
     margin-top: 1rem;
   }
 
-  .dc9-route-grid {
-    grid-template-columns: 1fr;
+  .dc9-route-record .dc9-route-grid {
+    margin: .55rem 0 .5rem;
+  }
+
+  .dc9-route-record {
+    padding-left: 2.4rem;
+  }
+
+  .dc9-route-record .dc9-document__question {
+    margin-top: .8rem;
+    font-size: .98rem;
+  }
+
+  .dc9-route-record__fields {
+    gap: .3rem 1rem;
+  }
+
+  .dc9-route-choice {
+    min-height: 2.4rem;
+  }
+
+  .dc9-route-record .dc9-document__note {
+    font-size: .84rem;
+    line-height: 1.45;
+  }
+
+  .dc9-route-record .dc9-document__feedback {
+    min-height: 1.9rem;
   }
 
   .dc9-chapter__status {
     align-items: flex-start;
     flex-wrap: wrap;
-  }
-
-  .dc9-chapter__status small {
-    display: none;
   }
 
   .dc9-key-trigger.is-fallback {

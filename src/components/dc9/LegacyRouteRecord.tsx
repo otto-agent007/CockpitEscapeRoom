@@ -10,6 +10,7 @@ interface LegacyRouteRecordProps {
 export function LegacyRouteRecord({ progress, dispatch, onClose }: LegacyRouteRecordProps) {
   const selected = new Set(progress.routeSelections)
   const stamped = new Set(progress.routeCompleted)
+  const required = dc9LegacyFlow.routePuzzleAnswers.length
   const finalSupport = progress.routeAttempts >= 3
   const hint = progress.routeAttempts === 1
     ? dc9LegacyFlow.routeHints[0]
@@ -24,6 +25,10 @@ export function LegacyRouteRecord({ progress, dispatch, onClose }: LegacyRouteRe
       aria-modal="false"
       aria-labelledby="legacy-route-record-title"
     >
+      <div className="dc9-route-record__binding" aria-hidden="true">
+        <span /><span /><span />
+      </div>
+
       <header className="dc9-document__header">
         <div>
           <p className="eyebrow">Representative career routes</p>
@@ -31,6 +36,21 @@ export function LegacyRouteRecord({ progress, dispatch, onClose }: LegacyRouteRe
         </div>
         <button type="button" className="dc9-document__close" onClick={onClose} aria-label="Close Legacy Route Record">×</button>
       </header>
+
+      <dl className="dc9-route-record__fields">
+        <div>
+          <dt>Aircraft</dt>
+          <dd>DC-9-32</dd>
+        </div>
+        <div>
+          <dt>Seat</dt>
+          <dd>First officer</dd>
+        </div>
+        <div>
+          <dt>Entries</dt>
+          <dd>{progress.routeSelections.length} of {required}</dd>
+        </div>
+      </dl>
 
       <p className="dc9-document__question">{dc9LegacyFlow.routeQuestion}</p>
       <p className="dc9-document__note">Choose familiar stops from Pop T’s DC-9 years.</p>
@@ -49,9 +69,11 @@ export function LegacyRouteRecord({ progress, dispatch, onClose }: LegacyRouteRe
               aria-label={`${route.code}, ${route.city}${isStamped ? ', permanently stamped' : ''}`}
               onClick={() => dispatch({ type: 'TOGGLE_DC9_ROUTE', code: route.code })}
             >
-              <strong>{route.code}</strong>
-              <span>{route.city}</span>
-              {isStamped ? <small>Ink stamp permanent</small> : <small>{isSelected ? 'Selected' : 'Open entry'}</small>}
+              <strong className="dc9-route-choice__code">{route.code}</strong>
+              <span className="dc9-route-choice__city">{route.city}</span>
+              {isStamped
+                ? <small className="dc9-route-choice__stamp">Recorded</small>
+                : <span className="dc9-route-choice__mark" aria-hidden="true" />}
             </button>
           )
         })}
@@ -65,7 +87,7 @@ export function LegacyRouteRecord({ progress, dispatch, onClose }: LegacyRouteRe
       <button
         type="button"
         className="primary-button dc9-document__primary"
-        disabled={progress.routeSelections.length !== dc9LegacyFlow.routePuzzleAnswers.length}
+        disabled={progress.routeSelections.length !== required}
         onClick={() => dispatch({ type: 'SUBMIT_DC9_ROUTES' })}
       >
         Record selected routes

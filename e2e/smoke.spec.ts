@@ -1051,7 +1051,8 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   await expect(canvas).toHaveAttribute('data-dc9-targets', /dc9\.route\.BTR/)
   await expect(canvas).toHaveAttribute('data-dc9-targets', /dc9\.secure\.apuBuses/)
   await expect(canvas).toHaveAttribute('data-dc9-targets', /dc9\.key\.open/)
-  await expect(page.locator('.prototype-badge')).toHaveText('GREYBOX — DC-9 FINAL FLIGHT LOG')
+  await expect(page.locator('.prototype-badge')).toHaveCount(0)
+  await expect(page.locator('.dc9-chapter__topbar')).toHaveText('DC-9 Final Flight Log')
   await expect(page.locator('.hud')).toHaveCount(0)
   await expect(page.locator('.captain-interface')).toHaveCount(0)
 
