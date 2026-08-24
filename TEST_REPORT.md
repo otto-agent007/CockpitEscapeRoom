@@ -1,5 +1,62 @@
 # Test report
 
+## 2026-08-24 The walk toward the aircraft: order, then evenness (branch fix/intro-walk-cycle)
+
+- **Owner, round 1:** the walk as Pop T heads for the plane "looks bad and needs some work."
+  **Round 2, on the first fix:** "better but still a little shakey. Not smooth enough yet."
+- **Fault 1 — the drawings were played in the order they were packed, which is not the order they
+  animate in.** `deploy-scramble-intro.py` interleaves Wave S4 pose 1, S16 tween 1, pose 2, tween 2 …
+  on the assumption that each generated sheet held its poses in walk-cycle order. Neither did; the
+  image model ignored the prompt's "classic six-phase order". Measuring where each drawing plants its
+  boot — the boot's x against the head centre, taken on the source art where the figure is 554 px
+  (poses) and ~950 px (tweens) tall, so a tenth of a sprite pixel resolves — the played order swung
+  that boot **+3.8, −2.3, −0.8, +4.2, +2.5, −1.0**: the legs scissored back and forth instead of
+  striding. Sorted by that measurement they sweep the boot from +4.20 to −2.25 exactly once — one
+  clean step, confirmed by rendering the sorted strip.
+- **Fault 2 — the travel was a straight lerp with no relation to the drawings.** 120 px across the
+  shot's 4.04 s while the drawings carried the boots 33 px: a **3.6x moonwalk**.
+- **Fault 3, and this one was mine: the first fix's root motion was itself the judder.** Driving the
+  body straight off the boot sweep is exact for foot-plant and replays the drawings' uneven phase
+  spacing as body velocity — the head crawled 0.01 px on one drawing, lurched 2.7 px on the next, and
+  stepped *backwards* on 10 of 241 rendered samples. Flattening that to a constant velocity only
+  moved the problem: `drawSprite` rounds the sprite to whole stage pixels, so at 12.5 px/s and 25
+  drawings/s he moved a pixel on every SECOND drawing, and the on-stage silhouette change alternated
+  14%, 23%, 9%, 11%, 15%, 18% — a lurch every other frame.
+- **The fix is arithmetic, not taste.** Whole-pixel positions mean motion is even only when every
+  drawing carries exactly one pixel, which fixes `drawings per step = step length x cadence`. The art
+  fixes the step at 6.45 px, and a walking cadence of ~2.2 steps/s therefore wants **six drawings a
+  step, at 75 ms** — not the twelve the sheet holds. Choosing which six by exhaustive search over all
+  924 subsets, scoring the on-stage silhouette change for evenness: the winner (cells 6, 7, 8, 4, 10,
+  2) changes 20.0, 20.1, 23.9, 19.1, 22.2, 22.7% — a coefficient of variation of **0.08 against
+  0.38** — and still spans the full drawn stride. The six dropped are the ones that duplicate a kept
+  neighbour: two transitions in the twelve measured 4.4% and 5.2%, i.e. a held drawing. **This
+  reverses the 2026-08-21 six-to-twelve change**, which raised the drawing rate but could not fix an
+  order nobody had measured; six correctly ordered at 13.3 fps beats twelve mis-ordered at 25.
+- **Two measurements were thrown away rather than reported, both landmark-tracking.** A boot-group
+  slip metric matched *different physical boots* between frames as the legs cross, and reported the
+  fix as worse than the bug (16.3 px/65 ms against 10.4). A hair-centroid trace reported a 2 px head
+  wobble that does not exist: cross-correlating the rigid upper bodies (rows 0-28) says every cell's
+  best whole-pixel shift is 0, at IoU 0.91-0.997 — the gold blob's *extent* changes, the head does
+  not move. Silhouette IoU on a rigid region is trustworthy here; a blob's bounding-box centre is not.
+- **Measured in the browser, not just in source** (`vite preview` on a private port 4318, the
+  `render-verified.mjs` puppet, 160-200 frames of the walk per round). Charting the sole row (stage
+  rows 194-195, luminance < 40) frame by frame: **before**, the footprint advances on every single
+  sample and never rests; **after**, it holds still while a boot is planted. He also stops clear of
+  the nose gear he used to end the shot standing inside.
+- **Tests, all with control experiments proving they can fail.** `orders the walk drawings into one
+  clean step and plants the boot on it` — every drawing distinct, boot sweep strictly monotonic, full
+  6.45 px stride retained, and the planted boot's world x drifting ≤ 1 px inside each support phase;
+  fails at **4.31 px** against the old lerp. `walks him forward one whole pixel per drawing, never
+  lurching or sliding back` — every change exactly +1 px, spaced exactly one drawing apart; fails at
+  a **2 px jump at 240 ms** against the boot-driven motion. The e2e now asserts the six cycle cells
+  and *only* those; re-packing the clip in sheet order fails it (4 cells wrong).
+- **Deliberately not done: no vertical bob.** The art has none — all six source figures are exactly
+  554 px tall and `cell_pack` pins every cell's feet to the same row — and adding one at the sprite
+  level would lift the planted boot off the tarmac by the same pixel, trading a stiff walk for a
+  hopping one. A real bob needs the body raised inside the drawings, which is an art change.
+- `npm run lint` clean. `npx vitest run`: **460 passed / 35 files**. `PLAYWRIGHT_PORT=4319 npx
+  playwright test e2e/smoke.spec.ts -g "TMB2|cinematic|intro"`: **15 passed, 1 skipped** (the
+  owner-review proof capture, gated as always).
 
 ## 2026-08-23 Engine-Out guidance + default-on ambience (branch pr/airbus-storm-usability, round 2)
 

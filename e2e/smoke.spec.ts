@@ -3,6 +3,7 @@ import { airbusCaptainFlow, dc9LegacyFlow, lockerFlow } from '../src/game/config
 import { createInitialState, type GameState } from '../src/game/state'
 import { DC9_CONTROL_CHECK_ITEM_IDS } from '../src/game/dc9ControlCheck'
 import { DC9_INSTRUMENT_SCAN_ORDER } from '../src/game/dc9InstrumentScan'
+import { WALK_CYCLE, WALK_FRAME_MS } from '../src/game/introAnimation'
 import { introScenes } from '../src/game/introConfig'
 import { STORAGE_KEY } from '../src/game/storage'
 
@@ -664,18 +665,21 @@ for (const input of ['pointer', 'Enter', 'Space', 'controller'] as const) {
   })
 }
 
-test('TMB2 cinematic plays the walk at twelve drawings a stride', async ({ page }) => {
-  // The walk shipped as six drawings over a 780 ms stride — 7.7 a second, the
-  // choppiest thing in the intro next to a 25 fps ident run. Wave S16 doubled
-  // it. Sampling one whole stride every 32.5 ms must therefore surface all
-  // twelve; with the old sheet this test sees six and fails.
+test('TMB2 cinematic draws every walk drawing, and only the six in the cycle', async ({ page }) => {
+  // The cycle is six of the sheet's twelve cells at 75 ms, one whole stage
+  // pixel a drawing (retimed 2026-08-24; see WALK_CYCLE for why the count is
+  // arithmetic and not taste). Sampling one whole 450 ms step finely enough to
+  // land inside every drawing must surface those six and nothing else: a
+  // regression that plays the sheet in its own packed order shows cells the
+  // cycle does not contain, and one that drops a drawing shows fewer.
   const intro = await openGameIntro(page)
   const canvas = intro.locator('.game-intro__stage')
   const audio = page.locator('audio')
   const seen = new Set<string>()
+  const stepMs = WALK_FRAME_MS * WALK_CYCLE.length
 
-  for (let index = 0; index < 24; index += 1) {
-    const time = 31.62 + index * 0.0325
+  for (let index = 0; index < 25; index += 1) {
+    const time = 31.62 + (index * (stepMs / 25)) / 1_000
     await audio.evaluate((media, value) => {
       media.currentTime = value
       media.dispatchEvent(new Event('timeupdate'))
@@ -690,7 +694,7 @@ test('TMB2 cinematic plays the walk at twelve drawings a stride', async ({ page 
   }
 
   expect([...seen].map(Number).sort((a, b) => a - b)).toEqual(
-    Array.from({ length: 12 }, (_, index) => index),
+    [...WALK_CYCLE.map((step) => step.frame)].sort((a, b) => a - b),
   )
 })
 

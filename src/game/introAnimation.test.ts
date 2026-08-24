@@ -11,6 +11,11 @@ import {
   deriveIntroAnimation,
   getSpriteFrame,
   hitstopTime,
+  WALK_BOOT_SWEEP_PX,
+  WALK_CYCLE,
+  WALK_FRAME_MS,
+  WALK_STEP_PX,
+  walkAdvance,
   type SpriteTiming,
 } from './introAnimation'
 import { INTRO_DURATION_SECONDS } from './introConfig'
@@ -72,11 +77,16 @@ describe('Scramble sprite animation contract', () => {
       pivot: { x: 13, y: 49 },
       loopMode: 'loop',
     })
-    // Twelve drawings over the SAME 780 ms stride: the Wave S16 in-betweens
-    // smooth the walk without retiming a cycle the owner already approved.
-    expect(POPT_CLIPS.walk.durations).toHaveLength(12)
-    expect(POPT_CLIPS.walk.durations.reduce((total, ms) => total + ms, 0)).toBe(780)
+    // Six drawings at 75 ms, making a 450 ms step: 2.22 steps a second, one
+    // whole stage pixel a drawing. Both the count and the rate are forced by
+    // the art plus whole-pixel positioning — see WALK_CYCLE.
+    expect(POPT_CLIPS.walk.durations).toHaveLength(6)
+    expect(POPT_CLIPS.walk.durations.reduce((total, ms) => total + ms, 0)).toBe(450)
     expect(new Set(POPT_CLIPS.walk.durations).size).toBe(1)
+    // Six of the sheet's twelve cells, in cycle order rather than sheet order.
+    expect(POPT_CLIPS.walk.columns).toBe(12)
+    expect(POPT_CLIPS.walk.frameIndices).toEqual(WALK_CYCLE.map((step) => step.frame))
+    expect(new Set(POPT_CLIPS.walk.frameIndices).size).toBe(6)
     expect(POPT_CLIPS.backlit).toMatchObject({
       frameWidth: 28,
       frameHeight: 64,
@@ -250,17 +260,83 @@ describe('Scramble sprite animation contract', () => {
     expect(worst.dur, `longest hold was ${worst.key} at ${worst.at.toFixed(2)}s`).toBeLessThan(3.2)
   })
 
-  it('walks the 34px figure across the scale shot smoothly', () => {
+  it('walks the 48px figure across the scale shot smoothly', () => {
     const start = deriveIntroAnimation(CUES.walkOut + 0.1, false)
     const end = deriveIntroAnimation(CUES.aircraftReveal - 0.2, false)
     expect(start.popt?.clipId).toBe('walk')
-    expect(end.popt!.x).toBeGreaterThan(start.popt!.x + 90)
+    // His own stride carries him ~50 px in the shot. It used to be 120, which
+    // is where the moonwalk came from, and which parked him in the nose gear.
+    expect(end.popt!.x - start.popt!.x).toBeGreaterThan(42)
+    expect(end.popt!.x - start.popt!.x).toBeLessThan(54)
     const positions = Array.from({ length: 121 }, (_, index) => (
       deriveIntroAnimation(CUES.walkOut + 0.1 + index / 60, false).popt!.x
     ))
     for (let index = 1; index < positions.length; index += 1) {
-      expect(Math.abs(positions[index]! - positions[index - 1]!)).toBeLessThan(4)
+      const step = positions[index]! - positions[index - 1]!
+      expect(step).toBeGreaterThanOrEqual(0)
+      expect(step).toBeLessThanOrEqual(1)
     }
+  })
+
+  it('orders the walk drawings into one clean step and plants the boot on it', () => {
+    // Every drawing distinct and inside the sheet...
+    expect(new Set(WALK_CYCLE.map((step) => step.frame)).size).toBe(WALK_CYCLE.length)
+    for (const step of WALK_CYCLE) expect(step.frame).toBeLessThan(12)
+    // ...and the planted boot sweeps front-to-back exactly once, never back.
+    for (let index = 1; index < WALK_CYCLE.length; index += 1) {
+      expect(WALK_CYCLE[index]!.boot, `drawing ${index}`)
+        .toBeLessThan(WALK_CYCLE[index - 1]!.boot)
+    }
+    // The kept drawings still span the whole drawn stride, not a slice of it.
+    expect(WALK_BOOT_SWEEP_PX).toBeCloseTo(6.45, 5)
+    expect(WALK_STEP_PX).toBe(6)
+
+    // The test that would have caught the moonwalk: the boot a drawing puts on
+    // the tarmac has to stay on that spot of tarmac while it is planted. Its
+    // world x is where the cell puts the head, plus the boot's offset from it.
+    // Checked per SUPPORT PHASE, not per step: drawings 0-2 stand on one boot
+    // and 3-5 on the other, and the handover between them is a step landing,
+    // not a slide.
+    const stepMs = WALK_FRAME_MS * WALK_CYCLE.length
+    const world = (step: number, index: number): number => {
+      const drawing = WALK_CYCLE[index]!
+      const elapsed = step * stepMs + index * WALK_FRAME_MS + WALK_FRAME_MS / 2
+      const frame = deriveIntroAnimation(CUES.walkOut + elapsed / 1_000, false)
+      expect(frame.sceneId).toBe('walk')
+      return frame.popt!.x + (drawing.head - 13) + drawing.boot
+    }
+    for (let step = 0; step < 8; step += 1) {
+      for (const [from, to] of [[0, 3], [3, 6]] as const) {
+        const planted = Array.from({ length: to - from }, (_, offset) => world(step, from + offset))
+        const drift = Math.max(...planted) - Math.min(...planted)
+        expect(drift, `step ${step} drawings ${from}-${to - 1} boot drift`).toBeLessThanOrEqual(1)
+      }
+    }
+  })
+
+  it('walks him forward one whole pixel per drawing, never lurching or sliding back', () => {
+    // The anti-shake guard, and the reason the cycle is six drawings rather
+    // than twelve. `drawSprite` rounds to whole stage pixels, so motion is
+    // even only when every drawing carries exactly one of them. Twelve at
+    // 40 ms moved him on every second drawing, and that alternation is what
+    // still read as shaky once the order was right.
+    expect(walkAdvance(0)).toBe(0)
+    const changes: number[] = []
+    let previous = walkAdvance(0)
+    for (let ms = 1; ms <= 4_040; ms += 1) {
+      const advance = walkAdvance(ms)
+      expect(Number.isInteger(advance), `advance at ${ms} ms`).toBe(true)
+      if (advance !== previous) {
+        expect(advance - previous, `jump at ${ms} ms`).toBe(1)
+        changes.push(ms)
+      }
+      previous = advance
+    }
+    // One pixel per drawing: the changes land exactly on the drawing boundaries.
+    for (let index = 1; index < changes.length; index += 1) {
+      expect(changes[index]! - changes[index - 1]!).toBe(WALK_FRAME_MS)
+    }
+    expect(walkAdvance(WALK_FRAME_MS * WALK_CYCLE.length)).toBe(WALK_STEP_PX)
   })
 
   it('wakes the instrument panel between its two generated states on the beat', () => {
