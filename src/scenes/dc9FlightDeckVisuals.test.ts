@@ -18,7 +18,12 @@ import {
   dc9YokeDemandFromDrag,
   DC9_KEY_NODES,
   DC9_KEY_YAW_CORRECTION,
+  DC9_ROUTE_STRIP_LIFT_METRES,
+  DC9_KEY_COLLIDER_PADDING,
   applyDc9KeyYawCorrection,
+  applyDc9RouteStripLift,
+  fitDc9KeyColliderToKey,
+  dc9RouteStripNodes,
   DC9_OVERHEAD_HITBOX_EDGE_METRES,
   DC9_OVERHEAD_HITBOX_NODES,
   separateDc9OverheadHitboxes,
@@ -351,6 +356,10 @@ describe('applyDc9KeyYawCorrection', () => {
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(0.185, 0.033, 0.084))
     mesh.name = 'DC9_PROP_CAPTAINS_KEY_MESH'
     root.getObjectByName('DC9_PROP_CAPTAINS_KEY')?.add(mesh)
+    // The shipped hit volume is barely half the key's length, which is the thing being fixed.
+    const hit = new THREE.Mesh(new THREE.BoxGeometry(0.109, 0.020, 0.050))
+    hit.name = 'DC9_HITBOX_CAPTAINS_KEY_MESH'
+    root.getObjectByName('DC9_HITBOX_CAPTAINS_KEY')?.add(hit)
     root.updateMatrixWorld(true)
     return root
   }
@@ -388,11 +397,121 @@ describe('applyDc9KeyYawCorrection', () => {
     expect(collider.quaternion.angleTo(prop.quaternion)).toBeCloseTo(0, 9)
   })
 
+  it('grows the hit volume to contain the whole key', () => {
+    const root = ledge()
+    applyDc9KeyYawCorrection(root)
+    expect(fitDc9KeyColliderToKey(root)).toBe(true)
+    const keyBounds = new THREE.Box3().setFromObject(root.getObjectByName('DC9_PROP_CAPTAINS_KEY')!)
+    const colliderBounds = new THREE.Box3().setFromObject(root.getObjectByName('DC9_HITBOX_CAPTAINS_KEY')!)
+    expect(colliderBounds.containsBox(keyBounds)).toBe(true)
+    const keySize = keyBounds.getSize(new THREE.Vector3())
+    const colliderSize = colliderBounds.getSize(new THREE.Vector3())
+    for (const axis of ['x', 'y', 'z'] as const) {
+      expect(colliderSize[axis]).toBeCloseTo(keySize[axis] * (1 + DC9_KEY_COLLIDER_PADDING), 6)
+    }
+    // Still centred on the key, so the projected rectangle is not offset from it.
+    expect(colliderBounds.getCenter(new THREE.Vector3()).distanceTo(keyBounds.getCenter(new THREE.Vector3())))
+      .toBeCloseTo(0, 9)
+  })
+
+  it('fits the hit volume once and tolerates a missing key', () => {
+    const root = ledge()
+    applyDc9KeyYawCorrection(root)
+    fitDc9KeyColliderToKey(root)
+    const size = new THREE.Box3().setFromObject(root.getObjectByName('DC9_HITBOX_CAPTAINS_KEY')!).getSize(new THREE.Vector3())
+    expect(fitDc9KeyColliderToKey(root)).toBe(false)
+    expect(new THREE.Box3().setFromObject(root.getObjectByName('DC9_HITBOX_CAPTAINS_KEY')!).getSize(new THREE.Vector3()).x)
+      .toBeCloseTo(size.x, 9)
+    expect(fitDc9KeyColliderToKey(new THREE.Object3D())).toBe(false)
+  })
+
   it('is safe to run twice and on a cockpit that lacks the nodes', () => {
     const root = ledge()
     applyDc9KeyYawCorrection(root)
     expect(applyDc9KeyYawCorrection(root)).toBe(0)
     expect(root.getObjectByName('DC9_PROP_CAPTAINS_KEY')?.rotation.y).toBeCloseTo(DC9_KEY_YAW_CORRECTION, 9)
     expect(applyDc9KeyYawCorrection(new THREE.Object3D())).toBe(0)
+  })
+})
+
+describe('applyDc9RouteStripLift', () => {
+  const ROUTE_CODES = ['BTR', 'STL', 'TYS', 'LAX', 'SEA', 'AMS'] as const
+
+  function yoke(): THREE.Object3D {
+    const root = new THREE.Object3D()
+    const range = new THREE.Object3D()
+    range.name = 'OBJ8_DC9VC2_RANGE_014'
+    root.add(range)
+    const place = (name: string, y: number, parent: THREE.Object3D = range) => {
+      const node = new THREE.Object3D()
+      node.name = name
+      node.position.set(0.4973, y, 2.783)
+      parent.add(node)
+      return node
+    }
+    // The shipped layout: card centred at 0.32, rows stepping down from it.
+    place('DC9_PROP_MEM_ROUTE_CARD', 0.32).position.z = 2.775
+    ROUTE_CODES.forEach((code, index) => {
+      const row = place(`DC9_ROUTE_ROW_${code}`, 0.3745 - index * 0.017)
+      // The printed line rides on its row rather than being placed itself.
+      const line = new THREE.Object3D()
+      line.name = `DC9_ROUTE_ROW_${code}_LINE`
+      row.add(line)
+      place(`DC9_HITBOX_ROUTE_${code}`, 0.3745 - index * 0.017).position.z = 2.795
+    })
+    place('DC9_ROUTE_SUBMIT', 0.2675)
+    place('DC9_HITBOX_ROUTE_SUBMIT', 0.2675).position.z = 2.795
+    // A neighbour on the same yoke that must not move.
+    place('OBJ8_DC9VC2_RANGE_014_PAD', 0.1)
+    root.updateMatrixWorld(true)
+    return root
+  }
+
+  it('collects the whole route contract and nothing else', () => {
+    const names = dc9RouteStripNodes(yoke()).map((node) => node.name).sort()
+    expect(names).toEqual([
+      'DC9_HITBOX_ROUTE_AMS', 'DC9_HITBOX_ROUTE_BTR', 'DC9_HITBOX_ROUTE_LAX',
+      'DC9_HITBOX_ROUTE_SEA', 'DC9_HITBOX_ROUTE_STL', 'DC9_HITBOX_ROUTE_SUBMIT',
+      'DC9_HITBOX_ROUTE_TYS', 'DC9_PROP_MEM_ROUTE_CARD',
+      'DC9_ROUTE_ROW_AMS', 'DC9_ROUTE_ROW_BTR', 'DC9_ROUTE_ROW_LAX',
+      'DC9_ROUTE_ROW_SEA', 'DC9_ROUTE_ROW_STL', 'DC9_ROUTE_ROW_TYS',
+      'DC9_ROUTE_SUBMIT',
+    ])
+  })
+
+  it('raises the strip up the yoke without moving it off the column', () => {
+    const root = yoke()
+    expect(applyDc9RouteStripLift(root)).toBe(15)
+    const card = root.getObjectByName('DC9_PROP_MEM_ROUTE_CARD')
+    if (!card) throw new Error('missing card')
+    expect(card.position.y).toBeCloseTo(0.32 + DC9_ROUTE_STRIP_LIFT_METRES, 9)
+    expect(card.position.x).toBeCloseTo(0.4973, 9)
+    expect(card.position.z).toBeCloseTo(2.775, 9)
+    // The strip's top edge (half of its 0.15 m body) now sits under the wheel's 0.4404 top.
+    const topEdge = card.position.y + 0.075
+    expect(topEdge).toBeGreaterThan(0.4015)
+    expect(topEdge).toBeLessThanOrEqual(0.4404)
+  })
+
+  it('moves every row, hit volume and the submit target by the same amount', () => {
+    const before = new Map(dc9RouteStripNodes(yoke()).map((node) => [node.name, node.position.y]))
+    const root = yoke()
+    applyDc9RouteStripLift(root)
+    for (const node of dc9RouteStripNodes(root)) {
+      expect(node.position.y - (before.get(node.name) ?? 0)).toBeCloseTo(DC9_ROUTE_STRIP_LIFT_METRES, 9)
+    }
+    // A row's printed line rides along, and the rest of the yoke stays put.
+    expect(root.getObjectByName('DC9_ROUTE_ROW_STL_LINE')?.getWorldPosition(new THREE.Vector3()).y)
+      .toBeCloseTo(0.3575 + DC9_ROUTE_STRIP_LIFT_METRES, 9)
+    expect(root.getObjectByName('OBJ8_DC9VC2_RANGE_014_PAD')?.position.y).toBeCloseTo(0.1, 9)
+  })
+
+  it('is safe to run twice and on a cockpit that lacks the nodes', () => {
+    const root = yoke()
+    applyDc9RouteStripLift(root)
+    expect(applyDc9RouteStripLift(root)).toBe(0)
+    expect(root.getObjectByName('DC9_PROP_MEM_ROUTE_CARD')?.position.y)
+      .toBeCloseTo(0.32 + DC9_ROUTE_STRIP_LIFT_METRES, 9)
+    expect(applyDc9RouteStripLift(new THREE.Object3D())).toBe(0)
   })
 })

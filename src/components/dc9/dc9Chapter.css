@@ -532,8 +532,10 @@
 /* Overhead shutdown markers -----------------------------------------------
    The three switches sit 70 mm apart on the overhead panel and read as identical
    black toggles from the seat, so each gets a yellow box on the cockpit itself.
-   These are sight guides only: the click goes through to the switch, and the
-   shutdown panel beside them is the accessible control. */
+   The boxes carry no captions: naming each switch on the panel gives the answer
+   away, and the shutdown list already names them in order. These are sight guides
+   only -- the click goes through to the switch, and that list is the accessible
+   control. */
 
 .dc9-secure-markers {
   position: absolute;
@@ -551,22 +553,6 @@
   transform: translate(-50%, -50%);
 }
 
-.dc9-secure-marker__label {
-  position: absolute;
-  bottom: calc(100% + .3rem);
-  left: 50%;
-  padding: .1rem .34rem;
-  border: 1px solid rgb(255 210 63 / 45%);
-  color: #ffd23f;
-  background: rgb(10 16 18 / 88%);
-  font-size: .6rem;
-  font-weight: 700;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  transform: translateX(-50%);
-}
-
 /* The next switch in the shutdown order is the only one the player should touch. */
 .dc9-secure-marker.is-next {
   border-color: #ffd23f;
@@ -578,11 +564,6 @@
 .dc9-secure-marker.is-complete {
   border-color: rgb(139 187 154 / 65%);
   box-shadow: none;
-}
-
-.dc9-secure-marker.is-complete .dc9-secure-marker__label {
-  border-color: rgb(139 187 154 / 45%);
-  color: #a9c7b1;
 }
 
 @keyframes dc9-secure-marker-pulse {
@@ -652,7 +633,7 @@
   place-items: center;
   padding: 0;
   border: 1px solid transparent;
-  border-radius: 50%;
+  border-radius: .25rem;
   background: transparent;
 }
 
@@ -705,6 +686,12 @@
   outline: 2px solid #f0c875;
   outline-offset: .25rem;
   transform: translateY(-50%);
+}
+
+/* The fallback chip is the whole key image, so it keeps its round frame. */
+.dc9-key-trigger.is-fallback,
+.dc9-key-trigger.is-keyboard-only:focus-visible {
+  border-radius: 50%;
 }
 
 .dc9-chapter__load-error {

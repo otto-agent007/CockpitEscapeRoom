@@ -192,7 +192,7 @@ export const dc9LegacyFlow = {
       thrustClosed: { label: 'Levers closed', detail: 'Bring both levers all the way back to idle.' },
     } as const,
     completionText:
-      'Controls free and correct. With both hands on the yoke, a narrow paper strip clipped to the column comes into view.',
+      'Controls free and correct. A narrow paper strip clipped to the column comes into view.',
     disclaimer: 'The aircraft is parked and powered down. Nothing here commands the aeroplane.',
   } as const,
   instrumentScan: {

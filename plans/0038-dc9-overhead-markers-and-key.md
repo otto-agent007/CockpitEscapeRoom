@@ -59,7 +59,44 @@ the Blender pipeline (a full asset rebuild, not done here).
 - [x] 2026-08-23 — `lookHintDirection` drives a right cue and a down cue; transition measured.
 - [x] 2026-08-23 — `applyDc9KeyYawCorrection` with four unit tests; before/after render captured.
 
+**Owner round two, same day.** Five follow-ups after seeing the above in the browser:
+
+- [x] Marker captions removed — naming each switch on the panel gave the answer away.
+- [x] "With both hands on the yoke" dropped from the control-check completion line.
+- [x] Route strip raised up the yoke.
+- [x] The key's click target became a rectangle around the key instead of a circle on it.
+- [x] A synthesized fanfare on the Captain's Key reveal.
+
 ## Discoveries
+
+### Round two
+
+- **The strip's height was chosen by rendering, not arithmetic.** The pipeline centres it at
+  y = 0.32, which hangs its lower half down the column shaft below the wheel. Rendered at +0.030,
+  +0.038 and +0.045 against the shipped position: +0.045 puts the paper over the yoke's centre hub
+  and the wheel stops reading as a wheel, +0.030 is barely clear of the old position. **+0.038**
+  puts the top edge at y = 0.433, just under the wheel's 0.4404 top, with the hub still visible.
+- **The key's hit volume is barely half the key.** The shipped collider is
+  0.109 x 0.020 x 0.050 against a key of 0.185 x 0.033 x 0.085. That was invisible while the trigger
+  was a fixed 80 px circle drawn at the collider's centre; the moment the trigger became a rectangle
+  projected from that volume, it visibly failed to contain the key — and the key's ends were never
+  clickable in the first place. `fitDc9KeyColliderToKey` grows it to the key plus 8%.
+- **Scaling a rotated collider on world axes scales the wrong axes.** `Object3D.scale` is applied on
+  the node's own axes, and the quarter turn has swapped those against the world's, so comparing
+  world sizes silently stretched X where Z was wanted. Caught by a unit test that expected the
+  fitted box to match the key on every axis and found one axis 1% out. Both boxes are now measured
+  in the collider's own frame.
+- **No angular threshold separates "keep panning" from "you are at the stop".** The first attempt
+  suppressed a sideways cue below 0.06 rad of overshoot, which fixed the phone but broke 1440: at
+  the mid-pan pose the key is 72 px off a 1440-wide screen, which is 0.05 rad — under the threshold
+  — so the cue flipped to "down" while the player was still clearly meant to keep panning right. At
+  375 at the yaw stop the overshoot is 0.03 rad. The two are not separable by angle. The projector
+  now reads the seat's actual remaining travel through a shared `Dc9LookState` ref and only offers a
+  direction the seat can still move in, which is exact and deletes the magic number.
+- **`atan2(y, hypot(x, forward))` is the right vertical measure here, even though the frustum uses
+  `y/forward`.** The elevation angle off the view axis stays constant as the player yaws, so the
+  vertical term does not grow while the target is far off to the side. That is what keeps "scan
+  right" winning until the pan is done, rather than the two cues fighting.
 
 - **The key is on screen before the player can see it.** Measured at 1440x900 from the key-reveal
   start pose: the key projects to `(4345, 2546)` — far off the right edge and well below. After a
@@ -88,6 +125,17 @@ the Blender pipeline (a full asset rebuild, not done here).
   the APU master and battery markers back on top of each other on screen; 6 px keeps them apart.
 
 ## Decision log
+
+- **The fanfare is synthesized, not a shipped audio file** — 2026-08-23. Same reasoning as the
+  intro's gag, and the same code: `IntroSfxPlayer` renders any `IntroSfxCue`, so the new
+  `dc9KeySfx.ts` is a pure descriptor and nothing new owns an AudioContext. No binary asset, no
+  licensing question, nothing downloaded. Consequence: importing a module named for the intro into
+  the DC-9 chapter, which is a naming smell accepted over renaming owner-approved intro code.
+- **The fanfare's AudioContext is released on a timer, not on unmount** — 2026-08-23. Taking the key
+  immediately would otherwise cut the chord off mid-note.
+- **No mute control was added for it** — 2026-08-23. The intro's mute and volume are local component
+  state, so there is no global sound preference to honour and inventing one is beyond what was
+  asked. Flagged as an open question rather than guessed at.
 
 - **Markers are decoration over the canvas, not buttons** — 2026-08-23. A button would have to be
   keyboard-reachable and would then duplicate the shutdown panel's list in the tab order, and it
@@ -184,6 +232,28 @@ Owner-review screenshots at 1440 / 768 / 375 in `preview-renders/dc9-overhead-an
 `01-switch-markers-*`, `02-switch-markers-one-done-*`, `03-key-cue-scan-right-*`,
 `04-key-cue-look-down-*`, `05-key-in-view-*`.
 
+## Round two evidence
+
+- Strip lift rendered at 0.030 / 0.038 / 0.045 against the shipped 0.320 and compared side by side
+  before choosing; final at 1440 / 768 / 375 in `preview-renders/dc9-strip-key-polish/`.
+- Key click rectangle measured at 1440: **80x80 circle → 220x204 rectangle** at 15% padding, then
+  trimmed to 8% because the key lies diagonally and its axis-aligned box is already generous.
+- Cue journey re-measured at all three widths after the remaining-travel change, including the
+  mid-pan pose that the angular threshold had broken: **1440 start `right`, mid-pan `right`, after
+  the pan `down`, after looking down none** — and `right → down → none` at 768 and 375.
+- Fanfare asserted in the browser by recording what the page starts on its AudioContext: one
+  context, three triangle oscillators, one square, one noise source — and **nothing at all before
+  the card opens**. Run against a production build, which confirms React StrictMode's development
+  double-invoke does not ship.
+- `npx vitest run` — **435 passed across 34 files** (was 425; ten new tests across the route strip,
+  the collider fit and the fanfare descriptor).
+
+**Working-tree note.** A sibling Claude session briefly switched this shared checkout to
+`origin/main` and back while some of the round-two captures were running. The tree was verified
+file-by-file afterwards, the dev server restarted and confirmed to be serving the current sources,
+and every browser measurement re-run — all reproduced byte-identical. Screenshots taken in that
+window were re-captured rather than trusted.
+
 ## Outcome and handoff
 
 **Awaiting owner review.** Limitations, stated plainly:
@@ -199,6 +269,13 @@ Owner-review screenshots at 1440 / 768 / 375 in `preview-renders/dc9-overhead-an
 - **The key correction is runtime-only.** The Blender pipeline still bakes the old pose.
 - The quarter turn is `+90°` about the vertical axis. If the owner wants the bow at the other end,
   it is the sign of `DC9_KEY_YAW_CORRECTION`.
+- **The key fanfare has no mute.** It is the only sound outside the intro, and the intro's own mute
+  is component-local, so there is nothing to inherit. If the owner wants one it needs a real
+  game-wide sound preference, which is its own small piece of work.
+- Two more runtime corrections now sit on top of the shipped GLB — the strip lift and the collider
+  fit — alongside the key's quarter turn. All three are deleted by one asset rebuild;
+  `applyDc9RouteStripLift`, `fitDc9KeyColliderToKey` and `applyDc9KeyYawCorrection` are the three
+  call sites, and `tools/assets/check-models.mjs` pins the strip's shipped translation to 0.32.
 - At 375x812 the key ends up partly behind the fullscreen and help buttons in the bottom-right
   corner once it is in view. The look-down cue was moved clear of them; the key itself was not,
   because that is the stage's approved framing.

@@ -54,6 +54,8 @@ import {
   dc9SelfTestChannelValues,
   dc9YokeDemandFromDrag,
   applyDc9KeyYawCorrection,
+  applyDc9RouteStripLift,
+  fitDc9KeyColliderToKey,
   separateDc9OverheadHitboxes,
   type Dc9ActiveSelfTest,
   type Dc9JointHandle,
@@ -668,6 +670,12 @@ function applyDc9GameplayCameraTransform(runtimeCamera: THREE.Camera, sourceCame
   runtimeCamera.matrixWorldInverse.copy(runtimeCamera.matrixWorld).invert()
 }
 
+/** Where the seat is looking, and therefore how much travel is left in each direction. */
+export interface Dc9LookState {
+  yaw: number
+  pitch: number
+}
+
 function Dc9SeatLookControls({
   sourceCamera,
   cameraResetRevision,
@@ -676,6 +684,7 @@ function Dc9SeatLookControls({
   initialYaw,
   initialPitch = 0,
   suppressLookRef,
+  lookRef,
 }: {
   sourceCamera: THREE.Camera
   cameraResetRevision: number
@@ -685,6 +694,8 @@ function Dc9SeatLookControls({
   initialPitch?: number
   /** Set while the player is dragging the yoke, so looking around does not fight it. */
   suppressLookRef?: React.RefObject<boolean>
+  /** Published so a cue can tell "keep looking" from "you are already at the stop". */
+  lookRef?: React.RefObject<Dc9LookState>
 }) {
   const { camera, gl, size } = useThree()
   const basePositionRef = useRef(new THREE.Vector3())
@@ -716,8 +727,12 @@ function Dc9SeatLookControls({
     narrowFovRef.current = narrowFov
     yawRef.current = initialYaw
     pitchRef.current = THREE.MathUtils.clamp(initialPitch, -DC9_LOOK_PITCH_LIMIT, DC9_LOOK_PITCH_LIMIT)
+    if (lookRef?.current) {
+      lookRef.current.yaw = yawRef.current
+      lookRef.current.pitch = pitchRef.current
+    }
     cameraDirtyRef.current = true
-  }, [cameraResetRevision, initialPitch, initialYaw, narrowFov, sourceCamera, wideFov])
+  }, [cameraResetRevision, initialPitch, initialYaw, lookRef, narrowFov, sourceCamera, wideFov])
 
   useFrame(() => {
     if (!cameraDirtyRef.current) return
@@ -777,6 +792,10 @@ function Dc9SeatLookControls({
         -DC9_LOOK_PITCH_LIMIT,
         DC9_LOOK_PITCH_LIMIT,
       )
+      if (lookRef?.current) {
+        lookRef.current.yaw = yawRef.current
+        lookRef.current.pitch = pitchRef.current
+      }
       cameraDirtyRef.current = true
     }
     const onWheel = (event: WheelEvent) => {
@@ -797,7 +816,7 @@ function Dc9SeatLookControls({
       canvas.removeEventListener('pointercancel', stopDrag)
       canvas.removeEventListener('wheel', onWheel)
     }
-  }, [gl, suppressLookRef])
+  }, [gl, lookRef, suppressLookRef])
 
   return null
 }
@@ -2479,21 +2498,16 @@ function Dc9YokeDragControls({
 }
 
 /**
- * Clearance a projected centre needs from the viewport edge before a labelled marker is
- * worth drawing on it: half the smallest marker plus room for its caption.
+ * Clearance a projected centre needs from the viewport edge before a marker is worth drawing
+ * on it: half the smallest marker plus a little air, so a box is never sliced by the frame.
  */
-const DC9_MARKER_EDGE_MARGIN_PX = 48
+const DC9_MARKER_EDGE_MARGIN_PX = 32
 
 /**
- * Horizontal excess below which a sideways cue stops being worth showing, in radians.
- *
- * The seat's yaw stops are tighter than the cockpit is wide, so on a portrait phone the key
- * is still 1.6 degrees past the right edge when the player has already panned to the stop:
- * "keep going right" is then an instruction they cannot follow. Anything under this is
- * treated as a finished pan so the vertical rule below can take over. It sits far under the
- * frustum half-angles in play, which run from 0.35 to 0.79 radians.
+ * Slack on a look limit, in radians, below which the seat counts as being at its stop. The
+ * clamp lands exactly on the limit, so this only has to survive float error.
  */
-const DC9_LOOK_HINT_SETTLED_RADIANS = 0.06
+const DC9_LOOK_LIMIT_EPSILON = 1e-4
 
 /**
  * How far down the frame a target may sit before it still needs a "look down" cue, as a
@@ -2514,14 +2528,17 @@ const DC9_LOOK_HINT_LOW_IN_FRAME = 0.7
  * projects with flipped sign, so screen coordinates cannot say "to the right" once the
  * player has looked past it.
  *
- * The largest angular excess beyond the frustum wins, which is what turns the key cue from
- * "scan right" into "look down": from the right seat the key starts far off to the right
- * and moderately below, and the horizontal excess is the one that closes first.
+ * A direction is only offered while the seat still has travel that way. That is what
+ * separates "the key is 72 px off the right edge, keep panning" from "the key is 17 px off
+ * the right edge and you are already against the yaw stop" — measured at 1440 and 375
+ * respectively, the two are 0.05 and 0.03 radians of overshoot and no angular threshold
+ * tells them apart. Remaining travel does, exactly.
  */
 function lookHintDirection(
   object: THREE.Object3D,
   camera: THREE.Camera,
   scratch: THREE.Vector3,
+  look: Dc9LookState | null,
 ): Dc9OffscreenDirection | null {
   object.getWorldPosition(scratch)
   camera.worldToLocal(scratch)
@@ -2535,29 +2552,38 @@ function lookHintDirection(
   const halfHorizontal = camera instanceof THREE.PerspectiveCamera
     ? Math.atan(Math.tan(halfVertical) * camera.aspect)
     : halfVertical
-  const excess: [Dc9OffscreenDirection, number][] = [
-    ['right', horizontal - halfHorizontal],
-    ['left', -horizontal - halfHorizontal],
-    ['up', vertical - halfVertical],
-    ['down', -vertical - halfVertical],
+  // With no look state the seat is treated as free to move, which is how this behaved
+  // before the stops were consulted.
+  const canLookRight = !look || look.yaw > -DC9_LOOK_YAW_RIGHT_LIMIT + DC9_LOOK_LIMIT_EPSILON
+  const canLookLeft = !look || look.yaw < DC9_LOOK_YAW_LEFT_LIMIT - DC9_LOOK_LIMIT_EPSILON
+  const canLookDown = !look || look.pitch > -DC9_LOOK_PITCH_LIMIT + DC9_LOOK_LIMIT_EPSILON
+  const canLookUp = !look || look.pitch < DC9_LOOK_PITCH_LIMIT - DC9_LOOK_LIMIT_EPSILON
+  const excess: [Dc9OffscreenDirection, number, boolean][] = [
+    ['right', horizontal - halfHorizontal, canLookRight],
+    ['left', -horizontal - halfHorizontal, canLookLeft],
+    ['up', vertical - halfVertical, canLookUp],
+    ['down', -vertical - halfVertical, canLookDown],
   ]
   let best: Dc9OffscreenDirection | null = null
-  let bestExcess = DC9_LOOK_HINT_SETTLED_RADIANS
-  for (const [direction, value] of excess) {
-    if (value > bestExcess) {
+  let bestExcess = 0
+  for (const [direction, value, reachable] of excess) {
+    if (reachable && value > bestExcess) {
       best = direction
       bestExcess = value
     }
   }
   if (best) return best
+  if (!canLookDown) return null
   return -vertical > halfVertical * DC9_LOOK_HINT_LOW_IN_FRAME ? 'down' : null
 }
 
 function Dc9HotspotProjector({
   targets,
+  lookRef,
   onChange,
 }: {
   targets: Map<string, THREE.Object3D>
+  lookRef?: React.RefObject<Dc9LookState>
   onChange?: (positions: Dc9HotspotScreenPositions) => void
 }) {
   const { camera, size } = useThree()
@@ -2582,7 +2608,7 @@ function Dc9HotspotProjector({
       // The key is the only target the player has to hunt for, so it is the only one that
       // pays for the extra camera-space work.
       if (gameId === 'dc9.key.open') {
-        position.offscreen = lookHintDirection(object, camera, local) ?? undefined
+        position.offscreen = lookHintDirection(object, camera, local, lookRef?.current ?? null) ?? undefined
       }
       if (gameId.startsWith('dc9.secure.')) {
         position.inView = position.visible
@@ -2591,7 +2617,7 @@ function Dc9HotspotProjector({
           && position.y >= DC9_MARKER_EDGE_MARGIN_PX
           && position.y <= size.height - DC9_MARKER_EDGE_MARGIN_PX
       }
-      if ((gameId === 'dc9.route.card' || gameId.startsWith('dc9.gauge.') || gameId.startsWith('dc9.secure.')) && position.visible) {
+      if ((gameId === 'dc9.route.card' || gameId === 'dc9.key.open' || gameId.startsWith('dc9.gauge.') || gameId.startsWith('dc9.secure.')) && position.visible) {
         bounds.setFromObject(object)
         let minX = Number.POSITIVE_INFINITY
         let minY = Number.POSITIVE_INFINITY
@@ -2751,6 +2777,7 @@ function Dc9Cockpit({
   const [loadFailed, setLoadFailed] = useState(false)
   const canvasRef = useRef(gl.domElement)
   const suppressLookRef = useRef(false)
+  const lookRef = useRef<Dc9LookState>({ yaw: 0, pitch: 0 })
 
   useEffect(() => {
     canvasRef.current = gl.domElement
@@ -2826,6 +2853,8 @@ function Dc9Cockpit({
         for (const [gameId, target] of createDc9GaugeTargets(scene)) targets.set(gameId, target)
         separateDc9OverheadHitboxes(scene)
         applyDc9KeyYawCorrection(scene)
+        fitDc9KeyColliderToKey(scene)
+        applyDc9RouteStripLift(scene)
         const yokeTarget = scene.getObjectByName('OBJ8_DC9VC2_RANGE_015') ?? null
         scene.updateMatrixWorld(true)
         const sourceCamera = scene.getObjectByName(DC9_GAME_CAMERA)
@@ -2951,6 +2980,7 @@ function Dc9Cockpit({
                     : 0}
             initialPitch={chapterStage === 'controlCheck' ? DC9_CONTROL_CHECK_INITIAL_PITCH : 0}
             suppressLookRef={suppressLookRef}
+            lookRef={lookRef}
           />
           <Dc9ControlAnimator controls={loaded.controls} activeControls={activeControls} reducedMotion={reducedMotion} />
           <Dc9FlightDeckAnimator
@@ -2966,7 +2996,7 @@ function Dc9Cockpit({
             onDrag={onYokeDrag}
             onHoverInteractive={onHoverInteractive}
           />
-          <Dc9HotspotProjector targets={loaded.targets} onChange={onHotspotsChange} />
+          <Dc9HotspotProjector targets={loaded.targets} lookRef={lookRef} onChange={onHotspotsChange} />
           <Dc9InteractionRaycaster
             scene={loaded.scene}
             enabled={interactionEnabled}

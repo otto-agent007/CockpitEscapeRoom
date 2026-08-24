@@ -962,6 +962,62 @@ test('DC-9 ATP gate accepts pointer typing and submits the visible answer', asyn
   await expect(keyTrigger).not.toContainText("Open The Captain's Key")
 })
 
+test("The Captain's Key reveal plays one synthesized fanfare", async ({ page }) => {
+  // The only way to assert sound: record what the page actually starts on its AudioContext.
+  await page.addInitScript(() => {
+    const started: { kind: string; type?: string }[] = []
+    ;(window as unknown as { __audioStarted: typeof started }).__audioStarted = started
+    const Native = window.AudioContext
+    class RecordingAudioContext extends Native {
+      constructor() {
+        super()
+        started.push({ kind: 'context' })
+      }
+
+      override createOscillator(): OscillatorNode {
+        const node = super.createOscillator()
+        const start = node.start.bind(node)
+        node.start = (when?: number) => {
+          started.push({ kind: 'oscillator', type: node.type })
+          return start(when)
+        }
+        return node
+      }
+
+      override createBufferSource(): AudioBufferSourceNode {
+        const node = super.createBufferSource()
+        const start = node.start.bind(node)
+        node.start = (when?: number) => {
+          started.push({ kind: 'noise' })
+          return start(when)
+        }
+        return node
+      }
+    }
+    window.AudioContext = RecordingAudioContext
+  })
+  await page.goto('/?skip3d=1')
+  await seedGameState(page, createDc9QualificationState())
+
+  const started = () => page.evaluate(() => (window as unknown as { __audioStarted: unknown[] }).__audioStarted)
+  // Nothing is heard before the card opens.
+  expect(await started()).toEqual([])
+
+  await page.getByRole('textbox', { name: 'Airline Transport Pilot answer' }).fill('1500 hours')
+  await page.getByRole('button', { name: 'Verify' }).click()
+  await page.getByRole('button', { name: "Open The Captain's Key" }).click()
+  await expect(page.getByRole('dialog', { name: "THE CAPTAIN'S KEY" })).toBeVisible()
+
+  await expect.poll(started).toEqual([
+    { kind: 'context' },
+    { kind: 'oscillator', type: 'triangle' },
+    { kind: 'oscillator', type: 'triangle' },
+    { kind: 'oscillator', type: 'triangle' },
+    { kind: 'oscillator', type: 'square' },
+    { kind: 'noise' },
+  ])
+})
+
 test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
   // SwiftShader can take longer to tear down the real 38 MiB cockpit page after
   // the final WebGL assertion; keep the boundary bounded without weakening checks.

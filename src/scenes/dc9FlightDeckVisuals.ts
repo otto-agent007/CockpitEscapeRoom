@@ -212,6 +212,53 @@ export const DC9_OVERHEAD_HITBOX_NODES = [
 export const DC9_OVERHEAD_HITBOX_EDGE_METRES = 0.042
 
 /**
+ * Every node the Blender pipeline places from one `card_center`: the route strip itself, the
+ * six station rows (whose printed lines are their children), the submit target and the seven
+ * hit volumes. They are all siblings under the yoke's pitch range, so they move together or
+ * the rows stop lining up with the paper.
+ */
+export function dc9RouteStripNodes(root: THREE.Object3D): THREE.Object3D[] {
+  const found: THREE.Object3D[] = []
+  root.traverse((object) => {
+    const name = object.name
+    if (name === 'DC9_PROP_MEM_ROUTE_CARD'
+      || name === 'DC9_ROUTE_SUBMIT'
+      || /^DC9_ROUTE_ROW_[A-Z]{3}$/.test(name)
+      || name.startsWith('DC9_HITBOX_ROUTE_')) found.push(object)
+  })
+  return found
+}
+
+/**
+ * How far up the yoke to slide the route strip, in metres.
+ *
+ * The pipeline mounts the strip centred at y = 0.32, which puts its 0.15 m body across the
+ * middle of the control wheel and hanging down the column shaft below it. The wheel assembly
+ * tops out at y = 0.4404 and the column pad at 0.4015, so this lifts the centre to 0.358 and
+ * the strip's top edge to 0.433 — high on the yoke, just under the top of the wheel, where a
+ * strip actually clipped to a column would sit. Rendered against 0.030 and 0.045 as well:
+ * 0.045 puts the paper over the yoke's centre hub and the wheel stops reading as a wheel.
+ *
+ * Runtime, like the key's quarter turn: the durable home is `card_center` in
+ * `tools/blender/build_dc9_production.py`, which needs a full asset rebuild. Note that
+ * `tools/assets/check-models.mjs` pins the shipped GLB translation to 0.32, so that contract
+ * check stays true and would need updating alongside any rebuild.
+ */
+export const DC9_ROUTE_STRIP_LIFT_METRES = 0.038
+
+export function applyDc9RouteStripLift(root: THREE.Object3D, lift = DC9_ROUTE_STRIP_LIFT_METRES): number {
+  let moved = 0
+  for (const node of dc9RouteStripNodes(root)) {
+    if (node.userData.dc9RouteStripLifted === true) continue
+    node.position.y += lift
+    node.userData.dc9RouteStripLifted = true
+    moved += 1
+  }
+  if (moved > 0) root.updateMatrixWorld(true)
+  return moved
+}
+
+/**
  * The golden key and its hit volume, which are placed at the same point on the ledge
  * beside the first-officer seat.
  */
@@ -229,6 +276,53 @@ export const DC9_KEY_NODES = ['DC9_PROP_CAPTAINS_KEY', 'DC9_HITBOX_CAPTAINS_KEY'
  * `tools/blender/import_dc9_golden_key.py`, which needs a full asset rebuild.
  */
 export const DC9_KEY_YAW_CORRECTION = Math.PI / 2
+
+/**
+ * Slack left around the key when its hit volume is fitted to it, as a fraction of each
+ * edge. Kept small because the key lies diagonally to the seat, so the axis-aligned box
+ * around it is already generously bigger than the key itself.
+ */
+export const DC9_KEY_COLLIDER_PADDING = 0.08
+
+/**
+ * Grow the key's hit volume to the key.
+ *
+ * The shipped collider is 0.109 x 0.020 x 0.050 against a key that measures
+ * 0.185 x 0.033 x 0.085 — a little over half its length. That was invisible while the
+ * trigger was a fixed circle drawn at the collider's centre, but the trigger is now a
+ * rectangle projected from this volume, so a short collider draws a box that visibly fails
+ * to contain the key and leaves its ends unclickable. Run this after the quarter turn, so
+ * the key's bounds are the ones the player can see.
+ */
+export function fitDc9KeyColliderToKey(root: THREE.Object3D): boolean {
+  const key = root.getObjectByName('DC9_PROP_CAPTAINS_KEY')
+  const collider = root.getObjectByName('DC9_HITBOX_CAPTAINS_KEY')
+  if (!key || !collider || collider.userData.dc9KeyColliderFitted === true) return false
+  root.updateMatrixWorld(true)
+  const keyBounds = new THREE.Box3().setFromObject(key)
+  const colliderBounds = new THREE.Box3().setFromObject(collider)
+  if (keyBounds.isEmpty() || colliderBounds.isEmpty()) return false
+  const centre = keyBounds.getCenter(new THREE.Vector3())
+  // `scale` is applied on the collider's own axes, and the quarter turn has swapped those
+  // against the world's, so both boxes are measured in the collider's frame before the
+  // factors are taken. Comparing world sizes here silently scales the wrong axes.
+  const toColliderLocal = collider.matrixWorld.clone().invert()
+  const wanted = keyBounds.clone().applyMatrix4(toColliderLocal)
+    .getSize(new THREE.Vector3()).multiplyScalar(1 + DC9_KEY_COLLIDER_PADDING)
+  const have = colliderBounds.clone().applyMatrix4(toColliderLocal).getSize(new THREE.Vector3())
+  collider.scale.set(
+    collider.scale.x * (have.x > 1e-6 ? wanted.x / have.x : 1),
+    collider.scale.y * (have.y > 1e-6 ? wanted.y / have.y : 1),
+    collider.scale.z * (have.z > 1e-6 ? wanted.z / have.z : 1),
+  )
+  // Scaling happens about the node origin, which need not be the box centre.
+  root.updateMatrixWorld(true)
+  const moved = new THREE.Box3().setFromObject(collider).getCenter(new THREE.Vector3())
+  collider.position.add(centre.clone().sub(moved))
+  collider.userData.dc9KeyColliderFitted = true
+  root.updateMatrixWorld(true)
+  return true
+}
 
 export function applyDc9KeyYawCorrection(root: THREE.Object3D, yaw = DC9_KEY_YAW_CORRECTION): number {
   let rotated = 0

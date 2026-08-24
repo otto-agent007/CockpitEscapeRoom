@@ -25,6 +25,9 @@ const DC9_SECURE_MARKER_MIN_PX = 44
  */
 const DC9_KEY_CUE_TRACK_RANGE = ['15%', '80%'] as const
 
+/** Smallest edge for the key's click rectangle, so a distant key stays a real target. */
+const DC9_KEY_TRIGGER_MIN_PX = 44
+
 interface Dc9ChapterProps {
   state: GameState
   dispatch: React.Dispatch<GameAction>
@@ -184,11 +187,7 @@ export function Dc9Chapter({
                 className={`dc9-secure-marker${complete ? ' is-complete' : next ? ' is-next' : ''}`}
                 data-control={controlId}
                 style={{ left: projection.x, top: projection.y, width, height }}
-              >
-                <span className="dc9-secure-marker__label">
-                  {dc9LegacyFlow.secureControls[controlId].shortLabel}
-                </span>
-              </span>
+              />
             )
           })}
         </div>
@@ -273,7 +272,18 @@ export function Dc9Chapter({
           aria-label="Open The Captain's Key"
           data-projection={keyProjected ? 'mesh' : keyFallback ? 'fallback' : 'offscreen'}
           data-projection-point={keyProjection ? `${keyProjection.x},${keyProjection.y},${keyProjection.visible}` : undefined}
-          style={keyProjected ? { left: keyProjection.x, top: keyProjection.y } : undefined}
+          data-projection-size={keyProjected && keyProjection.width !== undefined && keyProjection.height !== undefined
+            ? `${keyProjection.width},${keyProjection.height}`
+            : undefined}
+          // A rectangle around the whole key, sized from its collider, rather than a fixed
+          // circle: the key is long and thin, so a circle covered a third of it and a lot of
+          // empty ledge.
+          style={keyProjected ? {
+            left: keyProjection.x,
+            top: keyProjection.y,
+            width: keyProjection.width !== undefined ? Math.max(keyProjection.width + 14, DC9_KEY_TRIGGER_MIN_PX) : undefined,
+            height: keyProjection.height !== undefined ? Math.max(keyProjection.height + 14, DC9_KEY_TRIGGER_MIN_PX) : undefined,
+          } : undefined}
           onClick={openCaptainsKey}
         >
           <img src={`${import.meta.env.BASE_URL}images/captains-key-celebration.png`} alt="Golden Captain's Key" />

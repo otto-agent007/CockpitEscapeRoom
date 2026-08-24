@@ -1,6 +1,58 @@
 # Test report
 
 
+## 2026-08-23 DC-9 round two: strip up the yoke, key click rectangle, key fanfare, bare markers
+
+Five owner follow-ups after seeing the overhead work in the browser. Three found real defects
+underneath them.
+
+- **Marker captions removed** — naming each switch on the panel gave the puzzle away. The boxes and
+  their next/complete states are unchanged.
+- **"With both hands on the yoke" dropped** from the control-check completion line.
+- **Route strip raised up the yoke, chosen by rendering rather than arithmetic.** Rendered at
+  +0.030, +0.038 and +0.045 m against the shipped 0.320 centre and compared side by side: +0.045
+  puts the paper over the yoke's centre hub and the wheel stops reading as a wheel; +0.030 is barely
+  clear of where it was. **+0.038** puts the strip's top edge at 0.433, just under the wheel's
+  0.4404 top, hub still visible. All fifteen nodes the pipeline places from one `card_center` move
+  together — the strip, six rows, the submit target and seven hit volumes — or the rows stop lining
+  up with the paper.
+- **Key click target is now a rectangle, and that exposed a real defect.** The shipped hit volume is
+  0.109 x 0.020 x 0.050 against a key of 0.185 x 0.033 x 0.085 — barely half its length, so the
+  key's ends were never clickable. Invisible while the trigger was a fixed 80 px circle drawn at the
+  volume's centre; obvious the moment the trigger became a rectangle projected from it. The collider
+  is now fitted to the key plus 8%. Measured at 1440: **80x80 circle → 220x204 rectangle** at the
+  first padding, trimmed to 8% because the key lies diagonally and its axis-aligned box is already
+  generous.
+- **A unit test caught the fitting scaling the wrong axes.** `Object3D.scale` applies on the node's
+  own axes and the key's quarter turn has swapped those against the world's, so comparing world
+  sizes stretched X where Z was wanted — one axis came out 1% off. Both boxes are now measured in
+  the collider's frame.
+- **The cue's "you are at the stop" rule was wrong and the fix removed a magic number.** The
+  previous 0.06 rad overshoot threshold fixed the phone and broke 1440: at the mid-pan pose the key
+  is 72 px off a 1440-wide screen — 0.05 rad, under the threshold — so the cue flipped to "down"
+  while the player was still clearly meant to keep panning. At 375 at the yaw stop the overshoot is
+  0.03 rad. **No angle separates them.** The projector now reads the seat's remaining travel through
+  a shared look-state ref and only offers a direction the seat can still move in. Re-measured:
+  1440 reads `right` at the start, **`right` at mid-pan**, `down` after the pan, none after looking
+  down; 768 and 375 read `right → down → none`.
+- **Celebration sound on the Captain's Key reveal**, synthesized rather than shipped as a file —
+  same approach as the intro's gag, so no binary asset and no licensing question. Asserted in the
+  browser by recording what the page starts on its AudioContext: one context, three triangle
+  oscillators, one square, one noise source, and **nothing before the card opens**. Run against a
+  production build, which confirms React StrictMode's development double-invoke does not ship.
+- **`npm run check`** — ESLint, `tsc -b`, **435/435 Vitest across 34 files** (ten new), production
+  build: pass. **Playwright smoke spec** — see below.
+- Screenshots at 1440 / 768 / 375 in `preview-renders/dc9-strip-key-polish/`.
+- **Working-tree note.** A sibling Claude session briefly switched this shared checkout to
+  `origin/main` and back while some captures were running. The tree was verified file-by-file
+  afterwards, the dev server restarted and confirmed to be serving the current sources, and every
+  browser measurement re-run — all reproduced byte-identical. Screenshots taken in that window were
+  re-captured rather than trusted.
+- Known and not fixed: the fanfare has no mute. It is the only sound outside the intro and the
+  intro's own mute is component-local, so there is nothing to inherit; a real game-wide sound
+  preference is its own piece of work.
+
+
 ## 2026-08-23 DC-9 overhead switch markers, look-down key cue, key laid along the ledge
 
 - **Yellow markers on the three shutdown switches, measured on the real GLB at 1440x900.**

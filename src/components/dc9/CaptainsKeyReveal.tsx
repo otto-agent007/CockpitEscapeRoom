@@ -1,4 +1,7 @@
+import { useEffect } from 'react'
 import { MilestoneCelebration } from '../QualificationCelebration'
+import { DC9_KEY_FANFARE, dc9KeyFanfareDurationSeconds } from '../../game/dc9KeySfx'
+import { IntroSfxPlayer } from '../../game/introSfxPlayer'
 
 interface CaptainsKeyRevealProps {
   reducedMotion: boolean
@@ -6,7 +9,22 @@ interface CaptainsKeyRevealProps {
   onDismiss: () => void
 }
 
+/** A little tail after the last voice before the AudioContext is released. */
+const FANFARE_RELEASE_PADDING_SECONDS = 0.4
+
 export function CaptainsKeyReveal({ reducedMotion, onClaim, onDismiss }: CaptainsKeyRevealProps) {
+  // One fanfare when the card opens. The player has clicked their way here, so the
+  // AudioContext has the gesture it needs; if the browser refuses one anyway the player
+  // fails silently and the reveal is unchanged.
+  useEffect(() => {
+    const player = new IntroSfxPlayer()
+    player.play(DC9_KEY_FANFARE, 1, false)
+    // Released on a timer rather than on unmount, so taking the key straight away lets the
+    // chord ring out instead of cutting it off mid-note.
+    const releaseMs = (dc9KeyFanfareDurationSeconds() + FANFARE_RELEASE_PADDING_SECONDS) * 1_000
+    window.setTimeout(() => player.dispose(), releaseMs)
+  }, [])
+
   return (
     <MilestoneCelebration
       eyebrow="Final Flight Log complete"
