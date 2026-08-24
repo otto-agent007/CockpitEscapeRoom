@@ -149,7 +149,63 @@ test('Storm Line supports keyboard flight, pause, and durable checkpoint reload'
   await expect(page.getByText('Inputs are centered and progress is safe.')).toBeVisible()
   await page.getByRole('button', { name: 'Resume' }).click()
 
-  await page.evaluate(() => {
+  await expect(page.getByRole('button', { name: 'Sound on' })).toBeVisible()
+
+  await page.reload()
+  await expect(page.getByText(/Storm Line · Weather entry/)).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Pause' })).toBeVisible()
+})
+
+test('Storm Line ambience is audible by default and the toggle silences it', async ({ page }) => {
+  await page.addInitScript(() => {
+    const analysers: AnalyserNode[] = []
+    const probe = {
+      count: () => analysers.length,
+      peak: () => {
+        let peak = 0
+        for (const analyser of analysers) {
+          const data = new Float32Array(analyser.fftSize)
+          analyser.getFloatTimeDomainData(data)
+          for (const value of data) peak = Math.max(peak, Math.abs(value))
+        }
+        return peak
+      },
+    }
+    ;(window as unknown as { __airbusAudioProbe: typeof probe }).__airbusAudioProbe = probe
+    const original = AudioNode.prototype.connect
+    ;(AudioNode.prototype as unknown as { connect: unknown }).connect = function (
+      this: AudioNode,
+      target: AudioNode | AudioParam,
+      ...rest: number[]
+    ) {
+      if (typeof AudioDestinationNode !== 'undefined' && target instanceof AudioDestinationNode) {
+        const analyser = (this.context as AudioContext).createAnalyser()
+        analyser.fftSize = 2048
+        original.call(this, analyser)
+        analysers.push(analyser)
+      }
+      return original.call(this, target as AudioNode, ...rest)
+    }
+  })
+  await startAccessibleStormLine(page)
+
+  await expect(page.getByRole('button', { name: 'Sound on' })).toBeVisible()
+  const peak = () =>
+    page.evaluate(() =>
+      (window as unknown as { __airbusAudioProbe: { peak(): number } }).__airbusAudioProbe.peak(),
+    )
+  // A destination tap must exist and carry a clearly audible signal — not just
+  // "an oscillator was started". 0.04 fails both silent variants that shipped
+  // before: no graph at all (peak 0) and the old 0.018-gain whisper.
+  await expect.poll(peak, { timeout: 20_000 }).toBeGreaterThan(0.04)
+
+  await page.getByRole('button', { name: 'Sound on' }).click()
+  await expect(page.getByRole('button', { name: 'Sound off' })).toBeVisible()
+  await expect.poll(peak, { timeout: 20_000 }).toBeLessThan(0.005)
+})
+
+test('Storm Line keeps flying when WebAudio is unavailable', async ({ page }) => {
+  await page.addInitScript(() => {
     Object.defineProperty(window, 'AudioContext', {
       value: class {
         constructor() {
@@ -159,12 +215,13 @@ test('Storm Line supports keyboard flight, pause, and durable checkpoint reload'
       configurable: true,
     })
   })
-  await page.getByRole('button', { name: 'Sound off' }).click()
-  await expect(page.getByRole('button', { name: 'Sound off' })).toBeVisible()
+  await startAccessibleStormLine(page)
 
-  await page.reload()
-  await expect(page.getByText(/Storm Line · Weather entry/)).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Pause' })).toBeVisible()
+  const soundOff = page.getByRole('button', { name: 'Sound off' })
+  await expect(soundOff).toBeVisible()
+  await soundOff.click()
+  await expect(soundOff).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Accessible flight instruments' })).toBeVisible()
 })
 
 test('Storm Line exposes a confirmed full-game restart button', async ({ page }) => {
@@ -237,10 +294,10 @@ test('Storm Line reads a standard gamepad and safely retries an attitude departu
   await expect(page.getByRole('alertdialog')).toHaveCount(0)
   await expect(page.getByRole('region', { name: 'Accessible flight instruments' })).toContainText('Pitch0.0°')
 
-  await page.getByRole('button', { name: 'Sound off' }).click()
-  await expect(page.getByRole('button', { name: 'Sound on' })).toBeVisible()
   await page.getByRole('button', { name: 'Sound on' }).click()
   await expect(page.getByRole('button', { name: 'Sound off' })).toBeVisible()
+  await page.getByRole('button', { name: 'Sound off' }).click()
+  await expect(page.getByRole('button', { name: 'Sound on' })).toBeVisible()
 })
 
 test('production Airbus GLB renders Storm Line displays, controls, and responsive approval views', async ({ page }) => {
@@ -377,9 +434,12 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
     await canvas.getAttribute('data-airbus-pfd-horizon-roll'),
   ), { timeout: 15_000 }).toBeLessThan(0)
   await page.keyboard.up('Space')
+  // Two rAF hops (holds ref → input ref → dataset) at SwiftShader's ~1 fps,
+  // with the default-on ambience now sharing the machine: 5s was ~4 frames
+  // and flaked. Waiting budget only — the recentered value must still be 0.
   await expectSim.poll(async () => Number(
     await canvas.getAttribute('data-airbus-input-bank'),
-  ), { timeout: 5_000 }).toBe(0)
+  ), { timeout: 15_000 }).toBe(0)
   const reloadedModel = page.waitForResponse(
     (response) => response.url().includes('/models/airbus-captain.glb') && response.status() === 200,
     { timeout: 30_000 },

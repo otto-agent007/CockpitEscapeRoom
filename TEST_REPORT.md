@@ -1,6 +1,89 @@
 # Test report
 
 
+## 2026-08-23 Engine-Out guidance + default-on ambience (branch pr/airbus-storm-usability, round 2)
+
+- **Owner feedback after playing round 1:** Storm Line approved; Engine-Out needs the same
+  treatment; "neither have sound playing."
+- **Engine-Out guidance:** `deriveEngineOutRouteGuidance` joins the shared guidance module (types
+  generalized to `AirbusRouteGuidance`, meter end-labels data-driven): a directional-drift meter
+  through recognition/stabilization whose green band IS the enforced ±0.45 envelope, then a bank
+  meter during diversion whose green band IS the 8–24° arc that accrues SAFE RETURN, with drift
+  warnings prioritized mid-turn. Briefing/captions/coaching now name directions ("the nose will
+  drift LEFT — hold Balance right", "SAFE RETURN is to the right").
+- **Sound root cause was double:** the ambience was opt-in (default off — the audio graph was only
+  ever created by clicking the toggle) AND near-inaudible when on (72 Hz sine + lowpassed noise at
+  master gain 0.018–0.053 — nothing laptop speakers reproduce). Now default ON, graph auto-created
+  when a scenario activates (pointer/key resume listeners cover autoplay policy), plus a sawtooth
+  hum whose harmonics ride the intensity-modulated lowpass, at master gain 0.055 + intensity×0.1.
+  Toggle and the WebAudio-unavailable fallback (button stays "Sound off", flight unaffected) kept.
+- **Audibility is measured, not assumed** (per the synthesized-audio-envelopes memory): a new e2e
+  taps every destination connection with an `AnalyserNode` and requires waveform peak > 0.04 —
+  a threshold both silent variants fail (no graph: 0; the old whisper: ≈0.02) — then requires the
+  toggle to decay it below 0.005. The old WebAudio-unavailable check installed its throwing stub
+  after the graph already existed; it now installs before load and actually exercises the fallback.
+- **Pre-existing blocker found by measuring, in BOTH scenarios:** between ~620 and ~900 px the
+  control deck laid its groups in one non-wrapping row and overflowed its own box. Engine-Out by
+  492 px — the Directional-balance buttons sat at x 988–1109, entirely outside a 768 px viewport,
+  in flight, for the exact control the exercise teaches — and Storm Line by 155 px, running the
+  thrust controls off the right edge. The responsive e2e only ever entered flight at 375 px, which
+  is how both shipped. `.storm-control-deck` now wraps for both (Balance right measured back at
+  x 402–607; deck overflow 0 at 375/768/1440, no off-screen hold controls).
+  - A first attempt scoped the wrap to Engine-Out only; measurement showed that left Storm Line's
+    155 px overflow in place, so both wrap.
+  - Wrapping makes each deck taller. Guidance shelves were re-measured against real deck tops, not
+    guessed: storm 621–900 px `bottom` 6.2rem → 7.8rem (deck top y=785 in a 900 px viewport),
+    engine-out 10.8rem (deck top y=737) and 9.3rem at ≤620 px (deck top y=673).
+  - Regression guard: the responsive e2e now asserts, at every width, deck `scrollWidth` ≤
+    `clientWidth` and every `.storm-hold-control` inside the viewport.
+- `npm run check` — pass: ESLint, tsc, **442/442 across 34 files** (9 new Engine-Out guidance
+  tests), build.
+- e2e: storm-line + engine-out first run 11/14 — the three failures were two assertions staled by
+  intended copy/default changes (old briefing text; old Sound labels in the gamepad case) and the
+  production case's tightest waiting budget (5 s ≈ 4 SwiftShader frames for the keyup→dataset
+  recenter, now sharing the machine with the audio thread) — raised to the sibling polls' 15 s,
+  threshold unchanged. After repair: **all three pass** (production case 12.5 min under load),
+  cumulative storm-line + engine-out green, including the new audibility, fallback, and tablet
+  deck cases. Workload responsive and smoke Airbus regression runs recorded in plans/0039.
+- Layout verified by DOM measurement at 768×900 and 375×812 (probe script): all hold controls
+  in-viewport, guidance box clear of deck, tools, and task panel at both widths; engine-out
+  guidance shelf raised to measured deck tops (10.8rem / 9.3rem). Fresh screenshots
+  `04-engine-stabilization-balance-*` / `05-engine-diversion-bank-*` inspected in
+  `preview-renders/airbus-storm-usability/`.
+
+## 2026-08-23 Airbus Storm Line usability (branch pr/airbus-storm-usability)
+
+- **Scope:** qualification instruction box announcing the drag/drop start; Storm Line briefing
+  rewritten around "the west gap is off your left wing"; a live Route guidance line + drift meter
+  driven by new pure rules in `src/game/airbusRouteGuidance.ts`; sector buttons relabeled
+  "West (left) / Center (ahead) / East (right)"; stronger gap hint names the left third of the ND;
+  a soft gap-lane glow on the storm ND; Weather-Entry gate eased from −0.35 to −0.25 via the new
+  exported `STORM_ENTRY_GATE_LATERAL` (owner-requested difficulty ease; the drift-meter green band
+  is drawn from the same constants the flight model enforces).
+- `npm run check` — pass: ESLint, tsc, **433/433 Vitest across 34 files** (10 new
+  `airbusRouteGuidance` tests; new entry-gate boundary tests on both sides of the threshold),
+  production build.
+- `npx playwright test e2e/airbus-workload.spec.ts e2e/airbus-storm-line.spec.ts` — first run
+  **9/10**: the one failure was the new guidance-box geometry assertion at 375 px, where the box
+  (fixed `top: 13rem`) overlapped the wrapped captain-task panel and instrument mirror. Repaired by
+  pinning the guidance above the flight-control deck at ≤900 px instead of using fixed tops; two
+  further capture-inspection passes moved its right edge clear of the floating "?"/fullscreen scene
+  tools (right: 6rem at ≤620 px, 7rem at 621–900 px — the tools sit ~5.8rem inboard). After repair:
+  workload **4/4** (including the 5.1 min production-GLB ND/ECAM mesh-click case) and the
+  responsive/no-WebGL geometry case green at 375/768/1440.
+- `npx playwright test e2e/smoke.spec.ts -g "Airbus"` — **3/3**, including the production A320 GLB
+  load and the card-placement case that now asserts the instruction-box copy.
+- Screenshots inspected (not just captured) in `preview-renders/airbus-storm-usability/`:
+  `01-qualification-instruction-{1440,768,375}.png`, `02-storm-entry-guidance-*.png`,
+  `03-storm-core-corridor-*.png` (via the env-gated `e2e/airbus-usability-captures.spec.ts`), plus
+  production 1440 evidence `storm-entry-range-40-1440.png`, `storm-core-west-gap-1440.png` (WEST
+  boxed green on the live ND with the gap-lane glow, Route line reading "In the corridor"),
+  `engine-recognition-acknowledged-1440.png`, `engine-diversion-right-safe-return-1440.png`, and
+  `native-storm-core-{375,768,1440}.png`.
+- Reduced motion (responsive case runs under `reducedMotion: reduce`), reload persistence, wrong
+  answer → hint escalation, checkpoint-failure coaching, and keyboard flight are covered by the
+  passing suites above. Engine-Out regression run recorded in plans/0039.
+
 ## 2026-08-23 Captain's Key cheer swapped to the owner's own recording, first ten seconds
 
 The owner rejected the public-domain Commons clip and supplied their own download instead.

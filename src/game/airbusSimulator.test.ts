@@ -5,6 +5,7 @@ import {
   createStormLineStateAtCheckpoint,
   normalizeFlightInput,
   restartStormLineCheckpoint,
+  STORM_ENTRY_GATE_LATERAL,
 } from './airbusSimulator'
 
 describe('normalizeFlightInput', () => {
@@ -66,6 +67,37 @@ describe('Storm Line flight model', () => {
     expect(next.phase).toBe('flying')
     expect(next.checkpoint).toBe('stormCore')
     expect(next.metrics.weatherJudgment).toBe(true)
+  })
+
+  it('accepts a shallow but committed west offset at the entry gate', () => {
+    const initial = createStormLineState()
+    const nearGap = {
+      ...initial,
+      elapsedSeconds: 44.95,
+      checkpointElapsedSeconds: 44.95,
+      aircraft: { ...initial.aircraft, lateralPosition: STORM_ENTRY_GATE_LATERAL - 0.05 },
+    }
+
+    const next = advanceStormLine(nearGap, { pitch: 0, bank: 0, thrust: 0 }, 0.1)
+
+    expect(next.phase).toBe('flying')
+    expect(next.checkpoint).toBe('stormCore')
+    expect(next.metrics.weatherJudgment).toBe(true)
+  })
+
+  it('still fails the entry gate just right of the published threshold', () => {
+    const initial = createStormLineState()
+    const shortOfGap = {
+      ...initial,
+      elapsedSeconds: 44.95,
+      checkpointElapsedSeconds: 44.95,
+      aircraft: { ...initial.aircraft, lateralPosition: STORM_ENTRY_GATE_LATERAL + 0.05 },
+    }
+
+    const next = advanceStormLine(shortOfGap, { pitch: 0, bank: 0, thrust: 0 }, 0.1)
+
+    expect(next.phase).toBe('checkpointFailed')
+    expect(next.failureReason).toBe('corridor')
   })
 
   it('freezes and coaches an unsafe storm-gap choice', () => {

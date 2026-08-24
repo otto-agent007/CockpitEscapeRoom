@@ -1241,6 +1241,7 @@ function drawWeatherRadar(
   workload: AirbusWorkloadProgress,
   workloadTask: AirbusWorkloadTaskId | null,
   safeReturnProgress?: number,
+  gapLaneEmphasis?: boolean,
 ) {
   const context = instrumentContext(canvas)
   const { originX, originY, radarRadius, ringRadii } = AIRBUS_RADAR_DISPLAY
@@ -1318,6 +1319,17 @@ function drawWeatherRadar(
   }
 
   const gapRadians = radar.gapBearingDegrees * Math.PI / 180
+  if (gapLaneEmphasis) {
+    context.strokeStyle = 'rgba(126,249,255,0.14)'
+    context.lineWidth = 26
+    context.beginPath()
+    context.moveTo(originX, originY)
+    context.lineTo(
+      originX + Math.sin(gapRadians) * radarRadius * 0.92,
+      originY - Math.cos(gapRadians) * radarRadius * 0.92,
+    )
+    context.stroke()
+  }
   context.strokeStyle = 'rgba(126,249,255,0.65)'
   context.lineWidth = 2
   context.setLineDash([5, 6])
@@ -1461,6 +1473,8 @@ function drawNd(
     }${track.headingOffsetDegrees.toFixed(0)}°`,
     workload,
     workloadTask,
+    undefined,
+    true,
   )
 }
 

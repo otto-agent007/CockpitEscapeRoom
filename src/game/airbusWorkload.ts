@@ -177,7 +177,7 @@ export function airbusWorkloadHint(
   }
   if (task === 'stormGapSelection') {
     return stronger
-      ? 'The stable training gap is in the west sector of the captain ND.'
+      ? 'The stable training gap is in the west sector — the left third of the captain ND.'
       : 'Confirm the low-precipitation weather gap shown on the captain ND.'
   }
   if (task === 'engineEventAcknowledgement') {

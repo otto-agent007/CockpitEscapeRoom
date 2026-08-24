@@ -133,6 +133,7 @@ describe('Airbus captain workload', () => {
   it('strengthens hints after repeated misses', () => {
     expect(airbusWorkloadHint('stormGapSelection', 1)).toContain('weather gap')
     expect(airbusWorkloadHint('stormGapSelection', 2)).toContain('west')
+    expect(airbusWorkloadHint('stormGapSelection', 2)).toContain('left third')
     expect(airbusWorkloadHint('engineSafeReturnSelection', 3)).toContain('right')
   })
 

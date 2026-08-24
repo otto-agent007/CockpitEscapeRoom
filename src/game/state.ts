@@ -1102,7 +1102,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         phase: 'airbus',
         airbusQualificationAnswer: '',
-        statusMessage: 'The family legacy continues in Airbus A320 Pop T Captain Mode.',
+        statusMessage:
+          'The family legacy continues in Airbus A320 Pop T Captain Mode. First up: a drag-and-drop cockpit check.',
       }
 
     case 'USE_HINT':

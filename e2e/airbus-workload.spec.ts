@@ -94,6 +94,10 @@ test('native Storm tasks survive safe retry, coach wrong choices, and persist', 
 
   const scanTask = page.getByRole('region', { name: 'Captain task: Weather picture' })
   await expect(scanTask).toContainText('Range NEAR')
+  const routeGuidance = page.locator('.storm-route-guidance')
+  await expect(routeGuidance).toContainText('Bank left into the west lane')
+  await expect(routeGuidance).toHaveAttribute('data-storm-guidance-tone', 'action')
+  await expect(routeGuidance.locator('.storm-drift-meter-band')).toBeVisible()
   await page.getByRole('button', { name: 'Cycle scan range' }).click()
   await expect(scanTask).toContainText('Captain task complete')
   await page.clock.runFor(47_000)
@@ -106,10 +110,10 @@ test('native Storm tasks survive safe retry, coach wrong choices, and persist', 
     await savedWorkload(page),
   ))
   const routeTask = page.getByRole('region', { name: 'Captain task: Route judgment' })
-  await page.getByRole('button', { name: 'Center', exact: true }).click()
+  await page.getByRole('button', { name: 'Center (ahead)', exact: true }).click()
   await expect(routeTask).toContainText('weather gap')
   expect((await savedWorkload(page)).selectedWeatherSector).toBe('center')
-  await page.getByRole('button', { name: 'West' }).click()
+  await page.getByRole('button', { name: 'West (left)', exact: true }).click()
   await expect(routeTask).toContainText('Captain task complete')
 
   await page.reload()
@@ -263,14 +267,36 @@ test('workload controls remain reachable without WebGL at 375, 768, and 1440 wid
     const showControls = page.getByRole('button', { name: 'Show flight controls' })
     if (await showControls.isVisible()) await showControls.click()
 
+    const guidance = page.locator('.storm-route-guidance')
+    await expect(guidance).toContainText('corridor')
     const taskBox = await task.boundingBox()
     const topbarBox = await page.locator('.storm-topbar').boundingBox()
     const instrumentsBox = await page
       .getByRole('region', { name: 'Accessible flight instruments' })
       .boundingBox()
     const controlsBox = await page.locator('.storm-control-deck').boundingBox()
-    if (!taskBox || !topbarBox || !instrumentsBox || !controlsBox) {
+    const guidanceBox = await guidance.boundingBox()
+    if (!taskBox || !topbarBox || !instrumentsBox || !controlsBox || !guidanceBox) {
       throw new Error('Responsive workload bounds are unavailable')
+    }
+    expect(guidanceBox.x).toBeGreaterThanOrEqual(0)
+    expect(guidanceBox.x + guidanceBox.width).toBeLessThanOrEqual(viewport.width)
+    expect(guidanceBox.y).toBeGreaterThanOrEqual(taskBox.y + taskBox.height)
+    expect(guidanceBox.y + guidanceBox.height).toBeLessThanOrEqual(controlsBox.y)
+    // The deck laid its groups out in one non-wrapping row until 2026-08-23,
+    // overflowing its own box by 155px at 768 and running the thrust controls
+    // off-screen. Assert the controls themselves, not just the deck's box.
+    expect(
+      await page.evaluate(() => {
+        const deck = document.querySelector('.storm-control-deck')
+        return deck ? deck.scrollWidth - deck.clientWidth : 0
+      }),
+    ).toBeLessThanOrEqual(1)
+    for (const control of await page.locator('.storm-hold-control').all()) {
+      const box = await control.boundingBox()
+      if (!box) throw new Error('Storm hold-control bounds are unavailable')
+      expect(box.x).toBeGreaterThanOrEqual(0)
+      expect(box.x + box.width).toBeLessThanOrEqual(viewport.width)
     }
     expect(taskBox.x).toBeGreaterThanOrEqual(0)
     expect(taskBox.x + taskBox.width).toBeLessThanOrEqual(viewport.width)
