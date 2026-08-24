@@ -1,7 +1,11 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { MilestoneCelebration } from '../QualificationCelebration'
-import { DC9_KEY_FANFARE, dc9KeyFanfareDurationSeconds } from '../../game/dc9KeySfx'
-import { IntroSfxPlayer } from '../../game/introSfxPlayer'
+import {
+  CELEBRATION_SOUND_FILE,
+  CELEBRATION_SOUND_VOLUME,
+  readCelebrationMuted,
+  writeCelebrationMuted,
+} from '../../game/celebrationSound'
 
 interface CaptainsKeyRevealProps {
   reducedMotion: boolean
@@ -9,20 +13,31 @@ interface CaptainsKeyRevealProps {
   onDismiss: () => void
 }
 
-/** A little tail after the last voice before the AudioContext is released. */
-const FANFARE_RELEASE_PADDING_SECONDS = 0.4
-
 export function CaptainsKeyReveal({ reducedMotion, onClaim, onDismiss }: CaptainsKeyRevealProps) {
-  // One fanfare when the card opens. The player has clicked their way here, so the
-  // AudioContext has the gesture it needs; if the browser refuses one anyway the player
-  // fails silently and the reveal is unchanged.
+  const audioRef = useRef<HTMLAudioElement>(null)
+  const [muted, setMuted] = useState(() => (
+    typeof window === 'undefined' ? false : readCelebrationMuted(window.localStorage)
+  ))
+
+  // The cheer plays once as the card opens. The player clicked their way here, so the gesture
+  // requirement is met; if the browser refuses playback anyway the rejection is swallowed and
+  // the reveal is unchanged. Turning the sound back on while the card is open plays it too,
+  // which is the feedback that says the toggle worked.
   useEffect(() => {
-    const player = new IntroSfxPlayer()
-    player.play(DC9_KEY_FANFARE, 1, false)
-    // Released on a timer rather than on unmount, so taking the key straight away lets the
-    // chord ring out instead of cutting it off mid-note.
-    const releaseMs = (dc9KeyFanfareDurationSeconds() + FANFARE_RELEASE_PADDING_SECONDS) * 1_000
-    window.setTimeout(() => player.dispose(), releaseMs)
+    const audio = audioRef.current
+    if (muted || !audio) return
+    audio.volume = CELEBRATION_SOUND_VOLUME
+    audio.currentTime = 0
+    void audio.play().catch(() => undefined)
+    return () => audio.pause()
+  }, [muted])
+
+  const toggleMuted = useCallback(() => {
+    setMuted((current) => {
+      const next = !current
+      if (typeof window !== 'undefined') writeCelebrationMuted(window.localStorage, next)
+      return next
+    })
   }, [])
 
   return (
@@ -36,6 +51,29 @@ export function CaptainsKeyReveal({ reducedMotion, onClaim, onDismiss }: Captain
       onDismiss={onDismiss}
       visual={<img className="qualification-key" src={`${import.meta.env.BASE_URL}images/captains-key-celebration.png`} alt="Golden Captain's Key" />}
       variant="key"
+      aside={(
+        <>
+          {/* Not rendered at all while muted, so a silenced game never fetches the file. */}
+          {!muted && (
+            <audio
+              ref={audioRef}
+              className="sr-only"
+              src={`${import.meta.env.BASE_URL}${CELEBRATION_SOUND_FILE}`}
+              preload="auto"
+              aria-hidden="true"
+            />
+          )}
+          <button
+            type="button"
+            className="celebration-sound-toggle"
+            data-muted={muted}
+            aria-pressed={muted}
+            onClick={toggleMuted}
+          >
+            {muted ? 'Sound off' : 'Sound on'}
+          </button>
+        </>
+      )}
     />
   )
 }

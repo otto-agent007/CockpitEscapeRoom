@@ -69,6 +69,31 @@ the Blender pipeline (a full asset rebuild, not done here).
 
 ## Discoveries
 
+### Round four — the synthesized fanfare was rejected outright
+
+- **The owner asked for a real cheer, not a chord.** The synthesized fanfare is gone, along with
+  `dc9KeySfx.ts`, its tests, and the optional `delaySeconds`/`sustainSeconds` fields that existed
+  only to serve it — `introSfx.ts` and `introSfxPlayer.ts` are back to their pre-round-three state,
+  so the ident gag carries nothing it does not use.
+- **Sourced from Wikimedia Commons because its licences are machine-readable.** Freesound needs an
+  account and most "free sound" sites no longer publish per-file terms you can verify. The Commons
+  API returns `LicenseShortName`, `UsageTerms`, `AttributionRequired` and `Restrictions` per file,
+  which is checkable rather than trusted. Six candidates were pulled; the chosen one is **public
+  domain, attribution not required, no restrictions**.
+- **Picked the cut by measuring, not by filename.** The source is 9.8 s of clapping with cheers. A
+  per-window band analysis (voice 200–1100 Hz against bright 3–8 kHz) put the vocal "hurray" at
+  6.25–7.60 s, ratio 1.5–8.1 where the clapping-only stretches sit at 0.02–0.5. The 3.30 s cut
+  starts at 6.15 s so it opens on the cheer and resolves through the loudest applause swell.
+- **`alimiter` auto-levels its output by default**, which pushed the peak straight back to full
+  scale twice while trying to leave headroom. Replaced with a deterministic `volume=0.66`; the
+  shipped file peaks at **-2.8 dBFS** and is played back at 0.55.
+- **The card's focus trap pinned Tab to the primary button**, so the new sound toggle would have
+  been unreachable by keyboard. `MilestoneCelebration` now cycles Tab and Shift+Tab through every
+  enabled control in the card instead.
+- **`public/audio/README.md` requires mute and volume controls for production audio.** A persisted
+  mute is in; there is no volume slider for a 3.3 s one-shot, which is a deliberate and stated gap.
+  The preference lives under its own key so Restart cannot turn the sound back on.
+
 ### Round three — the fanfare was inaudible
 
 - **"An oscillator started" is not "a sound was heard", and the first test only checked the
@@ -294,9 +319,9 @@ round three; everything else in this plan landed as described. Limitations, stat
 - **The key correction is runtime-only.** The Blender pipeline still bakes the old pose.
 - The quarter turn is `+90°` about the vertical axis. If the owner wants the bow at the other end,
   it is the sign of `DC9_KEY_YAW_CORRECTION`.
-- **The key fanfare has no mute.** It is the only sound outside the intro, and the intro's own mute
-  is component-local, so there is nothing to inherit. If the owner wants one it needs a real
-  game-wide sound preference, which is its own small piece of work.
+- **The celebration has a mute but no volume slider.** `public/audio/README.md` asks production
+  audio for both. A persisted Sound on/off toggle is on the card; a slider for a 3.3 s one-shot was
+  judged out of proportion, and the intro keeps its own mute and volume.
 - Two more runtime corrections now sit on top of the shipped GLB — the strip lift and the collider
   fit — alongside the key's quarter turn. All three are deleted by one asset rebuild;
   `applyDc9RouteStripLift`, `fitDc9KeyColliderToKey` and `applyDc9KeyYawCorrection` are the three

@@ -962,119 +962,73 @@ test('DC-9 ATP gate accepts pointer typing and submits the visible answer', asyn
   await expect(keyTrigger).not.toContainText("Open The Captain's Key")
 })
 
-test("The Captain's Key reveal plays one audible synthesized fanfare", async ({ page }) => {
-  // Recording that start() was called is not enough: the first version of this cue did that
-  // and was still inaudible, because it inherited the ident gag's percussive envelope and
-  // fell to one percent of peak a third of the way through. So tap the graph on its way to
-  // the speakers and measure the level over the whole cue.
-  await page.addInitScript(() => {
-    const scope = window as unknown as {
-      AudioContext: typeof AudioContext
-      __audioTap?: AnalyserNode
-      __audioCtx?: AudioContext
-      __audioContexts: number
-      __audioVoices: string[]
-    }
-    scope.__audioContexts = 0
-    scope.__audioVoices = []
-    const Native = scope.AudioContext
-    function Recording(this: unknown) {
-      const context = new Native()
-      scope.__audioContexts += 1
-      scope.__audioCtx = context
-      const tap = context.createAnalyser()
-      tap.fftSize = 2048
-      scope.__audioTap = tap
-      const nativeConnect = AudioNode.prototype.connect
-      AudioNode.prototype.connect = function (this: AudioNode, target: AudioNode | AudioParam, ...rest: number[]) {
-        // Anything reaching the speakers also reaches the tap.
-        if (target === context.destination) nativeConnect.call(this, tap)
-        return (nativeConnect as (this: AudioNode, t: AudioNode | AudioParam, ...r: number[]) => AudioNode)
-          .call(this, target, ...rest)
-      } as AudioNode['connect']
-      const nativeOscillator = context.createOscillator.bind(context)
-      context.createOscillator = () => {
-        const node = nativeOscillator()
-        // Read the waveform when the voice actually starts: the player sets `type` after
-        // the node is created, so recording it here would only ever see the default.
-        const nativeStart = node.start.bind(node)
-        node.start = (when?: number) => {
-          scope.__audioVoices.push(node.type)
-          return nativeStart(when)
-        }
-        return node
-      }
-      const nativeBufferSource = context.createBufferSource.bind(context)
-      context.createBufferSource = () => {
-        const node = nativeBufferSource()
-        const nativeStart = node.start.bind(node)
-        node.start = (when?: number) => {
-          scope.__audioVoices.push('noise')
-          return nativeStart(when)
-        }
-        return node
-      }
-      return context
-    }
-    Recording.prototype = Native.prototype
-    scope.AudioContext = Recording as unknown as typeof AudioContext
-  })
+test("The Captain's Key reveal plays the celebration cheer and remembers Sound off", async ({ page }) => {
+  // "play() was called" is not proof of playback — an earlier version of this check passed
+  // while the sound was inaudible. Assert the element is really running: not paused, and its
+  // clock actually advancing.
   await page.goto('/?skip3d=1')
   await seedGameState(page, createDc9QualificationState())
-
-  const contexts = () => page.evaluate(() => (window as unknown as { __audioContexts: number }).__audioContexts)
-  // Nothing is heard before the card opens.
-  expect(await contexts()).toBe(0)
-
   await page.getByRole('textbox', { name: 'Airline Transport Pilot answer' }).fill('1500 hours')
   await page.getByRole('button', { name: 'Verify' }).click()
   await page.getByRole('button', { name: "Open The Captain's Key" }).click()
   await expect(page.getByRole('dialog', { name: "THE CAPTAIN'S KEY" })).toBeVisible()
 
-  const trace = await page.evaluate(async () => {
-    const scope = window as unknown as { __audioTap?: AnalyserNode; __audioCtx?: AudioContext; __audioVoices: string[] }
-    const tap = scope.__audioTap
-    const context = scope.__audioCtx
-    if (!tap || !context) return null
-    const buffer = new Float32Array(tap.fftSize)
-    const peaks: { at: number; peak: number }[] = []
-    const startedAt = context.currentTime
-    for (let sample = 0; sample < 20; sample += 1) {
-      tap.getFloatTimeDomainData(buffer)
-      let peak = 0
-      for (let index = 0; index < buffer.length; index += 1) peak = Math.max(peak, Math.abs(buffer[index]!))
-      peaks.push({ at: context.currentTime - startedAt, peak })
-      await new Promise((resolve) => { setTimeout(resolve, 50) })
+  const sample = () => page.evaluate(() => {
+    const audio = document.querySelector<HTMLAudioElement>('audio[src*="key-celebration"]')
+    if (!audio) return null
+    return {
+      src: audio.src,
+      paused: audio.paused,
+      volume: audio.volume,
+      currentTime: audio.currentTime,
+      duration: Number.isFinite(audio.duration) ? audio.duration : null,
     }
-    return { peaks, voices: scope.__audioVoices, state: context.state }
   })
 
-  expect(trace).not.toBeNull()
-  expect(trace?.state).toBe('running')
-  // One fanfare, not one per StrictMode pass: four tones and a shimmer.
-  expect(trace?.voices).toEqual(['triangle', 'triangle', 'triangle', 'square', 'noise'])
-  expect(await contexts()).toBe(1)
+  await expect.poll(async () => (await sample())?.paused, { timeout: 10_000 }).toBe(false)
+  const first = await sample()
+  expect(first?.src).toContain('/audio/key-celebration.mp3')
+  expect(first?.volume).toBeGreaterThan(0)
+  expect(first?.volume).toBeLessThan(1)
 
-  const peaks = trace?.peaks ?? []
-  const loudest = Math.max(...peaks.map((sample) => sample.peak))
-  expect(loudest).toBeGreaterThan(0.15)
-  /**
-   * The chord has to still be ringing half a second in, which is what makes this a flourish
-   * rather than a click. Peak in this window, measured on three envelopes:
-   *
-   * | envelope                                   | peak at 0.45-0.70s |
-   * | ------------------------------------------ | ------------------ |
-   * | shipped (staggered entries, held notes)     | 0.47               |
-   * | held notes removed, stagger kept            | 0.057              |
-   * | neither — the ident gag's percussive shape  | 0.024              |
-   *
-   * A peak-only assertion does not separate these: all three attack above 0.2. The threshold
-   * sits at 0.15, three times under the shipped level and nearly three times over the best
-   * of the broken ones.
-   */
-  const ringing = peaks.filter((sample) => sample.at > 0.45 && sample.at < 0.70)
-  expect(ringing.length).toBeGreaterThan(0)
-  expect(Math.max(...ringing.map((sample) => sample.peak))).toBeGreaterThan(0.15)
+  // Playing, not merely started: the clock has to move, and the file has to be the 3.3s cut.
+  await page.waitForTimeout(800)
+  const second = await sample()
+  expect(second?.currentTime ?? 0).toBeGreaterThan((first?.currentTime ?? 0) + 0.3)
+  expect(second?.duration ?? 0).toBeGreaterThan(3)
+  expect(second?.duration ?? 0).toBeLessThan(4)
+
+  // Sound off silences it now and is remembered across a reload.
+  await page.getByRole('button', { name: 'Sound on' }).click()
+  await expect(page.getByRole('button', { name: 'Sound off' })).toHaveAttribute('aria-pressed', 'true')
+  expect(await sample()).toBeNull()
+  expect(await page.evaluate(() => window.localStorage.getItem('cockpit-escape-room:sound:v1'))).toBe('{"muted":true}')
+
+  // The key is revealed in the save by now, so the card comes back on its own.
+  await page.reload()
+  await expect(page.getByRole('dialog', { name: "THE CAPTAIN'S KEY" })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Sound off' })).toBeVisible()
+  // A silenced game does not even fetch the file.
+  expect(await sample()).toBeNull()
+})
+
+test("The Captain's Key card keeps every control reachable by keyboard", async ({ page }) => {
+  // The card traps Tab. It has two buttons now, so the trap has to cycle rather than pin.
+  await page.goto('/?skip3d=1')
+  await seedGameState(page, createDc9QualificationState())
+  await page.getByRole('textbox', { name: 'Airline Transport Pilot answer' }).fill('1500 hours')
+  await page.getByRole('button', { name: 'Verify' }).click()
+  await page.getByRole('button', { name: "Open The Captain's Key" }).click()
+  await expect(page.getByRole('dialog', { name: "THE CAPTAIN'S KEY" })).toBeVisible()
+
+  const focused = () => page.evaluate(() => document.activeElement?.textContent?.trim() ?? '')
+  await expect.poll(focused).toBe("Take the Captain's Key")
+  await page.keyboard.press('Tab')
+  expect(await focused()).toBe('Sound on')
+  await page.keyboard.press('Tab')
+  expect(await focused()).toBe("Take the Captain's Key")
+  await page.keyboard.press('Shift+Tab')
+  expect(await focused()).toBe('Sound on')
 })
 
 test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {

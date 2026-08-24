@@ -1,6 +1,39 @@
 # Test report
 
 
+## 2026-08-23 Captain's Key celebration: a real public-domain cheer replaces the synthesized chord
+
+The owner rejected the synthesized fanfare and asked for actual cheering. The synth path is
+deleted, including the optional envelope fields added for it, so `introSfx.ts` and
+`introSfxPlayer.ts` are back to exactly what the ident gag needs.
+
+- **Licence verified before download, not assumed.** Sourced from Wikimedia Commons because its
+  API publishes per-file terms: the chosen file reports `LicenseShortName: Public domain`,
+  `AttributionRequired: false`, `Restrictions: none`. Six candidates were compared; two CC0 and
+  three public-domain options were available, and the CC BY-SA one was passed over.
+- **The cut was chosen by measurement.** A per-window band analysis of the 9.8 s source (voice
+  200-1100 Hz against bright 3-8 kHz) put the vocal "hurray" at **6.25-7.60 s**, ratio **1.5-8.1**
+  where clapping-only stretches sit at **0.02-0.5**. The shipped clip is `-ss 6.15 -t 3.30`, so it
+  opens on the cheer and resolves through the loudest applause.
+- **Headroom took two attempts.** `alimiter` auto-levels its output by default and returned the
+  peak to 0 dBFS twice. A deterministic `volume=0.66` gives the shipped **-2.8 dBFS**, measured
+  after MP3 encode rather than assumed. Final asset: 128 kbps CBR, 44.1 kHz mono, 3.30 s,
+  53,960 bytes.
+- **Provenance recorded** in `public/audio/README.md` (source and deployable SHA-256, reproducible
+  ffmpeg command) and `LICENSES/ASSET_MANIFEST.md`; the original is preserved under
+  `.cache/cockpit-pipeline/sources/audio/key-celebration/original/`.
+- **The e2e test proves playback, not intent.** It asserts the element is not paused, that
+  `currentTime` advances by more than 0.3 s over 800 ms, and that `duration` is the 3.3 s cut. The
+  previous "play() was called" style of check is exactly what let the inaudible version ship. It
+  also asserts Sound off silences it immediately, persists to `cockpit-escape-room:sound:v1`,
+  survives a reload, and that a muted game never fetches the file at all.
+- **A keyboard bug found while adding the toggle.** The celebration card traps Tab and pinned it to
+  the primary button, which would have left the new control unreachable. The trap now cycles
+  through every enabled control; covered by a new e2e test asserting Tab and Shift+Tab both move
+  between the two buttons.
+- **`npm run check`** and the **full Playwright suite** — results below.
+
+
 ## 2026-08-23 The Captain's Key fanfare was inaudible — envelope, and a test that could not fail
 
 The owner reported no sound on the key reveal. The e2e assertion added the same day passed

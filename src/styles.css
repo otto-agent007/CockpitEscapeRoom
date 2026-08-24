@@ -2592,6 +2592,31 @@ p {
   transform: translateY(0) scale(1);
 }
 
+/* Sound toggle on a celebration card. Quiet by design: it is a preference, not an action. */
+.celebration-sound-toggle {
+  display: block;
+  margin: 0.85rem auto 0;
+  border: 1px solid rgba(241, 199, 106, 0.35);
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+  background: transparent;
+  color: var(--text-soft);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.celebration-sound-toggle:hover,
+.celebration-sound-toggle:focus-visible {
+  border-color: rgba(241, 199, 106, 0.75);
+  color: #f4e3bb;
+}
+
+.celebration-sound-toggle[data-muted="true"] {
+  border-style: dashed;
+}
+
 .qualification-card {
   position: relative;
   z-index: 2;
