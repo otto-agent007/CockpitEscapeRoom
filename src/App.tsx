@@ -56,6 +56,11 @@ const AIRBUS_STORM_TRANSITION_MS = 1_250
 
 const LOCKER_HAT_HOLD_MS = 2_000
 
+// The chapter loading pages hold briefly even on a warm cache so they read as a scene
+// transition rather than a flash, then cross-fade into the live cockpit.
+const CHAPTER_LOADER_MINIMUM_MS = 600
+const CHAPTER_LOADER_FADE_MS = 450
+
 type Dc9EntryStage = 'idle' | 'fade-out' | 'waiting-for-cockpit' | 'fade-in'
 type LockerHatFinaleStage = 'idle' | 'moving' | 'holding' | 'ready'
 
@@ -112,26 +117,49 @@ function AirbusLoader({ state, fading, onRetry, onFallback }: { state: AirbusLoa
   const totalMb = state.totalBytes ? (state.totalBytes / 1_000_000).toFixed(1) : null
   const percentage = 'percentage' in state ? state.percentage : undefined
   return (
-    <section className={`airbus-loader${fading ? ' airbus-loader--fading' : ''}`} aria-labelledby="airbus-loader-title">
+    <section className={`chapter-loader airbus-loader${fading ? ' chapter-loader--fading' : ''}`} aria-labelledby="airbus-loader-title">
       <img src={`${import.meta.env.BASE_URL}images/a320-game-ready-captain.png`} alt="Game-ready Airbus A320 cockpit viewed from the captain seat" />
-      <div className="airbus-loader-shade" />
-      <div className="airbus-loader-content">
+      <div className="chapter-loader-shade" />
+      <div className="chapter-loader-content">
         <p className="eyebrow">CockpitEscapeRoom</p>
         <h1 id="airbus-loader-title">Airbus A320 Pop T Captain Mode</h1>
-        <p className="airbus-loader-quote">One of the most beautiful offices on earth.</p>
+        <p className="chapter-loader-quote">One of the most beautiful offices on earth.</p>
         <p>Modern technology, earned command, and the view from the left seat.</p>
         {state.status === 'error' ? (
-          <div className="airbus-loader-error" role="alert">
+          <div className="chapter-loader-error" role="alert">
             <strong>{state.message}</strong>
             <div><button type="button" className="primary-button" onClick={onRetry}>Retry 3D</button><button type="button" className="secondary-button" onClick={onFallback}>Continue with accessible controls</button></div>
           </div>
         ) : (
-          <div className="airbus-loader-progress" role="status" aria-live="polite">
+          <div className="chapter-loader-progress" role="status" aria-live="polite">
             <div><span>Preparing the A320 cockpit</span><strong>{percentage !== undefined ? `${percentage}%` : `${loadedMb} MB`}</strong></div>
             <progress max={100} value={percentage ?? 0} />
             <small>{totalMb ? `${loadedMb} of ${totalMb} MB downloaded` : `${loadedMb} MB downloaded`}</small>
           </div>
         )}
+      </div>
+    </section>
+  )
+}
+
+function Dc9Loader({ state, fading }: { state: Dc9LoadState; fading: boolean }) {
+  const loadedMb = ((state.loadedBytes ?? 0) / 1_000_000).toFixed(1)
+  const totalMb = state.totalBytes ? (state.totalBytes / 1_000_000).toFixed(1) : null
+  const { percentage } = state
+  return (
+    <section className={`chapter-loader dc9-loader${fading ? ' chapter-loader--fading' : ''}`} aria-labelledby="dc9-loader-title">
+      <img src={`${import.meta.env.BASE_URL}images/dc9-game-ready-first-officer.png`} alt="DC-9-32 flight deck seen from the first-officer seat" />
+      <div className="chapter-loader-shade" />
+      <div className="chapter-loader-content">
+        <p className="eyebrow">CockpitEscapeRoom</p>
+        <h1 id="dc9-loader-title">DC-9 First-Officer Final Flight Log</h1>
+        <p className="chapter-loader-quote">Every hour of it hand-flown.</p>
+        <p>The right seat, six dials in a fixed scan, and the routes that built a career.</p>
+        <div className="chapter-loader-progress" role="status" aria-live="polite">
+          <div><span>Preparing the DC-9-32 flight deck</span><strong>{percentage !== undefined ? `${percentage}%` : `${loadedMb} MB`}</strong></div>
+          <progress max={100} value={percentage ?? 0} />
+          <small>{totalMb ? `${loadedMb} of ${totalMb} MB downloaded` : `${loadedMb} MB downloaded`}</small>
+        </div>
       </div>
     </section>
   )
@@ -144,6 +172,7 @@ export default function App() {
   const shellRef = useRef<HTMLElement>(null)
   const helpTriggerRef = useRef<HTMLButtonElement>(null)
   const loaderStartedAtRef = useRef(0)
+  const dc9LoaderStartedAtRef = useRef(0)
   const [airbusLoadState, setAirbusLoadState] = useState<AirbusLoadState>({ status: 'loading', loadedBytes: 0 })
   const [airbusRetryToken, setAirbusRetryToken] = useState(0)
   const [lockerRetryToken, setLockerRetryToken] = useState(0)
@@ -155,6 +184,8 @@ export default function App() {
   const [helpOpen, setHelpOpen] = useState(false)
   const [showAirbusLoader, setShowAirbusLoader] = useState(true)
   const [airbusLoaderFading, setAirbusLoaderFading] = useState(false)
+  const [showDc9Loader, setShowDc9Loader] = useState(true)
+  const [dc9LoaderFading, setDc9LoaderFading] = useState(false)
   const [airbusHotspots, setAirbusHotspots] = useState<AirbusHotspotScreenPositions>({})
   const [selectedAirbusCard, setSelectedAirbusCard] = useState<string | null>(null)
   const [selectedLockerMemory, setSelectedLockerMemory] = useState<LockerMemoryId | null>(null)
@@ -343,11 +374,12 @@ export default function App() {
 
   useEffect(() => {
     loaderStartedAtRef.current = performance.now()
+    dc9LoaderStartedAtRef.current = performance.now()
   }, [])
 
   useEffect(() => {
     if (airbusLoadState.status !== 'ready') return
-    const minimumRemaining = Math.max(0, 600 - (performance.now() - loaderStartedAtRef.current))
+    const minimumRemaining = Math.max(0, CHAPTER_LOADER_MINIMUM_MS - (performance.now() - loaderStartedAtRef.current))
     const fadeTimeout = window.setTimeout(() => setAirbusLoaderFading(true), minimumRemaining)
     const hideTimeout = window.setTimeout(() => setShowAirbusLoader(false), minimumRemaining + (reducedMotion ? 0 : 250))
     return () => {
@@ -355,6 +387,24 @@ export default function App() {
       window.clearTimeout(hideTimeout)
     }
   }, [airbusLoadState.status, reducedMotion])
+
+  // The DC-9 loading page owns the wait for the 36 MiB cockpit. On an error it steps aside
+  // immediately so the chapter's own retry/fallback panel is the single place to recover.
+  useEffect(() => {
+    if (dc9LoadState.status !== 'ready' && dc9LoadState.status !== 'error') return
+    const minimumRemaining = dc9LoadState.status === 'error'
+      ? 0
+      : Math.max(0, CHAPTER_LOADER_MINIMUM_MS - (performance.now() - dc9LoaderStartedAtRef.current))
+    const fadeTimeout = window.setTimeout(() => setDc9LoaderFading(true), minimumRemaining)
+    const hideTimeout = window.setTimeout(
+      () => setShowDc9Loader(false),
+      minimumRemaining + (reducedMotion ? 0 : CHAPTER_LOADER_FADE_MS),
+    )
+    return () => {
+      window.clearTimeout(fadeTimeout)
+      window.clearTimeout(hideTimeout)
+    }
+  }, [dc9LoadState.status, reducedMotion])
 
   useEffect(() => {
     if (lockerIntroStage === 'idle' || lockerIntroStage === 'waiting-for-locker' || lockerIntroStage === 'focus-watch') return
@@ -549,6 +599,10 @@ export default function App() {
     if (!confirmed) return
     clearGameState()
     beginAirbusLoading()
+    dc9LoaderStartedAtRef.current = performance.now()
+    setDc9LoaderFading(false)
+    setShowDc9Loader(true)
+    setDc9LoadState({ status: 'idle' })
     setAirbusHotspots({})
     setSelectedAirbusCard(null)
     setSelectedLockerMemory(null)
@@ -702,6 +756,9 @@ export default function App() {
           inputMethod={dc9FlightControls.inputMethod}
           onHoldControl={dc9FlightControls.setHoldControl}
         />
+      )}
+      {state.phase === 'dc9' && !skipPrototypeScene && showDc9Loader && dc9LoadState.status !== 'accessible-fallback' && (
+        <Dc9Loader state={dc9LoadState} fading={dc9LoaderFading} />
       )}
       {state.phase === 'airbus' && !skipPrototypeScene && showAirbusLoader && airbusLoadState.status !== 'accessible-fallback' && (
         <AirbusLoader

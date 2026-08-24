@@ -1,6 +1,239 @@
 # Test report
 
 
+## 2026-08-23 Captain's Key cheer swapped to the owner's own recording, first ten seconds
+
+The owner rejected the public-domain Commons clip and supplied their own download instead.
+
+- **Source**: `/mnt/2TBHDD/Downloads/storegraphic-crowd-cheers-314919.mp3`, 22.07 s, 256 kbps,
+  44.1 kHz stereo. Measured as genuinely crowd-led rather than applause-led: voice/bright energy
+  ratio **15-30 across the whole clip**, against 0.02-0.5 for the clapping stretches of the file it
+  replaces.
+- **Kept the first ten seconds as asked** — `-t 10.0` from the start, so the recording's own
+  swell-in from near silence over the first second is preserved rather than trimmed away. The crowd
+  is still at full level at ten seconds, so a hard cut chopped it mid-cheer: measured tail RMS
+  0.068 with a short fade, flagged abrupt by the check. A 1.2 s fade from 8.8 s brings the tail to
+  **0.023** while leaving full level intact to 8.8 s.
+- **Kept in stereo**, unlike the previous mono clip, because the source is a stereo crowd recording
+  and the width is most of what makes it read as a room full of people. Deterministic `volume=0.80`
+  puts the shipped file at **-3.7 dBFS**. Final asset: 128 kbps CBR, 44.1 kHz stereo, 10.00 s,
+  160,958 bytes.
+- **Licence: public domain, no attribution required**, confirmed by the owner on 2026-08-23. Both
+  files land in the same place, but by different routes: the Commons clip's terms were verifiable
+  through their API, while this one carries no embedded tags and no machine-readable per-file
+  licence, so the owner's confirmation is what `public/audio/README.md` and
+  `LICENSES/ASSET_MANIFEST.md` record as the basis.
+- **Playback bound to the card's lifetime.** The reveal pauses the element on unmount, so taking
+  the key early cuts the cheer short instead of leaving a crowd cheering over the locker scene.
+- E2E updated for the new length and re-run: playback asserted as not paused, `currentTime`
+  advancing more than 0.3 s over 800 ms, and `duration` between 9.5 and 10.5 s. Sound off still
+  silences it, persists to `cockpit-escape-room:sound:v1`, survives a reload, and a muted game
+  never fetches the file.
+- **`npm run check`** and the **Captain's Key e2e tests** — results below.
+
+
+## 2026-08-23 Captain's Key celebration: a real public-domain cheer replaces the synthesized chord
+
+The owner rejected the synthesized fanfare and asked for actual cheering. The synth path is
+deleted, including the optional envelope fields added for it, so `introSfx.ts` and
+`introSfxPlayer.ts` are back to exactly what the ident gag needs.
+
+- **Licence verified before download, not assumed.** Sourced from Wikimedia Commons because its
+  API publishes per-file terms: the chosen file reports `LicenseShortName: Public domain`,
+  `AttributionRequired: false`, `Restrictions: none`. Six candidates were compared; two CC0 and
+  three public-domain options were available, and the CC BY-SA one was passed over.
+- **The cut was chosen by measurement.** A per-window band analysis of the 9.8 s source (voice
+  200-1100 Hz against bright 3-8 kHz) put the vocal "hurray" at **6.25-7.60 s**, ratio **1.5-8.1**
+  where clapping-only stretches sit at **0.02-0.5**. The shipped clip is `-ss 6.15 -t 3.30`, so it
+  opens on the cheer and resolves through the loudest applause.
+- **Headroom took two attempts.** `alimiter` auto-levels its output by default and returned the
+  peak to 0 dBFS twice. A deterministic `volume=0.66` gives the shipped **-2.8 dBFS**, measured
+  after MP3 encode rather than assumed. Final asset: 128 kbps CBR, 44.1 kHz mono, 3.30 s,
+  53,960 bytes.
+- **Provenance recorded** in `public/audio/README.md` (source and deployable SHA-256, reproducible
+  ffmpeg command) and `LICENSES/ASSET_MANIFEST.md`; the original is preserved under
+  `.cache/cockpit-pipeline/sources/audio/key-celebration/original/`.
+- **The e2e test proves playback, not intent.** It asserts the element is not paused, that
+  `currentTime` advances by more than 0.3 s over 800 ms, and that `duration` is the 3.3 s cut. The
+  previous "play() was called" style of check is exactly what let the inaudible version ship. It
+  also asserts Sound off silences it immediately, persists to `cockpit-escape-room:sound:v1`,
+  survives a reload, and that a muted game never fetches the file at all.
+- **A keyboard bug found while adding the toggle.** The celebration card traps Tab and pinned it to
+  the primary button, which would have left the new control unreachable. The trap now cycles
+  through every enabled control; covered by a new e2e test asserting Tab and Shift+Tab both move
+  between the two buttons.
+- **`npm run check`** and the **full Playwright suite** — results below.
+
+
+## 2026-08-23 The Captain's Key fanfare was inaudible — envelope, and a test that could not fail
+
+The owner reported no sound on the key reveal. The e2e assertion added the same day passed
+throughout, which is the interesting part.
+
+- **The check could not fail.** It recorded that `AudioContext` was created and that five
+  oscillators called `start()`. Both were true. Neither says anything about whether a sound came
+  out. Replaced with a tap on the graph's path to `destination` and a measurement of the actual
+  output level over the whole cue.
+- **The sound was real but collapsed.** Measured peak 0.37 at 60 ms, **0.044 by 300 ms, 0.011 by
+  480 ms** — a click, then silence for the remaining second.
+- **Cause: the envelope, not the notes.** `IntroSfxPlayer` gives every voice the ident gag's PSG
+  shape — 5 ms attack, then an exponential ramp to 0.0001 across the whole duration. Right for a
+  40–400 ms blip; for a one-second chord it is at one percent of peak a third of the way in.
+  `IntroSfxSound` now takes optional `delaySeconds` and `sustainSeconds`; both absent reproduces
+  the old shape exactly, so the intro is untouched and its tests pass unchanged.
+- **The fanfare is now a staggered, held C major arpeggio.** Four notes entering 90 ms apart,
+  each holding roughly half its length before releasing. Re-measured: builds 0.16 → 0.38 → 0.51,
+  **holds 0.43–0.51 from 330 ms to 610 ms**, releases to silence by 1.3 s.
+- **Threshold chosen from three measured envelopes, not invented.** Peak in the 0.45–0.70 s
+  window: shipped **0.47**, held notes removed **0.057**, neither (the original) **0.024**. A
+  peak-only assertion separates none of them — all three attack above 0.2. The test asserts above
+  0.15 in that window.
+- **The new test was run against all three envelopes**: passes on the shipped one, fails at 0.056
+  with the sustain disabled, fails at 0.013 on the original. It can fail, and it fails on the bug
+  it was written for.
+- Also fixed: `dc9KeyFanfareDurationSeconds` ignored the new per-voice delay, so the AudioContext
+  was released at 1.45 s while the top note ran past 1.22 s.
+- **`npm run check`** and the **Playwright smoke spec** — results below.
+
+
+## 2026-08-23 DC-9 round two: strip up the yoke, key click rectangle, key fanfare, bare markers
+
+Five owner follow-ups after seeing the overhead work in the browser. Three found real defects
+underneath them.
+
+- **Marker captions removed** — naming each switch on the panel gave the puzzle away. The boxes and
+  their next/complete states are unchanged.
+- **"With both hands on the yoke" dropped** from the control-check completion line.
+- **Route strip raised up the yoke, chosen by rendering rather than arithmetic.** Rendered at
+  +0.030, +0.038 and +0.045 m against the shipped 0.320 centre and compared side by side: +0.045
+  puts the paper over the yoke's centre hub and the wheel stops reading as a wheel; +0.030 is barely
+  clear of where it was. **+0.038** puts the strip's top edge at 0.433, just under the wheel's
+  0.4404 top, hub still visible. All fifteen nodes the pipeline places from one `card_center` move
+  together — the strip, six rows, the submit target and seven hit volumes — or the rows stop lining
+  up with the paper.
+- **Key click target is now a rectangle, and that exposed a real defect.** The shipped hit volume is
+  0.109 x 0.020 x 0.050 against a key of 0.185 x 0.033 x 0.085 — barely half its length, so the
+  key's ends were never clickable. Invisible while the trigger was a fixed 80 px circle drawn at the
+  volume's centre; obvious the moment the trigger became a rectangle projected from it. The collider
+  is now fitted to the key plus 8%. Measured at 1440: **80x80 circle → 220x204 rectangle** at the
+  first padding, trimmed to 8% because the key lies diagonally and its axis-aligned box is already
+  generous.
+- **A unit test caught the fitting scaling the wrong axes.** `Object3D.scale` applies on the node's
+  own axes and the key's quarter turn has swapped those against the world's, so comparing world
+  sizes stretched X where Z was wanted — one axis came out 1% off. Both boxes are now measured in
+  the collider's frame.
+- **The cue's "you are at the stop" rule was wrong and the fix removed a magic number.** The
+  previous 0.06 rad overshoot threshold fixed the phone and broke 1440: at the mid-pan pose the key
+  is 72 px off a 1440-wide screen — 0.05 rad, under the threshold — so the cue flipped to "down"
+  while the player was still clearly meant to keep panning. At 375 at the yaw stop the overshoot is
+  0.03 rad. **No angle separates them.** The projector now reads the seat's remaining travel through
+  a shared look-state ref and only offers a direction the seat can still move in. Re-measured:
+  1440 reads `right` at the start, **`right` at mid-pan**, `down` after the pan, none after looking
+  down; 768 and 375 read `right → down → none`.
+- **Celebration sound on the Captain's Key reveal**, synthesized rather than shipped as a file —
+  same approach as the intro's gag, so no binary asset and no licensing question. Asserted in the
+  browser by recording what the page starts on its AudioContext: one context, three triangle
+  oscillators, one square, one noise source, and **nothing before the card opens**. Run against a
+  production build, which confirms React StrictMode's development double-invoke does not ship.
+- **`npm run check`** — ESLint, `tsc -b`, **435/435 Vitest across 34 files** (ten new), production
+  build: pass. **Playwright smoke spec** — see below.
+- Screenshots at 1440 / 768 / 375 in `preview-renders/dc9-strip-key-polish/`.
+- **Working-tree note.** A sibling Claude session briefly switched this shared checkout to
+  `origin/main` and back while some captures were running. The tree was verified file-by-file
+  afterwards, the dev server restarted and confirmed to be serving the current sources, and every
+  browser measurement re-run — all reproduced byte-identical. Screenshots taken in that window were
+  re-captured rather than trusted.
+- Known and not fixed: the fanfare has no mute. It is the only sound outside the intro and the
+  intro's own mute is component-local, so there is nothing to inherit; a real game-wide sound
+  preference is its own piece of work.
+
+
+## 2026-08-23 DC-9 overhead switch markers, look-down key cue, key laid along the ledge
+
+- **Yellow markers on the three shutdown switches, measured on the real GLB at 1440x900.**
+  `apuBuses 88x63 at 243,484`, `apuMaster 85x63 at 418,523`, `battery 81x60 at 496,558`; exactly one
+  carries `is-next`, and securing the APU buses moves `is-next` to the APU master while the first
+  box turns `is-complete` — every box stays at the same coordinates. The markers are
+  `pointer-events: none` so the click still reaches the switch in the 3D scene, which the
+  real-asset e2e test now asserts alongside the mesh click it already made.
+- **The cue rule had to be measured twice, and the first version was wrong on every narrow screen.**
+  The trigger is the key's angle below the view centre as a fraction of the vertical half-angle, not
+  its visibility: after a full pan right the key is on screen but 1 px from the bottom edge behind
+  the status bar. Measured after the pan: **0.92** of the half-angle at 1440x900 and **0.78** at both
+  768x1024 and 375x812 (narrow screens use the 76-degree field); after pitching down to the seat's
+  limit, **0.62** and **0.52**. A threshold of 0.80 passed at 1440 and silently failed at 768 and
+  375; it is now **0.70**, with 0.08 of margin either side.
+- **A second narrow-screen bug found by the same sweep.** At 375x812 the horizontal half-angle is
+  0.35 rad, so at the right-hand yaw stop the key is still 0.028 rad past the edge — the cue kept
+  saying "keep panning right" when there was no pan left. Horizontal excess under 0.06 rad now
+  counts as a finished pan. The component also no longer invents a "right" arrow when the projector
+  has no opinion, which is what had been hiding the stuck state.
+- **Journey re-measured at all three widths**, panning in strokes that fit the viewport (Playwright
+  clamps pointer coordinates, so one long drag silently pans a fraction as far on a phone):
+  1440x900, 768x1024 and 375x812 all read **right → down → clear**.
+- **Key rotation.** Read from the GLB with `@gltf-transform`: mesh 0.185 x 0.033 x 0.084 on X/Y/Z
+  with identity rotation, so it was already flat but lying across the fore-and-aft ledge. Corrected
+  with a runtime `+90°` yaw on both the prop and its collider, covered by four unit tests
+  (position unchanged, long axis moves from lateral to fore-and-aft, thickness unchanged so it
+  cannot have been stood on edge, collider still coincident, idempotent). Before/after render
+  captured.
+- **`npm run check`** — ESLint, `tsc -b`, **425/425 Vitest across 33 files**, production build:
+  pass. **`npx playwright test e2e/smoke.spec.ts`** — **30 passed, 1 skipped**, including the
+  2.5-minute real-GLB DC-9 test.
+- One e2e assertion had to change rather than be dropped: the old cue was one glyph run and the test
+  asserted `font-size >= 56`, which is meaningless for chevrons drawn from borders. It now asserts
+  the cue's rendered box is at least 56 px on its long edge, that it has three arrows, and — new
+  coverage — that it turns from `right` to `down` after the pan and clears only after the player
+  looks down.
+- Owner-review screenshots at 1440 / 768 / 375 in `preview-renders/dc9-overhead-and-key/`.
+- Known and not fixed: at 375x812 only the battery marker draws, because the shutdown stage's
+  approved framing leaves the other two outside the frame or within the 48 px edge clearance a
+  labelled marker needs. Changing that means changing approved camera framing.
+
+
+## 2026-08-23 DC-9 loading page, clean chapter frame, Legacy Route Record facelift
+
+- **Loading page proved against the real 36.1 MB GLB, not a stub.** Chromium with a 6 Mbit/s CDP
+  throttle, at 1440 / 768 / 375: the read-out advanced through
+  `Preparing the DC-9-32 flight deck / 37% / 13.3 of 36.1 MB downloaded` (1440),
+  `39% / 14.1 of 36.1 MB` (768) and `36% / 13.0 of 36.1 MB` (375), the page then detached on its
+  own and the live cockpit rendered behind it. Byte counts come from a new
+  `observeCockpitModelProgress` subscription, which replays the last known position because the
+  DC-9 download is already in flight (preloaded from the opening screen) by the time the chapter
+  subscribes.
+- **Two bugs the change surfaced, both fixed and both re-measured:**
+  - The route record's hint paragraph was rendering **`rgb(191, 201, 187)` on cream** — the global
+    `p { color: var(--text-soft) }` meant for the dark cockpit panels, roughly 1.5:1 against the
+    paper. Now `rgb(94, 61, 28)`. `.dc9-document__question` is untouched at `rgb(40, 33, 23)`,
+    which is what the existing e2e contrast assertion checks.
+  - `Minneapolis–St. Paul` was clipped at 1440 (`scrollWidth` 148 in a 135 px cell). Trading the
+    "Open entry"/"Selected" words for a tick box gave the city 187 px; every city now measures
+    `scrollWidth == clientWidth`.
+- **A regression I introduced and caught on the evidence pass, not by a test.** One-line ledger rows
+  overlapped their tick box and stamp at 768 px, where `.dc9-document`'s `min(47vw, 43rem)` leaves
+  only a 361 px page. The grid is now one column by default and two only from 1240 px, where the
+  document is finally wide enough. Swept **375 / 480 / 640 / 768 / 900 / 1024 / 1180 / 1239 / 1241 /
+  1366 / 1440 / 1920** with one stop stamped and one selected: columns flip 1 → 2 between 1239 and
+  1241, **zero clipped rows and zero child boxes outside their row at every width**.
+- **Dialog height** (the e2e bound is 650 at 1440×900): 499 px at 1440×900, 709 px at 768×1024,
+  608 px at 375×812. Scroll overflow 497/497, 707/707 and 613/606 — at 375 the whole form including
+  the stamp button is reachable, where before the narrow-screen tightening it was 669 px of content
+  in a 578 px frame.
+- **`npm run lint`, `npx tsc -b`, `npx vitest run` — clean, 421/421 across 33 files.**
+- **Full `npx playwright test` (preview servers killed first): 60 passed, 1 skipped, 1 failed.** The
+  failure was mine and real: `smoke.spec.ts:304` hit a strict-mode violation because the loading
+  page's `h1` and the chapter title bar's `h1` both read `DC-9 Final Flight Log` — a genuine
+  duplicate accessible name, not a test artefact. Fixed in the app by giving the loading page the
+  journey's full name, **DC-9 First-Officer Final Flight Log**. `npx playwright test
+  e2e/smoke.spec.ts` then passed **30/30 (1 skipped)**, and again after the two-column fix — both
+  runs including the 2.5-minute real-GLB
+  `DC-9 production cockpit stages the Final Flight Log with the existing registry`.
+- Owner-review screenshots at all three widths in `preview-renders/dc9-loader-route-record/`.
+- The `GREYBOX` chip, the canvas `.prototype-badge`, the `DC-9-32 · safely parked` eyebrow and the
+  `Commemorative, non-operational…` footer are gone; the "do not remove the greybox label" rule in
+  `CLAUDE.md`, `AGENTS.md` and `README.md` was retired at the same time so it is not reinstated.
+
+
 ## 2026-08-21 Fringe fix swept across every Pop T sprite
 
 - The coverage fix that sharpened the walk was applied to the rest of the set. Pale edge across all
