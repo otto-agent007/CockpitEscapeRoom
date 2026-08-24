@@ -28,6 +28,9 @@ function scrambleClip(
   pivot: { x: number; y: number },
   durations: readonly number[],
   loopMode: SpriteLoopMode,
+  /** Sheet cells to play, in order. Defaults to the sheet's own order, which
+   * is only the cycle order when the sheet was packed in cycle order. */
+  frameIndices?: readonly number[],
 ): SpriteClip {
   return {
     assetId,
@@ -38,7 +41,7 @@ function scrambleClip(
     pivot,
     durations,
     loopMode,
-    frameIndices: durations.map((_, index) => index),
+    frameIndices: frameIndices ?? durations.map((_, index) => index),
   }
 }
 
@@ -76,6 +79,76 @@ export const BOOK_LABELS: readonly Omit<IntroLabelFrame, 'opacity'>[] = [
   { text: 'LEE CHILD', x: 276, y: 122, sizePx: 6, ink: 'light' },
 ]
 
+/**
+ * The walk cycle, rebuilt from the art 2026-08-24.
+ *
+ * `deploy-scramble-intro.py` packs the sheet as Wave S4 pose 1, Wave S16 tween
+ * 1, pose 2, tween 2 … on the assumption that each generated sheet held its
+ * poses in walk-cycle order. Neither did. Measuring where every drawing puts
+ * its planted boot — the boot's x against the head centre, taken on the source
+ * art where the figure is 554 px (poses) and ~950 px (tweens) tall, so a tenth
+ * of a sprite pixel resolves — sorts the twelve into one clean step:
+ *
+ *   sheet cell    6    0    9    7    1    8    5    4   10   11    3    2
+ *   drawing    pose4 pose1  t5   t4   t1 pose5  t3 pose3 pose6  t6   t2 pose2
+ *   boot x     +4.20 +3.81 +3.73 +3.06 +2.79 +2.51 -0.19 -0.78 -0.95 -1.31 -2.24 -2.25
+ *
+ * In sheet order that boot jumps +3.8, −2.3, −0.8, +4.2, +2.5, −1.0: the legs
+ * scissored back and forth instead of striding, which is what read as a broken
+ * walk. Sorted, the boot sweeps from in front of him to behind him exactly
+ * once — one step, `WALK_STEP_PX` long.
+ */
+export const WALK_CYCLE = [
+  { frame: 6, boot: 4.2 },
+  { frame: 0, boot: 3.81 },
+  { frame: 9, boot: 3.73 },
+  { frame: 7, boot: 3.06 },
+  { frame: 1, boot: 2.79 },
+  { frame: 8, boot: 2.51 },
+  { frame: 5, boot: -0.19 },
+  { frame: 4, boot: -0.78 },
+  { frame: 10, boot: -0.95 },
+  { frame: 11, boot: -1.31 },
+  { frame: 3, boot: -2.24 },
+  { frame: 2, boot: -2.25 },
+] as const
+
+/** 40 ms a drawing — the rate the ident run already plays at. Twelve drawings
+ * makes a 480 ms step, so he walks at 2.08 steps a second. */
+export const WALK_FRAME_MS = 40
+
+/** How far the drawn boot travels in one step, and therefore how far he MUST
+ * cover in one step for that boot to stay planted: 6.45 stage px. */
+export const WALK_STEP_PX = WALK_CYCLE[0].boot - WALK_CYCLE[WALK_CYCLE.length - 1]!.boot
+
+/** Where he starts the scale shot, in stage px. */
+export const WALK_START_X = 50
+
+/** The cycle's timing alone, hoisted so the per-frame `walkAdvance` allocates
+ * nothing. Identical to the walk clip's own timing. */
+const WALK_TIMING: SpriteTiming = {
+  durations: WALK_CYCLE.map(() => WALK_FRAME_MS),
+  loopMode: 'loop',
+}
+
+/**
+ * How far he has walked, in stage px, `elapsedMs` into the scene.
+ *
+ * Root motion taken from the drawings instead of from the clock: the body
+ * advances by exactly as much as the planted boot sweeps backwards through the
+ * cell, so the boot holds still on the tarmac and he cannot skate. The shot
+ * used to move him 120 px in its 4.04 s while the drawings carried him 33 —
+ * a 3.6x moonwalk — because the travel was a straight lerp across the scene
+ * with no relation to the art.
+ */
+export function walkAdvance(elapsedMs: number): number {
+  const safe = Number.isFinite(elapsedMs) ? Math.max(0, elapsedMs) : 0
+  const stepMs = WALK_FRAME_MS * WALK_CYCLE.length
+  const steps = Math.floor(safe / stepMs)
+  const phase = WALK_CYCLE[getSpriteFrame(WALK_TIMING, safe)]!
+  return steps * WALK_STEP_PX + (WALK_CYCLE[0].boot - phase.boot)
+}
+
 export const POPT_CLIPS = {
   /** The Wave S7 ident acting: a 64 px six-phase run plus the six hat-gag
    * poses. Every pivot is the foot-span midpoint, measured off the normalised
@@ -103,11 +176,16 @@ export const POPT_CLIPS = {
   landed: scrambleClip('popt-landed', 'images/intro/tmb2/scramble/sprites/popt-landed.png', 34, 68, 1, { x: 15, y: 67 }, [1000], 'hold-last'),
   /**
    * The walk cycle: 48 px figure in a 26×50 cell, feet on row 49. Twelve
-   * frames — the six Wave S4 poses interleaved with the six Wave S16
-   * in-betweens — over the same 780 ms stride, so the walk plays at ~15 fps
-   * instead of the 7.7 it shipped at, without changing his walking speed.
+   * drawings — the six Wave S4 poses and the six Wave S16 in-betweens — played
+   * in `WALK_CYCLE` order at the ident run's 40 ms, one full step a loop.
+   *
+   * The sheet is NOT in cycle order (see `WALK_CYCLE`), so the sheet order is
+   * overridden here rather than in `deploy-scramble-intro.py`: the packed PNG
+   * stays byte-for-byte what the asset report signed off, and the order that
+   * turns those drawings into a walk lives next to the measurement that found
+   * it.
    */
-  walk: scrambleClip('popt-walk', 'images/intro/tmb2/scramble/sprites/popt-walk-sheet.png', 26, 50, 12, { x: 13, y: 49 }, Array.from({ length: 12 }, () => 65), 'loop'),
+  walk: scrambleClip('popt-walk', 'images/intro/tmb2/scramble/sprites/popt-walk-sheet.png', 26, 50, 12, { x: 13, y: 49 }, Array.from({ length: 12 }, () => WALK_FRAME_MS), 'loop', WALK_CYCLE.map((step) => step.frame)),
   /** Backlit doorway silhouette, single held frame. */
   backlit: scrambleClip('popt-backlit', 'images/intro/tmb2/scramble/sprites/popt-backlit.png', 28, 64, 1, { x: 14, y: 63 }, [1000], 'hold-last'),
 } as const satisfies Record<string, SpriteClip>
@@ -750,12 +828,16 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
       return { ...base, backgroundAssetId: 'card-shadow' }
     }
     case 'walk': {
-      // The scale shot: the 34 px walk cycle crossing toward the looming nose.
-      const p = clamp01((storyTime - CUES.walkOut) / (CUES.aircraftReveal - CUES.walkOut))
+      // The scale shot: the 48 px walk cycle striding out toward the looming
+      // nose. How far he gets is not a choice — `walkAdvance` reads it off the
+      // drawings so the planted boot stays on the tarmac (see WALK_CYCLE). At
+      // 2.08 steps a second his own stride carries him 54 px in the shot's
+      // 4.04 s, which also stops him short of the nose gear he used to end up
+      // standing inside.
       return {
         ...base,
         backgroundAssetId: 'plate-walk-tarmac',
-        popt: poptActor('walk', elapsedMs, Math.round(50 + 120 * p), 196),
+        popt: poptActor('walk', elapsedMs, Math.round(WALK_START_X + walkAdvance(elapsedMs)), 196),
       }
     }
     case 'aircraft-reveal': {

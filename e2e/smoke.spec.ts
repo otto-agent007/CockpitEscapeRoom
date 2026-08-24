@@ -664,18 +664,19 @@ for (const input of ['pointer', 'Enter', 'Space', 'controller'] as const) {
   })
 }
 
-test('TMB2 cinematic plays the walk at twelve drawings a stride', async ({ page }) => {
-  // The walk shipped as six drawings over a 780 ms stride — 7.7 a second, the
-  // choppiest thing in the intro next to a 25 fps ident run. Wave S16 doubled
-  // it. Sampling one whole stride every 32.5 ms must therefore surface all
-  // twelve; with the old sheet this test sees six and fails.
+test('TMB2 cinematic plays the walk at twelve drawings a step', async ({ page }) => {
+  // Twelve drawings at 40 ms make a 480 ms step (retimed 2026-08-24 from
+  // 780 ms so the ground he covers matches the ground his boots cover).
+  // Sampling one whole step every 20 ms must therefore surface all twelve;
+  // a sheet packed back into its own order still shows twelve, so the order
+  // itself is pinned by WALK_CYCLE in the unit tests, not here.
   const intro = await openGameIntro(page)
   const canvas = intro.locator('.game-intro__stage')
   const audio = page.locator('audio')
   const seen = new Set<string>()
 
   for (let index = 0; index < 24; index += 1) {
-    const time = 31.62 + index * 0.0325
+    const time = 31.62 + index * 0.02
     await audio.evaluate((media, value) => {
       media.currentTime = value
       media.dispatchEvent(new Event('timeupdate'))

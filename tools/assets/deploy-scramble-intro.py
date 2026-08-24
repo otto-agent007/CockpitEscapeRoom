@@ -68,8 +68,14 @@ def main() -> None:
         Image.open(SRC / f'{name}-320.png').save(DST / f'cards/{name.removeprefix("card-")}.png')
 
     # The 48 px walk is TWELVE frames: the six Wave S4 poses interleaved with the
-    # six Wave S16 in-betweens, so the stride plays at ~15 fps instead of 7.7
-    # while keeping its 780 ms length — the same trade the ident run took.
+    # six Wave S16 in-betweens.
+    #
+    # This packing order is NOT the cycle order and must not be treated as one.
+    # Neither generated sheet came back in walk-cycle order, so the runtime
+    # plays these cells through POPT_CLIPS.walk.frameIndices instead (see
+    # WALK_CYCLE in src/game/introAnimation.ts, which records the boot-position
+    # measurement the order was derived from). Re-pack freely; just do not
+    # assume cell N is phase N.
     walk_order = []
     for index in range(6):
         walk_order.append(f'spr-popt-walk48-{index + 1}')

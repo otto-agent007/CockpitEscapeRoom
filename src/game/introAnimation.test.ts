@@ -11,6 +11,10 @@ import {
   deriveIntroAnimation,
   getSpriteFrame,
   hitstopTime,
+  WALK_CYCLE,
+  WALK_FRAME_MS,
+  WALK_STEP_PX,
+  walkAdvance,
   type SpriteTiming,
 } from './introAnimation'
 import { INTRO_DURATION_SECONDS } from './introConfig'
@@ -72,11 +76,15 @@ describe('Scramble sprite animation contract', () => {
       pivot: { x: 13, y: 49 },
       loopMode: 'loop',
     })
-    // Twelve drawings over the SAME 780 ms stride: the Wave S16 in-betweens
-    // smooth the walk without retiming a cycle the owner already approved.
+    // Twelve drawings at the ident run's 40 ms, making a 480 ms step. The
+    // 780 ms it used to run at was chosen before anything measured the drawn
+    // stride; at 780 the ground he covered and the ground his boots covered
+    // could not agree (see the boot-plant test below).
     expect(POPT_CLIPS.walk.durations).toHaveLength(12)
-    expect(POPT_CLIPS.walk.durations.reduce((total, ms) => total + ms, 0)).toBe(780)
+    expect(POPT_CLIPS.walk.durations.reduce((total, ms) => total + ms, 0)).toBe(480)
     expect(new Set(POPT_CLIPS.walk.durations).size).toBe(1)
+    // Played in cycle order, not sheet order.
+    expect(POPT_CLIPS.walk.frameIndices).toEqual(WALK_CYCLE.map((step) => step.frame))
     expect(POPT_CLIPS.backlit).toMatchObject({
       frameWidth: 28,
       frameHeight: 64,
@@ -250,16 +258,67 @@ describe('Scramble sprite animation contract', () => {
     expect(worst.dur, `longest hold was ${worst.key} at ${worst.at.toFixed(2)}s`).toBeLessThan(3.2)
   })
 
-  it('walks the 34px figure across the scale shot smoothly', () => {
+  it('walks the 48px figure across the scale shot smoothly', () => {
     const start = deriveIntroAnimation(CUES.walkOut + 0.1, false)
     const end = deriveIntroAnimation(CUES.aircraftReveal - 0.2, false)
     expect(start.popt?.clipId).toBe('walk')
-    expect(end.popt!.x).toBeGreaterThan(start.popt!.x + 90)
+    // His own stride carries him ~50 px in the shot. It used to be 120, which
+    // is where the moonwalk came from, and which parked him in the nose gear.
+    expect(end.popt!.x - start.popt!.x).toBeGreaterThan(44)
+    expect(end.popt!.x - start.popt!.x).toBeLessThan(58)
     const positions = Array.from({ length: 121 }, (_, index) => (
       deriveIntroAnimation(CUES.walkOut + 0.1 + index / 60, false).popt!.x
     ))
     for (let index = 1; index < positions.length; index += 1) {
-      expect(Math.abs(positions[index]! - positions[index - 1]!)).toBeLessThan(4)
+      const step = positions[index]! - positions[index - 1]!
+      expect(step).toBeGreaterThanOrEqual(0)
+      expect(step).toBeLessThan(4)
+    }
+  })
+
+  it('orders the walk drawings into one clean step and plants the boot on it', () => {
+    // Every sheet cell used exactly once...
+    expect([...WALK_CYCLE.map((step) => step.frame)].sort((a, b) => a - b))
+      .toEqual(Array.from({ length: 12 }, (_, index) => index))
+    // ...and the planted boot sweeps front-to-back exactly once, never back.
+    for (let index = 1; index < WALK_CYCLE.length; index += 1) {
+      expect(WALK_CYCLE[index]!.boot, `drawing ${index}`)
+        .toBeLessThan(WALK_CYCLE[index - 1]!.boot)
+    }
+    expect(WALK_STEP_PX).toBeCloseTo(6.45, 5)
+
+    // The test that would have caught the moonwalk: the boot the drawing puts
+    // on the tarmac has to STAY on that spot of tarmac while it is planted.
+    // Sampling every drawing of a step, its world x may only move by the
+    // rounding the stage's whole-pixel grid forces.
+    const stepMs = WALK_FRAME_MS * WALK_CYCLE.length
+    for (let step = 0; step < 8; step += 1) {
+      const planted = WALK_CYCLE.map((drawing, index) => {
+        const elapsed = step * stepMs + index * WALK_FRAME_MS + WALK_FRAME_MS / 2
+        const frame = deriveIntroAnimation(CUES.walkOut + elapsed / 1_000, false)
+        expect(frame.sceneId).toBe('walk')
+        return frame.popt!.x + drawing.boot
+      })
+      const drift = Math.max(...planted) - Math.min(...planted)
+      expect(drift, `step ${step} boot drift`).toBeLessThanOrEqual(1)
+    }
+  })
+
+  it('advances him by one drawn stride per step, never by the clock', () => {
+    const stepMs = WALK_FRAME_MS * WALK_CYCLE.length
+    expect(walkAdvance(0)).toBe(0)
+    for (let step = 1; step <= 8; step += 1) {
+      expect(walkAdvance(step * stepMs)).toBeCloseTo(step * WALK_STEP_PX, 5)
+    }
+    // Monotonic, and never a lurch: no single drawing may jump him further
+    // than the widest gap the drawings themselves hold. The epsilon is float
+    // noise where a step boundary re-accumulates (6e-15 px), not motion.
+    let previous = 0
+    for (let ms = 0; ms <= 4_040; ms += 5) {
+      const advance = walkAdvance(ms)
+      expect(advance).toBeGreaterThanOrEqual(previous - 1e-9)
+      expect(advance - previous).toBeLessThan(2.8)
+      previous = advance
     }
   })
 
