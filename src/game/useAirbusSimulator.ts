@@ -120,7 +120,7 @@ export function useAirbusSimulator(options: UseAirbusSimulatorOptions): AirbusSi
   const [input, setInput] = useState<AirbusFlightInput>({ ...ZERO_AIRBUS_INPUT })
   const [paused, setPaused] = useState(false)
   const [inputMethod, setInputMethod] = useState<AirbusInputMethod>('keyboard')
-  const [soundEnabled, setSoundEnabled] = useState(false)
+  const [soundEnabled, setSoundEnabled] = useState(true)
   const [workloadGate, setWorkloadGate] = useState<AirbusWorkloadTaskId | null>(null)
   const activeFrameRef = useRef<AirbusActiveSimulationFrame | null>(activeFrame)
   const inputRef = useRef<AirbusFlightInput>({ ...ZERO_AIRBUS_INPUT })
@@ -132,6 +132,7 @@ export function useAirbusSimulator(options: UseAirbusSimulatorOptions): AirbusSi
     context: AudioContext
     gain: GainNode
     oscillator: OscillatorNode
+    hum: OscillatorNode
     noise: AudioBufferSourceNode
     filter: BiquadFilterNode
   } | null>(null)
@@ -324,7 +325,7 @@ export function useAirbusSimulator(options: UseAirbusSimulatorOptions): AirbusSi
     const audio = audioRef.current
     if (!audio) return
     audio.gain.gain.setTargetAtTime(
-      soundEnabled && activeScenario && !paused ? 0.018 + simulatorIntensity * 0.035 : 0,
+      soundEnabled && activeScenario && !paused ? 0.055 + simulatorIntensity * 0.1 : 0,
       audio.context.currentTime,
       0.08,
     )
@@ -333,12 +334,18 @@ export function useAirbusSimulator(options: UseAirbusSimulatorOptions): AirbusSi
       audio.context.currentTime,
       0.12,
     )
+    audio.hum.frequency.setTargetAtTime(
+      56 + simulatorIntensity * 26,
+      audio.context.currentTime,
+      0.25,
+    )
   }, [activeScenario, paused, simulatorIntensity, soundEnabled])
 
   useEffect(() => () => {
     const audio = audioRef.current
     if (!audio) return
     audio.oscillator.stop()
+    audio.hum.stop()
     audio.noise.stop()
     void audio.context.close()
     audioRef.current = null
@@ -370,44 +377,79 @@ export function useAirbusSimulator(options: UseAirbusSimulatorOptions): AirbusSi
     else holdsRef.current.delete(control)
   }, [])
 
-  const toggleSound = useCallback(() => {
-    if (!audioRef.current) {
-      try {
-        const context = new window.AudioContext()
-        const oscillator = context.createOscillator()
-        const noise = context.createBufferSource()
-        const filter = context.createBiquadFilter()
-        const gain = context.createGain()
-        const buffer = context.createBuffer(1, context.sampleRate * 2, context.sampleRate)
-        const channel = buffer.getChannelData(0)
-        let previous = 0
-        for (let index = 0; index < channel.length; index += 1) {
-          previous = previous * 0.97 + (Math.random() * 2 - 1) * 0.03
-          channel[index] = previous
-        }
-        oscillator.type = 'sine'
-        oscillator.frequency.value = 72
-        noise.buffer = buffer
-        noise.loop = true
-        filter.type = 'lowpass'
-        filter.frequency.value = 420
-        gain.gain.value = 0
-        oscillator.connect(gain)
-        noise.connect(filter)
-        filter.connect(gain)
-        gain.connect(context.destination)
-        oscillator.start()
-        noise.start()
-        audioRef.current = { context, gain, oscillator, noise, filter }
-      } catch {
-        setSoundEnabled(false)
-        return
+  const ensureAudio = useCallback((): boolean => {
+    if (audioRef.current) return true
+    try {
+      const context = new window.AudioContext()
+      const oscillator = context.createOscillator()
+      const hum = context.createOscillator()
+      const humGain = context.createGain()
+      const noise = context.createBufferSource()
+      const filter = context.createBiquadFilter()
+      const gain = context.createGain()
+      const buffer = context.createBuffer(1, context.sampleRate * 2, context.sampleRate)
+      const channel = buffer.getChannelData(0)
+      let previous = 0
+      for (let index = 0; index < channel.length; index += 1) {
+        previous = previous * 0.97 + (Math.random() * 2 - 1) * 0.03
+        channel[index] = previous
       }
+      oscillator.type = 'sine'
+      oscillator.frequency.value = 72
+      // The sawtooth's harmonics are what small speakers actually reproduce;
+      // the lowpass shapes them with the same intensity ramp as the noise bed.
+      hum.type = 'sawtooth'
+      hum.frequency.value = 56
+      humGain.gain.value = 0.4
+      noise.buffer = buffer
+      noise.loop = true
+      filter.type = 'lowpass'
+      filter.frequency.value = 420
+      gain.gain.value = 0
+      oscillator.connect(gain)
+      hum.connect(humGain)
+      humGain.connect(filter)
+      noise.connect(filter)
+      filter.connect(gain)
+      gain.connect(context.destination)
+      oscillator.start()
+      hum.start()
+      noise.start()
+      audioRef.current = { context, gain, oscillator, hum, noise, filter }
+      return true
+    } catch {
+      return false
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!activeScenario || !soundEnabled) return
+    if (!ensureAudio()) {
+      const failTimeout = window.setTimeout(() => setSoundEnabled(false), 0)
+      return () => window.clearTimeout(failTimeout)
+    }
+    const resume = () => {
+      const audio = audioRef.current
+      if (audio && audio.context.state === 'suspended') void audio.context.resume()
+    }
+    resume()
+    window.addEventListener('pointerdown', resume)
+    window.addEventListener('keydown', resume)
+    return () => {
+      window.removeEventListener('pointerdown', resume)
+      window.removeEventListener('keydown', resume)
+    }
+  }, [activeScenario, ensureAudio, soundEnabled])
+
+  const toggleSound = useCallback(() => {
+    if (!ensureAudio()) {
+      setSoundEnabled(false)
+      return
     }
     const audio = audioRef.current
-    if (audio.context.state === 'suspended') void audio.context.resume()
+    if (audio && audio.context.state === 'suspended') void audio.context.resume()
     setSoundEnabled((current) => !current)
-  }, [])
+  }, [ensureAudio])
 
   return {
     activeFrame,

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { deriveStormRouteGuidance } from './airbusRouteGuidance'
+import { deriveEngineOutRouteGuidance, deriveStormRouteGuidance } from './airbusRouteGuidance'
+import {
+  createEngineOutStateAtCheckpoint,
+  type EngineOutCheckpoint,
+  type EngineOutState,
+} from './airbusEngineOut'
 import {
   createStormLineState,
   createStormLineStateAtCheckpoint,
@@ -101,5 +106,92 @@ describe('deriveStormRouteGuidance', () => {
       scale(STORM_CORRIDOR_CENTER + STORM_CORRIDOR_HALF_WIDTH),
       5,
     )
+  })
+
+  it('labels the storm meter west and east', () => {
+    const guidance = deriveStormRouteGuidance(entryState(0, 10))
+    expect(guidance?.meter.leftLabel).toBe('W')
+    expect(guidance?.meter.rightLabel).toBe('E')
+  })
+})
+
+function engineState(
+  checkpoint: EngineOutCheckpoint,
+  aircraft: Partial<EngineOutState['aircraft']>,
+): EngineOutState {
+  const state = createEngineOutStateAtCheckpoint(checkpoint)
+  return {
+    ...state,
+    aircraft: { ...state.aircraft, ...aircraft },
+  }
+}
+
+describe('deriveEngineOutRouteGuidance', () => {
+  it('returns null when the exercise is not flying', () => {
+    const failed: EngineOutState = {
+      ...engineState('stabilization', {}),
+      phase: 'checkpointFailed',
+    }
+    expect(deriveEngineOutRouteGuidance(failed)).toBeNull()
+  })
+
+  it('asks for acknowledgement while the drift is still small', () => {
+    const guidance = deriveEngineOutRouteGuidance(engineState('recognition', { directionalError: -0.05 }))
+    expect(guidance?.tone).toBe('settled')
+    expect(guidance?.message).toContain('upper ECAM')
+  })
+
+  it('names the left pull and the right-balance correction as the reduction bites', () => {
+    const guidance = deriveEngineOutRouteGuidance(engineState('recognition', { directionalError: -0.3 }))
+    expect(guidance?.tone).toBe('action')
+    expect(guidance?.message).toContain('Balance right')
+    expect(guidance?.meter.leftLabel).toBe('L')
+    expect(guidance?.meter.position).toBeLessThan(0.5)
+  })
+
+  it('escalates at the directional limit in both directions', () => {
+    const leftLimit = deriveEngineOutRouteGuidance(engineState('stabilization', { directionalError: -0.5 }))
+    expect(leftLimit?.tone).toBe('urgent')
+    expect(leftLimit?.message).toContain('more right balance')
+    const rightLimit = deriveEngineOutRouteGuidance(engineState('stabilization', { directionalError: 0.5 }))
+    expect(rightLimit?.tone).toBe('urgent')
+    expect(rightLimit?.message).toContain('ease it off')
+  })
+
+  it('holds quietly when balanced in stabilization', () => {
+    const guidance = deriveEngineOutRouteGuidance(engineState('stabilization', { directionalError: -0.1 }))
+    expect(guidance?.tone).toBe('hold')
+    expect(guidance?.meter.bandStart).toBeCloseTo((1 - 0.45) / 2, 5)
+    expect(guidance?.meter.bandEnd).toBeCloseTo((1 + 0.45) / 2, 5)
+  })
+
+  it('directs the diversion turn to the right of level', () => {
+    const leftBank = deriveEngineOutRouteGuidance(engineState('diversion', { bank: -8 }))
+    expect(leftBank?.tone).toBe('urgent')
+    expect(leftBank?.message).toContain('SAFE RETURN is to the right')
+    const shallow = deriveEngineOutRouteGuidance(engineState('diversion', { bank: 3 }))
+    expect(shallow?.tone).toBe('action')
+    expect(shallow?.message).toContain('gentle right bank')
+    const onArc = deriveEngineOutRouteGuidance(engineState('diversion', { bank: 18 }))
+    expect(onArc?.tone).toBe('settled')
+    expect(onArc?.message).toContain('hold this bank')
+    const steep = deriveEngineOutRouteGuidance(engineState('diversion', { bank: 27 }))
+    expect(steep?.tone).toBe('urgent')
+    expect(steep?.message).toContain('ease back')
+  })
+
+  it('prioritizes a building drift over bank coaching during the diversion', () => {
+    const guidance = deriveEngineOutRouteGuidance(
+      engineState('diversion', { bank: 18, directionalError: -0.4 }),
+    )
+    expect(guidance?.tone).toBe('urgent')
+    expect(guidance?.message).toContain('right balance while you turn')
+  })
+
+  it('maps the diversion bank band onto the meter', () => {
+    const guidance = deriveEngineOutRouteGuidance(engineState('diversion', { bank: 16 }))
+    expect(guidance?.meter.bandStart).toBeCloseTo((8 + 30) / 60, 5)
+    expect(guidance?.meter.bandEnd).toBeCloseTo((24 + 30) / 60, 5)
+    expect(guidance?.meter.position).toBeCloseTo((16 + 30) / 60, 5)
   })
 })

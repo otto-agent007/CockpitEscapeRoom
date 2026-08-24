@@ -37,6 +37,45 @@ Created: 2026-08-23
 - [x] 7. Unit suite, `npm run check`, focused e2e (`airbus-storm-line`, `airbus-workload`, smoke Airbus cases) with `PLAYWRIGHT_PORT=4310`; e2e copy assertions updated to the exact new button names and new assertions added for the instruction box and guidance visibility/geometry.
 - [x] 8. Real-browser pass at 1440/768/375 with reduced motion, reload, and wrong-answer paths; screenshots captured AND inspected in `preview-renders/airbus-storm-usability/`; `docs/GAME_DESIGN.md`, `BLUEPRINT.md`, `TEST_REPORT.md` updated.
 
+## Round 2 (owner feedback 2026-08-23 after play): Engine-Out treatment + audible sound
+
+Owner approved the Storm Line changes in play, then asked for the same treatment on Engine-Out and
+reported that neither scenario plays sound.
+
+- [x] 9. `deriveEngineOutRouteGuidance` in the shared guidance module (types generalized to
+  `AirbusRouteGuidance` with data-driven meter end labels): directional-drift meter through
+  recognition/stabilization with the enforced ±0.45 band, bank meter with the 8–24° SAFE RETURN
+  arc during diversion, drift warnings prioritized mid-turn; 9 new unit tests.
+- [x] 10. Engine-Out briefing/captions/coaching name the directions ("the nose will drift LEFT —
+  hold Balance right", "SAFE RETURN is to the right"); shared `AirbusRouteGuidanceBlock` renders
+  the guidance in both HUDs.
+- [x] 11. Sound: root cause was double — the ambience was opt-in (default off, graph only created
+  by the toggle click) AND near-inaudible when on (72 Hz sine + lowpassed noise at master gain
+  0.018–0.053, nothing small speakers reproduce). Now: default ON, graph auto-created when a
+  scenario is active (with pointer/key resume listeners for autoplay policy), a sawtooth hum whose
+  harmonics ride the intensity-modulated lowpass, master gain 0.055 + intensity×0.1. Toggle and
+  WebAudio-unavailable fallback preserved.
+- [x] 12. Found and fixed a pre-existing blocker while measuring: between ~620 and ~900 px the
+  control deck laid its groups in one non-wrapping row and overflowed its own box — Engine-Out by
+  492 px (Balance left/right at x 988–1109, entirely outside a 768 px viewport, in flight, for the
+  exact control the exercise teaches) and **Storm Line by 155 px** (thrust controls past the right
+  edge). `.storm-control-deck` now wraps for both; measured overflow 0 at 375/768/1440 with no
+  off-screen hold controls. Scoping the wrap to Engine-Out was tried first and rejected — it left
+  Storm Line's 155 px overflow in place.
+  - Wrapping makes each deck taller, so the guidance shelf was re-measured against real deck tops
+    rather than guessed: storm 621–900 px `bottom` 6.2rem → 7.8rem (deck top y=785 in a 900 px
+    viewport), engine-out 10.8rem (deck top y=737) and 9.3rem at ≤620 px (deck top y=673).
+  - The responsive e2e only ever entered flight at 375 px, which is how both shipped. It now
+    asserts, at every width, that the deck's `scrollWidth` does not exceed its `clientWidth` and
+    that every `.storm-hold-control` is inside the viewport; the Engine-Out suite does the same at
+    768 px in flight plus guidance/deck separation.
+- [x] 13. e2e: audibility is tested per the [[synthesized-audio-envelopes]] discipline — an
+  `AnalyserNode` tapped onto every destination connection measures actual waveform peaks
+  (threshold 0.04 chosen to fail both silent variants: no graph at all, and the old 0.018-gain
+  whisper), then the toggle must decay it below 0.005. The WebAudio-unavailable case now installs
+  its throwing stub before load, which the old inline patch (installed after the graph already
+  existed) never really exercised.
+
 ## Constraints
 
 - Tone contract: fictional, safely parked, `SIM — NON OPERATIONAL` stays visible; no emergency framing.
@@ -76,6 +115,15 @@ Created: 2026-08-23
 
 ## Outcome and handoff
 
-All three requested improvements are implemented, tested, and visually verified on branch
-`pr/airbus-storm-usability` (worktree `/mnt/2TBHDD/CockpitEscapeRoom.worktrees/airbus-storm-usability`).
-Remaining: owner play/visual review; optional Vercel preview at the next approval gate.
+Round 1 (drag/drop announcement, Storm Line guidance, west-route ease) was played and approved by
+the owner on 2026-08-23. Round 2 (Engine-Out guidance, audible default-on ambience, and the
+control-deck overflow fix found while measuring) is implemented, tested, and visually verified on
+branch `pr/airbus-storm-usability`
+(worktree `/mnt/2TBHDD/CockpitEscapeRoom.worktrees/airbus-storm-usability`).
+
+Play it locally with `npm run preview -- --port 5310` from the worktree; the branch is not pushed
+and no deployment carries it, so a stale server or the main checkout will show the old chapter.
+
+Remaining: owner play/visual review of round 2; optional Vercel preview at the next approval gate;
+routine merge with the sibling session's DC-9 branch (`PrototypeScene.tsx` footprints are
+disjoint — confirmed with that session).

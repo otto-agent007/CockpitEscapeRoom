@@ -283,6 +283,21 @@ test('workload controls remain reachable without WebGL at 375, 768, and 1440 wid
     expect(guidanceBox.x + guidanceBox.width).toBeLessThanOrEqual(viewport.width)
     expect(guidanceBox.y).toBeGreaterThanOrEqual(taskBox.y + taskBox.height)
     expect(guidanceBox.y + guidanceBox.height).toBeLessThanOrEqual(controlsBox.y)
+    // The deck laid its groups out in one non-wrapping row until 2026-08-23,
+    // overflowing its own box by 155px at 768 and running the thrust controls
+    // off-screen. Assert the controls themselves, not just the deck's box.
+    expect(
+      await page.evaluate(() => {
+        const deck = document.querySelector('.storm-control-deck')
+        return deck ? deck.scrollWidth - deck.clientWidth : 0
+      }),
+    ).toBeLessThanOrEqual(1)
+    for (const control of await page.locator('.storm-hold-control').all()) {
+      const box = await control.boundingBox()
+      if (!box) throw new Error('Storm hold-control bounds are unavailable')
+      expect(box.x).toBeGreaterThanOrEqual(0)
+      expect(box.x + box.width).toBeLessThanOrEqual(viewport.width)
+    }
     expect(taskBox.x).toBeGreaterThanOrEqual(0)
     expect(taskBox.x + taskBox.width).toBeLessThanOrEqual(viewport.width)
     expect(taskBox.y + taskBox.height).toBeLessThanOrEqual(controlsBox.y)

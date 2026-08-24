@@ -2532,6 +2532,15 @@ p {
   gap: 0.3rem;
 }
 
+/* Both decks overflow their own box between ~620 and ~900px — Storm Line's two
+   groups by 155px, and Engine-Out's third (directional balance) group by 492px,
+   which put Balance left/right entirely outside the viewport in flight. Wrapping
+   keeps every hold control reachable; the guidance shelf above each deck is
+   raised to match its measured wrapped height. */
+.storm-control-deck {
+  flex-wrap: wrap;
+}
+
 .airbus-workload-actions button {
   min-height: 2.2rem;
   border: 1px solid rgba(139, 224, 230, 0.42);
@@ -3532,11 +3541,18 @@ progress {
   .storm-route-guidance {
     top: auto;
     right: 7rem;
-    bottom: 6.2rem;
+    bottom: 7.8rem;
     left: 12.8rem;
     grid-template-columns: auto minmax(0, 1fr);
     width: auto;
     transform: none;
+  }
+
+  /* The Engine-Out deck wraps its three control groups here (top measured at
+     y=737 in a 900px viewport), so its guidance box needs a taller shelf than
+     Storm Line's two-group deck. */
+  .airbus-engine-out .storm-route-guidance {
+    bottom: 10.8rem;
   }
 
   .storm-drift-meter {
@@ -3776,6 +3792,12 @@ progress {
     grid-template-columns: auto minmax(0, 1fr);
     width: auto;
     transform: none;
+  }
+
+  /* The stacked Engine-Out deck is a third group taller than Storm Line's
+     (top measured at y≈678 in an 812px viewport). */
+  .airbus-engine-out .storm-route-guidance {
+    bottom: 9.3rem;
   }
 
   .storm-drift-meter {

@@ -81,7 +81,7 @@ test('Simulator Hub unlocks Engine-Out only after Storm and starts explicit trai
 
   await page.getByRole('button', { name: 'Open Engine-Out' }).click()
   await expect(page.getByRole('heading', { name: 'Engine-Out Handling' })).toBeVisible()
-  await expect(page.getByText(/deliberately reduce simulated left-engine power/i)).toBeVisible()
+  await expect(page.getByText(/deliberately reduces SIM ENG 1 power/i)).toBeVisible()
   await page.getByRole('button', { name: 'Begin Engine-Out' }).click()
 
   const instruments = page.getByRole('region', { name: 'Accessible Engine-Out instruments' })
@@ -224,7 +224,29 @@ test('Simulator Hub and Engine-Out controls remain usable at tablet and phone wi
     expect(box.x).toBeGreaterThanOrEqual(0)
     expect(box.x + box.width).toBeLessThanOrEqual(375)
   }
+  const phoneGuidance = await page.locator('.storm-route-guidance').boundingBox()
+  if (!phoneGuidance) throw new Error('Engine-Out guidance bounds are unavailable')
+  expect(phoneGuidance.y + phoneGuidance.height).toBeLessThanOrEqual(controlsBox.y)
   await page.screenshot({ path: '/tmp/airbus-engine-out-phone-375.png', fullPage: true })
+
+  // The tablet deck wraps its third control group; every hold control —
+  // Balance right especially — must stay inside the viewport in flight.
+  await page.setViewportSize({ width: 768, height: 900 })
+  await page.reload()
+  await expect(page.getByRole('region', { name: 'Accessible Engine-Out instruments' })).toBeVisible()
+  const showControls = page.getByRole('button', { name: 'Show flight controls' })
+  if (await showControls.isVisible().catch(() => false)) await showControls.click()
+  await expect(page.getByRole('button', { name: 'Hold Balance right' })).toBeVisible()
+  for (const control of await page.locator('.storm-hold-control').all()) {
+    const box = await control.boundingBox()
+    if (!box) throw new Error('Engine-Out control bounds are unavailable')
+    expect(box.x).toBeGreaterThanOrEqual(0)
+    expect(box.x + box.width).toBeLessThanOrEqual(768)
+  }
+  const tabletGuidance = await page.locator('.storm-route-guidance').boundingBox()
+  const tabletDeck = await page.locator('[aria-label="Accessible Engine-Out controls"]').boundingBox()
+  if (!tabletGuidance || !tabletDeck) throw new Error('Engine-Out tablet layout bounds are unavailable')
+  expect(tabletGuidance.y + tabletGuidance.height).toBeLessThanOrEqual(tabletDeck.y)
 })
 
 test('production Airbus cockpit renders live Engine-Out displays and control response', async ({ page }) => {

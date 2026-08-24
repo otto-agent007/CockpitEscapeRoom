@@ -75,6 +75,39 @@ function stormState(checkpoint: 'stormEntry' | 'stormCore'): GameState {
   }
 }
 
+function engineOutState(checkpoint: 'stabilization' | 'diversion'): GameState {
+  const base = stormState('stormCore')
+  return {
+    ...base,
+    airbusSimulator: {
+      ...base.airbusSimulator,
+      location: 'engineOut',
+      stormLine: {
+        status: 'completed',
+        checkpoint: 'clearAir',
+        attempts: { stormEntry: 0, stormCore: 0, clearAir: 0 },
+        bestTraits: ['weatherJudgment'],
+      },
+      engineOut: {
+        status: 'in_progress',
+        checkpoint,
+        attempts: { recognition: 0, stabilization: 0, diversion: 0 },
+        bestTraits: [],
+      },
+      workload: {
+        ...createInitialAirbusWorkloadProgress(),
+        scanRange: 'mid' as const,
+        selectedWeatherSector: 'west' as const,
+        completedTasks: [
+          'stormScanRange' as const,
+          'stormGapSelection' as const,
+          ...(checkpoint === 'diversion' ? ['engineEventAcknowledgement' as const] : []),
+        ],
+      },
+    },
+  }
+}
+
 async function seed(page: Page, state: GameState) {
   await page.evaluate(
     ({ key, value }) => localStorage.setItem(key, JSON.stringify(value)),
@@ -118,6 +151,20 @@ test('capture qualification instruction box and storm guidance', async ({ page }
     await expect(guidance).toHaveAttribute('data-storm-guidance-tone', 'hold')
     await page.screenshot({
       path: `${evidenceDirectory}/03-storm-core-corridor-${viewport.width}.png`,
+      fullPage: true,
+    })
+
+    await seed(page, engineOutState('stabilization'))
+    await expect(guidance).toBeVisible()
+    await page.screenshot({
+      path: `${evidenceDirectory}/04-engine-stabilization-balance-${viewport.width}.png`,
+      fullPage: true,
+    })
+
+    await seed(page, engineOutState('diversion'))
+    await expect(guidance).toBeVisible()
+    await page.screenshot({
+      path: `${evidenceDirectory}/05-engine-diversion-bank-${viewport.width}.png`,
       fullPage: true,
     })
   }
