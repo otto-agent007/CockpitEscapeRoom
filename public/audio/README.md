@@ -24,10 +24,10 @@ The app preloads this file on the existing briefing, but playback begins only in
 - Source: **owner-supplied download**, `/mnt/2TBHDD/Downloads/storegraphic-crowd-cheers-314919.mp3`,
   incorporated at the owner's direction on 2026-08-23. The owner identified the origin as
   *storegraphic*; the file carries no embedded tags or licence metadata.
-- **Licence: to be confirmed by the owner.** Unlike the public-domain Wikimedia Commons clip this
-  replaces, no machine-readable per-file terms were available to verify, so nothing is asserted
-  here beyond the owner's direction to use it in this private build. Do not redistribute the cut
-  standalone.
+- **Licence: public domain, no attribution required** — confirmed by the owner on 2026-08-23, who
+  sourced the file. The confirmation is the authority here: the download carries no embedded tags
+  and the origin publishes no machine-readable per-file terms, so this was not independently
+  verifiable the way the Wikimedia Commons clip it replaces was.
 - Preserved original: `.cache/cockpit-pipeline/sources/audio/key-celebration/original/storegraphic-crowd-cheers-314919.mp3`
 - Source size: `706,351` bytes
 - Source SHA-256: `62a6501be2e736aae0fbd6b1a15d64216c8722081c5e55c4d44035dec1d1b922`

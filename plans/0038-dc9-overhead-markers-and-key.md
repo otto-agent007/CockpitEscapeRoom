@@ -80,9 +80,10 @@ the Blender pipeline (a full asset rebuild, not done here).
   level at the cut point and a hard stop chopped it mid-cheer (tail RMS 0.068 versus 0.023 faded).
 - Kept stereo this time — the source is a stereo crowd recording and the width is the point.
   Deterministic 0.80 gain puts it at -3.7 dBFS.
-- **Licence certainty is lower than what it replaced, and is recorded as such.** The Commons file
-  had per-file terms verifiable through the API; this one has no embedded terms, so both the audio
-  README and the asset manifest say the licence is the owner's to confirm.
+- **Licence: public domain, no attribution required**, confirmed by the owner on 2026-08-23 — the
+  same standing as the Commons clip, reached differently. The Commons file's terms were verifiable
+  through their API; this one has no embedded terms, so the owner's confirmation is what the audio
+  README and the asset manifest record as the basis.
 
 ### Round four — the synthesized fanfare was rejected outright
 

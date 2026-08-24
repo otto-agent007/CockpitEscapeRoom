@@ -18,11 +18,11 @@ The owner rejected the public-domain Commons clip and supplied their own downloa
   and the width is most of what makes it read as a room full of people. Deterministic `volume=0.80`
   puts the shipped file at **-3.7 dBFS**. Final asset: 128 kbps CBR, 44.1 kHz stereo, 10.00 s,
   160,958 bytes.
-- **Licence certainty went down, and that is recorded rather than glossed.** The Commons clip had
-  machine-readable public-domain terms I verified through the API. This file carries no embedded
-  tags and no per-file terms I can check, so `public/audio/README.md` and
-  `LICENSES/ASSET_MANIFEST.md` both say **licence to be confirmed by the owner** and assert nothing
-  beyond the owner's direction to use it in this private build.
+- **Licence: public domain, no attribution required**, confirmed by the owner on 2026-08-23. Both
+  files land in the same place, but by different routes: the Commons clip's terms were verifiable
+  through their API, while this one carries no embedded tags and no machine-readable per-file
+  licence, so the owner's confirmation is what `public/audio/README.md` and
+  `LICENSES/ASSET_MANIFEST.md` record as the basis.
 - **Playback bound to the card's lifetime.** The reveal pauses the element on unmount, so taking
   the key early cuts the cheer short instead of leaving a crowd cheering over the locker scene.
 - E2E updated for the new length and re-run: playback asserted as not paused, `currentTime`
