@@ -1,9 +1,8 @@
 /**
  * The cheer that plays when the Captain's Key reveal opens.
  *
- * A real crowd recording rather than a synthesized chord: public-domain applause and a
- * "hurray", cut to 3.3 seconds. Provenance and licence are in `public/audio/README.md` and
- * `LICENSES/ASSET_MANIFEST.md`.
+ * An owner-supplied crowd recording, first ten seconds. Provenance and licence status are in
+ * `public/audio/README.md` and `LICENSES/ASSET_MANIFEST.md`.
  *
  * This module is pure apart from the preference read/write, so the policy is testable
  * without an audio element.
@@ -13,8 +12,10 @@
 export const CELEBRATION_SOUND_FILE = 'audio/key-celebration.mp3'
 
 /**
- * Playback level. The asset peaks at -2.8 dBFS, which is right for a file but loud for a
- * surprise, so the reveal plays it back well under unity.
+ * Playback level. The asset peaks at -3.7 dBFS, which is right for a file but loud for a
+ * surprise, so the reveal plays it back well under unity. The clip runs ten seconds; the
+ * reveal stops it when the card closes, so taking the key early cuts it short rather than
+ * leaving a crowd cheering over the next scene.
  */
 export const CELEBRATION_SOUND_VOLUME = 0.55
 

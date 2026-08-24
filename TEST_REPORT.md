@@ -1,6 +1,37 @@
 # Test report
 
 
+## 2026-08-23 Captain's Key cheer swapped to the owner's own recording, first ten seconds
+
+The owner rejected the public-domain Commons clip and supplied their own download instead.
+
+- **Source**: `/mnt/2TBHDD/Downloads/storegraphic-crowd-cheers-314919.mp3`, 22.07 s, 256 kbps,
+  44.1 kHz stereo. Measured as genuinely crowd-led rather than applause-led: voice/bright energy
+  ratio **15-30 across the whole clip**, against 0.02-0.5 for the clapping stretches of the file it
+  replaces.
+- **Kept the first ten seconds as asked** — `-t 10.0` from the start, so the recording's own
+  swell-in from near silence over the first second is preserved rather than trimmed away. The crowd
+  is still at full level at ten seconds, so a hard cut chopped it mid-cheer: measured tail RMS
+  0.068 with a short fade, flagged abrupt by the check. A 1.2 s fade from 8.8 s brings the tail to
+  **0.023** while leaving full level intact to 8.8 s.
+- **Kept in stereo**, unlike the previous mono clip, because the source is a stereo crowd recording
+  and the width is most of what makes it read as a room full of people. Deterministic `volume=0.80`
+  puts the shipped file at **-3.7 dBFS**. Final asset: 128 kbps CBR, 44.1 kHz stereo, 10.00 s,
+  160,958 bytes.
+- **Licence certainty went down, and that is recorded rather than glossed.** The Commons clip had
+  machine-readable public-domain terms I verified through the API. This file carries no embedded
+  tags and no per-file terms I can check, so `public/audio/README.md` and
+  `LICENSES/ASSET_MANIFEST.md` both say **licence to be confirmed by the owner** and assert nothing
+  beyond the owner's direction to use it in this private build.
+- **Playback bound to the card's lifetime.** The reveal pauses the element on unmount, so taking
+  the key early cuts the cheer short instead of leaving a crowd cheering over the locker scene.
+- E2E updated for the new length and re-run: playback asserted as not paused, `currentTime`
+  advancing more than 0.3 s over 800 ms, and `duration` between 9.5 and 10.5 s. Sound off still
+  silences it, persists to `cockpit-escape-room:sound:v1`, survives a reload, and a muted game
+  never fetches the file.
+- **`npm run check`** and the **Captain's Key e2e tests** — results below.
+
+
 ## 2026-08-23 Captain's Key celebration: a real public-domain cheer replaces the synthesized chord
 
 The owner rejected the synthesized fanfare and asked for actual cheering. The synth path is

@@ -21,37 +21,41 @@ The app preloads this file on the existing briefing, but playback begins only in
 
 ## Captain's Key celebration cheer
 
-- Source: **[File:Clapping hurray (cropped).oga](https://commons.wikimedia.org/wiki/File:Clapping_hurray_(cropped).oga)** on Wikimedia Commons, uploaded by *Starlite*.
-- Licence: **public domain**. The Commons API reports `LicenseShortName: Public domain`,
-  `UsageTerms: Public domain`, `AttributionRequired: false`, `Restrictions: none`. No attribution
-  is required; it is recorded here anyway so the provenance stays reviewable.
-- Preserved original: `.cache/cockpit-pipeline/sources/audio/key-celebration/original/clapping-hurray-cropped.oga`
-- Source size: `188,398` bytes
-- Source SHA-256: `4d5537bb38a4f3a92194261ed2ace4544825327912f47334ef9a33f32e8ff406`
-- Source media: Ogg Vorbis, 44.1 kHz mono, 9.80 seconds
+- Source: **owner-supplied download**, `/mnt/2TBHDD/Downloads/storegraphic-crowd-cheers-314919.mp3`,
+  incorporated at the owner's direction on 2026-08-23. The owner identified the origin as
+  *storegraphic*; the file carries no embedded tags or licence metadata.
+- **Licence: to be confirmed by the owner.** Unlike the public-domain Wikimedia Commons clip this
+  replaces, no machine-readable per-file terms were available to verify, so nothing is asserted
+  here beyond the owner's direction to use it in this private build. Do not redistribute the cut
+  standalone.
+- Preserved original: `.cache/cockpit-pipeline/sources/audio/key-celebration/original/storegraphic-crowd-cheers-314919.mp3`
+- Source size: `706,351` bytes
+- Source SHA-256: `62a6501be2e736aae0fbd6b1a15d64216c8722081c5e55c4d44035dec1d1b922`
+- Source media: MPEG Layer III, 256 kbps, 44.1 kHz stereo, 22.07 seconds
 - Deployable cut: `public/audio/key-celebration.mp3`
-- Deployable size: `53,960` bytes
-- Deployable SHA-256: `77d29cb4d0c316d124935b0ea314472ea0d690046a02abab12f40b5d6096eac1`
-- Verified media: MPEG Layer III, 128 kbps CBR, 44.1 kHz mono, 3.30 seconds, peak **-2.8 dBFS**
+- Deployable size: `160,958` bytes
+- Deployable SHA-256: `35f70174f13ca0c8f37a71eef146e6816d5dbcb29d1bc404e22e5e30b8d2311b`
+- Verified media: MPEG Layer III, 128 kbps CBR, 44.1 kHz stereo, 10.00 seconds, peak **-3.7 dBFS**
 
-Chosen by measuring the source rather than by name. A per-window band analysis put the vocal
-cheer at 6.25–7.60 s (voice/bright energy ratio 1.5–8.1 against 0.02–0.5 for the clapping-only
-stretches), so the cut is `-ss 6.15 -t 3.30`: it opens on the "hurray", runs through the loudest
-applause swell, and settles. Reproducible command:
+The owner asked for the first ten seconds, which is what this is: `-t 10.0` from the start, so the
+recording's own swell-in from near silence over the first second is preserved. The crowd is still
+at full level at ten seconds, so a hard cut would chop mid-cheer; a 1.2-second fade from 8.8 s
+lets it resolve. Measured tail RMS falls from 0.102 to 0.023 across that taper. Reproducible
+command:
 
 ```
-ffmpeg -ss 6.15 -t 3.30 -i clapping-hurray-cropped.oga \
-  -af "afade=t=in:st=0:d=0.03,afade=t=out:st=2.70:d=0.60,volume=0.66" \
-  -ac 1 -ar 44100 -c:a libmp3lame -b:a 128k -write_xing 1 key-celebration.mp3
+ffmpeg -t 10.0 -i storegraphic-crowd-cheers-314919.mp3 \
+  -af "afade=t=out:st=8.8:d=1.2,volume=0.80" \
+  -ar 44100 -ac 2 -c:a libmp3lame -b:a 128k -write_xing 1 key-celebration.mp3
 ```
 
-`volume=0.66` is a deterministic gain rather than `loudnorm`/`alimiter`: `alimiter` auto-levels
-its output by default and pushed the peak straight back to full scale, which is the wrong shape
-for a sound that arrives unannounced.
+Kept in stereo, unlike the previous mono clip, because the source is a stereo crowd recording and
+the width is most of what makes it read as a room full of people. `volume=0.80` is a deterministic
+gain: it takes the source's 0.868 peak to -3.7 dBFS.
 
 Playback: the Captain's Key reveal plays it once at `volume 0.55`, inside the click that opens the
-card, and the card carries a **Sound on/off** toggle whose choice is stored under
-`cockpit-escape-room:sound:v1` — deliberately separate from the game-state key, so restarting the
+card, and stops it when the card closes — so taking the key early cuts it short rather than letting
+it run on. The card carries a **Sound on/off** toggle whose choice is stored under
+`cockpit-escape-room:sound:v1`, deliberately separate from the game-state key so restarting the
 game does not turn the sound back on. There is no volume slider for this one-shot; the intro keeps
 its own mute and volume controls.
-

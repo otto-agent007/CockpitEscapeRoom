@@ -991,12 +991,12 @@ test("The Captain's Key reveal plays the celebration cheer and remembers Sound o
   expect(first?.volume).toBeGreaterThan(0)
   expect(first?.volume).toBeLessThan(1)
 
-  // Playing, not merely started: the clock has to move, and the file has to be the 3.3s cut.
+  // Playing, not merely started: the clock has to move, and the file has to be the 10s cut.
   await page.waitForTimeout(800)
   const second = await sample()
   expect(second?.currentTime ?? 0).toBeGreaterThan((first?.currentTime ?? 0) + 0.3)
-  expect(second?.duration ?? 0).toBeGreaterThan(3)
-  expect(second?.duration ?? 0).toBeLessThan(4)
+  expect(second?.duration ?? 0).toBeGreaterThan(9.5)
+  expect(second?.duration ?? 0).toBeLessThan(10.5)
 
   // Sound off silences it now and is remembered across a reload.
   await page.getByRole('button', { name: 'Sound on' }).click()

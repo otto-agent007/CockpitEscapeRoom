@@ -69,6 +69,21 @@ the Blender pipeline (a full asset rebuild, not done here).
 
 ## Discoveries
 
+### Round five — the owner supplied their own recording
+
+- The Commons clip was rejected in turn; the owner downloaded
+  `storegraphic-crowd-cheers-314919.mp3` and asked for its first ten seconds. Measured
+  voice/bright ratio **15-30 throughout**, so it is crowd-led where the previous file was
+  applause-led — audibly closer to "cheering".
+- **Ten seconds means ten seconds**, including the recording's own near-silent first second, which
+  is its swell-in. The only liberty taken is a 1.2 s fade from 8.8 s: the crowd is still at full
+  level at the cut point and a hard stop chopped it mid-cheer (tail RMS 0.068 versus 0.023 faded).
+- Kept stereo this time — the source is a stereo crowd recording and the width is the point.
+  Deterministic 0.80 gain puts it at -3.7 dBFS.
+- **Licence certainty is lower than what it replaced, and is recorded as such.** The Commons file
+  had per-file terms verifiable through the API; this one has no embedded terms, so both the audio
+  README and the asset manifest say the licence is the owner's to confirm.
+
 ### Round four — the synthesized fanfare was rejected outright
 
 - **The owner asked for a real cheer, not a chord.** The synthesized fanfare is gone, along with
