@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 import { dc9LegacyFlow, lockerFlow } from '../src/game/config'
 import { createInitialState, type GameState } from '../src/game/state'
 import { STORAGE_KEY } from '../src/game/storage'
+import { expectCelebrationCheerPlaying } from './celebrationAudio'
 
 function lockerState(overrides: Partial<GameState> = {}): GameState {
   return {
@@ -215,8 +216,14 @@ test('watch completion opens the baseball question, then Bull and Wings', async 
   await expect(celebration).toHaveAttribute('data-celebration-ready', 'true')
   await expect(celebration.getByRole('img', { name: 'Captain’s hat' })).toBeVisible()
   await expect(celebration.locator('.qualification-confetti i')).toHaveCount(24)
+  // The locker milestone cheers like the Captain's Key does. The card was reached by
+  // clicking Submit answer, so the document is interacted with and playback is allowed.
+  await expectCelebrationCheerPlaying(page)
   const continueToAirbusButton = celebration.getByRole('button', { name: 'Enter Pop T Captain Mode' })
   await expect(continueToAirbusButton).toBeFocused()
+  // The trap cycles rather than pins, because the card now carries a sound toggle too.
+  await page.keyboard.press('Tab')
+  await expect(celebration.getByRole('button', { name: 'Sound on' })).toBeFocused()
   await page.keyboard.press('Tab')
   await expect(continueToAirbusButton).toBeFocused()
 

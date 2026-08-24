@@ -3,6 +3,7 @@ import { statSync } from 'node:fs'
 import { airbusCaptainFlow, dc9LegacyFlow, lockerFlow } from '../src/game/config'
 import { createInitialState, type GameState } from '../src/game/state'
 import { STORAGE_KEY } from '../src/game/storage'
+import { expectCelebrationCheerPlaying } from './celebrationAudio'
 
 /**
  * The production tests drive the real 38 MiB GLB through a CPU rasteriser at
@@ -176,6 +177,10 @@ test('Engine-Out diversion completes Airbus without exposing the reward early', 
   await page.clock.runFor(45_000)
   await expect(page.getByRole('heading', { name: 'POP T CAPTAIN MODE COMPLETE' })).toBeVisible()
   await expect(page.getByText(/Captain traits:/)).toBeVisible()
+  // The Airbus milestone cheers like the Captain's Key does. The card was reached by clicking
+  // the diversion corridor, so the document is interacted with and playback is allowed. The
+  // installed clock is the page's timers only; the media element keeps its own real clock.
+  await expectCelebrationCheerPlaying(page)
   expect(await page.evaluate((key) => {
     const saved = JSON.parse(localStorage.getItem(key) ?? '{}') as GameState
     return {

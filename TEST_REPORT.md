@@ -1,5 +1,96 @@
 # Test report
 
+## 2026-08-24 The cheer at every milestone, and weather you can hear (branch feat/celebration-and-storm-audio)
+
+**Owner:** put the celebration sound on the other milestones too — the locker room and the Airbus.
+Then: "can't really hear any sound in the airbus scenes. Would like to hear some kind of
+rain/thunderstorm in the storm line part."
+
+### The cheer on all three milestone cards
+
+- The crowd cheer that shipped on the Captain's Key was wired into one component. It is now
+  `src/components/CelebrationSound.tsx`, mounted as the `aside` of all three milestone cards, so
+  `CaptainsKeyReveal`, `CaptainHatCelebration` and `AirbusCompletionCelebration` behave identically:
+  one play at `volume 0.55` on open, stopped when the card closes, a **Sound on/off** toggle, and no
+  `<audio>` element fetched at all while muted. `CaptainsKeyReveal` lost 50 lines to the move and its
+  behaviour is unchanged.
+- One preference for the whole game. `cockpit-escape-room:sound:v1` is shared, so Sound off at the
+  locker is still Sound off at the Airbus — asserted in `smoke.spec.ts` across the phase change.
+- **No accessible-name collision.** The Airbus card renders while the HUD is still mounted, and the
+  simulator topbar has its own **Sound on** button. It does not clash: completing Engine-Out sets
+  `location: 'hub'`, and the Simulator Hub has no sound control. Asserted directly — exactly one
+  `Sound on|off` button on screen while the completion card is open.
+- **The playback proof has to click its way to the card.** Seeding a celebration into view and
+  reloading leaves it silent, because Chromium blocks playback until the document has been
+  interacted with. Two tests written that way failed with `paused: true` and were rewritten onto the
+  real click paths: the locker cheer is proved in `locker-room.spec.ts` after Submit answer, and the
+  Airbus cheer in `airbus-engine-out.spec.ts` after the diversion corridor click. Both assert the
+  element is really running — not paused, `currentTime` advancing more than 0.3 s over 800 ms, and
+  `duration` between 9.5 and 10.5 s — via the shared `e2e/celebrationAudio.ts` helper the Captain's
+  Key test now also uses.
+- The locker card's Tab trap pinned focus on its single button. With a sound toggle it has two, so
+  the assertion was updated to the cycle the trap already implements: Continue → Sound on → Continue.
+
+### Airbus ambience: rain, wind, and thunder
+
+- **Why it was inaudible.** The bed was a 56–72 Hz sine plus a 56 Hz sawtooth behind a 260–980 Hz
+  lowpass. A laptop speaker reproduces almost nothing below ~150 Hz, so the honest fix was content
+  higher up, not more gain on the rumble.
+- **Graph restructured.** `master` is now a pure mute (1 or 0) with the engine bed on its own gain
+  below it, so weather layers mix in absolute terms instead of underneath an engine fader. One
+  full-scale white-noise loop feeds a rain chain (highpass 750–1450 Hz, lowpass 7.6 kHz) and a wind
+  band (bandpass, Q 0.7). Muting still takes everything down at one node — asserted.
+- **Drawn from the weather the scene already draws.** `stormAudioBed(precipitation, turbulence)`
+  reads the same `deriveAirbusWeatherDynamics` field as the clouds, so rain tracks precipitation
+  (0.28 at Weather entry, up to 0.97 in the core) and wind tracks turbulence. Engine-Out and the hub
+  get `CLEAR_AIR_BED`: no rain, but airflow, which is what makes that scenario audible too.
+- **Thunder answers the lightning.** `airbusLightningFlash` moved from `src/scenes/` to
+  `src/game/airbusLightning.ts` (re-exported from the visuals module, which imports it unchanged) so
+  sound and vision share one strike schedule instead of two copies of the jitter maths that could
+  drift apart. Each bolt gets one clap, keyed on the strike index and fired from the frame loop —
+  the flash window is 0.62 s, which a 12.5 Hz published-state effect would miss. Distance is drawn
+  from the same jitter, so strike 7 is always the same distance away: 0.4–4.0 s of delay, a crack
+  under ~0.4 of the range and rumble only beyond it, a resonant lowpass rolling from 900 Hz down as
+  it fades. Retrying a checkpoint rewinds the clock, so the remembered strike index is cleared or
+  the first bolt of the retry would land in silence.
+- **Reduced motion suppresses the flash, so it suppresses the clap.** The rain and wind stay.
+  Asserted: over 30 s in the storm core — three lightning periods — exactly two buffer sources have
+  started, which is the bed and nothing else.
+
+### Measurement, and two things it caught
+
+Measured in Chromium through a destination tap: an `AnalyserNode` on everything reaching
+`ctx.destination`, peak from `getFloatTimeDomainData` and per-band level from
+`getFloatFrequencyData`.
+
+- **`smoothingTimeConstant` defaults to 0.8, and that is a measurement trap.** Each read blends with
+  the previous one, so a once-a-second poll showed the rain band climbing −79 → −63 dBFS over twelve
+  seconds and still rising. Nothing was fading in; the analyser was converging. Set to 0, the same
+  reading is −65 dBFS immediately and flat.
+- **The first thunder level was scheduled, played, and inaudible.** At `rumbleLevel 0.16` the claps
+  fired on time — five in 40 s, visible as extra buffer sources at the right audio-clock offsets —
+  and moved the 90–420 Hz band by nothing at all against the rain. Raised to 0.85 near / 0.39 far,
+  the same window shows a clean swell and decay at every clap.
+- Numbers, storm core, 40 s: peak median **0.326**, max **0.48** (was 0.055–0.155 of engine gain);
+  largest band swell over the running median **12.4 dB** at the shipped level against **4.1 dB** at
+  the inaudible one. The e2e threshold is 8 dB, and the inaudible variant was re-run to confirm it
+  fails there — it passed a 2.5 dB threshold, which is why that one was not kept. Storm entry, the
+  lightest leg: peak 0.17, rain band −65 dBFS. Muted: peak exactly 0, rain band −200.
+
+### Commands run
+
+- `npm run lint`, `npm run typecheck` — clean.
+- `npm run test` — **472 passed, 36 files** (12 new in `airbusStormAudio.test.ts`).
+- `npx playwright test --grep-invert "production"` — **63 passed, 1 skipped**, on `PLAYWRIGHT_PORT=4311`.
+- The production-GLB e2e tests were **not** run: they drive the 38 MiB cockpit through SwiftShader at
+  roughly 1 fps and cost ~25 minutes each. Nothing here touches GLB loading or the scene graph.
+
+### Limitation
+
+Levels were chosen by measurement, not by listening — no audio output is available here. The storm
+core is audibly louder than the old bed by a wide margin and has headroom to spare, but whether it
+is *pleasantly* loud is an owner call.
+
 ## 2026-08-24 The walk toward the aircraft: order, then evenness (branch fix/intro-walk-cycle)
 
 - **Owner, round 1:** the walk as Pop T heads for the plane "looks bad and needs some work."

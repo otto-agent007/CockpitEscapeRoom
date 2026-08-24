@@ -3,6 +3,10 @@ import type {
   AirbusWeatherFieldSnapshot,
 } from '../game/airbusWeatherField'
 
+// The lightning schedule moved to the game layer when thunder started following the same
+// strikes. Re-exported here so the scene keeps one import for everything it draws.
+export { airbusLightningFlash, type AirbusLightningFlash } from '../game/airbusLightning'
+
 export type AirbusCloudDepthBand = 'near' | 'middle' | 'far'
 
 export interface AirbusCloudCluster {
@@ -42,12 +46,6 @@ export interface AirbusRainShaft {
   scale: readonly [number, number, number]
   opacity: number
   yawRadians: number
-}
-
-export interface AirbusLightningFlash {
-  /** 0 when dark. Multi-stroke, so it flickers rather than blinking once. */
-  intensity: number
-  strikeIndex: number
 }
 
 export interface AirbusAtmosphereLayout {
@@ -262,45 +260,6 @@ function projectRainShaft(
     opacity: Math.min(0.46, 0.1 + cell.precipitation * 0.36),
     yawRadians: billboardYaw(x, z),
   }
-}
-
-const LIGHTNING_STRIKE_PERIOD_SECONDS = 8.5
-const LIGHTNING_STRIKE_WINDOW_SECONDS = 0.62
-
-function strikeJitter(strikeIndex: number, salt: number): number {
-  const noise = Math.sin(strikeIndex * 37.719 + salt * 11.413) * 21374.729
-  return noise - Math.floor(noise)
-}
-
-function stroke(localSeconds: number, atSeconds: number, amplitude: number): number {
-  const since = localSeconds - atSeconds
-  return since < 0 ? 0 : amplitude * Math.exp(-since * 14)
-}
-
-/**
- * Deterministic multi-stroke lightning. Pure so it can be sampled every frame
- * instead of inside a 12 Hz throttle, where a sub-frame flash window is missed
- * far more often than it is caught.
- */
-export function airbusLightningFlash(
-  elapsedSeconds: number,
-  eligible: boolean,
-): AirbusLightningFlash {
-  const time = Math.max(0, Number.isFinite(elapsedSeconds) ? elapsedSeconds : 0)
-  const strikeIndex = Math.floor(time / LIGHTNING_STRIKE_PERIOD_SECONDS)
-  if (!eligible) return { intensity: 0, strikeIndex }
-
-  const offset = strikeJitter(strikeIndex, 1)
-    * (LIGHTNING_STRIKE_PERIOD_SECONDS - LIGHTNING_STRIKE_WINDOW_SECONDS - 0.5)
-  const local = time - (strikeIndex * LIGHTNING_STRIKE_PERIOD_SECONDS + offset)
-  if (local < 0 || local > LIGHTNING_STRIKE_WINDOW_SECONDS) {
-    return { intensity: 0, strikeIndex }
-  }
-
-  const intensity = stroke(local, 0, 1)
-    + stroke(local, 0.13, 0.34 + strikeJitter(strikeIndex, 2) * 0.42)
-    + stroke(local, 0.29, 0.18 + strikeJitter(strikeIndex, 3) * 0.3)
-  return { intensity: clamp01(intensity), strikeIndex }
 }
 
 function deriveVisibleGapBearing(

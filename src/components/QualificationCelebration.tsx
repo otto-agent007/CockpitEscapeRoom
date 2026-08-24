@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { EngineOutTrait } from '../game/airbusEngineOut'
+import { CelebrationSoundAside } from './CelebrationSound'
 
 const CAPTAIN_CELEBRATION_REVEAL_DELAY_MS = 850
 
@@ -123,6 +124,7 @@ export function AirbusCompletionCelebration({
       reducedMotion={reducedMotion}
       onContinue={onContinue}
       visual={<div className="qualification-emblem" aria-hidden="true">✓</div>}
+      aside={<CelebrationSoundAside />}
     />
   )
 }
@@ -139,6 +141,7 @@ export function CaptainHatCelebration({ reducedMotion, onContinue }: { reducedMo
       visual={<img className="qualification-hat" src={`${import.meta.env.BASE_URL}images/captains-hat-celebration.png`} alt="Captain’s hat" />}
       fadeToBlack
       variant="captain"
+      aside={<CelebrationSoundAside />}
     />
   )
 }

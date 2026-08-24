@@ -1,5 +1,6 @@
 /**
- * The cheer that plays when the Captain's Key reveal opens.
+ * The cheer that plays when a milestone celebration card opens: the Captain's Key, the
+ * captain's locker, and Pop T Captain Mode complete.
  *
  * An owner-supplied crowd recording, first ten seconds. Provenance and licence status are in
  * `public/audio/README.md` and `LICENSES/ASSET_MANIFEST.md`.
@@ -13,15 +14,16 @@ export const CELEBRATION_SOUND_FILE = 'audio/key-celebration.mp3'
 
 /**
  * Playback level. The asset peaks at -3.7 dBFS, which is right for a file but loud for a
- * surprise, so the reveal plays it back well under unity. The clip runs ten seconds; the
- * reveal stops it when the card closes, so taking the key early cuts it short rather than
- * leaving a crowd cheering over the next scene.
+ * surprise, so a card plays it back well under unity. The clip runs ten seconds; the card
+ * stops it when it closes, so continuing early cuts it short rather than leaving a crowd
+ * cheering over the next scene.
  */
 export const CELEBRATION_SOUND_VOLUME = 0.55
 
 /**
- * Separate from the game-state key on purpose: restarting the game clears progress, and a
- * player who turned the sound off does not want it back on because they replayed.
+ * One preference for every milestone, and separate from the game-state key on purpose:
+ * restarting the game clears progress, and a player who turned the sound off does not want
+ * it back on because they replayed or because they reached the next milestone.
  */
 export const CELEBRATION_SOUND_STORAGE_KEY = 'cockpit-escape-room:sound:v1'
 

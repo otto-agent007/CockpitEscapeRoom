@@ -6,6 +6,7 @@ import { DC9_INSTRUMENT_SCAN_ORDER } from '../src/game/dc9InstrumentScan'
 import { WALK_CYCLE, WALK_FRAME_MS } from '../src/game/introAnimation'
 import { introScenes } from '../src/game/introConfig'
 import { STORAGE_KEY } from '../src/game/storage'
+import { expectCelebrationCheerPlaying, sampleCelebrationAudio } from './celebrationAudio'
 
 async function placeAirbusCard(page: Page, card: string, targetName: string): Promise<void> {
   const dropZoneByTarget: Record<string, string> = {
@@ -967,9 +968,6 @@ test('DC-9 ATP gate accepts pointer typing and submits the visible answer', asyn
 })
 
 test("The Captain's Key reveal plays the celebration cheer and remembers Sound off", async ({ page }) => {
-  // "play() was called" is not proof of playback — an earlier version of this check passed
-  // while the sound was inaudible. Assert the element is really running: not paused, and its
-  // clock actually advancing.
   await page.goto('/?skip3d=1')
   await seedGameState(page, createDc9QualificationState())
   await page.getByRole('textbox', { name: 'Airline Transport Pilot answer' }).fill('1500 hours')
@@ -977,35 +975,12 @@ test("The Captain's Key reveal plays the celebration cheer and remembers Sound o
   await page.getByRole('button', { name: "Open The Captain's Key" }).click()
   await expect(page.getByRole('dialog', { name: "THE CAPTAIN'S KEY" })).toBeVisible()
 
-  const sample = () => page.evaluate(() => {
-    const audio = document.querySelector<HTMLAudioElement>('audio[src*="key-celebration"]')
-    if (!audio) return null
-    return {
-      src: audio.src,
-      paused: audio.paused,
-      volume: audio.volume,
-      currentTime: audio.currentTime,
-      duration: Number.isFinite(audio.duration) ? audio.duration : null,
-    }
-  })
-
-  await expect.poll(async () => (await sample())?.paused, { timeout: 10_000 }).toBe(false)
-  const first = await sample()
-  expect(first?.src).toContain('/audio/key-celebration.mp3')
-  expect(first?.volume).toBeGreaterThan(0)
-  expect(first?.volume).toBeLessThan(1)
-
-  // Playing, not merely started: the clock has to move, and the file has to be the 10s cut.
-  await page.waitForTimeout(800)
-  const second = await sample()
-  expect(second?.currentTime ?? 0).toBeGreaterThan((first?.currentTime ?? 0) + 0.3)
-  expect(second?.duration ?? 0).toBeGreaterThan(9.5)
-  expect(second?.duration ?? 0).toBeLessThan(10.5)
+  await expectCelebrationCheerPlaying(page)
 
   // Sound off silences it now and is remembered across a reload.
   await page.getByRole('button', { name: 'Sound on' }).click()
   await expect(page.getByRole('button', { name: 'Sound off' })).toHaveAttribute('aria-pressed', 'true')
-  expect(await sample()).toBeNull()
+  expect(await sampleCelebrationAudio(page)).toBeNull()
   expect(await page.evaluate(() => window.localStorage.getItem('cockpit-escape-room:sound:v1'))).toBe('{"muted":true}')
 
   // The key is revealed in the save by now, so the card comes back on its own.
@@ -1013,7 +988,39 @@ test("The Captain's Key reveal plays the celebration cheer and remembers Sound o
   await expect(page.getByRole('dialog', { name: "THE CAPTAIN'S KEY" })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Sound off' })).toBeVisible()
   // A silenced game does not even fetch the file.
-  expect(await sample()).toBeNull()
+  expect(await sampleCelebrationAudio(page)).toBeNull()
+})
+
+test('Sound off at one milestone card carries to the next', async ({ page }) => {
+  // One preference for the whole game, and it has to survive the phase change: silencing the
+  // cheer at the locker must reach the Airbus card. Both cards are seeded into view here
+  // rather than played to, which is why this asserts silence and not playback — a card that
+  // the document has never been interacted with is silent regardless of the preference.
+  // The click-driven proof that each card really cheers lives in `locker-room.spec.ts` and
+  // `airbus-engine-out.spec.ts`.
+  await page.goto('/?skip3d=1')
+  await seedGameState(page, {
+    ...createLockerState(),
+    lockerCompleted: [...lockerFlow.memoryIds],
+    lockerHatRevealed: true,
+    statusMessage: lockerFlow.hatText.revealText,
+  })
+  const lockerCelebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })
+  await expect(lockerCelebration).toBeVisible()
+  await expect(lockerCelebration.getByRole('button', { name: 'Sound on' })).toBeVisible()
+  await lockerCelebration.getByRole('button', { name: 'Sound on' }).click()
+  await expect(lockerCelebration.getByRole('button', { name: 'Sound off' })).toHaveAttribute('aria-pressed', 'true')
+  expect(await sampleCelebrationAudio(page)).toBeNull()
+
+  await seedGameState(page, createCompletedAirbusState())
+  const completion = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
+  await expect(completion).toBeVisible()
+  await expect(completion.getByRole('button', { name: 'Sound off' })).toBeVisible()
+  expect(await sampleCelebrationAudio(page)).toBeNull()
+
+  // The hub behind the Airbus card owns no sound control of its own, so the card's toggle is
+  // the only one on screen and cannot be confused with the simulator ambience button.
+  await expect(page.getByRole('button', { name: /^Sound (on|off)$/ })).toHaveCount(1)
 })
 
 test("The Captain's Key card keeps every control reachable by keyboard", async ({ page }) => {

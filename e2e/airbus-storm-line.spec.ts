@@ -53,7 +53,10 @@ async function seed(page: Page, state = airbusState()) {
   await page.reload()
 }
 
-async function startAccessibleStormLine(page: Page) {
+async function startAccessibleStormLine(
+  page: Page,
+  checkpoint: 'stormEntry' | 'stormCore' | 'clearAir' = 'stormEntry',
+) {
   await page.goto('/?skip3d=1')
   await seed(page, {
     ...airbusState(),
@@ -64,7 +67,7 @@ async function startAccessibleStormLine(page: Page) {
       location: 'hub',
       stormLine: {
         status: 'not_started',
-        checkpoint: 'stormEntry',
+        checkpoint,
         attempts: { stormEntry: 0, stormCore: 0, clearAir: 0 },
         bestTraits: [],
       },
@@ -156,11 +159,25 @@ test('Storm Line supports keyboard flight, pause, and durable checkpoint reload'
   await expect(page.getByRole('button', { name: 'Pause' })).toBeVisible()
 })
 
-test('Storm Line ambience is audible by default and the toggle silences it', async ({ page }) => {
+/**
+ * Tap everything reaching the speakers.
+ *
+ * `peak` answers "was a sound heard", `band` answers "which sound" — the rain lives two
+ * octaves above the engine bed and a peak reading cannot tell them apart. `starts` counts
+ * buffer sources, which is how a thunderclap is distinguished from the bed: the bed's two
+ * loops start once at the beginning, and every clap creates its own.
+ *
+ * `smoothingTimeConstant = 0` matters. At its 0.8 default each read is blended with the
+ * previous one, so a once-a-second poll reports a level still climbing towards the real one
+ * ten seconds after the sound started — a measurement artefact that reads exactly like a
+ * slow fade-in.
+ */
+async function installAudioProbe(page: Page) {
   await page.addInitScript(() => {
     const analysers: AnalyserNode[] = []
+    const bufferStarts: number[] = []
     const probe = {
-      count: () => analysers.length,
+      starts: () => bufferStarts.length,
       peak: () => {
         let peak = 0
         for (const analyser of analysers) {
@@ -170,8 +187,38 @@ test('Storm Line ambience is audible by default and the toggle silences it', asy
         }
         return peak
       },
+      /** Mean bin level in dBFS across a frequency band, or -200 when nothing is playing. */
+      band: (lowHz: number, highHz: number) => {
+        let best = -200
+        for (const analyser of analysers) {
+          const data = new Float32Array(analyser.frequencyBinCount)
+          analyser.getFloatFrequencyData(data)
+          const binHz = (analyser.context as AudioContext).sampleRate / 2 / analyser.frequencyBinCount
+          const low = Math.max(0, Math.floor(lowHz / binHz))
+          const high = Math.min(data.length - 1, Math.ceil(highHz / binHz))
+          let sum = 0
+          let count = 0
+          for (let index = low; index <= high; index += 1) {
+            sum += data[index]!
+            count += 1
+          }
+          if (count > 0) best = Math.max(best, sum / count)
+        }
+        return best
+      },
     }
     ;(window as unknown as { __airbusAudioProbe: typeof probe }).__airbusAudioProbe = probe
+
+    const originalStart = AudioBufferSourceNode.prototype.start
+    ;(AudioBufferSourceNode.prototype as unknown as { start: unknown }).start = function (
+      this: AudioBufferSourceNode,
+      when?: number,
+      ...rest: number[]
+    ) {
+      bufferStarts.push(when ?? 0)
+      return originalStart.call(this, when as number, ...(rest as [number, number]))
+    }
+
     const original = AudioNode.prototype.connect
     ;(AudioNode.prototype as unknown as { connect: unknown }).connect = function (
       this: AudioNode,
@@ -181,27 +228,114 @@ test('Storm Line ambience is audible by default and the toggle silences it', asy
       if (typeof AudioDestinationNode !== 'undefined' && target instanceof AudioDestinationNode) {
         const analyser = (this.context as AudioContext).createAnalyser()
         analyser.fftSize = 2048
+        analyser.smoothingTimeConstant = 0
         original.call(this, analyser)
         analysers.push(analyser)
       }
       return original.call(this, target as AudioNode, ...rest)
     }
   })
+}
+
+interface AudioProbe {
+  starts(): number
+  peak(): number
+  band(lowHz: number, highHz: number): number
+}
+
+function audioPeak(page: Page): Promise<number> {
+  return page.evaluate(() =>
+    (window as unknown as { __airbusAudioProbe: AudioProbe }).__airbusAudioProbe.peak())
+}
+
+function audioBand(page: Page, lowHz: number, highHz: number): Promise<number> {
+  return page.evaluate(
+    ([low, high]) =>
+      (window as unknown as { __airbusAudioProbe: AudioProbe }).__airbusAudioProbe.band(low, high),
+    [lowHz, highHz] as const,
+  )
+}
+
+function bufferSourceStarts(page: Page): Promise<number> {
+  return page.evaluate(() =>
+    (window as unknown as { __airbusAudioProbe: AudioProbe }).__airbusAudioProbe.starts())
+}
+
+/** 1.5-6 kHz: rain hiss, and empty in an engine-only bed. */
+const RAIN_BAND: readonly [number, number] = [1_500, 6_000]
+/** 90-420 Hz: where a thunder rumble lands. */
+const THUNDER_BAND: readonly [number, number] = [90, 420]
+
+test('Storm Line ambience is audible by default and the toggle silences it', async ({ page }) => {
+  await installAudioProbe(page)
   await startAccessibleStormLine(page)
 
   await expect(page.getByRole('button', { name: 'Sound on' })).toBeVisible()
-  const peak = () =>
-    page.evaluate(() =>
-      (window as unknown as { __airbusAudioProbe: { peak(): number } }).__airbusAudioProbe.peak(),
-    )
   // A destination tap must exist and carry a clearly audible signal — not just
   // "an oscillator was started". 0.04 fails both silent variants that shipped
   // before: no graph at all (peak 0) and the old 0.018-gain whisper.
-  await expect.poll(peak, { timeout: 20_000 }).toBeGreaterThan(0.04)
+  await expect.poll(() => audioPeak(page), { timeout: 20_000 }).toBeGreaterThan(0.04)
+
+  // And it has to be *rain*, not only the engine bed. The engine is a 56-72 Hz rumble
+  // behind a lowpass that leaves nothing two octaves up, which is why the simulator
+  // reported as silent on a laptop; this band measured -65 dBFS here on the lightest leg
+  // of the storm, and is empty in an engine-only build.
+  await expect.poll(() => audioBand(page, ...RAIN_BAND), { timeout: 20_000 }).toBeGreaterThan(-75)
 
   await page.getByRole('button', { name: 'Sound on' }).click()
   await expect(page.getByRole('button', { name: 'Sound off' })).toBeVisible()
-  await expect.poll(peak, { timeout: 20_000 }).toBeLessThan(0.005)
+  await expect.poll(() => audioPeak(page), { timeout: 20_000 }).toBeLessThan(0.005)
+  // The rain goes with it: one master gain mutes every layer, not just the engine.
+  expect(await audioBand(page, ...RAIN_BAND)).toBeLessThan(-90)
+})
+
+test('Storm Line thunder answers the lightning it flies through', async ({ page }) => {
+  test.setTimeout(180_000)
+  await installAudioProbe(page)
+  // Only the storm core is lightning-eligible, so that is the leg with thunder in it.
+  await startAccessibleStormLine(page, 'stormCore')
+  await expect(page.getByRole('button', { name: 'Sound on' })).toBeVisible()
+
+  // The bed is two looping buffer sources started once. Every clap creates its own, so
+  // anything past two is thunder that was actually scheduled.
+  await expect.poll(() => bufferSourceStarts(page), { timeout: 60_000 }).toBeGreaterThan(2)
+
+  // Scheduled is not heard. A clap has to lift the band it lives in clear of the rain, so
+  // this samples fast enough to catch a swell and its decay and takes the largest rise over
+  // the running median. Measured over the same 40 s window: the level that was written
+  // first — loud enough to see in the graph, inaudible against the bed — reaches 4.1 dB,
+  // and the shipped level reaches 12.4 dB. 8 dB separates them.
+  const levels: number[] = []
+  let bestSwell = 0
+  for (let sample = 0; sample < 400; sample += 1) {
+    const level = await audioBand(page, ...THUNDER_BAND)
+    if (levels.length >= 25) {
+      const window = [...levels.slice(-25)].sort((left, right) => left - right)
+      bestSwell = Math.max(bestSwell, level - window[Math.floor(window.length / 2)]!)
+    }
+    levels.push(level)
+    await page.waitForTimeout(100)
+  }
+  expect(bestSwell).toBeGreaterThan(8)
+})
+
+test('reduced motion keeps the rain and drops the thunderclap', async ({ page }) => {
+  test.setTimeout(120_000)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await installAudioProbe(page)
+  await startAccessibleStormLine(page, 'stormCore')
+  await expect(page.getByRole('button', { name: 'Sound on' })).toBeVisible()
+
+  // The bed is unchanged: reduced motion is not a mute. Poll the rain rather than reading
+  // it once — the engine bed reaches full level first, so the peak crosses while the rain
+  // is still swelling in behind it.
+  await expect.poll(() => audioPeak(page), { timeout: 20_000 }).toBeGreaterThan(0.04)
+  await expect.poll(() => audioBand(page, ...RAIN_BAND), { timeout: 20_000 }).toBeGreaterThan(-75)
+
+  // But the flash is suppressed, so the clap that answers it goes with it. Thirty seconds
+  // is three lightning periods; the test above schedules several claps in that time.
+  await page.waitForTimeout(30_000)
+  expect(await bufferSourceStarts(page)).toBe(2)
 })
 
 test('Storm Line keeps flying when WebAudio is unavailable', async ({ page }) => {
