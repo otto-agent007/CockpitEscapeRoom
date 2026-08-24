@@ -11,37 +11,41 @@
 
 import type { IntroSfxCue, IntroSfxSound } from './introSfx'
 
-function tone(
+function note(
   voice: IntroSfxSound['voice'],
   frequency: number,
-  endFrequency: number,
+  delaySeconds: number,
   durationSeconds: number,
+  sustainSeconds: number,
   gain: number,
 ): IntroSfxSound {
-  return { voice, frequency, endFrequency, durationSeconds, gain }
+  return { voice, frequency, endFrequency: frequency, delaySeconds, durationSeconds, sustainSeconds, gain }
 }
 
 /**
- * A rising major triad with a soft shimmer over it — a small, warm "you earned
- * this" rather than an arcade jingle. The whole thing is under a second and a
- * half so it is finished well before the player reads the card.
+ * A C major arpeggio that arrives one note at a time and then rings as a chord.
  *
- * `IntroSfxPlayer.play` starts every sound in a cue at once, so the arpeggio is
- * spelled out as overlapping tones of increasing length rather than as separate
- * scheduled cues: each note starts together and the longer ones ring on, which
- * lands as a chord blooming open.
+ * Every voice carries an explicit `sustainSeconds`. The first version of this cue did not,
+ * and inherited the ident gag's percussive envelope: measured in the browser it peaked at
+ * 0.37, fell to one percent of that by 300 ms and was inaudible by 500 ms, so a
+ * second-long chord played as a click. The notes now hold for roughly half their length
+ * before releasing.
+ *
+ * The stagger is what makes it read as a flourish rather than a stab: the four notes enter
+ * 90 ms apart and overlap from 0.27 s, so the chord assembles under the player as the card
+ * opens.
  */
 export const DC9_KEY_FANFARE: IntroSfxCue = {
   id: 'dc9-key-reveal',
   timeSeconds: 0,
   sounds: [
-    // C5 - E5 - G5 - C6, each ringing longer than the last.
-    tone('triangle', 523.25, 523.25, 0.34, 0.20),
-    tone('triangle', 659.25, 659.25, 0.52, 0.18),
-    tone('triangle', 783.99, 783.99, 0.72, 0.17),
-    tone('square', 1046.5, 1046.5, 1.05, 0.10),
+    //     voice       Hz        in     len   hold  gain
+    note('triangle', 523.25, 0.00, 1.10, 0.55, 0.16), // C5
+    note('triangle', 659.25, 0.09, 1.05, 0.50, 0.15), // E5
+    note('triangle', 783.99, 0.18, 1.00, 0.46, 0.14), // G5
+    note('square', 1046.50, 0.27, 0.95, 0.42, 0.09), // C6, a little sparkle on top
     // A brushed-metal shimmer under the chord, for the key itself.
-    tone('noise', 5200, 1600, 0.9, 0.05),
+    { voice: 'noise', frequency: 5200, endFrequency: 1600, delaySeconds: 0.22, durationSeconds: 0.85, sustainSeconds: 0.12, gain: 0.04 },
   ],
 }
 
@@ -50,7 +54,10 @@ export function dc9KeyFanfarePeakGain(): number {
   return Math.max(...DC9_KEY_FANFARE.sounds.map((sound) => sound.gain))
 }
 
-/** Longest voice in the fanfare, in seconds. */
+/**
+ * When the last voice falls silent, in seconds from the start of the cue. Includes each
+ * voice's delay, or the AudioContext would be released before the top note finished.
+ */
 export function dc9KeyFanfareDurationSeconds(): number {
-  return Math.max(...DC9_KEY_FANFARE.sounds.map((sound) => sound.durationSeconds))
+  return Math.max(...DC9_KEY_FANFARE.sounds.map((sound) => (sound.delaySeconds ?? 0) + sound.durationSeconds))
 }

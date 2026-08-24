@@ -69,6 +69,25 @@ the Blender pipeline (a full asset rebuild, not done here).
 
 ## Discoveries
 
+### Round three — the fanfare was inaudible
+
+- **"An oscillator started" is not "a sound was heard", and the first test only checked the
+  former.** The owner reported no sound on the key reveal even though the e2e assertion passed.
+  Tapping the graph on its way to the destination and sampling the level showed why: the cue
+  peaked at 0.37 and then collapsed — one percent of peak by 300 ms, inaudible by 500 ms.
+- **The cause was the envelope, not the notes.** `IntroSfxPlayer` gives every voice the ident
+  gag's shape: attack over 5 ms, then an exponential ramp to 0.0001 across the whole duration.
+  For a 40–400 ms blip that is a PSG pluck; applied to a one-second chord it is a click followed
+  by silence. Nothing was wrong with the pitches or the gains.
+- **Measured three envelopes to pick an honest test threshold.** Peak in the 0.45–0.70 s window:
+  shipped (staggered entries, held notes) **0.47**, held notes removed **0.057**, neither — the
+  original — **0.024**. A peak-only assertion separates none of them, because all three attack
+  above 0.2. The test now asserts the level in that window is above 0.15, and was run against all
+  three: passes shipped, fails at 0.056, fails at 0.013.
+- **The release timer was short too.** `dc9KeyFanfareDurationSeconds` returned the longest
+  `durationSeconds` and ignored the new per-voice delay, so the AudioContext was released at
+  1.45 s while the top note ran to 1.22 s plus its own release.
+
 ### Round two
 
 - **The strip's height was chosen by rendering, not arithmetic.** The pipeline centres it at
@@ -126,6 +145,11 @@ the Blender pipeline (a full asset rebuild, not done here).
 
 ## Decision log
 
+- **The intro's sound descriptor grew an optional envelope rather than the DC-9 getting its own
+  player** — 2026-08-23. `IntroSfxSound` now takes optional `delaySeconds` and `sustainSeconds`;
+  both absent reproduces the old shape byte for byte, so the ident gag is untouched. The
+  alternative was a second AudioContext owner for one cue. Consequence: a module named for the
+  intro now carries a field only the DC-9 uses.
 - **The fanfare is synthesized, not a shipped audio file** — 2026-08-23. Same reasoning as the
   intro's gag, and the same code: `IntroSfxPlayer` renders any `IntroSfxCue`, so the new
   `dc9KeySfx.ts` is a pure descriptor and nothing new owns an AudioContext. No binary asset, no
@@ -256,7 +280,8 @@ window were re-captured rather than trusted.
 
 ## Outcome and handoff
 
-**Awaiting owner review.** Limitations, stated plainly:
+**Awaiting owner review.** The fanfare was reported inaudible after round two and is fixed in
+round three; everything else in this plan landed as described. Limitations, stated plainly:
 
 - **On a portrait phone the first switch has no marker.** At 375x812 the shutdown stage's approved
   framing puts the APU buses hotspot outside the frame and the APU master within 48 px of the left

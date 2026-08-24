@@ -29,6 +29,21 @@ export type IntroSfxSound = {
   durationSeconds: number
   /** Peak gain before the player applies the user's volume. 0–1. */
   gain: number
+  /**
+   * Delay from the start of the cue before this voice sounds, in seconds. Absent means it
+   * starts with the cue, which is what every gag blip does.
+   */
+  delaySeconds?: number
+  /**
+   * How long the voice holds at full gain before it releases, in seconds.
+   *
+   * Absent gives the PSG shape the ident gag wants: attack, then decay across the whole
+   * duration. That shape is wrong for anything longer than a blip — an exponential fall to
+   * 0.0001 is already at one percent of peak a third of the way through, so a one-second
+   * chord written that way is a click followed by silence. A held note keeps its level until
+   * the release instead.
+   */
+  sustainSeconds?: number
 }
 
 export type IntroSfxCue = {

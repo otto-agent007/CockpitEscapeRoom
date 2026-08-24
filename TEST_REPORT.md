@@ -1,6 +1,37 @@
 # Test report
 
 
+## 2026-08-23 The Captain's Key fanfare was inaudible — envelope, and a test that could not fail
+
+The owner reported no sound on the key reveal. The e2e assertion added the same day passed
+throughout, which is the interesting part.
+
+- **The check could not fail.** It recorded that `AudioContext` was created and that five
+  oscillators called `start()`. Both were true. Neither says anything about whether a sound came
+  out. Replaced with a tap on the graph's path to `destination` and a measurement of the actual
+  output level over the whole cue.
+- **The sound was real but collapsed.** Measured peak 0.37 at 60 ms, **0.044 by 300 ms, 0.011 by
+  480 ms** — a click, then silence for the remaining second.
+- **Cause: the envelope, not the notes.** `IntroSfxPlayer` gives every voice the ident gag's PSG
+  shape — 5 ms attack, then an exponential ramp to 0.0001 across the whole duration. Right for a
+  40–400 ms blip; for a one-second chord it is at one percent of peak a third of the way in.
+  `IntroSfxSound` now takes optional `delaySeconds` and `sustainSeconds`; both absent reproduces
+  the old shape exactly, so the intro is untouched and its tests pass unchanged.
+- **The fanfare is now a staggered, held C major arpeggio.** Four notes entering 90 ms apart,
+  each holding roughly half its length before releasing. Re-measured: builds 0.16 → 0.38 → 0.51,
+  **holds 0.43–0.51 from 330 ms to 610 ms**, releases to silence by 1.3 s.
+- **Threshold chosen from three measured envelopes, not invented.** Peak in the 0.45–0.70 s
+  window: shipped **0.47**, held notes removed **0.057**, neither (the original) **0.024**. A
+  peak-only assertion separates none of them — all three attack above 0.2. The test asserts above
+  0.15 in that window.
+- **The new test was run against all three envelopes**: passes on the shipped one, fails at 0.056
+  with the sustain disabled, fails at 0.013 on the original. It can fail, and it fails on the bug
+  it was written for.
+- Also fixed: `dc9KeyFanfareDurationSeconds` ignored the new per-voice delay, so the AudioContext
+  was released at 1.45 s while the top note ran past 1.22 s.
+- **`npm run check`** and the **Playwright smoke spec** — results below.
+
+
 ## 2026-08-23 DC-9 round two: strip up the yoke, key click rectangle, key fanfare, bare markers
 
 Five owner follow-ups after seeing the overhead work in the browser. Three found real defects

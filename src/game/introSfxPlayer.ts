@@ -78,12 +78,17 @@ export class IntroSfxPlayer {
   }
 
   private playSound(context: AudioContext, master: GainNode, sound: IntroSfxSound): void {
-    const now = context.currentTime
-    const end = now + sound.durationSeconds
+    const start = context.currentTime + (sound.delaySeconds ?? 0)
+    const end = start + sound.durationSeconds
     const gain = context.createGain()
     // Fast attack, exponential-ish decay: the shape a PSG envelope makes.
-    gain.gain.setValueAtTime(0, now)
-    gain.gain.linearRampToValueAtTime(sound.gain, now + 0.005)
+    gain.gain.setValueAtTime(0, start)
+    gain.gain.linearRampToValueAtTime(sound.gain, start + 0.005)
+    // A held note stays at its level until the release, rather than falling away from the
+    // attack. Without this a sustained chord is inaudible a third of the way through.
+    if (sound.sustainSeconds !== undefined) {
+      gain.gain.setValueAtTime(sound.gain, start + Math.min(sound.sustainSeconds, sound.durationSeconds))
+    }
     gain.gain.exponentialRampToValueAtTime(0.0001, end)
     gain.connect(master)
 
@@ -94,23 +99,23 @@ export class IntroSfxPlayer {
       const filter = context.createBiquadFilter()
       filter.type = 'bandpass'
       filter.Q.value = 0.8
-      filter.frequency.setValueAtTime(sound.frequency, now)
+      filter.frequency.setValueAtTime(sound.frequency, start)
       filter.frequency.linearRampToValueAtTime(Math.max(40, sound.endFrequency), end)
       source.connect(filter)
       filter.connect(gain)
-      source.start(now)
+      source.start(start)
       source.stop(end)
       return
     }
 
     const oscillator = context.createOscillator()
     oscillator.type = sound.voice
-    oscillator.frequency.setValueAtTime(sound.frequency, now)
+    oscillator.frequency.setValueAtTime(sound.frequency, start)
     if (sound.endFrequency !== sound.frequency) {
       oscillator.frequency.linearRampToValueAtTime(Math.max(20, sound.endFrequency), end)
     }
     oscillator.connect(gain)
-    oscillator.start(now)
+    oscillator.start(start)
     oscillator.stop(end)
   }
 
