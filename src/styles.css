@@ -1709,7 +1709,7 @@ p {
   position: relative;
   z-index: 3;
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
   min-height: 100vh;
   padding: clamp(0.45rem, 1vw, 0.8rem) clamp(0.8rem, 1.5vw, 1.2rem) clamp(0.8rem, 1.5vw, 1.2rem);
   pointer-events: none;
@@ -1768,8 +1768,40 @@ p {
   color: #f3d27f;
 }
 
-.airbus-card-tray {
+.airbus-instruction-box {
   grid-row: 2;
+  display: grid;
+  width: min(100%, 76rem);
+  gap: 0.14rem;
+  margin-inline: auto;
+  margin-top: 0.3rem;
+  border: 1px solid rgba(119, 223, 229, 0.38);
+  border-left: 4px solid rgba(119, 223, 229, 0.8);
+  border-radius: 0.55rem;
+  padding: 0.5rem 0.7rem;
+  background: rgba(6, 14, 15, 0.82);
+  color: #edf5ee;
+  pointer-events: auto;
+}
+
+.airbus-instruction-box .eyebrow {
+  font-size: 0.62rem;
+}
+
+.airbus-instruction-box strong {
+  font-size: 0.92rem;
+  line-height: 1.3;
+}
+
+.airbus-instruction-box span,
+.airbus-instruction-box small {
+  color: #aebbb7;
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+.airbus-card-tray {
+  grid-row: 3;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.55rem;
@@ -2346,6 +2378,93 @@ p {
   transform: translateX(-50%);
 }
 
+.storm-route-guidance {
+  position: absolute;
+  z-index: 8;
+  top: 10.4rem;
+  left: 50%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 11rem;
+  align-items: center;
+  width: min(42rem, calc(100vw - 19rem));
+  gap: 0.6rem;
+  border: 1px solid rgba(119, 223, 229, 0.38);
+  border-radius: 0.65rem;
+  padding: 0.4rem 0.6rem;
+  background: rgba(3, 12, 15, 0.9);
+  color: #edf8f5;
+  transform: translateX(-50%);
+}
+
+.storm-route-guidance-label {
+  color: #83dce2;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.storm-route-guidance p {
+  margin: 0;
+  font-size: 0.74rem;
+  line-height: 1.25;
+}
+
+.storm-route-guidance--urgent {
+  border-color: rgba(255, 176, 93, 0.85);
+}
+
+.storm-route-guidance--urgent p {
+  color: #ffcf95;
+}
+
+.storm-route-guidance--settled {
+  border-color: rgba(117, 230, 156, 0.6);
+}
+
+.storm-route-guidance--settled p {
+  color: #9ee2b1;
+}
+
+.storm-drift-meter {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.storm-drift-meter-side {
+  color: #83dce2;
+  font-size: 0.6rem;
+  font-weight: 800;
+}
+
+.storm-drift-meter-track {
+  position: relative;
+  flex: 1;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: rgba(131, 220, 226, 0.16);
+}
+
+.storm-drift-meter-band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 999px;
+  background: rgba(117, 230, 156, 0.4);
+}
+
+.storm-drift-meter-marker {
+  position: absolute;
+  top: 50%;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 6px rgba(126, 249, 255, 0.9);
+  transform: translate(-50%, -50%);
+}
+
 .airbus-workload-task {
   position: absolute;
   z-index: 8;
@@ -2408,6 +2527,8 @@ p {
   display: flex;
   align-items: center;
   flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 0.3rem;
 }
 
@@ -3407,6 +3528,20 @@ progress {
     width: auto;
     transform: none;
   }
+
+  .storm-route-guidance {
+    top: auto;
+    right: 7rem;
+    bottom: 6.2rem;
+    left: 12.8rem;
+    grid-template-columns: auto minmax(0, 1fr);
+    width: auto;
+    transform: none;
+  }
+
+  .storm-drift-meter {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 620px) {
@@ -3631,6 +3766,20 @@ progress {
     top: 6rem;
     left: 0.4rem;
     width: 6.6rem;
+  }
+
+  .storm-route-guidance {
+    top: auto;
+    right: 6rem;
+    bottom: 6.4rem;
+    left: 0.4rem;
+    grid-template-columns: auto minmax(0, 1fr);
+    width: auto;
+    transform: none;
+  }
+
+  .storm-drift-meter {
+    grid-column: 1 / -1;
   }
 
   .storm-instrument-mirror > div {

@@ -1,6 +1,39 @@
 # Test report
 
 
+## 2026-08-23 Airbus Storm Line usability (branch pr/airbus-storm-usability)
+
+- **Scope:** qualification instruction box announcing the drag/drop start; Storm Line briefing
+  rewritten around "the west gap is off your left wing"; a live Route guidance line + drift meter
+  driven by new pure rules in `src/game/airbusRouteGuidance.ts`; sector buttons relabeled
+  "West (left) / Center (ahead) / East (right)"; stronger gap hint names the left third of the ND;
+  a soft gap-lane glow on the storm ND; Weather-Entry gate eased from −0.35 to −0.25 via the new
+  exported `STORM_ENTRY_GATE_LATERAL` (owner-requested difficulty ease; the drift-meter green band
+  is drawn from the same constants the flight model enforces).
+- `npm run check` — pass: ESLint, tsc, **433/433 Vitest across 34 files** (10 new
+  `airbusRouteGuidance` tests; new entry-gate boundary tests on both sides of the threshold),
+  production build.
+- `npx playwright test e2e/airbus-workload.spec.ts e2e/airbus-storm-line.spec.ts` — first run
+  **9/10**: the one failure was the new guidance-box geometry assertion at 375 px, where the box
+  (fixed `top: 13rem`) overlapped the wrapped captain-task panel and instrument mirror. Repaired by
+  pinning the guidance above the flight-control deck at ≤900 px instead of using fixed tops; two
+  further capture-inspection passes moved its right edge clear of the floating "?"/fullscreen scene
+  tools (right: 6rem at ≤620 px, 7rem at 621–900 px — the tools sit ~5.8rem inboard). After repair:
+  workload **4/4** (including the 5.1 min production-GLB ND/ECAM mesh-click case) and the
+  responsive/no-WebGL geometry case green at 375/768/1440.
+- `npx playwright test e2e/smoke.spec.ts -g "Airbus"` — **3/3**, including the production A320 GLB
+  load and the card-placement case that now asserts the instruction-box copy.
+- Screenshots inspected (not just captured) in `preview-renders/airbus-storm-usability/`:
+  `01-qualification-instruction-{1440,768,375}.png`, `02-storm-entry-guidance-*.png`,
+  `03-storm-core-corridor-*.png` (via the env-gated `e2e/airbus-usability-captures.spec.ts`), plus
+  production 1440 evidence `storm-entry-range-40-1440.png`, `storm-core-west-gap-1440.png` (WEST
+  boxed green on the live ND with the gap-lane glow, Route line reading "In the corridor"),
+  `engine-recognition-acknowledged-1440.png`, `engine-diversion-right-safe-return-1440.png`, and
+  `native-storm-core-{375,768,1440}.png`.
+- Reduced motion (responsive case runs under `reducedMotion: reduce`), reload persistence, wrong
+  answer → hint escalation, checkpoint-failure coaching, and keyboard flight are covered by the
+  passing suites above. Engine-Out regression run recorded in plans/0039.
+
 ## 2026-08-21 Fringe fix swept across every Pop T sprite
 
 - The coverage fix that sharpened the walk was applied to the rest of the set. Pale edge across all

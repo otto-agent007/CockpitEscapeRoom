@@ -45,6 +45,12 @@ export const airbusCaptainFlow = {
     sideConsole: 'Side console switches',
     windshieldLights: 'Windshield light switches',
   } as const,
+  qualificationIntro: {
+    eyebrow: 'Crew qualification · drag and drop',
+    instruction: 'Start by dragging each label card onto its matching cockpit control.',
+    alternate: 'No mouse? Tap or click a card, then tap its glowing target.',
+    completionNote: 'Five correct placements open the Storm Line flight.',
+  } as const,
   controlHints: {
     sidestick: 'Nice. That’s the sidestick.',
     thrust: 'Correct. Thrust controls power.',

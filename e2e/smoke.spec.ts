@@ -1281,6 +1281,10 @@ test('Airbus cards show immediate placement feedback and recover', async ({ page
   await page.goto('/?skip3d=1')
   await seedGameState(page, createAirbusState())
 
+  const instructionBox = page.locator('[data-airbus-instruction]')
+  await expect(instructionBox).toContainText('dragging each label card')
+  await expect(instructionBox).toContainText('tap its glowing target')
+
   const sidestickCard = page.getByRole('button', { name: /^SIDESTICK\b/ })
   const sidestickTarget = page.getByRole('button', { name: 'Cockpit drop zone 1' })
   const dataTransfer = await page.evaluateHandle(() => new DataTransfer())

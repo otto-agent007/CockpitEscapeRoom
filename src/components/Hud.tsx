@@ -2,6 +2,7 @@ import { useMemo, useState, type DragEvent, type KeyboardEvent, type PointerEven
 import { airbusCaptainFlow, type AirbusControl, type LockerMemoryId } from '../game/config'
 import { ENGINE_OUT_ENVELOPE, ENGINE_OUT_TIMING } from '../game/airbusEngineOut'
 import type { AirbusHoldControl } from '../game/airbusInput'
+import { deriveStormRouteGuidance } from '../game/airbusRouteGuidance'
 import { getAirbusScenarioAvailability } from '../game/airbusScenario'
 import type { StormLineState } from '../game/airbusSimulator'
 import {
@@ -44,7 +45,7 @@ const checkpointLabels = {
 const failureCoaching = {
   attitude: 'Ease the sidestick toward center. Keep pitch inside 20° and bank inside 45°.',
   energy: 'Use paired thrust to return the energy tape to the green band.',
-  corridor: 'The western gap is the stable route. Bank left before the weather entry closes.',
+  corridor: 'The west gap is the stable route. Bank left until the drift marker sits in the green band, then level off.',
 } as const
 
 const stormCaptions: Record<Exclude<AirbusWeatherInstructorCue, 'stableCruise'>, string> = {
@@ -193,9 +194,9 @@ function AirbusCaptainTask({
           )}
           {task === 'stormGapSelection' && (
             <>
-              <button type="button" onClick={() => apply({ type: 'selectWeatherSector', sector: 'west' })}>West</button>
-              <button type="button" onClick={() => apply({ type: 'selectWeatherSector', sector: 'center' })}>Center</button>
-              <button type="button" onClick={() => apply({ type: 'selectWeatherSector', sector: 'east' })}>East</button>
+              <button type="button" onClick={() => apply({ type: 'selectWeatherSector', sector: 'west' })}>West (left)</button>
+              <button type="button" onClick={() => apply({ type: 'selectWeatherSector', sector: 'center' })}>Center (ahead)</button>
+              <button type="button" onClick={() => apply({ type: 'selectWeatherSector', sector: 'east' })}>East (right)</button>
             </>
           )}
           {task === 'engineEventAcknowledgement' && (
@@ -247,12 +248,14 @@ function AirbusStormLineHud({
           ) : (
             <>
               <p>
-                Qualification complete. Enter a fictional en-route simulator, fly through the
-                stable western gap, and keep the energy tape in green.
+                Qualification complete. Fly a fictional storm exercise from the left seat.
+                The safe lane is the west gap — off your left wing. Bank left, settle the
+                drift marker in the green band, and keep the energy tape in green.
               </p>
               <ul>
                 <li>Arrow keys or left stick: pitch and bank</li>
                 <li>W/S or gamepad triggers: paired thrust</li>
+                <li>The Route line and drift meter show the west lane — stay in the green band</li>
                 <li>Failure rewinds only the active checkpoint</li>
               </ul>
               <button
@@ -281,6 +284,7 @@ function AirbusStormLineHud({
 
   const simulation = frame.state
   const checkpoint = checkpointLabels[simulation.checkpoint]
+  const guidance = deriveStormRouteGuidance(simulation)
   const energyPercent = Math.round(simulation.aircraft.energy * 100)
   const timeRemaining = Math.max(0, Math.ceil(165 - simulation.elapsedSeconds))
   const failed = simulation.phase === 'checkpointFailed'
@@ -324,6 +328,33 @@ function AirbusStormLineHud({
         </div>
         <div><span>Weather</span><strong>{Math.round(simulation.weatherIntensity * 100)}%</strong></div>
       </div>
+
+      {guidance && (
+        <div
+          className={`storm-route-guidance storm-route-guidance--${guidance.tone}`}
+          data-storm-guidance-tone={guidance.tone}
+        >
+          <span className="storm-route-guidance-label">Route</span>
+          <p aria-live="polite">{guidance.message}</p>
+          <div className="storm-drift-meter" aria-hidden="true">
+            <span className="storm-drift-meter-side">W</span>
+            <div className="storm-drift-meter-track">
+              <span
+                className="storm-drift-meter-band"
+                style={{
+                  left: `${guidance.meter.bandStart * 100}%`,
+                  width: `${(guidance.meter.bandEnd - guidance.meter.bandStart) * 100}%`,
+                }}
+              />
+              <span
+                className="storm-drift-meter-marker"
+                style={{ left: `${guidance.meter.position * 100}%` }}
+              />
+            </div>
+            <span className="storm-drift-meter-side">E</span>
+          </div>
+        </div>
+      )}
 
       <progress className="storm-progress" max={165} value={simulation.elapsedSeconds} aria-label="Storm Line progress" />
 
@@ -749,6 +780,13 @@ export function Hud({
             <span>{gameProgress(state)}% complete</span>
             <strong>{placedAirbusCards}/{airbusCaptainFlow.controlCards.length}</strong>
           </div>
+        </div>
+
+        <div className="airbus-instruction-box" data-airbus-instruction>
+          <p className="eyebrow">{airbusCaptainFlow.qualificationIntro.eyebrow}</p>
+          <strong>{airbusCaptainFlow.qualificationIntro.instruction}</strong>
+          <span>{airbusCaptainFlow.qualificationIntro.alternate}</span>
+          <small>{airbusCaptainFlow.qualificationIntro.completionNote}</small>
         </div>
 
         <div className="airbus-card-tray" aria-label="Draggable label cards">

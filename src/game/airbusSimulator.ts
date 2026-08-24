@@ -46,11 +46,21 @@ const BASE_CLOSURE_NM_PER_SECOND = 0.07
 function closureNmPerSecond(energy: number): number {
   return BASE_CLOSURE_NM_PER_SECOND * (0.45 + clamp01(energy) * 1.1)
 }
-const CHECKPOINT_START_SECONDS: Record<StormLineCheckpoint, number> = {
+export const STORM_CHECKPOINT_START_SECONDS: Record<StormLineCheckpoint, number> = {
   stormEntry: 0,
   stormCore: 45,
   clearAir: 135,
 }
+
+/**
+ * The weather-entry gate and corridor band are drawn on the HUD drift meter,
+ * so gameplay and presentation must read the same values. The gate is the
+ * minimum leftward displacement when Weather Entry closes; the corridor is
+ * centred on the authored west lane for the rest of the flight.
+ */
+export const STORM_ENTRY_GATE_LATERAL = -0.25
+export const STORM_CORRIDOR_CENTER = -0.7
+export const STORM_CORRIDOR_HALF_WIDTH = 1
 
 function clampAxis(value: number): number {
   return Math.max(-1, Math.min(1, Number.isFinite(value) ? value : 0))
@@ -130,14 +140,14 @@ export function createStormLineStateAtCheckpoint(
   seed = 1,
 ): StormLineState {
   const initial = createStormLineState(seed)
-  const elapsedSeconds = CHECKPOINT_START_SECONDS[checkpoint]
+  const elapsedSeconds = STORM_CHECKPOINT_START_SECONDS[checkpoint]
   return {
     ...initial,
     checkpoint,
     elapsedSeconds,
     aircraft: {
       ...initial.aircraft,
-      lateralPosition: checkpoint === 'stormEntry' ? 0 : -0.7,
+      lateralPosition: checkpoint === 'stormEntry' ? 0 : STORM_CORRIDOR_CENTER,
       trackDistanceNm: elapsedSeconds * closureNmPerSecond(initial.aircraft.energy),
     },
     weatherIntensity: sharedStormIntensity(checkpoint, elapsedSeconds, seed),
@@ -159,8 +169,8 @@ function completeStormLine(state: StormLineState): StormLineState {
 }
 
 function applyScenarioBoundaries(state: StormLineState): StormLineState {
-  if (state.checkpoint === 'stormEntry' && state.elapsedSeconds >= CHECKPOINT_START_SECONDS.stormCore) {
-    if (state.aircraft.lateralPosition > -0.35) {
+  if (state.checkpoint === 'stormEntry' && state.elapsedSeconds >= STORM_CHECKPOINT_START_SECONDS.stormCore) {
+    if (state.aircraft.lateralPosition > STORM_ENTRY_GATE_LATERAL) {
       return {
         ...state,
         phase: 'checkpointFailed',
@@ -178,7 +188,7 @@ function applyScenarioBoundaries(state: StormLineState): StormLineState {
     }
   }
 
-  if (state.checkpoint === 'stormCore' && state.elapsedSeconds >= CHECKPOINT_START_SECONDS.clearAir) {
+  if (state.checkpoint === 'stormCore' && state.elapsedSeconds >= STORM_CHECKPOINT_START_SECONDS.clearAir) {
     return {
       ...state,
       checkpoint: 'clearAir',
@@ -193,7 +203,7 @@ function applyScenarioBoundaries(state: StormLineState): StormLineState {
   const attitudeOutside = Math.abs(state.aircraft.pitch) > 20 || Math.abs(state.aircraft.bank) > 45
   const energyOutside = state.aircraft.energy < 0.15 || state.aircraft.energy > 0.85
   const corridorOutside = state.checkpoint !== 'stormEntry'
-    && Math.abs(state.aircraft.lateralPosition + 0.7) > 1
+    && Math.abs(state.aircraft.lateralPosition - STORM_CORRIDOR_CENTER) > STORM_CORRIDOR_HALF_WIDTH
   const outsideEnvelope = attitudeOutside || energyOutside || corridorOutside
   const outsideEnvelopeSeconds = outsideEnvelope
     ? state.outsideEnvelopeSeconds + FIXED_STEP_SECONDS
@@ -285,7 +295,7 @@ export function restartStormLineCheckpoint(state: StormLineState): StormLineStat
   return {
     ...state,
     phase: 'flying',
-    elapsedSeconds: CHECKPOINT_START_SECONDS[checkpoint],
+    elapsedSeconds: STORM_CHECKPOINT_START_SECONDS[checkpoint],
     checkpointElapsedSeconds: 0,
     aircraft: {
       pitch: 0,
@@ -293,12 +303,12 @@ export function restartStormLineCheckpoint(state: StormLineState): StormLineStat
       pitchRate: 0,
       bankRate: 0,
       energy: 0.5,
-      lateralPosition: checkpoint === 'stormEntry' ? 0 : -0.7,
-      trackDistanceNm: CHECKPOINT_START_SECONDS[checkpoint] * closureNmPerSecond(0.5),
+      lateralPosition: checkpoint === 'stormEntry' ? 0 : STORM_CORRIDOR_CENTER,
+      trackDistanceNm: STORM_CHECKPOINT_START_SECONDS[checkpoint] * closureNmPerSecond(0.5),
     },
     weatherIntensity: sharedStormIntensity(
       checkpoint,
-      CHECKPOINT_START_SECONDS[checkpoint],
+      STORM_CHECKPOINT_START_SECONDS[checkpoint],
       state.seed,
     ),
     outsideEnvelopeSeconds: 0,
