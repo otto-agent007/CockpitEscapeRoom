@@ -37,7 +37,7 @@ import {
   visibleAirbusRadarReturns,
   type AirbusWeatherRadarFrame,
 } from './airbusWeatherRadar'
-import { AIRBUS_MODEL_URL, clearCockpitModel, DC9_MODEL_URL, loadCockpitModel, LOCKER_MODEL_URL } from './cockpitModelLoader'
+import { AIRBUS_MODEL_URL, clearCockpitModel, DC9_MODEL_URL, loadCockpitModel, LOCKER_MODEL_URL, observeCockpitModelProgress } from './cockpitModelLoader'
 import {
   DC9_FLIGHT_CONTROL_BINDINGS,
   DC9_FLIGHT_CONTROL_JOINTS,
@@ -53,6 +53,9 @@ import {
   createDc9GaugeTargets,
   dc9SelfTestChannelValues,
   dc9YokeDemandFromDrag,
+  applyDc9KeyYawCorrection,
+  applyDc9RouteStripLift,
+  fitDc9KeyColliderToKey,
   separateDc9OverheadHitboxes,
   type Dc9ActiveSelfTest,
   type Dc9JointHandle,
@@ -190,8 +193,29 @@ export type AirbusLoadState =
   | { status: 'accessible-fallback'; loadedBytes: number; totalBytes?: number }
 
 export type LockerLoadState = { status: 'idle' | 'loading' | 'ready' | 'error' | 'accessible-fallback' }
-export type Dc9LoadState = { status: 'idle' | 'loading' | 'ready' | 'error' | 'accessible-fallback'; message?: string }
-export type Dc9HotspotScreenPositions = Record<string, { x: number; y: number; visible: boolean; width?: number; height?: number }>
+export type Dc9LoadState = {
+  status: 'idle' | 'loading' | 'ready' | 'error' | 'accessible-fallback'
+  message?: string
+  loadedBytes?: number
+  totalBytes?: number
+  percentage?: number
+}
+/** Which way the player has to look to bring a target into comfortable view. */
+export type Dc9OffscreenDirection = 'left' | 'right' | 'up' | 'down'
+export type Dc9HotspotScreenPositions = Record<string, {
+  x: number
+  y: number
+  visible: boolean
+  width?: number
+  height?: number
+  offscreen?: Dc9OffscreenDirection
+  /**
+   * The projected centre is far enough inside the viewport to hang a labelled marker on.
+   * `visible` only says the point is inside the frustum, which on a portrait phone is true
+   * for a switch sitting exactly on the left edge.
+   */
+  inView?: boolean
+}>
 
 interface PrototypeSceneProps {
   phase: Exclude<GamePhase, 'briefing' | 'reward' | 'mars'>
@@ -646,6 +670,12 @@ function applyDc9GameplayCameraTransform(runtimeCamera: THREE.Camera, sourceCame
   runtimeCamera.matrixWorldInverse.copy(runtimeCamera.matrixWorld).invert()
 }
 
+/** Where the seat is looking, and therefore how much travel is left in each direction. */
+export interface Dc9LookState {
+  yaw: number
+  pitch: number
+}
+
 function Dc9SeatLookControls({
   sourceCamera,
   cameraResetRevision,
@@ -654,6 +684,7 @@ function Dc9SeatLookControls({
   initialYaw,
   initialPitch = 0,
   suppressLookRef,
+  lookRef,
 }: {
   sourceCamera: THREE.Camera
   cameraResetRevision: number
@@ -663,6 +694,8 @@ function Dc9SeatLookControls({
   initialPitch?: number
   /** Set while the player is dragging the yoke, so looking around does not fight it. */
   suppressLookRef?: React.RefObject<boolean>
+  /** Published so a cue can tell "keep looking" from "you are already at the stop". */
+  lookRef?: React.RefObject<Dc9LookState>
 }) {
   const { camera, gl, size } = useThree()
   const basePositionRef = useRef(new THREE.Vector3())
@@ -694,8 +727,12 @@ function Dc9SeatLookControls({
     narrowFovRef.current = narrowFov
     yawRef.current = initialYaw
     pitchRef.current = THREE.MathUtils.clamp(initialPitch, -DC9_LOOK_PITCH_LIMIT, DC9_LOOK_PITCH_LIMIT)
+    if (lookRef?.current) {
+      lookRef.current.yaw = yawRef.current
+      lookRef.current.pitch = pitchRef.current
+    }
     cameraDirtyRef.current = true
-  }, [cameraResetRevision, initialPitch, initialYaw, narrowFov, sourceCamera, wideFov])
+  }, [cameraResetRevision, initialPitch, initialYaw, lookRef, narrowFov, sourceCamera, wideFov])
 
   useFrame(() => {
     if (!cameraDirtyRef.current) return
@@ -755,6 +792,10 @@ function Dc9SeatLookControls({
         -DC9_LOOK_PITCH_LIMIT,
         DC9_LOOK_PITCH_LIMIT,
       )
+      if (lookRef?.current) {
+        lookRef.current.yaw = yawRef.current
+        lookRef.current.pitch = pitchRef.current
+      }
       cameraDirtyRef.current = true
     }
     const onWheel = (event: WheelEvent) => {
@@ -775,7 +816,7 @@ function Dc9SeatLookControls({
       canvas.removeEventListener('pointercancel', stopDrag)
       canvas.removeEventListener('wheel', onWheel)
     }
-  }, [gl, suppressLookRef])
+  }, [gl, lookRef, suppressLookRef])
 
   return null
 }
@@ -2470,16 +2511,99 @@ function Dc9YokeDragControls({
   return null
 }
 
+/**
+ * Clearance a projected centre needs from the viewport edge before a marker is worth drawing
+ * on it: half the smallest marker plus a little air, so a box is never sliced by the frame.
+ */
+const DC9_MARKER_EDGE_MARGIN_PX = 32
+
+/**
+ * Slack on a look limit, in radians, below which the seat counts as being at its stop. The
+ * clamp lands exactly on the limit, so this only has to survive float error.
+ */
+const DC9_LOOK_LIMIT_EPSILON = 1e-4
+
+/**
+ * How far down the frame a target may sit before it still needs a "look down" cue, as a
+ * fraction of the vertical half-angle.
+ *
+ * Measured on the golden key at the three reference widths. Once the player has panned fully
+ * right the key is technically on screen but pinned to the bottom edge, at 0.92 of the
+ * half-angle at 1440x900 and 0.78 at 768x1024 and 375x812, where it reads as part of the
+ * floor; pitching down to the seat's limit brings it to 0.62 and 0.52. The threshold sits in
+ * that gap. A fraction of the half-angle rather than of the viewport is what makes one
+ * number work across all three, since narrow screens swap to a wider field of view.
+ */
+const DC9_LOOK_HINT_LOW_IN_FRAME = 0.7
+
+/**
+ * Which way the player has to look to bring a target into comfortable view, measured as an
+ * angle in camera space rather than from the projected pixel: a point behind the camera
+ * projects with flipped sign, so screen coordinates cannot say "to the right" once the
+ * player has looked past it.
+ *
+ * A direction is only offered while the seat still has travel that way. That is what
+ * separates "the key is 72 px off the right edge, keep panning" from "the key is 17 px off
+ * the right edge and you are already against the yaw stop" — measured at 1440 and 375
+ * respectively, the two are 0.05 and 0.03 radians of overshoot and no angular threshold
+ * tells them apart. Remaining travel does, exactly.
+ */
+function lookHintDirection(
+  object: THREE.Object3D,
+  camera: THREE.Camera,
+  scratch: THREE.Vector3,
+  look: Dc9LookState | null,
+): Dc9OffscreenDirection | null {
+  object.getWorldPosition(scratch)
+  camera.worldToLocal(scratch)
+  // Camera space looks down -Z, with +X right and +Y up.
+  const forward = Math.max(-scratch.z, 1e-6)
+  const horizontal = Math.atan2(scratch.x, forward)
+  const vertical = Math.atan2(scratch.y, Math.hypot(scratch.x, forward))
+  const halfVertical = camera instanceof THREE.PerspectiveCamera
+    ? THREE.MathUtils.degToRad(camera.fov) / 2
+    : Math.PI / 4
+  const halfHorizontal = camera instanceof THREE.PerspectiveCamera
+    ? Math.atan(Math.tan(halfVertical) * camera.aspect)
+    : halfVertical
+  // With no look state the seat is treated as free to move, which is how this behaved
+  // before the stops were consulted.
+  const canLookRight = !look || look.yaw > -DC9_LOOK_YAW_RIGHT_LIMIT + DC9_LOOK_LIMIT_EPSILON
+  const canLookLeft = !look || look.yaw < DC9_LOOK_YAW_LEFT_LIMIT - DC9_LOOK_LIMIT_EPSILON
+  const canLookDown = !look || look.pitch > -DC9_LOOK_PITCH_LIMIT + DC9_LOOK_LIMIT_EPSILON
+  const canLookUp = !look || look.pitch < DC9_LOOK_PITCH_LIMIT - DC9_LOOK_LIMIT_EPSILON
+  const excess: [Dc9OffscreenDirection, number, boolean][] = [
+    ['right', horizontal - halfHorizontal, canLookRight],
+    ['left', -horizontal - halfHorizontal, canLookLeft],
+    ['up', vertical - halfVertical, canLookUp],
+    ['down', -vertical - halfVertical, canLookDown],
+  ]
+  let best: Dc9OffscreenDirection | null = null
+  let bestExcess = 0
+  for (const [direction, value, reachable] of excess) {
+    if (reachable && value > bestExcess) {
+      best = direction
+      bestExcess = value
+    }
+  }
+  if (best) return best
+  if (!canLookDown) return null
+  return -vertical > halfVertical * DC9_LOOK_HINT_LOW_IN_FRAME ? 'down' : null
+}
+
 function Dc9HotspotProjector({
   targets,
+  lookRef,
   onChange,
 }: {
   targets: Map<string, THREE.Object3D>
+  lookRef?: React.RefObject<Dc9LookState>
   onChange?: (positions: Dc9HotspotScreenPositions) => void
 }) {
   const { camera, size } = useThree()
   const lastPayload = useRef('')
   const point = useMemo(() => new THREE.Vector3(), [])
+  const local = useMemo(() => new THREE.Vector3(), [])
   const bounds = useMemo(() => new THREE.Box3(), [])
   const corner = useMemo(() => new THREE.Vector3(), [])
   useFrame(() => {
@@ -2495,7 +2619,19 @@ function Dc9HotspotProjector({
         y: ((1 - point.y) / 2) * size.height,
         visible: visibleInHierarchy && point.z >= -1 && point.z <= 1 && point.x >= -1 && point.x <= 1 && point.y >= -1 && point.y <= 1,
       }
-      if ((gameId === 'dc9.route.card' || gameId.startsWith('dc9.gauge.')) && position.visible) {
+      // The key is the only target the player has to hunt for, so it is the only one that
+      // pays for the extra camera-space work.
+      if (gameId === 'dc9.key.open') {
+        position.offscreen = lookHintDirection(object, camera, local, lookRef?.current ?? null) ?? undefined
+      }
+      if (gameId.startsWith('dc9.secure.')) {
+        position.inView = position.visible
+          && position.x >= DC9_MARKER_EDGE_MARGIN_PX
+          && position.x <= size.width - DC9_MARKER_EDGE_MARGIN_PX
+          && position.y >= DC9_MARKER_EDGE_MARGIN_PX
+          && position.y <= size.height - DC9_MARKER_EDGE_MARGIN_PX
+      }
+      if ((gameId === 'dc9.route.card' || gameId === 'dc9.key.open' || gameId.startsWith('dc9.gauge.') || gameId.startsWith('dc9.secure.')) && position.visible) {
         bounds.setFromObject(object)
         let minX = Number.POSITIVE_INFINITY
         let minY = Number.POSITIVE_INFINITY
@@ -2655,6 +2791,7 @@ function Dc9Cockpit({
   const [loadFailed, setLoadFailed] = useState(false)
   const canvasRef = useRef(gl.domElement)
   const suppressLookRef = useRef(false)
+  const lookRef = useRef<Dc9LookState>({ yaw: 0, pitch: 0 })
 
   useEffect(() => {
     canvasRef.current = gl.domElement
@@ -2663,8 +2800,23 @@ function Dc9Cockpit({
   useEffect(() => {
     let active = true
     const canvas = canvasRef.current
-    onLoadState({ status: 'loading' })
+    let loadedBytes = 0
+    let totalBytes: number | undefined
+    onLoadState({ status: 'loading', loadedBytes: 0 })
     canvas.dataset.dc9ModelState = 'loading'
+    const stopObservingProgress = observeCockpitModelProgress(DC9_MODEL_URL, (progress) => {
+      if (!active) return
+      loadedBytes = progress.loadedBytes
+      totalBytes = progress.totalBytes
+      onLoadState({
+        status: 'loading',
+        loadedBytes,
+        totalBytes,
+        // Hold at 99 until the parsed scene is actually staged: the last percent of the
+        // 36 MiB GLB is glTF parsing, not download.
+        percentage: totalBytes ? Math.min(99, Math.round((loadedBytes / totalBytes) * 100)) : undefined,
+      })
+    })
     loadCockpitModel(DC9_MODEL_URL)
       .then((source) => {
         if (!active) return
@@ -2714,6 +2866,9 @@ function Dc9Cockpit({
         ]
         for (const [gameId, target] of createDc9GaugeTargets(scene)) targets.set(gameId, target)
         separateDc9OverheadHitboxes(scene)
+        applyDc9KeyYawCorrection(scene)
+        fitDc9KeyColliderToKey(scene)
+        applyDc9RouteStripLift(scene)
         const yokeTarget = scene.getObjectByName('OBJ8_DC9VC2_RANGE_015') ?? null
         scene.updateMatrixWorld(true)
         const sourceCamera = scene.getObjectByName(DC9_GAME_CAMERA)
@@ -2737,7 +2892,7 @@ function Dc9Cockpit({
         canvas.dataset.dc9CameraNode = sourceCamera.name
         canvas.dataset.dc9TargetCount = String(targets.size)
         canvas.dataset.dc9Targets = [...targets.keys()].join(',')
-        onLoadState({ status: 'ready' })
+        onLoadState({ status: 'ready', loadedBytes, totalBytes, percentage: 100 })
       })
       .catch((error) => {
         clearCockpitModel(DC9_MODEL_URL)
@@ -2746,10 +2901,16 @@ function Dc9Cockpit({
         setLoadFailed(true)
         setLoaded(null)
         canvas.dataset.dc9ModelState = 'fallback'
-        onLoadState({ status: 'error', message: error instanceof Error ? error.message : 'DC-9 cockpit failed to load.' })
+        onLoadState({
+          status: 'error',
+          message: error instanceof Error ? error.message : 'DC-9 cockpit failed to load.',
+          loadedBytes,
+          totalBytes,
+        })
       })
     return () => {
       active = false
+      stopObservingProgress()
       delete canvas.dataset.dc9ModelState
       delete canvas.dataset.dc9CameraNode
       delete canvas.dataset.dc9CameraState
@@ -2833,6 +2994,7 @@ function Dc9Cockpit({
                     : 0}
             initialPitch={chapterStage === 'controlCheck' ? DC9_CONTROL_CHECK_INITIAL_PITCH : 0}
             suppressLookRef={suppressLookRef}
+            lookRef={lookRef}
           />
           <Dc9ControlAnimator controls={loaded.controls} activeControls={activeControls} reducedMotion={reducedMotion} />
           <Dc9FlightDeckAnimator
@@ -2848,7 +3010,7 @@ function Dc9Cockpit({
             onDrag={onYokeDrag}
             onHoverInteractive={onHoverInteractive}
           />
-          <Dc9HotspotProjector targets={loaded.targets} onChange={onHotspotsChange} />
+          <Dc9HotspotProjector targets={loaded.targets} lookRef={lookRef} onChange={onHotspotsChange} />
           <Dc9InteractionRaycaster
             scene={loaded.scene}
             enabled={interactionEnabled}
@@ -3013,11 +3175,6 @@ export function PrototypeScene({
           />
         )}
       </Canvas>
-      {phase !== 'airbus' && phase !== 'locker' && (
-        <div className="prototype-badge">
-          GREYBOX — DC-9 FINAL FLIGHT LOG
-        </div>
-      )}
     </div>
   )
 }

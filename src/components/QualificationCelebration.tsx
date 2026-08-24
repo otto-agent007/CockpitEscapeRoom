@@ -14,6 +14,8 @@ interface MilestoneCelebrationProps {
   visual: ReactNode
   fadeToBlack?: boolean
   variant?: 'qualification' | 'captain' | 'key'
+  /** Optional secondary control shown under the primary action, e.g. a sound toggle. */
+  aside?: ReactNode
 }
 
 export function MilestoneCelebration({
@@ -27,8 +29,10 @@ export function MilestoneCelebration({
   visual,
   fadeToBlack = false,
   variant = 'qualification',
+  aside,
 }: MilestoneCelebrationProps) {
   const continueRef = useRef<HTMLButtonElement>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
   const [revealed, setRevealed] = useState(!fadeToBlack || reducedMotion)
 
   useEffect(() => {
@@ -61,8 +65,16 @@ export function MilestoneCelebration({
           return
         }
         if (event.key !== 'Tab' || !revealed) return
+        // Focus stays inside the card, but it has to be able to reach every control in it:
+        // pinning Tab to the primary action leaves any secondary control unreachable by
+        // keyboard.
         event.preventDefault()
-        continueRef.current?.focus()
+        const stops = [...(cardRef.current?.querySelectorAll<HTMLButtonElement>('button:not([disabled])') ?? [])]
+        if (stops.length === 0) return
+        const current = stops.indexOf(document.activeElement as HTMLButtonElement)
+        const step = event.shiftKey ? -1 : 1
+        const next = stops[(current + step + stops.length) % stops.length]
+        ;(next ?? continueRef.current)?.focus()
       }}
     >
       {!reducedMotion && revealed && (
@@ -70,7 +82,7 @@ export function MilestoneCelebration({
           {Array.from({ length: 24 }, (_, index) => <i key={index} />)}
         </div>
       )}
-      <div className="qualification-card">
+      <div className="qualification-card" ref={cardRef}>
         {visual}
         <p className="eyebrow">{eyebrow}</p>
         <h2 id="qualification-title">{title}</h2>
@@ -78,6 +90,7 @@ export function MilestoneCelebration({
         <button ref={continueRef} type="button" className="primary-button primary-button--large" disabled={!revealed} onClick={onContinue}>
           {actionLabel}
         </button>
+        {aside}
       </div>
     </div>
   )

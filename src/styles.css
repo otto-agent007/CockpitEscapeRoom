@@ -1434,7 +1434,6 @@ p {
   text-transform: uppercase;
 }
 
-.captain-shell .prototype-badge { top: 4.75rem; z-index: 5; }
 .captain-shell .scene-tools { bottom: 5.6rem; }
 
 .airbus-shell .scene {
@@ -1447,13 +1446,6 @@ p {
 .airbus-shell .scene canvas {
   display: block;
   cursor: grab;
-}
-
-.airbus-shell .prototype-badge {
-  top: auto;
-  bottom: 1rem;
-  left: 1rem;
-  z-index: 2;
 }
 
 .scene {
@@ -1481,7 +1473,12 @@ p {
   filter: saturate(0.88) brightness(0.72);
 }
 
-.airbus-loader {
+/* Chapter loading pages ---------------------------------------------------
+   One layout, one behaviour: a full-bleed cockpit still, a directional shade so
+   the copy stays legible over it, and a download read-out. Each chapter supplies
+   only its own still, framing and shade tint. */
+
+.chapter-loader {
   position: fixed;
   inset: 0;
   z-index: 20;
@@ -1491,29 +1488,29 @@ p {
   transition: opacity 250ms ease;
 }
 
-.airbus-loader--fading {
+.chapter-loader--fading {
   opacity: 0;
   pointer-events: none;
 }
 
-.airbus-loader > img,
-.airbus-loader-shade {
+.chapter-loader > img,
+.chapter-loader-shade {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
 }
 
-.airbus-loader > img {
+.chapter-loader > img {
   object-fit: cover;
   object-position: 72% center;
 }
 
-.airbus-loader-shade {
+.chapter-loader-shade {
   background: linear-gradient(90deg, rgba(3, 10, 12, 0.94), rgba(3, 10, 12, 0.42) 55%, rgba(3, 10, 12, 0.72));
 }
 
-.airbus-loader-content {
+.chapter-loader-content {
   position: relative;
   display: flex;
   width: min(42rem, calc(100% - 4rem));
@@ -1524,48 +1521,90 @@ p {
   padding: 3rem 0;
 }
 
-.airbus-loader-content h1 {
+.chapter-loader-content h1 {
   max-width: 10ch;
   font-size: clamp(3rem, 6vw, 6.5rem);
 }
 
-.airbus-loader-quote {
+.chapter-loader-quote {
   margin-bottom: 0.2rem;
   color: #fff4d4;
   font-size: clamp(1.15rem, 2vw, 1.5rem);
 }
 
-.airbus-loader-progress,
-.airbus-loader-error {
+.chapter-loader-progress,
+.chapter-loader-error {
   width: min(34rem, 100%);
   margin-top: 2rem;
   padding-top: 1rem;
   border-top: 1px solid rgba(241, 199, 106, 0.4);
 }
 
-.airbus-loader-progress > div {
+.chapter-loader-progress > div {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
 }
 
-.airbus-loader-progress progress {
+.chapter-loader-progress progress {
   margin-bottom: 0.4rem;
 }
 
-.airbus-loader-progress small {
+.chapter-loader-progress small {
   color: var(--text-soft);
 }
 
-.airbus-loader-error > div {
+.chapter-loader-error > div {
   display: flex;
   gap: 0.7rem;
   margin-top: 1rem;
 }
 
-.airbus-loader-error .secondary-button {
+.chapter-loader-error .secondary-button {
   width: auto;
   margin: 0;
+}
+
+/* The DC-9 page also covers the cinematic entry from the opening screen, so it sits
+   above that black overlay and lifts its still and copy out of the black instead of
+   cutting to them. */
+.dc9-loader {
+  z-index: 101;
+  background: #04090b;
+}
+
+.dc9-loader > img {
+  object-position: 62% center;
+}
+
+.dc9-loader .chapter-loader-shade {
+  background: linear-gradient(90deg, rgba(2, 8, 10, 0.95), rgba(2, 8, 10, 0.5) 58%, rgba(2, 8, 10, 0.78));
+}
+
+.dc9-loader > img,
+.dc9-loader .chapter-loader-content {
+  animation: chapter-loader-rise 700ms ease both;
+}
+
+.dc9-loader .chapter-loader-content {
+  animation-delay: 120ms;
+}
+
+/* The chapter's own title bar behind this page reads "DC-9 Final Flight Log", so the
+   loading page carries the journey's full name — two headings must not share one
+   accessible name. It is longer, so it needs a wider measure than the A320 title. */
+.dc9-loader .chapter-loader-content h1 {
+  max-width: 15ch;
+  font-size: clamp(2.4rem, 4.6vw, 5rem);
+}
+
+.dc9-loader .chapter-loader-quote {
+  color: #f3ce75;
+}
+
+@keyframes chapter-loader-rise {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .scene-tools {
@@ -1670,20 +1709,6 @@ p {
   margin: 0;
   color: var(--text-soft);
   text-align: right;
-}
-
-.prototype-badge {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  padding: 0.45rem 0.6rem;
-  border: 1px solid rgba(238, 203, 121, 0.55);
-  border-radius: 0.4rem;
-  background: rgba(8, 13, 13, 0.78);
-  color: #efd58e;
-  font-size: 0.7rem;
-  font-weight: 850;
-  letter-spacing: 0.08em;
 }
 
 .canvas-fallback {
@@ -2697,6 +2722,31 @@ p {
   transform: translateY(0) scale(1);
 }
 
+/* Sound toggle on a celebration card. Quiet by design: it is a preference, not an action. */
+.celebration-sound-toggle {
+  display: block;
+  margin: 0.85rem auto 0;
+  border: 1px solid rgba(241, 199, 106, 0.35);
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+  background: transparent;
+  color: var(--text-soft);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.celebration-sound-toggle:hover,
+.celebration-sound-toggle:focus-visible {
+  border-color: rgba(241, 199, 106, 0.75);
+  color: #f4e3bb;
+}
+
+.celebration-sound-toggle[data-muted="true"] {
+  border-style: dashed;
+}
+
 .qualification-card {
   position: relative;
   z-index: 2;
@@ -3592,7 +3642,6 @@ progress {
   .captain-status-dock small { display: none; }
   .captain-dock-actions { display: grid; }
   .captain-shell .scene-tools { right: 0.4rem; bottom: 6.5rem; flex-direction: column; }
-  .captain-shell .prototype-badge { top: 3.8rem; left: 0.5rem; font-size: 0.58rem; }
 
   .scene {
     min-height: 45vh;
@@ -3941,8 +3990,13 @@ progress {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .airbus-loader {
+  .chapter-loader {
     transition: none;
+  }
+
+  .dc9-loader > img,
+  .dc9-loader .chapter-loader-content {
+    animation: none;
   }
 
   .qualification-confetti {

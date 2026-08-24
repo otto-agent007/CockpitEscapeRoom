@@ -70,7 +70,7 @@ Use `npm run dev` and confirm:
 - This is a private, personal build that will not be distributed, so it may freely use owner-supplied aircraft, airline, and vehicle assets.
 - Use the official Blender MCP only for controlled scene inspection, cleanup, validation support, naming, pivots, metadata, preview renders, and export support.
 - Do not use Blender MCP for uncontrolled broad rewrites of approved scenes or to bypass the asset-report and validation trail.
-- Do not remove or rename the greybox label until visual approval milestones are passed.
+- The greybox label was retired at owner request on 2026-08-23. Do not reintroduce it.
 - Narrow layouts must remain functionally accessible, but dedicated mobile composition, visual polish, and a mobile approval milestone are not part of the Final Flight Log milestone.
 
 See [`BLUEPRINT.md`](BLUEPRINT.md) for the detailed blueprint and delivery details.

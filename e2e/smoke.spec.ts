@@ -962,6 +962,75 @@ test('DC-9 ATP gate accepts pointer typing and submits the visible answer', asyn
   await expect(keyTrigger).not.toContainText("Open The Captain's Key")
 })
 
+test("The Captain's Key reveal plays the celebration cheer and remembers Sound off", async ({ page }) => {
+  // "play() was called" is not proof of playback — an earlier version of this check passed
+  // while the sound was inaudible. Assert the element is really running: not paused, and its
+  // clock actually advancing.
+  await page.goto('/?skip3d=1')
+  await seedGameState(page, createDc9QualificationState())
+  await page.getByRole('textbox', { name: 'Airline Transport Pilot answer' }).fill('1500 hours')
+  await page.getByRole('button', { name: 'Verify' }).click()
+  await page.getByRole('button', { name: "Open The Captain's Key" }).click()
+  await expect(page.getByRole('dialog', { name: "THE CAPTAIN'S KEY" })).toBeVisible()
+
+  const sample = () => page.evaluate(() => {
+    const audio = document.querySelector<HTMLAudioElement>('audio[src*="key-celebration"]')
+    if (!audio) return null
+    return {
+      src: audio.src,
+      paused: audio.paused,
+      volume: audio.volume,
+      currentTime: audio.currentTime,
+      duration: Number.isFinite(audio.duration) ? audio.duration : null,
+    }
+  })
+
+  await expect.poll(async () => (await sample())?.paused, { timeout: 10_000 }).toBe(false)
+  const first = await sample()
+  expect(first?.src).toContain('/audio/key-celebration.mp3')
+  expect(first?.volume).toBeGreaterThan(0)
+  expect(first?.volume).toBeLessThan(1)
+
+  // Playing, not merely started: the clock has to move, and the file has to be the 10s cut.
+  await page.waitForTimeout(800)
+  const second = await sample()
+  expect(second?.currentTime ?? 0).toBeGreaterThan((first?.currentTime ?? 0) + 0.3)
+  expect(second?.duration ?? 0).toBeGreaterThan(9.5)
+  expect(second?.duration ?? 0).toBeLessThan(10.5)
+
+  // Sound off silences it now and is remembered across a reload.
+  await page.getByRole('button', { name: 'Sound on' }).click()
+  await expect(page.getByRole('button', { name: 'Sound off' })).toHaveAttribute('aria-pressed', 'true')
+  expect(await sample()).toBeNull()
+  expect(await page.evaluate(() => window.localStorage.getItem('cockpit-escape-room:sound:v1'))).toBe('{"muted":true}')
+
+  // The key is revealed in the save by now, so the card comes back on its own.
+  await page.reload()
+  await expect(page.getByRole('dialog', { name: "THE CAPTAIN'S KEY" })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Sound off' })).toBeVisible()
+  // A silenced game does not even fetch the file.
+  expect(await sample()).toBeNull()
+})
+
+test("The Captain's Key card keeps every control reachable by keyboard", async ({ page }) => {
+  // The card traps Tab. It has two buttons now, so the trap has to cycle rather than pin.
+  await page.goto('/?skip3d=1')
+  await seedGameState(page, createDc9QualificationState())
+  await page.getByRole('textbox', { name: 'Airline Transport Pilot answer' }).fill('1500 hours')
+  await page.getByRole('button', { name: 'Verify' }).click()
+  await page.getByRole('button', { name: "Open The Captain's Key" }).click()
+  await expect(page.getByRole('dialog', { name: "THE CAPTAIN'S KEY" })).toBeVisible()
+
+  const focused = () => page.evaluate(() => document.activeElement?.textContent?.trim() ?? '')
+  await expect.poll(focused).toBe("Take the Captain's Key")
+  await page.keyboard.press('Tab')
+  expect(await focused()).toBe('Sound on')
+  await page.keyboard.press('Tab')
+  expect(await focused()).toBe("Take the Captain's Key")
+  await page.keyboard.press('Shift+Tab')
+  expect(await focused()).toBe('Sound on')
+})
+
 test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
   // SwiftShader can take longer to tear down the real 38 MiB cockpit page after
   // the final WebGL assertion; keep the boundary bounded without weakening checks.
@@ -1051,7 +1120,8 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   await expect(canvas).toHaveAttribute('data-dc9-targets', /dc9\.route\.BTR/)
   await expect(canvas).toHaveAttribute('data-dc9-targets', /dc9\.secure\.apuBuses/)
   await expect(canvas).toHaveAttribute('data-dc9-targets', /dc9\.key\.open/)
-  await expect(page.locator('.prototype-badge')).toHaveText('GREYBOX — DC-9 FINAL FLIGHT LOG')
+  await expect(page.locator('.prototype-badge')).toHaveCount(0)
+  await expect(page.locator('.dc9-chapter__topbar')).toHaveText('DC-9 Final Flight Log')
   await expect(page.locator('.hud')).toHaveCount(0)
   await expect(page.locator('.captain-interface')).toHaveCount(0)
 
@@ -1125,6 +1195,17 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   await expect(apuMaster).toHaveAttribute('data-projection', 'mesh')
   await expect(battery).toHaveAttribute('data-projection', 'mesh')
 
+  // Each switch carries a yellow box on the panel itself, because all three are identical
+  // black toggles among sixty identical black toggles. Exactly one is the next step, and the
+  // boxes must not swallow the click that the 3D raycaster needs.
+  const markers = page.locator('.dc9-secure-marker')
+  await expect(markers).toHaveCount(3)
+  await expect(page.locator('.dc9-secure-marker.is-next')).toHaveCount(1)
+  await expect(page.locator('.dc9-secure-marker.is-next')).toHaveAttribute('data-control', 'apuBuses')
+  await expect(page.locator('.dc9-secure-markers')).toHaveCSS('pointer-events', 'none')
+  const markerBounds = await markers.first().boundingBox()
+  expect(Math.min(markerBounds?.width ?? 0, markerBounds?.height ?? 0)).toBeGreaterThanOrEqual(44)
+
   // Clicking a switch on the real overhead panel must action that switch. The shipped hit
   // volumes are far larger than the 70mm between the switches and overlapped, so a ray
   // aimed at the APU buses struck the battery box in front of it and the first step of the
@@ -1134,6 +1215,9 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   await page.mouse.click(apuBusesPoint[0]!, apuBusesPoint[1]!)
   await expect(page.locator('.dc9-chapter__status p')).toContainText('APU bus switches off')
   await expect(apuBuses).toHaveAttribute('aria-pressed', 'true')
+
+  await expect(page.locator('.dc9-secure-marker.is-complete')).toHaveAttribute('data-control', 'apuBuses')
+  await expect(page.locator('.dc9-secure-marker.is-next')).toHaveAttribute('data-control', 'apuMaster')
 
   // An out-of-order selection still coaches without clearing the finished step.
   await battery.press('Enter')
@@ -1150,10 +1234,15 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
   const keyTrigger = page.getByRole('button', { name: "Open The Captain's Key" })
   await expect(keyTrigger).toHaveClass(/dc9-key-trigger/)
   await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_FIRST_OFFICER_GAME')
+  // The cue is three chevrons drawn from borders rather than one glyph run, so its size is
+  // measured from the rendered box; it still has to read as a large mark on the cockpit.
   const scanCue = page.locator('.dc9-key-scan-cue')
   await expect(scanCue).toBeVisible()
-  const scanCueFontSize = Number.parseFloat(await scanCue.evaluate((element) => getComputedStyle(element).fontSize))
-  expect(scanCueFontSize).toBeGreaterThanOrEqual(56)
+  await expect(scanCue).toHaveAttribute('data-cue', 'right')
+  await expect(scanCue.locator('span')).toHaveCount(3)
+  const scanCueBounds = await scanCue.boundingBox()
+  expect(scanCueBounds).not.toBeNull()
+  expect(Math.max(scanCueBounds?.width ?? 0, scanCueBounds?.height ?? 0)).toBeGreaterThanOrEqual(56)
   const canvasBounds = await canvas.boundingBox()
   expect(canvasBounds).not.toBeNull()
   if (canvasBounds) {
@@ -1162,7 +1251,16 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
     await page.mouse.move(canvasBounds.x + canvasBounds.width * 0.8, canvasBounds.y + canvasBounds.height * 0.5, { steps: 8 })
     await page.mouse.up()
   }
+  // Panning fully right puts the key on screen but pinned to the bottom edge, so the cue
+  // turns into the downward arrows instead of disappearing while the key is still unseen.
   await expect(keyTrigger).toHaveAttribute('data-projection', 'mesh')
+  await expect(scanCue).toHaveAttribute('data-cue', 'down')
+  if (canvasBounds) {
+    await page.mouse.move(canvasBounds.x + canvasBounds.width * 0.5, canvasBounds.y + canvasBounds.height * 0.32)
+    await page.mouse.down()
+    await page.mouse.move(canvasBounds.x + canvasBounds.width * 0.5, canvasBounds.y + canvasBounds.height * 0.5, { steps: 8 })
+    await page.mouse.up()
+  }
   await expect(page.locator('.dc9-key-scan-cue')).toHaveCount(0)
   expect(consoleErrors).toEqual([])
 })

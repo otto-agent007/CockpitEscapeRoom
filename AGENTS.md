@@ -103,7 +103,7 @@ Stop only when validation passes, a bounded maximum attempt count is reached, th
 
 ## Visual and asset rules
 
-- The current 3D panel is a greybox and must remain labeled as such until approval.
+- The greybox label on the DC-9 panel was retired at owner request on 2026-08-23. Do not reintroduce it.
 - The DC-9-32 must be model-correct in major visible geometry; do not invent a generic retro cockpit.
 - The Airbus target is **Airbus A320** and must be a separate A320-specific cockpit, not a recolored or rearranged DC-9-32.
 - Interactions are fictional and non-operational even when the cockpit looks authentic.
