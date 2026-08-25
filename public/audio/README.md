@@ -53,9 +53,15 @@ Kept in stereo, unlike the previous mono clip, because the source is a stereo cr
 the width is most of what makes it read as a room full of people. `volume=0.80` is a deterministic
 gain: it takes the source's 0.868 peak to -3.7 dBFS.
 
-Playback: the Captain's Key reveal plays it once at `volume 0.55`, inside the click that opens the
-card, and stops it when the card closes — so taking the key early cuts it short rather than letting
-it run on. The card carries a **Sound on/off** toggle whose choice is stored under
-`cockpit-escape-room:sound:v1`, deliberately separate from the game-state key so restarting the
-game does not turn the sound back on. There is no volume slider for this one-shot; the intro keeps
-its own mute and volume controls.
+Playback: every milestone celebration card plays it once at `volume 0.55` — the Captain's Key, the
+captain's locker, and Pop T Captain Mode complete — inside the click that got the player there, and
+stops it when the card closes, so continuing early cuts it short rather than letting it run on.
+Each card carries a **Sound on/off** toggle, and all three share one stored choice under
+`cockpit-escape-room:sound:v1`: silencing it at one milestone keeps it silent at the next. The key
+is deliberately separate from the game-state key, so restarting the game does not turn the sound
+back on. There is no volume slider for this one-shot; the intro keeps its own mute and volume
+controls, and the Airbus simulator ambience has its own topbar Sound button.
+
+A card reached without a click — a reload while the celebration is already on screen — is silent,
+because the browser blocks playback until the document has been interacted with. That is the
+browser's rule, not a setting, and it is why the playback tests click their way to each card.
