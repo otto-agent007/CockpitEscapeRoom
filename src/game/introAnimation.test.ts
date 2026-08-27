@@ -175,6 +175,7 @@ describe('Scramble sprite animation contract', () => {
     expect(deriveIntroAnimation(CUES.capFlip + 0.6, false).backgroundAssetId).toBe('card-cap-b')
     expect(deriveIntroAnimation(CUES.wingsPinned + 0.05, false).backgroundAssetId).toBe('card-wings')
     expect(deriveIntroAnimation(CUES.fourStripes + 0.1, false).backgroundAssetId).toBe('card-stripes')
+    expect(deriveIntroAnimation(CUES.shadesDown + 0.1, false).backgroundAssetId).toBe('card-shades')
     expect(deriveIntroAnimation(CUES.watchCheck + 0.1, false).backgroundAssetId).toBe('card-watch')
     // Each cut punches in and pops white.
     const cut = deriveIntroAnimation(CUES.fourStripes + 0.03, false)
@@ -224,15 +225,15 @@ describe('Scramble sprite animation contract', () => {
   })
 
   it('cuts the opening fast, then plays every post-gate beat long', () => {
-    // Owner shape: the ritual and suit-up drive hard so the stripes and watch
+    // Owner shape: the ritual and suit-up drive hard so the stripes and shades
     // both land before the gates, and everything after the 18 s vocal breathes.
     const opening = [CUES.bootsDown, CUES.coffeeDown, CUES.capFlip, CUES.wingsPinned, CUES.fourStripes]
     for (let index = 0; index < opening.length - 1; index += 1) {
       expect(opening[index + 1]! - opening[index]!, `opening gap ${index}`).toBeLessThan(1.6)
     }
-    expect(CUES.watchCheck).toBeLessThan(CUES.doorsParting)
+    expect(CUES.shadesDown).toBeLessThan(CUES.doorsParting)
 
-    const after = [CUES.standingAlone, CUES.logbookSnap, CUES.headsetUp, CUES.shadesDown, CUES.walkOut]
+    const after = [CUES.standingAlone, CUES.logbookSnap, CUES.headsetUp, CUES.watchCheck, CUES.walkOut]
     for (let index = 0; index < after.length - 1; index += 1) {
       expect(after[index + 1]! - after[index]!, `post-gate gap ${index}`).toBeGreaterThanOrEqual(2.3)
     }
@@ -379,7 +380,7 @@ describe('Scramble sprite animation contract', () => {
     }
   })
 
-  it('cuts to the empty right seat and letters the game title over it', () => {
+  it('cuts to the empty right seat, then resolves into the illuminated golden-plaque finale', () => {
     const beforeCut = deriveIntroAnimation(CUES.intoTheSeat - 0.05, false)
     expect(beforeCut.backgroundAssetId).toBe('card-throttles-b')
 
@@ -389,19 +390,23 @@ describe('Scramble sprite animation contract', () => {
     expect(seat.flash?.color).toBe('white')
 
     const titled = deriveIntroAnimation(50.2, false)
-    expect(titled.backgroundAssetId).toBe('plate-right-seat')
-    expect(titled.title).toMatchObject({ text: TITLE_CARD.text, opacity: 1 })
+    expect(titled.backgroundAssetId).toBe('plate-right-seat-glow')
+    expect(titled.title).toMatchObject({
+      text: TITLE_CARD.text,
+      plaqueAssetId: 'title-plaque-gold',
+      opacity: 1,
+    })
     expect(titled.fx.some((fx) => fx.kind === 'radial-rays')).toBe(true)
 
     // The intro holds the title over the seat instead of collapsing and looping.
     const held = deriveIntroAnimation(52.9, false)
-    expect(held.backgroundAssetId).toBe('plate-right-seat')
-    expect(held.title).toMatchObject({ opacity: 1 })
+    expect(held.backgroundAssetId).toBe('plate-right-seat-glow')
+    expect(held.title).toMatchObject({ plaqueAssetId: 'title-plaque-gold', opacity: 1 })
   })
 
   it('letters the title from the game config so the two can never diverge', () => {
-    // The opening screen renders gameCopy.title as its heading; the intro must
-    // show the same words, and no generated art may carry text.
+    // Later game surfaces render gameCopy.title; the intro must show the same
+    // words, and no generated art may carry text.
     expect(TITLE_CARD.text).toBe(gameCopy.title.toUpperCase())
     expect(deriveIntroAnimation(50.2, false).title!.text).toBe(gameCopy.title.toUpperCase())
   })

@@ -316,3 +316,18 @@ contains.
   pile 28.0, sweep 28.9, hand-on-log 29.6, lifted 30.4 with its own small punch — with the runtime
   lettering following the cover through every stage it is legible in (skipped on the sweep frame,
   where the covers are mid-slide).
+
+- 2026-08-26 — **Wave S17: instrument-glow finale and richer golden plaque (3 generations).**
+  Owner combined Option 1's cockpit/instrument glow with Option 3's premium title treatment, then
+  asked for the brass to be more golden. `s17-plate-right-seat-glow.png` (1499×1049 RGB, SHA-256
+  `d9a7d645bf13f07049351d5290fe92b112d95b712d8b2c393ccb5fa3944fab5a`) preserves the empty DC-9
+  first-officer seat and analog panel while adding amber/cyan/green instrument light and a clear
+  upper title zone. It BOX-normalises to 320×224 with SHA-256
+  `51a8bd87a82fe677d966b0a1a48e1f7406c3454fffe425c713fc4d161f8f41a9`.
+  The first 1903×826 plaque generation visually baked a checkerboard into RGB instead of returning
+  alpha, so it was retained as `s17-title-plaque-gold-checkerboard.png` for the record and rejected.
+  One edit preserved the accepted rich gold shape and replaced only the field with flat magenta.
+  The proven chroma-key normaliser then produced a clean textless 248×54 RGBA overlay (SHA-256
+  `00f0f90053d93963a6186229cfda27a167990ab3b2a73949c6cabe8b9e67e77f`). Runtime lettering remains
+  authoritative; generated art contains no title. `normalise-scramble-finale.py` reproduces both
+  transforms, the deploy script ships the plate/overlay, and the manifest hash-binds both.

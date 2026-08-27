@@ -1,0 +1,20 @@
+Generate exactly ONE image using the built-in image generation tool. Edit the selected
+instrument-glow concept and current production right-seat plate.
+
+Reference 1 is the selected visual direction. Preserve its dramatic jewel-like DC-9 instrument
+glow and celebratory rays, but remove the title and every other letter. Reference 2 is the current
+production right-seat plate. Preserve its recognizable McDonnell Douglas DC-9-32 flight-deck
+geometry, empty right-side first-officer seat, loose harness, and right-seat viewpoint.
+
+Create a single full-bleed cockpit background plate, approximately 10:7 landscape composition,
+designed to be reduced to exactly 320x224 pixels. Authentic premium 16-bit pixel-art illustration
+with deliberate chunky pixel clusters, crisp hard edges, restrained dither, no antialias blur.
+Night cockpit in deep navy and near-black. The analog instrument panel is fully awake with rich
+amber-gold, cyan, green, and small red practical illumination. Add elegant luminous rays and a
+concentrated warm instrument glow that guide the eye toward a clear empty upper-center title zone
+around y=44 in a 320x224 frame. Keep that upper title band dark enough for a separate golden
+plaque overlay. The glow should feel commemorative, confident, and premium, not an emergency.
+
+No title, words, letters, numbers, logos, emblems, watermarks, or UI frame. No person. No Airbus
+features. No exterior aircraft. No vehicle or reward spoiler. No accident, warning state, smoke,
+fire, sparks, or system failure. Do not place a plaque; this is the background beneath it.

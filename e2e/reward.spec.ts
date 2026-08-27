@@ -106,7 +106,7 @@ test('protects the Model Y request until the reward phase', async ({ page }) => 
   })
 
   await page.goto('/')
-  await expect(page.getByRole('button', { name: 'Start Game' })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Game intro' })).toBeVisible()
   expect(rewardRequests).toBe(0)
 
   await seed(page, rewardState())

@@ -7,6 +7,7 @@ import {
   getIntroAssetsForTier,
   introAssets,
   preloadIntroAssets,
+  streamRemainingIntroAssets,
   validateIntroAssets,
 } from './introAssets'
 
@@ -34,7 +35,7 @@ describe('Scramble runtime image tiers', () => {
   it('registers every rendered sheet and background as a safe local PNG', () => {
     expect(() => validateIntroAssets(introAssets)).not.toThrow()
     expect(new Set(introAssets.map((asset) => asset.id)).size).toBe(introAssets.length)
-    expect(introAssets).toHaveLength(49)
+    expect(introAssets).toHaveLength(51)
     expect(introAssets.every((asset) => asset.path.endsWith('.png'))).toBe(true)
     expect(JSON.stringify(introAssets)).not.toMatch(/\.webp|tesla|model[- ]?y|flight mode|mars/i)
 
@@ -58,7 +59,7 @@ describe('Scramble runtime image tiers', () => {
     }
   })
 
-  it('decodes only the opening tier before allowing playback', () => {
+  it('decodes the opening and early-handoff tier before allowing playback', () => {
     expect(INTRO_INITIAL_ASSET_IDS).toEqual([
       'logo-source',
       'logo-blue-mask',
@@ -82,8 +83,15 @@ describe('Scramble runtime image tiers', () => {
       'card-coffee',
       'plate-hangar-dark',
       'plate-hangar-reveal',
+      'title-plaque-gold',
     ])
-    expect(INTRO_FULL_ASSET_IDS).toHaveLength(49)
+    expect(INTRO_FULL_ASSET_IDS).toHaveLength(51)
+    expect(INTRO_FULL_ASSET_IDS).toEqual(expect.arrayContaining([
+      'plate-right-seat-glow',
+      'title-plaque-gold',
+    ]))
+    expect(INTRO_INITIAL_ASSET_IDS).not.toContain('plate-right-seat-glow')
+    expect(INTRO_INITIAL_ASSET_IDS).toContain('title-plaque-gold')
     expect(INTRO_INITIAL_ASSET_IDS).not.toContain('emblem-finale')
     expect(getIntroAssetsForTier('initial').map((asset) => asset.id)).toEqual(INTRO_INITIAL_ASSET_IDS)
     expect(getIntroAssetsForTier('full')).toEqual(introAssets)
@@ -117,6 +125,48 @@ describe('Scramble runtime image tiers', () => {
     deferred.at(-1)!.resolve()
     const assets = await preload
     expect([...assets.keys()]).toEqual(INTRO_INITIAL_ASSET_IDS)
+    expect(settled).toBe(true)
+  })
+
+  it('streams later images independently when another deferred image is still pending', async () => {
+    const initialIds = new Set<string>(INTRO_INITIAL_ASSET_IDS)
+    const remainingAssets = introAssets.filter((asset) => !initialIds.has(asset.id))
+    const deferredByPath = new Map<string, Deferred>(
+      remainingAssets.map((asset) => [`/cockpit/${asset.path}`, createDeferred()] as const),
+    )
+    const decodeCalls: string[] = []
+
+    class DecodeControlledImage {
+      decoding: 'async' | 'auto' | 'sync' = 'auto'
+      src = ''
+      readonly decode = vi.fn(() => {
+        decodeCalls.push(this.src)
+        return deferredByPath.get(this.src)!.promise
+      })
+    }
+    vi.stubGlobal('Image', DecodeControlledImage)
+
+    const decodedIds: string[] = []
+    let settled = false
+    const preload = streamRemainingIntroAssets(
+      '/cockpit/',
+      initialIds,
+      (assetId) => decodedIds.push(assetId),
+    ).then((assets) => {
+      settled = true
+      return assets
+    })
+
+    await vi.waitFor(() => expect(decodeCalls).toHaveLength(remainingAssets.length))
+
+    deferredByPath.get('/cockpit/images/intro/tmb2/scramble/cards/cap-a.png')!.resolve()
+    await vi.waitFor(() => expect(decodedIds).toContain('card-cap-a'))
+    expect(decodedIds).not.toContain('plate-right-seat-glow')
+    expect(settled).toBe(false)
+
+    for (const deferred of deferredByPath.values()) deferred.resolve()
+    const assets = await preload
+    expect([...assets.keys()]).toEqual(remainingAssets.map((asset) => asset.id))
     expect(settled).toBe(true)
   })
 

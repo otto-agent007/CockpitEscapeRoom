@@ -1,5 +1,88 @@
 # Test report
 
+## 2026-08-27 Automatic console-style opening
+
+- Owner direction removed the pre-intro DC-9 first-officer station and its outer **Start Game**
+  button. Fresh and explicitly restarted sessions now mount the TMB2 cinematic immediately and
+  start it exactly once after the 23-image initial tier decodes. The reducer's `briefing` phase is
+  retained as the transient save-compatible container, so persisted DC-9, locker, Airbus, and
+  reward phases still resume directly.
+- The cinematic's authored **PRESS START** remains available from 6 seconds and is still the only
+  handoff into the DC-9 Final Flight Log. Pointer, Enter, Space, and standard-controller Start all
+  retain the same guarded one-shot fade/load transition. The Model Y request remains protected
+  until reward state.
+- Audible playback is attempted automatically. Chromium's no-gesture rejection moves the visuals
+  onto the existing monotonic fallback clock instead of stalling them, announces that playback is
+  continuing without sound, and exposes **Retry sound**. An initial PNG decode failure now appears
+  over the cinematic shell with the exact failed id/path and a clickable retry; it no longer falls
+  back to the retired station page.
+- TDD RED evidence: `fresh games start the cinematic without a DC-9 station gate` timed out against
+  the old implementation because the `Game intro` region did not exist before clicking Start Game.
+  The GREEN implementation plus migrated opening harness then passed all 18 focused intro cases,
+  including initial decode failure/retry, rejected-audio continuation/retry, early golden-plaque
+  handoff, deferred story-art streaming, all four Start inputs, reduced motion, and 375/768/1440
+  layout checks.
+- Independent review found that the previous full tier decoded 51 images sequentially and merged
+  only at the end. Review-driven RED proof held `plate-right-seat-glow` pending at the 10.9-second
+  `card-cap-a` beat and observed only 9 illustrated pixels. The opening gate remains the same 23
+  deterministic images, while the other 28 now decode concurrently and merge one-by-one. The
+  browser regression passes above 15,000 illustrated pixels. The same repair pass proved the
+  silent fallback clock advances before **Retry sound** and changed a failed initial load from
+  `aria-busy=true` to a settled `role=alert` state.
+- Cross-flow Playwright passed 5/5: both Airbus restart surfaces return directly to the intro, a
+  later reward save resumes without an early Model Y request, the fresh opening auto-mounts, and
+  the complete intro → DC-9 → locker → Airbus journey remains playable.
+- Production-preview visual QA used repository Playwright because the Browser plugin was absent.
+  At 375×812, 768×900, and 1440×900 the captured first ident frame had no station DOM, no outer
+  Start button, zero horizontal overflow, no framework overlay, and no console/page errors. The
+  same run exercised **PRESS START** and observed the `DC-9 Final Flight Log` heading. Ephemeral
+  proof is under `/tmp/cockpit-auto-intro-proof/automatic-intro-{375,768,1440}.png`.
+- Fresh validation: `npm run check` passed lint, typecheck, 473/473 Vitest tests across 36 files,
+  and the production build. `npm run assets:check` passed with the existing validator information
+  only and the TMB2 contract at 58 hash-bound assets / 51 preloads. `git diff --check` passed.
+  Follow-up independent review found no remaining critical, high, or important defects and marked
+  the code ready from a review perspective; the owner visual gate remains open.
+
+No Vercel preview, deployment, commit, or push was performed. Owner review of the automatic entry
+remains the visual gate.
+
+## 2026-08-26 Intro cut swap and golden instrument-glow finale
+
+- The 15.528 suit-up beat now cuts to the aviators, while the 29.2 walk-out beat now cuts to the
+  gold watch. The measured accents, scene boundaries, 53.04-second media clock, Start/Skip path,
+  and reduced-motion behavior are unchanged.
+- The 47.496 right-seat cut remains quiet. At 49.704 it now resolves to a distinct 320×224 DC-9
+  instrument-glow plate plus a separately composited 248×54 winged plaque. The plaque is textless
+  generated art in polished gold (champagne edge highlights, saturated gold body, amber shadow);
+  `THE CAPTAIN'S KEY` is still rendered from game config and the plaque/title zoom together during
+  the 650 ms Start handoff.
+- TDD evidence: the three focused files started at 47/47 green. New behavior tests then failed in
+  the six expected places against the old cut/finale. After implementation, the focused runtime
+  plus asset contract run passed 55/55.
+- `npm run build` passed. `npm run assets:check` passed with the existing model-validator
+  informational warnings and the intro contract at 58 hash-bound assets / 51 preloads.
+- Fresh `npm run check` passed: lint, typecheck, 472/472 tests across 36 files, and production
+  build. Its first run caught two stale full-tier census assertions (49 assets before this slice,
+  51 after); the repaired contract explicitly registers both new assets. Independent review then
+  caught that an early Start at 6 s needs the plaque before the asynchronous full tier resolves.
+  The 20 KB plaque is now opening-tier; the 92 KB late glow plate remains deferred. A
+  delayed-full-tier browser regression proves early handoff still draws the complete golden mark.
+- Targeted production-browser run:
+  `npx playwright test e2e/smoke.spec.ts --grep "TMB2 cinematic" --workers=1` passed 13/13.
+  The first run passed 11/12 and correctly exposed that the old visual probe counted only neutral
+  white title pixels; the rendered gold mark was present. The probe now compares warm gold pixels
+  against the pre-title seat frame and the unchanged flow passes.
+- Browser proof used the repository Playwright fallback because `agent-browser` could not create
+  its default socket directory in the managed read-only home mount. At 1440×900, 768×900 and
+  375×812 the title scene rendered at presentation scales 4, 2 and 1 with zero horizontal overflow.
+  Reduced motion held the same finale at 768. Page identity was `The Captain's Key`, no framework
+  overlay appeared, and captured console/page errors were empty.
+- Evidence: `preview-renders/tmb2-intro-golden-finale/intro-shades-early-1440.png`,
+  `intro-watch-late-1440.png`, `intro-finale-gold-{1440,768,375}.png`, and
+  `intro-finale-gold-reduced-motion-768.png`.
+
+Owner visual approval remains the open gate; no deployment or push was performed.
+
 ## 2026-08-24 The cheer at every milestone, and weather you can hear (branch feat/celebration-and-storm-audio)
 
 **Owner:** put the celebration sound on the other milestones too — the locker room and the Airbus.

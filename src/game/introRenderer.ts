@@ -57,8 +57,10 @@ export type IntroDrawCommand =
   | { kind: 'doors'; doors: IntroDoorsFrame }
   | { kind: 'fx'; fx: IntroFxFrame }
   | { kind: 'label'; label: IntroLabelFrame }
+  | { kind: 'title-plaque'; title: IntroTitleFrame }
   | { kind: 'title'; title: IntroTitleFrame }
   | { kind: 'flash'; color: 'white' | 'red'; opacity: number }
+  | { kind: 'handoff-title-plaque'; assetId: string; x: number; y: number; width: number; height: number; scale: number }
   | { kind: 'handoff-title'; x: number; y: number; scale: number }
   | { kind: 'handoff-flash'; opacity: number }
 
@@ -152,11 +154,23 @@ export function deriveIntroDrawCommands(
   for (const fx of frame.fx) {
     if (FX_LAYER[fx.kind] === 'over') commands.push({ kind: 'fx', fx })
   }
-  if (frame.title) commands.push({ kind: 'title', title: frame.title })
+  if (frame.title) {
+    commands.push({ kind: 'title-plaque', title: frame.title })
+    commands.push({ kind: 'title', title: frame.title })
+  }
   if (frame.flash && frame.flash.opacity > 0) {
     commands.push({ kind: 'flash', color: frame.flash.color, opacity: frame.flash.opacity })
   }
   if (handoff) {
+    commands.push({
+      kind: 'handoff-title-plaque',
+      assetId: TITLE_CARD.plaqueAssetId,
+      x: handoff.x,
+      y: handoff.y,
+      width: TITLE_CARD.plaqueWidth,
+      height: TITLE_CARD.plaqueHeight,
+      scale: handoff.scale,
+    })
     commands.push({ kind: 'handoff-title', x: handoff.x, y: handoff.y, scale: handoff.scale })
     commands.push({ kind: 'handoff-flash', opacity: handoff.flashOpacity })
   }
@@ -303,7 +317,7 @@ function drawFx(
       const rayLength = 190 * fx.scale
       for (let index = 0; index < 12; index += 1) {
         context.rotate(Math.PI / 6)
-        context.fillStyle = index % 2 === 0 ? '#1761e8' : '#75c4ff'
+        context.fillStyle = index % 2 === 0 ? '#b66c08' : '#ffe081'
         context.globalAlpha = fx.opacity * (index % 2 === 0 ? 0.5 : 0.32)
         context.beginPath()
         context.moveTo(0, 0)
@@ -361,10 +375,9 @@ function drawLabel(context: CanvasRenderingContext2D, label: IntroLabelFrame): v
 }
 
 /**
- * The finale title, lettered at runtime rather than baked into art — the same
- * route the case nameplate uses, and the reason no generated plate has to carry
- * text. The blue/red offset copies mirror the PRESS START prompt's shadow so
- * the ending shares the intro's typography.
+ * The finale title, lettered at runtime rather than baked into art. Champagne
+ * face, bright gold bevel and deep amber shadow make the letters part of the
+ * generated plaque while preserving the exact game title.
  */
 function drawTitle(
   context: CanvasRenderingContext2D,
@@ -383,12 +396,33 @@ function drawTitle(
   context.font = `700 ${size}px "Courier New", monospace`
   context.textAlign = 'center'
   context.textBaseline = 'middle'
-  context.fillStyle = '#1761e8'
-  context.fillText(title.text, centreX - shadow, centreY)
-  context.fillStyle = '#a41724'
-  context.fillText(title.text, centreX + shadow, centreY)
-  context.fillStyle = '#f8fbff'
+  context.fillStyle = '#542b02'
+  context.fillText(title.text, centreX + shadow, centreY + shadow)
+  context.fillStyle = '#d99a16'
+  context.fillText(title.text, centreX - shadow, centreY - shadow)
+  context.fillStyle = '#fff0a6'
   context.fillText(title.text, centreX, centreY)
+  context.restore()
+}
+
+function drawTitlePlaque(
+  context: CanvasRenderingContext2D,
+  image: CanvasImageSource,
+  title: Pick<IntroTitleFrame, 'x' | 'y' | 'plaqueWidth' | 'plaqueHeight' | 'opacity'>,
+  scale = 1,
+): void {
+  if (title.opacity <= 0) return
+  const width = Math.max(1, Math.round(title.plaqueWidth * scale))
+  const height = Math.max(1, Math.round(title.plaqueHeight * scale))
+  context.save()
+  context.globalAlpha = Math.min(1, title.opacity)
+  context.drawImage(
+    image,
+    Math.round(title.x - width / 2),
+    Math.round(title.y - height / 2),
+    width,
+    height,
+  )
   context.restore()
 }
 
@@ -499,6 +533,11 @@ export function renderIntroFrame(
       case 'label':
         drawLabel(context, command.label)
         break
+      case 'title-plaque': {
+        const image = assets.get(command.title.plaqueAssetId)
+        if (image) drawTitlePlaque(context, image, command.title)
+        break
+      }
       case 'title':
         drawTitle(context, command.title)
         break
@@ -512,12 +551,25 @@ export function renderIntroFrame(
       case 'handoff-title':
         drawTitle(
           context,
-          { text: TITLE_CARD.text, x: command.x, y: command.y, opacity: 1 },
+          { ...TITLE_CARD, x: command.x, y: command.y, opacity: 1 },
           command.scale,
           command.x,
           command.y,
         )
         break
+      case 'handoff-title-plaque': {
+        const image = assets.get(command.assetId)
+        if (image) {
+          drawTitlePlaque(context, image, {
+            x: command.x,
+            y: command.y,
+            plaqueWidth: command.width,
+            plaqueHeight: command.height,
+            opacity: 1,
+          }, command.scale)
+        }
+        break
+      }
       case 'handoff-flash':
         context.save()
         context.globalAlpha = command.opacity

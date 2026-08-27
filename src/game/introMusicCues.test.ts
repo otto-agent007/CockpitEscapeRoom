@@ -8,10 +8,10 @@ const EXPECTED_SCENE: Record<keyof typeof INTRO_MUSIC_CUES, IntroSceneId> = {
   capFlip: 'suit-up',
   wingsPinned: 'suit-up',
   fourStripes: 'suit-up',
-  watchCheck: 'suit-up',
+  shadesDown: 'suit-up',
   logbookSnap: 'walk-out',
   headsetUp: 'walk-out',
-  shadesDown: 'walk-out',
+  watchCheck: 'walk-out',
   doorsParting: 'doors',
   standingAlone: 'standing-alone',
   walkOut: 'walk',
@@ -68,11 +68,11 @@ describe('Scramble intro music cues', () => {
   it('cuts the opening fast and plays everything after the gates long', () => {
     const before = [
       INTRO_MUSIC_CUES.bootsDown, INTRO_MUSIC_CUES.coffeeDown, INTRO_MUSIC_CUES.capFlip,
-      INTRO_MUSIC_CUES.wingsPinned, INTRO_MUSIC_CUES.fourStripes, INTRO_MUSIC_CUES.watchCheck,
+      INTRO_MUSIC_CUES.wingsPinned, INTRO_MUSIC_CUES.fourStripes, INTRO_MUSIC_CUES.shadesDown,
     ]
     const after = [
       INTRO_MUSIC_CUES.standingAlone, INTRO_MUSIC_CUES.logbookSnap,
-      INTRO_MUSIC_CUES.headsetUp, INTRO_MUSIC_CUES.shadesDown, INTRO_MUSIC_CUES.walkOut,
+      INTRO_MUSIC_CUES.headsetUp, INTRO_MUSIC_CUES.watchCheck, INTRO_MUSIC_CUES.walkOut,
     ]
     const gaps = (list: readonly number[]) =>
       list.slice(1).map((value, index) => value - list[index]!)

@@ -94,8 +94,10 @@ describe('Scramble Canvas draw commands', () => {
     }
     const commands = deriveIntroDrawCommands(frame, deriveHandoffAnimation(0.5))
     const kinds = commands.map((command) => command.kind)
+    expect(kinds.indexOf('title-plaque')).toBeLessThan(kinds.indexOf('title'))
     expect(kinds.indexOf('flash')).toBeGreaterThan(kinds.indexOf('title'))
-    expect(kinds.indexOf('flash')).toBeLessThan(kinds.indexOf('handoff-title'))
+    expect(kinds.indexOf('flash')).toBeLessThan(kinds.indexOf('handoff-title-plaque'))
+    expect(kinds.indexOf('handoff-title-plaque')).toBeLessThan(kinds.indexOf('handoff-title'))
 
     expect(deriveIntroDrawCommands(deriveIntroAnimation(33, false), null)
       .some((command) => command.kind === 'flash')).toBe(false)
@@ -104,6 +106,15 @@ describe('Scramble Canvas draw commands', () => {
   it('draws the Start handoff title over the frozen story frame', () => {
     const handoff = deriveHandoffAnimation(1)
     const commands = deriveIntroDrawCommands(deriveIntroAnimation(19.5, false), handoff)
+    expect(commands.at(-3)).toEqual({
+      kind: 'handoff-title-plaque',
+      assetId: 'title-plaque-gold',
+      x: 160,
+      y: 44,
+      width: 248,
+      height: 54,
+      scale: 4.5,
+    })
     expect(commands.at(-2)).toEqual({ kind: 'handoff-title', x: 160, y: 44, scale: 4.5 })
     expect(commands.at(-1)).toEqual({ kind: 'handoff-flash', opacity: 1 })
   })

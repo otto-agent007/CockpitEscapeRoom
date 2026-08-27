@@ -3,7 +3,8 @@
 
 Copies the normalised 320x224 plates and cards, packs the walk and run cycles
 into sprite sheets (feet on the bottom cell row, centred), pads the backlit
-figure into its cell, and derives the dark pre-reveal hangar plate. Deterministic; run after any normalised asset changes,
+figure into its cell, deploys the transparent title overlay, and derives the
+dark pre-reveal hangar plate. Deterministic; run after any normalised asset changes,
 then `node tools/assets/build-intro-manifest.mjs && npm run assets:check`.
 """
 
@@ -19,7 +20,12 @@ PLATES = {
     'plate-doorway-320.png': 'plates/doorway.png',
     'plate-walk-tarmac-320.png': 'plates/walk-tarmac.png',
     'plate-right-seat-320.png': 'plates/right-seat.png',
+    'plate-right-seat-glow-320.png': 'plates/right-seat-glow.png',
     'strip-door-leaf-168.png': 'plates/door-leaf.png',
+}
+
+OVERLAYS = {
+    'title-plaque-gold.png': 'overlays/title-plaque-gold.png',
 }
 
 CARDS = [
@@ -53,11 +59,14 @@ def cell_pack(sprite: Image.Image, cell: tuple[int, int]) -> Image.Image:
 
 
 def main() -> None:
-    for sub in ('plates', 'cards', 'sprites'):
+    for sub in ('plates', 'cards', 'sprites', 'overlays'):
         (DST / sub).mkdir(parents=True, exist_ok=True)
 
     for src_name, dst_name in PLATES.items():
         Image.open(SRC / src_name).save(DST / dst_name)
+
+    for src_name, dst_name in OVERLAYS.items():
+        Image.open(SRC / src_name).convert('RGBA').save(DST / dst_name)
 
     # dark pre-reveal variant: the lit plate multiplied down, cool-shifted
     lit = Image.open(SRC / 'plate-hangar-reveal-320.png').convert('RGB')
@@ -118,7 +127,7 @@ def main() -> None:
     backlit = Image.open(SRC / 'spr-popt-backlit.png').convert('RGBA')
     cell_pack(backlit, BACKLIT_CELL).save(DST / 'sprites/popt-backlit.png')
 
-    print('deployed', len(PLATES) + 1 + len(CARDS) + 6, 'files to', DST)
+    print('deployed', len(PLATES) + len(OVERLAYS) + 1 + len(CARDS) + 6, 'files to', DST)
 
 
 if __name__ == '__main__':

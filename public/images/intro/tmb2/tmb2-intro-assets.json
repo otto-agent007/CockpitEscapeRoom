@@ -339,6 +339,15 @@
       "hasAlpha": false
     },
     {
+      "id": "scramble-overlays-title-plaque-gold-png",
+      "path": "scramble/overlays/title-plaque-gold.png",
+      "sha256": "00f0f90053d93963a6186229cfda27a167990ab3b2a73949c6cabe8b9e67e77f",
+      "bytes": 17704,
+      "width": 248,
+      "height": 54,
+      "hasAlpha": true
+    },
+    {
       "id": "scramble-plates-door-leaf-png",
       "path": "scramble/plates/door-leaf.png",
       "sha256": "0a74910fa835ad2d16174e59dcbf7f3a90ba266c81ca0321c47bd543972b7e70",
@@ -370,6 +379,15 @@
       "path": "scramble/plates/hangar-reveal.png",
       "sha256": "ed0dcae2d709bd296d7b76509e7ffb7f5271add4d8b67ed364d8517f25f71f29",
       "bytes": 72671,
+      "width": 320,
+      "height": 224,
+      "hasAlpha": false
+    },
+    {
+      "id": "scramble-plates-right-seat-glow-png",
+      "path": "scramble/plates/right-seat-glow.png",
+      "sha256": "51a8bd87a82fe677d966b0a1a48e1f7406c3454fffe425c713fc4d161f8f41a9",
+      "bytes": 91087,
       "width": 320,
       "height": 224,
       "hasAlpha": false
@@ -563,6 +581,8 @@
     "scramble/plates/door-leaf.png",
     "scramble/plates/walk-tarmac.png",
     "scramble/plates/right-seat.png",
+    "scramble/plates/right-seat-glow.png",
+    "scramble/overlays/title-plaque-gold.png",
     "scramble/cards/boots.png",
     "scramble/cards/coffee.png",
     "scramble/cards/watch.png",

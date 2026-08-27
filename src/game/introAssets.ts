@@ -1,7 +1,7 @@
 export type IntroAsset = {
   id: string
   path: string
-  role: 'background' | 'sprite' | 'logo-layer' | 'card'
+  role: 'background' | 'sprite' | 'logo-layer' | 'card' | 'overlay'
 }
 
 export type IntroAssetTier = 'initial' | 'full'
@@ -58,6 +58,8 @@ export const introAssets = [
   { id: 'door-leaf', path: 'images/intro/tmb2/scramble/plates/door-leaf.png', role: 'background' },
   { id: 'plate-walk-tarmac', path: 'images/intro/tmb2/scramble/plates/walk-tarmac.png', role: 'background' },
   { id: 'plate-right-seat', path: 'images/intro/tmb2/scramble/plates/right-seat.png', role: 'background' },
+  { id: 'plate-right-seat-glow', path: 'images/intro/tmb2/scramble/plates/right-seat-glow.png', role: 'background' },
+  { id: 'title-plaque-gold', path: 'images/intro/tmb2/scramble/overlays/title-plaque-gold.png', role: 'overlay' },
   // Scramble still cards — full-frame generated stills cut on the beats.
   { id: 'card-boots', path: 'images/intro/tmb2/scramble/cards/boots.png', role: 'background' },
   { id: 'card-coffee', path: 'images/intro/tmb2/scramble/cards/coffee.png', role: 'background' },
@@ -87,9 +89,9 @@ export const introAssets = [
   { id: 'popt-backlit', path: 'images/intro/tmb2/scramble/sprites/popt-backlit.png', role: 'sprite' },
 ] as const satisfies readonly IntroAsset[]
 
-/** Everything the intro needs before the hangar reveal at 13.056 s: the
- * ident (logo + legacy sheets), the beacon dark (code only), the four ritual
- * cards, and both reveal plates. */
+/** The deterministic playback gate: ident acting, the first two ritual cards,
+ * both reveal plates, and the plaque required by an early Start handoff. Later
+ * story art streams independently as soon as each image decodes. */
 export const INTRO_INITIAL_ASSET_IDS = [
   'logo-source',
   'logo-blue-mask',
@@ -113,6 +115,9 @@ export const INTRO_INITIAL_ASSET_IDS = [
   'card-coffee',
   'plate-hangar-dark',
   'plate-hangar-reveal',
+  // Start is available at 6 s, so its plaque must decode before playback even
+  // though the glow plate beneath the held finale may remain full-tier.
+  'title-plaque-gold',
 ] as const
 
 export const INTRO_FULL_ASSET_IDS = introAssets.map((asset) => asset.id)
@@ -161,6 +166,28 @@ export async function preloadIntroAssets(
     }
     entries.push([asset.id, image] as const)
   }
+  return new Map(entries)
+}
+
+export async function streamRemainingIntroAssets(
+  baseUrl: string,
+  loadedAssetIds: ReadonlySet<string>,
+  onDecoded: (assetId: string, image: HTMLImageElement) => void,
+): Promise<Map<string, HTMLImageElement>> {
+  validateIntroAssets(introAssets)
+  const remaining = introAssets.filter((asset) => !loadedAssetIds.has(asset.id))
+  const entries = await Promise.all(remaining.map(async (asset) => {
+    const image = new Image()
+    image.decoding = 'async'
+    image.src = `${baseUrl}${asset.path}`
+    try {
+      await image.decode()
+    } catch (error) {
+      throw new IntroAssetPreloadError(asset, error)
+    }
+    onDecoded(asset.id, image)
+    return [asset.id, image] as const
+  }))
   return new Map(entries)
 }
 

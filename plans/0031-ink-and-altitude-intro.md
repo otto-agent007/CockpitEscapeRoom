@@ -8,15 +8,16 @@
 Replace the duffel-and-key chase intro with the owner's chosen Genesis-styled design: a pure
 cinematic launch sequence. The intro is the quiet ritual of a legend suiting up for tonight's
 commemorative legacy flight — hard-cut stills on the drum hits, the hangar reveal, the suit-up
-montage, the walk to the DC-9, engine start, and a night takeoff that pulls past the camera and
-slams the title emblem into the contrail. 16-bit pedigree: After Burner II's launch energy,
-Revenge of Shinobi's lightning-still cuts. Zero slapstick — all reverence and adrenaline.
+montage, the walk to the DC-9, the cockpit coming alive, and a quiet cut to the empty right seat
+before the instrument glow resolves into the title. 16-bit pedigree: After Burner II's launch
+energy, Revenge of Shinobi's lightning-still cuts. Zero slapstick — all reverence and adrenaline.
 
 ## Current state
 
-- Branch `agent/tmb2-intro-overhaul`. The shipped intro is still the 0022/0028 duffel-and-key
-  chase in `src/game/introAnimation.ts` / `introRenderer.ts` / `introConfig.ts`, with the measured
-  cues in `src/game/introMusicCues.ts`.
+- As of 2026-08-27, the Scramble runtime is on `main`. The owner approved the revised aviators/
+  watch cut and richer golden finale, then directed the cinematic to become the first game
+  surface. Fresh and restarted sessions now mount and start it automatically; the authored
+  **PRESS START** remains the handoff to the DC-9 chapter.
 - Diagnosed 2026-08-17: the duffel scene fails structurally (bag painted into the plate, ~140
   stage px vs the 90 px character, immobile, no contact, key bursting from unopenable leather);
   runway cart unreadable behind PRESS START; duplicate ballpark home plate; doubled finance chart.
@@ -29,13 +30,14 @@ Revenge of Shinobi's lightning-still cuts. Zero slapstick — all reverence and 
 
 ## Scope
 
-Included: the new intro storyboard (scene table, choreography, renderer support for hard-cut
-still cards, the hangar reveal, engine start, and the takeoff), the greybox animatic proving the
-design before any art spend, the asset list and generation prompts, integration, and proof.
+Included: automatic cinematic entry, the intro storyboard (scene table, choreography, renderer
+support for hard-cut still cards, the hangar reveal, cockpit inserts, the empty right-seat hold,
+and the instrument-glow title plaque), the greybox animatic that established the direction, the
+asset list and generation prompts, integration, and proof.
 
-Excluded: the audio track (kept), the ident scene 0–6 s (kept), the Start handoff input path,
-the stage/pixel-grid architecture, all non-intro chapters. The 0029 anchor decisions (identity
-head-height, airborne alignment) remain owned by that plan; this plan consumes its pipeline.
+Excluded: the audio track (kept), the ident scene 0–6 s (kept), the Start handoff input behavior
+(its visual title/plaque layers may evolve), the stage/pixel-grid architecture, and all non-intro
+chapters. The 0029 anchor decisions remain owned by that plan; this plan consumes its pipeline.
 
 ## Context and constraints
 
@@ -43,7 +45,8 @@ head-height, airborne alignment) remain owned by that plan; this plan consumes i
   key-cameo embargo, red-"!" exclusivity). The key mascot does not appear in this design.
 - Project-level rules still bind: commemorative tone (the flight is tonight's legacy flight — no
   emergency framing anywhere), no Model Y leak (`validateIntroAssets` guard stays), deterministic
-  renderer, reduced-motion support, PRESS START available from 6 s, loop-reset collapse kept.
+  renderer, reduced-motion support, PRESS START available from 6 s, and a held final title frame
+  instead of an attract-loop reset.
 - Pixel-grid invariants from 0030 hold: whole-number sprite scales, zoom rests at exactly 1,
   punches only on accents.
 - Aircraft accuracy: the aircraft is the DC-9 (T-tail, rear engines) throughout — the intro hands
@@ -52,6 +55,9 @@ head-height, airborne alignment) remain owned by that plan; this plan consumes i
   the cap, the photo on the glareshield). The photo beat is optional and owner-vetoable.
 
 ## The design — beat map on the measured cues
+
+The table below preserves the approved 2026-08-18 animatic. Later owner-directed runtime
+iterations are recorded in Progress and the source cue table is authoritative for the current cut.
 
 Cue values from `src/game/introMusicCues.ts`; the beat grid is 0.72 s (~83 BPM half-bar). Cue
 names below are the design's names; the source constants keep their historical names.
@@ -199,8 +205,39 @@ superseded.
       transparent sprite, the retired key gone from the project's intro entirely. All suites
       green after each change (266/266; e2e 51 passed/1 skipped after the reorder; the emblem
       swap is asset-content only).
-- [ ] Owner gate: watch the complete intro through. Open: the S2 nacelle-girth soft flag only.
-      No push before approval.
+- [x] 2026-08-26 — **Owner-selected finale and montage revision integrated.** The aviators now
+      take the 15.528 pre-door beat and the gold watch takes the 29.2 walk-out beat; measured cue
+      times and the 53.04 s media clock are unchanged. The quiet `plate-right-seat` cut still
+      lands at 47.496, then the 49.704 title hit switches to a new 320×224 instrument-glow plate.
+      A separately generated, textless 248×54 winged plaque uses brighter champagne highlights,
+      saturated gold midtones and deep amber shadows; exact title letters remain runtime-drawn
+      and the plaque now shares the Start handoff zoom. Generation, normalization, deployment and
+      manifest routes are reproducible through `normalise-scramble-finale.py` and
+      `deploy-scramble-intro.py`. Focused unit/asset contracts: 55/55. Production build and
+      `assets:check`: pass. Fresh `npm run check`: lint/typecheck, 472/472 unit tests and production
+      build pass; its first full run caught and repaired the stale 49→51 full-tier asset census.
+      Independent review then caught an early-Start race: the handoff can begin at 6 s, so the
+      20 KB plaque now joins the opening tier while the 92 KB glow plate remains deferred.
+      Targeted intro Playwright:
+      13/13 after updating the retired
+      neutral-white pixel probe to detect the new gold mark. Owner-visible proof at 375, 768 and
+      1440 plus reduced motion is in `preview-renders/tmb2-intro-golden-finale/`; no console issues,
+      framework overlay, clipping or horizontal overflow.
+- [x] 2026-08-27 — **Automatic console-style entry integrated.** The owner approved the golden
+      finale ("looks good") and removed the pre-intro DC-9 station plus its outer Start Game gate.
+      The initial art tier now starts playback exactly once when ready. Rejected audible autoplay
+      enters the existing monotonic silent clock and keeps Retry sound available. Initial decode
+      failure stays inside the cinematic shell with an exact retry; the DC-9 still preloads during
+      the transient `briefing` phase, retained for save compatibility. Focused browser coverage
+      passes 18/18 across the automatic mount, asset error/retry, silent fallback,
+      pointer/keyboard/controller PRESS START, early golden handoff, reduced motion, and required
+      viewports. Independent review found that the old all-or-nothing deferred load could leave a
+      later story beat blank behind one pending image. The remaining 28 images now decode in
+      parallel and merge individually; browser proof holds `plate-right-seat-glow` pending while
+      `card-cap-a` still renders. The error alert is no longer marked busy after failure, and the
+      rejected-audio test now proves the fallback clock advances before sound retry.
+- [ ] Owner gate: review the automatic opening in the browser. Open: the S2 nacelle-girth soft
+      flag only. No push before approval.
 
 ## Discoveries
 
@@ -219,6 +256,9 @@ superseded.
   greybox animatic before any art spend (hard gate).
 - 2026-08-17 — Scramble aircraft is the DC-9; suiting up for the legacy flight in the ship where
   the career began is the commemorative frame.
+- 2026-08-27 — The cinematic is the first surface on a fresh or restarted game. Remove the old
+  station landing and outer Start Game button, attempt soundtrack autoplay without stalling the
+  visuals when blocked, and retain the cinematic PRESS START as the DC-9 handoff.
 - 2026-08-18 — **Owner dropped the comic-book half ("the hybrid might have been too much"); the
   design is pure Option B, the launch sequence.** Consequences: no comic panels, no page-break
   mechanics, no ink-to-colour transition in the runtime; the key mascot does not appear; the
@@ -233,6 +273,9 @@ superseded.
   sprites). The case is a matte-black hard shell with steel latches and a red accent. Fits the
   story: Northwest flew both the DC-9 and the A320 — the two aircraft of the game's journey. v2
   anchors generated same day, both first-attempt accepts; v1 kept beside them for the record.
+- 2026-08-26 — Owner explicitly swapped the aviators and watch cuts, then chose Option 1's
+  instrument glow with Option 3's premium plaque and asked for the brass to be more golden. The
+  implementation keeps generated art textless and composites the exact game title at runtime.
 
 ## Milestones
 
@@ -250,18 +293,19 @@ superseded.
 - [x] **Task 1 — Animatic generator.** `tools/design/intro-0031-animatic.py`: deterministic
       greybox renderer at 320×224 (4× NEAREST), 12 fps, muxed with
       `public/audio/intro-audio-53s.mp3`. Rewritten 2026-08-18 for the scramble design.
-- [ ] **Task 2 — Design gate.** Owner watches; beat map amended here with any retimes; photo
-      beat confirmed or cut.
-- [ ] **Task 3 — Asset list.** Enumerate stills (boots, coffee, case, case-snap), the hangar
+- [x] **Task 2 — Design gate.** Owner watched and approved the scramble animatic on 2026-08-18;
+      later visual rounds and their decisions are recorded in Progress.
+- [x] **Task 3 — Asset list.** Enumerate stills (boots, coffee, case, case-snap), the hangar
       reveal plate, five suit-up/insert cards, doors/walk silhouette staging, engine-start
       nacelle, cockpit inserts, runway lineup and takeoff plates, each with prompt + target size.
       Cards are cropped illustrations composited into code-drawn framing, generated at card
-      aspect, not full-stage.
-- [ ] **Task 4 — Runtime scene table.** Replace the duffel→catch scenes in `introConfig.ts` with
+      aspect, not full-stage. Completed through the versioned prompt pack and S0–S5 waves; later
+      owner-directed full-frame replacements are logged above.
+- [x] **Task 4 — Runtime scene table.** Replace the duffel→catch scenes in `introConfig.ts` with
       the scramble chapter list (ident and loop-reset stay); rewrite `deriveIntroAnimation` scene
       cases; add renderer commands for still-card compositing, the row-slam reveal, beacon/strobe
       lights, streaking runway lights, and the contrail. Evolve tests cue-by-cue.
-- [ ] **Task 5 — Proof.** Full `npm run check`, e2e, browser stills at every cue, reduced motion,
+- [x] **Task 5 — Proof.** Full `npm run check`, e2e, browser stills at every cue, reduced motion,
       375/768/1440; evidence here and in `TEST_REPORT.md`.
 
 ## Validation plan
@@ -282,8 +326,8 @@ superseded.
 
 ## Repair loop and stop conditions
 
-Review → focused repair → validation → remaining-delta review. Stop at the design gate (Task 2),
-at three failed repairs of one root cause, or at any authoritative-art blocker.
+Review → focused repair → validation → remaining-delta review. Stop at the current owner visual
+gate, at three failed repairs of one root cause, or at any authoritative-art blocker.
 
 ## Evidence
 
@@ -307,7 +351,21 @@ at three failed repairs of one root cause, or at any authoritative-art blocker.
   contrail on 47.496, emblem stamp on 49.704, pixel collapse. Every beat within one 12 fps frame
   of its cue.
 
+### 2026-08-27 — automatic opening and deferred-art repair
+
+- Fresh and restarted games mount the cinematic directly; the removed DC-9 station and outer
+  Start Game button no longer gate it. The authored PRESS START remains the DC-9 handoff.
+- Focused production-browser coverage passed 18/18. A separate 5/5 cross-flow run covered both
+  Airbus restart paths, Model Y request protection, fresh entry, and the complete reordered
+  journey. Required-width first-frame proof is under `/tmp/cockpit-auto-intro-proof/`.
+- Review-driven RED proof held `plate-right-seat-glow` pending and observed a blank `card-cap-a`
+  beat (9 illustrated pixels). The remaining 28 images now start together and merge as they
+  decode; the same browser regression passes above 15,000 illustrated pixels. Follow-up
+  independent review found no remaining critical, high, or important defects.
+
 ## Outcome and handoff
 
-Design iterated to pure scramble on 2026-08-18. Milestone 1 (scramble animatic) is the next
-artifact the owner sees; hard stop at the design gate before Milestone 2 art spend.
+The scramble, owner-selected golden finale, and automatic console-style opening are integrated.
+All implementation milestones are complete; the remaining handoff is owner review of the live
+automatic entry and the previously recorded non-blocking nacelle-girth soft flag. No push or
+deployment is part of this plan without explicit approval.

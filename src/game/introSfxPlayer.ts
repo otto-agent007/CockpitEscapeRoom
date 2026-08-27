@@ -32,10 +32,7 @@ export class IntroSfxPlayer {
   private noiseBuffer: AudioBuffer | null = null
   private failed = false
 
-  /**
-   * Creates the context on first use. Browsers only allow this after a user
-   * gesture, which the intro always has: playback starts on Start Game.
-   */
+  /** Creates the context on first use; a blocked context leaves the intro playable without SFX. */
   private ensureContext(): AudioContext | null {
     if (this.failed) return null
     if (this.context) return this.context
