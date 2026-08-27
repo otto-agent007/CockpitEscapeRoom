@@ -11,7 +11,7 @@
 export const INTRO_MUSIC_CUES = {
   /**
    * Re-timed 2026-08-20 (owner): the opening runs FAST — boots through the
-   * four stripes at ~1.39 s a beat — so the stripes and watch both land before
+   * four stripes at ~1.39 s a beat — so the stripes and aviators both land before
    * the gates, which stay pinned to the 18 s "standing there alone" vocal.
    * Everything after the gates plays long (2.4 s+). The runway lineup act was
    * cut, so the departure stays inside the cockpit and the panel and throttles
@@ -27,8 +27,8 @@ export const INTRO_MUSIC_CUES = {
   wingsPinned: 11.67,
   /** Four captain's stripes — the track's largest hit (+28.6 dB at 13.056). */
   fourStripes: 13.056,
-  /** A glance at the watch, the last beat before the doors. */
-  watchCheck: 15.528,
+  /** Aviators down, the last beat before the doors. */
+  shadesDown: 15.528,
   /** The hangar doors part around him ON the 18 s vocal and hold through it. */
   doorsParting: 18,
   /** He stands alone, his shadow reaching down the hangar floor. */
@@ -37,8 +37,8 @@ export const INTRO_MUSIC_CUES = {
   logbookSnap: 23.4,
   /** The headset slung over his shoulder. */
   headsetUp: 26.8,
-  /** Shades down as he steps into the light. */
-  shadesDown: 29.2,
+  /** A glance at the watch as he steps into the light. */
+  watchCheck: 29.2,
   /** The long walk out across the floor. */
   walkOut: 31.6,
   /** Floodlights slam on and the DC-9 is there with him (+17.8 dB at 35.64). */

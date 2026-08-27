@@ -1,0 +1,20 @@
+Generate exactly ONE image using the built-in image generation tool. Edit the selected premium
+brass-title concept and match the new instrument-glow cockpit palette.
+
+Create one centered, symmetrical, extra-wide aviation title plaque only, with a fully transparent
+background. Horizontal aspect approximately 4.6:1, designed to display at 248x54 pixels inside a
+320x224 stage. The plaque has a clean deep-navy inset panel for runtime-rendered title letters, a
+thin inner bevel, and restrained wing-like extensions. Make it noticeably more golden than aged
+brass: rich warm 24-karat-gold body, bright honey-gold and pale champagne specular highlights,
+saturated golden midtones, deep amber and burnt-gold shadows, and a restrained copper bounce in
+the deepest bevels. Premium heirloom craftsmanship, celebratory captain's insignia character,
+elegant and confident rather than ornate or gaudy.
+
+Authentic premium 16-bit pixel art with crisp deliberate pixel clusters, hard edges, sparse
+controlled dithering, and no antialias blur. Complete and uncropped with generous transparent
+margin. No title, words, letters, numbers, logos, central emblem, or watermark. No aircraft,
+cockpit, person, or UI frame.
+
+Generation note: the first result visually rendered a checkerboard instead of supplying alpha.
+The accepted correction preserves the plaque exactly and replaces every outside pixel with one
+flat, fully opaque chroma-key magenta RGB 255,0,255 field for deterministic keying.

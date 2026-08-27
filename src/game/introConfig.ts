@@ -47,7 +47,7 @@ export const introScenes = [
     id: 'suit-up',
     startSeconds: 10.284,
     endSeconds: 18,
-    summary: 'The suit-up cuts fast: the cap flipped and caught, wings pinned, four captain stripes, and a glance at the watch.',
+    summary: 'The suit-up cuts fast: the cap flipped and caught, wings pinned, four captain stripes, and the aviators down.',
   },
   {
     id: 'doors',
@@ -65,7 +65,7 @@ export const introScenes = [
     id: 'walk-out',
     startSeconds: 23.4,
     endSeconds: 31.6,
-    summary: 'On the way out: his reading pile swept aside to lift the flight log, the headset over his shoulder, and the shades down as he steps into the light.',
+    summary: 'On the way out: his reading pile swept aside to lift the flight log, the headset over his shoulder, and a glance at the watch as he steps into the light.',
   },
   {
     id: 'walk',
@@ -95,7 +95,7 @@ export const introScenes = [
     id: 'title',
     startSeconds: 49.704,
     endSeconds: 53.04,
-    summary: 'The instrument glow resolves into the title over the waiting seat, and holds there.',
+    summary: 'The instrument glow resolves into a golden winged title plaque over the waiting seat, and holds there.',
   },
 ] as const satisfies readonly IntroScene[]
 

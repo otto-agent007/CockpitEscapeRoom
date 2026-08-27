@@ -84,6 +84,8 @@ const preload = [
   'scramble/plates/door-leaf.png',
   'scramble/plates/walk-tarmac.png',
   'scramble/plates/right-seat.png',
+  'scramble/plates/right-seat-glow.png',
+  'scramble/overlays/title-plaque-gold.png',
   'scramble/cards/boots.png',
   'scramble/cards/coffee.png',
   'scramble/cards/watch.png',

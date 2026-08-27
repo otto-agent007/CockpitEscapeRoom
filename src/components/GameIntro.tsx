@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { gameCopy } from '../game/config'
 import {
   beginIntroAssetLoad,
   completeIntroAssetLoad,
@@ -7,6 +6,7 @@ import {
   failIntroAssetLoad,
   mergeIntroAssets,
   preloadIntroAssets,
+  streamRemainingIntroAssets,
   type IntroAssetLoadState,
   type IntroRenderAssets,
 } from '../game/introAssets'
@@ -45,6 +45,7 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
   const sfxTimeRef = useRef(0)
   const assetLoadStateRef = useRef<IntroAssetLoadState>(createIntroAssetLoadState())
   const assetLoadGenerationRef = useRef(0)
+  const autoStartRequestedRef = useRef(false)
   const [started, setStarted] = useState(false)
   const [timeSeconds, setTimeSeconds] = useState(0)
   const [startAvailable, setStartAvailable] = useState(false)
@@ -66,6 +67,7 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
 
   const loadIntroAssets = useCallback(() => {
     const generation = ++assetLoadGenerationRef.current
+    autoStartRequestedRef.current = false
     const loadingState = beginIntroAssetLoad(assetLoadStateRef.current)
     assetLoadStateRef.current = loadingState
     setAssetLoadState(loadingState)
@@ -80,10 +82,16 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
         setAssets(initialAssets)
         setAssetLoadState(readyState)
 
-        void preloadIntroAssets(import.meta.env.BASE_URL, 'full')
-          .then((fullAssets) => {
+        void streamRemainingIntroAssets(
+          import.meta.env.BASE_URL,
+          new Set(initialAssets.keys()),
+          (assetId, image) => {
             if (generation !== assetLoadGenerationRef.current) return
-            setAssets((current) => mergeIntroAssets(current, fullAssets))
+            setAssets((current) => mergeIntroAssets(current, new Map([[assetId, image]])))
+          },
+        )
+          .then(() => {
+            if (generation !== assetLoadGenerationRef.current) return
             setVisualFailure(null)
           })
           .catch((error: unknown) => {
@@ -206,6 +214,12 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
   }, [loadIntroAssets])
 
   useEffect(() => {
+    if (assetLoadState.status !== 'ready' || started || autoStartRequestedRef.current) return
+    autoStartRequestedRef.current = true
+    startIntro()
+  }, [assetLoadState.status, startIntro, started])
+
+  useEffect(() => {
     if (!started || reducedMotion) return
     const player = new IntroSfxPlayer()
     sfxPlayerRef.current = player
@@ -314,80 +328,59 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
         onTimeUpdate={(event) => updatePlaybackTime(event.currentTarget.currentTime)}
       />
 
-      {!started ? (
-        <section className="briefing-hero" aria-labelledby="game-title">
-          <div className="briefing-visual" aria-hidden="true">
-            <img src={`${import.meta.env.BASE_URL}images/dc9-game-ready-first-officer.png`} alt="" />
-            <div className="briefing-visual__label">DC-9-32 first-officer station</div>
-          </div>
-
-          <div className="briefing-panel">
-            <p className="briefing-route">DC-9-32 · First-Officer onboarding</p>
-            <h1 id="game-title">{gameCopy.title}</h1>
-            <p className="lede">Take the right seat and complete the Final Flight Log.</p>
-
-            <button
-              type="button"
-              className="primary-button primary-button--large"
-              aria-describedby={assetLoadState.status === 'ready' ? undefined : 'intro-asset-status'}
-              disabled={assetLoadState.status !== 'ready'}
-              onClick={startIntro}
-            >
-              Start Game
-            </button>
-            {assetLoadState.status === 'loading' ? (
-              <p id="intro-asset-status" className="briefing-asset-status" role="status" aria-live="polite">
-                Preparing the TMB2 cinematic…
-              </p>
-            ) : null}
-            {assetLoadState.status === 'error' ? (
-              <div className="briefing-asset-error">
-                <p id="intro-asset-status" className="briefing-asset-status" role="status" aria-live="polite">
-                  Cinematic art failed: {assetLoadState.failure.assetId} ({assetLoadState.failure.assetPath}).
-                </p>
-                <button type="button" className="text-button" onClick={loadIntroAssets}>
-                  Retry cinematic assets
-                </button>
-              </div>
-            ) : null}
-          </div>
-        </section>
-      ) : (
-        <section
-          className={`game-intro${phase === 'handoff' ? ' game-intro--handoff' : ''}`}
-          aria-label="Game intro"
-          data-intro-cue={scene.id}
-          data-audio-failed={audioFailed ? 'true' : 'false'}
-          data-reduced-motion={reducedMotion ? 'true' : 'false'}
-          data-start-available={startAvailable ? 'true' : 'false'}
-          data-transition-state={phase}
-        >
-          <div className="game-intro__stage-shell">
-            <IntroCanvas
-              timeSeconds={timeSeconds}
-              assets={assets}
-              reducedMotion={reducedMotion}
-              handoffProgress={handoffProgress}
-            />
-          </div>
-          <p className="game-intro__summary sr-only">{scene.summary}</p>
-
-          {startAvailable && phase === 'playing' ? (
-            <button
-              type="button"
-              className="game-intro__press-start"
-              aria-label="Start game"
-              onClick={requestStart}
-            >
-              PRESS START
-            </button>
-          ) : null}
-
-          <div className="game-intro__controls">
-            <p className="game-intro__sound-status" role="status" aria-live="polite">
-              {audioFailed ? 'The intro is continuing without sound.' : muted ? 'Intro muted.' : 'Intro audio playing.'}
+      <section
+        className={`game-intro${phase === 'handoff' ? ' game-intro--handoff' : ''}`}
+        aria-label="Game intro"
+        aria-busy={assetLoadState.status === 'loading'}
+        data-intro-cue={scene.id}
+        data-audio-failed={audioFailed ? 'true' : 'false'}
+        data-reduced-motion={reducedMotion ? 'true' : 'false'}
+        data-start-available={startAvailable ? 'true' : 'false'}
+        data-transition-state={phase}
+      >
+        {assetLoadState.status === 'error' ? (
+          <div className="game-intro__asset-error">
+            <p id="intro-asset-status" role="alert">
+              Cinematic art failed: {assetLoadState.failure.assetId} ({assetLoadState.failure.assetPath}).
             </p>
-            {visualFailure ? <p className="game-intro__visual-status">{visualFailure}</p> : null}
+            <button type="button" className="game-intro__control" onClick={loadIntroAssets}>
+              Retry cinematic assets
+            </button>
+          </div>
+        ) : null}
+        <div className="game-intro__stage-shell">
+          <IntroCanvas
+            timeSeconds={timeSeconds}
+            assets={assets}
+            reducedMotion={reducedMotion}
+            handoffProgress={handoffProgress}
+          />
+        </div>
+        <p className="game-intro__summary sr-only">{scene.summary}</p>
+
+        {startAvailable && phase === 'playing' ? (
+          <button
+            type="button"
+            className="game-intro__press-start"
+            aria-label="Start game"
+            onClick={requestStart}
+          >
+            PRESS START
+          </button>
+        ) : null}
+
+        <div className="game-intro__controls">
+          <p className="game-intro__sound-status" role="status" aria-live="polite">
+            {!started
+              ? 'Preparing the TMB2 cinematic…'
+              : audioFailed
+                ? 'The intro is continuing without sound.'
+                : muted
+                  ? 'Intro muted.'
+                  : 'Intro audio playing.'}
+          </p>
+          {visualFailure ? <p className="game-intro__visual-status">{visualFailure}</p> : null}
+          {started ? (
             <div className="game-intro__audio-controls">
               {audioFailed ? (
                 <button type="button" className="game-intro__control" onClick={retrySound}>Retry sound</button>
@@ -408,9 +401,9 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
                 />
               </label>
             </div>
-          </div>
-        </section>
-      )}
+          ) : null}
+        </div>
+      </section>
     </>
   )
 }

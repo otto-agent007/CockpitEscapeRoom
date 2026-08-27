@@ -242,11 +242,22 @@ async function capturePlacementEvidence(page: Page, scene: 'airbus' | 'locker'):
 async function openGameIntro(page: Page) {
   await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
   await page.goto('/')
-  await page.getByRole('button', { name: 'Start Game' }).click()
   const intro = page.getByRole('region', { name: 'Game intro' })
   await expect(intro).toBeVisible()
+  await expect(intro).toHaveAttribute('aria-busy', 'false', { timeout: 60_000 })
   return intro
 }
+
+test('fresh games start the cinematic without a DC-9 station gate', async ({ page }) => {
+  await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
+  await page.goto('/')
+
+  const intro = page.getByRole('region', { name: 'Game intro' })
+  await expect(intro).toBeVisible({ timeout: 60_000 })
+  await expect(intro).toHaveAttribute('data-intro-cue', 'tmb2-ident')
+  await expect(page.getByRole('button', { name: 'Start Game' })).toHaveCount(0)
+  await expect(page.locator('.briefing-hero')).toHaveCount(0)
+})
 
 // The ident gag acts on stage rows 128-196 of the 320x224 stage (Pop T's feet
 // sit on row 196). The intro's audio controls float over the stage, so this
@@ -263,11 +274,8 @@ for (const [width, height, label] of [
     test.setTimeout(45_000)
     await page.setViewportSize({ width, height })
     await page.goto('/')
-    const startGame = page.getByRole('button', { name: 'Start Game' })
-    await expect(startGame).toBeEnabled({ timeout: 60_000 })
-    await startGame.click()
-
     const intro = page.getByRole('region', { name: 'Game intro' })
+    await expect(intro).toHaveAttribute('aria-busy', 'false', { timeout: 60_000 })
     await expect(intro).toHaveAttribute('data-intro-cue', 'tmb2-ident')
     // Park the clock on the salute, the last beat of the gag.
     await page.locator('audio').evaluate((media) => {
@@ -318,13 +326,13 @@ test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the 
   await page.goto('/')
   await dc9Request
 
-  await expect(page.locator('.lede')).toHaveText('Take the right seat and complete the Final Flight Log.')
-  await expect(page.locator('.briefing-checklist')).toHaveCount(0)
-  await expect(page.getByText(/locker reveal/i)).toHaveCount(0)
-  await expect(page.getByRole('heading', { name: "The Captain's Key" })).toBeVisible()
-
-  await page.getByRole('button', { name: 'Start Game' }).click()
   const intro = page.getByRole('region', { name: 'Game intro' })
+  await expect(intro).toBeVisible()
+  await expect(intro).toHaveAttribute('aria-busy', 'false', { timeout: 60_000 })
+  await expect(page.locator('.briefing-hero')).toHaveCount(0)
+  await expect(page.getByText(/locker reveal/i)).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: "The Captain's Key" })).toHaveCount(0)
+
   await expect(intro).toHaveAttribute('data-intro-cue', 'tmb2-ident')
   await expect(intro.locator('h1')).toHaveCount(0)
   await expect.poll(() => requestedPaths).toEqual(expect.arrayContaining([
@@ -469,6 +477,82 @@ test('TMB2 cinematic follows exact boundaries and holds its title without enteri
   await expect(page.locator('.dc9-entry-transition')).toHaveCount(0)
 })
 
+test('TMB2 cinematic keeps the golden plaque available for an early Start while full art is pending', async ({ page }) => {
+  let releaseGlow!: () => void
+  const glowBlocked = new Promise<void>((resolve) => { releaseGlow = resolve })
+  let markGlowRequested!: () => void
+  const glowRequested = new Promise<void>((resolve) => { markGlowRequested = resolve })
+  await page.route('**/images/intro/tmb2/scramble/plates/right-seat-glow.png', async (route) => {
+    markGlowRequested()
+    await glowBlocked
+    await route.abort()
+  })
+
+  const intro = await openGameIntro(page)
+  await glowRequested
+  const audio = page.locator('audio')
+  await audio.evaluate((media) => {
+    media.pause()
+    media.currentTime = 6
+    media.dispatchEvent(new Event('timeupdate'))
+  })
+  await intro.getByRole('button', { name: 'Start game' }).click()
+  await expect(intro).toHaveAttribute('data-transition-state', 'handoff')
+
+  const goldenMarkPixels = await intro.locator('.game-intro__stage').evaluate((element) => {
+    const context = (element as HTMLCanvasElement).getContext('2d')
+    if (!context) return 0
+    const pixels = context.getImageData(36, 17, 248, 54).data
+    let gold = 0
+    for (let index = 0; index < pixels.length; index += 4) {
+      const red = pixels[index]!
+      const green = pixels[index + 1]!
+      const blue = pixels[index + 2]!
+      if (red > 150 && green > 80 && blue < 180 && red > green + 20) gold += 1
+    }
+    return gold
+  })
+  expect(goldenMarkPixels, 'the early handoff must include the plaque, not title text alone')
+    .toBeGreaterThan(1_000)
+
+  releaseGlow()
+})
+
+test('TMB2 cinematic streams later story cards while one full-tier image is pending', async ({ page }) => {
+  let releaseGlow!: () => void
+  const glowBlocked = new Promise<void>((resolve) => { releaseGlow = resolve })
+  let markGlowRequested!: () => void
+  const glowRequested = new Promise<void>((resolve) => { markGlowRequested = resolve })
+  await page.route('**/images/intro/tmb2/scramble/plates/right-seat-glow.png', async (route) => {
+    markGlowRequested()
+    await glowBlocked
+    await route.abort()
+  })
+
+  try {
+    const intro = await openGameIntro(page)
+    await glowRequested
+    await page.locator('audio').evaluate((media) => {
+      media.pause()
+      media.currentTime = 10.9
+      media.dispatchEvent(new Event('timeupdate'))
+    })
+
+    await expect.poll(() => intro.locator('.game-intro__stage').evaluate((element) => {
+      const context = (element as HTMLCanvasElement).getContext('2d')
+      if (!context) return 0
+      const pixels = context.getImageData(0, 0, 320, 224).data
+      let illustrated = 0
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (pixels[index] !== 2 || pixels[index + 1] !== 3 || pixels[index + 2] !== 10) illustrated += 1
+      }
+      return illustrated
+    })).toBeGreaterThan(15_000)
+  } finally {
+    releaseGlow()
+  }
+})
+
 test('TMB2 cinematic lands the aircraft reveal and holds the lettered title finale', async ({ page }) => {
   // Replaces the retired laser-grid/emblem assertions: the emblem finale was
   // cut as meaningless (it appeared nowhere else in the game) and the takeoff
@@ -513,40 +597,44 @@ test('TMB2 cinematic lands the aircraft reveal and holds the lettered title fina
   })
   await expect(intro).toHaveAttribute('data-intro-cue', 'title')
   await expect.poll(() => litPixels(36, 23, 248, 166)).toBeGreaterThan(15_000)
-  // The lettering is near-white on a dark navy plate, so BRIGHT pixels are the
-  // discriminator; counting non-background cannot work here because the seat
-  // plate fills the frame at both times.
-  const brightPixels = async () =>
+  // The premium title mark is champagne-gold on a dark navy inset. Count its
+  // warm high-luminance pixels rather than the retired neutral-white letters;
+  // the comparison against the pre-title seat frame proves the mark arrived.
+  const goldenPixels = async () =>
     intro.locator('.game-intro__stage').evaluate((element) => {
       const context = (element as HTMLCanvasElement).getContext('2d')
       if (!context) return 0
       const pixels = context.getImageData(80, 36, 160, 18).data
-      let bright = 0
+      let gold = 0
       for (let index = 0; index < pixels.length; index += 4) {
-        if (pixels[index]! > 200 && pixels[index + 1]! > 200 && pixels[index + 2]! > 200) bright += 1
+        const red = pixels[index]!
+        const green = pixels[index + 1]!
+        const blue = pixels[index + 2]!
+        if (red > 180 && green > 110 && blue < 190 && red > green + 20) gold += 1
       }
-      return bright
+      return gold
     })
-  const titled = await brightPixels()
-  expect(titled, 'the title band must carry lettering').toBeGreaterThan(80)
+  const titled = await goldenPixels()
+  expect(titled, 'the title band must carry the golden plaque mark').toBeGreaterThan(80)
 
   await audio.evaluate((media) => {
     media.currentTime = 48.5
     media.dispatchEvent(new Event('timeupdate'))
   })
-  expect(await brightPixels(), 'the seat holds before the title arrives').toBeLessThan(titled / 2)
+  expect(await goldenPixels(), 'the seat holds before the golden title arrives').toBeLessThan(titled / 2)
 })
 
 test('TMB2 cinematic blocks playback with an exact retry when opening art fails', async ({ page }) => {
   await page.route('**/images/intro/tmb2/logo/tmb2-ident-base.png', (route) => route.abort())
   await page.goto('/')
-  await expect(page.getByRole('button', { name: 'Start Game' })).toBeDisabled()
-  await expect(page.getByRole('status')).toContainText(
+  const intro = page.getByRole('region', { name: 'Game intro' })
+  await expect(intro).toHaveAttribute('aria-busy', 'false')
+  await expect(page.getByRole('alert')).toContainText(
     'logo-base (images/intro/tmb2/logo/tmb2-ident-base.png)',
   )
   await page.unroute('**/images/intro/tmb2/logo/tmb2-ident-base.png')
   await page.getByRole('button', { name: 'Retry cinematic assets' }).click()
-  await expect(page.getByRole('button', { name: 'Start Game' })).toBeEnabled()
+  await expect(intro).toHaveAttribute('aria-busy', 'false', { timeout: 60_000 })
 })
 
 test('captures TMB2 Productions owner-review proof', async ({ page }) => {
@@ -554,11 +642,8 @@ test('captures TMB2 Productions owner-review proof', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
   await page.goto('/')
-  const startButton = page.getByRole('button', { name: 'Start Game' })
-  await expect(startButton).toBeEnabled({ timeout: 15_000 })
-  await startButton.click()
   const intro = page.getByRole('region', { name: 'Game intro' })
-  await expect(intro).toBeVisible()
+  await expect(intro).toHaveAttribute('aria-busy', 'false', { timeout: 60_000 })
   const audio = page.locator('audio')
   await audio.evaluate((media) => {
     media.pause()
@@ -624,6 +709,10 @@ test('TMB2 cinematic continues silently and retries rejected audio', async ({ pa
 
   const intro = await openGameIntro(page)
   await expect(intro.getByText('The intro is continuing without sound.')).toBeVisible()
+  const fallbackStart = Number(await intro.locator('.game-intro__stage').getAttribute('data-time'))
+  await expect.poll(async () => (
+    Number(await intro.locator('.game-intro__stage').getAttribute('data-time'))
+  )).toBeGreaterThan(fallbackStart + 0.1)
   await intro.getByRole('button', { name: 'Retry sound' }).click()
   await expect(intro.getByText('Intro audio playing.')).toBeVisible()
 })
@@ -1294,10 +1383,10 @@ test('complete reordered journey', async ({ page }) => {
   await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
   await page.goto('/?skip3d=1')
 
-  await expect(page.getByRole('heading', { name: "The Captain's Key" })).toBeVisible()
-  await expect(page.getByText('DC-9-32 first-officer station')).toBeVisible()
-  await page.getByRole('button', { name: 'Start Game' }).click()
   const intro = page.getByRole('region', { name: 'Game intro' })
+  await expect(intro).toBeVisible()
+  await expect(page.getByText('DC-9-32 first-officer station')).toHaveCount(0)
+  await expect(intro).toHaveAttribute('aria-busy', 'false', { timeout: 60_000 })
   await page.locator('audio').evaluate((media) => {
     media.currentTime = 6
     media.dispatchEvent(new Event('timeupdate'))

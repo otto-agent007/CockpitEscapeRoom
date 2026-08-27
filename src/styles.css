@@ -35,6 +35,30 @@
   background: #000;
 }
 
+.game-intro .game-intro__asset-error {
+  position: absolute;
+  z-index: 6;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: min(32rem, calc(100% - 2rem));
+  gap: 0.8rem;
+  justify-items: center;
+  padding: 1rem;
+  border: 1px solid #75c4ff;
+  background: rgba(0, 0, 14, 0.96);
+  box-shadow: 3px 3px 0 rgba(23, 97, 232, 0.55);
+  color: #f8fbff;
+  font-family: "Courier New", ui-monospace, monospace;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.game-intro .game-intro__asset-error p {
+  margin: 0;
+  color: inherit;
+}
+
 .game-intro .game-intro__stage {
   position: absolute;
   width: 320px;

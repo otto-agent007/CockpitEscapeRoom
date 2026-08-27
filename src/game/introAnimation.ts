@@ -46,13 +46,17 @@ function scrambleClip(
 }
 
 /**
- * Where the finale title sits on the stage. The plate keeps its upper band
- * dark precisely so this stays legible over it.
+ * Where the finale title and its generated, textless gold plaque sit on the
+ * stage. Runtime lettering keeps the game title exact and lets the whole mark
+ * share the Start handoff zoom.
  */
 export const TITLE_CARD = {
   text: gameCopy.title.toUpperCase(),
   x: 160,
   y: 44,
+  plaqueAssetId: 'title-plaque-gold',
+  plaqueWidth: 248,
+  plaqueHeight: 54,
 } as const
 
 /**
@@ -219,13 +223,16 @@ export type IntroFxKind = IntroFxFrame['kind']
 
 /**
  * The finale title, lettered by the runtime. The text comes from the game's
- * own config so the intro and the opening screen can never disagree, and so no
- * generated art has to carry text — which the asset pack forbids outright.
+ * own config so the cinematic and later game surfaces cannot disagree, and so
+ * no generated art has to carry text — which the asset pack forbids outright.
  */
 export type IntroTitleFrame = {
   text: string
   x: number
   y: number
+  plaqueAssetId: string
+  plaqueWidth: number
+  plaqueHeight: number
   opacity: number
 }
 
@@ -711,8 +718,8 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
       // landing on its cue with a punch. Two-frame cards snap to their second
       // frame a fraction after the cut so the action lands on the beat.
       const t = storyTime
-      // Owner order (2026-08-20): cap flip, wings, four stripes, watch,
-      // logbook, aviators. The hat is caught FIRST so every later card may
+      // Owner order (2026-08-26): cap flip, wings, four stripes, aviators,
+      // then the logbook, headset and watch later. The hat is caught FIRST so every later card may
       // wear it, and the four stripes take the track's largest hit.
       const cuts = [
         [
@@ -725,7 +732,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         ],
         [CUES.wingsPinned, 'card-wings'],
         [CUES.fourStripes, 'card-stripes'],
-        [CUES.watchCheck, 'card-watch'],
+        [CUES.shadesDown, 'card-shades'],
       ] as const
       const [cutTime, assetId] = activeCut(t, cuts)
       const accents = cardCutAccents(normalizedTime, cutTime)
@@ -745,9 +752,10 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
           }
         }
       }
-      if (assetId === 'card-watch' && t >= CUES.watchCheck + 0.15 && t < CUES.watchCheck + 0.55) {
-        const fade = 1 - (t - CUES.watchCheck - 0.15) / 0.4
-        fx.push({ kind: 'sparkle', x: 190, y: 122, size: 2, opacity: 0.9 * fade, tint: 'gold' })
+      if (assetId === 'card-shades' && t < CUES.shadesDown + 0.35) {
+        const fade = 1 - (t - CUES.shadesDown) / 0.35
+        fx.push({ kind: 'sparkle', x: 118, y: 96, size: 2, opacity: 0.9 * fade, tint: 'white' })
+        fx.push({ kind: 'sparkle', x: 206, y: 96, size: 2, opacity: 0.9 * fade, tint: 'white' })
       }
       if (assetId === 'card-cap-b' && t < CUES.capFlip + 0.9) {
         const fade = 1 - (t - CUES.capFlip - 0.5) / 0.4
@@ -772,8 +780,8 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
       }
     }
     case 'walk-out': {
-      // The suit-up on the way out: four beats noticed as he goes, with the
-      // shades going on as he steps into the light. The logbook beat is a
+      // The suit-up on the way out: three beats noticed as he goes, ending on
+      // a watch glance as he steps into the light. The logbook beat is a
       // two-state story (owner, 2026-08-20): his reading pile — the white
       // Isaacson biography and the road-worn Reacher paperbacks — swept aside
       // to reach the logbook underneath. The covers are drawn textless per the
@@ -791,7 +799,7 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
       const cuts = [
         [CUES.logbookSnap, logbookStage(t - CUES.logbookSnap)],
         [CUES.headsetUp, 'card-headset'],
-        [CUES.shadesDown, 'card-shades'],
+        [CUES.watchCheck, 'card-watch'],
       ] as const
       const [cutTime, assetId] = activeCut(t, cuts)
       const liftTime = CUES.logbookSnap + (LOGBOOK_STAGES[3]?.[0] ?? 2.4)
@@ -816,10 +824,9 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
         const settle = clamp01((t - (CUES.logbookSnap + 2.4)) / 0.2)
         for (const spot of LIFT_LABELS) labels.push({ ...spot, opacity: settle })
       }
-      if (assetId === 'card-shades' && t < CUES.shadesDown + 0.35) {
-        const fade = 1 - (t - CUES.shadesDown) / 0.35
-        fx.push({ kind: 'sparkle', x: 118, y: 96, size: 2, opacity: 0.9 * fade, tint: 'white' })
-        fx.push({ kind: 'sparkle', x: 206, y: 96, size: 2, opacity: 0.9 * fade, tint: 'white' })
+      if (assetId === 'card-watch' && t >= CUES.watchCheck + 0.15 && t < CUES.watchCheck + 0.55) {
+        const fade = 1 - (t - CUES.watchCheck - 0.15) / 0.4
+        fx.push({ kind: 'sparkle', x: 190, y: 122, size: 2, opacity: 0.9 * fade, tint: 'gold' })
       }
       return { ...base, backgroundAssetId: assetId, fx, labels, ...accents }
     }
@@ -944,14 +951,15 @@ export function deriveIntroAnimation(timeSeconds: number, reducedMotion: boolean
       }
     }
     case 'title': {
-      // The instrument glow resolves into the game's own title over the seat.
+      // The instrument glow resolves into the game's exact runtime title on a
+      // richer golden winged plaque over the waiting right seat.
       const t = storyTime
       const reveal = clamp01((t - CUES.titleCard) / 0.26)
       const shake = accentShake(normalizedTime, CUES.titleCard, 2, 0.3)
       const stampFlash = 0.6 * accentFlash(normalizedTime, CUES.titleCard, 0.22)
       return {
         ...base,
-        backgroundAssetId: 'plate-right-seat',
+        backgroundAssetId: 'plate-right-seat-glow',
         fx: [{
           kind: 'radial-rays',
           x: 160,
