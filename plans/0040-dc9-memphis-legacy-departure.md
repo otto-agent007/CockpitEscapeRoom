@@ -1572,7 +1572,7 @@ Stop when all acceptance checks pass, after five attempts on one unchanged failu
 - [ ] Task 3 — Schema 14 progression.
 - [ ] Task 4 — Runtime and brake.
 - [ ] Task 5 — Native accessible UI.
-- [ ] Task 6 — Source-only candidate and Source Review Gate.
+- [x] Task 6 — Source-only candidate and Source Review Gate.
 - [ ] Task 7 — Neutral assembly and Assembly Review Gate.
 - [ ] Task 8 — Materials, optimization, and production promotion.
 - [ ] Task 9 — Browser scene integration.
@@ -1590,7 +1590,13 @@ Planning evidence:
 - Source geometry inspection: 178 + 30 + 24 triangles; base/lit/normal textures are each 2048 × 1024
 - Source permission basis: owner-attested private noncommercial permission, 2026-08-27
 
-Implementation command output, screenshots, preview URL, review findings, and actual metrics are intentionally empty until those steps run.
+Task 6 execution evidence:
+
+- Source branch: `asset/dc9-memphis-source`, source-stage commit `112b8e6`.
+- RED/GREEN: `test_xplane_obj8_convert` first failed for a missing source inspector, then passed 9 tests; review-fix round 1 first failed for a missing `require_approved_paths`, then passed 10 tests.
+- Blender 5.1.2 generated the source-only candidate with the required factory/autoexec-disabled flags. The owner approved the exact candidate GLB and metadata hashes for neutral assembly only.
+- Final source checks passed: approved-path no-write preflight, Task 1 authority/job/manifest validation, clean GLB validation, source-approval hash consistency, and `sourcing_complete -> source-approved` transition validation.
+- Remaining limitation: source texture wiring and final visual fidelity are not approved. No Task 7 assembly artifacts, authored ground/path/anchors, or production model are present.
 
 ## Outcome and handoff
 

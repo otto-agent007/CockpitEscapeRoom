@@ -1,5 +1,28 @@
 # Test report
 
+## 2026-08-28 Task 6 Memphis source-boundary repair
+
+- Review finding reproduced by inspection: the source inspector accepted arbitrary source, cache-work,
+  tracked-output, and manifest CLI paths. RED: the expanded ordinary-Python source-inspector suite
+  failed with `ImportError: cannot import name 'require_approved_paths'`.
+- GREEN: `python3 -m unittest tools.blender.cockpit_pipeline.tests.test_xplane_obj8_convert`
+  passed **10 tests**. `require_approved_paths()` resolves all arguments against the repository root,
+  follows symlinks before comparison, accepts only the exact Task 6 cache/output/manifest paths, and
+  rejects changed source, work, output, manifest, and resolved-escape paths before Blender is imported
+  or files are written.
+- No-write approved-path preflight passed for the four exact command paths. This repair deliberately
+  did not regenerate or alter the owner-approved candidate artifacts.
+- Source proof remains immutable: archive SHA-256
+  `fc403141223be066094814d9ea06d820f75477fea419870b04ffd65153434b95`;
+  selected Concourse B meshes measure **178 / 30 / 24** triangles; candidate GLB SHA-256
+  `6cc30543653173d64b2997468009677e72e8923a184aaf886d01b1a842249177`; metadata SHA-256
+  `70740b2137ac30e06611e39d4f119ada0b889d853e80d4f5d408767a7b200c32`.
+- `validate-gate reference-authority`, `validate-job`, and `validate-manifest` passed;
+  `gltf-transform validate` reported no errors, warnings, infos, or hints. The pipeline transition
+  `sourcing_complete -> source-approved` and exact approval-to-manifest/file hash consistency check passed.
+- Owner approval is limited to source geometry/orientation for neutral assembly. Source textures and
+  final fidelity remain unapproved; this repair creates no assembly, ramp, path, anchors, or materials.
+
 ## 2026-08-27 Automatic console-style opening
 
 - Owner direction removed the pre-intro DC-9 first-officer station and its outer **Start Game**

@@ -31,6 +31,10 @@ SELECTED_HASHES = {
     "KMEMterminal_NML.png": "9e1f272c64807981bee997aa08e7a3273ab5c4242f4ff58fb92cc20b1f8bf7e8",
 }
 EXPECTED_TRIANGLES = {"ConcourseB.obj": 178, "ConcourseB_2.obj": 30, "ConcourseB_2e.obj": 24}
+APPROVED_SOURCE_DIR = REPO_ROOT / ".cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/Memphis_Nashville/KMEM"
+APPROVED_WORKING_DIR = REPO_ROOT / ".cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/optimized"
+APPROVED_OUTPUT_DIR = REPO_ROOT / "art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source"
+APPROVED_MANIFEST_PATH = REPO_ROOT / "art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-source/manifests/sourcing-complete.json"
 
 
 def selected_source_names() -> tuple[str, str, str]:
@@ -62,6 +66,27 @@ def parse_args(arguments: list[str]) -> argparse.Namespace:
 
 def cli_arguments() -> list[str]:
     return sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
+
+
+def resolve_repo_path(path: Path) -> Path:
+    """Resolve a user path against the repository, following symlinks before comparison."""
+    candidate = path if path.is_absolute() else REPO_ROOT / path
+    return candidate.resolve()
+
+
+def require_approved_paths(
+    source_dir: Path, working_dir: Path, output_dir: Path, manifest_path: Path,
+) -> tuple[Path, Path, Path, Path]:
+    """Fail closed unless every Task 6 CLI target is the approved repository path."""
+    actual = tuple(resolve_repo_path(path) for path in (source_dir, working_dir, output_dir, manifest_path))
+    expected = tuple(path.resolve() for path in (
+        APPROVED_SOURCE_DIR, APPROVED_WORKING_DIR, APPROVED_OUTPUT_DIR, APPROVED_MANIFEST_PATH,
+    ))
+    labels = ("source directory", "working directory", "output directory", "manifest path")
+    for label, received, allowed in zip(labels, actual, expected, strict=True):
+        if received != allowed:
+            raise ValueError(f"{label} must resolve to the approved Task 6 path: {allowed}")
+    return actual  # type: ignore[return-value]
 
 
 def checked_source_records(source_dir: Path) -> list[dict[str, object]]:
@@ -359,10 +384,9 @@ def write_manifest(manifest_path: Path, source_inputs: list[dict[str, object]], 
 
 def main() -> int:
     args = parse_args(cli_arguments())
-    source_dir = args.source_dir.resolve()
-    working_dir = args.working_dir.resolve()
-    output_dir = args.output_dir.resolve()
-    manifest_path = args.manifest.resolve()
+    source_dir, working_dir, output_dir, manifest_path = require_approved_paths(
+        args.source_dir, args.working_dir, args.output_dir, args.manifest,
+    )
     source_inputs = verify_task1_authority(source_dir)
     output_paths = run_blender_generation(source_dir, working_dir, output_dir)
     write_manifest(manifest_path, source_inputs, output_paths)
