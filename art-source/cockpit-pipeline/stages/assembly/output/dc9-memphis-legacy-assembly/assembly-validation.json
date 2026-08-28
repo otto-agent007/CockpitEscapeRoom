@@ -1,0 +1,30 @@
+{
+  "approved": false,
+  "approvedSourceObjects": [
+    "ConcourseB.obj",
+    "ConcourseB_2.obj",
+    "ConcourseB_2e.obj"
+  ],
+  "knownDeviation": "compressed 1995 memory composition, not exact KMEM geography",
+  "layoutValidation": "pass",
+  "noTexturesNormalOrEmissive": true,
+  "reimportValidation": "pass",
+  "sceneBoundaryValidation": {
+    "approvedSourceFiles": [
+      "ConcourseB.obj",
+      "ConcourseB_2.obj",
+      "ConcourseB_2e.obj"
+    ],
+    "finiteTransforms": true,
+    "noTextureNormalOrEmissiveNodes": true,
+    "uniqueGameIds": true,
+    "uniqueObjectNames": true
+  },
+  "sourceApprovalVerified": true,
+  "sourceObjectsAssembled": [
+    "ConcourseB.obj",
+    "ConcourseB_2.obj",
+    "ConcourseB_2e.obj"
+  ],
+  "status": "pass"
+}

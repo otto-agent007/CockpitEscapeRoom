@@ -970,13 +970,13 @@ git merge --no-ff asset/dc9-memphis-source
 - Consumes: Task 6 source approval and approved candidate GLB.
 - Produces: neutral scene layout, stable runtime anchors, a validated runtime-contract gate, and owner assembly approval before materials work.
 
-- [ ] **Step 0: Create the isolated assembly branch**
+- [x] **Step 0: Create the isolated assembly branch**
 
 Run: 'git switch -c asset/dc9-memphis-assembly'
 
 Expected: branch starts after the approved source branch merge. Do not modify Task 6 outputs in place.
 
-- [ ] **Step 1: Write layout tests RED**
+- [x] **Step 1: Write layout tests RED**
 
 ~~~py
 from tools.blender.cockpit_pipeline.kmem_legacy_layout import (
@@ -1003,13 +1003,13 @@ def test_only_three_approved_source_objects_are_assembled():
     ]
 ~~~
 
-- [ ] **Step 2: Run layout tests RED**
+- [x] **Step 2: Run layout tests RED**
 
 Run: 'python3 -m unittest tools.blender.cockpit_pipeline.tests.test_kmem_legacy_layout'
 
 Expected: FAIL because the layout module does not exist.
 
-- [ ] **Step 3: Implement the exact neutral layout**
+- [x] **Step 3: Implement the exact neutral layout**
 
 Define root 'KMEM_LEGACY_ROOT', source group 'KMEM_CONCOURSE_B', project-owned 'KMEM_RAMP', 'KMEM_TAXI_SURFACE', and 'KMEM_RUNWAY_SURFACE', plus these game-space anchors:
 
@@ -1031,7 +1031,7 @@ CONCOURSE_SOURCE_TRANSFORMS = {
 
 These values are authored game space, not airport-chart data. The validator rejects duplicate names/game IDs, non-finite transforms, decreasing route distance, hold short beyond lineup, or Concourse B outside the ramp-start visibility limit.
 
-- [ ] **Step 4: Implement Agent 2 assembly**
+- [x] **Step 4: Implement Agent 2 assembly**
 
 'assemble_dc9_memphis_legacy.py' must refuse to run without a matching approved source manifest and 'source-approval.json'. It imports the approved candidate, applies recorded transforms, creates simple neutral ramp/taxi/runway/centerline geometry, authors the five empty anchors, sets extras, and emits:
 
@@ -1044,7 +1044,7 @@ These values are authored game space, not airport-chart data. The validator reje
 
 Do not add normal/emissive maps, wear, color grading, texture compression, destructive mesh joining, or browser files.
 
-- [ ] **Step 5: Validate Agent 2**
+- [x] **Step 5: Validate Agent 2**
 
 Run:
 
@@ -1055,13 +1055,13 @@ python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-sou
 npx gltf-transform validate art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/dc9-memphis-legacy-neutral.glb
 ~~~
 
-- [ ] **Step 6: Inspect and approve the Assembly Review Gate**
+- [x] **Step 6: Inspect and approve the Assembly Review Gate**
 
 Review 1440/768/375 neutral views. Concourse B must read from ramp start, the path must remain clear of geometry, hold-short must precede lineup, and anchors must reimport at their documented coordinates.
 
 If approved, write 'assembly-approval.json' with 'stage: "assembly-approved"', 'approved: true', 'approvedBy: "owner review 2026-08-27"', exact neutral artifact hashes, runtime-contract path, and the known deviation 'compressed 1995 memory composition, not exact KMEM geography'.
 
-- [ ] **Step 7: Commit Agent 2**
+- [x] **Step 7: Commit Agent 2**
 
 ~~~bash
 git add tools/blender/cockpit_pipeline/kmem_legacy_layout.py tools/blender/cockpit_pipeline/tests/test_kmem_legacy_layout.py tools/blender/assemble_dc9_memphis_legacy.py art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly art-source/cockpit-pipeline/gates/dc9-memphis-legacy-runtime-contract.json art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-assembly asset-reports/dc9-memphis-legacy-departure.md plans/0040-dc9-memphis-legacy-departure.md
@@ -1069,6 +1069,10 @@ git commit -m "feat(assets): assemble Memphis legacy environment"
 git switch agent/dc9-memphis-taxi-takeoff
 git merge --no-ff asset/dc9-memphis-assembly
 ~~~
+
+**Commit evidence — 2026-08-28:** Task 7 was committed on `asset/dc9-memphis-assembly` as `dca69a5888e5864637b42c87dd926e50fb932735` (`feat(assets): assemble Memphis legacy environment`). The stage branch remains unmerged; the listed switch/merge commands require controller integration and have not been performed.
+
+**Assembly evidence — 2026-08-28:** The owner approved the revised 36 mm neutral composition after the Tier 1 framing repair brought more Concourse B into the review frame. `assembly-approval.json` pins the current assembly manifest, neutral blend/GLB, runtime contract, resolved layout, node/pivot report, and three revised previews. Fresh layout, source/assembly-approval consistency, runtime-contract, manifest, GLB, exact-anchor reimport, and `assembly_complete -> assembly-approved` transition checks passed. The reproducible `.blend1` backup was removed; the approved `.blend` remains. Approval permits only materials work; textures/final fidelity, browser/runtime integration, public-model promotion, merge, push, and browser work remain outside this Task 7 handoff.
 
 ### Task 8: Shade, optimize, promote, and contract-check the environment
 
@@ -1573,7 +1577,7 @@ Stop when all acceptance checks pass, after five attempts on one unchanged failu
 - [ ] Task 4 — Runtime and brake.
 - [ ] Task 5 — Native accessible UI.
 - [x] Task 6 — Source-only candidate and Source Review Gate.
-- [ ] Task 7 — Neutral assembly and Assembly Review Gate.
+- [x] Task 7 — Neutral assembly and Assembly Review Gate approved for materials work.
 - [ ] Task 8 — Materials, optimization, and production promotion.
 - [ ] Task 9 — Browser scene integration.
 - [ ] Task 10 — Browser validation and repairs.

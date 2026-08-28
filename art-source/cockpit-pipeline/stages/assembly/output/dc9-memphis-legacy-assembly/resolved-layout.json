@@ -1,0 +1,90 @@
+{
+  "anchors": [
+    {
+      "game_id": "dc9.memphis.rampStart",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "name": "KMEM_RAMP_START",
+      "routeDistance": 0.0
+    },
+    {
+      "game_id": "dc9.memphis.taxiTurn",
+      "location": [
+        -55.0,
+        90.0,
+        0.0
+      ],
+      "name": "KMEM_TAXI_TURN",
+      "routeDistance": 105.475116
+    },
+    {
+      "game_id": "dc9.memphis.holdShort",
+      "location": [
+        -120.0,
+        210.0,
+        0.0
+      ],
+      "name": "KMEM_HOLD_SHORT",
+      "routeDistance": 241.948556
+    },
+    {
+      "game_id": "dc9.memphis.runwayLineup",
+      "location": [
+        -120.0,
+        245.0,
+        0.0
+      ],
+      "name": "KMEM_RUNWAY_LINEUP",
+      "routeDistance": 276.948556
+    },
+    {
+      "game_id": "dc9.memphis.initialClimb",
+      "location": [
+        -120.0,
+        700.0,
+        110.0
+      ],
+      "name": "KMEM_INITIAL_CLIMB",
+      "routeDistance": 745.05645
+    }
+  ],
+  "concourseSourceTransforms": {
+    "ConcourseB.obj": {
+      "location": [
+        90.0,
+        -80.0,
+        0.0
+      ],
+      "rotation_z_degrees": 0.0
+    },
+    "ConcourseB_2.obj": {
+      "location": [
+        90.0,
+        40.0,
+        0.0
+      ],
+      "rotation_z_degrees": 90.0
+    },
+    "ConcourseB_2e.obj": {
+      "location": [
+        90.0,
+        -180.0,
+        0.0
+      ],
+      "rotation_z_degrees": 90.0
+    }
+  },
+  "layoutSpace": "compressed authored game space; not airport-chart geography",
+  "projectOwnedGeometry": [
+    "KMEM_RAMP",
+    "KMEM_TAXI_SURFACE",
+    "KMEM_RUNWAY_SURFACE",
+    "KMEM_CENTERLINE_01..09"
+  ],
+  "root": "KMEM_LEGACY_ROOT",
+  "sourceGroup": "KMEM_CONCOURSE_B",
+  "validationErrors": []
+}
