@@ -1,0 +1,1591 @@
+# DC-9 Memphis Legacy Departure Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox ('- [ ]') syntax for tracking.
+
+**Goal:** Add a forgiving, cockpit-first DC-9 taxi and takeoff memory recreation from older Memphis International Airport Concourse B between the Legacy Route Record and Home Operations.
+
+**Architecture:** A pure deterministic module owns normalized departure rules, checkpoints, recovery, and hints. React owns durable chapter state and an rAF runtime hook, while React Three Fiber renders a lazy-loaded Memphis environment by applying the pure aircraft frame to an inverse world transform around the existing right-seat cockpit. A deterministic Blender intake converts only the owner-approved Ted Davis Concourse B objects and project-authored ramp/runway geometry into a separately validated GLB.
+
+**Tech Stack:** TypeScript, React 19, Vitest, React Three Fiber, Three.js, Playwright, Blender 5.1, Python 3, X-Plane OBJ8 parser, glTF Transform, Vite.
+
+**Spec:** 'docs/superpowers/specs/2026-08-27-dc9-memphis-legacy-departure-design.md'
+
+## Global Constraints
+
+- The present-day commemorative DC-9 remains safely parked; taxi and takeoff are an explicitly fictional 1995 memory recreation.
+- The entire sequence remains in the DC-9 first-officer/right-seat cockpit; no exterior camera is added.
+- No real speed, runway number, radio frequency, checklist, engine setting, configuration target, or operating procedure may appear.
+- The player starts after a ground-tow handoff; there is no engine start or pushback procedure.
+- Every required 3D or continuous interaction has a native HTML and keyboard equivalent.
+- Wrong input restores only the latest departure checkpoint and never erases route, control-check, or later puzzle progress.
+- The Ted Davis Memphis package is allowed only for this private, noncommercial game under owner-attested permission dated 2026-08-27; retain attribution.
+- Import only 'ConcourseB.obj', 'ConcourseB_2.obj', 'ConcourseB_2e.obj', 'KMEMterminal.png', 'KMEMterminal_LIT.png', and 'KMEMterminal_NML.png'.
+- Do not import AutoGate, OpenSceneryX, bundled aircraft, vehicles, clutter, or unrelated scenery content.
+- Preserve the untouched download and disposable conversions under '.cache/cockpit-pipeline'; never execute downloaded scripts or add-ons.
+- Keep any edited or converted source candidate under the source cache's 'extracted/optimized/' directory before publishing a validated stage handoff.
+- Use Blender 5.1 with factory startup and auto-execution disabled for source intake.
+- Run source, assembly, and shading sequentially on separate 'asset/dc9-memphis-*' branches; no downstream stage consumes an unapproved branch or artifact.
+- Keep the production DC-9-32 cockpit unchanged and lazy-load the Memphis environment only in the new stage.
+- Do not add a production dependency, weaken an existing test, hand-edit a GLB, or reveal Model Y content early.
+- Update this ExecPlan, the asset report, and 'TEST_REPORT.md' with commands actually run and evidence actually inspected.
+
+---
+
+## Purpose
+
+The Final Flight Log currently proves the right-seat flight controls and then returns to document and systems-check gameplay. This milestone turns those same controls into a short legacy flight: depart a recognizable older Concourse B ramp, make one meaningful taxi turn, stop safely, line up, accelerate, rotate on a qualitative cue, and hold a brief initial climb.
+
+The player-visible result is a two-to-three-minute celebratory memory that makes the Legacy Route Record feel like a destination rather than another modal. It remains a game, not a DC-9 or KMEM training aid.
+
+## Current state
+
+- 'src/game/state.ts' defines schema 13 and the DC-9 stages 'controlCheck → intro → routeRecord → homeOperations → instrumentScan → shutdown → qualification → keyReveal → complete'.
+- Correct 'SUBMIT_DC9_ROUTES' currently moves directly to 'homeOperations'.
+- 'src/game/dc9Input.ts' and 'src/game/useDc9FlightControls.ts' already drive normalized pitch, roll, thrust, and rudder through keyboard, gamepad, pointer drag, and native hold buttons.
+- 'src/components/dc9/ControlCheckPanel.tsx' contains the reusable visual language for axis meters and hold controls, but the axis UI is embedded in that component.
+- 'src/scenes/PrototypeScene.tsx' loads the 35 MiB 'dc9-cockpit.glb', reconstructs control pivots, anchors the camera to 'CAM_DC9_FIRST_OFFICER_GAME', and renders no exterior DC-9 environment.
+- 'tools/blender/cockpit_pipeline/xplane_obj8_convert.py' already parses X-Plane OBJ8 v800 geometry and converts X-right/Y-up/Z-south to Blender X-right/Y-forward/Z-up.
+- 'tools/assets/build-asset.mjs' validates Blender sources and promotes only successful raw GLBs to 'public/models'.
+- The selected archive is available from 'https://theosdavis.com/xpfiles/ewExternalFiles/Memphis_Nashville.zip' with SHA-256 'fc403141223be066094814d9ea06d820f75477fea419870b04ffd65153434b95'.
+
+## Scope
+
+Included:
+
+- one new durable 'memphisDeparture' DC-9 stage;
+- pure normalized taxi/takeoff rules with five recoverable checkpoints;
+- brake input and an explicit safe lineup confirmation;
+- qualitative HTML guidance and complete accessible controls;
+- schema 14 migration and corrupt-save normalization;
+- deterministic source intake, Blender master, separate environment GLB, stable anchors, asset contracts, and attribution;
+- right-seat environment motion, daylight lighting, reduced motion, load failure, pause, reload, and safe retry behavior;
+- unit, contract, asset, browser, responsive, and visual evidence.
+
+Excluded:
+
+- free-roaming KMEM, exact taxiway or runway recreation, ATC, traffic, weather, engine start, pushback, landing, exterior cameras, or a DC-9 exterior model;
+- changes to Home Operations content, instrument order, shutdown, ATP qualification, Captain's Key, locker, Airbus, reward, Flight Mode, or Mars;
+- OpenSceneryX, AutoGate, bundled airplanes, or third-party library objects.
+
+Gameplay and environment intake remain in one ExecPlan because neither track produces the approved player outcome alone. The asset track still uses separate sequential source, assembly, and shading branches and review gates.
+
+## Context and constraints
+
+The new environment is a later simulator scenery source used as an owner-approved geometry base. It is labeled '1995 MEMORY', not an exact historical reconstruction. The player must see Concourse B clearly at ramp release, but the guided route is intentionally compressed and project-authored.
+
+The environment must not become authoritative game state. The pure frame drives the renderer, HTML guidance, persistence events, and tests. Only checkpoint progress persists; reload always starts the latest checkpoint at rest.
+
+The existing cockpit GLB remains the DC-9-32 authority. The Memphis GLB is a separate scene group and contains only exterior environment geometry, ground surfaces, and named path anchors.
+
+## File structure
+
+New runtime files:
+
+- 'src/game/dc9MemphisDeparture.ts' — normalized rules, frame advancement, checkpoints, hints, mistakes, and durable-progress normalization.
+- 'src/game/dc9MemphisDeparture.test.ts' — pure simulation and normalization tests.
+- 'src/game/useDc9MemphisDeparture.ts' — rAF loop, brake input, visibility pause, checkpoint dispatch, and published HTML frame.
+- 'src/components/dc9/Dc9AxisControls.tsx' — shared axis meters and native hold controls extracted from Control Check.
+- 'src/components/dc9/MemphisDeparturePanel.tsx' — active beat, qualitative guidance, brake, lineup, restore, and accessibility UI.
+- 'src/scenes/Dc9MemphisEnvironment.tsx' — lazy GLB load, runtime contract validation, inverse-world motion, and load telemetry.
+- 'src/scenes/dc9MemphisVisuals.ts' — pure path sampling and Three.js-independent transform values.
+- 'src/scenes/dc9MemphisVisuals.test.ts' — anchor/path and transform tests.
+- 'e2e/dc9-memphis-departure.spec.ts' — full successful, recoverable, reload, accessible, and reduced-motion paths.
+
+New asset files:
+
+- 'tools/assets/dc9-memphis-source-contract.mjs' and '.test.mjs' — immutable archive/file hash, selected-file, exclusion, permission-basis, and attribution contract.
+- 'tools/assets/dc9-memphis-model-contract.mjs' and '.test.mjs' — GLB nodes, anchors, extras, material, and texture limits.
+- 'tools/blender/inspect_dc9_memphis_source.py' — Agent 1 source-only OBJ8 import, neutral candidate GLB, metadata, and previews.
+- 'tools/blender/cockpit_pipeline/kmem_legacy_layout.py' — pure names, path anchors, source transforms, and validation helpers.
+- 'tools/blender/cockpit_pipeline/tests/test_kmem_legacy_layout.py' — deterministic layout tests.
+- 'tools/blender/assemble_dc9_memphis_legacy.py' — Agent 2 neutral assembly, ground/path construction, stable anchors, runtime contract, and previews.
+- 'tools/blender/shade_dc9_memphis_legacy.py' — Agent 3 material wiring, packed textures, optimization report, final master, and previews.
+- 'art-source/cockpit-pipeline/gates/agent0-dc9-memphis-legacy-authority.json' — source-authority gate.
+- 'art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-source/job.json' — source job contract.
+- 'art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-source/source-approval.json' — owner source-review decision.
+- 'art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-assembly/assembly-approval.json' — owner neutral-assembly decision.
+- 'art-source/cockpit-pipeline/gates/dc9-memphis-legacy-runtime-contract.json' — machine-readable Agent 2 handoff.
+- 'art-source/cockpit-pipeline/gates/dc9-memphis-legacy-material-optimization.json' — machine-readable Agent 3 handoff.
+- 'art-source/cockpit-pipeline/gates/dc9-memphis-legacy-browser-integration.json' — machine-readable browser handoff and viewport proof.
+- 'art-source/blender/dc9-memphis-legacy-departure.blend' — approved packed master.
+- 'public/models/dc9-memphis-legacy-departure.glb' — deployable environment.
+- 'asset-reports/dc9-memphis-source-intake.json' — source, hashes, exclusions, owner-attested permission, and credit.
+- 'asset-reports/dc9-memphis-legacy-departure.md' — Blender, geometry, texture, optimization, and visual evidence.
+
+Modified files:
+
+- 'src/game/config.ts', 'state.ts', 'state.test.ts', 'storage.ts', and 'storage.test.ts'.
+- 'src/game/dc9Input.ts', 'dc9Input.test.ts', and 'useDc9FlightControls.ts'.
+- 'src/components/dc9/ControlCheckPanel.tsx', 'Dc9Chapter.tsx', and 'dc9Chapter.css'.
+- 'src/App.tsx', 'src/scenes/PrototypeScene.tsx', and 'src/scenes/cockpitModelLoader.ts'.
+- 'tools/assets/build-asset.mjs', 'check-models.mjs', 'package.json', and 'public/models/README.md'.
+- DC-9-complete seed objects in the seven existing e2e files found by 'rg -l "dc9:\\s*\\{" e2e'.
+- 'docs/GAME_DESIGN.md', 'docs/VISUAL_REALISM.md', 'TEST_REPORT.md', and this ExecPlan.
+
+## Discoveries
+
+- 'ConcourseB.obj' is only 178 triangles and measures 113.010 × 226.325 × 10.969 Blender meters.
+- 'ConcourseB_2.obj' is 30 triangles and measures 214.772 × 30.409 × 8.000 meters.
+- 'ConcourseB_2e.obj' is 24 triangles and measures 216.586 × 28.782 × 8.000 meters.
+- All three source objects use 'KMEMterminal.png'; the source also declares a 2048 × 1024 lit map and 2048 × 1024 normal map.
+- The parser currently records 'TEXTURE_NORMAL' as unsupported, so the environment builder must wire the normal map explicitly without changing cockpit geometry parsing.
+- The archive contains AutoGate, OpenSceneryX fallback library objects, and bundled aircraft; none are needed for the selected Concourse B geometry and all remain excluded.
+- The current DC-9 thrust lever holds its position when input is released. Visibility loss therefore must pause and restore the departure frame rather than merely clear held keys.
+
+## Decision log
+
+- **2026-08-27 — Guided cockpit-first route.** Use a compressed spline and checkpoint corridor rather than free taxi. This produces meaningful control gameplay without building a full airport.
+- **2026-08-27 — Present-day aircraft remains parked.** The windshield sequence is an interactive 1995 memory recreation and returns to the parked Final Flight Log after initial climb.
+- **2026-08-27 — Separate environment GLB.** Do not rebuild or enlarge 'dc9-cockpit.glb'; lazy-load a KMEM-only model during 'memphisDeparture'.
+- **2026-08-27 — Owner-attested source permission.** Record the user's attestation that this private, noncommercial game has permission, preserve Ted Davis credit, and proceed without an external permission stop.
+- **2026-08-27 — Qualitative controls only.** Use normalized energy, alignment, and rotation bands; no operational values or procedures.
+- **2026-08-27 — Durable checkpoints, transient frame.** Persist only completed beats, checkpoint, attempts, hint level, and completion. Reloads restore a canonical stopped frame.
+- **2026-08-27 — Sequential asset stages.** The new source and importer require Agent 1 source review, Agent 2 assembly review, and Agent 3 material review on separate branches before browser integration.
+
+## Milestones
+
+1. **Source authority is reproducible.** The selected archive and six files match immutable hashes, excluded content is absent, permission basis and credit are recorded, and the reference-authority gate validates.
+2. **Rules are deterministic.** Pure tests prove taxi, hold short, lineup, takeoff, rotation, climb, mistakes, and checkpoint restoration without React or Three.js.
+3. **Progress is durable.** Schema 14 inserts the new stage without moving old saves backward.
+4. **Accessible gameplay works without 3D.** A keyboard or native-control player can complete every beat using qualitative text.
+5. **Concourse B is production-ready.** The approved Blender master and GLB preserve selected source geometry, packed textures, path anchors, extras, and validation evidence.
+6. **Cockpit-first browser play works.** The existing right-seat cockpit stays visible while Concourse B, taxi path, runway, and initial climb move around it.
+7. **Approval evidence is complete.** Responsive screenshots, private preview, full checks, asset report, ExecPlan, and 'TEST_REPORT.md' support the DC-9 visual gate.
+
+## Implementation tasks
+
+### Task 1: Lock source authority, permission basis, and immutable intake
+
+**Files:**
+
+- Modify: 'docs/superpowers/specs/2026-08-27-dc9-memphis-legacy-departure-design.md'
+- Create: 'art-source/cockpit-pipeline/gates/agent0-dc9-memphis-legacy-authority.json'
+- Create: 'art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-source/job.json'
+- Create: 'tools/assets/dc9-memphis-source-contract.mjs'
+- Create: 'tools/assets/dc9-memphis-source-contract.test.mjs'
+- Create: 'asset-reports/dc9-memphis-source-intake.json'
+- Modify: 'package.json'
+
+**Interfaces:**
+
+- Consumes: owner approval and permission attestation dated 2026-08-27; the direct source URL and archive hash from the spec.
+- Produces: 'validateDc9MemphisSourceRecord(record): string[]', 'writeDc9MemphisSourceRecord(sourceDir, outputPath)', and an approved reference-authority gate for local source intake.
+
+- [ ] **Step 1: Write the source-contract tests**
+
+~~~js
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import {
+  DC9_MEMPHIS_ALTERNATIVES,
+  DC9_MEMPHIS_ARCHIVE_SHA256,
+  DC9_MEMPHIS_SELECTED_FILES,
+  validateDc9MemphisSourceRecord,
+} from './dc9-memphis-source-contract.mjs'
+
+test('accepts only the owner-approved archive, files, permission basis, and credit', () => {
+  const record = {
+    archiveSha256: DC9_MEMPHIS_ARCHIVE_SHA256,
+    permissionBasis: 'owner-attested-private-noncommercial-2026-08-27',
+    credit: 'Memphis scenery derived from the Memphis/Nashville Scenery Package by Ted Davis.',
+    selectedFiles: DC9_MEMPHIS_SELECTED_FILES.map((entry) => ({ ...entry })),
+    excludedFamilies: ['AutoGate/', 'opensceneryx/', 'Planes/'],
+    alternatives: DC9_MEMPHIS_ALTERNATIVES.map((entry) => ({ ...entry })),
+  }
+  assert.deepEqual(validateDc9MemphisSourceRecord(record), [])
+})
+
+test('rejects an added library object or changed source hash', () => {
+  const errors = validateDc9MemphisSourceRecord({
+    archiveSha256: 'changed',
+    permissionBasis: 'owner-attested-private-noncommercial-2026-08-27',
+    credit: 'Memphis scenery derived from the Memphis/Nashville Scenery Package by Ted Davis.',
+    selectedFiles: [
+      ...DC9_MEMPHIS_SELECTED_FILES,
+      { path: 'AutoGate/Jetways-Steel/AutoGate-14m-steel.obj', sha256: 'changed' },
+    ],
+    excludedFamilies: ['AutoGate/', 'opensceneryx/', 'Planes/'],
+    alternatives: DC9_MEMPHIS_ALTERNATIVES.map((entry) => ({ ...entry })),
+  })
+  assert.ok(errors.some((error) => error.includes('archive SHA-256')))
+  assert.ok(errors.some((error) => error.includes('selected file set')))
+})
+~~~
+
+- [ ] **Step 2: Run the tests and verify RED**
+
+Run: 'node --test tools/assets/dc9-memphis-source-contract.test.mjs'
+
+Expected: FAIL with module-not-found for 'dc9-memphis-source-contract.mjs'.
+
+- [ ] **Step 3: Implement exact immutable source constants and validation**
+
+~~~js
+export const DC9_MEMPHIS_ARCHIVE_SHA256 =
+  'fc403141223be066094814d9ea06d820f75477fea419870b04ffd65153434b95'
+
+export const DC9_MEMPHIS_SELECTED_FILES = [
+  { path: 'KMEM/ConcourseB.obj', sha256: 'e88ab8411a033d5996c53053b14a894ff9824380a76891b27659549a7e9e6424' },
+  { path: 'KMEM/ConcourseB_2.obj', sha256: 'e4bb0f830c515d9c5a42cfe60bce5eb4dc3fb6ba5fdce6ca9c66d16ef49f7000' },
+  { path: 'KMEM/ConcourseB_2e.obj', sha256: '2bf6f39b0e5e1f6a2e24fefb9469fc1c598884ddcfefc9f20b825cac375a109d' },
+  { path: 'KMEM/KMEMterminal.png', sha256: '416c081c5e9f9ca40b183477da54f7ec8c5baa62ae0b9c0bdd961329ac394505' },
+  { path: 'KMEM/KMEMterminal_LIT.png', sha256: '6a561147ceae328b311fba38de849d3102a4d2eb1238c3ddbbfb2315b7cf91e5' },
+  { path: 'KMEM/KMEMterminal_NML.png', sha256: '9e1f272c64807981bee997aa08e7a3273ab5c4242f4ff58fb92cc20b1f8bf7e8' },
+]
+
+export const DC9_MEMPHIS_PERMISSION_BASIS =
+  'owner-attested-private-noncommercial-2026-08-27'
+
+export const DC9_MEMPHIS_ALTERNATIVES = [
+  {
+    url: 'https://forums.x-plane.org/files/file/12796-kmem-memphis-international-airport/',
+    decision: 'rejected',
+    reason: 'Requires OpenSceneryX and does not provide a clearer portable Concourse B authority.',
+  },
+  {
+    url: 'https://forums.x-plane.org/files/file/25605-kmem-fdx-memphis-fedex-hub/',
+    decision: 'rejected',
+    reason: 'FedEx-hub focus and mixed third-party objects do not match the older passenger Concourse B target.',
+  },
+]
+~~~
+
+The CLI must hash the archive and selected extracted files, reject missing or additional selected files, record dimensions for the three textures, require both rejected alternatives with reasons, record the exact exclusion families, and write stable JSON with no build timestamp.
+
+- [ ] **Step 4: Preserve and extract the untouched source**
+
+Run:
+
+~~~bash
+mkdir -p .cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted
+curl --fail --location --output .cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/Memphis_Nashville.zip https://theosdavis.com/xpfiles/ewExternalFiles/Memphis_Nashville.zip
+unzip -q .cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/Memphis_Nashville.zip -d .cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted
+~~~
+
+Expected: archive SHA-256 equals the immutable constant. Do not execute anything from the archive.
+
+- [ ] **Step 5: Add and validate the structured authority/job files**
+
+The reference-authority JSON must set:
+
+~~~json
+{
+  "gate": "reference-authority",
+  "artifactId": "agent0-dc9-memphis-legacy-authority",
+  "createdAt": "2026-08-27T00:00:00Z",
+  "sceneGroup": "DC-9 First-Officer Memphis legacy departure environment",
+  "targetAircraftOrObject": "Older Memphis International Airport Concourse B memory environment",
+  "targetVariantStatus": "1995 memory recreation, not an exact architectural reconstruction",
+  "sourceCandidateType": "simulator-geometry",
+  "sourceIdentity": "Ted Davis Memphis/Nashville X-Plane 11.3 package, Concourse B objects only",
+  "allowedUsage": [
+    "private noncommercial CockpitEscapeRoom geometry base",
+    "Blender cleanup, optimization, and derived runtime GLB",
+    "private browser preview with attribution"
+  ],
+  "forbiddenUsage": [
+    "operational airport training",
+    "claim of exact 1995 reconstruction",
+    "AutoGate, OpenSceneryX, bundled aircraft, vehicles, or unrelated scenery import"
+  ],
+  "variantCompatibility": "Environment-only source; it may not override DC-9-32 cockpit authority.",
+  "ownerApprovalStatus": "approved-for-next-stage",
+  "nextAllowedStage": "agent1-sourcing"
+}
+~~~
+
+The source job JSON must be:
+
+~~~json
+{
+  "jobId": "dc9-memphis-legacy-source",
+  "title": "DC-9 Memphis legacy departure environment sourcing",
+  "stage": "requested",
+  "aircraft": "dc9",
+  "sourceVariant": "Ted Davis KMEM X-Plane scenery revision 2019-01-22",
+  "targetVariant": "1995 Memphis memory recreation",
+  "variantScope": "common",
+  "sourceRepository": {
+    "url": "https://theosdavis.com/xpfiles/ewExternalFiles/Memphis_Nashville.zip",
+    "resolvedRevision": "sha256-fc403141223be066094814d9ea06d820f75477fea419870b04ffd65153434b95"
+  },
+  "requestedComponents": [
+    {
+      "componentId": "kmem-concourse-b-main-001",
+      "label": "Concourse B main terminal geometry",
+      "quantity": 1,
+      "acceptanceNotes": "Import ConcourseB.obj with its selected KMEM terminal texture set; environment geometry only."
+    },
+    {
+      "componentId": "kmem-concourse-b-extension-001",
+      "label": "Concourse B extension geometry",
+      "quantity": 1,
+      "acceptanceNotes": "Import ConcourseB_2.obj; exclude every AutoGate, aircraft, vehicle, and unrelated object."
+    },
+    {
+      "componentId": "kmem-concourse-b-extension-east-001",
+      "label": "Concourse B east extension geometry",
+      "quantity": 1,
+      "acceptanceNotes": "Import ConcourseB_2e.obj; retain owner-attested private noncommercial attribution."
+    }
+  ],
+  "stageDirectories": {
+    "sourceInput": "art-source/cockpit-pipeline/stages/source/input",
+    "sourceOutput": "art-source/cockpit-pipeline/stages/source/output",
+    "assemblyInput": "art-source/cockpit-pipeline/stages/assembly/input",
+    "assemblyOutput": "art-source/cockpit-pipeline/stages/assembly/output",
+    "shadingInput": "art-source/cockpit-pipeline/stages/shading/input",
+    "shadingOutput": "art-source/cockpit-pipeline/stages/shading/output"
+  },
+  "cachePolicy": {
+    "environmentVariable": "COCKPIT_PIPELINE_CACHE",
+    "defaultRelativePath": ".cache/cockpit-pipeline",
+    "gitPolicy": "outside-git"
+  }
+}
+~~~
+
+Add this package script:
+
+~~~json
+"asset:dc9-memphis:intake": "node tools/assets/dc9-memphis-source-contract.mjs --source-dir .cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville --output asset-reports/dc9-memphis-source-intake.json"
+~~~
+
+Run:
+
+~~~bash
+python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate reference-authority art-source/cockpit-pipeline/gates/agent0-dc9-memphis-legacy-authority.json
+python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-job art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-source/job.json
+node --test tools/assets/dc9-memphis-source-contract.test.mjs
+npm run asset:dc9-memphis:intake
+~~~
+
+Expected: all commands exit 0; the report lists exactly six selected files and three exclusion families.
+
+- [ ] **Step 6: Commit the source authority checkpoint**
+
+~~~bash
+git add docs/superpowers/specs/2026-08-27-dc9-memphis-legacy-departure-design.md art-source/cockpit-pipeline/gates/agent0-dc9-memphis-legacy-authority.json art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-source/job.json tools/assets/dc9-memphis-source-contract.mjs tools/assets/dc9-memphis-source-contract.test.mjs asset-reports/dc9-memphis-source-intake.json package.json
+git commit -m "chore(assets): lock Memphis Concourse B source"
+~~~
+
+### Task 2: Build the pure departure simulation
+
+**Files:**
+
+- Create: 'src/game/dc9MemphisDeparture.ts'
+- Create: 'src/game/dc9MemphisDeparture.test.ts'
+
+**Interfaces:**
+
+- Consumes: normalized 'Dc9ControlState' from 'dc9Input.ts', plus brake and lineup confirmation.
+- Produces: 'Dc9DepartureProgress', 'Dc9DepartureFrame', 'Dc9DepartureInput', 'Dc9DepartureEvent', 'createInitialDc9DepartureProgress', 'normalizeDc9DepartureProgress', 'canonicalDc9DepartureFrame', 'advanceDc9DepartureFrame', 'advanceDc9DepartureProgress', 'recordDc9DepartureMistake', and 'dc9DepartureGuidance'.
+
+- [ ] **Step 1: Write RED tests for checkpoint order and restoration**
+
+~~~ts
+import { describe, expect, it } from 'vitest'
+import {
+  advanceDc9DepartureFrame,
+  canonicalDc9DepartureFrame,
+  createInitialDc9DepartureProgress,
+  normalizeDc9DepartureProgress,
+} from './dc9MemphisDeparture'
+
+describe('DC-9 Memphis departure', () => {
+  it('starts stopped at the Concourse B ramp', () => {
+    expect(canonicalDc9DepartureFrame('rampStart')).toMatchObject({
+      beat: 'rampRelease',
+      pathProgress: 0,
+      energy: 0,
+      safeHold: true,
+    })
+  })
+
+  it('cannot cross hold short until stopped and explicitly confirmed', () => {
+    const frame = canonicalDc9DepartureFrame('holdShort')
+    const moving = advanceDc9DepartureFrame(frame, {
+      pitch: 0, roll: 0, rudder: 0, thrust: 0.4, brake: 0, lineupConfirmed: true,
+    }, 1 / 60)
+    expect(moving.frame.beat).toBe('holdShort')
+    expect(moving.event).toBeUndefined()
+  })
+
+  it('restores malformed progress to the earliest trustworthy checkpoint', () => {
+    expect(normalizeDc9DepartureProgress({
+      checkpoint: 'not-real',
+      completedBeats: ['takeoffRoll'],
+      attempts: { taxi: -3 },
+      hintLevel: 9,
+    })).toEqual(createInitialDc9DepartureProgress())
+  })
+})
+~~~
+
+- [ ] **Step 2: Run the focused test and verify RED**
+
+Run: 'npm test -- --run src/game/dc9MemphisDeparture.test.ts'
+
+Expected: FAIL because the module does not exist.
+
+- [ ] **Step 3: Implement the public types and canonical frames**
+
+~~~ts
+export type Dc9DepartureCheckpoint =
+  | 'rampStart'
+  | 'taxiTurn'
+  | 'holdShort'
+  | 'runwayLineup'
+  | 'initialClimb'
+  | 'complete'
+
+export type Dc9DepartureBeat =
+  | 'rampRelease'
+  | 'taxi'
+  | 'holdShort'
+  | 'lineup'
+  | 'takeoffRoll'
+  | 'rotation'
+  | 'initialClimb'
+  | 'complete'
+
+export interface Dc9DepartureInput {
+  pitch: number
+  roll: number
+  thrust: number
+  rudder: number
+  brake: number
+  lineupConfirmed: boolean
+}
+
+export interface Dc9DepartureProgress {
+  checkpoint: Dc9DepartureCheckpoint
+  completedBeats: Dc9DepartureBeat[]
+  attempts: Partial<Record<Dc9DepartureBeat, number>>
+  hintLevel: 0 | 1 | 2 | 3
+  completed: boolean
+}
+
+export interface Dc9DepartureFrame {
+  beat: Dc9DepartureBeat
+  pathProgress: number
+  lateralError: number
+  headingError: number
+  energy: number
+  altitudeProgress: number
+  pitch: number
+  roll: number
+  safeHold: boolean
+  deviationSeconds: number
+}
+
+export interface Dc9DepartureGuidance {
+  alignment: 'centered' | 'left' | 'right'
+  energy: 'stopped' | 'rolling' | 'departure-thrust'
+  intent: string
+  correctiveText: string
+}
+~~~
+
+Use frozen checkpoint-order and beat-order arrays. Clamp every normalized number, bound delta time to 0.1 seconds, ignore non-finite/negative deltas, and return a new frame rather than mutating the input.
+
+Use these fictional normalized tuning values as the initial test contract:
+
+~~~ts
+const RAMP_RELEASE_END = 0.12
+const HOLD_SHORT_START = 0.42
+const RUNWAY_LINEUP_START = 0.52
+const ROTATION_CUE_START = 0.78
+const INITIAL_CLIMB_START = 0.84
+const TAXI_ENERGY_LIMIT = 0.28
+const PATH_WARNING_ERROR = 0.32
+const PATH_RESTORE_ERROR = 0.55
+const PATH_RESTORE_SECONDS = 0.75
+const ROTATION_PITCH_MIN = 0.35
+const CLIMB_PITCH_ABS_MAX = 0.3
+const CLIMB_ROLL_ABS_MAX = 0.28
+~~~
+
+- [ ] **Step 4: Add RED tests for successful taxi, takeoff, and mistakes**
+
+Cover:
+
+- thrust plus centered rudder advances ramp release;
+- sustained rudder error emits one 'pathDeviation' mistake and stops at the current checkpoint;
+- brake plus closed thrust enters the hold-short safe state;
+- lineup confirmation is ignored until stopped;
+- early pitch cannot complete rotation;
+- the cue-window pitch band enters initial climb;
+- relaxed pitch and small roll complete initial climb;
+- a 10-second delta cannot skip a checkpoint;
+- attempt count raises hint level from 0 through 3 without deleting completed beats.
+
+- [ ] **Step 5: Implement the minimal deterministic transition table**
+
+Use one switch on 'frame.beat'. Each beat may emit at most one event:
+
+~~~ts
+export type Dc9DepartureEvent =
+  | { type: 'checkpoint'; checkpoint: Dc9DepartureCheckpoint }
+  | { type: 'mistake'; beat: Dc9DepartureBeat; reason: 'pathDeviation' | 'unsafeHold' | 'earlyRotation' | 'unstableClimb' }
+  | { type: 'complete' }
+
+export interface Dc9DepartureStep {
+  frame: Dc9DepartureFrame
+  event?: Dc9DepartureEvent
+}
+~~~
+
+Use qualitative normalized thresholds held only in this module. Do not name constants after knots, runway numbers, engine pressure, flap settings, or real procedures.
+
+- [ ] **Step 6: Run pure tests GREEN**
+
+Run:
+
+~~~bash
+npm test -- --run src/game/dc9MemphisDeparture.test.ts
+npm run typecheck
+~~~
+
+Expected: focused Vitest passes and TypeScript exits 0.
+
+- [ ] **Step 7: Commit the pure rules**
+
+~~~bash
+git add src/game/dc9MemphisDeparture.ts src/game/dc9MemphisDeparture.test.ts
+git commit -m "feat(dc9): add deterministic Memphis departure rules"
+~~~
+
+### Task 3: Insert the stage and migrate schema 13 to 14
+
+**Files:**
+
+- Modify: 'src/game/config.ts'
+- Modify: 'src/game/state.ts'
+- Modify: 'src/game/state.test.ts'
+- Modify: 'src/game/storage.ts'
+- Modify: 'src/game/storage.test.ts'
+- Modify: the seven existing e2e files containing typed 'dc9' seed objects
+
+**Interfaces:**
+
+- Consumes: pure progress helpers from Task 2.
+- Produces: schema 14, 'dc9.departure', stage 'memphisDeparture', and reducer actions 'SAVE_DC9_DEPARTURE_CHECKPOINT', 'RECORD_DC9_DEPARTURE_MISTAKE', 'RESTORE_DC9_DEPARTURE_CHECKPOINT', and 'COMPLETE_DC9_MEMPHIS_DEPARTURE'.
+
+- [ ] **Step 1: Change reducer tests first**
+
+Update the route-flow test to expect:
+
+~~~ts
+expect(state.dc9.routeCompleted).toEqual(['DTW', 'MSP', 'STL'])
+expect(state.dc9.stage).toBe('memphisDeparture')
+
+state = gameReducer(state, {
+  type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
+  checkpoint: 'initialClimb',
+})
+state = gameReducer(state, { type: 'COMPLETE_DC9_MEMPHIS_DEPARTURE' })
+expect(state.dc9.departure.completed).toBe(true)
+expect(state.dc9.stage).toBe('homeOperations')
+~~~
+
+Add tests proving wrong-stage actions are identity, checkpoint order cannot be skipped, a mistake increments only the active beat, restore preserves route completion, and completion is accepted only from 'initialClimb'.
+
+- [ ] **Step 2: Run reducer tests RED**
+
+Run: 'npm test -- --run src/game/state.test.ts'
+
+Expected: FAIL because 'departure', actions, and stage do not exist.
+
+- [ ] **Step 3: Add schema 14 state and guarded reducer transitions**
+
+Add 'memphisDeparture' between 'routeRecord' and 'homeOperations', add 'departure: Dc9DepartureProgress' to 'Dc9ChapterProgress', initialize it with 'createInitialDc9DepartureProgress()', and set 'GAME_SCHEMA_VERSION = 14'.
+
+Add these exact action shapes:
+
+~~~ts
+| { type: 'SAVE_DC9_DEPARTURE_CHECKPOINT'; checkpoint: Dc9DepartureCheckpoint }
+| { type: 'RECORD_DC9_DEPARTURE_MISTAKE'; beat: Dc9DepartureBeat }
+| { type: 'RESTORE_DC9_DEPARTURE_CHECKPOINT' }
+| { type: 'COMPLETE_DC9_MEMPHIS_DEPARTURE' }
+~~~
+
+Correct route submission must set:
+
+~~~ts
+dc9: {
+  ...state.dc9,
+  stage: 'memphisDeparture',
+  routeSelections: [...approved],
+  routeCompleted: [...approved],
+}
+~~~
+
+Departure completion must require the active stage and checkpoint 'initialClimb', then set full departure progress and stage 'homeOperations'. No departure action may mutate route fields.
+
+- [ ] **Step 4: Write schema migration tests RED**
+
+Add tests for:
+
+- schema 13 at 'routeRecord' remains at route record with initial departure progress;
+- schema 13 at 'homeOperations', 'instrumentScan', 'shutdown', 'qualification', 'keyReveal', or 'complete' receives a completed departure;
+- schema 14 at 'memphisDeparture' reloads the latest valid checkpoint;
+- malformed checkpoint, attempts, beats, and hint level normalize safely;
+- reward and Mars saves remain completed;
+- reset returns departure to 'rampStart'.
+
+- [ ] **Step 5: Implement source-version-aware normalization**
+
+Pass source schema version into 'normalizeDc9Progress'. For versions below 14, route-complete evidence means the old build had already crossed the insertion point, so create completed departure progress. For schema 14, normalize the saved departure and preserve 'memphisDeparture' only when routes are complete and departure is incomplete.
+
+Update 'fullDc9Progress' to include completed departure progress. Add 'normalizeV14' and load it before 'migrateV13'.
+
+- [ ] **Step 6: Update typed seed objects without weakening their earned state**
+
+For every completed DC-9 seed, add:
+
+~~~ts
+departure: {
+  checkpoint: 'complete',
+  completedBeats: ['rampRelease', 'taxi', 'holdShort', 'lineup', 'takeoffRoll', 'rotation', 'initialClimb', 'complete'],
+  attempts: {},
+  hintLevel: 0,
+  completed: true,
+},
+~~~
+
+Do not change the intended phase, reward, qualification, or scenario state in those fixtures.
+
+- [ ] **Step 7: Run reducer, storage, and type checks GREEN**
+
+Run:
+
+~~~bash
+npm test -- --run src/game/state.test.ts src/game/storage.test.ts
+npm run typecheck
+~~~
+
+Expected: all focused tests and typecheck pass.
+
+- [ ] **Step 8: Commit durable progression**
+
+~~~bash
+git add src/game/config.ts src/game/state.ts src/game/state.test.ts src/game/storage.ts src/game/storage.test.ts e2e
+git commit -m "feat(dc9): persist Memphis departure progress"
+~~~
+
+### Task 4: Drive the departure runtime and safe brake input
+
+**Files:**
+
+- Modify: 'src/game/dc9Input.ts'
+- Modify: 'src/game/dc9Input.test.ts'
+- Modify: 'src/game/useDc9FlightControls.ts'
+- Create: 'src/game/useDc9MemphisDeparture.ts'
+- Modify: 'src/App.tsx'
+
+**Interfaces:**
+
+- Consumes: live 'controlsRef', durable departure progress, reduced-motion flag, and Task 2 frame advancement.
+- Produces: 'Dc9MemphisDepartureRuntime' with 'frame', 'frameRef', 'guidance', 'brakeHeld', 'setBrakeHeld', 'confirmLineup', 'restoreCheckpoint', and 'active'.
+
+- [ ] **Step 1: Add RED input tests**
+
+Prove that the brake demand clamps to 0..1, 'Space' is reserved only while departure is active, and reset returns pitch/roll/rudder/thrust to neutral/closed.
+
+- [ ] **Step 2: Run focused input tests RED**
+
+Run: 'npm test -- --run src/game/dc9Input.test.ts'
+
+Expected: FAIL on missing brake normalization and reset behavior.
+
+- [ ] **Step 3: Extend the flight-control runtime without changing mappings**
+
+Keep 'Dc9ControlState' unchanged. Add 'resetControls(): void' to 'Dc9FlightControlsRuntime'. Activate flight controls when the stage is either 'controlCheck' or 'memphisDeparture', but call 'APPLY_DC9_CONTROL_CHECK' only while the reducer is actually in 'controlCheck'.
+
+Enable direct yoke drag in both stages. Existing W/S, A/D, and arrow mappings remain unchanged.
+
+- [ ] **Step 4: Implement the departure hook**
+
+The hook owns one rAF loop and publishes HTML state no more often than every 80 ms:
+
+~~~ts
+export interface Dc9MemphisDepartureRuntime {
+  active: boolean
+  frame: Dc9DepartureFrame
+  frameRef: React.RefObject<Dc9DepartureFrame>
+  guidance: Dc9DepartureGuidance
+  brakeHeld: boolean
+  setBrakeHeld: (pressed: boolean) => void
+  confirmLineup: () => void
+  restoreCheckpoint: () => void
+}
+~~~
+
+Use this option contract:
+
+~~~ts
+interface UseDc9MemphisDepartureOptions {
+  active: boolean
+  progress: Dc9DepartureProgress
+  controlsRef: React.RefObject<Dc9ControlState>
+  reducedMotion: boolean
+  resetControls: () => void
+  onCheckpoint: (checkpoint: Dc9DepartureCheckpoint) => void
+  onMistake: (beat: Dc9DepartureBeat) => void
+  onRestore: () => void
+  onComplete: () => void
+}
+~~~
+
+On 'blur' or hidden visibility:
+
+1. cancel active lineup confirmation;
+2. hold a pause latch;
+3. restore the canonical durable checkpoint;
+4. call 'resetControls()';
+5. require fresh player input before advancing again.
+
+Dispatch durable events once by event identity. Never dispatch every animation frame.
+
+- [ ] **Step 5: Wire callbacks in App**
+
+Map checkpoint, mistake, restore, and complete events to the Task 3 actions. Pass the runtime to 'Dc9Chapter' and 'PrototypeScene'. Keep the runtime inactive outside the new stage.
+
+- [ ] **Step 6: Run focused and regression tests**
+
+Run:
+
+~~~bash
+npm test -- --run src/game/dc9Input.test.ts src/game/dc9MemphisDeparture.test.ts src/game/state.test.ts
+npm run typecheck
+~~~
+
+Expected: all commands exit 0.
+
+- [ ] **Step 7: Commit runtime control**
+
+~~~bash
+git add src/game/dc9Input.ts src/game/dc9Input.test.ts src/game/useDc9FlightControls.ts src/game/useDc9MemphisDeparture.ts src/App.tsx
+git commit -m "feat(dc9): drive Memphis departure controls"
+~~~
+
+### Task 5: Add the native departure panel and accessible path
+
+**Files:**
+
+- Create: 'src/components/dc9/Dc9AxisControls.tsx'
+- Create: 'src/components/dc9/MemphisDeparturePanel.tsx'
+- Modify: 'src/components/dc9/ControlCheckPanel.tsx'
+- Modify: 'src/components/dc9/Dc9Chapter.tsx'
+- Modify: 'src/components/dc9/dc9Chapter.css'
+- Create: 'e2e/dc9-memphis-departure.spec.ts'
+
+**Interfaces:**
+
+- Consumes: Task 4 runtime, existing control state/input method/hold callbacks, and environment load state.
+- Produces: equivalent native controls, qualitative live status, lineup confirmation, checkpoint restore, and responsive departure presentation.
+
+- [ ] **Step 1: Write the accessible Playwright path RED**
+
+Seed schema 14 at 'memphisDeparture', load '?skip3d=1', and assert:
+
+~~~ts
+await expect(page.getByRole('heading', { name: 'Memphis Legacy Departure' })).toBeVisible()
+await expect(page.getByText('Fictional — non operational')).toBeVisible()
+await page.getByRole('button', { name: 'Advance thrust levers' }).dispatchEvent('pointerdown')
+await page.waitForTimeout(500)
+await page.getByRole('button', { name: 'Advance thrust levers' }).dispatchEvent('pointerup')
+await expect(page.getByRole('status', { name: 'Departure guidance' })).toContainText(/centered|steer/i)
+~~~
+
+Continue through every beat with native controls, including brake and 'Ready to line up', and assert the final stage is 'homeOperations'.
+
+- [ ] **Step 2: Run the new e2e test RED**
+
+Run: 'npx playwright test e2e/dc9-memphis-departure.spec.ts --project=chromium'
+
+Expected: FAIL because the heading and controls do not exist.
+
+- [ ] **Step 3: Extract axis controls without changing Control Check behavior**
+
+Move the four axis rows, meter semantics, hold pointer/keyboard handlers, and input-method copy into 'Dc9AxisControls'. 'ControlCheckPanel' must still render the same labels, data attributes, and accessible names so its existing browser tests remain unchanged.
+
+- [ ] **Step 4: Implement MemphisDeparturePanel**
+
+Render:
+
+- title and '1995 MEMORY · FICTIONAL — NON OPERATIONAL';
+- active beat label and one-sentence intent;
+- qualitative alignment, energy, and safe-boundary status;
+- only the relevant axis controls, using the shared component;
+- a press-and-hold brake button with 'aria-pressed';
+- 'Ready to line up' only while stopped at hold short;
+- 'Restore checkpoint' after hint level 3 or a load failure;
+- a polite atomic live region that changes only on beat, mistake, hint, restore, or completion.
+
+Do not put animated frame numbers into the live region.
+
+- [ ] **Step 5: Add responsive and reduced-motion styling**
+
+At 375 px, controls stack below the guidance without covering the windshield center. At 768 px, use a two-column panel. At 1440 px, keep the panel to a lower/side band. Use color plus text for centered/left/right states.
+
+- [ ] **Step 6: Run accessible and existing DC-9 browser tests GREEN**
+
+Run:
+
+~~~bash
+npx playwright test e2e/dc9-memphis-departure.spec.ts e2e/smoke.spec.ts --project=chromium
+npm run lint
+npm run typecheck
+~~~
+
+Expected: new accessible path and existing control-check/route tests pass.
+
+- [ ] **Step 7: Commit native gameplay**
+
+~~~bash
+git add src/components/dc9 src/App.tsx e2e/dc9-memphis-departure.spec.ts
+git commit -m "feat(dc9): add accessible Memphis departure panel"
+~~~
+
+### Task 6: Import and approve the source-only Concourse B candidate
+
+**Files:**
+
+- Create: 'tools/blender/inspect_dc9_memphis_source.py'
+- Create: source candidate metadata, validation, GLB, preview, and contact sheet under 'art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source/'
+- Create: 'art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-source/manifests/sourcing-complete.json'
+- Create after review: 'art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-source/source-approval.json'
+- Modify: 'asset-reports/dc9-memphis-legacy-departure.md'
+- Modify: this ExecPlan
+
+**Interfaces:**
+
+- Consumes: Task 1 reference-authority gate, source job, verified cache files, and 'add_source_object' from 'xplane_obj8_blender_import.py'.
+- Produces: an Agent 1 source-only candidate containing exactly three imported objects, immutable metadata, previews, a validated sourcing manifest, and explicit owner approval before assembly.
+
+- [ ] **Step 0: Create the isolated source branch**
+
+Run: 'git switch -c asset/dc9-memphis-source'
+
+Expected: clean stage branch based on the current feature branch. Do not edit gameplay files on this branch.
+
+- [ ] **Step 1: Write a source-inspector regression test RED**
+
+Extend 'test_xplane_obj8_convert.py' with a fixture-list test for a new pure helper:
+
+~~~py
+from tools.blender.inspect_dc9_memphis_source import selected_source_names
+
+def test_kmem_source_inspector_admits_only_concourse_b_objects():
+    assert selected_source_names() == (
+        "ConcourseB.obj",
+        "ConcourseB_2.obj",
+        "ConcourseB_2e.obj",
+    )
+~~~
+
+The module must keep 'bpy' imports inside Blender-only functions so this pure selection helper is testable under ordinary Python.
+
+- [ ] **Step 2: Run the focused test RED**
+
+Run: 'python3 -m unittest tools.blender.cockpit_pipeline.tests.test_xplane_obj8_convert'
+
+Expected: FAIL because 'inspect_dc9_memphis_source.py' does not exist.
+
+- [ ] **Step 3: Implement Agent 1 source-only inspection**
+
+The inspector must:
+
+1. verify the Task 1 authority artifact and six selected hashes;
+2. import only the three Concourse B objects into a neutral 'KMEM_CONCOURSE_B_SOURCE_CANDIDATE' root;
+3. preserve source scale/orientation and use one neutral base-color material without project-authored ground, path, anchors, game IDs, or final shading;
+4. export a candidate GLB, per-object metadata/validation JSON, three orthographic previews, and one contact sheet;
+5. record the measured 178/30/24 source triangles, bounds, texture declarations, unsupported 'TEXTURE_NORMAL' directive, and later-revision historical limitation;
+6. keep the disposable Blender scene and first export under '.cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/optimized/';
+7. emit a sourcing-complete manifest whose published output hashes and byte counts are computed from written files.
+
+After successful generation, change the tracked source job's 'stage' from 'requested' to 'sourcing_complete'. The approval file, not the job stage alone, authorizes Agent 2.
+
+- [ ] **Step 4: Run Agent 1 with safe Blender flags**
+
+Run:
+
+~~~bash
+/home/user1/.local/bin/blender --background --factory-startup --disable-autoexec --python tools/blender/inspect_dc9_memphis_source.py -- --source-dir .cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/Memphis_Nashville/KMEM --working-dir .cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/optimized --output-dir art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source --manifest art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-source/manifests/sourcing-complete.json
+python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-source/manifests/sourcing-complete.json
+npx gltf-transform validate art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source/dc9-memphis-concourse-b-source.glb
+~~~
+
+Expected: all commands exit 0 and the manifest remains unapproved.
+
+- [ ] **Step 5: Inspect and approve the Source Review Gate**
+
+Show the owner the source contact sheet, three object previews, exact source measurements, texture declarations, and exclusions. If approved, write 'source-approval.json' with 'stage: "source-approved"', 'approved: true', 'approvedBy: "owner review 2026-08-27"', the sourcing manifest path, and the exact approved candidate/metadata hashes.
+
+Do not create ramp, taxi, runway, anchors, or production Blender sources before this approval file exists.
+
+- [ ] **Step 6: Revalidate and commit Agent 1**
+
+Run:
+
+~~~bash
+python3 -m unittest tools.blender.cockpit_pipeline.tests.test_xplane_obj8_convert
+python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-source/manifests/sourcing-complete.json
+git diff --check
+~~~
+
+Commit:
+
+~~~bash
+git add tools/blender/inspect_dc9_memphis_source.py tools/blender/cockpit_pipeline/tests/test_xplane_obj8_convert.py art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-source asset-reports/dc9-memphis-legacy-departure.md plans/0040-dc9-memphis-legacy-departure.md
+git commit -m "feat(assets): inspect Memphis Concourse B source"
+git switch agent/dc9-memphis-taxi-takeoff
+git merge --no-ff asset/dc9-memphis-source
+~~~
+
+### Task 7: Assemble and approve the neutral Memphis environment
+
+**Files:**
+
+- Create: 'tools/blender/cockpit_pipeline/kmem_legacy_layout.py'
+- Create: 'tools/blender/cockpit_pipeline/tests/test_kmem_legacy_layout.py'
+- Create: 'tools/blender/assemble_dc9_memphis_legacy.py'
+- Create: neutral blend/GLB, layout, node/pivot report, validation, and previews under 'art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/'
+- Create: 'art-source/cockpit-pipeline/gates/dc9-memphis-legacy-runtime-contract.json'
+- Create: 'art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-assembly/manifests/assembly-complete.json'
+- Create after review: 'art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-assembly/assembly-approval.json'
+- Modify: 'asset-reports/dc9-memphis-legacy-departure.md'
+- Modify: this ExecPlan
+
+**Interfaces:**
+
+- Consumes: Task 6 source approval and approved candidate GLB.
+- Produces: neutral scene layout, stable runtime anchors, a validated runtime-contract gate, and owner assembly approval before materials work.
+
+- [ ] **Step 0: Create the isolated assembly branch**
+
+Run: 'git switch -c asset/dc9-memphis-assembly'
+
+Expected: branch starts after the approved source branch merge. Do not modify Task 6 outputs in place.
+
+- [ ] **Step 1: Write layout tests RED**
+
+~~~py
+from tools.blender.cockpit_pipeline.kmem_legacy_layout import (
+    ANCHORS,
+    CONCOURSE_SOURCE_TRANSFORMS,
+    validate_layout,
+)
+
+def test_layout_has_unique_ordered_runtime_anchors():
+    assert [entry["game_id"] for entry in ANCHORS] == [
+        "dc9.memphis.rampStart",
+        "dc9.memphis.taxiTurn",
+        "dc9.memphis.holdShort",
+        "dc9.memphis.runwayLineup",
+        "dc9.memphis.initialClimb",
+    ]
+    assert validate_layout() == []
+
+def test_only_three_approved_source_objects_are_assembled():
+    assert sorted(CONCOURSE_SOURCE_TRANSFORMS) == [
+        "ConcourseB.obj",
+        "ConcourseB_2.obj",
+        "ConcourseB_2e.obj",
+    ]
+~~~
+
+- [ ] **Step 2: Run layout tests RED**
+
+Run: 'python3 -m unittest tools.blender.cockpit_pipeline.tests.test_kmem_legacy_layout'
+
+Expected: FAIL because the layout module does not exist.
+
+- [ ] **Step 3: Implement the exact neutral layout**
+
+Define root 'KMEM_LEGACY_ROOT', source group 'KMEM_CONCOURSE_B', project-owned 'KMEM_RAMP', 'KMEM_TAXI_SURFACE', and 'KMEM_RUNWAY_SURFACE', plus these game-space anchors:
+
+~~~py
+ANCHORS = (
+    {"name": "KMEM_RAMP_START", "game_id": "dc9.memphis.rampStart", "location": (0.0, 0.0, 0.0)},
+    {"name": "KMEM_TAXI_TURN", "game_id": "dc9.memphis.taxiTurn", "location": (-55.0, 90.0, 0.0)},
+    {"name": "KMEM_HOLD_SHORT", "game_id": "dc9.memphis.holdShort", "location": (-120.0, 210.0, 0.0)},
+    {"name": "KMEM_RUNWAY_LINEUP", "game_id": "dc9.memphis.runwayLineup", "location": (-120.0, 245.0, 0.0)},
+    {"name": "KMEM_INITIAL_CLIMB", "game_id": "dc9.memphis.initialClimb", "location": (-120.0, 700.0, 110.0)},
+)
+
+CONCOURSE_SOURCE_TRANSFORMS = {
+    "ConcourseB.obj": {"location": (90.0, -80.0, 0.0), "rotation_z_degrees": 0.0},
+    "ConcourseB_2.obj": {"location": (90.0, 40.0, 0.0), "rotation_z_degrees": 90.0},
+    "ConcourseB_2e.obj": {"location": (90.0, -180.0, 0.0), "rotation_z_degrees": 90.0},
+}
+~~~
+
+These values are authored game space, not airport-chart data. The validator rejects duplicate names/game IDs, non-finite transforms, decreasing route distance, hold short beyond lineup, or Concourse B outside the ramp-start visibility limit.
+
+- [ ] **Step 4: Implement Agent 2 assembly**
+
+'assemble_dc9_memphis_legacy.py' must refuse to run without a matching approved source manifest and 'source-approval.json'. It imports the approved candidate, applies recorded transforms, creates simple neutral ramp/taxi/runway/centerline geometry, authors the five empty anchors, sets extras, and emits:
+
+- neutral blend and GLB;
+- resolved layout JSON;
+- node/pivot and reimport report;
+- 1440/768/375 neutral previews;
+- runtime-contract gate with all five anchors and 'htmlEquivalent: "MemphisDeparturePanel qualitative path control"';
+- assembly-complete manifest with computed hashes.
+
+Do not add normal/emissive maps, wear, color grading, texture compression, destructive mesh joining, or browser files.
+
+- [ ] **Step 5: Validate Agent 2**
+
+Run:
+
+~~~bash
+/home/user1/.local/bin/blender --background --factory-startup --disable-autoexec --python tools/blender/assemble_dc9_memphis_legacy.py -- --source-approval art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-source/source-approval.json --output-dir art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly --runtime-contract art-source/cockpit-pipeline/gates/dc9-memphis-legacy-runtime-contract.json --manifest art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-assembly/manifests/assembly-complete.json
+python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate runtime-contract art-source/cockpit-pipeline/gates/dc9-memphis-legacy-runtime-contract.json
+python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-assembly/manifests/assembly-complete.json
+npx gltf-transform validate art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/dc9-memphis-legacy-neutral.glb
+~~~
+
+- [ ] **Step 6: Inspect and approve the Assembly Review Gate**
+
+Review 1440/768/375 neutral views. Concourse B must read from ramp start, the path must remain clear of geometry, hold-short must precede lineup, and anchors must reimport at their documented coordinates.
+
+If approved, write 'assembly-approval.json' with 'stage: "assembly-approved"', 'approved: true', 'approvedBy: "owner review 2026-08-27"', exact neutral artifact hashes, runtime-contract path, and the known deviation 'compressed 1995 memory composition, not exact KMEM geography'.
+
+- [ ] **Step 7: Commit Agent 2**
+
+~~~bash
+git add tools/blender/cockpit_pipeline/kmem_legacy_layout.py tools/blender/cockpit_pipeline/tests/test_kmem_legacy_layout.py tools/blender/assemble_dc9_memphis_legacy.py art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly art-source/cockpit-pipeline/gates/dc9-memphis-legacy-runtime-contract.json art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-assembly asset-reports/dc9-memphis-legacy-departure.md plans/0040-dc9-memphis-legacy-departure.md
+git commit -m "feat(assets): assemble Memphis legacy environment"
+git switch agent/dc9-memphis-taxi-takeoff
+git merge --no-ff asset/dc9-memphis-assembly
+~~~
+
+### Task 8: Shade, optimize, promote, and contract-check the environment
+
+**Files:**
+
+- Create: 'tools/blender/shade_dc9_memphis_legacy.py'
+- Create: shaded blend/GLB, material/texture/validation reports, and previews under 'art-source/cockpit-pipeline/builds/shaded/dc9-memphis-legacy-shading/'
+- Create: 'art-source/cockpit-pipeline/gates/dc9-memphis-legacy-material-optimization.json'
+- Create: 'art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-shading/manifests/shading-complete.json'
+- Create after review: 'art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-shading/shading-approval.json'
+- Create: 'art-source/blender/dc9-memphis-legacy-departure.blend'
+- Create: 'public/models/dc9-memphis-legacy-departure.glb'
+- Create: 'tools/assets/dc9-memphis-model-contract.mjs'
+- Create: 'tools/assets/dc9-memphis-model-contract.test.mjs'
+- Modify: 'tools/assets/build-asset.mjs'
+- Modify: 'tools/assets/check-models.mjs'
+- Modify: 'package.json'
+- Modify: 'public/models/README.md'
+- Modify: 'asset-reports/dc9-memphis-legacy-departure.md'
+
+**Interfaces:**
+
+- Consumes: Task 7 assembly approval and neutral blend.
+- Produces: material-optimization gate, final packed master/GLB, 'npm run asset:dc9-memphis', and 'validateDc9MemphisModelContract(json, byteLength): string[]'.
+
+- [ ] **Step 0: Create the isolated shading branch**
+
+Run: 'git switch -c asset/dc9-memphis-shading'
+
+Expected: branch starts after the approved assembly branch merge. Do not change source or assembly artifacts.
+
+- [ ] **Step 1: Write the GLB contract tests RED**
+
+Require exactly one of every node below:
+
+~~~js
+export const DC9_MEMPHIS_REQUIRED_NODES = [
+  'KMEM_LEGACY_ROOT',
+  'KMEM_CONCOURSE_B',
+  'KMEM_RAMP',
+  'KMEM_TAXI_SURFACE',
+  'KMEM_RUNWAY_SURFACE',
+  'KMEM_RAMP_START',
+  'KMEM_TAXI_TURN',
+  'KMEM_HOLD_SHORT',
+  'KMEM_RUNWAY_LINEUP',
+  'KMEM_INITIAL_CLIMB',
+]
+~~~
+
+Assert exact game IDs, finite transforms, no interactive cockpit metadata, no AutoGate/OpenSceneryX/Planes names, no more than 5,000 triangles, no more than six materials, selected textures no larger than 2048 × 1024, and GLB byte length no larger than 8 MiB.
+
+- [ ] **Step 2: Run model-contract tests RED**
+
+Run: 'node --test tools/assets/dc9-memphis-model-contract.test.mjs'
+
+Expected: FAIL because the contract module does not exist.
+
+- [ ] **Step 3: Implement Agent 3 shading**
+
+'shade_dc9_memphis_legacy.py' must refuse to run without matching assembly approval. It may:
+
+- wire the selected base-color and normal maps to Concourse B;
+- use the selected lit map only as restrained emissive support;
+- assign low-material project-owned ramp/taxi/runway surfaces;
+- add subtle 1995-memory color grading and approval lighting;
+- pack all selected textures;
+- preserve every runtime name, hierarchy, anchor transform, and extra;
+- avoid mesh joining, decimation, or texture resizing unless the contract is proven before and after.
+
+Emit a shaded blend/GLB, 1440/768/375 comparison views, material assignment report, texture report, validation/reimport report, shading-complete manifest, and material-optimization gate.
+
+- [ ] **Step 4: Validate and inspect Agent 3**
+
+Run:
+
+~~~bash
+/home/user1/.local/bin/blender --background --factory-startup --disable-autoexec art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/dc9-memphis-legacy-neutral.blend --python tools/blender/shade_dc9_memphis_legacy.py -- --assembly-approval art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-assembly/assembly-approval.json --source-dir .cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/Memphis_Nashville/KMEM --output-dir art-source/cockpit-pipeline/builds/shaded/dc9-memphis-legacy-shading --material-gate art-source/cockpit-pipeline/gates/dc9-memphis-legacy-material-optimization.json
+python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate material-optimization art-source/cockpit-pipeline/gates/dc9-memphis-legacy-material-optimization.json
+python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-manifest art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-shading/manifests/shading-complete.json
+npx gltf-transform validate art-source/cockpit-pipeline/builds/shaded/dc9-memphis-legacy-shading/dc9-memphis-legacy-shaded.glb
+npx gltf-transform inspect art-source/cockpit-pipeline/builds/shaded/dc9-memphis-legacy-shading/dc9-memphis-legacy-shaded.glb
+~~~
+
+Inspect comparison views for upside-down geometry, missing textures, excessive emissive, modern-looking decoration, or neon guidance.
+
+- [ ] **Step 5: Obtain Materials and Optimization approval**
+
+Present the material count, texture dimensions, GLB size, optimization decision, and comparison views. Create 'shading-approval.json' with 'stage: "shading-approved"', 'approved: true', 'approvedBy: "owner review 2026-08-27"', the shading manifest path, material-gate path, and exact shaded blend/GLB hashes. Browser integration must not start before this approval is recorded.
+
+- [ ] **Step 6: Add standard build and attribution**
+
+Copy the approved shaded blend to 'art-source/blender/dc9-memphis-legacy-departure.blend'. Add asset configuration:
+
+~~~js
+{
+  blend: 'art-source/blender/dc9-memphis-legacy-departure.blend',
+  output: 'public/models/dc9-memphis-legacy-departure.glb',
+  root: 'KMEM_LEGACY_ROOT',
+}
+~~~
+
+Add package script '"asset:dc9-memphis": "node tools/assets/build-asset.mjs dc9-memphis"'. Add the source credit to 'public/models/README.md':
+
+> Memphis Concourse B geometry is derived with permission for this private, noncommercial game from the Memphis/Nashville Scenery Package by Ted Davis.
+
+Wire 'validateDc9MemphisModelContract(json, bytes.length)' into 'check-models.mjs' and add 'dc9-memphis-legacy-departure.glb' to the required production contracts.
+
+- [ ] **Step 7: Promote and validate**
+
+Run:
+
+~~~bash
+cp art-source/cockpit-pipeline/builds/shaded/dc9-memphis-legacy-shading/dc9-memphis-legacy-shaded.blend art-source/blender/dc9-memphis-legacy-departure.blend
+BLENDER_BIN=/home/user1/.local/bin/blender BLENDER_EXPECTED_VERSION=5.1 npm run asset:dc9-memphis
+node --test tools/assets/dc9-memphis-model-contract.test.mjs
+npm run assets:check
+npm run pipeline:evals
+git lfs status
+~~~
+
+Expected: all validators pass; the blend is LFS-managed and the deployable public GLB follows the existing public-model non-LFS policy.
+
+- [ ] **Step 8: Commit Agent 3 and production asset**
+
+~~~bash
+git add tools/blender/shade_dc9_memphis_legacy.py art-source/cockpit-pipeline/builds/shaded/dc9-memphis-legacy-shading art-source/cockpit-pipeline/gates/dc9-memphis-legacy-material-optimization.json art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-shading art-source/blender/dc9-memphis-legacy-departure.blend public/models/dc9-memphis-legacy-departure.glb tools/assets/dc9-memphis-model-contract.mjs tools/assets/dc9-memphis-model-contract.test.mjs tools/assets/build-asset.mjs tools/assets/check-models.mjs package.json public/models/README.md asset-reports/dc9-memphis-legacy-departure.md
+git commit -m "feat(assets): promote Memphis Concourse B environment"
+git switch agent/dc9-memphis-taxi-takeoff
+git merge --no-ff asset/dc9-memphis-shading
+~~~
+
+### Task 9: Render the Memphis world around the right-seat cockpit
+
+**Files:**
+
+- Create: 'src/scenes/dc9MemphisVisuals.ts'
+- Create: 'src/scenes/dc9MemphisVisuals.test.ts'
+- Create: 'src/scenes/Dc9MemphisEnvironment.tsx'
+- Modify: 'src/scenes/cockpitModelLoader.ts'
+- Modify: 'src/scenes/PrototypeScene.tsx'
+- Modify: 'src/App.tsx'
+- Modify: 'src/components/dc9/MemphisDeparturePanel.tsx'
+
+**Interfaces:**
+
+- Consumes: Task 4 'frameRef' and Task 8 stable GLB anchors.
+- Produces: lazy environment load state, deterministic path sampling, inverse-world transform, daylight background/lighting, and canvas datasets for browser proof.
+
+- [ ] **Step 1: Write visual-math tests RED**
+
+~~~ts
+import { describe, expect, it } from 'vitest'
+import { dc9MemphisWorldPose, validateDc9MemphisAnchors } from './dc9MemphisVisuals'
+
+const approvedAnchorFixture = new Map([
+  ['dc9.memphis.rampStart', [0, 0, 0] as const],
+  ['dc9.memphis.taxiTurn', [-55, 90, 0] as const],
+  ['dc9.memphis.holdShort', [-120, 210, 0] as const],
+  ['dc9.memphis.runwayLineup', [-120, 245, 0] as const],
+  ['dc9.memphis.initialClimb', [-120, 700, 110] as const],
+])
+
+describe('DC-9 Memphis visual path', () => {
+  it('requires the stable anchor order', () => {
+    expect(validateDc9MemphisAnchors(new Map())).toContain('dc9.memphis.rampStart')
+  })
+
+  it('keeps the cockpit fixed by returning an inverse world pose', () => {
+    const pose = dc9MemphisWorldPose({
+      beat: 'initialClimb',
+      pathProgress: 0.9,
+      lateralError: 0,
+      headingError: 0,
+      energy: 0.8,
+      altitudeProgress: 0.5,
+      pitch: 0.2,
+      roll: 0,
+      safeHold: false,
+    }, approvedAnchorFixture)
+    expect(pose.position.y).toBeLessThan(0)
+    expect(pose.rotation.x).toBeLessThan(0)
+  })
+})
+~~~
+
+- [ ] **Step 2: Run visual tests RED**
+
+Run: 'npm test -- --run src/scenes/dc9MemphisVisuals.test.ts'
+
+Expected: FAIL because the module does not exist.
+
+- [ ] **Step 3: Implement path sampling and inverse transform values**
+
+Use the five GLB anchors to build a Catmull-Rom-equivalent sampled path without importing Three.js into the pure test module. Return plain tuples for position and Euler/quaternion inputs. Clamp lateral and heading offsets and damp camera vibration to zero under reduced motion.
+
+- [ ] **Step 4: Implement lazy environment loading**
+
+'Dc9MemphisEnvironment' mounts only when 'chapterStage === "memphisDeparture"'. It must:
+
+- request 'models/dc9-memphis-legacy-departure.glb' only after the new stage begins;
+- clone the source scene and validate required nodes/game IDs before showing it;
+- update one environment root per frame from 'frameRef';
+- leave the cockpit and right-seat camera at their authored transforms;
+- publish 'data-dc9-memphis-model-state', 'data-dc9-memphis-beat', and 'data-dc9-memphis-world-pose' on the canvas;
+- dispose the clone and clear model cache on load failure;
+- restore the dark parked background and lighting on unmount.
+
+Add 'DC9_MEMPHIS_MODEL_URL' to 'cockpitModelLoader.ts' with a query version equal to the first eight hexadecimal characters of the validated production GLB SHA-256 recorded in the asset report. Use the existing cached loader/observer functions so retries and late progress subscribers follow the cockpit pattern.
+
+- [ ] **Step 5: Integrate with the existing DC-9 scene**
+
+During 'memphisDeparture':
+
+- use 'CAM_DC9_FIRST_OFFICER_GAME' and the normal gameplay FOV;
+- allow direct yoke drag;
+- keep limited seat-look controls;
+- show daylight exterior lighting without changing the cockpit GLB materials;
+- hide route/gauge/shutdown/key interaction colliders;
+- render the environment as a sibling of the cockpit.
+
+Pass load progress/error to 'MemphisDeparturePanel'. Environment failure keeps the HTML guidance and 'Restore checkpoint' path and never completes automatically.
+
+- [ ] **Step 6: Run visual, type, and asset checks**
+
+Run:
+
+~~~bash
+npm test -- --run src/scenes/dc9MemphisVisuals.test.ts src/game/dc9MemphisDeparture.test.ts
+npm run typecheck
+npm run assets:check
+~~~
+
+Expected: all commands exit 0.
+
+- [ ] **Step 7: Commit scene integration**
+
+~~~bash
+git add src/scenes/dc9MemphisVisuals.ts src/scenes/dc9MemphisVisuals.test.ts src/scenes/Dc9MemphisEnvironment.tsx src/scenes/cockpitModelLoader.ts src/scenes/PrototypeScene.tsx src/App.tsx src/components/dc9/MemphisDeparturePanel.tsx
+git commit -m "feat(dc9): render cockpit-first Memphis departure"
+~~~
+
+### Task 10: Prove full browser behavior and repair regressions
+
+**Files:**
+
+- Modify: 'e2e/dc9-memphis-departure.spec.ts'
+- Modify: 'e2e/smoke.spec.ts'
+- Modify: nearby e2e seed helpers only when the schema 14 type requires it
+- Modify: 'src/components/dc9/dc9Chapter.css' and focused runtime files only for reproduced defects
+- Modify: this ExecPlan
+
+**Interfaces:**
+
+- Consumes: complete rules, state, UI, asset, and scene work.
+- Produces: browser proof for success, mistakes, reload, reduced motion, input equivalence, lazy loading, and legacy-flow regression.
+
+- [ ] **Step 1: Add real-GLB successful-path assertions**
+
+Assert:
+
+- the Memphis GLB is not requested during briefing, control check, intro, or route record;
+- correct route submission changes the stage and starts the Memphis request;
+- canvas reports the required model ready and the right-seat camera node;
+- each beat occurs in order;
+- native controls and keyboard manipulate the same authoritative frame;
+- Home Operations opens only after initial climb completion;
+- no Model Y request or copy appears.
+
+- [ ] **Step 2: Add recoverable-path assertions**
+
+Exercise:
+
+- sustained wrong taxi steering;
+- first, second, and third hint levels;
+- hold-short attempt while moving;
+- lineup confirmation before stopped;
+- early rotation;
+- manual restore;
+- automatic restore after sustained corridor departure;
+- reload at taxi turn, hold short, and runway lineup;
+- tab hidden/visible;
+- reduced motion;
+- aborted Memphis GLB request;
+- '?skip3d=1' accessible completion.
+
+At every restore, assert route stamps and completed departure beats remain.
+
+- [ ] **Step 3: Run focused browser tests and capture the first failures**
+
+Run:
+
+~~~bash
+npx playwright test e2e/dc9-memphis-departure.spec.ts e2e/smoke.spec.ts --project=chromium
+~~~
+
+Record exact failures in 'Discoveries' before repairs.
+
+- [ ] **Step 4: Repair root causes with a maximum of five focused cycles**
+
+For each failure: reproduce one assertion, change the smallest owning module, rerun the focused assertion, then rerun both files. Do not relax timing or delete behavior assertions merely to turn the suite green.
+
+- [ ] **Step 5: Run responsive and keyboard evidence**
+
+Capture deterministic PNGs at approximately:
+
+- 375 × 812: ramp start, hold short, initial climb;
+- 768 × 900: ramp start, runway lineup, initial climb;
+- 1440 × 900: ramp start, taxi turn, hold short, runway lineup, initial climb.
+
+Also capture reduced-motion initial climb and the accessible '?skip3d=1' panel.
+
+- [ ] **Step 6: Measure the warm browser frame budget**
+
+At 1440 × 900 after both GLBs are loaded, collect 120 consecutive 'requestAnimationFrame' intervals during taxi. Record median and p95 in the asset report. Acceptance is p95 no greater than 35 ms on this workstation, no WebGL error, and no growth in loaded scene objects across three stage enter/exit cycles.
+
+- [ ] **Step 7: Run full checks**
+
+Run:
+
+~~~bash
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+npm run assets:check
+npm run pipeline:evals
+npx playwright test
+git diff --check
+~~~
+
+Expected: every command exits 0; any environment-only skip is identified by exact test and reason.
+
+- [ ] **Step 8: Commit browser repairs and evidence harness**
+
+~~~bash
+git add e2e src plans/0040-dc9-memphis-legacy-departure.md
+git commit -m "test(dc9): prove Memphis departure flow"
+~~~
+
+### Task 11: Record evidence, review the complete diff, and present the owner gate
+
+**Files:**
+
+- Modify: 'docs/GAME_DESIGN.md'
+- Modify: 'docs/VISUAL_REALISM.md'
+- Modify: 'TEST_REPORT.md'
+- Modify: 'asset-reports/dc9-memphis-legacy-departure.md'
+- Create: 'art-source/cockpit-pipeline/gates/dc9-memphis-legacy-browser-integration.json'
+- Modify: 'plans/0040-dc9-memphis-legacy-departure.md'
+
+**Interfaces:**
+
+- Consumes: actual Task 10 command output, screenshots, GLB metrics, and browser telemetry.
+- Produces: current design docs, complete evidence, private preview, and the DC-9 owner-review handoff.
+
+- [ ] **Step 1: Update product and realism documentation**
+
+Describe the exact inserted progression, memory-recreation framing, cockpit-first route, qualitative/non-operational controls, selected source and attribution, and exclusion of exterior/free-flight/real procedures.
+
+- [ ] **Step 2: Fill reports with actual evidence**
+
+Record:
+
+- branch and commit;
+- archive/source hashes and permission basis;
+- Blender version;
+- source/master/GLB paths;
+- object, material, triangle, texture, and GLB size;
+- stable node/game-id contract;
+- optimization decisions;
+- commands and exit codes;
+- screenshot paths and inspected visual findings;
+- performance observation at 375/768/1440;
+- known historical and visual limitations.
+
+- [ ] **Step 3: Write and validate the browser-integration gate**
+
+Create the gate only from completed evidence. It must reference 'public/models/dc9-memphis-legacy-departure.glb' and 'art-source/cockpit-pipeline/gates/dc9-memphis-legacy-runtime-contract.json', set all four verification booleans from actual browser results, list viewport widths 375/768/1440, record spoiler protection, list commands actually run, and list any genuine remaining blockers.
+
+Run:
+
+~~~bash
+python3 -m tools.blender.cockpit_pipeline.pipeline_cli validate-gate browser-integration art-source/cockpit-pipeline/gates/dc9-memphis-legacy-browser-integration.json
+~~~
+
+Expected: exit 0. A schema-valid gate with a false verification field or a non-empty blocker list remains evidence of incomplete work, not completion.
+
+- [ ] **Step 4: Review the entire branch diff**
+
+Run:
+
+~~~bash
+git diff --stat main...HEAD
+git diff --check main...HEAD
+git diff main...HEAD -- src/game src/components/dc9 src/scenes tools/assets tools/blender docs asset-reports TEST_REPORT.md plans
+~~~
+
+Review for unsafe DOM insertion, duplicated simulation rules, accidental operational copy, incorrect migration, untracked binary edits, third-party content leakage, unstable object names, broken Model Y protection, and unrelated intro changes.
+
+- [ ] **Step 5: Resolve every critical/high finding and rerun affected checks**
+
+Record each finding and repair in 'Discoveries' and 'Evidence'. A finding is closed only after its focused regression and the nearest full check pass.
+
+- [ ] **Step 6: Create the private preview and inspect deployed behavior**
+
+Build and deploy the validated branch through the existing private Vercel workflow. Verify deployed bytes request both DC-9 cockpit and Memphis GLBs only at their intended stages. Record the preview URL and deployed screenshot paths.
+
+- [ ] **Step 7: Present the DC-9 visual approval gate**
+
+Show consistent ramp-start, taxi-turn, hold-short, runway-lineup, and initial-climb screenshots beside the preview URL. State:
+
+- commands actually run and results;
+- source attribution and owner-attested permission scope;
+- files changed;
+- remaining incomplete items or limitations;
+- whether the milestone is ready for owner approval.
+
+Do not continue into unrelated locker, Airbus, reward, or next-slice work without separate authorization.
+
+- [ ] **Step 8: Commit final documentation**
+
+~~~bash
+git add docs/GAME_DESIGN.md docs/VISUAL_REALISM.md TEST_REPORT.md asset-reports/dc9-memphis-legacy-departure.md art-source/cockpit-pipeline/gates/dc9-memphis-legacy-browser-integration.json plans/0040-dc9-memphis-legacy-departure.md
+git commit -m "docs: record Memphis departure evidence"
+~~~
+
+## Validation plan
+
+### Pure and reducer
+
+- deterministic frame advance and checkpoint frames;
+- qualitative guidance and hint ladder;
+- safe hold-short/lineup gate;
+- early/late rotation recovery;
+- schema 13 to 14 migration at every DC-9 stage;
+- corrupt progress and non-finite frame input;
+- no loss of route, control check, or completed beats.
+
+### Runtime and accessibility
+
+- keyboard, native hold controls, pointer yoke, and supported gamepad;
+- Space brake only while active;
+- input release, blur, visibility pause, restore, and reload;
+- native qualitative status with no color-only or rapidly repeated live announcements;
+- skip3d completion and GLB failure recovery;
+- reduced motion.
+
+### Asset
+
+- immutable archive and selected hashes;
+- exact selected/excluded file set;
+- OBJ8 bounds/orientation and texture color spaces;
+- Blender master root, hierarchy, anchors, extras, packed textures, and approval cameras;
+- raw/reimported GLB contract;
+- object/material/triangle/texture/size report;
+- no destructive optimization or third-party library leakage.
+
+### Browser and visual
+
+- lazy environment request after route completion only;
+- right-seat camera remains active through initial climb;
+- Concourse B readable at ramp start;
+- guidance remains restrained and does not obscure windshield/instruments;
+- success, mistake, repeated mistake, hint, restore, reload, hidden-tab, reduced-motion, WebGL failure, and accessible paths;
+- 375/768/1440 screenshots;
+- existing DC-9, locker, Airbus, reward, and spoiler tests;
+- private preview matches local evidence.
+
+## Acceptance criteria
+
+- Correct Legacy Route Record completion enters 'memphisDeparture', not Home Operations.
+- The player taxis from recognizable Concourse B scenery, follows one curved path, stops safely, lines up, accelerates, rotates on cue, and stabilizes a short climb from the right seat.
+- A successful first run lasts roughly two to three minutes.
+- No exterior camera, real operational value, procedure, emergency, accident, or system-failure framing appears.
+- Wrong inputs give progressive help and restore only the latest checkpoint.
+- Native HTML and keyboard controls complete every required beat.
+- Schema 13 saves never move backward; schema 14 reload starts the latest checkpoint at rest.
+- The source archive/files, owner-attested permission, attribution, exclusions, Blender source, GLB, metrics, and preview evidence are recorded.
+- The Memphis environment lazy-loads only for the new stage and unloads when Home Operations resumes.
+- 'npm run check', 'npm run assets:check', 'npm run pipeline:evals', and 'npx playwright test' pass.
+- Browser evidence at 375, 768, and 1440 supports owner review.
+- A private Vercel preview and consistent screenshots accompany the DC-9 visual gate.
+
+## Repair loop and stop conditions
+
+Repeat:
+
+**review → reproduce one failing acceptance check → focused repair → rerun focused check → rerun nearby regressions → inspect remaining delta → record evidence**
+
+Stop when all acceptance checks pass, after five attempts on one unchanged failure, when the remaining delta stops shrinking, when the Blender/source/visual gate requires owner judgment, or when a new external-state change falls outside the approved milestone. Do not claim an unrun check passed.
+
+## Progress
+
+- [x] 2026-08-27 — Existing DC-9 progression, input, persistence, scene, asset pipeline, and source package inspected.
+- [x] 2026-08-27 — Owner approved guided cockpit-first gameplay from older Memphis Concourse B.
+- [x] 2026-08-27 — Owner selected the Ted Davis scenery source and attested private noncommercial permission.
+- [x] 2026-08-27 — Design specification approved.
+- [ ] Task 1 — Source authority and immutable intake.
+- [ ] Task 2 — Pure simulation.
+- [ ] Task 3 — Schema 14 progression.
+- [ ] Task 4 — Runtime and brake.
+- [ ] Task 5 — Native accessible UI.
+- [ ] Task 6 — Source-only candidate and Source Review Gate.
+- [ ] Task 7 — Neutral assembly and Assembly Review Gate.
+- [ ] Task 8 — Materials, optimization, and production promotion.
+- [ ] Task 9 — Browser scene integration.
+- [ ] Task 10 — Browser validation and repairs.
+- [ ] Task 11 — Evidence and owner approval gate.
+
+## Evidence
+
+Planning evidence:
+
+- Branch: 'agent/dc9-memphis-taxi-takeoff'
+- Approved design commit: '903f2fd'
+- Source archive SHA-256: 'fc403141223be066094814d9ea06d820f75477fea419870b04ffd65153434b95'
+- Blender: '/home/user1/.local/bin/blender', version 5.1.2 observed during discovery
+- Source geometry inspection: 178 + 30 + 24 triangles; base/lit/normal textures are each 2048 × 1024
+- Source permission basis: owner-attested private noncommercial permission, 2026-08-27
+
+Implementation command output, screenshots, preview URL, review findings, and actual metrics are intentionally empty until those steps run.
+
+## Outcome and handoff
+
+Planning is complete when this document is saved, self-reviewed, and committed. Execution begins only after the owner selects the execution mode. The first implementation checkpoint is source authority and immutable intake; no application behavior changes before its tests and gate validation pass.

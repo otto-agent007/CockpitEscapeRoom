@@ -1,6 +1,6 @@
 # DC-9 Memphis Legacy Departure Design
 
-**Status:** Draft for owner specification review; gameplay direction approved 2026-08-27
+**Status:** Owner approved 2026-08-27
 
 **Date:** 2026-08-27
 
@@ -245,13 +245,13 @@ Selected source candidate:
 - download page: `https://theosdavis.com/xpfiles/downloads_v11.html`;
 - archive: `https://theosdavis.com/xpfiles/ewExternalFiles/Memphis_Nashville.zip`;
 - inspected SHA-256: `fc403141223be066094814d9ea06d820f75477fea419870b04ffd65153434b95`;
-- relevant source objects include `KMEM/ConcourseB.obj`, `ConcourseB_2.obj`, `ConcourseB_2e.obj`, terminal objects, and the matching KMEM terminal textures.
+- selected source files are exactly `KMEM/ConcourseB.obj`, `ConcourseB_2.obj`, `ConcourseB_2e.obj`, `KMEMterminal.png`, `KMEMterminal_LIT.png`, and `KMEMterminal_NML.png`.
 
-The package readme permits only noncommercial distribution of the files and derived files, requests permission before releasing a derivative, and requires acknowledgment. Therefore:
+The package readme permits only noncommercial distribution of the files and derived files, requests permission before releasing a derivative, and requires acknowledgment. On 2026-08-27 the owner attested that this private, noncommercial game has the required permission. Therefore:
 
 - local inspection and candidate conversion may proceed with provenance recorded;
-- no derived Concourse B GLB, texture, Vercel preview, or public deployment may be published until author permission is documented;
-- if permission is denied or cannot be obtained, work pauses at the asset-authority gate for an owner decision instead of silently substituting another asset;
+- the source intake report records `owner-attested permission for private noncommercial game, 2026-08-27` as the permission basis;
+- derived Concourse B assets and private preview deployment remain within that attested scope and retain the required credit;
 - OpenSceneryX objects, AutoGate assets, aircraft, vehicles, clutter, or other third-party library content bundled or referenced by the scenery are excluded unless their independent licenses and permissions explicitly allow this project's use;
 - downloaded scripts are never executed.
 
@@ -264,7 +264,7 @@ The source package reflects a later airport revision and is not proof of exact 1
 3. Convert selected X-Plane OBJ8 geometry deterministically with the repository's parser; do not rely on opaque interactive import state.
 4. Inspect orientation, scale, recursive bounds, material assignments, texture color space, hierarchy, local axes, pivots, and scene centering in Blender.
 5. Keep cleaned work under `extracted/optimized/` until source approval.
-6. After source approval and documented release permission, create `art-source/blender/dc9-memphis-legacy-departure.blend`.
+6. After staged source, assembly, and material approval under the recorded owner-attested permission, create `art-source/blender/dc9-memphis-legacy-departure.blend`.
 7. Export first to `.cache/cockpit-pipeline/exports/`, validate, then promote the approved artifact to `public/models/dc9-memphis-legacy-departure.glb`.
 8. Record evidence in `asset-reports/dc9-memphis-legacy-departure.md`, the active ExecPlan, and `TEST_REPORT.md`.
 
@@ -354,7 +354,7 @@ Exact object names and anchor placement become runtime contracts only after Blen
 
 - From a fresh game, the owner can complete the flight-control check and Legacy Route Record, then taxi from a recognizable older Concourse B environment to the departure runway and take off without leaving the right-seat cockpit.
 - The guided departure lasts roughly two to three minutes on a successful run and contains meaningful steering, braking, lineup, thrust, rotation, and initial-climb inputs.
-- Concourse B is based on the selected Ted Davis source, with provenance, exclusions, attribution, and written release permission documented before any public preview or deployment.
+- Concourse B is based on the selected Ted Davis source, with provenance, exclusions, attribution, and the 2026-08-27 owner-attested private-game permission recorded before preview deployment.
 - All required actions work through native HTML controls and keyboard navigation as well as the cockpit interaction path.
 - Wrong actions provide safe feedback, progressive help, and checkpoint restoration without erasing completed progress.
 - Reload restores the latest earned checkpoint at rest, and schema migration preserves every previously earned chapter and reward.
@@ -363,7 +363,7 @@ Exact object names and anchor placement become runtime contracts only after Blen
 - Focused pure, reducer, persistence, asset, and browser checks pass.
 - Blender and browser screenshots prove the asset orientation, Concourse B ramp-start composition, taxi alignment, hold-short view, runway lineup, and initial-climb view.
 - The active ExecPlan, asset report, and `TEST_REPORT.md` contain the actual validation evidence and genuine remaining limitations.
-- The owner receives a Vercel preview and consistent screenshots for the DC-9 approval gate only after source release permission is documented.
+- The owner receives a private Vercel preview and consistent screenshots for the DC-9 approval gate after the source report records the owner-attested permission and required attribution.
 
 ## Scope exclusions
 
