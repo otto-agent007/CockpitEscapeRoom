@@ -8,6 +8,7 @@ import { ControlCheckPanel } from './ControlCheckPanel'
 import { InstrumentScanPanel } from './InstrumentScanPanel'
 import type { Dc9InstrumentId } from '../../game/dc9FlightDeck'
 import type { Dc9ControlState, Dc9HoldControl, Dc9InputMethod } from '../../game/dc9Input'
+import type { Dc9MemphisDepartureRuntime } from '../../game/useDc9MemphisDeparture'
 import type { Dc9HotspotScreenPositions, Dc9LoadState } from '../../scenes/PrototypeScene'
 import './dc9Chapter.css'
 
@@ -40,6 +41,7 @@ interface Dc9ChapterProps {
   controls: Dc9ControlState
   inputMethod: Dc9InputMethod
   onHoldControl: (control: Dc9HoldControl, pressed: boolean) => void
+  dc9MemphisDeparture: Dc9MemphisDepartureRuntime
 }
 
 export function Dc9Chapter({

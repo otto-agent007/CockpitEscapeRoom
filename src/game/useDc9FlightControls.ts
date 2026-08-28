@@ -4,6 +4,8 @@ import {
   advanceDc9Controls,
   combineDc9Input,
   dc9InputFromGamepad,
+  isDc9ControlKey,
+  resetDc9Controls,
   type Dc9ControlInput,
   type Dc9ControlState,
   type Dc9HoldControl,
@@ -18,27 +20,19 @@ export interface Dc9FlightControlsRuntime {
   controlsRef: RefObject<Dc9ControlState>
   inputMethod: Dc9InputMethod
   setHoldControl: (control: Dc9HoldControl, pressed: boolean) => void
+  /** Returns every physical control to its neutral, stopped state. */
+  resetControls: () => void
   /** Called by the 3D scene while the player is dragging the yoke itself. */
   setPointerInput: (input: Partial<Dc9ControlInput> | null) => void
 }
 
 interface UseDc9FlightControlsOptions {
   active: boolean
+  departureActive: boolean
   completed: readonly Dc9ControlCheckItemId[]
   reducedMotion: boolean
   onReached: (controls: Dc9ControlState) => void
 }
-
-const CONTROLLED_KEY_CODES = new Set([
-  'ArrowUp',
-  'ArrowDown',
-  'ArrowLeft',
-  'ArrowRight',
-  'KeyW',
-  'KeyS',
-  'KeyA',
-  'KeyD',
-])
 
 /** How often the live positions are pushed into React state, in milliseconds. */
 const PUBLISH_INTERVAL_MS = 80
@@ -64,7 +58,7 @@ function gamepadSnapshot(gamepad: Gamepad | null) {
  * buttons and a direct drag on the yoke, and reports each stop as it is reached.
  */
 export function useDc9FlightControls(options: UseDc9FlightControlsOptions): Dc9FlightControlsRuntime {
-  const { active, completed, reducedMotion, onReached } = options
+  const { active, departureActive, completed, reducedMotion, onReached } = options
   const [controls, setControls] = useState<Dc9ControlState>({ ...NEUTRAL_DC9_CONTROLS })
   const [inputMethod, setInputMethod] = useState<Dc9InputMethod>('keyboard')
   const controlsRef = useRef<Dc9ControlState>({ ...NEUTRAL_DC9_CONTROLS })
@@ -93,6 +87,14 @@ export function useDc9FlightControls(options: UseDc9FlightControlsOptions): Dc9F
     pointerRef.current = null
   }, [])
 
+  const resetControls = useCallback(() => {
+    releaseAll()
+    const stopped = resetDc9Controls()
+    controlsRef.current = stopped
+    setControls(stopped)
+    setInputMethod('keyboard')
+  }, [releaseAll])
+
   const setHoldControl = useCallback((control: Dc9HoldControl, pressed: boolean) => {
     if (pressed) holdsRef.current.add(control)
     else holdsRef.current.delete(control)
@@ -105,20 +107,22 @@ export function useDc9FlightControls(options: UseDc9FlightControlsOptions): Dc9F
   useEffect(() => {
     if (!active) {
       releaseAll()
-      controlsRef.current = { ...NEUTRAL_DC9_CONTROLS }
+      controlsRef.current = resetDc9Controls()
       // Republished on the next tick rather than inline, so leaving the stage does not
       // cascade a render out of this effect.
-      const recentre = window.setTimeout(() => setControls({ ...NEUTRAL_DC9_CONTROLS }), 0)
+      const recentre = window.setTimeout(() => setControls(resetDc9Controls()), 0)
       return () => window.clearTimeout(recentre)
     }
     const onKeyDown = (event: KeyboardEvent) => {
-      if (isTypingTarget(event.target) || !CONTROLLED_KEY_CODES.has(event.code)) return
+      if (isTypingTarget(event.target) || !isDc9ControlKey(event.code, departureActive)) return
       event.preventDefault()
+      if (event.code === 'Space') return
       keysRef.current.add(event.code)
     }
     const onKeyUp = (event: KeyboardEvent) => {
-      if (!CONTROLLED_KEY_CODES.has(event.code)) return
+      if (!isDc9ControlKey(event.code, departureActive)) return
       event.preventDefault()
+      if (event.code === 'Space') return
       keysRef.current.delete(event.code)
     }
     const onBlur = () => releaseAll()
@@ -136,7 +140,7 @@ export function useDc9FlightControls(options: UseDc9FlightControlsOptions): Dc9F
       document.removeEventListener('visibilitychange', onVisibility)
       releaseAll()
     }
-  }, [active, releaseAll])
+  }, [active, departureActive, releaseAll])
 
   useEffect(() => {
     if (!active) return
@@ -183,5 +187,5 @@ export function useDc9FlightControls(options: UseDc9FlightControlsOptions): Dc9F
     return () => window.cancelAnimationFrame(frameRequest)
   }, [active])
 
-  return { controls, controlsRef, inputMethod, setHoldControl, setPointerInput }
+  return { controls, controlsRef, inputMethod, setHoldControl, resetControls, setPointerInput }
 }

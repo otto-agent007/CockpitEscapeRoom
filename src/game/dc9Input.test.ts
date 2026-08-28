@@ -4,7 +4,10 @@ import {
   advanceDc9Controls,
   combineDc9Input,
   dc9InputFromGamepad,
+  isDc9ControlKey,
   normalizeDc9Axis,
+  normalizeDc9BrakeDemand,
+  resetDc9Controls,
   type Dc9ControlState,
   type Dc9HoldControl,
 } from './dc9Input'
@@ -41,6 +44,25 @@ describe('normalizeDc9Axis', () => {
 
   it('treats non-finite input as centred', () => {
     expect(normalizeDc9Axis(Number.NaN)).toBe(0)
+  })
+})
+
+describe('Memphis departure input', () => {
+  it('clamps the non-operational brake demand to the safe normalized range', () => {
+    expect(normalizeDc9BrakeDemand(-1)).toBe(0)
+    expect(normalizeDc9BrakeDemand(0.4)).toBe(0.4)
+    expect(normalizeDc9BrakeDemand(2)).toBe(1)
+    expect(normalizeDc9BrakeDemand(Number.NaN)).toBe(0)
+  })
+
+  it('reserves Space only while the departure runtime is active', () => {
+    expect(isDc9ControlKey('Space', false)).toBe(false)
+    expect(isDc9ControlKey('Space', true)).toBe(true)
+    expect(isDc9ControlKey('KeyW', false)).toBe(true)
+  })
+
+  it('resets every physical DC-9 control to its stopped position', () => {
+    expect(resetDc9Controls()).toEqual({ pitch: 0, roll: 0, thrust: 0, rudder: 0 })
   })
 })
 

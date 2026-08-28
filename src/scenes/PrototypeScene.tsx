@@ -46,6 +46,7 @@ import {
   type Dc9InstrumentId,
 } from '../game/dc9FlightDeck'
 import { NEUTRAL_DC9_CONTROLS, type Dc9ControlInput, type Dc9ControlState } from '../game/dc9Input'
+import type { Dc9MemphisDepartureRuntime } from '../game/useDc9MemphisDeparture'
 import {
   advanceDc9SelfTests,
   applyDc9JointValue,
@@ -222,6 +223,7 @@ interface PrototypeSceneProps {
   activeDc9Controls: Dc9SecureControlId[]
   dc9ChapterStage: Dc9ChapterStage
   dc9FlightControlsRef?: React.RefObject<Dc9ControlState>
+  dc9MemphisDeparture: Dc9MemphisDepartureRuntime
   dc9IdentifiedInstruments: readonly Dc9InstrumentId[]
   onDc9YokeDrag?: (input: Partial<Dc9ControlInput> | null) => void
   reducedMotion: boolean
@@ -3005,7 +3007,7 @@ function Dc9Cockpit({
           />
           <Dc9YokeDragControls
             yokeTarget={loaded.yokeTarget}
-            enabled={interactionEnabled && chapterStage === 'controlCheck'}
+            enabled={interactionEnabled && (chapterStage === 'controlCheck' || chapterStage === 'memphisDeparture')}
             suppressLookRef={suppressLookRef}
             onDrag={onYokeDrag}
             onHoverInteractive={onHoverInteractive}

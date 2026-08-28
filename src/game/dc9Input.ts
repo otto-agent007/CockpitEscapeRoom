@@ -51,6 +51,17 @@ export const ZERO_DC9_INPUT: Readonly<Dc9ControlInput> = { pitch: 0, roll: 0, th
 
 export const NEUTRAL_DC9_CONTROLS: Readonly<Dc9ControlState> = { pitch: 0, roll: 0, thrust: 0, rudder: 0 }
 
+const DC9_CONTROL_KEY_CODES = new Set([
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+  'KeyW',
+  'KeyS',
+  'KeyA',
+  'KeyD',
+])
+
 /** Seconds-to-stop rates. Spring axes drive faster than they recentre. */
 const PITCH_ROLL_DRIVE_RATE = 2.2
 const RUDDER_DRIVE_RATE = 1.8
@@ -63,6 +74,21 @@ function clampAxis(value: number): number {
 
 function clamp01(value: number): number {
   return Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0))
+}
+
+/** Normalized fictional brake demand for the Memphis legacy-departure adapter. */
+export function normalizeDc9BrakeDemand(value: number): number {
+  return clamp01(value)
+}
+
+/** Space is a temporary departure brake hold; all other DC-9 controls retain their mapping. */
+export function isDc9ControlKey(code: string, departureActive: boolean): boolean {
+  return DC9_CONTROL_KEY_CODES.has(code) || (departureActive && code === 'Space')
+}
+
+/** Return a fresh stopped control state without changing the public control-state shape. */
+export function resetDc9Controls(): Dc9ControlState {
+  return { ...NEUTRAL_DC9_CONTROLS }
 }
 
 export function normalizeDc9Axis(value: number, deadzone = 0.12): number {

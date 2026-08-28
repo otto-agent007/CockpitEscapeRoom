@@ -8,6 +8,7 @@ import { SceneHelp } from './components/SceneHelp'
 import { dc9LegacyFlow, gameCopy, lockerFlow, type AirbusControl, type LockerMemoryId } from './game/config'
 import { dc9InstrumentIdFromGameId } from './game/dc9FlightDeck'
 import { useDc9FlightControls } from './game/useDc9FlightControls'
+import { useDc9MemphisDeparture } from './game/useDc9MemphisDeparture'
 import type { Dc9ControlState } from './game/dc9Input'
 import type { EngineOutCheckpoint, EngineOutTrait } from './game/airbusEngineOut'
 import type { StormLineCheckpoint, StormLineTrait } from './game/airbusSimulator'
@@ -549,14 +550,30 @@ export default function App() {
   }, [beginLockerIntro, lockerIntroStage])
 
   const applyDc9ControlCheck = useCallback((controls: Dc9ControlState) => {
+    if (state.phase !== 'dc9' || state.dc9.stage !== 'controlCheck') return
     dispatch({ type: 'APPLY_DC9_CONTROL_CHECK', controls })
-  }, [dispatch])
+  }, [dispatch, state.dc9.stage, state.phase])
+
+  const dc9DepartureActive = state.phase === 'dc9' && state.dc9.stage === 'memphisDeparture'
 
   const dc9FlightControls = useDc9FlightControls({
-    active: state.phase === 'dc9' && state.dc9.stage === 'controlCheck',
+    active: state.phase === 'dc9' && (state.dc9.stage === 'controlCheck' || state.dc9.stage === 'memphisDeparture'),
+    departureActive: dc9DepartureActive,
     completed: state.dc9.controlCheck,
     reducedMotion,
     onReached: applyDc9ControlCheck,
+  })
+
+  const dc9MemphisDeparture = useDc9MemphisDeparture({
+    active: dc9DepartureActive,
+    progress: state.dc9.departure,
+    controlsRef: dc9FlightControls.controlsRef,
+    reducedMotion,
+    resetControls: dc9FlightControls.resetControls,
+    onCheckpoint: (checkpoint) => dispatch({ type: 'SAVE_DC9_DEPARTURE_CHECKPOINT', checkpoint }),
+    onMistake: (beat) => dispatch({ type: 'RECORD_DC9_DEPARTURE_MISTAKE', beat }),
+    onRestore: () => dispatch({ type: 'RESTORE_DC9_DEPARTURE_CHECKPOINT' }),
+    onComplete: () => dispatch({ type: 'COMPLETE_DC9_MEMPHIS_DEPARTURE' }),
   })
 
   const handleDc9Interaction = useCallback((gameId: string) => {
@@ -692,6 +709,7 @@ export default function App() {
             activeDc9Controls={state.dc9.secureSequence}
             dc9ChapterStage={state.dc9.stage}
             dc9FlightControlsRef={dc9FlightControls.controlsRef}
+            dc9MemphisDeparture={dc9MemphisDeparture}
             dc9IdentifiedInstruments={state.dc9.instrumentScan.identified}
             onDc9YokeDrag={dc9FlightControls.setPointerInput}
             reducedMotion={reducedMotion}
@@ -756,6 +774,7 @@ export default function App() {
           controls={dc9FlightControls.controls}
           inputMethod={dc9FlightControls.inputMethod}
           onHoldControl={dc9FlightControls.setHoldControl}
+          dc9MemphisDeparture={dc9MemphisDeparture}
         />
       )}
       {state.phase === 'dc9' && !skipPrototypeScene && showDc9Loader && dc9LoadState.status !== 'accessible-fallback' && (
