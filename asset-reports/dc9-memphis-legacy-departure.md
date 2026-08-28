@@ -52,3 +52,23 @@ Owner review inputs are `concourse-b-source-contact-sheet.png` and the three ort
 ## Owner Source Review Gate — 2026-08-28
 
 The owner approved the exact candidate GLB SHA-256 `6cc30543653173d64b2997468009677e72e8923a184aaf886d01b1a842249177` and candidate metadata SHA-256 `70740b2137ac30e06611e39d4f119ada0b889d853e80d4f5d408767a7b200c32` for neutral assembly. The signed scope is deliberately limited to source geometry and orientation. Textures and final fidelity remain unapproved; no ramp, taxi, runway, path, anchors, or materials were created during Task 6.
+
+## Neutral assembly evidence — Assembly Review Gate pending
+
+Task 7 consumed only the owner-approved Task 6 candidate after rechecking the source-manifest, candidate GLB, and candidate-metadata SHA-256 values. The resulting neutral staging asset is **not approved** for shading, runtime integration, public-model promotion, or production use.
+
+- Blender: 5.1.2, run with `--background --factory-startup --disable-autoexec`.
+- Staged neutral master: `art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/dc9-memphis-legacy-neutral.blend` — 105858 bytes, SHA-256 `9e413dc6a72784ceb3427d90cd296deb92beccc48c50a03609ad51f9db4d55b0`.
+- Staged neutral GLB: `art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/dc9-memphis-legacy-neutral.glb` — 40428 bytes, SHA-256 `92820c6daa5f8d31dd2518f9ff3e4002167c5da83504e052f3d9b0c36cd57471`.
+- Reimport: pass; 15 meshes, 376 triangles, 3 neutral materials, five unique `game_id` anchors at their authored coordinates. The source group contains only `ConcourseB.obj`, `ConcourseB_2.obj`, and `ConcourseB_2e.obj`.
+- Contract: `art-source/cockpit-pipeline/gates/dc9-memphis-legacy-runtime-contract.json` validated with the exact HTML equivalent `MemphisDeparturePanel qualitative path control` for every anchor.
+- Validation: layout unit tests passed 2/2; runtime-contract and computed-hash manifest validation passed. `npx gltf-transform validate` reported no errors or warnings; its 11 unused-UV rows are informational source-mesh notices only.
+- Preview files decoded and are nonblank at `previews/neutral-1440.png`, `previews/neutral-768.png`, and `previews/neutral-375.png`. The low-poly, untextured terminal silhouette is visible from the ramp overview; owner review must judge whether its framing reads sufficiently before any materials work.
+
+Known deviation: this is a compressed 1995 memory composition, not exact KMEM geography. No normal/emissive maps, final textures, wear, color grading, cockpit/exterior-aircraft geometry, browser files, public model, or `assembly-approval.json` were created.
+
+## Owner Assembly Review Gate — 2026-08-28
+
+The owner approved the revised 36 mm neutral composition for materials work. `assembly-approval.json` pins the 3669-byte assembly manifest (`83f16a2c9efdace15006d74eabe022753e5e0ff5ba008701cac340f88c920648`), 105851-byte neutral master (`393ba3b742578fe223b9853fb3ed4ff50c802d69c801e38d7e5688551ee22032`), 40428-byte neutral GLB (`92820c6daa5f8d31dd2518f9ff3e4002167c5da83504e052f3d9b0c36cd57471`), runtime contract, resolved layout, node/pivot report, and the final 1440/768/375 review PNG hashes.
+
+Fresh reimport retained the five exact anchors, 15 meshes, 376 triangles, and 3 materials. Layout, runtime-contract, manifest, GLB, source/assembly-approval consistency, and `assembly_complete -> assembly-approved` transition validation passed. The reproducible generated `.blend1` backup was removed; the approved `.blend` remains. The approval scope is limited to revised neutral composition, route framing, Concourse placement, and anchors for materials work. Textures, final fidelity, runtime integration, and public-model promotion remain unapproved.

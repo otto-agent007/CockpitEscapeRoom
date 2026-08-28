@@ -1,0 +1,58 @@
+{
+  "approvalId": "dc9-memphis-legacy-assembly-approval-001",
+  "jobId": "dc9-memphis-legacy-assembly",
+  "sourceJobId": "dc9-memphis-legacy-source",
+  "stage": "assembly-approved",
+  "approved": true,
+  "approvedBy": "owner review 2026-08-28",
+  "approvedAt": "2026-08-28",
+  "assemblyManifest": "art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-assembly/manifests/assembly-complete.json",
+  "assemblyManifestSha256": "83f16a2c9efdace15006d74eabe022753e5e0ff5ba008701cac340f88c920648",
+  "sourceVariant": "Ted Davis KMEM X-Plane scenery revision 2019-01-22",
+  "targetVariant": "1995 Memphis memory recreation",
+  "variantScope": "common",
+  "knownDeviation": "compressed 1995 memory composition, not exact KMEM geography",
+  "scope": "Revised 36 mm neutral composition, full route framing, Concourse placement, and exact anchors approved for materials work; textures, final fidelity, and runtime promotion are not approved.",
+  "approvedArtifacts": [
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/dc9-memphis-legacy-neutral.blend",
+      "sha256": "393ba3b742578fe223b9853fb3ed4ff50c802d69c801e38d7e5688551ee22032",
+      "bytes": 105851
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/dc9-memphis-legacy-neutral.glb",
+      "sha256": "92820c6daa5f8d31dd2518f9ff3e4002167c5da83504e052f3d9b0c36cd57471",
+      "bytes": 40428
+    },
+    {
+      "path": "art-source/cockpit-pipeline/gates/dc9-memphis-legacy-runtime-contract.json",
+      "sha256": "1506c791dc2b4e5681eb079a7de3690cec28425d65ec3f619b29d7416e2092a6",
+      "bytes": 2547
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/resolved-layout.json",
+      "sha256": "3a3f0a67b10c5f736047807ebdaf43f92db72e3e6f395692b1e56fea744c1ac5",
+      "bytes": 1736
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/node-pivot-report.json",
+      "sha256": "149ba8c4d551dcb5633c66614fff3d0546698b2d6eef91923c2be6157aca19d5",
+      "bytes": 1290
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/neutral-1440.png",
+      "sha256": "b171873f16554e1d194442e1521dcf18df27d7cbd47248922a88f3f273f7158e",
+      "bytes": 1317012
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/neutral-768.png",
+      "sha256": "6abfc57f980121ee81906ac7681aecf2b6b99f008159a67c33b54916f8dfa310",
+      "bytes": 383256
+    },
+    {
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/neutral-375.png",
+      "sha256": "96a3abf185c6c81cc6c03ba7a34f08fdef5a62ebbd24f5b4245d66b3cebecfe9",
+      "bytes": 94179
+    }
+  ]
+}

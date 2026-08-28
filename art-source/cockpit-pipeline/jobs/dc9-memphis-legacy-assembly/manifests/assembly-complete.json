@@ -1,0 +1,84 @@
+{
+  "approval": {
+    "approved": false,
+    "approvedBy": "owner Assembly Review Gate pending",
+    "notes": "Neutral assembly evidence only; no material, runtime/public-model, or shading approval."
+  },
+  "artifactBasePath": "/mnt/2TBHDD/CockpitEscapeRoom",
+  "createdAt": "2026-08-28T00:00:00Z",
+  "inputs": [
+    {
+      "bytes": 1305,
+      "path": "art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-source/source-approval.json",
+      "sha256": "5756c11798c0b5e39a932a6983525906bec45636579a0512d3bb417dcd976b0b"
+    },
+    {
+      "bytes": 4499,
+      "path": "art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-source/manifests/sourcing-complete.json",
+      "sha256": "53802b3b648bfb048c81b1e8d930ed3a97232ee1f3a9014079e94da9c235dd7a"
+    },
+    {
+      "bytes": 19968,
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source/dc9-memphis-concourse-b-source.glb",
+      "sha256": "6cc30543653173d64b2997468009677e72e8923a184aaf886d01b1a842249177"
+    },
+    {
+      "bytes": 3321,
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source/candidate-metadata.json",
+      "sha256": "70740b2137ac30e06611e39d4f119ada0b889d853e80d4f5d408767a7b200c32"
+    }
+  ],
+  "jobId": "dc9-memphis-legacy-assembly",
+  "manifestId": "dc9-memphis-legacy-assembly-complete",
+  "outputs": [
+    {
+      "bytes": 105851,
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/dc9-memphis-legacy-neutral.blend",
+      "sha256": "393ba3b742578fe223b9853fb3ed4ff50c802d69c801e38d7e5688551ee22032"
+    },
+    {
+      "bytes": 40428,
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/dc9-memphis-legacy-neutral.glb",
+      "sha256": "92820c6daa5f8d31dd2518f9ff3e4002167c5da83504e052f3d9b0c36cd57471"
+    },
+    {
+      "bytes": 1736,
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/resolved-layout.json",
+      "sha256": "3a3f0a67b10c5f736047807ebdaf43f92db72e3e6f395692b1e56fea744c1ac5"
+    },
+    {
+      "bytes": 1290,
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/node-pivot-report.json",
+      "sha256": "149ba8c4d551dcb5633c66614fff3d0546698b2d6eef91923c2be6157aca19d5"
+    },
+    {
+      "bytes": 750,
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/assembly-validation.json",
+      "sha256": "b8df1ca991f1a5d3b0e7691d6b6756aa315ab9ddf163f496a2a66662a828c48e"
+    },
+    {
+      "bytes": 1317012,
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/neutral-1440.png",
+      "sha256": "b171873f16554e1d194442e1521dcf18df27d7cbd47248922a88f3f273f7158e"
+    },
+    {
+      "bytes": 383256,
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/neutral-768.png",
+      "sha256": "6abfc57f980121ee81906ac7681aecf2b6b99f008159a67c33b54916f8dfa310"
+    },
+    {
+      "bytes": 94179,
+      "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/neutral-375.png",
+      "sha256": "96a3abf185c6c81cc6c03ba7a34f08fdef5a62ebbd24f5b4245d66b3cebecfe9"
+    },
+    {
+      "bytes": 2547,
+      "path": "art-source/cockpit-pipeline/gates/dc9-memphis-legacy-runtime-contract.json",
+      "sha256": "1506c791dc2b4e5681eb079a7de3690cec28425d65ec3f619b29d7416e2092a6"
+    }
+  ],
+  "sourceVariant": "Ted Davis KMEM X-Plane scenery revision 2019-01-22",
+  "stage": "assembly_complete",
+  "targetVariant": "1995 Memphis memory recreation",
+  "variantScope": "common"
+}

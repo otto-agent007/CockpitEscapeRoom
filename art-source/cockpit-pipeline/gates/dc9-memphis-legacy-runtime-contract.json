@@ -1,0 +1,70 @@
+{
+  "artifactId": "dc9-memphis-legacy-neutral-runtime-contract",
+  "assetPath": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/dc9-memphis-legacy-neutral.glb",
+  "createdAt": "2026-08-28T00:00:00Z",
+  "customPropertiesPreserved": true,
+  "gate": "runtime-contract",
+  "knownReferenceDeviations": [
+    "compressed 1995 memory composition, not exact KMEM geography"
+  ],
+  "reimportValidation": "pass",
+  "rootObject": "KMEM_LEGACY_ROOT",
+  "runtimeNodes": [
+    {
+      "gameId": "dc9.memphis.rampStart",
+      "htmlEquivalent": "MemphisDeparturePanel qualitative path control",
+      "localAxis": "NONE",
+      "name": "KMEM_RAMP_START",
+      "nodeRole": "cue",
+      "pivotExportVerified": true,
+      "pivotVerified": true,
+      "visualAlignmentStatus": "not-applicable-empty-anchor"
+    },
+    {
+      "gameId": "dc9.memphis.taxiTurn",
+      "htmlEquivalent": "MemphisDeparturePanel qualitative path control",
+      "localAxis": "NONE",
+      "name": "KMEM_TAXI_TURN",
+      "nodeRole": "cue",
+      "pivotExportVerified": true,
+      "pivotVerified": true,
+      "visualAlignmentStatus": "not-applicable-empty-anchor"
+    },
+    {
+      "gameId": "dc9.memphis.holdShort",
+      "htmlEquivalent": "MemphisDeparturePanel qualitative path control",
+      "localAxis": "NONE",
+      "name": "KMEM_HOLD_SHORT",
+      "nodeRole": "cue",
+      "pivotExportVerified": true,
+      "pivotVerified": true,
+      "visualAlignmentStatus": "not-applicable-empty-anchor"
+    },
+    {
+      "gameId": "dc9.memphis.runwayLineup",
+      "htmlEquivalent": "MemphisDeparturePanel qualitative path control",
+      "localAxis": "NONE",
+      "name": "KMEM_RUNWAY_LINEUP",
+      "nodeRole": "cue",
+      "pivotExportVerified": true,
+      "pivotVerified": true,
+      "visualAlignmentStatus": "not-applicable-empty-anchor"
+    },
+    {
+      "gameId": "dc9.memphis.initialClimb",
+      "htmlEquivalent": "MemphisDeparturePanel qualitative path control",
+      "localAxis": "NONE",
+      "name": "KMEM_INITIAL_CLIMB",
+      "nodeRole": "cue",
+      "pivotExportVerified": true,
+      "pivotVerified": true,
+      "visualAlignmentStatus": "not-applicable-empty-anchor"
+    }
+  ],
+  "scaleAndCameraAssumptions": "Compressed authored game space; environment-only GLB is positioned by the cockpit-first runtime.",
+  "sceneGroup": "DC-9 First-Officer Memphis legacy departure environment",
+  "visualAlignmentValidation": {
+    "evidence": "Neutral assembly only; owner Assembly Review Gate pending.",
+    "status": "not-verified"
+  }
+}
