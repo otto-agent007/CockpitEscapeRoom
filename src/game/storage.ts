@@ -284,7 +284,9 @@ function normalizeDc9Progress(
       : createInitialDc9DepartureProgress()
     : hasReachedPostDepartureStage
       ? advanceDc9DepartureProgress(createInitialDc9DepartureProgress(), { type: 'complete' })
-      : normalizeDc9DepartureProgress(candidate.departure)
+      : savedStage === 'memphisDeparture' && routesComplete
+        ? normalizeDc9DepartureProgress(candidate.departure)
+        : createInitialDc9DepartureProgress()
   // Saves written before schema 13 have no control check or instrument scan. Anyone who
   // was already past where those stages now sit keeps their place rather than being
   // sent back to repeat content the chapter never asked them for.

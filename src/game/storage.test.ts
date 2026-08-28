@@ -947,6 +947,108 @@ describe('schema-v13 to schema-v14 Memphis departure migration', () => {
     expect(loaded.dc9.departure).toEqual(createInitialDc9DepartureProgress())
   })
 
+  it.each([
+    ['controlCheck', {}, {}],
+    ['intro', { controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS] }, {}],
+    ['routeRecord', {
+      controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS],
+      routeSelections: ['DTW'],
+      routeCompleted: ['DTW'],
+    }, {}],
+  ] as const)('rejects valid-shaped late departure progress before %s is reached', (stage, dc9, departure) => {
+    const state = createInitialState()
+    const loaded = loadRaw({
+      ...state,
+      phase: 'dc9',
+      dc9: {
+        ...state.dc9,
+        stage,
+        ...dc9,
+        departure: {
+          checkpoint: 'initialClimb',
+          completedBeats: ['rampRelease', 'taxi', 'holdShort', 'lineup', 'takeoffRoll', 'rotation'],
+          attempts: { taxi: 2 },
+          hintLevel: 2,
+          completed: false,
+          ...departure,
+        },
+      },
+    })
+
+    expect(loaded.dc9.stage).toBe(stage)
+    expect(loaded.dc9.departure).toEqual(createInitialDc9DepartureProgress())
+  })
+
+  it('requires a complete route record before retaining a current Memphis departure checkpoint', () => {
+    const state = createInitialState()
+    const loaded = loadRaw({
+      ...state,
+      phase: 'dc9',
+      dc9: {
+        ...state.dc9,
+        stage: 'memphisDeparture',
+        controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS],
+        routeSelections: ['DTW'],
+        routeCompleted: ['DTW'],
+        departure: {
+          checkpoint: 'taxiTurn',
+          completedBeats: ['rampRelease'],
+          attempts: { taxi: 1 },
+          hintLevel: 1,
+          completed: false,
+        },
+      },
+    })
+
+    expect(loaded.dc9.stage).toBe('routeRecord')
+    expect(loaded.dc9.departure).toEqual(createInitialDc9DepartureProgress())
+  })
+
+  it.each([
+    ['homeOperations', {}],
+    ['instrumentScan', { homeOperationsCompleted: true }],
+    ['shutdown', {
+      homeOperationsCompleted: true,
+      instrumentScan: { identified: [...DC9_INSTRUMENT_SCAN_ORDER], attempts: 0 },
+    }],
+    ['qualification', {
+      homeOperationsCompleted: true,
+      instrumentScan: { identified: [...DC9_INSTRUMENT_SCAN_ORDER], attempts: 0 },
+      secureSequence: [...dc9LegacyFlow.secureSequence],
+      stage: 'qualification',
+    }],
+    ['keyReveal', {
+      homeOperationsCompleted: true,
+      instrumentScan: { identified: [...DC9_INSTRUMENT_SCAN_ORDER], attempts: 0 },
+      secureSequence: [...dc9LegacyFlow.secureSequence],
+      stage: 'keyReveal',
+    }],
+    ['complete', {
+      homeOperationsCompleted: true,
+      instrumentScan: { identified: [...DC9_INSTRUMENT_SCAN_ORDER], attempts: 0 },
+      secureSequence: [...dc9LegacyFlow.secureSequence],
+      keyRevealed: true,
+      keyClaimed: true,
+      stage: 'complete',
+    }],
+  ] as const)('forces completed departure progress for current %s saves', (stage, dc9) => {
+    const state = createInitialState()
+    const loaded = loadRaw({
+      ...state,
+      phase: 'dc9',
+      dc9: {
+        ...state.dc9,
+        stage,
+        routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
+        routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
+        departure: createInitialDc9DepartureProgress(),
+        ...dc9,
+      },
+    })
+
+    expect(loaded.dc9.departure).toMatchObject({ checkpoint: 'complete', completed: true })
+  })
+
   it.each(['reward', 'mars'] as const)('preserves a v13 completed %s save', (phase) => {
     const loaded = loadRaw({
       ...v13Dc9(completedDc9() as unknown as Record<string, unknown>),

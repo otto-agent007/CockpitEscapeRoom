@@ -35,6 +35,7 @@ import {
 import {
   advanceDc9DepartureProgress,
   createInitialDc9DepartureProgress,
+  DC9_DEPARTURE_CHECKPOINTS,
   recordDc9DepartureMistake,
   type Dc9DepartureBeat,
   type Dc9DepartureCheckpoint,
@@ -370,6 +371,13 @@ function isDc9DepartureBeatActive(
   return checkpoint === 'initialClimb' && beat === 'initialClimb'
 }
 
+function isNextDc9DepartureCheckpoint(
+  current: Dc9DepartureCheckpoint,
+  next: Dc9DepartureCheckpoint,
+): boolean {
+  return DC9_DEPARTURE_CHECKPOINTS.indexOf(next) === DC9_DEPARTURE_CHECKPOINTS.indexOf(current) + 1
+}
+
 function hintFor(state: GameState): string {
   if (state.phase === 'airbus') {
     if (countPlacedAirbusCards(state.airbusAssignments) !== airbusCaptainFlow.controlCards.length) {
@@ -558,7 +566,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'SAVE_DC9_DEPARTURE_CHECKPOINT': {
       if (state.phase !== 'dc9' || state.dc9.stage !== 'memphisDeparture') return state
-      if (action.checkpoint === 'complete') return state
+      if (
+        action.checkpoint === 'complete'
+        || !isNextDc9DepartureCheckpoint(state.dc9.departure.checkpoint, action.checkpoint)
+      ) return state
       const departure = advanceDc9DepartureProgress(state.dc9.departure, {
         type: 'checkpoint',
         checkpoint: action.checkpoint,

@@ -143,10 +143,9 @@ function enterDc9HomeOperations(): GameState {
     state = gameReducer(state, { type: 'TOGGLE_DC9_ROUTE', code })
   }
   state = gameReducer(state, { type: 'SUBMIT_DC9_ROUTES' })
-  state = gameReducer(state, {
-    type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
-    checkpoint: 'initialClimb',
-  })
+  for (const checkpoint of ['taxiTurn', 'holdShort', 'runwayLineup', 'initialClimb'] as const) {
+    state = gameReducer(state, { type: 'SAVE_DC9_DEPARTURE_CHECKPOINT', checkpoint })
+  }
   return gameReducer(state, { type: 'COMPLETE_DC9_MEMPHIS_DEPARTURE' })
 }
 
@@ -194,16 +193,20 @@ describe('DC-9 Final Flight Log reducer', () => {
     expect(state.dc9.routeCompleted).toEqual(['DTW', 'MSP', 'STL'])
     expect(state.dc9.stage).toBe('memphisDeparture')
 
-    state = gameReducer(state, {
+    const beforeSkippedCheckpoint = state
+    expect(gameReducer(state, {
       type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
       checkpoint: 'initialClimb',
-    })
+    })).toBe(beforeSkippedCheckpoint)
+    for (const checkpoint of ['taxiTurn', 'holdShort', 'runwayLineup', 'initialClimb'] as const) {
+      state = gameReducer(state, { type: 'SAVE_DC9_DEPARTURE_CHECKPOINT', checkpoint })
+    }
     state = gameReducer(state, { type: 'COMPLETE_DC9_MEMPHIS_DEPARTURE' })
     expect(state.dc9.departure.completed).toBe(true)
     expect(state.dc9.stage).toBe('homeOperations')
   })
 
-  it('guards Memphis departure actions by stage and checkpoint', () => {
+  it('guards Memphis departure actions by stage and ordered checkpoints', () => {
     const routeRecord = enterDc9RouteRecord()
     expect(gameReducer(routeRecord, {
       type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
@@ -215,6 +218,18 @@ describe('DC-9 Final Flight Log reducer', () => {
       departure = gameReducer(departure, { type: 'TOGGLE_DC9_ROUTE', code })
     }
     departure = gameReducer(departure, { type: 'SUBMIT_DC9_ROUTES' })
+    expect(gameReducer(departure, {
+      type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
+      checkpoint: 'holdShort',
+    })).toBe(departure)
+    departure = gameReducer(departure, {
+      type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
+      checkpoint: 'taxiTurn',
+    })
+    expect(gameReducer(departure, {
+      type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
+      checkpoint: 'rampStart',
+    })).toBe(departure)
     expect(gameReducer(departure, {
       type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
       checkpoint: 'complete',
