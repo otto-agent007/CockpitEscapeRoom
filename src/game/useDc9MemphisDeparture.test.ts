@@ -8,6 +8,7 @@ import {
 } from './dc9MemphisDeparture'
 import {
   createDc9DepartureHtmlPublicationScheduler,
+  createDc9DepartureCompletionGate,
   dispatchDc9DepartureDurableEvent,
   type Dc9DepartureHtmlPublication,
 } from './useDc9MemphisDeparture'
@@ -45,6 +46,34 @@ function publication(frame: Dc9DepartureFrame): Dc9DepartureHtmlPublication {
 }
 
 describe('DC-9 Memphis departure HTML publication', () => {
+  it('waits for the committed initial-climb checkpoint before completing once', () => {
+    const calls: string[] = []
+    const gate = createDc9DepartureCompletionGate()
+
+    gate.request('runwayLineup', () => calls.push('complete'))
+    gate.request('runwayLineup', () => calls.push('complete'))
+    expect(calls).toEqual([])
+
+    gate.commit('initialClimb', () => calls.push('complete'))
+    gate.commit('initialClimb', () => calls.push('complete'))
+    expect(calls).toEqual(['complete'])
+  })
+
+  it('clears a pending completion on restore or inactive exit', () => {
+    const calls: string[] = []
+    const gate = createDc9DepartureCompletionGate()
+
+    gate.request('runwayLineup', () => calls.push('complete'))
+    gate.clear()
+    gate.commit('initialClimb', () => calls.push('complete'))
+    expect(calls).toEqual([])
+
+    gate.request('runwayLineup', () => calls.push('complete'))
+    gate.clear()
+    gate.commit('initialClimb', () => calls.push('complete'))
+    expect(calls).toEqual([])
+  })
+
   it('coalesces rAF, event, and restore requests into one latest publication per 80 ms window', () => {
     const timers = createTimers()
     const published: Dc9DepartureHtmlPublication[] = []

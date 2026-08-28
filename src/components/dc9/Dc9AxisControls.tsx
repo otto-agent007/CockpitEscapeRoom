@@ -93,6 +93,7 @@ export function Dc9AxisControls({ controls, onHold, axisIds }: Dc9AxisControlsPr
               type="button"
               className="dc9-axis__hold"
               data-hold={hold.control}
+              data-dc9-space-owner="axis"
               onPointerDown={(event) => {
                 onHold(hold.control, true)
                 try {
@@ -103,6 +104,7 @@ export function Dc9AxisControls({ controls, onHold, axisIds }: Dc9AxisControlsPr
               }}
               onPointerUp={() => onHold(hold.control, false)}
               onPointerCancel={() => onHold(hold.control, false)}
+              onLostPointerCapture={() => onHold(hold.control, false)}
               onPointerLeave={(event) => {
                 if (event.currentTarget.hasPointerCapture(event.pointerId)) return
                 onHold(hold.control, false)

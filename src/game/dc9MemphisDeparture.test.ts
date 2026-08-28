@@ -107,6 +107,26 @@ describe('DC-9 Memphis departure', () => {
     expect(next.frame).toMatchObject({ beat: 'holdShort', safeHold: true, energy: 0 })
   })
 
+  it('holds a braking, closed-thrust approach at the boundary until it settles', () => {
+    const brakingApproach = {
+      ...canonicalDc9DepartureFrame('taxiTurn'),
+      pathProgress: 0.419,
+      energy: 0.4,
+    }
+    const held = advanceDc9DepartureFrame(brakingApproach, {
+      ...centeredInput,
+      thrust: 0.2,
+      brake: 1,
+    }, 1 / 60)
+
+    expect(held.event).toBeUndefined()
+    expect(held.frame).toMatchObject({ beat: 'taxi', pathProgress: 0.42, safeHold: false })
+
+    const settled = advanceFor(held.frame, { ...centeredInput, brake: 1 }, 1)
+    expect(settled.event).toEqual({ type: 'checkpoint', checkpoint: 'holdShort' })
+    expect(settled.frame).toEqual(canonicalDc9DepartureFrame('holdShort'))
+  })
+
   it('restores a moving hold-boundary crossing to the stopped hold-short checkpoint', () => {
     const movingApproach = {
       ...canonicalDc9DepartureFrame('taxiTurn'),
@@ -181,6 +201,66 @@ describe('DC-9 Memphis departure', () => {
 
     expect(next.event).toEqual({ type: 'checkpoint', checkpoint: 'initialClimb' })
     expect(next.frame.beat).toBe('initialClimb')
+  })
+
+  it('keeps the rotation cue available until an aft input arrives', () => {
+    const cue = {
+      ...canonicalDc9DepartureFrame('runwayLineup'),
+      beat: 'rotation' as const,
+      pathProgress: 0.8,
+      energy: 0.8,
+    }
+    const waiting = advanceFor(cue, centeredInput, 3 / 60)
+
+    expect(waiting.event).toBeUndefined()
+    expect(waiting.frame).toMatchObject({
+      beat: 'rotation',
+      pathProgress: 0.78,
+      safeHold: false,
+    })
+
+    const accepted = advanceDc9DepartureFrame(waiting.frame, {
+      ...centeredInput,
+      pitch: 0.45,
+      thrust: 0.8,
+    }, 1 / 60)
+
+    expect(accepted.event).toEqual({ type: 'checkpoint', checkpoint: 'initialClimb' })
+    expect(accepted.frame.beat).toBe('initialClimb')
+  })
+
+  it('gives a rotation-required aft input time to settle into the climb', () => {
+    const enteringClimb = {
+      ...canonicalDc9DepartureFrame('initialClimb'),
+      pitch: 0.45,
+      energy: 0.8,
+    }
+    const settling = advanceFor(enteringClimb, {
+      ...centeredInput,
+      pitch: 0.45,
+      thrust: 0.8,
+    }, 3 / 60)
+
+    expect(settling.event).toBeUndefined()
+    expect(settling.frame).toMatchObject({ beat: 'initialClimb', altitudeProgress: 0 })
+
+    const stable = advanceDc9DepartureFrame(settling.frame, {
+      ...centeredInput,
+      thrust: 0.8,
+    }, 1 / 60)
+    expect(stable.event).toBeUndefined()
+    expect(stable.frame.altitudeProgress).toBeGreaterThan(0)
+  })
+
+  it('restores initial climb after sustained instability', () => {
+    const unstable = advanceFor(canonicalDc9DepartureFrame('initialClimb'), {
+      ...centeredInput,
+      pitch: 0.8,
+      thrust: 0.8,
+    }, 1)
+
+    expect(unstable.event).toEqual({ type: 'mistake', beat: 'initialClimb', reason: 'unstableClimb' })
+    expect(unstable.frame).toEqual(canonicalDc9DepartureFrame('initialClimb'))
   })
 
   it('completes a relaxed, steady initial climb', () => {

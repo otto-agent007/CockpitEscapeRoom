@@ -56,10 +56,41 @@ export interface Dc9DepartureHtmlPublicationScheduler {
   dispose: () => void
 }
 
+export interface Dc9DepartureCompletionGate {
+  request: (committedCheckpoint: Dc9DepartureCheckpoint, onComplete: () => void) => void
+  commit: (committedCheckpoint: Dc9DepartureCheckpoint, onComplete: () => void) => void
+  clear: () => void
+}
+
 interface Dc9DepartureDurableCallbacks {
   onCheckpoint: (checkpoint: Dc9DepartureCheckpoint) => void
   onMistake: (beat: Dc9DepartureBeat) => void
   onComplete: () => void
+}
+
+/** Defers one terminal callback until React has committed the preceding climb checkpoint. */
+export function createDc9DepartureCompletionGate(): Dc9DepartureCompletionGate {
+  let pending = false
+  let completed = false
+  const flush = (committedCheckpoint: Dc9DepartureCheckpoint, onComplete: () => void) => {
+    if (!pending || completed || committedCheckpoint !== 'initialClimb') return
+    pending = false
+    completed = true
+    onComplete()
+  }
+
+  return {
+    request: (committedCheckpoint, onComplete) => {
+      if (completed) return
+      pending = true
+      flush(committedCheckpoint, onComplete)
+    },
+    commit: flush,
+    clear: () => {
+      pending = false
+      completed = false
+    },
+  }
 }
 
 /** Coalesces visual updates without delaying durable reducer callbacks. */
@@ -99,6 +130,11 @@ export function createDc9DepartureHtmlPublicationScheduler(
 
 function isStoppedControls(controls: Dc9ControlState): boolean {
   return controls.pitch === 0 && controls.roll === 0 && controls.rudder === 0 && controls.thrust === 0
+}
+
+/** Native hold buttons own Space themselves, so the departure brake must not double-bind it. */
+function departureSpaceOwnedByNativeControl(target: EventTarget | null): boolean {
+  return target instanceof HTMLElement && target.closest('[data-dc9-space-owner]') !== null
 }
 
 function isCanonicalFrame(frame: Dc9DepartureFrame, checkpoint: Dc9DepartureCheckpoint): boolean {
@@ -152,12 +188,14 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
   const [brakeHeld, setBrakeHeldState] = useState(false)
   const frameRef = useRef<Dc9DepartureFrame>(initialFrame)
   const progressRef = useRef(progress)
+  const committedCheckpointRef = useRef(progress.checkpoint)
   const reducedMotionRef = useRef(reducedMotion)
   const brakeHeldRef = useRef(false)
   const lineupConfirmedRef = useRef(false)
   const pauseLatchRef = useRef(false)
   const activeRef = useRef(active)
   const emittedEventsRef = useRef(new Set<string>())
+  const completionGateRef = useRef(createDc9DepartureCompletionGate())
   const callbacksRef = useRef({ resetControls, onCheckpoint, onMistake, onRestore, onComplete })
   const htmlPublicationSchedulerRef = useRef<Dc9DepartureHtmlPublicationScheduler>(
     createDc9DepartureHtmlPublicationScheduler({
@@ -171,13 +209,20 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
     }),
   )
 
-  useEffect(() => { progressRef.current = progress }, [progress])
-  useEffect(() => { reducedMotionRef.current = reducedMotion }, [reducedMotion])
-  useEffect(() => { activeRef.current = active }, [active])
   useEffect(() => {
     callbacksRef.current = { resetControls, onCheckpoint, onMistake, onRestore, onComplete }
   }, [resetControls, onCheckpoint, onMistake, onRestore, onComplete])
-  useEffect(() => () => htmlPublicationSchedulerRef.current.dispose(), [])
+  useEffect(() => {
+    progressRef.current = progress
+    committedCheckpointRef.current = progress.checkpoint
+    completionGateRef.current.commit(progress.checkpoint, callbacksRef.current.onComplete)
+  }, [progress])
+  useEffect(() => { reducedMotionRef.current = reducedMotion }, [reducedMotion])
+  useEffect(() => { activeRef.current = active }, [active])
+  useEffect(() => () => {
+    completionGateRef.current.clear()
+    htmlPublicationSchedulerRef.current.dispose()
+  }, [])
 
   const scheduleHtmlPublication = useCallback((next: Dc9DepartureFrame, nextProgress = progressRef.current) => {
     htmlPublicationSchedulerRef.current.request({
@@ -196,6 +241,7 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
 
   const restoreCheckpoint = useCallback(() => {
     if (!activeRef.current) return
+    completionGateRef.current.clear()
     const checkpoint = progressRef.current.checkpoint
     const currentControls = controlsRef.current ?? { pitch: 0, roll: 0, thrust: 0, rudder: 0 }
     const alreadyRestored = pauseLatchRef.current
@@ -229,6 +275,7 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
     brakeHeldRef.current = false
     pauseLatchRef.current = false
     if (!active) {
+      completionGateRef.current.clear()
       htmlPublicationSchedulerRef.current.clear()
       return
     }
@@ -239,12 +286,16 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
     if (!active) return
     const clearBrake = () => setBrakeHeld(false)
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.code !== 'Space' || event.target instanceof HTMLElement && (event.target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName))) return
+      if (
+        event.code !== 'Space'
+        || departureSpaceOwnedByNativeControl(event.target)
+        || event.target instanceof HTMLElement && (event.target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName))
+      ) return
       event.preventDefault()
       setBrakeHeld(true)
     }
     const onKeyUp = (event: KeyboardEvent) => {
-      if (event.code !== 'Space') return
+      if (event.code !== 'Space' || departureSpaceOwnedByNativeControl(event.target)) return
       event.preventDefault()
       clearBrake()
     }
@@ -295,11 +346,20 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
       frameRef.current = step.frame
 
       if (step.event) {
+        const durableCallbacks = step.event.type === 'complete'
+          ? {
+            ...callbacksRef.current,
+            onComplete: () => completionGateRef.current.request(
+              committedCheckpointRef.current,
+              callbacksRef.current.onComplete,
+            ),
+          }
+          : callbacksRef.current
         const nextProgress = dispatchDc9DepartureDurableEvent(
           step.event,
           progressRef.current,
           emittedEventsRef.current,
-          callbacksRef.current,
+          durableCallbacks,
         )
         if (nextProgress) {
           progressRef.current = nextProgress

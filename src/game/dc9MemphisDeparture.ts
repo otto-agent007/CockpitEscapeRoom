@@ -95,6 +95,7 @@ const TAXI_ENERGY_LIMIT = 0.28
 const PATH_WARNING_ERROR = 0.32
 const PATH_RESTORE_ERROR = 0.55
 const PATH_RESTORE_SECONDS = 0.75
+const INITIAL_CLIMB_INSTABILITY_SECONDS = PATH_RESTORE_SECONDS
 const ROTATION_PITCH_MIN = 0.35
 const CLIMB_PITCH_ABS_MAX = 0.3
 const CLIMB_ROLL_ABS_MAX = 0.28
@@ -366,15 +367,24 @@ function advanceFixedStep(frame: Dc9DepartureFrame, input: Dc9DepartureInput, de
       return { frame: { ...moving, safeHold: moving.energy <= STOPPED_ENERGY } }
 
     case 'taxi':
+      // A brake-held approach may settle at the painted boundary; retain that safe
+      // boundary while the lever and energy dissipate instead of skipping into a retry.
       if (
         moving.pathProgress >= HOLD_SHORT_START - HOLD_SHORT_APPROACH
-        && input.thrust <= 0.05
         && input.brake > 0
-        && moving.energy <= STOPPED_ENERGY
       ) {
+        if (input.thrust <= 0.05 && moving.energy <= STOPPED_ENERGY) {
+          return {
+            frame: canonicalDc9DepartureFrame('holdShort'),
+            event: { type: 'checkpoint', checkpoint: 'holdShort' },
+          }
+        }
         return {
-          frame: canonicalDc9DepartureFrame('holdShort'),
-          event: { type: 'checkpoint', checkpoint: 'holdShort' },
+          frame: {
+            ...moving,
+            pathProgress: HOLD_SHORT_START,
+            safeHold: false,
+          },
         }
       }
       if (moving.pathProgress >= HOLD_SHORT_START) {
@@ -420,8 +430,15 @@ function advanceFixedStep(frame: Dc9DepartureFrame, input: Dc9DepartureInput, de
       return { frame: { ...moving, safeHold: false } }
 
     case 'rotation':
-      if (moving.pathProgress < ROTATION_CUE_START || moving.pitch < ROTATION_PITCH_MIN) {
-        return mistake(frame, 'earlyRotation')
+      if (moving.pitch < ROTATION_PITCH_MIN) {
+        return {
+          frame: {
+            ...moving,
+            beat: 'rotation',
+            pathProgress: ROTATION_CUE_START,
+            safeHold: false,
+          },
+        }
       }
       return {
         frame: {
@@ -435,10 +452,20 @@ function advanceFixedStep(frame: Dc9DepartureFrame, input: Dc9DepartureInput, de
         event: { type: 'checkpoint', checkpoint: 'initialClimb' },
       }
 
-    case 'initialClimb':
+    case 'initialClimb': {
       if (Math.abs(moving.pitch) > CLIMB_PITCH_ABS_MAX || Math.abs(moving.roll) > CLIMB_ROLL_ABS_MAX) {
-        return mistake(frame, 'unstableClimb')
+        const instabilitySeconds = frame.deviationSeconds + delta
+        if (instabilitySeconds >= INITIAL_CLIMB_INSTABILITY_SECONDS) return mistake(frame, 'unstableClimb')
+        return {
+          frame: {
+            ...moving,
+            altitudeProgress: frame.altitudeProgress,
+            deviationSeconds: instabilitySeconds,
+            safeHold: false,
+          },
+        }
       }
+      const instabilitySeconds = Math.max(0, frame.deviationSeconds - delta * 2)
       if (moving.altitudeProgress + (0.4 + moving.energy * 0.4) * delta >= 1) {
         return { frame: canonicalDc9DepartureFrame('complete'), event: { type: 'complete' } }
       }
@@ -447,8 +474,10 @@ function advanceFixedStep(frame: Dc9DepartureFrame, input: Dc9DepartureInput, de
           ...moving,
           altitudeProgress: clamp01(moving.altitudeProgress + (0.4 + moving.energy * 0.4) * delta),
           safeHold: false,
+          deviationSeconds: instabilitySeconds,
         },
       }
+    }
 
   }
 }
