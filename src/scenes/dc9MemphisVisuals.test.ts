@@ -32,6 +32,44 @@ function frame(overrides: Partial<Dc9DepartureFrame> = {}): Dc9DepartureFrame {
   }
 }
 
+function rotateByQuaternion(
+  [x, y, z]: readonly [number, number, number],
+  [qx, qy, qz, qw]: readonly [number, number, number, number],
+): [number, number, number] {
+  const ix = qw * x + qy * z - qz * y
+  const iy = qw * y + qz * x - qx * z
+  const iz = qw * z + qx * y - qy * x
+  const iw = -qx * x - qy * y - qz * z
+  return [
+    ix * qw + iw * -qx + iy * -qz - iz * -qy,
+    iy * qw + iw * -qy + iz * -qx - ix * -qz,
+    iz * qw + iw * -qz + ix * -qy - iy * -qx,
+  ]
+}
+
+function transformCurrentAircraftPoint(
+  sourceFrame: Dc9DepartureFrame,
+  reducedMotion: boolean,
+): { transformed: [number, number, number]; vibration: readonly [number, number, number] } {
+  const sample = sampleDc9MemphisPath(sourceFrame.pathProgress, approvedAnchorFixture)
+  // Authored X-right/Y-forward/Z-up becomes Three X-right/Y-up/Z-back.
+  const aircraftPoint: [number, number, number] = [
+    sample.position[0],
+    sample.position[2] * sourceFrame.altitudeProgress,
+    -sample.position[1],
+  ]
+  const pose = dc9MemphisWorldPose(sourceFrame, approvedAnchorFixture, { reducedMotion })
+  const rotated = rotateByQuaternion(aircraftPoint, pose.quaternion)
+  return {
+    transformed: [
+      rotated[0] + pose.position.x,
+      rotated[1] + pose.position.y,
+      rotated[2] + pose.position.z,
+    ],
+    vibration: pose.vibration,
+  }
+}
+
 describe('DC-9 Memphis visual path', () => {
   it('requires every stable anchor in its authored order', () => {
     expect(validateDc9MemphisAnchors(new Map())).toContain('dc9.memphis.rampStart')
@@ -68,18 +106,22 @@ describe('DC-9 Memphis visual path', () => {
     expect(Math.abs(afterTurn.headingRadians - beforeTurn.headingRadians)).toBeLessThan(0.35)
   })
 
-  it('keeps the cockpit fixed by returning an inverse world pose', () => {
-    const pose = dc9MemphisWorldPose(frame({
-      beat: 'initialClimb',
-      pathProgress: 0.9,
-      energy: 0.8,
-      altitudeProgress: 0.5,
-      pitch: 0.2,
-    }), approvedAnchorFixture)
+  it.each([
+    ['hold-short checkpoint', frame({ beat: 'holdShort', pathProgress: 0.42, pitch: 0.15, roll: -0.2 })],
+    ['taxi turn', frame({ beat: 'taxi', pathProgress: 0.3, pitch: -0.1, roll: 0.25 })],
+    ['initial climb', frame({ beat: 'initialClimb', pathProgress: 0.9, altitudeProgress: 0.5, pitch: 0.2, roll: -0.15 })],
+  ])('keeps the cockpit origin fixed through the %s inverse pose', (_label, sourceFrame) => {
+    if (_label === 'taxi turn') {
+      expect(Math.abs(sampleDc9MemphisPath(sourceFrame.pathProgress, approvedAnchorFixture).headingRadians)).toBeGreaterThan(0.05)
+    }
+    const { transformed } = transformCurrentAircraftPoint(sourceFrame, true)
+    expect(transformed[0]).toBeCloseTo(0, 8)
+    expect(transformed[1]).toBeCloseTo(0, 8)
+    expect(transformed[2]).toBeCloseTo(0, 8)
 
-    expect(pose.position.y).toBeLessThan(0)
-    expect(pose.rotation.x).toBeLessThan(0)
+    const pose = dc9MemphisWorldPose(sourceFrame, approvedAnchorFixture, { reducedMotion: true })
     expect(pose.quaternion.every(Number.isFinite)).toBe(true)
+    if (sourceFrame.pitch > 0) expect(pose.rotation.x).toBeLessThan(0)
   })
 
   it('clamps lateral and heading errors before deriving the world pose', () => {
@@ -117,6 +159,11 @@ describe('DC-9 Memphis visual path', () => {
 
     expect(normal.vibration.some((value) => value !== 0)).toBe(true)
     expect(reduced.vibration).toEqual([0, 0, 0])
+
+    const normalOrigin = transformCurrentAircraftPoint(moving, false)
+    expect(normalOrigin.transformed[0]).toBeCloseTo(normalOrigin.vibration[0], 8)
+    expect(normalOrigin.transformed[1]).toBeCloseTo(normalOrigin.vibration[1], 8)
+    expect(normalOrigin.transformed[2]).toBeCloseTo(normalOrigin.vibration[2], 8)
   })
 
   it('normalizes malformed transient values to a finite safe pose', () => {

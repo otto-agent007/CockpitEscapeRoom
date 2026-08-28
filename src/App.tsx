@@ -22,7 +22,10 @@ import { clearGameState } from './game/storage'
 import { useAirbusSimulator } from './game/useAirbusSimulator'
 import { useGame } from './game/useGame'
 import type { AirbusHotspotScreenPositions, AirbusLoadState, Dc9HotspotScreenPositions, Dc9LoadState, LockerCameraCue, LockerLoadState } from './scenes/PrototypeScene'
-import type { Dc9MemphisLoadState } from './scenes/Dc9MemphisEnvironment'
+import {
+  attachDc9MemphisEnvironmentState,
+  type Dc9MemphisLoadState,
+} from './scenes/dc9MemphisLoadState'
 
 const PrototypeScene = lazy(async () => {
   const module = await import('./scenes/PrototypeScene')
@@ -180,7 +183,7 @@ export default function App() {
   const [lockerRetryToken, setLockerRetryToken] = useState(0)
   const [lockerLoadState, setLockerLoadState] = useState<LockerLoadState>({ status: 'idle' })
   const [dc9LoadState, setDc9LoadState] = useState<Dc9LoadState>({ status: 'idle' })
-  const [dc9MemphisLoadState, setDc9MemphisLoadState] = useState<Dc9LoadState>({ status: 'idle' })
+  const [dc9MemphisLoadState, setDc9MemphisLoadState] = useState<Dc9MemphisLoadState>({ status: 'idle' })
   const [dc9MemphisRetryToken, setDc9MemphisRetryToken] = useState(0)
   const [dc9Hotspots, setDc9Hotspots] = useState<Dc9HotspotScreenPositions>({})
   const [dc9EntryStage, setDc9EntryStage] = useState<Dc9EntryStage>('idle')
@@ -563,15 +566,15 @@ export default function App() {
     setDc9MemphisRetryToken((token) => token + 1)
   }, [])
   const handleDc9MemphisLoadState = useCallback((loadState: Dc9MemphisLoadState) => {
-    setDc9MemphisLoadState(loadState.status === 'error'
-      ? {
-          ...loadState,
-          status: 'ready',
-          memphisEnvironmentStatus: 'error',
-          retry: retryDc9MemphisEnvironment,
-        }
-      : { ...loadState, memphisEnvironmentStatus: loadState.status })
-  }, [retryDc9MemphisEnvironment])
+    setDc9MemphisLoadState(loadState)
+  }, [])
+  const dc9ChapterLoadState = dc9DepartureActive
+    ? attachDc9MemphisEnvironmentState(
+        dc9LoadState,
+        dc9MemphisLoadState,
+        retryDc9MemphisEnvironment,
+      )
+    : dc9LoadState
 
   const dc9FlightControls = useDc9FlightControls({
     active: state.phase === 'dc9' && (state.dc9.stage === 'controlCheck' || state.dc9.stage === 'memphisDeparture'),
@@ -787,9 +790,7 @@ export default function App() {
           onRestart={restart}
           loadState={skipPrototypeScene
             ? { status: 'accessible-fallback' }
-            : state.dc9.stage === 'memphisDeparture'
-              ? dc9MemphisLoadState
-              : dc9LoadState}
+            : dc9ChapterLoadState}
           hotspots={dc9Hotspots}
           onUseFallback={() => setDc9LoadState({ status: 'accessible-fallback' })}
           reducedMotion={reducedMotion}

@@ -10,97 +10,23 @@ import {
 } from './cockpitModelLoader'
 import {
   dc9MemphisWorldPose,
-  validateDc9MemphisAnchors,
   type Dc9MemphisAnchorMap,
-  type Dc9MemphisVector,
 } from './dc9MemphisVisuals'
+import type { Dc9MemphisLoadState } from './dc9MemphisLoadState'
+import {
+  disposeMemphisClone,
+  handleMemphisLoadFailure,
+  publishMemphisDataset,
+  stageMemphisClone,
+} from './dc9MemphisEnvironmentSupport'
 
-export type Dc9MemphisLoadState =
-  | { status: 'idle' }
-  | { status: 'loading'; loadedBytes: number; totalBytes?: number; percentage?: number }
-  | { status: 'ready'; loadedBytes: number; totalBytes?: number; percentage: 100 }
-  | { status: 'error'; loadedBytes: number; totalBytes?: number; message: string }
+export type { Dc9MemphisLoadState } from './dc9MemphisLoadState'
 
 interface Dc9MemphisEnvironmentProps {
   frameRef: RefObject<Dc9DepartureFrame>
   reducedMotion: boolean
   retryToken: number
   onLoadState: (state: Dc9MemphisLoadState) => void
-}
-
-const REQUIRED_NODES = Object.freeze([
-  'KMEM_LEGACY_ROOT',
-  'KMEM_CONCOURSE_B',
-  'KMEM_RAMP',
-  'KMEM_TAXI_SURFACE',
-  'KMEM_RUNWAY_SURFACE',
-] as const)
-
-const ANCHOR_CONTRACT = Object.freeze([
-  { name: 'KMEM_RAMP_START', gameId: 'dc9.memphis.rampStart' },
-  { name: 'KMEM_TAXI_TURN', gameId: 'dc9.memphis.taxiTurn' },
-  { name: 'KMEM_HOLD_SHORT', gameId: 'dc9.memphis.holdShort' },
-  { name: 'KMEM_RUNWAY_LINEUP', gameId: 'dc9.memphis.runwayLineup' },
-  { name: 'KMEM_INITIAL_CLIMB', gameId: 'dc9.memphis.initialClimb' },
-] as const)
-
-function disposeMemphisClone(root: THREE.Object3D): void {
-  const materials = new Set<THREE.Material>()
-  const textures = new Set<THREE.Texture>()
-  root.traverse((object) => {
-    if (!(object instanceof THREE.Mesh)) return
-    object.geometry?.dispose()
-    for (const material of Array.isArray(object.material) ? object.material : [object.material]) {
-      if (!material) continue
-      materials.add(material)
-      for (const value of Object.values(material)) {
-        if (value instanceof THREE.Texture) textures.add(value)
-      }
-    }
-  })
-  for (const texture of textures) texture.dispose()
-  for (const material of materials) material.dispose()
-  root.clear()
-}
-
-function stageMemphisClone(source: THREE.Group): { scene: THREE.Group; anchors: Dc9MemphisAnchorMap } {
-  const scene = source.clone(true)
-  const nameCounts = new Map<string, number>()
-  const gameIdCounts = new Map<string, number>()
-  scene.traverse((object) => {
-    if (object.name) nameCounts.set(object.name, (nameCounts.get(object.name) ?? 0) + 1)
-    if (typeof object.userData.game_id === 'string') {
-      gameIdCounts.set(object.userData.game_id, (gameIdCounts.get(object.userData.game_id) ?? 0) + 1)
-    }
-    if (object instanceof THREE.Light) object.visible = false
-  })
-
-  const missingOrDuplicateNames = [...REQUIRED_NODES, ...ANCHOR_CONTRACT.map(({ name }) => name)]
-    .filter((name) => nameCounts.get(name) !== 1)
-  if (missingOrDuplicateNames.length > 0) {
-    disposeMemphisClone(scene)
-    throw new Error(`Memphis environment contract missing unique nodes: ${missingOrDuplicateNames.join(', ')}`)
-  }
-
-  scene.updateMatrixWorld(true)
-  const worldPosition = new THREE.Vector3()
-  const anchors = new Map<string, Dc9MemphisVector>()
-  for (const { name, gameId } of ANCHOR_CONTRACT) {
-    const anchor = scene.getObjectByName(name) as THREE.Object3D
-    if (anchor.userData.game_id !== gameId || gameIdCounts.get(gameId) !== 1) {
-      disposeMemphisClone(scene)
-      throw new Error(`${name} must expose the unique game_id ${gameId}.`)
-    }
-    anchor.getWorldPosition(worldPosition)
-    // glTF converts Blender X-right/Y-forward/Z-up to Three X-right/Y-up/Z-back.
-    anchors.set(gameId, [worldPosition.x, -worldPosition.z, worldPosition.y])
-  }
-  const anchorErrors = validateDc9MemphisAnchors(anchors)
-  if (anchorErrors.length > 0) {
-    disposeMemphisClone(scene)
-    throw new Error(anchorErrors.join(' '))
-  }
-  return { scene, anchors }
 }
 
 function applyMemphisWorldPose(
@@ -131,6 +57,7 @@ export function Dc9MemphisEnvironment({
   const loadedRef = useRef(loaded)
   const canvasRef = useRef(gl.domElement)
   const reducedMotionRef = useRef(reducedMotion)
+  const datasetCacheRef = useRef(new Map<string, string>())
 
   useEffect(() => {
     canvasRef.current = gl.domElement
@@ -150,9 +77,11 @@ export function Dc9MemphisEnvironment({
     let loadedBytes = 0
     let totalBytes: number | undefined
     const canvas = canvasRef.current
+    const datasetCache = datasetCacheRef.current
     if (retryToken > 0) clearCockpitModel(DC9_MEMPHIS_MODEL_URL)
-    canvas.dataset.dc9MemphisModelState = 'loading'
-    canvas.dataset.dc9MemphisBeat = frameRef.current?.beat ?? ''
+    loadedRef.current = null
+    publishMemphisDataset(canvas.dataset, datasetCache, 'dc9MemphisModelState', 'loading')
+    publishMemphisDataset(canvas.dataset, datasetCache, 'dc9MemphisBeat', frameRef.current?.beat ?? '')
     onLoadState({ status: 'loading', loadedBytes: 0 })
     const stopObserving = observeCockpitModelProgress(DC9_MEMPHIS_MODEL_URL, (progress) => {
       if (!active) return
@@ -173,28 +102,29 @@ export function Dc9MemphisEnvironment({
         stagedScene = staged.scene
         const frame = frameRef.current
         if (frame) {
-          canvas.dataset.dc9MemphisBeat = frame.beat
-          canvas.dataset.dc9MemphisWorldPose = applyMemphisWorldPose(
+          publishMemphisDataset(canvas.dataset, datasetCache, 'dc9MemphisBeat', frame.beat)
+          publishMemphisDataset(canvas.dataset, datasetCache, 'dc9MemphisWorldPose', applyMemphisWorldPose(
             staged.scene,
             staged.anchors,
             frame,
             reducedMotionRef.current,
-          )
+          ))
         }
         loadedRef.current = staged
         setLoaded(staged)
-        canvas.dataset.dc9MemphisModelState = 'ready'
+        publishMemphisDataset(canvas.dataset, datasetCache, 'dc9MemphisModelState', 'ready')
         onLoadState({ status: 'ready', loadedBytes, totalBytes, percentage: 100 })
       })
       .catch((error) => {
-        clearCockpitModel(DC9_MEMPHIS_MODEL_URL)
+        if (!handleMemphisLoadFailure(active, error, {
+          clearCache: () => clearCockpitModel(DC9_MEMPHIS_MODEL_URL),
+          logError: (currentError) => console.error('Failed to load DC-9 Memphis environment.', currentError),
+        })) return
         if (stagedScene) disposeMemphisClone(stagedScene)
         stagedScene = null
-        console.error('Failed to load DC-9 Memphis environment.', error)
-        if (!active) return
         loadedRef.current = null
         setLoaded(null)
-        canvas.dataset.dc9MemphisModelState = 'error'
+        publishMemphisDataset(canvas.dataset, datasetCache, 'dc9MemphisModelState', 'error')
         onLoadState({
           status: 'error',
           loadedBytes,
@@ -209,10 +139,10 @@ export function Dc9MemphisEnvironment({
       const current = loadedRef.current?.scene ?? stagedScene
       if (current) disposeMemphisClone(current)
       loadedRef.current = null
-      clearCockpitModel(DC9_MEMPHIS_MODEL_URL)
       delete canvas.dataset.dc9MemphisModelState
       delete canvas.dataset.dc9MemphisBeat
       delete canvas.dataset.dc9MemphisWorldPose
+      datasetCache.clear()
       onLoadState({ status: 'idle' })
     }
   }, [frameRef, onLoadState, retryToken])
@@ -222,14 +152,15 @@ export function Dc9MemphisEnvironment({
     const current = loadedRef.current
     if (!frame) return
     const canvas = canvasRef.current
-    canvas.dataset.dc9MemphisBeat = frame.beat
+    const datasetCache = datasetCacheRef.current
+    publishMemphisDataset(canvas.dataset, datasetCache, 'dc9MemphisBeat', frame.beat)
     if (!current) return
-    canvas.dataset.dc9MemphisWorldPose = applyMemphisWorldPose(
+    publishMemphisDataset(canvas.dataset, datasetCache, 'dc9MemphisWorldPose', applyMemphisWorldPose(
       current.scene,
       current.anchors,
       frame,
       reducedMotion,
-    )
+    ))
   })
 
   return (

@@ -47,7 +47,9 @@ import {
 } from '../game/dc9FlightDeck'
 import { NEUTRAL_DC9_CONTROLS, type Dc9ControlInput, type Dc9ControlState } from '../game/dc9Input'
 import type { Dc9MemphisDepartureRuntime } from '../game/useDc9MemphisDeparture'
-import { Dc9MemphisEnvironment, type Dc9MemphisLoadState } from './Dc9MemphisEnvironment'
+import { Dc9MemphisEnvironment } from './Dc9MemphisEnvironment'
+import type { Dc9LoadState, Dc9MemphisLoadState } from './dc9MemphisLoadState'
+export type { Dc9LoadState } from './dc9MemphisLoadState'
 import {
   advanceDc9SelfTests,
   applyDc9JointValue,
@@ -195,15 +197,6 @@ export type AirbusLoadState =
   | { status: 'accessible-fallback'; loadedBytes: number; totalBytes?: number }
 
 export type LockerLoadState = { status: 'idle' | 'loading' | 'ready' | 'error' | 'accessible-fallback' }
-export type Dc9LoadState = {
-  status: 'idle' | 'loading' | 'ready' | 'error' | 'accessible-fallback'
-  message?: string
-  loadedBytes?: number
-  totalBytes?: number
-  percentage?: number
-  retry?: () => void
-  memphisEnvironmentStatus?: 'idle' | 'loading' | 'ready' | 'error'
-}
 /** Which way the player has to look to bring a target into comfortable view. */
 export type Dc9OffscreenDirection = 'left' | 'right' | 'up' | 'down'
 export type Dc9HotspotScreenPositions = Record<string, {

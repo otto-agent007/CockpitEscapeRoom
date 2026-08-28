@@ -159,6 +159,23 @@ function axisQuaternion(axis: 'x' | 'y' | 'z', radians: number): QuaternionTuple
   return [0, 0, sine, Math.cos(half)]
 }
 
+function rotateVector(
+  vector: readonly [number, number, number],
+  quaternion: QuaternionTuple,
+): [number, number, number] {
+  const [vx, vy, vz] = vector
+  const [qx, qy, qz, qw] = quaternion
+  const ix = qw * vx + qy * vz - qz * vy
+  const iy = qw * vy + qz * vx - qx * vz
+  const iz = qw * vz + qx * vy - qy * vx
+  const iw = -qx * vx - qy * vy - qz * vz
+  return [
+    ix * qw + iw * -qx + iy * -qz - iz * -qy,
+    iy * qw + iw * -qy + iz * -qx - ix * -qz,
+    iz * qw + iw * -qz + ix * -qy - iy * -qx,
+  ]
+}
+
 function dc9MemphisVibration(frame: Dc9DepartureFrame, reducedMotion: boolean): [number, number, number] {
   if (
     reducedMotion
@@ -216,11 +233,14 @@ export function dc9MemphisWorldPose(
     -aircraftQuaternion[2],
     aircraftQuaternion[3],
   ]
-  // Blender's X-right/Y-forward/Z-up route becomes X-right/Y-up/Z-back in glTF.
-  // Translation and attitude are authored as separate root inputs so pitch/roll turn
-  // the horizon around the fixed cockpit instead of rotating the long route offset into
-  // a false altitude jump. The quaternion remains the inverse aircraft attitude.
-  const inversePosition: [number, number, number] = [-aircraftX, -aircraftAltitude, aircraftForward]
+  // Blender's X-right/Y-forward/Z-up route becomes X-right/Y-up/Z-back in glTF, so the
+  // sampled aircraft point is p = [x, altitude, -forward]. The fixed-cockpit world root
+  // must satisfy qInverse * p + t = 0. Consequently t is -R^-1 p, not merely -p; this
+  // remains exact through taxi turns and through simultaneous heading, pitch, and roll.
+  const inversePosition = rotateVector(
+    [-aircraftX, -aircraftAltitude, aircraftForward],
+    inverseQuaternion,
+  )
   const vibration = dc9MemphisVibration(frame, options.reducedMotion === true)
 
   return {

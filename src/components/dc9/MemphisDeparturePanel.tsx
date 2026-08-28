@@ -57,7 +57,8 @@ export function MemphisDeparturePanel({ controls, inputMethod, loadState, onHold
   const { frame, guidance, brakeHeld, setBrakeHeld, confirmLineup: confirmRuntimeLineup, restoreCheckpoint: restoreRuntimeCheckpoint } = runtime
   const attempts = progress.attempts[frame.beat] ?? 0
   const hasRetryFeedback = progress.hintLevel > 0
-  const environmentStatus = loadState.memphisEnvironmentStatus ?? loadState.status
+  const environmentLoadState = loadState.memphisEnvironment
+  const environmentStatus = environmentLoadState?.status
   const [restoreMarker, setRestoreMarker] = useState<{ beat: Dc9DepartureBeat; attempts: number } | null>(null)
   const restored = restoreMarker?.beat === frame.beat && restoreMarker.attempts === attempts
   const canConfirmLineup = frame.beat === 'holdShort' && frame.safeHold
@@ -80,9 +81,9 @@ export function MemphisDeparturePanel({ controls, inputMethod, loadState, onHold
   }, [confirmRuntimeLineup])
   const restoreCheckpoint = useCallback(() => {
     restoreRuntimeCheckpoint()
-    if (environmentStatus === 'error') loadState.retry?.()
+    if (environmentStatus === 'error') environmentLoadState?.retry?.()
     setRestoreMarker({ beat: frame.beat, attempts })
-  }, [attempts, environmentStatus, frame.beat, loadState, restoreRuntimeCheckpoint])
+  }, [attempts, environmentLoadState, environmentStatus, frame.beat, restoreRuntimeCheckpoint])
   const onBrakePointerDown = useCallback((event: PointerEvent<HTMLButtonElement>) => {
     holdBrake(true)
     try {
@@ -117,19 +118,19 @@ export function MemphisDeparturePanel({ controls, inputMethod, loadState, onHold
         {liveAnnouncement}
       </p>
 
-      {environmentStatus === 'loading' ? (
+      {environmentLoadState?.status === 'loading' ? (
         <div className="dc9-memphis-departure__environment-status" role="status" aria-live="polite">
           <span>Preparing the Memphis memory outside the windshield</span>
-          <progress max={100} value={loadState.percentage ?? 0} />
-          <small>{loadState.percentage !== undefined
-            ? `${loadState.percentage}% ready`
-            : `${((loadState.loadedBytes ?? 0) / 1_000_000).toFixed(1)} MB received`}</small>
+          <progress max={100} value={environmentLoadState.percentage ?? 0} />
+          <small>{environmentLoadState.percentage !== undefined
+            ? `${environmentLoadState.percentage}% ready`
+            : `${(environmentLoadState.loadedBytes / 1_000_000).toFixed(1)} MB received`}</small>
         </div>
       ) : null}
-      {environmentStatus === 'error' ? (
+      {environmentLoadState?.status === 'error' ? (
         <div className="dc9-memphis-departure__environment-error" role="alert">
           <strong>Windshield memory view unavailable.</strong>
-          <p>{loadState.message} The native guidance remains authoritative; restore this checkpoint to retry the view.</p>
+          <p>{environmentLoadState.message} The native guidance remains authoritative; restore this checkpoint to retry the view.</p>
         </div>
       ) : null}
 
