@@ -1,0 +1,46 @@
+{
+  "jobId": "dc9-memphis-legacy-source",
+  "title": "DC-9 Memphis legacy departure environment sourcing",
+  "stage": "requested",
+  "aircraft": "dc9",
+  "sourceVariant": "Ted Davis KMEM X-Plane scenery revision 2019-01-22",
+  "targetVariant": "1995 Memphis memory recreation",
+  "variantScope": "common",
+  "sourceRepository": {
+    "url": "https://theosdavis.com/xpfiles/ewExternalFiles/Memphis_Nashville.zip",
+    "resolvedRevision": "sha256-fc403141223be066094814d9ea06d820f75477fea419870b04ffd65153434b95"
+  },
+  "requestedComponents": [
+    {
+      "componentId": "kmem-concourse-b-main-001",
+      "label": "Concourse B main terminal geometry",
+      "quantity": 1,
+      "acceptanceNotes": "Import ConcourseB.obj with its selected KMEM terminal texture set; environment geometry only."
+    },
+    {
+      "componentId": "kmem-concourse-b-extension-001",
+      "label": "Concourse B extension geometry",
+      "quantity": 1,
+      "acceptanceNotes": "Import ConcourseB_2.obj; exclude every AutoGate, aircraft, vehicle, and unrelated object."
+    },
+    {
+      "componentId": "kmem-concourse-b-extension-east-001",
+      "label": "Concourse B east extension geometry",
+      "quantity": 1,
+      "acceptanceNotes": "Import ConcourseB_2e.obj; retain owner-attested private noncommercial attribution."
+    }
+  ],
+  "stageDirectories": {
+    "sourceInput": "art-source/cockpit-pipeline/stages/source/input",
+    "sourceOutput": "art-source/cockpit-pipeline/stages/source/output",
+    "assemblyInput": "art-source/cockpit-pipeline/stages/assembly/input",
+    "assemblyOutput": "art-source/cockpit-pipeline/stages/assembly/output",
+    "shadingInput": "art-source/cockpit-pipeline/stages/shading/input",
+    "shadingOutput": "art-source/cockpit-pipeline/stages/shading/output"
+  },
+  "cachePolicy": {
+    "environmentVariable": "COCKPIT_PIPELINE_CACHE",
+    "defaultRelativePath": ".cache/cockpit-pipeline",
+    "gitPolicy": "outside-git"
+  }
+}

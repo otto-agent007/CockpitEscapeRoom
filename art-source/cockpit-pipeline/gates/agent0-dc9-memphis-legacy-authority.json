@@ -1,0 +1,23 @@
+{
+  "gate": "reference-authority",
+  "artifactId": "agent0-dc9-memphis-legacy-authority",
+  "createdAt": "2026-08-27T00:00:00Z",
+  "sceneGroup": "DC-9 First-Officer Memphis legacy departure environment",
+  "targetAircraftOrObject": "Older Memphis International Airport Concourse B memory environment",
+  "targetVariantStatus": "1995 memory recreation, not an exact architectural reconstruction",
+  "sourceCandidateType": "simulator-geometry",
+  "sourceIdentity": "Ted Davis Memphis/Nashville X-Plane 11.3 package, Concourse B objects only",
+  "allowedUsage": [
+    "private noncommercial CockpitEscapeRoom geometry base",
+    "Blender cleanup, optimization, and derived runtime GLB",
+    "private browser preview with attribution"
+  ],
+  "forbiddenUsage": [
+    "operational airport training",
+    "claim of exact 1995 reconstruction",
+    "AutoGate, OpenSceneryX, bundled aircraft, vehicles, or unrelated scenery import"
+  ],
+  "variantCompatibility": "Environment-only source; it may not override DC-9-32 cockpit authority.",
+  "ownerApprovalStatus": "approved-for-next-stage",
+  "nextAllowedStage": "agent1-sourcing"
+}
