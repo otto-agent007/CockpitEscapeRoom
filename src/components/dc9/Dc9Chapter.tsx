@@ -5,6 +5,7 @@ import { HomeOperationsLog } from './HomeOperationsLog'
 import { LegacyRouteRecord } from './LegacyRouteRecord'
 import { CaptainsKeyReveal } from './CaptainsKeyReveal'
 import { ControlCheckPanel } from './ControlCheckPanel'
+import { MemphisDeparturePanel } from './MemphisDeparturePanel'
 import { InstrumentScanPanel } from './InstrumentScanPanel'
 import type { Dc9InstrumentId } from '../../game/dc9FlightDeck'
 import type { Dc9ControlState, Dc9HoldControl, Dc9InputMethod } from '../../game/dc9Input'
@@ -56,6 +57,7 @@ export function Dc9Chapter({
   controls,
   inputMethod,
   onHoldControl,
+  dc9MemphisDeparture,
 }: Dc9ChapterProps) {
   const [routeRecordDismissed, setRouteRecordDismissed] = useState(false)
   const [keyRevealDismissed, setKeyRevealDismissed] = useState(false)
@@ -128,6 +130,17 @@ export function Dc9Chapter({
           controls={controls}
           inputMethod={inputMethod}
           onHold={onHoldControl}
+        />
+      ) : null}
+
+      {state.dc9.stage === 'memphisDeparture' ? (
+        <MemphisDeparturePanel
+          controls={controls}
+          inputMethod={inputMethod}
+          loadState={loadState}
+          onHold={onHoldControl}
+          progress={state.dc9.departure}
+          runtime={dc9MemphisDeparture}
         />
       ) : null}
 

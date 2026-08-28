@@ -3,6 +3,7 @@ import { airbusCaptainFlow, dc9LegacyFlow, lockerFlow } from '../src/game/config
 import { createInitialState, type GameState } from '../src/game/state'
 import { DC9_CONTROL_CHECK_ITEM_IDS } from '../src/game/dc9ControlCheck'
 import { DC9_INSTRUMENT_SCAN_ORDER } from '../src/game/dc9InstrumentScan'
+import { DC9_DEPARTURE_BEATS } from '../src/game/dc9MemphisDeparture'
 import { WALK_CYCLE, WALK_FRAME_MS } from '../src/game/introAnimation'
 import { introScenes } from '../src/game/introConfig'
 import { STORAGE_KEY } from '../src/game/storage'
@@ -894,6 +895,24 @@ test('DC-9 Final Flight Log accessible flow', async ({ page }) => {
     await page.getByRole('button', { name: new RegExp(`^${code},`) }).click()
   }
   await page.getByRole('button', { name: 'Record selected routes' }).click()
+  await expect(page.getByRole('heading', { name: 'Memphis Legacy Departure' })).toBeVisible()
+  const completedDeparture = createDc9RouteRecordState()
+  await seedGameState(page, {
+    ...completedDeparture,
+    dc9: {
+      ...completedDeparture.dc9,
+      stage: 'homeOperations',
+      routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
+      routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
+      departure: {
+        checkpoint: 'complete',
+        completedBeats: [...DC9_DEPARTURE_BEATS],
+        attempts: {},
+        hintLevel: 0,
+        completed: true,
+      },
+    },
+  })
   const homeOperations = page.getByRole('dialog', { name: 'Home Operations Log' })
   await expect(homeOperations).toBeVisible()
   await expect(homeOperations.getByRole('textbox')).toHaveCount(0)

@@ -1026,6 +1026,123 @@
   line-height: 1.45;
 }
 
+/* Memphis Legacy Departure ------------------------------------------------
+   A low side-band preserves the windshield centre while keeping the fictional-memory
+   controls completely playable when the 3D cockpit is unavailable. */
+
+.dc9-memphis-departure {
+  position: absolute;
+  z-index: 7;
+  right: 1rem;
+  bottom: 5.75rem;
+  width: min(48rem, calc(100vw - 2rem));
+  padding: clamp(.85rem, 1.8vw, 1.2rem);
+  border: 1px solid rgb(229 193 119 / 34%);
+  background: linear-gradient(110deg, rgb(10 18 19 / 94%), rgb(18 31 32 / 89%));
+  box-shadow: 0 24px 70px rgb(0 0 0 / 48%);
+  pointer-events: auto;
+}
+
+.dc9-memphis-departure__header .eyebrow {
+  margin: 0;
+  color: #e8c57f;
+  font-size: .68rem;
+  letter-spacing: .14em;
+}
+
+.dc9-memphis-departure__header .eyebrow span {
+  color: #c9d8d6;
+  text-transform: uppercase;
+}
+
+.dc9-memphis-departure__header h2 {
+  margin: .2rem 0;
+  font-size: clamp(1.05rem, 2vw, 1.42rem);
+}
+
+.dc9-memphis-departure__header > p:last-child,
+.dc9-memphis-departure__guidance p,
+.dc9-memphis-departure__retry {
+  margin: .35rem 0 0;
+  font-size: .8rem;
+  line-height: 1.45;
+}
+
+.dc9-memphis-departure__guidance {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .35rem .8rem;
+  margin-top: .7rem;
+  color: #c9d8d6;
+}
+
+.dc9-memphis-departure__guidance p:last-child {
+  grid-column: 1 / -1;
+  color: #f3ce75;
+}
+
+.dc9-memphis-departure__state {
+  font-weight: 700;
+}
+
+.dc9-memphis-departure__state.is-centered { color: #b9d99f; }
+.dc9-memphis-departure__state.is-left { color: #f0bf78; }
+.dc9-memphis-departure__state.is-right { color: #8fc0d6; }
+
+.dc9-memphis-departure__live {
+  margin: .7rem 0 0;
+  padding: .45rem .6rem;
+  border-left: 2px solid #d8b46d;
+  color: #f3ce75;
+  background: rgb(240 200 117 / 8%);
+  font-size: .78rem;
+  line-height: 1.4;
+}
+
+.dc9-memphis-departure__controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(11rem, .44fr);
+  gap: .7rem;
+  margin-top: .7rem;
+}
+
+.dc9-memphis-departure__axes {
+  display: grid;
+  gap: .55rem;
+}
+
+.dc9-memphis-departure__actions {
+  display: grid;
+  align-content: start;
+  gap: .45rem;
+}
+
+.dc9-memphis-departure__actions button {
+  min-height: 2.55rem;
+  border: 1px solid rgb(232 202 136 / 40%);
+  color: inherit;
+  background: rgb(255 255 255 / 5%);
+}
+
+.dc9-memphis-departure__actions button:focus-visible,
+.dc9-memphis-departure__actions button:hover {
+  border-color: #f3ce75;
+  outline: 2px solid rgb(243 206 117 / 75%);
+  outline-offset: 2px;
+  background: rgb(240 200 117 / 12%);
+}
+
+.dc9-memphis-departure__brake[aria-pressed='true'] {
+  color: #162013;
+  background: #b9d99f;
+}
+
+.dc9-memphis-departure__method {
+  margin: .15rem 0 0;
+  color: #9fb6b4;
+  font-size: .7rem;
+}
+
 /* Instrument scan --------------------------------------------------------- */
 
 .dc9-instrument-scan__question {
@@ -1149,7 +1266,8 @@
    cockpit out well before a narrow phone layout would. */
 @media (max-width: 900px) {
   .dc9-control-check,
-  .dc9-instrument-scan {
+  .dc9-instrument-scan,
+  .dc9-memphis-departure {
     top: auto;
     right: .5rem;
     bottom: 5.5rem;
@@ -1174,5 +1292,16 @@
     bottom: auto;
     top: 6.5rem;
   }
+
+  .dc9-memphis-departure__guidance,
+  .dc9-memphis-departure__controls {
+    grid-template-columns: 1fr;
+  }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .dc9-memphis-departure,
+  .dc9-memphis-departure__actions button {
+    transition: none;
+  }
+}
