@@ -9,24 +9,40 @@
   altitude/pitch, reduced-motion zero vibration, and malformed transient normalization.
 - The approved environment URL is
   `/models/dc9-memphis-legacy-departure.glb?v=73b80e6f`. It is requested only while the durable
-  stage is `memphisDeparture`. Runtime staging clones the cached source, requires each stable scene
-  node and unique `game_id`, converts exported anchor coordinates back to the pure authored space,
-  applies the initial pose before display, and then changes one environment root per frame.
+  stage is `memphisDeparture`. Runtime staging creates an independently owned geometry, material,
+  and texture clone from the cached source, requires each stable scene node and unique `game_id`,
+  converts exported anchor coordinates back to the pure authored space, applies the initial pose
+  before display, and then changes one environment root per frame.
 - The DC-9 cockpit and `CAM_DC9_FIRST_OFFICER_GAME` remain fixed with normal gameplay FOV, limited
   seat look, and direct yoke drag. Route, gauge, shutdown, and key raycast interactions are disabled
   during the memory. Memphis daylight is declarative and the parked background/lighting remounts
   after exit; cockpit GLB materials are not changed by the environment integration.
 - Canvas telemetry publishes `data-dc9-memphis-model-state`, `data-dc9-memphis-beat`, and a JSON
-  `data-dc9-memphis-world-pose`. Environment progress and errors reach the native panel. A load or
-  contract failure leaves qualitative guidance and **Restore checkpoint** available, disposes any
-  staged clone, clears loader/progress cache, and uses Restore to remount and retry without changing
-  authoritative gameplay completion.
+  `data-dc9-memphis-world-pose`, mutating each field only when its value changes. Environment
+  progress and errors are nested beside the primary cockpit state and reach only the native Memphis
+  panel; cockpit failure keeps its generic recovery visible. A load or contract failure leaves
+  qualitative guidance and **Restore checkpoint** available, disposes any staged clone, clears the
+  loader/progress cache, and uses Restore to remount and retry without changing authoritative
+  gameplay completion. Normal unmount keeps the successful source cache live.
 - Verification passed: focused visual/rules Vitest **31/31**; `npm run lint`; `npm run typecheck`;
   full `npm test` **552/552 across 42 files**; `npm run build`; `npm run assets:check` with only the
   model validator's existing informational warnings; and `git diff --check`.
 - Source integration commit: `8d38b86` (`feat(dc9): render cockpit-first Memphis departure`). No
   Playwright, browser screenshot, responsive, frame-budget, Vercel, push, or PR claim belongs to
   Task 9; those remain explicit Task 10/11 work.
+- Review-fix RED: the three-file focused run failed on three nonzero-attitude inverse-pose cases,
+  four missing ownership/lifecycle/dataset helpers, and the missing independent load-state module.
+  GREEN passes **18/18** across `dc9MemphisVisuals`, `Dc9MemphisEnvironment`, and
+  `dc9MemphisLoadState`. The pose tests now prove `qInverse * p + t = 0` at a checkpoint, taxi turn,
+  and initial climb, with vibration isolated as the only non-reduced-motion residual.
+- Review-fix resource tests prove shared source resources become shared-within-clone but separately
+  owned geometry/material/texture instances, and disposing the staged scene leaves every cached
+  source resource live. An asynchronous unmount-during-load regression proves a stale rejection
+  cannot clear or log over a replacement request; current failure and explicit retry still evict.
+- Fresh review-fix verification: focused **18/18**; full Vitest **561/561 across 44 files**;
+  `npm run lint`; `npm run typecheck`; `npm run build`; `npm run assets:check` with existing
+  informational validator output; cached and working diff checks. Fix commit: `f28b56f`
+  (`fix(dc9): harden Memphis scene lifecycle`). Browser proof remains unrun by Task 9.
 
 ## 2026-08-28 Task 6 Memphis source-boundary repair
 

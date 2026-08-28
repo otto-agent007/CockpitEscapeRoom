@@ -1334,6 +1334,18 @@ retries the model cache from the native Restore path. Source integration is comm
 (`feat(dc9): render cockpit-first Memphis departure`). Task 10 browser, responsive, performance,
 and screenshot proof has not been run or claimed.
 
+**Task 9 review-fix evidence — 2026-08-28:** Focused RED reproduced all five review findings:
+the raw `-p` translation left residual motion under combined route heading/pitch/roll; the staged
+scene shared and disposed cached source resources; environment state replaced primary cockpit
+failure state; an inactive rejection could evict/log over its replacement; and canvas datasets were
+rewritten without a value change. GREEN passes 18/18 focused tests. The world root now uses the
+exact rigid inverse `-R^-1 p`; staged geometry/material/texture resources are independently owned
+with shared instances reused inside the clone; normal unmount preserves the successful source
+cache; stale rejections do no global cleanup; cockpit and environment load states remain independent;
+and dataset publication is value-cached. Full Vitest passes 561/561 across 44 files; lint, typecheck,
+production build, `assets:check`, and diff checks pass. Fix commit: `f28b56f`
+(`fix(dc9): harden Memphis scene lifecycle`). No browser/e2e/CSS/Task 10 work was performed.
+
 ### Task 10: Prove full browser behavior and repair regressions
 
 **Files:**
@@ -1598,7 +1610,7 @@ Stop when all acceptance checks pass, after five attempts on one unchanged failu
 - [x] Task 6 — Source-only candidate and Source Review Gate.
 - [x] Task 7 — Neutral assembly and Assembly Review Gate approved for materials work.
 - [x] Task 8 — Materials, optimization, production promotion, and review fixes.
-- [ ] Task 9 — Browser scene integration.
+- [x] Task 9 — Source scene integration and review fixes.
 - [ ] Task 10 — Browser validation and repairs.
 - [ ] Task 11 — Evidence and owner approval gate.
 
