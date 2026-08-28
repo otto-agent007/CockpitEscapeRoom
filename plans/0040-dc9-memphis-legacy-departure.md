@@ -1061,7 +1061,7 @@ Review 1440/768/375 neutral views. Concourse B must read from ramp start, the pa
 
 If approved, write 'assembly-approval.json' with 'stage: "assembly-approved"', 'approved: true', 'approvedBy: "owner review 2026-08-27"', exact neutral artifact hashes, runtime-contract path, and the known deviation 'compressed 1995 memory composition, not exact KMEM geography'.
 
-- [ ] **Step 7: Commit Agent 2**
+- [x] **Step 7: Commit Agent 2**
 
 ~~~bash
 git add tools/blender/cockpit_pipeline/kmem_legacy_layout.py tools/blender/cockpit_pipeline/tests/test_kmem_legacy_layout.py tools/blender/assemble_dc9_memphis_legacy.py art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly art-source/cockpit-pipeline/gates/dc9-memphis-legacy-runtime-contract.json art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-assembly asset-reports/dc9-memphis-legacy-departure.md plans/0040-dc9-memphis-legacy-departure.md
@@ -1069,6 +1069,8 @@ git commit -m "feat(assets): assemble Memphis legacy environment"
 git switch agent/dc9-memphis-taxi-takeoff
 git merge --no-ff asset/dc9-memphis-assembly
 ~~~
+
+**Commit evidence — 2026-08-28:** Task 7 was committed on `asset/dc9-memphis-assembly` as `dca69a5888e5864637b42c87dd926e50fb932735` (`feat(assets): assemble Memphis legacy environment`). The stage branch remains unmerged; the listed switch/merge commands require controller integration and have not been performed.
 
 **Assembly evidence — 2026-08-28:** The owner approved the revised 36 mm neutral composition after the Tier 1 framing repair brought more Concourse B into the review frame. `assembly-approval.json` pins the current assembly manifest, neutral blend/GLB, runtime contract, resolved layout, node/pivot report, and three revised previews. Fresh layout, source/assembly-approval consistency, runtime-contract, manifest, GLB, exact-anchor reimport, and `assembly_complete -> assembly-approved` transition checks passed. The reproducible `.blend1` backup was removed; the approved `.blend` remains. Approval permits only materials work; textures/final fidelity, browser/runtime integration, public-model promotion, merge, push, and browser work remain outside this Task 7 handoff.
 
