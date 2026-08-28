@@ -1087,6 +1087,8 @@ git merge --no-ff asset/dc9-memphis-assembly
 - Create: 'public/models/dc9-memphis-legacy-departure.glb'
 - Create: 'tools/assets/dc9-memphis-model-contract.mjs'
 - Create: 'tools/assets/dc9-memphis-model-contract.test.mjs'
+- Create: 'tools/assets/dc9-memphis-shading-approval-contract.mjs'
+- Create: 'tools/assets/dc9-memphis-shading-approval-contract.test.mjs'
 - Modify: 'tools/assets/build-asset.mjs'
 - Modify: 'tools/assets/check-models.mjs'
 - Modify: 'package.json'
@@ -1096,15 +1098,15 @@ git merge --no-ff asset/dc9-memphis-assembly
 **Interfaces:**
 
 - Consumes: Task 7 assembly approval and neutral blend.
-- Produces: material-optimization gate, final packed master/GLB, 'npm run asset:dc9-memphis', and 'validateDc9MemphisModelContract(json, byteLength): string[]'.
+- Produces: material-optimization gate, final packed master/GLB, formal approval enforcement in 'npm run asset:dc9-memphis', and 'validateDc9MemphisModelContract(json, byteLength): string[]'.
 
-- [ ] **Step 0: Create the isolated shading branch**
+- [x] **Step 0: Create the isolated shading branch**
 
 Run: 'git switch -c asset/dc9-memphis-shading'
 
 Expected: branch starts after the approved assembly branch merge. Do not change source or assembly artifacts.
 
-- [ ] **Step 1: Write the GLB contract tests RED**
+- [x] **Step 1: Write the GLB contract tests RED**
 
 Require exactly one of every node below:
 
@@ -1125,13 +1127,13 @@ export const DC9_MEMPHIS_REQUIRED_NODES = [
 
 Assert exact game IDs, finite transforms, no interactive cockpit metadata, no AutoGate/OpenSceneryX/Planes names, no more than 5,000 triangles, no more than six materials, selected textures no larger than 2048 × 1024, and GLB byte length no larger than 8 MiB.
 
-- [ ] **Step 2: Run model-contract tests RED**
+- [x] **Step 2: Run model-contract tests RED**
 
 Run: 'node --test tools/assets/dc9-memphis-model-contract.test.mjs'
 
 Expected: FAIL because the contract module does not exist.
 
-- [ ] **Step 3: Implement Agent 3 shading**
+- [x] **Step 3: Implement Agent 3 shading**
 
 'shade_dc9_memphis_legacy.py' must refuse to run without matching assembly approval. It may:
 
@@ -1145,7 +1147,7 @@ Expected: FAIL because the contract module does not exist.
 
 Emit a shaded blend/GLB, 1440/768/375 comparison views, material assignment report, texture report, validation/reimport report, shading-complete manifest, and material-optimization gate.
 
-- [ ] **Step 4: Validate and inspect Agent 3**
+- [x] **Step 4: Validate and inspect Agent 3**
 
 Run:
 
@@ -1159,11 +1161,11 @@ npx gltf-transform inspect art-source/cockpit-pipeline/builds/shaded/dc9-memphis
 
 Inspect comparison views for upside-down geometry, missing textures, excessive emissive, modern-looking decoration, or neon guidance.
 
-- [ ] **Step 5: Obtain Materials and Optimization approval**
+- [x] **Step 5: Obtain Materials and Optimization approval**
 
-Present the material count, texture dimensions, GLB size, optimization decision, and comparison views. Create 'shading-approval.json' with 'stage: "shading-approved"', 'approved: true', 'approvedBy: "owner review 2026-08-27"', the shading manifest path, material-gate path, and exact shaded blend/GLB hashes. Browser integration must not start before this approval is recorded.
+Present the material count, texture dimensions, GLB size, optimization decision, and comparison views. Create 'shading-approval.json' with 'stage: "shading-approved"', 'approved: true', 'approvedBy: "owner review 2026-08-28"', the shading manifest path, material-gate path, and exact shaded blend/GLB hashes. Browser integration must not start before this approval is recorded.
 
-- [ ] **Step 6: Add standard build and attribution**
+- [x] **Step 6: Add standard build and attribution**
 
 Copy the approved shaded blend to 'art-source/blender/dc9-memphis-legacy-departure.blend'. Add asset configuration:
 
@@ -1181,7 +1183,7 @@ Add package script '"asset:dc9-memphis": "node tools/assets/build-asset.mjs dc9-
 
 Wire 'validateDc9MemphisModelContract(json, bytes.length)' into 'check-models.mjs' and add 'dc9-memphis-legacy-departure.glb' to the required production contracts.
 
-- [ ] **Step 7: Promote and validate**
+- [x] **Step 7: Promote and validate**
 
 Run:
 
@@ -1196,7 +1198,7 @@ git lfs status
 
 Expected: all validators pass; the blend is LFS-managed and the deployable public GLB follows the existing public-model non-LFS policy.
 
-- [ ] **Step 8: Commit Agent 3 and production asset**
+- [x] **Step 8: Commit Agent 3 and production asset**
 
 ~~~bash
 git add tools/blender/shade_dc9_memphis_legacy.py art-source/cockpit-pipeline/builds/shaded/dc9-memphis-legacy-shading art-source/cockpit-pipeline/gates/dc9-memphis-legacy-material-optimization.json art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-shading art-source/blender/dc9-memphis-legacy-departure.blend public/models/dc9-memphis-legacy-departure.glb tools/assets/dc9-memphis-model-contract.mjs tools/assets/dc9-memphis-model-contract.test.mjs tools/assets/build-asset.mjs tools/assets/check-models.mjs package.json public/models/README.md asset-reports/dc9-memphis-legacy-departure.md
@@ -1204,6 +1206,10 @@ git commit -m "feat(assets): promote Memphis Concourse B environment"
 git switch agent/dc9-memphis-taxi-takeoff
 git merge --no-ff asset/dc9-memphis-shading
 ~~~
+
+**Task 8 completion evidence — 2026-08-28:** The owner rejected the brighter/warmer repair as too brown and selected the exact original restrained grade. Semantic validation pinned the current master SHA-256 `4e8cc6cc6a7a3dcef71f1f4579efda4c2a17f49e2dee7ee62db9c818ed487d3d` and byte-identical public GLB SHA-256 `73b80e6f388b15c853b1ec39b6af6a31b36da040d447f7a6cc916ea7924d346b`. Task 8 production promotion was committed as `75bb17fbd46182c0f514c06c95d9f12f89ed3195` (`feat(assets): promote Memphis Concourse B environment`). The branch remains unmerged; Task 9, push, and PR work have not started.
+
+**Task 8 review-fix evidence — 2026-08-28:** Focused RED tests reproduced missing formal build-approval enforcement and node-only prohibited-name/interactive-metadata scanning. The repair adds a pure formal approval contract used before Blender semantic validation or public copy, checks the exact approval/manifest/gate/artifact paths and current hashes/bytes, and scans every top-level named/extras-bearing glTF object collection. Focused tests, the real asset build, public asset checks, pipeline evals 6/6, lint, types, production build, diff checks, and LFS policy passed. The fix was committed as `9aac555a22569ca9165aa923e58aadf5671193bb` (`fix(assets): enforce Memphis shading approval`); approved artifact bytes remain unchanged.
 
 ### Task 9: Render the Memphis world around the right-seat cockpit
 
@@ -1578,7 +1584,7 @@ Stop when all acceptance checks pass, after five attempts on one unchanged failu
 - [ ] Task 5 — Native accessible UI.
 - [x] Task 6 — Source-only candidate and Source Review Gate.
 - [x] Task 7 — Neutral assembly and Assembly Review Gate approved for materials work.
-- [ ] Task 8 — Materials, optimization, and production promotion.
+- [x] Task 8 — Materials, optimization, production promotion, and review fixes.
 - [ ] Task 9 — Browser scene integration.
 - [ ] Task 10 — Browser validation and repairs.
 - [ ] Task 11 — Evidence and owner approval gate.

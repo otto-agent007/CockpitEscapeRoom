@@ -12,6 +12,10 @@ import {
   DC9_FLIGHT_DECK_REQUIRED_NODES,
   validateDc9FlightDeckContract,
 } from './dc9-flight-deck-contract.mjs'
+import {
+  DC9_MEMPHIS_REQUIRED_NODES,
+  validateDc9MemphisModelContract,
+} from './dc9-memphis-model-contract.mjs'
 
 const modelDir = 'public/models'
 const models = existsSync(modelDir)
@@ -41,7 +45,7 @@ function parseGlb(path) {
   }
   if (!json) throw new Error('GLB has no JSON chunk')
   if (!binary) throw new Error('GLB has no binary chunk')
-  return { json, binary }
+  return { json, binary, byteLength: bytes.length }
 }
 
 function embeddedPngDimensions(json, binary, imageIndex) {
@@ -91,6 +95,7 @@ const requiredModelContracts = {
     ...AIRBUS_SIMULATOR_REQUIRED_NODES,
   ],
   'model-y-reward.glb': MODEL_Y_REQUIRED_NODES,
+  'dc9-memphis-legacy-departure.glb': DC9_MEMPHIS_REQUIRED_NODES,
 }
 
 if (models.includes('airbus-first-officer.glb')) {
@@ -105,7 +110,7 @@ for (const [model, requiredNodes] of Object.entries(requiredModelContracts)) {
     continue
   }
   try {
-    const { json, binary } = parseGlb(join(modelDir, model))
+    const { json, binary, byteLength } = parseGlb(join(modelDir, model))
     const names = new Set((json.nodes ?? []).map((node) => node.name).filter(Boolean))
     const missing = requiredNodes.filter((name) => !names.has(name))
     if (missing.length > 0) {
@@ -249,6 +254,25 @@ for (const [model, requiredNodes] of Object.entries(requiredModelContracts)) {
           console.error('Captain\'s Key celebration must be a tracked 1024px render presented upright with its engraved face toward the player.')
           failed = true
         }
+      }
+    }
+    if (model === 'dc9-memphis-legacy-departure.glb') {
+      const contractJson = {
+        ...json,
+        images: (json.images ?? []).map((image, index) => {
+          const dimensions = embeddedPngDimensions(json, binary, index)
+          return {
+            ...image,
+            extras: {
+              ...(image.extras ?? {}),
+              ...(dimensions ? { width: dimensions[0], height: dimensions[1] } : {}),
+            },
+          }
+        }),
+      }
+      for (const error of validateDc9MemphisModelContract(contractJson, byteLength)) {
+        console.error(error)
+        failed = true
       }
     }
     if (model === 'airbus-captain.glb') {

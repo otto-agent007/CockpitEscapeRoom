@@ -72,3 +72,22 @@ Known deviation: this is a compressed 1995 memory composition, not exact KMEM ge
 The owner approved the revised 36 mm neutral composition for materials work. `assembly-approval.json` pins the 3669-byte assembly manifest (`83f16a2c9efdace15006d74eabe022753e5e0ff5ba008701cac340f88c920648`), 105851-byte neutral master (`393ba3b742578fe223b9853fb3ed4ff50c802d69c801e38d7e5688551ee22032`), 40428-byte neutral GLB (`92820c6daa5f8d31dd2518f9ff3e4002167c5da83504e052f3d9b0c36cd57471`), runtime contract, resolved layout, node/pivot report, and the final 1440/768/375 review PNG hashes.
 
 Fresh reimport retained the five exact anchors, 15 meshes, 376 triangles, and 3 materials. Layout, runtime-contract, manifest, GLB, source/assembly-approval consistency, and `assembly_complete -> assembly-approved` transition validation passed. The reproducible generated `.blend1` backup was removed; the approved `.blend` remains. The approval scope is limited to revised neutral composition, route framing, Concourse placement, and anchors for materials work. Textures, final fidelity, runtime integration, and public-model promotion remain unapproved.
+
+## Materials approval and production promotion — 2026-08-28
+
+The owner selected the original restrained color grade after rejecting the brighter/warmer repair as too brown. The approved preset uses AgX exposure `-0.2`, world strength `0.32`, sun energy `1.65`, and fill energy `1350`. Formal approval pins the current shaded master SHA-256 `4e8cc6cc6a7a3dcef71f1f4579efda4c2a17f49e2dee7ee62db9c818ed487d3d` and deployable GLB SHA-256 `73b80e6f388b15c853b1ec39b6af6a31b36da040d447f7a6cc916ea7924d346b`.
+
+- Production master: `art-source/blender/dc9-memphis-legacy-departure.blend`, 1,908,346 bytes, byte-identical to the approved shaded master.
+- Production model: `public/models/dc9-memphis-legacy-departure.glb`, 1,873,520 bytes, byte-identical to the approved shaded GLB.
+- Runtime metrics: 25 root-subtree objects, 15 meshes, 376 triangles, 5 materials, and three embedded 2048x1024 selected textures.
+- Optimization decision: preserve topology, hierarchy, pivots, transforms, extras, packed texture bytes, and tangents. No join, decimation, resize, or other destructive optimization was justified because the GLB is well below the 5,000-triangle, six-material, and 8 MiB budgets.
+- Semantic Blender validation passed for the promoted master: names/hierarchy/transforms, 36 mm review camera, exact restored lighting grade, material/node assignments, normal strength `0.35`, emissive strength `0.045`, packed texture identities/dimensions, anchors/game IDs/extras, Task 7 input immutability, and GLB reimport all matched.
+- The exact Ted Davis credit is recorded in `public/models/README.md`. Runtime/browser integration remains Task 9 and was not started here.
+
+Validation passed through `npm run asset:dc9-memphis`, the focused model-contract test, `npm run assets:check`, and `npm run pipeline:evals` (6/6). glTF validation reports no errors; the exact selected normal PNG retains one ancillary image-feature warning, and simple untextured surfaces retain informational unused tangent/UV notices.
+
+## Task 8 review hardening — 2026-08-28
+
+The production asset entry point now fails closed on the exact formal `shading-approval.json` before Blender validation or public copying. Its pure contract verifies approval state/stage and job IDs, exact manifest/gate paths and current hashes, both approved artifact path/hash/byte records, and byte identity of the promoted master and approved GLB. The GLB contract now scans prohibited source-library names and cockpit-interaction metadata across nodes, meshes, materials, images, textures, and scenes. These checks do not alter approved artifact bytes.
+
+Focused approval/model-contract tests, the real Blender-backed asset command, all production asset checks, pipeline evals 6/6, lint, types, and production build passed after this hardening. The collection scan covers every top-level glTF object array, including accessors, cameras, animations, and samplers in addition to the named collections above.

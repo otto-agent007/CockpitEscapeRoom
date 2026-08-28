@@ -1356,3 +1356,14 @@ Gate the Airbus HUD on the exported GLB camera-ready callback in normal 3D mode,
 ### Remaining delta
 
 Outcome: `ready-gated-atp-deferral`. The player no longer sees cards or the ATP question before the A320 cockpit is ready, and the ATP answer starts blank. Owner visual approval remains required before final A320 production-art approval, and future work should handle display readability with proper cockpit materials when the cockpit art is promoted.
+
+## 2026-08-28 — DC-9 Memphis materials approval and production promotion
+
+- [x] Consumed the exact Task 7 assembly approval fail-closed and preserved its source/assembly hashes.
+- [x] Generated the shaded master/GLB, 1440/768/375 shaded and comparison evidence, material/texture/reimport reports, material-optimization gate, and computed-hash manifest.
+- [x] Restored the owner-selected original restrained grade after the warmer repair was rejected as too brown.
+- [x] Semantically validated the current Blender master and exact GLB reimport, then recorded `shading-approved` by owner review on 2026-08-28.
+- [x] Promoted the byte-identical approved master and GLB, added the bounded production model contract, standard asset command, public-model check, and Ted Davis credit.
+- [x] Kept optimization preservation-first: 25 objects, 15 meshes, 376 triangles, 5 materials, three packed 2048x1024 textures, and no destructive joins, decimation, or resizing.
+
+Validation: `npm run asset:dc9-memphis` passed with Blender 5.1.2 and exact semantic/reimport checks; `node --test tools/assets/dc9-memphis-model-contract.test.mjs` passed; `npm run assets:check` passed; `npm run pipeline:evals` passed 6/6. Task 9 browser/runtime integration remains out of scope.

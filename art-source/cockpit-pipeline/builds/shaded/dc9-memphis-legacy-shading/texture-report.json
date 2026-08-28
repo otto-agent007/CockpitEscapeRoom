@@ -1,0 +1,44 @@
+{
+  "allPacked": true,
+  "allWithin2048x1024": true,
+  "optimizationDecision": "Preservation-first shading only. Restored approved OBJ8 UV coordinates and wired the exact selected 2048x1024 base-color, normal, and lit maps; preserved mesh topology, names, hierarchy, transforms, pivots, and custom properties. No mesh joining, decimation, texture resizing, rebake, or destructive GLB optimization was used.",
+  "schema": "cockpit-pipeline/texture-inventory-v1",
+  "sourceTexturesPreserved": true,
+  "status": "pass",
+  "textureCount": 3,
+  "textures": [
+    {
+      "colorspace": "sRGB",
+      "height": 1024,
+      "name": "KMEMterminal",
+      "packed": true,
+      "path": ".cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/Memphis_Nashville/KMEM/KMEMterminal.png",
+      "resized": false,
+      "sha256": "416c081c5e9f9ca40b183477da54f7ec8c5baa62ae0b9c0bdd961329ac394505",
+      "usage": "base color",
+      "width": 2048
+    },
+    {
+      "colorspace": "Non-Color",
+      "height": 1024,
+      "name": "KMEMterminal_NML",
+      "packed": true,
+      "path": ".cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/Memphis_Nashville/KMEM/KMEMterminal_NML.png",
+      "resized": false,
+      "sha256": "9e1f272c64807981bee997aa08e7a3273ab5c4242f4ff58fb92cc20b1f8bf7e8",
+      "usage": "normal",
+      "width": 2048
+    },
+    {
+      "colorspace": "sRGB",
+      "height": 1024,
+      "name": "KMEMterminal_LIT",
+      "packed": true,
+      "path": ".cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/Memphis_Nashville/KMEM/KMEMterminal_LIT.png",
+      "resized": false,
+      "sha256": "6a561147ceae328b311fba38de849d3102a4d2eb1238c3ddbbfb2315b7cf91e5",
+      "usage": "restrained emissive support",
+      "width": 2048
+    }
+  ]
+}
