@@ -1,0 +1,17 @@
+{
+  "approvalId": "dc9-memphis-legacy-source-source-approval-001",
+  "sourceJobId": "dc9-memphis-legacy-source",
+  "stage": "source-approved",
+  "approved": true,
+  "approvedBy": "owner review 2026-08-28",
+  "approvedAt": "2026-08-28",
+  "sourceManifest": "art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-source/manifests/sourcing-complete.json",
+  "sourceManifestSha256": "53802b3b648bfb048c81b1e8d930ed3a97232ee1f3a9014079e94da9c235dd7a",
+  "candidateId": "dc9-memphis-concourse-b-source",
+  "candidateGlb": "art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source/dc9-memphis-concourse-b-source.glb",
+  "candidateGlbSha256": "6cc30543653173d64b2997468009677e72e8923a184aaf886d01b1a842249177",
+  "candidateMetadata": "art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source/candidate-metadata.json",
+  "candidateMetadataSha256": "70740b2137ac30e06611e39d4f119ada0b889d853e80d4f5d408767a7b200c32",
+  "scope": "Source geometry and orientation approved for neutral assembly; textures and final fidelity are not yet approved.",
+  "notes": "This owner approval permits Agent 2 neutral assembly only. It does not approve source textures, final materials, final visual fidelity, runtime/public-model promotion, ramp/path/anchor authoring, or later pipeline stages."
+}
