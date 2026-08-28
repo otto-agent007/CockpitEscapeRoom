@@ -19,6 +19,12 @@ const assets = {
       presentationRotationDegrees: [-90, 98, 67],
     },
   },
+  'dc9-memphis': {
+    blend: 'art-source/blender/dc9-memphis-legacy-departure.blend',
+    output: 'public/models/dc9-memphis-legacy-departure.glb',
+    root: 'KMEM_LEGACY_ROOT',
+    approvedGlb: 'art-source/cockpit-pipeline/builds/shaded/dc9-memphis-legacy-shading/dc9-memphis-legacy-shaded.glb',
+  },
   airbus: {
     blend: 'art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend',
     output: 'public/models/airbus-captain.glb',
@@ -51,7 +57,7 @@ const assets = {
 }
 
 if (!assetName || !(assetName in assets)) {
-  console.error('Usage: node tools/assets/build-asset.mjs <dc9|airbus|tesla|locker>')
+  console.error('Usage: node tools/assets/build-asset.mjs <dc9|dc9-memphis|airbus|tesla|locker>')
   process.exit(2)
 }
 
@@ -67,7 +73,9 @@ if (!existsSync(blender)) {
 }
 const cacheDir = resolve('.cache', 'assets', assetName)
 const rawGlb = resolve(cacheDir, `${assetName}.raw.glb`)
-const deployableGlb = config.tangentMesh ? resolve(cacheDir, `${assetName}.tangents.glb`) : rawGlb
+const deployableGlb = config.approvedGlb
+  ? resolve(config.approvedGlb)
+  : (config.tangentMesh ? resolve(cacheDir, `${assetName}.tangents.glb`) : rawGlb)
 const reportPath = resolve(cacheDir, 'asset-report.json')
 mkdirSync(cacheDir, { recursive: true })
 
@@ -107,11 +115,31 @@ if (config.prepare) {
   )
 }
 
-run(blender, ['--background', config.blend, '--python', 'tools/blender/validate_scene.py'], 'validate scene')
-run(blender, ['--background', config.blend, '--python', 'tools/blender/render_preview.py'], 'render approval views')
-run(blender, ['--background', config.blend, '--python', 'tools/blender/export_glb.py'], 'export raw GLB')
-if (config.tangentMesh) {
-  run('node', ['tools/assets/generate-node-tangents.mjs', rawGlb, deployableGlb, config.tangentMesh], 'generate required tangents')
+if (config.approvedGlb) {
+  if (!existsSync(config.approvedGlb)) {
+    console.error(`Missing approved deployable GLB: ${config.approvedGlb}`)
+    process.exit(2)
+  }
+  run(
+    blender,
+    [
+      '--background', '--factory-startup', '--disable-autoexec', config.blend,
+      '--python', 'tools/blender/shade_dc9_memphis_legacy.py', '--',
+      '--assembly-approval', 'art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-assembly/assembly-approval.json',
+      '--source-dir', '.cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/Memphis_Nashville/KMEM',
+      '--output-dir', 'art-source/cockpit-pipeline/builds/shaded/dc9-memphis-legacy-shading',
+      '--material-gate', 'art-source/cockpit-pipeline/gates/dc9-memphis-legacy-material-optimization.json',
+      '--validate-shaded-master',
+    ],
+    'validate owner-approved shaded master',
+  )
+} else {
+  run(blender, ['--background', config.blend, '--python', 'tools/blender/validate_scene.py'], 'validate scene')
+  run(blender, ['--background', config.blend, '--python', 'tools/blender/render_preview.py'], 'render approval views')
+  run(blender, ['--background', config.blend, '--python', 'tools/blender/export_glb.py'], 'export raw GLB')
+  if (config.tangentMesh) {
+    run('node', ['tools/assets/generate-node-tangents.mjs', rawGlb, deployableGlb, config.tangentMesh], 'generate required tangents')
+  }
 }
 run('npx', ['gltf-transform', 'validate', deployableGlb], 'validate GLB')
 run('npx', ['gltf-transform', 'inspect', deployableGlb], 'inspect GLB')
@@ -195,7 +223,9 @@ writeFileSync(
       deployableOutput: config.output,
       rootObject: config.root,
       builtAt: new Date().toISOString(),
-      note: 'No destructive optimization is applied by default; preserve node names, pivots, hierarchy, extras, and animations.',
+      note: config.approvedGlb
+        ? 'Promotes the exact owner-approved GLB after read-only semantic Blender validation; no re-export or destructive optimization is applied.'
+        : 'No destructive optimization is applied by default; preserve node names, pivots, hierarchy, extras, and animations.',
       exportContract,
       validation,
     },

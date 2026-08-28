@@ -1,0 +1,106 @@
+{
+  "assignments": [
+    {
+      "material": "KMEM_TERMINAL_MEMORY_1995",
+      "objects": [
+        "OBJ8_CONCOURSEB_2E_RANGE_001",
+        "OBJ8_CONCOURSEB_2_RANGE_001",
+        "OBJ8_CONCOURSEB_RANGE_001"
+      ],
+      "role": "approved Concourse B base color + normal + restrained lit support"
+    },
+    {
+      "material": "KMEM_RAMP_MATERIAL",
+      "objects": [
+        "KMEM_RAMP"
+      ],
+      "role": "matte project-owned ramp"
+    },
+    {
+      "material": "KMEM_TAXI_MATERIAL",
+      "objects": [
+        "KMEM_TAXI_SURFACE"
+      ],
+      "role": "matte project-owned taxi surface"
+    },
+    {
+      "material": "KMEM_RUNWAY_MATERIAL",
+      "objects": [
+        "KMEM_RUNWAY_SURFACE"
+      ],
+      "role": "matte project-owned runway surface"
+    },
+    {
+      "material": "KMEM_FADED_RUNWAY_CENTERLINE",
+      "objects": [
+        "KMEM_CENTERLINE_01",
+        "KMEM_CENTERLINE_02",
+        "KMEM_CENTERLINE_03",
+        "KMEM_CENTERLINE_04",
+        "KMEM_CENTERLINE_05",
+        "KMEM_CENTERLINE_06",
+        "KMEM_CENTERLINE_07",
+        "KMEM_CENTERLINE_08",
+        "KMEM_CENTERLINE_09"
+      ],
+      "role": "faded non-emissive route centerline"
+    }
+  ],
+  "materialCount": 5,
+  "memoryGrade": {
+    "backgroundColor": [
+      0.075,
+      0.085,
+      0.1,
+      1.0
+    ],
+    "backgroundStrength": 0.32,
+    "emissiveStrength": 0.045,
+    "exposure": -0.2,
+    "fillColor": [
+      0.45,
+      0.58,
+      0.78
+    ],
+    "fillEnergy": 1350,
+    "look": "AgX - Medium High Contrast",
+    "modernDecorationAdded": false,
+    "neonGuidanceAdded": false,
+    "sunColor": [
+      1.0,
+      0.78,
+      0.58
+    ],
+    "sunEnergy": 1.65,
+    "target": "subtle 1995 Memphis memory recreation",
+    "viewTransform": "AgX"
+  },
+  "schema": "cockpit-pipeline/material-assignment-v1",
+  "status": "pass",
+  "uvRestoration": [
+    {
+      "method": "exact approved OBJ8 VT coordinates restored by original source vertex index",
+      "object": "OBJ8_CONCOURSEB_RANGE_001",
+      "sourceFile": "ConcourseB.obj",
+      "triangleCount": 178,
+      "uvLayer": "UVMap",
+      "vertexCount": 534
+    },
+    {
+      "method": "exact approved OBJ8 VT coordinates restored by original source vertex index",
+      "object": "OBJ8_CONCOURSEB_2_RANGE_001",
+      "sourceFile": "ConcourseB_2.obj",
+      "triangleCount": 30,
+      "uvLayer": "UVMap",
+      "vertexCount": 60
+    },
+    {
+      "method": "exact approved OBJ8 VT coordinates restored by original source vertex index",
+      "object": "OBJ8_CONCOURSEB_2E_RANGE_001",
+      "sourceFile": "ConcourseB_2e.obj",
+      "triangleCount": 24,
+      "uvLayer": "UVMap",
+      "vertexCount": 48
+    }
+  ]
+}

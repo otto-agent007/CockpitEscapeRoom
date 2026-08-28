@@ -6,12 +6,15 @@ Expected production files:
 
 ```text
 dc9-cockpit.glb
+dc9-memphis-legacy-departure.glb
 airbus-captain.glb
 model-y-reward.glb
 locker-room.glb
 ```
 
 Every GLB must pass `npm run assets:check`.
+
+Memphis Concourse B geometry is derived with permission for this private, noncommercial game from the Memphis/Nashville Scenery Package by Ted Davis.
 
 `dc9-cockpit.glb` uses the first-officer/right-seat camera family and keeps deprecated captain cameras only as compatibility nodes. `airbus-captain.glb` uses the exported captain/left-seat camera and captain-side sidestick contract; the former `airbus-first-officer.glb` deployable path is explicitly deprecated and removed.
 
