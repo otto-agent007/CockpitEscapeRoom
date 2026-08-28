@@ -4,12 +4,12 @@ import { createInitialState, gameReducer, isLockerMemoryAvailable, type GameStat
 import { DC9_INSTRUMENT_SCAN_ORDER } from './dc9InstrumentScan'
 import { NEUTRAL_DC9_CONTROLS, type Dc9ControlState } from './dc9Input'
 
-describe('schema-v13 canonical state', () => {
+describe('schema-v14 canonical state', () => {
   it('starts with seat-role semantic fields and no schema-v6 compatibility fields', () => {
     const state = createInitialState() as unknown as Record<string, unknown>
     const dc9 = state.dc9 as Record<string, unknown>
 
-    expect(state.schemaVersion).toBe(13)
+    expect(state.schemaVersion).toBe(14)
     expect(state.phase).toBe('briefing')
     expect(state.airbusQualificationAnswer).toBe('')
     expect(state.airbusCaptainModeUnlocked).toBe(false)
@@ -142,7 +142,12 @@ function enterDc9HomeOperations(): GameState {
   for (const code of dc9LegacyFlow.routePuzzleAnswers) {
     state = gameReducer(state, { type: 'TOGGLE_DC9_ROUTE', code })
   }
-  return gameReducer(state, { type: 'SUBMIT_DC9_ROUTES' })
+  state = gameReducer(state, { type: 'SUBMIT_DC9_ROUTES' })
+  state = gameReducer(state, {
+    type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
+    checkpoint: 'initialClimb',
+  })
+  return gameReducer(state, { type: 'COMPLETE_DC9_MEMPHIS_DEPARTURE' })
 }
 
 describe('DC-9 Final Flight Log configuration', () => {
@@ -170,7 +175,7 @@ describe('DC-9 Final Flight Log configuration', () => {
 })
 
 describe('DC-9 Final Flight Log reducer', () => {
-  it('starts in the DC-9 and advances from the route record to Home Operations', () => {
+  it('starts in the DC-9 and advances from the route record through Memphis departure to Home Operations', () => {
     let state = gameReducer(createInitialState(), { type: 'START' })
     expect(state.phase).toBe('dc9')
     expect(state.dc9.stage).toBe('controlCheck')
@@ -187,7 +192,88 @@ describe('DC-9 Final Flight Log reducer', () => {
     state = gameReducer(state, { type: 'SUBMIT_DC9_ROUTES' })
 
     expect(state.dc9.routeCompleted).toEqual(['DTW', 'MSP', 'STL'])
+    expect(state.dc9.stage).toBe('memphisDeparture')
+
+    state = gameReducer(state, {
+      type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
+      checkpoint: 'initialClimb',
+    })
+    state = gameReducer(state, { type: 'COMPLETE_DC9_MEMPHIS_DEPARTURE' })
+    expect(state.dc9.departure.completed).toBe(true)
     expect(state.dc9.stage).toBe('homeOperations')
+  })
+
+  it('guards Memphis departure actions by stage and checkpoint', () => {
+    const routeRecord = enterDc9RouteRecord()
+    expect(gameReducer(routeRecord, {
+      type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
+      checkpoint: 'initialClimb',
+    })).toBe(routeRecord)
+
+    let departure = routeRecord
+    for (const code of dc9LegacyFlow.routePuzzleAnswers) {
+      departure = gameReducer(departure, { type: 'TOGGLE_DC9_ROUTE', code })
+    }
+    departure = gameReducer(departure, { type: 'SUBMIT_DC9_ROUTES' })
+    expect(gameReducer(departure, {
+      type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
+      checkpoint: 'complete',
+    })).toBe(departure)
+    expect(gameReducer(departure, { type: 'COMPLETE_DC9_MEMPHIS_DEPARTURE' })).toBe(departure)
+  })
+
+  it('records only the active Memphis departure beat and restores without losing routes', () => {
+    let state = enterDc9RouteRecord()
+    for (const code of dc9LegacyFlow.routePuzzleAnswers) {
+      state = gameReducer(state, { type: 'TOGGLE_DC9_ROUTE', code })
+    }
+    state = gameReducer(state, { type: 'SUBMIT_DC9_ROUTES' })
+    state = gameReducer(state, {
+      type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
+      checkpoint: 'taxiTurn',
+    })
+    const beforeWrongBeat = state
+    expect(gameReducer(state, {
+      type: 'RECORD_DC9_DEPARTURE_MISTAKE',
+      beat: 'rampRelease',
+    })).toBe(beforeWrongBeat)
+
+    state = gameReducer(state, {
+      type: 'RECORD_DC9_DEPARTURE_MISTAKE',
+      beat: 'taxi',
+    })
+    expect(state.dc9.departure.attempts).toEqual({ taxi: 1 })
+    const routes = [...state.dc9.routeCompleted]
+    state = gameReducer(state, { type: 'RESTORE_DC9_DEPARTURE_CHECKPOINT' })
+    expect(state.dc9.routeCompleted).toEqual(routes)
+    expect(state.dc9.departure.checkpoint).toBe('taxiTurn')
+  })
+
+  it('resets Memphis departure to the ramp start', () => {
+    const initial = createInitialState()
+    const reset = gameReducer({
+      ...initial,
+      phase: 'dc9',
+      dc9: {
+        ...initial.dc9,
+        stage: 'memphisDeparture',
+        departure: {
+          checkpoint: 'initialClimb',
+          completedBeats: ['rampRelease', 'taxi', 'holdShort', 'lineup', 'takeoffRoll', 'rotation'],
+          attempts: { taxi: 2 },
+          hintLevel: 2,
+          completed: false,
+        },
+      },
+    }, { type: 'RESET' })
+
+    expect(reset.dc9.departure).toEqual({
+      checkpoint: 'rampStart',
+      completedBeats: [],
+      attempts: {},
+      hintLevel: 0,
+      completed: false,
+    })
   })
 
   it('stamps familiar routes permanently while a wrong submission advances support', () => {

@@ -33,6 +33,14 @@ import {
   type Dc9InstrumentScanProgress,
 } from './dc9InstrumentScan'
 import {
+  advanceDc9DepartureProgress,
+  createInitialDc9DepartureProgress,
+  recordDc9DepartureMistake,
+  type Dc9DepartureBeat,
+  type Dc9DepartureCheckpoint,
+  type Dc9DepartureProgress,
+} from './dc9MemphisDeparture'
+import {
   airbusWorkloadHint,
   applyAirbusWorkloadAction,
   createInitialAirbusWorkloadProgress,
@@ -43,7 +51,7 @@ import {
   type AirbusWorkloadTaskId,
 } from './airbusWorkload'
 
-export const GAME_SCHEMA_VERSION = 13 as const
+export const GAME_SCHEMA_VERSION = 14 as const
 export const DC9_SECURE_ORDER = dc9LegacyFlow.secureSequence
 export const PUZZLE_IDS = ['dc9', 'locker', 'airbus'] as const
 export type GamePhase = 'briefing' | 'dc9' | 'locker' | 'airbus' | 'reward' | 'mars'
@@ -51,6 +59,7 @@ export type Dc9ChapterStage =
   | 'controlCheck'
   | 'intro'
   | 'routeRecord'
+  | 'memphisDeparture'
   | 'homeOperations'
   | 'instrumentScan'
   | 'shutdown'
@@ -61,6 +70,7 @@ export interface Dc9ChapterProgress {
   stage: Dc9ChapterStage
   controlCheck: Dc9ControlCheckItemId[]
   instrumentScan: Dc9InstrumentScanProgress
+  departure: Dc9DepartureProgress
   routeSelections: string[]
   routeCompleted: string[]
   routeAttempts: number
@@ -105,6 +115,10 @@ export type GameAction =
   | { type: 'OPEN_DC9_ROUTE_RECORD' }
   | { type: 'TOGGLE_DC9_ROUTE'; code: string }
   | { type: 'SUBMIT_DC9_ROUTES' }
+  | { type: 'SAVE_DC9_DEPARTURE_CHECKPOINT'; checkpoint: Dc9DepartureCheckpoint }
+  | { type: 'RECORD_DC9_DEPARTURE_MISTAKE'; beat: Dc9DepartureBeat }
+  | { type: 'RESTORE_DC9_DEPARTURE_CHECKPOINT' }
+  | { type: 'COMPLETE_DC9_MEMPHIS_DEPARTURE' }
   | { type: 'SET_HOME_OPERATIONS_PAGE'; page: number }
   | { type: 'COMPLETE_HOME_OPERATIONS' }
   | { type: 'ACTIVATE_DC9_CONTROL'; controlId: Dc9SecureControlId }
@@ -343,6 +357,19 @@ export function isLockerMemoryAvailable(
   return false
 }
 
+function isDc9DepartureBeatActive(
+  checkpoint: Dc9DepartureCheckpoint,
+  beat: Dc9DepartureBeat,
+): boolean {
+  if (checkpoint === 'rampStart') return beat === 'rampRelease'
+  if (checkpoint === 'taxiTurn') return beat === 'taxi'
+  if (checkpoint === 'holdShort') return beat === 'holdShort'
+  if (checkpoint === 'runwayLineup') {
+    return beat === 'lineup' || beat === 'takeoffRoll' || beat === 'rotation'
+  }
+  return checkpoint === 'initialClimb' && beat === 'initialClimb'
+}
+
 function hintFor(state: GameState): string {
   if (state.phase === 'airbus') {
     if (countPlacedAirbusCards(state.airbusAssignments) !== airbusCaptainFlow.controlCards.length) {
@@ -422,6 +449,7 @@ export function createInitialState(): GameState {
       stage: 'controlCheck',
       controlCheck: [],
       instrumentScan: createInitialDc9InstrumentScanProgress(),
+      departure: createInitialDc9DepartureProgress(),
       routeSelections: [],
       routeCompleted: [],
       routeAttempts: 0,
@@ -503,7 +531,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           ...state,
           dc9: {
             ...state.dc9,
-            stage: 'homeOperations',
+            stage: 'memphisDeparture',
             routeSelections: [...approved],
             routeCompleted: [...approved],
           },
@@ -525,6 +553,48 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           routeAttempts,
         },
         statusMessage: hint,
+      }
+    }
+
+    case 'SAVE_DC9_DEPARTURE_CHECKPOINT': {
+      if (state.phase !== 'dc9' || state.dc9.stage !== 'memphisDeparture') return state
+      if (action.checkpoint === 'complete') return state
+      const departure = advanceDc9DepartureProgress(state.dc9.departure, {
+        type: 'checkpoint',
+        checkpoint: action.checkpoint,
+      })
+      if (departure === state.dc9.departure) return state
+      return { ...state, dc9: { ...state.dc9, departure } }
+    }
+
+    case 'RECORD_DC9_DEPARTURE_MISTAKE': {
+      if (state.phase !== 'dc9' || state.dc9.stage !== 'memphisDeparture') return state
+      if (!isDc9DepartureBeatActive(state.dc9.departure.checkpoint, action.beat)) return state
+      return {
+        ...state,
+        dc9: {
+          ...state.dc9,
+          departure: recordDc9DepartureMistake(state.dc9.departure, action.beat),
+        },
+      }
+    }
+
+    case 'RESTORE_DC9_DEPARTURE_CHECKPOINT':
+      return state
+
+    case 'COMPLETE_DC9_MEMPHIS_DEPARTURE': {
+      if (
+        state.phase !== 'dc9'
+        || state.dc9.stage !== 'memphisDeparture'
+        || state.dc9.departure.checkpoint !== 'initialClimb'
+      ) return state
+      return {
+        ...state,
+        dc9: {
+          ...state.dc9,
+          stage: 'homeOperations',
+          departure: advanceDc9DepartureProgress(state.dc9.departure, { type: 'complete' }),
+        },
       }
     }
 

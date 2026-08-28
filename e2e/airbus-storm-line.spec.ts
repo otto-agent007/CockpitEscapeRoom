@@ -26,6 +26,13 @@ function airbusState(): GameState {
     phase: 'airbus',
     dc9: {
       stage: 'complete',
+      departure: {
+        checkpoint: 'complete',
+        completedBeats: ['rampRelease', 'taxi', 'holdShort', 'lineup', 'takeoffRoll', 'rotation', 'initialClimb', 'complete'],
+        attempts: {},
+        hintLevel: 0,
+        completed: true,
+      },
       routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
       routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
       routeAttempts: 0,
