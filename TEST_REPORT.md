@@ -1,5 +1,33 @@
 # Test report
 
+## 2026-08-28 Task 9 cockpit-first Memphis scene integration
+
+- TDD RED: `npm test -- --run src/scenes/dc9MemphisVisuals.test.ts` failed before production
+  implementation because `./dc9MemphisVisuals` did not exist. GREEN passes **9/9** pure visual
+  tests covering the ordered five-anchor contract, finite coordinates, exact checkpoint knots,
+  curved path continuity, inverse-world attitude, bounded lateral/heading offsets, climb
+  altitude/pitch, reduced-motion zero vibration, and malformed transient normalization.
+- The approved environment URL is
+  `/models/dc9-memphis-legacy-departure.glb?v=73b80e6f`. It is requested only while the durable
+  stage is `memphisDeparture`. Runtime staging clones the cached source, requires each stable scene
+  node and unique `game_id`, converts exported anchor coordinates back to the pure authored space,
+  applies the initial pose before display, and then changes one environment root per frame.
+- The DC-9 cockpit and `CAM_DC9_FIRST_OFFICER_GAME` remain fixed with normal gameplay FOV, limited
+  seat look, and direct yoke drag. Route, gauge, shutdown, and key raycast interactions are disabled
+  during the memory. Memphis daylight is declarative and the parked background/lighting remounts
+  after exit; cockpit GLB materials are not changed by the environment integration.
+- Canvas telemetry publishes `data-dc9-memphis-model-state`, `data-dc9-memphis-beat`, and a JSON
+  `data-dc9-memphis-world-pose`. Environment progress and errors reach the native panel. A load or
+  contract failure leaves qualitative guidance and **Restore checkpoint** available, disposes any
+  staged clone, clears loader/progress cache, and uses Restore to remount and retry without changing
+  authoritative gameplay completion.
+- Verification passed: focused visual/rules Vitest **31/31**; `npm run lint`; `npm run typecheck`;
+  full `npm test` **552/552 across 42 files**; `npm run build`; `npm run assets:check` with only the
+  model validator's existing informational warnings; and `git diff --check`.
+- Source integration commit: `8d38b86` (`feat(dc9): render cockpit-first Memphis departure`). No
+  Playwright, browser screenshot, responsive, frame-budget, Vercel, push, or PR claim belongs to
+  Task 9; those remain explicit Task 10/11 work.
+
 ## 2026-08-28 Task 6 Memphis source-boundary repair
 
 - Review finding reproduced by inspection: the source inspector accepted arbitrary source, cache-work,

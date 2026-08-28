@@ -1228,7 +1228,7 @@ git merge --no-ff asset/dc9-memphis-shading
 - Consumes: Task 4 'frameRef' and Task 8 stable GLB anchors.
 - Produces: lazy environment load state, deterministic path sampling, inverse-world transform, daylight background/lighting, and canvas datasets for browser proof.
 
-- [ ] **Step 1: Write visual-math tests RED**
+- [x] **Step 1: Write visual-math tests RED**
 
 ~~~ts
 import { describe, expect, it } from 'vitest'
@@ -1265,17 +1265,17 @@ describe('DC-9 Memphis visual path', () => {
 })
 ~~~
 
-- [ ] **Step 2: Run visual tests RED**
+- [x] **Step 2: Run visual tests RED**
 
 Run: 'npm test -- --run src/scenes/dc9MemphisVisuals.test.ts'
 
 Expected: FAIL because the module does not exist.
 
-- [ ] **Step 3: Implement path sampling and inverse transform values**
+- [x] **Step 3: Implement path sampling and inverse transform values**
 
 Use the five GLB anchors to build a Catmull-Rom-equivalent sampled path without importing Three.js into the pure test module. Return plain tuples for position and Euler/quaternion inputs. Clamp lateral and heading offsets and damp camera vibration to zero under reduced motion.
 
-- [ ] **Step 4: Implement lazy environment loading**
+- [x] **Step 4: Implement lazy environment loading**
 
 'Dc9MemphisEnvironment' mounts only when 'chapterStage === "memphisDeparture"'. It must:
 
@@ -1289,7 +1289,7 @@ Use the five GLB anchors to build a Catmull-Rom-equivalent sampled path without 
 
 Add 'DC9_MEMPHIS_MODEL_URL' to 'cockpitModelLoader.ts' with a query version equal to the first eight hexadecimal characters of the validated production GLB SHA-256 recorded in the asset report. Use the existing cached loader/observer functions so retries and late progress subscribers follow the cockpit pattern.
 
-- [ ] **Step 5: Integrate with the existing DC-9 scene**
+- [x] **Step 5: Integrate with the existing DC-9 scene**
 
 During 'memphisDeparture':
 
@@ -1302,7 +1302,7 @@ During 'memphisDeparture':
 
 Pass load progress/error to 'MemphisDeparturePanel'. Environment failure keeps the HTML guidance and 'Restore checkpoint' path and never completes automatically.
 
-- [ ] **Step 6: Run visual, type, and asset checks**
+- [x] **Step 6: Run visual, type, and asset checks**
 
 Run:
 
@@ -1314,12 +1314,25 @@ npm run assets:check
 
 Expected: all commands exit 0.
 
-- [ ] **Step 7: Commit scene integration**
+- [x] **Step 7: Commit scene integration**
 
 ~~~bash
 git add src/scenes/dc9MemphisVisuals.ts src/scenes/dc9MemphisVisuals.test.ts src/scenes/Dc9MemphisEnvironment.tsx src/scenes/cockpitModelLoader.ts src/scenes/PrototypeScene.tsx src/App.tsx src/components/dc9/MemphisDeparturePanel.tsx
 git commit -m "feat(dc9): render cockpit-first Memphis departure"
 ~~~
+
+**Task 9 source-level evidence — 2026-08-28:** RED was captured before implementation when
+the focused Vitest file failed because `dc9MemphisVisuals` did not exist. The finished pure suite
+passes 9/9 and covers exact five-anchor ordering, finite validation, checkpoint knots, curved
+sampling, inverse pose, lateral/heading clamps, climb altitude/pitch, malformed transient values,
+and zero reduced-motion vibration. The focused visual/rules run passes 31/31; full Vitest passes
+552/552 across 42 files. Lint, typecheck, production build, `assets:check`, and diff checks pass.
+The environment is requested only by the exact `memphisDeparture` render branch with version
+`73b80e6f`, validates names/game IDs before display, moves one cloned root from the authoritative
+frame, publishes the three canvas datasets, restores parked presentation on exit, and clears and
+retries the model cache from the native Restore path. Source integration is commit `8d38b86`
+(`feat(dc9): render cockpit-first Memphis departure`). Task 10 browser, responsive, performance,
+and screenshot proof has not been run or claimed.
 
 ### Task 10: Prove full browser behavior and repair regressions
 
