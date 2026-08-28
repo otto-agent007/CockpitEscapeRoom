@@ -38,6 +38,10 @@ function triangleCount(json) {
 export function validateDc9MemphisModelContract(json, byteLength) {
   const errors = []
   const nodes = json.nodes ?? []
+  const contractObjects = Object.values(json)
+    .filter(Array.isArray)
+    .flat()
+    .filter((value) => value !== null && typeof value === 'object')
   for (const name of DC9_MEMPHIS_REQUIRED_NODES) {
     const matches = nodes.filter((node) => node.name === name)
     if (matches.length !== 1) errors.push(`DC-9 Memphis environment must export exactly one ${name}; found ${matches.length}.`)
@@ -47,10 +51,10 @@ export function validateDc9MemphisModelContract(json, byteLength) {
     if (node?.extras?.game_id !== gameId) errors.push(`${name} must export exact game_id ${gameId}.`)
   }
   if (nodes.some((node) => !finiteTransform(node))) errors.push('Every DC-9 Memphis node must have a finite transform.')
-  if (nodes.some((node) => Object.keys(node.extras ?? {}).some((key) => INTERACTIVE_KEYS.has(key)))) {
+  if (contractObjects.some((object) => Object.keys(object.extras ?? {}).some((key) => INTERACTIVE_KEYS.has(key)))) {
     errors.push('The environment must not export interactive cockpit metadata.')
   }
-  if (nodes.some((node) => /AutoGate|OpenSceneryX|Planes/i.test(node.name ?? ''))) {
+  if (contractObjects.some((object) => /AutoGate|OpenSceneryX|Planes/i.test(object.name ?? ''))) {
     errors.push('The environment must exclude AutoGate/OpenSceneryX/Planes library content.')
   }
   if (triangleCount(json) > 5_000) errors.push('The Memphis environment must remain at or below 5,000 triangles.')

@@ -1,6 +1,11 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
+import {
+  DC9_MEMPHIS_SHADING_PATHS,
+  validateDc9MemphisShadingApproval,
+} from './dc9-memphis-shading-approval-contract.mjs'
 
 const assetName = process.argv[2]
 const assets = {
@@ -24,6 +29,7 @@ const assets = {
     output: 'public/models/dc9-memphis-legacy-departure.glb',
     root: 'KMEM_LEGACY_ROOT',
     approvedGlb: 'art-source/cockpit-pipeline/builds/shaded/dc9-memphis-legacy-shading/dc9-memphis-legacy-shaded.glb',
+    formalApproval: 'art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-shading/shading-approval.json',
   },
   airbus: {
     blend: 'art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend',
@@ -95,6 +101,15 @@ function run(command, args, label) {
   if (result.status !== 0) process.exit(result.status ?? 1)
 }
 
+function fileRecord(path, recordPath = path) {
+  const bytes = readFileSync(resolve(path))
+  return {
+    path: recordPath,
+    sha256: createHash('sha256').update(bytes).digest('hex'),
+    bytes: bytes.length,
+  }
+}
+
 if (config.build) {
   run(
     blender,
@@ -116,9 +131,32 @@ if (config.prepare) {
 }
 
 if (config.approvedGlb) {
+  if (config.formalApproval !== DC9_MEMPHIS_SHADING_PATHS.approval || !existsSync(config.formalApproval)) {
+    console.error(`Missing exact formal shading approval: ${DC9_MEMPHIS_SHADING_PATHS.approval}`)
+    process.exit(2)
+  }
   if (!existsSync(config.approvedGlb)) {
     console.error(`Missing approved deployable GLB: ${config.approvedGlb}`)
     process.exit(2)
+  }
+  let approval
+  try {
+    approval = JSON.parse(readFileSync(config.formalApproval, 'utf8'))
+  } catch (error) {
+    console.error(`Could not read formal shading approval: ${error instanceof Error ? error.message : String(error)}`)
+    process.exit(2)
+  }
+  const approvalErrors = validateDc9MemphisShadingApproval({
+    approval,
+    approvalPath: config.formalApproval,
+    manifest: fileRecord(DC9_MEMPHIS_SHADING_PATHS.manifest),
+    materialGate: fileRecord(DC9_MEMPHIS_SHADING_PATHS.materialGate),
+    currentBlend: fileRecord(config.blend, DC9_MEMPHIS_SHADING_PATHS.productionBlend),
+    currentGlb: fileRecord(config.approvedGlb, DC9_MEMPHIS_SHADING_PATHS.approvedGlb),
+  })
+  if (approvalErrors.length > 0) {
+    for (const error of approvalErrors) console.error(error)
+    process.exit(1)
   }
   run(
     blender,

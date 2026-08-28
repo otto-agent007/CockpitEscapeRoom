@@ -83,6 +83,20 @@ test('rejects non-finite transforms, cockpit interaction metadata, and excluded 
   assert.ok(errors.some((error) => error.includes('AutoGate/OpenSceneryX/Planes')))
 })
 
+test('scans every non-node named and extras-bearing glTF collection', () => {
+  for (const collection of ['meshes', 'materials', 'images', 'textures', 'scenes', 'accessors', 'cameras', 'animations', 'samplers']) {
+    const fixture = validFixture()
+    fixture[collection] ??= []
+    fixture[collection].push({
+      name: `AutoGate_${collection}`,
+      extras: { interaction: 'toggle' },
+    })
+    const errors = validateDc9MemphisModelContract(fixture, 2 * 1024 * 1024)
+    assert.ok(errors.some((error) => error.includes('interactive cockpit metadata')), collection)
+    assert.ok(errors.some((error) => error.includes('AutoGate/OpenSceneryX/Planes')), collection)
+  }
+})
+
 test('enforces triangle, material, selected-texture, and byte budgets', () => {
   const fixture = validFixture()
   fixture.accessors[0].count = 15_003

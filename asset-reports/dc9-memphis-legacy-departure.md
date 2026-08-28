@@ -85,3 +85,9 @@ The owner selected the original restrained color grade after rejecting the brigh
 - The exact Ted Davis credit is recorded in `public/models/README.md`. Runtime/browser integration remains Task 9 and was not started here.
 
 Validation passed through `npm run asset:dc9-memphis`, the focused model-contract test, `npm run assets:check`, and `npm run pipeline:evals` (6/6). glTF validation reports no errors; the exact selected normal PNG retains one ancillary image-feature warning, and simple untextured surfaces retain informational unused tangent/UV notices.
+
+## Task 8 review hardening — 2026-08-28
+
+The production asset entry point now fails closed on the exact formal `shading-approval.json` before Blender validation or public copying. Its pure contract verifies approval state/stage and job IDs, exact manifest/gate paths and current hashes, both approved artifact path/hash/byte records, and byte identity of the promoted master and approved GLB. The GLB contract now scans prohibited source-library names and cockpit-interaction metadata across nodes, meshes, materials, images, textures, and scenes. These checks do not alter approved artifact bytes.
+
+Focused approval/model-contract tests, the real Blender-backed asset command, all production asset checks, pipeline evals 6/6, lint, types, and production build passed after this hardening. The collection scan covers every top-level glTF object array, including accessors, cameras, animations, and samplers in addition to the named collections above.

@@ -2177,3 +2177,11 @@ Historical checkpoint; the 2026-07-11 transition and Tripo-intake sections above
 - `BLENDER_BIN=/home/user1/.local/bin/blender BLENDER_EXPECTED_VERSION=5.1 npm run asset:dc9-memphis` passed and promoted the exact approved 1,873,520-byte GLB to `public/models/dc9-memphis-legacy-departure.glb`; no re-export or destructive optimization changed approved bytes.
 - `npm run assets:check` passed all public model and intro checks. glTF validation had no errors; the selected normal PNG retains one known ancillary image-feature warning, with informational unused tangent/UV notices on simple untextured project surfaces.
 - `npm run pipeline:evals` passed 6/6. Browser/runtime integration was deliberately left for Task 9.
+
+## 2026-08-28 — DC-9 Memphis Task 8 review fixes
+
+- RED: the new formal shading-approval contract test failed with `ERR_MODULE_NOT_FOUND`; the real asset command previously had no pre-Blender enforcement of `shading-approval.json`. GREEN requires exact approval path, `approved: true`, `shading-approved`, exact job IDs, current manifest/gate paths and hashes, both approved artifact records, and current promoted bytes.
+- RED: the expanded model-contract test failed when prohibited names and interactive metadata were placed on meshes, materials, images, textures, or scenes. GREEN scans those collections plus nodes while preserving the approved production GLB pass.
+- The formal approval check runs before Blender semantic validation and before copying the deployable public model. No approved blend, GLB, texture, comparison-render, manifest, gate, or approval bytes changed.
+- GREEN: `node --test tools/assets/dc9-memphis-shading-approval-contract.test.mjs tools/assets/dc9-memphis-model-contract.test.mjs` passed after adding the pure approval contract and all-top-level-glTF-array scan. The real `npm run asset:dc9-memphis` then passed formal approval, Blender 5.1.2 semantic/reimport validation, GLB validation/inspection, and exact public copying.
+- Nearby regression checks passed: `npm run assets:check`; `npm run pipeline:evals` 6/6; ESLint; TypeScript; and the Vite production build. The approved master remains SHA-256 `4e8cc6cc6a7a3dcef71f1f4579efda4c2a17f49e2dee7ee62db9c818ed487d3d`; the approved/public GLB remains `73b80e6f388b15c853b1ec39b6af6a31b36da040d447f7a6cc916ea7924d346b`.
