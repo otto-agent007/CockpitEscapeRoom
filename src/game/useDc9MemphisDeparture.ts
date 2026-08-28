@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 import {
+  advanceDc9DepartureProgress,
   advanceDc9DepartureFrame,
   canonicalDc9DepartureFrame,
   dc9DepartureGuidance,
@@ -37,6 +38,65 @@ interface UseDc9MemphisDepartureOptions {
 
 const PUBLISH_INTERVAL_MS = 80
 
+export interface Dc9DepartureHtmlPublication {
+  frame: Dc9DepartureFrame
+  guidance: Dc9DepartureGuidance
+  brakeHeld: boolean
+}
+
+interface Dc9DepartureHtmlPublicationSchedulerOptions {
+  schedule: (callback: () => void, delayMs: number) => unknown
+  cancel: (handle: unknown) => void
+  publish: (publication: Dc9DepartureHtmlPublication) => void
+}
+
+export interface Dc9DepartureHtmlPublicationScheduler {
+  request: (publication: Dc9DepartureHtmlPublication) => void
+  clear: () => void
+  dispose: () => void
+}
+
+interface Dc9DepartureDurableCallbacks {
+  onCheckpoint: (checkpoint: Dc9DepartureCheckpoint) => void
+  onMistake: (beat: Dc9DepartureBeat) => void
+  onComplete: () => void
+}
+
+/** Coalesces visual updates without delaying durable reducer callbacks. */
+export function createDc9DepartureHtmlPublicationScheduler(
+  options: Dc9DepartureHtmlPublicationSchedulerOptions,
+): Dc9DepartureHtmlPublicationScheduler {
+  let pending: Dc9DepartureHtmlPublication | null = null
+  let timer: unknown | null = null
+  let disposed = false
+
+  const clear = () => {
+    pending = null
+    if (timer !== null) options.cancel(timer)
+    timer = null
+  }
+  const flush = () => {
+    timer = null
+    if (disposed || !pending) return
+    const publication = pending
+    pending = null
+    options.publish(publication)
+  }
+
+  return {
+    request: (publication) => {
+      if (disposed) return
+      pending = { ...publication, frame: { ...publication.frame } }
+      if (timer === null) timer = options.schedule(flush, PUBLISH_INTERVAL_MS)
+    },
+    clear,
+    dispose: () => {
+      clear()
+      disposed = true
+    },
+  }
+}
+
 function isStoppedControls(controls: Dc9ControlState): boolean {
   return controls.pitch === 0 && controls.roll === 0 && controls.rudder === 0 && controls.thrust === 0
 }
@@ -64,6 +124,22 @@ function eventIdentity(event: Dc9DepartureEvent, progress: Dc9DepartureProgress)
   }
 }
 
+/** Dispatch a Task 2 event at once and return its local durable-progress projection. */
+export function dispatchDc9DepartureDurableEvent(
+  event: Dc9DepartureEvent,
+  progress: Dc9DepartureProgress,
+  emitted: Set<string>,
+  callbacks: Dc9DepartureDurableCallbacks,
+): Dc9DepartureProgress | null {
+  const identity = eventIdentity(event, progress)
+  if (emitted.has(identity)) return null
+  emitted.add(identity)
+  if (event.type === 'checkpoint') callbacks.onCheckpoint(event.checkpoint)
+  else if (event.type === 'mistake') callbacks.onMistake(event.beat)
+  else callbacks.onComplete()
+  return advanceDc9DepartureProgress(progress, event)
+}
+
 /**
  * Adapts the deterministic departure rules to browser input and rendering. Durable game
  * state changes happen only when Task 2 emits an event; the per-frame remainder stays here.
@@ -80,28 +156,46 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
   const brakeHeldRef = useRef(false)
   const lineupConfirmedRef = useRef(false)
   const pauseLatchRef = useRef(false)
+  const activeRef = useRef(active)
   const emittedEventsRef = useRef(new Set<string>())
   const callbacksRef = useRef({ resetControls, onCheckpoint, onMistake, onRestore, onComplete })
+  const htmlPublicationSchedulerRef = useRef<Dc9DepartureHtmlPublicationScheduler>(
+    createDc9DepartureHtmlPublicationScheduler({
+      schedule: (callback, delayMs) => window.setTimeout(callback, delayMs),
+      cancel: (handle) => window.clearTimeout(handle as number),
+      publish: (publication) => {
+        setFrame(publication.frame)
+        setGuidance(publication.guidance)
+        setBrakeHeldState(publication.brakeHeld)
+      },
+    }),
+  )
 
   useEffect(() => { progressRef.current = progress }, [progress])
   useEffect(() => { reducedMotionRef.current = reducedMotion }, [reducedMotion])
+  useEffect(() => { activeRef.current = active }, [active])
   useEffect(() => {
     callbacksRef.current = { resetControls, onCheckpoint, onMistake, onRestore, onComplete }
   }, [resetControls, onCheckpoint, onMistake, onRestore, onComplete])
+  useEffect(() => () => htmlPublicationSchedulerRef.current.dispose(), [])
 
-  const publish = useCallback((next: Dc9DepartureFrame) => {
-    setFrame({ ...next })
-    setGuidance(dc9DepartureGuidance(next, progressRef.current.hintLevel))
+  const scheduleHtmlPublication = useCallback((next: Dc9DepartureFrame, nextProgress = progressRef.current) => {
+    htmlPublicationSchedulerRef.current.request({
+      frame: next,
+      guidance: dc9DepartureGuidance(next, nextProgress.hintLevel),
+      brakeHeld: brakeHeldRef.current,
+    })
   }, [])
 
   const setBrakeHeld = useCallback((pressed: boolean) => {
     const next = pressed === true
     brakeHeldRef.current = next
     if (next) pauseLatchRef.current = false
-    setBrakeHeldState(next)
-  }, [])
+    if (activeRef.current) scheduleHtmlPublication(frameRef.current)
+  }, [scheduleHtmlPublication])
 
   const restoreCheckpoint = useCallback(() => {
+    if (!activeRef.current) return
     const checkpoint = progressRef.current.checkpoint
     const currentControls = controlsRef.current ?? { pitch: 0, roll: 0, thrust: 0, rudder: 0 }
     const alreadyRestored = pauseLatchRef.current
@@ -114,13 +208,12 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
     pauseLatchRef.current = true
     lineupConfirmedRef.current = false
     brakeHeldRef.current = false
-    setBrakeHeldState(false)
     const canonical = canonicalDc9DepartureFrame(checkpoint)
     frameRef.current = canonical
     callbacksRef.current.resetControls()
-    publish(canonical)
+    scheduleHtmlPublication(canonical)
     callbacksRef.current.onRestore()
-  }, [controlsRef, publish])
+  }, [controlsRef, scheduleHtmlPublication])
 
   const confirmLineup = useCallback(() => {
     if (!active || frameRef.current.beat !== 'holdShort' || !frameRef.current.safeHold) return
@@ -135,12 +228,12 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
     lineupConfirmedRef.current = false
     brakeHeldRef.current = false
     pauseLatchRef.current = false
-    const refresh = window.setTimeout(() => {
-      setBrakeHeldState(false)
-      publish(canonical)
-    }, 0)
-    return () => window.clearTimeout(refresh)
-  }, [active, progress.checkpoint, publish])
+    if (!active) {
+      htmlPublicationSchedulerRef.current.clear()
+      return
+    }
+    scheduleHtmlPublication(canonical)
+  }, [active, progress.checkpoint, scheduleHtmlPublication])
 
   useEffect(() => {
     if (!active) return
@@ -176,7 +269,6 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
     if (!active) return
     let frameRequest = 0
     let previousTime = performance.now()
-    let previousPublish = previousTime
 
     const tick = (now: number) => {
       const controls = controlsRef.current ?? { pitch: 0, roll: 0, thrust: 0, rudder: 0 }
@@ -203,22 +295,23 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
       frameRef.current = step.frame
 
       if (step.event) {
-        const identity = eventIdentity(step.event, progressRef.current)
-        if (!emittedEventsRef.current.has(identity)) {
-          emittedEventsRef.current.add(identity)
-          if (step.event.type === 'checkpoint') callbacksRef.current.onCheckpoint(step.event.checkpoint)
-          else if (step.event.type === 'mistake') {
+        const nextProgress = dispatchDc9DepartureDurableEvent(
+          step.event,
+          progressRef.current,
+          emittedEventsRef.current,
+          callbacksRef.current,
+        )
+        if (nextProgress) {
+          progressRef.current = nextProgress
+          if (step.event.type === 'mistake') {
             pauseLatchRef.current = true
             callbacksRef.current.resetControls()
-            callbacksRef.current.onMistake(step.event.beat)
-          } else callbacksRef.current.onComplete()
+          }
+          scheduleHtmlPublication(step.frame, nextProgress)
         }
       }
 
-      if (now - previousPublish >= PUBLISH_INTERVAL_MS || step.event) {
-        previousPublish = now
-        publish(step.frame)
-      }
+      scheduleHtmlPublication(step.frame)
       // Reduced motion changes only surrounding presentation; this deterministic adapter
       // deliberately sends the same normalized input and time to Task 2 either way.
       void reducedMotionRef.current
@@ -227,7 +320,7 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
 
     frameRequest = window.requestAnimationFrame(tick)
     return () => window.cancelAnimationFrame(frameRequest)
-  }, [active, controlsRef, publish])
+  }, [active, controlsRef, scheduleHtmlPublication])
 
   return { active, frame, frameRef, guidance, brakeHeld, setBrakeHeld, confirmLineup, restoreCheckpoint }
 }
