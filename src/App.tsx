@@ -22,6 +22,7 @@ import { clearGameState } from './game/storage'
 import { useAirbusSimulator } from './game/useAirbusSimulator'
 import { useGame } from './game/useGame'
 import type { AirbusHotspotScreenPositions, AirbusLoadState, Dc9HotspotScreenPositions, Dc9LoadState, LockerCameraCue, LockerLoadState } from './scenes/PrototypeScene'
+import type { Dc9MemphisLoadState } from './scenes/Dc9MemphisEnvironment'
 
 const PrototypeScene = lazy(async () => {
   const module = await import('./scenes/PrototypeScene')
@@ -179,6 +180,8 @@ export default function App() {
   const [lockerRetryToken, setLockerRetryToken] = useState(0)
   const [lockerLoadState, setLockerLoadState] = useState<LockerLoadState>({ status: 'idle' })
   const [dc9LoadState, setDc9LoadState] = useState<Dc9LoadState>({ status: 'idle' })
+  const [dc9MemphisLoadState, setDc9MemphisLoadState] = useState<Dc9LoadState>({ status: 'idle' })
+  const [dc9MemphisRetryToken, setDc9MemphisRetryToken] = useState(0)
   const [dc9Hotspots, setDc9Hotspots] = useState<Dc9HotspotScreenPositions>({})
   const [dc9EntryStage, setDc9EntryStage] = useState<Dc9EntryStage>('idle')
   const [cameraResetRevision, setCameraResetRevision] = useState(0)
@@ -556,6 +559,20 @@ export default function App() {
 
   const dc9DepartureActive = state.phase === 'dc9' && state.dc9.stage === 'memphisDeparture'
 
+  const retryDc9MemphisEnvironment = useCallback(() => {
+    setDc9MemphisRetryToken((token) => token + 1)
+  }, [])
+  const handleDc9MemphisLoadState = useCallback((loadState: Dc9MemphisLoadState) => {
+    setDc9MemphisLoadState(loadState.status === 'error'
+      ? {
+          ...loadState,
+          status: 'ready',
+          memphisEnvironmentStatus: 'error',
+          retry: retryDc9MemphisEnvironment,
+        }
+      : { ...loadState, memphisEnvironmentStatus: loadState.status })
+  }, [retryDc9MemphisEnvironment])
+
   const dc9FlightControls = useDc9FlightControls({
     active: state.phase === 'dc9' && (state.dc9.stage === 'controlCheck' || state.dc9.stage === 'memphisDeparture'),
     departureActive: dc9DepartureActive,
@@ -710,6 +727,7 @@ export default function App() {
             dc9ChapterStage={state.dc9.stage}
             dc9FlightControlsRef={dc9FlightControls.controlsRef}
             dc9MemphisDeparture={dc9MemphisDeparture}
+            dc9MemphisRetryToken={dc9MemphisRetryToken}
             dc9IdentifiedInstruments={state.dc9.instrumentScan.identified}
             onDc9YokeDrag={dc9FlightControls.setPointerInput}
             reducedMotion={reducedMotion}
@@ -730,6 +748,7 @@ export default function App() {
             onAirbusLoadState={setAirbusLoadState}
             onLockerLoadState={setLockerLoadState}
             onDc9LoadState={setDc9LoadState}
+            onDc9MemphisLoadState={handleDc9MemphisLoadState}
             onAirbusHotspotsChange={updateAirbusHotspots}
             onDc9HotspotsChange={setDc9Hotspots}
             onAirbusTarget={placeSelectedAirbusCard}
@@ -766,7 +785,11 @@ export default function App() {
           state={state}
           dispatch={dispatch}
           onRestart={restart}
-          loadState={skipPrototypeScene ? { status: 'accessible-fallback' } : dc9LoadState}
+          loadState={skipPrototypeScene
+            ? { status: 'accessible-fallback' }
+            : state.dc9.stage === 'memphisDeparture'
+              ? dc9MemphisLoadState
+              : dc9LoadState}
           hotspots={dc9Hotspots}
           onUseFallback={() => setDc9LoadState({ status: 'accessible-fallback' })}
           reducedMotion={reducedMotion}

@@ -47,6 +47,7 @@ import {
 } from '../game/dc9FlightDeck'
 import { NEUTRAL_DC9_CONTROLS, type Dc9ControlInput, type Dc9ControlState } from '../game/dc9Input'
 import type { Dc9MemphisDepartureRuntime } from '../game/useDc9MemphisDeparture'
+import { Dc9MemphisEnvironment, type Dc9MemphisLoadState } from './Dc9MemphisEnvironment'
 import {
   advanceDc9SelfTests,
   applyDc9JointValue,
@@ -200,6 +201,8 @@ export type Dc9LoadState = {
   loadedBytes?: number
   totalBytes?: number
   percentage?: number
+  retry?: () => void
+  memphisEnvironmentStatus?: 'idle' | 'loading' | 'ready' | 'error'
 }
 /** Which way the player has to look to bring a target into comfortable view. */
 export type Dc9OffscreenDirection = 'left' | 'right' | 'up' | 'down'
@@ -224,6 +227,7 @@ interface PrototypeSceneProps {
   dc9ChapterStage: Dc9ChapterStage
   dc9FlightControlsRef?: React.RefObject<Dc9ControlState>
   dc9MemphisDeparture: Dc9MemphisDepartureRuntime
+  dc9MemphisRetryToken: number
   dc9IdentifiedInstruments: readonly Dc9InstrumentId[]
   onDc9YokeDrag?: (input: Partial<Dc9ControlInput> | null) => void
   reducedMotion: boolean
@@ -244,6 +248,7 @@ interface PrototypeSceneProps {
   onAirbusLoadState: (state: AirbusLoadState) => void
   onLockerLoadState: (state: LockerLoadState) => void
   onDc9LoadState: (state: Dc9LoadState) => void
+  onDc9MemphisLoadState: (state: Dc9MemphisLoadState) => void
   onAirbusHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
   onDc9HotspotsChange?: (positions: Dc9HotspotScreenPositions) => void
   onAirbusTarget: (control: AirbusControl) => void
@@ -2962,7 +2967,8 @@ function Dc9Cockpit({
     loaded.scene.traverse((object) => {
       const gameId = object.userData.collider_target_game_id
       if (typeof gameId !== 'string') return
-      if (gameId.startsWith('dc9.route.')) object.visible = routeInteractive
+      if (chapterStage === 'memphisDeparture') object.visible = false
+      else if (gameId.startsWith('dc9.route.')) object.visible = routeInteractive
       else if (gameId.startsWith('dc9.secure.')) object.visible = shutdownInteractive
       else if (gameId.startsWith('dc9.gauge.')) object.visible = chapterStage === 'instrumentScan'
       else if (gameId === 'dc9.key.open') object.visible = keyInteractive
@@ -2971,8 +2977,12 @@ function Dc9Cockpit({
 
   return (
     <>
-      <color attach="background" args={['#070b0d']} />
-      <Dc9RuntimeLighting secureSteps={activeControls.length} />
+      {chapterStage !== 'memphisDeparture' ? (
+        <>
+          <color attach="background" args={['#070b0d']} />
+          <Dc9RuntimeLighting secureSteps={activeControls.length} />
+        </>
+      ) : null}
       {loaded && !loadFailed ? (
         <>
           <primitive object={loaded.scene} dispose={null} />
@@ -3015,7 +3025,7 @@ function Dc9Cockpit({
           <Dc9HotspotProjector targets={loaded.targets} lookRef={lookRef} onChange={onHotspotsChange} />
           <Dc9InteractionRaycaster
             scene={loaded.scene}
-            enabled={interactionEnabled}
+            enabled={interactionEnabled && chapterStage !== 'memphisDeparture'}
             onInteraction={onInteraction}
             onHoverInteractive={onHoverInteractive}
           />
@@ -3033,11 +3043,14 @@ function Dc9Cockpit({
 function CaptainCockpit({
   activeControls,
   chapterStage,
+  dc9MemphisDeparture,
+  dc9MemphisRetryToken,
   reducedMotion,
   cameraResetRevision,
   flightControlsRef,
   identifiedInstruments,
   onLoadState,
+  onMemphisLoadState,
   onHotspotsChange,
   onInteraction,
   onYokeDrag,
@@ -3045,11 +3058,14 @@ function CaptainCockpit({
 }: {
   activeControls: Dc9SecureControlId[]
   chapterStage: Dc9ChapterStage
+  dc9MemphisDeparture: Dc9MemphisDepartureRuntime
+  dc9MemphisRetryToken: number
   reducedMotion: boolean
   cameraResetRevision: number
   flightControlsRef?: React.RefObject<Dc9ControlState>
   identifiedInstruments: readonly Dc9InstrumentId[]
   onLoadState: (state: Dc9LoadState) => void
+  onMemphisLoadState: (state: Dc9MemphisLoadState) => void
   onHotspotsChange?: (positions: Dc9HotspotScreenPositions) => void
   onInteraction: (gameId: string) => void
   onYokeDrag?: (input: Partial<Dc9ControlInput> | null) => void
@@ -3071,6 +3087,15 @@ function CaptainCockpit({
         onYokeDrag={onYokeDrag}
         onHoverInteractive={onHoverInteractive}
       />
+      {chapterStage === 'memphisDeparture' ? (
+        <Dc9MemphisEnvironment
+          key={`dc9-memphis-${dc9MemphisRetryToken}`}
+          frameRef={dc9MemphisDeparture.frameRef}
+          reducedMotion={reducedMotion}
+          retryToken={dc9MemphisRetryToken}
+          onLoadState={onMemphisLoadState}
+        />
+      ) : null}
     </>
   )
 }
@@ -3080,6 +3105,8 @@ export function PrototypeScene({
   activeDc9Controls,
   dc9ChapterStage,
   dc9FlightControlsRef,
+  dc9MemphisDeparture,
+  dc9MemphisRetryToken,
   dc9IdentifiedInstruments,
   onDc9YokeDrag,
   reducedMotion,
@@ -3100,6 +3127,7 @@ export function PrototypeScene({
   onAirbusLoadState,
   onLockerLoadState,
   onDc9LoadState,
+  onDc9MemphisLoadState,
   onAirbusHotspotsChange,
   onDc9HotspotsChange,
   onAirbusTarget,
@@ -3165,12 +3193,15 @@ export function PrototypeScene({
           <CaptainCockpit
             activeControls={activeDc9Controls}
             chapterStage={dc9ChapterStage}
+            dc9MemphisDeparture={dc9MemphisDeparture}
+            dc9MemphisRetryToken={dc9MemphisRetryToken}
             flightControlsRef={dc9FlightControlsRef}
             identifiedInstruments={dc9IdentifiedInstruments}
             onYokeDrag={onDc9YokeDrag}
             reducedMotion={reducedMotion}
             cameraResetRevision={cameraResetRevision}
             onLoadState={onDc9LoadState}
+            onMemphisLoadState={onDc9MemphisLoadState}
             onHotspotsChange={onDc9HotspotsChange}
             onInteraction={onDc9Interaction}
             onHoverInteractive={onInteractiveHover}
