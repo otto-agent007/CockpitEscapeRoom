@@ -1,0 +1,99 @@
+{
+  "approval": {
+    "approved": false,
+    "approvedBy": "owner-source-review-pending",
+    "notes": "Sourcing complete only. The owner Source Review Gate must approve this source-only candidate before Agent 2 assembly."
+  },
+  "artifactBasePath": "/mnt/2TBHDD/CockpitEscapeRoom",
+  "createdAt": "2026-08-28T00:00:00Z",
+  "inputs": [
+    {
+      "bytes": 1122,
+      "path": "art-source/cockpit-pipeline/gates/agent0-dc9-memphis-legacy-authority.json",
+      "sha256": "67e138216d3302dd5b6076201ab719d02f38513437588b5a02de16629d10c1ed"
+    },
+    {
+      "bytes": 2447,
+      "path": "asset-reports/dc9-memphis-source-intake.json",
+      "sha256": "854c61b17fe0cfd0479a249f06bbecd9b2c64734b00e38bb85c689edfe817f9a"
+    },
+    {
+      "bytes": 49439,
+      "path": ".cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/Memphis_Nashville/KMEM/ConcourseB.obj",
+      "sha256": "e88ab8411a033d5996c53053b14a894ff9824380a76891b27659549a7e9e6424"
+    },
+    {
+      "bytes": 4594,
+      "path": ".cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/Memphis_Nashville/KMEM/ConcourseB_2.obj",
+      "sha256": "e4bb0f830c515d9c5a42cfe60bce5eb4dc3fb6ba5fdce6ca9c66d16ef49f7000"
+    },
+    {
+      "bytes": 3720,
+      "path": ".cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/Memphis_Nashville/KMEM/ConcourseB_2e.obj",
+      "sha256": "2bf6f39b0e5e1f6a2e24fefb9469fc1c598884ddcfefc9f20b825cac375a109d"
+    },
+    {
+      "bytes": 1254677,
+      "path": ".cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/Memphis_Nashville/KMEM/KMEMterminal.png",
+      "sha256": "416c081c5e9f9ca40b183477da54f7ec8c5baa62ae0b9c0bdd961329ac394505"
+    },
+    {
+      "bytes": 539714,
+      "path": ".cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/Memphis_Nashville/KMEM/KMEMterminal_LIT.png",
+      "sha256": "6a561147ceae328b311fba38de849d3102a4d2eb1238c3ddbbfb2315b7cf91e5"
+    },
+    {
+      "bytes": 13896,
+      "path": ".cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/Memphis_Nashville/KMEM/KMEMterminal_NML.png",
+      "sha256": "9e1f272c64807981bee997aa08e7a3273ab5c4242f4ff58fb92cc20b1f8bf7e8"
+    },
+    {
+      "bytes": 1955,
+      "path": "art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-source/job.json",
+      "sha256": "8098381f9d4f3c112fcdaa23eb69f72d2aa031e3d7cdd07df2fe5754e0e7f0e7"
+    }
+  ],
+  "jobId": "dc9-memphis-legacy-source",
+  "manifestId": "dc9-memphis-legacy-source-sourcing-complete",
+  "outputs": [
+    {
+      "bytes": 19968,
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source/dc9-memphis-concourse-b-source.glb",
+      "sha256": "6cc30543653173d64b2997468009677e72e8923a184aaf886d01b1a842249177"
+    },
+    {
+      "bytes": 3321,
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source/candidate-metadata.json",
+      "sha256": "70740b2137ac30e06611e39d4f119ada0b889d853e80d4f5d408767a7b200c32"
+    },
+    {
+      "bytes": 1034,
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source/candidate-validation.json",
+      "sha256": "f86d71545bad9a0208c066defc7f650d9cf4fcac86c284d70e0ac7c90bbdcad3"
+    },
+    {
+      "bytes": 385453,
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source/concourse-b-source-contact-sheet.png",
+      "sha256": "e10810e0c83f64da4d1e2dcffc7605da252153b1efab7a78b63a8da43382bdaf"
+    },
+    {
+      "bytes": 173265,
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source/previews/ConcourseB-orthographic.png",
+      "sha256": "555a87acaee67818d6cc2231cba3b0215521af351a7214470fc9d3147fe45bcb"
+    },
+    {
+      "bytes": 174228,
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source/previews/ConcourseB_2-orthographic.png",
+      "sha256": "c0d3492edbdf8611f016cc5ff4798bf0a9e9e5cd68cbc87ac116f5cd279cd756"
+    },
+    {
+      "bytes": 174516,
+      "path": "art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source/previews/ConcourseB_2e-orthographic.png",
+      "sha256": "e3e285b3c179f5643add30832048f5532c9fd52638eea94393395dfbb793de63"
+    }
+  ],
+  "sourceVariant": "Ted Davis KMEM X-Plane scenery revision 2019-01-22",
+  "stage": "sourcing_complete",
+  "targetVariant": "1995 Memphis memory recreation",
+  "variantScope": "common"
+}

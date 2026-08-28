@@ -12,9 +12,20 @@ from tools.blender.cockpit_pipeline.xplane_obj8_convert import (
     transform_point,
     xplane_to_blender_matrix,
 )
+from tools.blender.inspect_dc9_memphis_source import selected_source_names
 
 
 class XPlaneObj8ConvertTests(unittest.TestCase):
+    def test_kmem_source_inspector_admits_only_concourse_b_objects(self) -> None:
+        self.assertEqual(
+            selected_source_names(),
+            (
+                "ConcourseB.obj",
+                "ConcourseB_2.obj",
+                "ConcourseB_2e.obj",
+            ),
+        )
+
     def write_fixture(self, body: str) -> Path:
         temporary = tempfile.NamedTemporaryFile("w", suffix=".obj", delete=False, encoding="utf-8")
         temporary.write("I\n800\nOBJ\n" + body)

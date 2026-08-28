@@ -1,7 +1,7 @@
 {
   "jobId": "dc9-memphis-legacy-source",
   "title": "DC-9 Memphis legacy departure environment sourcing",
-  "stage": "requested",
+  "stage": "sourcing_complete",
   "aircraft": "dc9",
   "sourceVariant": "Ted Davis KMEM X-Plane scenery revision 2019-01-22",
   "targetVariant": "1995 Memphis memory recreation",

@@ -865,13 +865,13 @@ git commit -m "feat(dc9): add accessible Memphis departure panel"
 - Consumes: Task 1 reference-authority gate, source job, verified cache files, and 'add_source_object' from 'xplane_obj8_blender_import.py'.
 - Produces: an Agent 1 source-only candidate containing exactly three imported objects, immutable metadata, previews, a validated sourcing manifest, and explicit owner approval before assembly.
 
-- [ ] **Step 0: Create the isolated source branch**
+- [x] **Step 0: Create the isolated source branch**
 
 Run: 'git switch -c asset/dc9-memphis-source'
 
 Expected: clean stage branch based on the current feature branch. Do not edit gameplay files on this branch.
 
-- [ ] **Step 1: Write a source-inspector regression test RED**
+- [x] **Step 1: Write a source-inspector regression test RED**
 
 Extend 'test_xplane_obj8_convert.py' with a fixture-list test for a new pure helper:
 
@@ -888,13 +888,13 @@ def test_kmem_source_inspector_admits_only_concourse_b_objects():
 
 The module must keep 'bpy' imports inside Blender-only functions so this pure selection helper is testable under ordinary Python.
 
-- [ ] **Step 2: Run the focused test RED**
+- [x] **Step 2: Run the focused test RED**
 
 Run: 'python3 -m unittest tools.blender.cockpit_pipeline.tests.test_xplane_obj8_convert'
 
 Expected: FAIL because 'inspect_dc9_memphis_source.py' does not exist.
 
-- [ ] **Step 3: Implement Agent 1 source-only inspection**
+- [x] **Step 3: Implement Agent 1 source-only inspection**
 
 The inspector must:
 
@@ -908,7 +908,7 @@ The inspector must:
 
 After successful generation, change the tracked source job's 'stage' from 'requested' to 'sourcing_complete'. The approval file, not the job stage alone, authorizes Agent 2.
 
-- [ ] **Step 4: Run Agent 1 with safe Blender flags**
+- [x] **Step 4: Run Agent 1 with safe Blender flags**
 
 Run:
 
@@ -920,13 +920,17 @@ npx gltf-transform validate art-source/cockpit-pipeline/stages/source/output/dc9
 
 Expected: all commands exit 0 and the manifest remains unapproved.
 
-- [ ] **Step 5: Inspect and approve the Source Review Gate**
+**Execution evidence — 2026-08-28:** On `asset/dc9-memphis-source`, the focused unit test was RED with `ModuleNotFoundError: No module named 'tools.blender.inspect_dc9_memphis_source'`, then GREEN (9 tests). Blender 5.1.2 ran with the required background/factory/autoexec-disabled flags, verified the Task 1 authority plus archive and all six selected hashes before importing exactly the three approved Concourse B OBJ8 files, and produced the cache-only `.blend`/first GLB plus the tracked unapproved candidate artifacts. The final manifest validator passed with verified hashes; `gltf-transform validate` reported no errors, warnings, infos, or hints; and `git diff --check` passed. The generated contact sheet and all three previews were inspected for obvious blank/corrupt output only. The headless process emitted EGL and Blender user-cache write messages, but it completed and wrote the specified artifacts.
+
+- [x] **Step 5: Inspect and approve the Source Review Gate**
 
 Show the owner the source contact sheet, three object previews, exact source measurements, texture declarations, and exclusions. If approved, write 'source-approval.json' with 'stage: "source-approved"', 'approved: true', 'approvedBy: "owner review 2026-08-27"', the sourcing manifest path, and the exact approved candidate/metadata hashes.
 
 Do not create ramp, taxi, runway, anchors, or production Blender sources before this approval file exists.
 
-- [ ] **Step 6: Revalidate and commit Agent 1**
+**Owner approval — 2026-08-28:** `source-approval.json` records `owner review 2026-08-28`, the exact candidate GLB hash `6cc30543653173d64b2997468009677e72e8923a184aaf886d01b1a842249177`, the metadata hash `70740b2137ac30e06611e39d4f119ada0b889d853e80d4f5d408767a7b200c32`, and the exact `sourcing-complete.json` reference. The approval permits source geometry/orientation for neutral assembly only; textures and final fidelity remain unapproved.
+
+- [x] **Step 6: Revalidate and commit Agent 1**
 
 Run:
 
@@ -944,6 +948,8 @@ git commit -m "feat(assets): inspect Memphis Concourse B source"
 git switch agent/dc9-memphis-taxi-takeoff
 git merge --no-ff asset/dc9-memphis-source
 ~~~
+
+**Completion evidence — 2026-08-28:** After owner approval, the focused Python test, Task 1 authority/job/sourcing-manifest validation, GLB validation, `sourcing_complete -> source-approved` transition validation, exact approval-to-manifest hash checks, and `git diff --check` passed. Task 6 is committed on the isolated source branch only; controller integration remains pending.
 
 ### Task 7: Assemble and approve the neutral Memphis environment
 
