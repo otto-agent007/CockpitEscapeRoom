@@ -42,6 +42,7 @@ export interface Dc9DepartureFrame {
   roll: number
   safeHold: boolean
   deviationSeconds: number
+  fixedStepRemainderSeconds: number
 }
 
 export interface Dc9DepartureGuidance {
@@ -178,6 +179,10 @@ function normalizeFrame(frame: Dc9DepartureFrame): Dc9DepartureFrame {
     roll: clampAxis(frame.roll),
     safeHold: frame.safeHold === true,
     deviationSeconds: clampNonNegative(frame.deviationSeconds),
+    fixedStepRemainderSeconds: Math.min(
+      FIXED_STEP_SECONDS - EPSILON,
+      clampNonNegative(frame.fixedStepRemainderSeconds),
+    ),
   }
 }
 
@@ -199,6 +204,7 @@ function frameFor(
     roll: 0,
     safeHold,
     deviationSeconds: 0,
+    fixedStepRemainderSeconds: 0,
   }
 }
 
@@ -210,7 +216,7 @@ export function canonicalDc9DepartureFrame(checkpoint: Dc9DepartureCheckpoint): 
     case 'holdShort': return frameFor('holdShort', HOLD_SHORT_START, 0, true)
     case 'runwayLineup': return frameFor('lineup', RUNWAY_LINEUP_START, 0, true)
     case 'initialClimb': return frameFor('initialClimb', INITIAL_CLIMB_START, 0, false)
-    case 'complete': return frameFor('complete', 1, 0.7, false, 1)
+    case 'complete': return frameFor('complete', 1, 0, false, 1)
   }
 }
 
@@ -371,11 +377,11 @@ function advanceFixedStep(frame: Dc9DepartureFrame, input: Dc9DepartureInput, de
           event: { type: 'checkpoint', checkpoint: 'holdShort' },
         }
       }
-      if (
-        moving.pathProgress >= HOLD_SHORT_START - HOLD_SHORT_APPROACH
-        && moving.energy > TAXI_ENERGY_LIMIT
-      ) {
-        return mistake(frame, 'unsafeHold')
+      if (moving.pathProgress >= HOLD_SHORT_START) {
+        return {
+          frame: canonicalDc9DepartureFrame('holdShort'),
+          event: { type: 'mistake', beat: 'taxi', reason: 'unsafeHold' },
+        }
       }
       return {
         frame: {
@@ -463,15 +469,21 @@ export function advanceDc9DepartureFrame(
     : 0
   if (delta === 0 || frame.beat === 'complete') return { frame }
 
-  const fixedSteps = Math.floor(delta / FIXED_STEP_SECONDS + EPSILON)
-  let next: Dc9DepartureStep = { frame }
+  const accumulatedDelta = frame.fixedStepRemainderSeconds + delta
+  const fixedSteps = Math.floor(accumulatedDelta / FIXED_STEP_SECONDS + EPSILON)
+  const remainder = Math.max(0, accumulatedDelta - fixedSteps * FIXED_STEP_SECONDS)
+  let next: Dc9DepartureStep = { frame: { ...frame, fixedStepRemainderSeconds: 0 } }
   for (let index = 0; index < fixedSteps; index += 1) {
     next = advanceFixedStep(next.frame, input, FIXED_STEP_SECONDS)
     if (next.event) return next
   }
-  const remainder = delta - fixedSteps * FIXED_STEP_SECONDS
-  if (remainder > EPSILON) next = advanceFixedStep(next.frame, input, remainder)
-  return next
+  return {
+    ...next,
+    frame: {
+      ...next.frame,
+      fixedStepRemainderSeconds: remainder > EPSILON ? remainder : 0,
+    },
+  }
 }
 
 /** Derive player-facing, qualitative guidance without exposing operational values. */

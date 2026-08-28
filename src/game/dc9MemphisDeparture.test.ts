@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  DC9_DEPARTURE_CHECKPOINTS,
   advanceDc9DepartureFrame,
   advanceDc9DepartureProgress,
   canonicalDc9DepartureFrame,
@@ -45,7 +46,9 @@ describe('DC-9 Memphis departure', () => {
   })
 
   it('restores every durable checkpoint to a stopped canonical frame', () => {
-    expect(canonicalDc9DepartureFrame('initialClimb').energy).toBe(0)
+    for (const checkpoint of DC9_DEPARTURE_CHECKPOINTS) {
+      expect(canonicalDc9DepartureFrame(checkpoint).energy).toBe(0)
+    }
   })
 
   it('cannot cross hold short until stopped and explicitly confirmed', () => {
@@ -104,7 +107,7 @@ describe('DC-9 Memphis departure', () => {
     expect(next.frame).toMatchObject({ beat: 'holdShort', safeHold: true, energy: 0 })
   })
 
-  it('restores taxi turn instead of crossing the hold boundary while moving', () => {
+  it('restores a moving hold-boundary crossing to the stopped hold-short checkpoint', () => {
     const movingApproach = {
       ...canonicalDc9DepartureFrame('taxiTurn'),
       pathProgress: 0.419,
@@ -116,7 +119,19 @@ describe('DC-9 Memphis departure', () => {
     }, 0.1)
 
     expect(next.event).toEqual({ type: 'mistake', beat: 'taxi', reason: 'unsafeHold' })
-    expect(next.frame).toEqual(canonicalDc9DepartureFrame('taxiTurn'))
+    expect(next.frame).toEqual(canonicalDc9DepartureFrame('holdShort'))
+  })
+
+  it('restores an unconfirmed slow hold-boundary crossing to the stopped hold-short checkpoint', () => {
+    const unconfirmedApproach = {
+      ...canonicalDc9DepartureFrame('taxiTurn'),
+      pathProgress: 0.419,
+      energy: 0.1,
+    }
+    const next = advanceDc9DepartureFrame(unconfirmedApproach, centeredInput, 0.1)
+
+    expect(next.event).toEqual({ type: 'mistake', beat: 'taxi', reason: 'unsafeHold' })
+    expect(next.frame).toEqual(canonicalDc9DepartureFrame('holdShort'))
   })
 
   it('ignores lineup confirmation until the hold is stopped', () => {
@@ -230,5 +245,23 @@ describe('DC-9 Memphis departure', () => {
     }
 
     expect(oneChunk.frame).toEqual(split)
+  })
+
+  it('keeps common frame cadences invariant over equal elapsed time', () => {
+    const input = { ...centeredInput, thrust: 0.4, rudder: 0.1 }
+    const advanceAtCadence = (delta: number, count: number) => {
+      let frame = canonicalDc9DepartureFrame('rampStart')
+      for (let index = 0; index < count; index += 1) {
+        frame = advanceDc9DepartureFrame(frame, input, delta).frame
+      }
+      return frame
+    }
+
+    const at120Hz = advanceAtCadence(1 / 120, 60)
+    const at60Hz = advanceAtCadence(1 / 60, 30)
+    const at30Hz = advanceAtCadence(1 / 30, 15)
+
+    expect(at120Hz).toEqual(at60Hz)
+    expect(at60Hz).toEqual(at30Hz)
   })
 })
