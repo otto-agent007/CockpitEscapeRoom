@@ -112,6 +112,9 @@ export function Dc9MemphisEnvironment({
         }
         loadedRef.current = staged
         setLoaded(staged)
+        let objectCount = 0
+        staged.scene.traverse(() => { objectCount += 1 })
+        publishMemphisDataset(canvas.dataset, datasetCache, 'dc9MemphisObjectCount', String(objectCount))
         publishMemphisDataset(canvas.dataset, datasetCache, 'dc9MemphisModelState', 'ready')
         onLoadState({ status: 'ready', loadedBytes, totalBytes, percentage: 100 })
       })
@@ -140,6 +143,7 @@ export function Dc9MemphisEnvironment({
       if (current) disposeMemphisClone(current)
       loadedRef.current = null
       delete canvas.dataset.dc9MemphisModelState
+      delete canvas.dataset.dc9MemphisObjectCount
       delete canvas.dataset.dc9MemphisBeat
       delete canvas.dataset.dc9MemphisWorldPose
       datasetCache.clear()

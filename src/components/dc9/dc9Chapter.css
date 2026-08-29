@@ -1274,6 +1274,8 @@
     left: .5rem;
     width: auto;
     max-height: 58vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   .dc9-axis__holds {
