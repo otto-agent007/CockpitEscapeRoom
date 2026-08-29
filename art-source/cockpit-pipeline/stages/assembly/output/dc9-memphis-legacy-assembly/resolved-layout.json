@@ -54,34 +54,89 @@
   "concourseSourceTransforms": {
     "ConcourseB.obj": {
       "location": [
-        90.0,
-        -80.0,
+        -242.0,
+        250.0,
         0.0
       ],
       "rotation_z_degrees": 0.0
     },
     "ConcourseB_2.obj": {
       "location": [
-        90.0,
-        40.0,
+        -200.0,
+        385.0,
         0.0
       ],
       "rotation_z_degrees": 90.0
     },
     "ConcourseB_2e.obj": {
       "location": [
-        90.0,
-        -180.0,
+        18.0,
+        118.0,
         0.0
       ],
-      "rotation_z_degrees": 90.0
+      "rotation_z_degrees": 116.0
     }
   },
+  "groundSurfaces": [
+    {
+      "center": [
+        0.0,
+        70.0,
+        -0.75
+      ],
+      "dimensions": [
+        180.0,
+        320.0,
+        1.5
+      ],
+      "name": "KMEM_RAMP"
+    },
+    {
+      "center": [
+        -95.25,
+        140.0,
+        -0.7
+      ],
+      "dimensions": [
+        89.5,
+        250.0,
+        1.4
+      ],
+      "name": "KMEM_TAXI_SURFACE"
+    },
+    {
+      "center": [
+        -120.0,
+        475.0,
+        -0.72
+      ],
+      "dimensions": [
+        62.0,
+        500.0,
+        1.44
+      ],
+      "name": "KMEM_RUNWAY_SURFACE"
+    },
+    {
+      "center": [
+        -225.5,
+        380.0,
+        -0.74
+      ],
+      "dimensions": [
+        149.0,
+        520.0,
+        1.44
+      ],
+      "name": "KMEM_TERMINAL_APRON"
+    }
+  ],
   "layoutSpace": "compressed authored game space; not airport-chart geography",
   "projectOwnedGeometry": [
     "KMEM_RAMP",
     "KMEM_TAXI_SURFACE",
     "KMEM_RUNWAY_SURFACE",
+    "KMEM_TERMINAL_APRON",
     "KMEM_CENTERLINE_01..09"
   ],
   "root": "KMEM_LEGACY_ROOT",

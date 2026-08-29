@@ -174,16 +174,15 @@ def build_scene(metadata: dict[str, Any], output_dir: Path) -> dict[str, Any]:
     if str(REPO_ROOT) not in sys.path:
         sys.path.insert(0, str(REPO_ROOT))
     import bpy
-    from mathutils import Vector
+    from mathutils import Matrix, Vector
 
     from tools.blender.cockpit_pipeline.kmem_legacy_layout import (
         ANCHORS,
         CONCOURSE_GROUP_NAME,
         CONCOURSE_SOURCE_TRANSFORMS,
-        RAMP_NAME,
+        GROUND_SURFACES,
         ROOT_NAME,
-        RUNWAY_SURFACE_NAME,
-        TAXI_SURFACE_NAME,
+        route_camera_pose,
         route_distances,
         validate_layout,
     )
@@ -226,18 +225,34 @@ def build_scene(metadata: dict[str, Any], output_dir: Path) -> dict[str, Any]:
         source_root.parent = concourse_group
         transform = CONCOURSE_SOURCE_TRANSFORMS[source_file]
         source_root.location = transform["location"]
+        # The glTF importer leaves imported objects in QUATERNION rotation mode,
+        # where a rotation_euler write is silently ignored; force Euler first.
+        source_root.rotation_mode = "XYZ"
         source_root.rotation_euler = (0.0, 0.0, math.radians(transform["rotation_z_degrees"]))
         source_root["source_file"] = source_file
         source_root["approved_source"] = True
     bpy.data.objects.remove(source_candidate, do_unlink=True)
+    bpy.context.view_layer.update()
+    for source_file, source_root in source_roots.items():
+        transform = CONCOURSE_SOURCE_TRANSFORMS[source_file]
+        actual_location = tuple(source_root.matrix_world.translation)
+        actual_z_degrees = math.degrees(source_root.matrix_world.to_euler("XYZ").z)
+        expected_location = tuple(float(value) for value in transform["location"])
+        expected_z_degrees = float(transform["rotation_z_degrees"])
+        location_drift = max(abs(a - b) for a, b in zip(actual_location, expected_location, strict=True))
+        rotation_drift = abs((actual_z_degrees - expected_z_degrees + 180.0) % 360.0 - 180.0)
+        if location_drift > 1e-4 or rotation_drift > 1e-3:
+            raise ValueError(
+                f"assembled source transform does not match the authored layout for {source_file}: "
+                f"location {actual_location} vs {expected_location}, rotation {actual_z_degrees:.3f} vs {expected_z_degrees:.3f}"
+            )
 
     ground = bpy.data.materials.new("KMEM_NEUTRAL_GROUND")
     ground.diffuse_color = (0.20, 0.24, 0.27, 1.0)
     route = bpy.data.materials.new("KMEM_NEUTRAL_ROUTE_CENTERLINE")
     route.diffuse_color = (0.63, 0.66, 0.62, 1.0)
-    _add_box(bpy, RAMP_NAME, (0.0, 0.0, -0.75), (180.0, 180.0, 1.5), ground, root)
-    _add_box(bpy, TAXI_SURFACE_NAME, (-72.5, 122.5, -0.70), (44.0, 215.0, 1.4), ground, root)
-    _add_box(bpy, RUNWAY_SURFACE_NAME, (-120.0, 475.0, -0.72), (62.0, 500.0, 1.44), ground, root)
+    for surface in GROUND_SURFACES:
+        _add_box(bpy, surface["name"], tuple(surface["center"]), tuple(surface["dimensions"]), ground, root)
     for index, y_value in enumerate(range(280, 690, 48), start=1):
         _add_box(bpy, f"KMEM_CENTERLINE_{index:02d}", (-120.0, float(y_value), 0.03), (1.2, 24.0, 0.08), route, root)
 
@@ -261,8 +276,8 @@ def build_scene(metadata: dict[str, Any], output_dir: Path) -> dict[str, Any]:
     bpy.context.collection.objects.link(camera)
     scene.camera = camera
     camera_data.lens = 36
-    camera.location = Vector((170.0, -305.0, 145.0))
-    _look_at(camera, Vector((-28.0, 175.0, 0.0)))
+    camera.location = Vector((205.0, -230.0, 175.0))
+    _look_at(camera, Vector((-115.0, 265.0, 0.0)))
     preview_paths: list[Path] = []
     for width, height in ((1440, 900), (768, 480), (375, 234)):
         scene.render.resolution_x = width
@@ -273,6 +288,36 @@ def build_scene(metadata: dict[str, Any], output_dir: Path) -> dict[str, Any]:
         scene.render.filepath = str(preview)
         bpy.ops.render.render(write_still=True)
         preview_paths.append(preview)
+
+    # Windshield-pose previews from the measured first-officer camera rig, so the
+    # Assembly Review Gate always shows what the in-game windshield will show.
+    # The 2026-08-28 Task 10 stall happened because the review camera alone could
+    # not reveal that the terminal sat behind the ramp-start view.
+    camera_data.sensor_fit = "VERTICAL"
+    for label, progress, sizes in (
+        ("windshield-ramp-start", 0.0, ((1440, 900, 64.0), (768, 900, 76.0), (375, 812, 76.0))),
+        ("windshield-hold-short", 0.42, ((1440, 900, 64.0),)),
+        ("windshield-runway-lineup", 0.52, ((1440, 900, 64.0),)),
+        ("windshield-takeoff-roll", 0.62, ((1440, 900, 64.0),)),
+    ):
+        pose = route_camera_pose(progress)
+        forward = Vector(pose["forward"]).normalized()
+        up = Vector(pose["up"]).normalized()
+        right = forward.cross(up).normalized()
+        camera.matrix_world = Matrix.Translation(Vector(pose["position"])) @ Matrix((
+            (right.x, up.x, -forward.x),
+            (right.y, up.y, -forward.y),
+            (right.z, up.z, -forward.z),
+        )).to_4x4()
+        for width, height, vertical_fov in sizes:
+            camera_data.angle_y = math.radians(vertical_fov)
+            scene.render.resolution_x = width
+            scene.render.resolution_y = height
+            scene.render.resolution_percentage = 100
+            preview = output_dir / "previews" / f"{label}-{width}.png"
+            scene.render.filepath = str(preview)
+            bpy.ops.render.render(write_still=True)
+            preview_paths.append(preview)
 
     blend_path = output_dir / "dc9-memphis-legacy-neutral.blend"
     glb_path = output_dir / "dc9-memphis-legacy-neutral.glb"
@@ -296,7 +341,8 @@ def build_scene(metadata: dict[str, Any], output_dir: Path) -> dict[str, Any]:
         "layoutSpace": "compressed authored game space; not airport-chart geography",
         "root": ROOT_NAME,
         "sourceGroup": CONCOURSE_GROUP_NAME,
-        "projectOwnedGeometry": [RAMP_NAME, TAXI_SURFACE_NAME, RUNWAY_SURFACE_NAME, "KMEM_CENTERLINE_01..09"],
+        "projectOwnedGeometry": [*(surface["name"] for surface in GROUND_SURFACES), "KMEM_CENTERLINE_01..09"],
+        "groundSurfaces": [dict(surface) for surface in GROUND_SURFACES],
         "anchors": [{**anchor, "routeDistance": round(distance, 6)} for anchor, distance in zip(ANCHORS, route_distances(), strict=True)],
         "concourseSourceTransforms": CONCOURSE_SOURCE_TRANSFORMS,
         "validationErrors": [],
@@ -308,7 +354,11 @@ def reimport_report(glb_path: Path) -> dict[str, Any]:
     import bpy
     from mathutils import Vector
 
-    from tools.blender.cockpit_pipeline.kmem_legacy_layout import ANCHORS, ROOT_NAME
+    from tools.blender.cockpit_pipeline.kmem_legacy_layout import (
+        ANCHORS,
+        CONCOURSE_SOURCE_TRANSFORMS,
+        ROOT_NAME,
+    )
 
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=str(glb_path))
@@ -317,6 +367,31 @@ def reimport_report(glb_path: Path) -> dict[str, Any]:
         raise ValueError("neutral GLB did not reimport its root")
     anchors: list[dict[str, Any]] = []
     failures: list[str] = []
+    source_transforms: list[dict[str, Any]] = []
+    bpy.context.view_layer.update()
+    for source_file, transform in CONCOURSE_SOURCE_TRANSFORMS.items():
+        node_name = f"KMEM_SOURCE_{source_file.removesuffix('.obj').upper()}"
+        node = bpy.data.objects.get(node_name)
+        if node is None:
+            failures.append(f"missing reimported source root {node_name}")
+            continue
+        actual_location = tuple(round(value, 6) for value in node.matrix_world.translation)
+        actual_z_degrees = round(math.degrees(node.matrix_world.to_euler("XYZ").z), 3)
+        expected_location = tuple(float(value) for value in transform["location"])
+        expected_z_degrees = float(transform["rotation_z_degrees"])
+        location_drift = max(abs(a - b) for a, b in zip(actual_location, expected_location, strict=True))
+        rotation_drift = abs((actual_z_degrees - expected_z_degrees + 180.0) % 360.0 - 180.0)
+        if location_drift > 1e-3 or rotation_drift > 0.01:
+            failures.append(
+                f"reimported source transform drift {node_name}: location {actual_location} != {expected_location} "
+                f"or rotation {actual_z_degrees} != {expected_z_degrees}"
+            )
+        source_transforms.append({
+            "name": node_name,
+            "sourceFile": source_file,
+            "location": actual_location,
+            "rotationZDegrees": actual_z_degrees,
+        })
     for expected in ANCHORS:
         node = bpy.data.objects.get(expected["name"])
         if node is None:
@@ -337,6 +412,7 @@ def reimport_report(glb_path: Path) -> dict[str, Any]:
         "status": "pass" if not failures else "fail",
         "root": root.name,
         "anchors": anchors,
+        "sourceTransforms": source_transforms,
         "meshCount": len(bpy.data.meshes),
         "triangleCount": mesh_triangles,
         "materialCount": len(bpy.data.materials),

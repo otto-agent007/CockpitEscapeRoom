@@ -73,8 +73,40 @@
   ],
   "failures": [],
   "materialCount": 3,
-  "meshCount": 15,
+  "meshCount": 16,
   "root": "KMEM_LEGACY_ROOT",
+  "sourceTransforms": [
+    {
+      "location": [
+        -242.0,
+        250.0,
+        0.0
+      ],
+      "name": "KMEM_SOURCE_CONCOURSEB",
+      "rotationZDegrees": 0.0,
+      "sourceFile": "ConcourseB.obj"
+    },
+    {
+      "location": [
+        -200.0,
+        385.0,
+        0.0
+      ],
+      "name": "KMEM_SOURCE_CONCOURSEB_2",
+      "rotationZDegrees": 90.0,
+      "sourceFile": "ConcourseB_2.obj"
+    },
+    {
+      "location": [
+        18.0,
+        118.0,
+        0.0
+      ],
+      "name": "KMEM_SOURCE_CONCOURSEB_2E",
+      "rotationZDegrees": 116.0,
+      "sourceFile": "ConcourseB_2e.obj"
+    }
+  ],
   "status": "pass",
-  "triangleCount": 376
+  "triangleCount": 388
 }
