@@ -145,9 +145,12 @@ def terminal_canopy_world_bounds(spec: dict[str, Any] = TERMINAL_CANOPY) -> dict
 # Mirrors PATH_KNOTS in src/scenes/dc9MemphisVisuals.ts.
 PATH_KNOTS = (0.0, 0.12, 0.42, 0.52, 1.0)
 
-# First-officer camera rig in the aircraft-local frame (measured; see module docstring).
+# First-officer camera rig in the aircraft-local frame (measured; see module
+# docstring). The vertical offset is the authored camera height (0.70) plus the
+# runtime's DC9_MEMPHIS_GROUND_CLEARANCE_METERS (2.5) that keeps the pavement a
+# gear height below the cockpit at every attitude.
 SEAT_CAMERA = {
-    "offset": (0.45, -3.24, 0.70),
+    "offset": (0.45, -3.24, 3.20),
     "view_yaw_left_radians": 0.08133,
     "view_pitch_down_radians": 0.39514,
 }

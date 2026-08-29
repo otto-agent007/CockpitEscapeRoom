@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Dc9DepartureFrame } from '../game/dc9MemphisDeparture'
 import {
+  DC9_MEMPHIS_GROUND_CLEARANCE_METERS,
   dc9MemphisWorldPose,
   sampleDc9MemphisPath,
   validateDc9MemphisAnchors,
@@ -52,10 +53,11 @@ function transformCurrentAircraftPoint(
   reducedMotion: boolean,
 ): { transformed: [number, number, number]; vibration: readonly [number, number, number] } {
   const sample = sampleDc9MemphisPath(sourceFrame.pathProgress, approvedAnchorFixture)
-  // Authored X-right/Y-forward/Z-up becomes Three X-right/Y-up/Z-back.
+  // Authored X-right/Y-forward/Z-up becomes Three X-right/Y-up/Z-back. The
+  // aircraft reference rides a gear-height clearance above the pavement.
   const aircraftPoint: [number, number, number] = [
     sample.position[0],
-    sample.position[2] * sourceFrame.altitudeProgress,
+    sample.position[2] * sourceFrame.altitudeProgress + DC9_MEMPHIS_GROUND_CLEARANCE_METERS,
     -sample.position[1],
   ]
   const pose = dc9MemphisWorldPose(sourceFrame, approvedAnchorFixture, { reducedMotion })
@@ -146,10 +148,46 @@ describe('DC-9 Memphis visual path', () => {
       pitch: 0.2,
     }), approvedAnchorFixture, { reducedMotion: true })
 
-    expect(runway.position.y).toBeCloseTo(0, 8)
+    expect(runway.position.y).toBeCloseTo(-DC9_MEMPHIS_GROUND_CLEARANCE_METERS, 8)
     expect(climb.position.y).toBeLessThan(runway.position.y)
     expect(climb.rotation.x).toBeLessThan(runway.rotation.x)
     expect(Math.abs(climb.rotation.x)).toBeLessThan(0.2)
+  })
+
+  it.each([
+    ['at rest on the ramp', frame({ pathProgress: 0, energy: 0, safeHold: true })],
+    ['full nose-up input on the roll', frame({ beat: 'takeoffRoll', pathProgress: 0.6, pitch: 1, roll: 0 })],
+    ['full bank input in the climb', frame({ beat: 'initialClimb', pathProgress: 0.9, altitudeProgress: 0.5, pitch: 1, roll: -1 })],
+  ])('keeps the pavement a gear-height clearance from the cockpit origin %s', (_label, sourceFrame) => {
+    // A runway centerline dash once pitched up through the cabin because the
+    // aircraft reference sat at pavement level. A rigid transform preserves the
+    // perpendicular distance from the rotation centre to the ground plane, so
+    // that distance must equal the authored clearance at every attitude.
+    const pose = dc9MemphisWorldPose(sourceFrame, approvedAnchorFixture, { reducedMotion: true })
+    const groundCorners: ReadonlyArray<readonly [number, number, number]> = [
+      [0, 0, 0],
+      [40, 0, -25],
+      [-30, 0, 45],
+    ]
+    const groundPoints: Array<[number, number, number]> = groundCorners.map(([x, y, z]) => {
+      const rotated = rotateByQuaternion([x, y, z], pose.quaternion)
+      return [rotated[0] + pose.position.x, rotated[1] + pose.position.y, rotated[2] + pose.position.z]
+    })
+    const edgeA = groundPoints[1]!.map((value, axis) => value - groundPoints[0]![axis]!) as [number, number, number]
+    const edgeB = groundPoints[2]!.map((value, axis) => value - groundPoints[0]![axis]!) as [number, number, number]
+    const normal: [number, number, number] = [
+      edgeA[1] * edgeB[2] - edgeA[2] * edgeB[1],
+      edgeA[2] * edgeB[0] - edgeA[0] * edgeB[2],
+      edgeA[0] * edgeB[1] - edgeA[1] * edgeB[0],
+    ]
+    const normalLength = Math.hypot(...normal)
+    const planeDistance = Math.abs(
+      normal[0] * groundPoints[0]![0]! + normal[1] * groundPoints[0]![1]! + normal[2] * groundPoints[0]![2]!,
+    ) / normalLength
+    const altitude = sampleDc9MemphisPath(sourceFrame.pathProgress, approvedAnchorFixture).position[2]
+      * Math.min(1, Math.max(0, sourceFrame.altitudeProgress))
+    expect(planeDistance).toBeCloseTo(DC9_MEMPHIS_GROUND_CLEARANCE_METERS + altitude, 6)
+    expect(DC9_MEMPHIS_GROUND_CLEARANCE_METERS).toBeGreaterThanOrEqual(2.5)
   })
 
   it('removes all nonessential vibration under reduced motion', () => {

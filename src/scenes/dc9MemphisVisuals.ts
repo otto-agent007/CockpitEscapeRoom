@@ -20,6 +20,16 @@ const MAX_PITCH_RADIANS = 0.18
 const MAX_ROLL_RADIANS = 0.12
 const CLIMB_PITCH_RADIANS = 0.08
 
+/**
+ * Height of the aircraft reference (the cockpit world origin) above the
+ * authored pavement, like a DC-9 riding on its gear. Without it the cockpit
+ * floor sat below the ground plane and a pitched-up runway centerline dash
+ * could rise through the cabin. A rigid transform preserves the perpendicular
+ * distance from the rotation centre to the ground plane, so this clearance
+ * keeps every environment surface out of the cockpit at any pitch or roll.
+ */
+export const DC9_MEMPHIS_GROUND_CLEARANCE_METERS = 2.5
+
 interface Vector3Value {
   x: number
   y: number
@@ -215,7 +225,7 @@ export function dc9MemphisWorldPose(
   const lateralOffset = lateralError * MAX_LATERAL_OFFSET_METERS
   const aircraftX = path.position[0] + rightX * lateralOffset
   const aircraftForward = path.position[1] + rightY * lateralOffset
-  const aircraftAltitude = path.position[2] * altitudeProgress
+  const aircraftAltitude = path.position[2] * altitudeProgress + DC9_MEMPHIS_GROUND_CLEARANCE_METERS
   const pitch = clamp(
     pitchInput * MAX_PITCH_RADIANS + altitudeProgress * CLIMB_PITCH_RADIANS,
     -MAX_PITCH_RADIANS,

@@ -135,7 +135,7 @@ class KmemLegacyLayoutTests(unittest.TestCase):
 
     def test_route_camera_pose_matches_measured_ramp_start_rig(self):
         pose = route_camera_pose(0.0)
-        for actual, expected in zip(pose["position"], (2.073, -2.531, 0.70), strict=True):
+        for actual, expected in zip(pose["position"], (2.073, -2.531, 3.20), strict=True):
             self.assertAlmostEqual(actual, expected, places=2)
         for actual, expected in zip(pose["forward"], (-0.5436, 0.7460, -0.385), strict=True):
             self.assertAlmostEqual(actual, expected, places=2)
