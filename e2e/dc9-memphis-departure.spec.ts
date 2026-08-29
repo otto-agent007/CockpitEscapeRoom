@@ -137,6 +137,26 @@ async function holdPointer(page: Page, name: string, milliseconds: number): Prom
   await page.mouse.up()
 }
 
+/**
+ * The rAF-driven simulation advances at most 0.1 s per frame, so a software
+ * rasteriser running the 926k-triangle cockpit at a few fps desynchronises the
+ * wall-clock drive sequences from simulated time. Real-environment play-through
+ * tests therefore run only where a hardware-rate renderer is available (locally:
+ * headed on DISPLAY=:0); the skip reason keeps that boundary explicit.
+ */
+async function skipOnSoftwareRenderer(page: Page): Promise<void> {
+  const renderer = await page.locator('canvas').first().evaluate((element) => {
+    const gl = (element as HTMLCanvasElement).getContext('webgl2') ?? (element as HTMLCanvasElement).getContext('webgl')
+    if (!gl) return 'unavailable'
+    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
+    return debugInfo ? String(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)) : String(gl.getParameter(gl.RENDERER))
+  })
+  test.skip(
+    /swiftshader|llvmpipe|software/i.test(renderer),
+    `Real-environment drive timings need a hardware-rate renderer; got "${renderer}". Run headed on DISPLAY=:0.`,
+  )
+}
+
 async function reachInitialClimbWithRealEnvironment(page: Page): Promise<void> {
   await seedDeparture(page, 'runwayLineup')
   await waitForMemphisEnvironment(page)
@@ -151,6 +171,90 @@ async function reachInitialClimbWithRealEnvironment(page: Page): Promise<void> {
   await expect(activeBeat).toContainText('Climb out', { timeout: 3_000 })
   await expect(page.locator('canvas')).toHaveAttribute('data-dc9-memphis-beat', 'initialClimb')
 }
+
+test('real-environment completion returns to Home Operations', async ({ page }) => {
+  test.setTimeout(120_000)
+  await page.goto('/')
+  await skipOnSoftwareRenderer(page)
+  await reachInitialClimbWithRealEnvironment(page)
+  // Relax toward neutral exactly as the guidance asks and let the climb finish.
+  await expect(page.getByRole('heading', { name: 'Home Operations' })).toBeVisible({ timeout: 20_000 })
+  await expect(page.getByRole('dialog', { name: 'Home Operations Log' })).toBeVisible()
+  await expect(page.locator('canvas')).not.toHaveAttribute('data-dc9-memphis-model-state', /.+/)
+  await expect.poll(() => savedDeparture(page)).toMatchObject({ checkpoint: 'complete', completed: true })
+})
+
+test('completion survives an over-pull mistake, a retry press, and focus loss', async ({ page }) => {
+  test.setTimeout(120_000)
+  await page.goto('/')
+  await skipOnSoftwareRenderer(page)
+  await reachInitialClimbWithRealEnvironment(page)
+  const activeBeat = page.locator('.dc9-memphis-departure__header > p').last()
+
+  // Over-pull: hold the column hard until the softened instability window trips.
+  await holdPointer(page, 'Pull column aft', 2_600)
+  await expect(page.getByRole('status', { name: 'Departure guidance' })).toContainText(/safe retry/i, { timeout: 10_000 })
+
+  // A deliberate manual retry, then a focus-loss pause mid-recovery.
+  await page.getByRole('button', { name: 'Retry from checkpoint' }).click()
+  await expect(page.getByRole('status', { name: 'Departure guidance' })).toContainText(/checkpoint restored/i)
+  await page.evaluate(() => window.dispatchEvent(new Event('blur')))
+  await page.waitForTimeout(300)
+
+  // Fresh gentle input clears the pause latch; relax and let the climb finish.
+  await holdPointer(page, 'Pull column aft', 300)
+  await expect(activeBeat).toContainText('Climb out')
+  await expect(page.getByRole('heading', { name: 'Home Operations' })).toBeVisible({ timeout: 20_000 })
+  await expect(page.getByRole('dialog', { name: 'Home Operations Log' })).toBeVisible()
+  await expect.poll(() => savedDeparture(page)).toMatchObject({ checkpoint: 'complete', completed: true })
+})
+
+test('a full continuous real-environment departure returns to Home Operations', async ({ page }) => {
+  test.setTimeout(180_000)
+  await page.goto('/')
+  await skipOnSoftwareRenderer(page)
+  await seedDeparture(page, 'rampStart')
+  await waitForMemphisEnvironment(page)
+  const activeBeat = page.locator('.dc9-memphis-departure__header > p').last()
+
+  await hold(page, 'Advance thrust levers', 500)
+  await expect(activeBeat).toContainText('Memory lane', { timeout: 10_000 })
+  const brake = page.getByRole('button', { name: 'Hold brake' })
+  await Promise.all([
+    page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerdown'),
+    brake.dispatchEvent('pointerdown'),
+  ])
+  await page.waitForTimeout(650)
+  await page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerup')
+  await hold(page, 'Advance thrust levers', 200)
+  await brake.dispatchEvent('pointerup')
+  await page.waitForTimeout(3_300)
+  await Promise.all([
+    page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerdown'),
+    brake.dispatchEvent('pointerdown'),
+  ])
+  await page.waitForTimeout(650)
+  await page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerup')
+  await expect(activeBeat).toContainText('Quiet hold', { timeout: 10_000 })
+  await expect(page.getByRole('button', { name: 'Ready to line up' })).toBeEnabled()
+  await page.waitForTimeout(120)
+  for (let attempt = 0; attempt < 3 && (await activeBeat.textContent())?.startsWith('Quiet hold'); attempt += 1) {
+    await page.getByRole('button', { name: 'Ready to line up' }).dispatchEvent('click')
+    await page.waitForTimeout(120)
+  }
+  await brake.dispatchEvent('pointerup')
+  await expect(activeBeat).toContainText('Line up')
+  await hold(page, 'Advance thrust levers', 500)
+  await expect(activeBeat).toContainText('Legacy roll', { timeout: 3_000 })
+  await page.waitForTimeout(950)
+  await holdPointer(page, 'Pull column aft', 250)
+  await expect(activeBeat).toContainText('Climb out', { timeout: 3_000 })
+
+  await expect(page.getByRole('heading', { name: 'Home Operations' })).toBeVisible({ timeout: 20_000 })
+  await expect(page.getByRole('dialog', { name: 'Home Operations Log' })).toBeVisible()
+  await expect(page.locator('canvas')).not.toHaveAttribute('data-dc9-memphis-model-state', /.+/)
+  await expect.poll(() => savedDeparture(page)).toMatchObject({ checkpoint: 'complete', completed: true })
+})
 
 test('real Memphis environment requests only after the route record and stays in the right seat', async ({ page }) => {
   test.setTimeout(90_000)

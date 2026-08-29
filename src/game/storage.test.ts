@@ -979,6 +979,35 @@ describe('schema-v13 to schema-v14 Memphis departure migration', () => {
     expect(loaded.dc9.departure).toEqual(createInitialDc9DepartureProgress())
   })
 
+  it('self-heals a stuck completed departure left at the memphisDeparture stage', () => {
+    // A session interrupted at the wrong instant could persist a finished
+    // departure without the stage advance; reloading must land in Home
+    // Operations rather than stranding the player at "Memory complete".
+    const state = createInitialState()
+    const loaded = loadRaw({
+      ...state,
+      phase: 'dc9',
+      dc9: {
+        ...state.dc9,
+        stage: 'memphisDeparture',
+        controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS],
+        routeSelections: ['DTW', 'MSP', 'STL'],
+        routeCompleted: ['DTW', 'MSP', 'STL'],
+        departure: {
+          checkpoint: 'complete',
+          completedBeats: ['rampRelease', 'taxi', 'holdShort', 'lineup', 'takeoffRoll', 'rotation', 'initialClimb', 'complete'],
+          attempts: {},
+          hintLevel: 0,
+          completed: true,
+        },
+      },
+    })
+
+    expect(loaded.dc9.stage).toBe('homeOperations')
+    expect(loaded.dc9.departure).toMatchObject({ checkpoint: 'complete', completed: true })
+    expect(loaded.dc9.routeCompleted).toEqual(['DTW', 'MSP', 'STL'])
+  })
+
   it('requires a complete route record before retaining a current Memphis departure checkpoint', () => {
     const state = createInitialState()
     const loaded = loadRaw({
