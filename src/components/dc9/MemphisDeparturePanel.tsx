@@ -62,7 +62,9 @@ export function MemphisDeparturePanel({ controls, inputMethod, loadState, onHold
   const [restoreMarker, setRestoreMarker] = useState<{ beat: Dc9DepartureBeat; attempts: number } | null>(null)
   const restored = restoreMarker?.beat === frame.beat && restoreMarker.attempts === attempts
   const canConfirmLineup = frame.beat === 'holdShort' && frame.safeHold
-  const showRestore = progress.hintLevel >= 3 || environmentStatus === 'error'
+  // The safe retry is always one press away (owner request 2026-08-28); it only
+  // ever rewinds to the latest checkpoint and never erases earned beats.
+  const showRestore = frame.beat !== 'complete'
   const liveAnnouncement = restored
     ? 'Checkpoint restored. Earlier Final Flight Log progress remains safe.'
     : frame.beat === 'complete'
@@ -158,7 +160,7 @@ export function MemphisDeparturePanel({ controls, inputMethod, loadState, onHold
             <button type="button" className="primary-button" onClick={confirmLineup}>Ready to line up</button>
           ) : null}
           {showRestore ? (
-            <button type="button" className="secondary-button" onClick={restoreCheckpoint}>Restore checkpoint</button>
+            <button type="button" className="secondary-button" onClick={restoreCheckpoint}>Retry from checkpoint</button>
           ) : null}
           <p className="dc9-memphis-departure__method"><span className="sr-only">Active input: </span>{inputMethodCopy(inputMethod)}</p>
         </div>

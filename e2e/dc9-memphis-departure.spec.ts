@@ -260,11 +260,13 @@ test('mistakes, hints, hold and rotation remain recoverable without erasing rout
 
   const guidance = page.getByRole('status', { name: 'Departure guidance' })
   for (const hintLevel of [1, 2, 3]) {
-    await hold(page, 'Right rudder pedal', 1_500)
+    // The softened corridor tolerates brief wrong steering; hold long enough to
+    // genuinely leave it so the hint ladder still proves recoverability.
+    await hold(page, 'Right rudder pedal', 2_800)
     await expect(guidance).toContainText(`Hint level ${hintLevel}`)
     await expectDurableProgress(page, 'taxiTurn', ['rampRelease'])
   }
-  await page.getByRole('button', { name: 'Restore checkpoint' }).click()
+  await page.getByRole('button', { name: 'Retry from checkpoint' }).click()
   await expect(guidance).toContainText('Checkpoint restored')
   await expectDurableProgress(page, 'taxiTurn', ['rampRelease'])
 
@@ -350,7 +352,7 @@ test('an aborted Memphis request preserves the accessible path and retries from 
   await expect(page.getByRole('heading', { name: 'Memphis Legacy Departure' })).toBeVisible()
   await expectDurableProgress(page, 'holdShort', ['rampRelease', 'taxi'])
   await page.unroute(`**${MEMPHIS_MODEL_PATH}*`)
-  await page.getByRole('button', { name: 'Restore checkpoint' }).click()
+  await page.getByRole('button', { name: 'Retry from checkpoint' }).click()
   await waitForMemphisEnvironment(page)
   expect(memphisRequests).toBe(1)
   await expectDurableProgress(page, 'holdShort', ['rampRelease', 'taxi'])
@@ -464,7 +466,7 @@ test('captures deterministic Memphis browser evidence', async ({ page }) => {
 })
 
 test('Memphis departure progresses through every native beat when 3D is unavailable', async ({ page }) => {
-  test.setTimeout(35_000)
+  test.setTimeout(60_000)
   await page.goto('/?skip3d=1')
   await seedDeparture(page, 'rampStart')
 
@@ -499,12 +501,23 @@ test('Memphis departure progresses through every native beat when 3D is unavaila
 
   // A wrong turn is safely restored to the taxi checkpoint. Repeating it proves
   // progressive hint/restore feedback without rewinding the completed ramp beat.
+  // Settle to a stop first: the softened corridor tolerates brief wrong steering,
+  // so a rolling aircraft could reach the hold boundary before the longer holds
+  // accrue a genuine deviation.
+  const settleBrake = page.getByRole('button', { name: 'Hold brake' })
+  await Promise.all([
+    page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerdown'),
+    settleBrake.dispatchEvent('pointerdown'),
+  ])
+  await page.waitForTimeout(800)
+  await page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerup')
+  await settleBrake.dispatchEvent('pointerup')
   for (let attempt = 0; attempt < 3; attempt += 1) {
-    await hold(page, 'Right rudder pedal', 1_500)
+    await hold(page, 'Right rudder pedal', 2_800)
     await expect(page.getByRole('status', { name: 'Departure guidance' })).toContainText(/safe retry/i)
   }
-  await expect(page.getByRole('button', { name: 'Restore checkpoint' })).toBeVisible()
-  await page.getByRole('button', { name: 'Restore checkpoint' }).click()
+  await expect(page.getByRole('button', { name: 'Retry from checkpoint' })).toBeVisible()
+  await page.getByRole('button', { name: 'Retry from checkpoint' }).click()
   await expect(page.getByRole('status', { name: 'Departure guidance' })).toContainText(/checkpoint restored/i)
 
   await hold(page, 'Advance thrust levers', 500)

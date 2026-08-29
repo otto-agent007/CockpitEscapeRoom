@@ -169,6 +169,38 @@ describe('DC-9 Memphis departure', () => {
     expect(next.event).toBeUndefined()
   })
 
+  it('tolerates a gentle aft column during the roll and rotates on a gentle pull', () => {
+    // Easier tuning (owner request 2026-08-28): only a strong early pull is a
+    // mistake, and a gentle pull is enough once the cue window opens.
+    const rolling = {
+      ...canonicalDc9DepartureFrame('runwayLineup'),
+      beat: 'takeoffRoll' as const,
+      pathProgress: 0.7,
+      energy: 0.75,
+    }
+    const tolerated = advanceDc9DepartureFrame(rolling, {
+      ...centeredInput,
+      pitch: 0.3,
+      thrust: 0.8,
+    }, 1 / 60)
+    expect(tolerated.event).toBeUndefined()
+    expect(tolerated.frame.beat).toBe('takeoffRoll')
+
+    const cue = {
+      ...canonicalDc9DepartureFrame('runwayLineup'),
+      beat: 'rotation' as const,
+      pathProgress: 0.8,
+      energy: 0.8,
+    }
+    const gentle = advanceDc9DepartureFrame(cue, {
+      ...centeredInput,
+      pitch: 0.3,
+      thrust: 0.8,
+    }, 1 / 60)
+    expect(gentle.frame.beat).toBe('initialClimb')
+    expect(gentle.event).toEqual({ type: 'checkpoint', checkpoint: 'initialClimb' })
+  })
+
   it('restores runway lineup when pitch arrives before the rotation cue', () => {
     const early = {
       ...canonicalDc9DepartureFrame('runwayLineup'),
@@ -241,8 +273,10 @@ describe('DC-9 Memphis departure', () => {
       thrust: 0.8,
     }, 3 / 60)
 
+    // With the softened climb band a rotation-level pull is already inside the
+    // stable envelope: the climb simply proceeds instead of freezing altitude.
     expect(settling.event).toBeUndefined()
-    expect(settling.frame).toMatchObject({ beat: 'initialClimb', altitudeProgress: 0 })
+    expect(settling.frame.beat).toBe('initialClimb')
 
     const stable = advanceDc9DepartureFrame(settling.frame, {
       ...centeredInput,
@@ -257,7 +291,7 @@ describe('DC-9 Memphis departure', () => {
       ...centeredInput,
       pitch: 0.8,
       thrust: 0.8,
-    }, 1)
+    }, 3)
 
     expect(unstable.event).toEqual({ type: 'mistake', beat: 'initialClimb', reason: 'unstableClimb' })
     expect(unstable.frame).toEqual(canonicalDc9DepartureFrame('initialClimb'))

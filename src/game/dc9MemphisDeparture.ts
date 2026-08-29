@@ -92,18 +92,23 @@ const RUNWAY_LINEUP_START = 0.52
 const ROTATION_CUE_START = 0.78
 const INITIAL_CLIMB_START = 0.84
 const TAXI_ENERGY_LIMIT = 0.28
-const PATH_WARNING_ERROR = 0.32
-const PATH_RESTORE_ERROR = 0.55
-const PATH_RESTORE_SECONDS = 0.75
-const INITIAL_CLIMB_INSTABILITY_SECONDS = PATH_RESTORE_SECONDS
-const ROTATION_PITCH_MIN = 0.35
-const CLIMB_PITCH_ABS_MAX = 0.3
-const CLIMB_ROLL_ABS_MAX = 0.28
+// Softened on owner request (2026-08-28): a wider corridor, a longer grace
+// window, a strong-pull-only early-rotation mistake, a gentle-pull rotation,
+// and roomier climb bands make the celebratory memory easier to finish while
+// keeping every teaching beat.
+const PATH_WARNING_ERROR = 0.4
+const PATH_RESTORE_ERROR = 0.6
+const PATH_RESTORE_SECONDS = 1.1
+const INITIAL_CLIMB_INSTABILITY_SECONDS = 1.5
+const EARLY_ROTATION_PITCH = 0.48
+const ROTATION_PITCH_MIN = 0.25
+const CLIMB_PITCH_ABS_MAX = 0.45
+const CLIMB_ROLL_ABS_MAX = 0.4
 
 const FIXED_STEP_SECONDS = 1 / 60
 const MAX_DELTA_SECONDS = 0.1
 const STOPPED_ENERGY = 0.02
-const HOLD_SHORT_APPROACH = 0.01
+const HOLD_SHORT_APPROACH = 0.02
 const EPSILON = 1e-9
 
 const COMPLETED_BEATS_AT_CHECKPOINT: Readonly<Record<Dc9DepartureCheckpoint, readonly Dc9DepartureBeat[]>> = {
@@ -421,7 +426,7 @@ function advanceFixedStep(frame: Dc9DepartureFrame, input: Dc9DepartureInput, de
       return { frame: { ...moving, pathProgress: RUNWAY_LINEUP_START, safeHold: false } }
 
     case 'takeoffRoll':
-      if (moving.pitch >= ROTATION_PITCH_MIN && moving.pathProgress < ROTATION_CUE_START) {
+      if (moving.pitch >= EARLY_ROTATION_PITCH && moving.pathProgress < ROTATION_CUE_START) {
         return mistake(frame, 'earlyRotation')
       }
       if (moving.pathProgress >= ROTATION_CUE_START) {
