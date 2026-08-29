@@ -228,6 +228,23 @@ async function seedGameState(page: Page, state: GameState): Promise<void> {
   await page.reload()
 }
 
+async function holdDepartureControl(page: Page, name: string, milliseconds: number): Promise<void> {
+  const button = await page.getByRole('button', { name }).elementHandle()
+  if (!button) throw new Error(`Missing native departure hold button: ${name}`)
+  await button.dispatchEvent('pointerdown')
+  await page.waitForTimeout(milliseconds)
+  await button.dispatchEvent('pointerup')
+}
+
+async function holdDeparturePointer(page: Page, name: string, milliseconds: number): Promise<void> {
+  const button = page.getByRole('button', { name })
+  await button.scrollIntoViewIfNeeded()
+  await button.hover()
+  await page.mouse.down()
+  await page.waitForTimeout(milliseconds)
+  await page.mouse.up()
+}
+
 async function capturePlacementEvidence(page: Page, scene: 'airbus' | 'locker'): Promise<void> {
   const evidenceDirectory = process.env.PLACEMENT_EVIDENCE_DIR
   if (!evidenceDirectory) return
@@ -1283,8 +1300,36 @@ test('DC-9 production cockpit stages the Final Flight Log with the existing regi
     await page.getByRole('button', { name: new RegExp(`^${code},`) }).press('Enter')
   }
   await page.getByRole('button', { name: 'Record selected routes' }).press('Enter')
-  await expect(page.getByRole('dialog', { name: 'Home Operations Log' })).toBeVisible()
-  await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_FIRST_OFFICER_ROUTE_APPROVAL')
+  // Correct submission enters the Memphis Legacy Departure with the real
+  // environment before Home Operations. Prove the lazy request, the fixed
+  // right-seat camera, and the widened departure frustum, then stage the rest
+  // of the chapter from a completed departure the way the accessible flow does.
+  await expect(page.getByRole('heading', { name: 'Memphis Legacy Departure' })).toBeVisible()
+  await expect(canvas).toHaveAttribute('data-dc9-memphis-model-state', 'ready', { timeout: 60_000 })
+  await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_FIRST_OFFICER_GAME')
+  await expect(canvas).toHaveAttribute('data-dc9-memphis-beat', 'rampRelease')
+  const memphisFrustum = await canvas.getAttribute('data-dc9-camera-frustum')
+  expect(memphisFrustum).not.toBeNull()
+  expect(Number(memphisFrustum!.split(',')[1])).toBeGreaterThanOrEqual(1500)
+  const stagedDeparture = createDc9RouteRecordState()
+  await seedGameState(page, {
+    ...stagedDeparture,
+    dc9: {
+      ...stagedDeparture.dc9,
+      stage: 'homeOperations',
+      routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
+      routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
+      departure: {
+        checkpoint: 'complete',
+        completedBeats: [...DC9_DEPARTURE_BEATS],
+        attempts: {},
+        hintLevel: 0,
+        completed: true,
+      },
+    },
+  })
+  await expect(page.getByRole('dialog', { name: 'Home Operations Log' })).toBeVisible({ timeout: 60_000 })
+  await expect(canvas).toHaveAttribute('data-dc9-camera-node', 'CAM_DC9_FIRST_OFFICER_ROUTE_APPROVAL', { timeout: 60_000 })
   for (let pageNumber = 1; pageNumber < dc9LegacyFlow.homeOperationsPages.length; pageNumber += 1) {
     await page.getByRole('button', { name: 'Next page' }).press('Enter')
   }
@@ -1413,6 +1458,9 @@ test('DC-9 model failure keeps the compact accessible captain controls', async (
 })
 
 test('complete reordered journey', async ({ page }) => {
+  // The journey now includes the played Memphis Legacy Departure; give the
+  // full reordered flow room beyond the 30 s default.
+  test.setTimeout(120_000)
   await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
   await page.goto('/?skip3d=1')
 
@@ -1434,6 +1482,45 @@ test('complete reordered journey', async ({ page }) => {
     await page.getByRole('button', { name: new RegExp(`^${code},`) }).click()
   }
   await page.getByRole('button', { name: 'Record selected routes' }).click()
+
+  // The reordered journey now flies the Memphis Legacy Departure between the
+  // route record and Home Operations; play its native happy path end to end.
+  await expect(page.getByRole('heading', { name: 'Memphis Legacy Departure' })).toBeVisible()
+  const departureBeat = page.locator('.dc9-memphis-departure__header > p').last()
+  await holdDepartureControl(page, 'Advance thrust levers', 500)
+  await expect(departureBeat).toContainText('Memory lane', { timeout: 10_000 })
+  const departureBrake = page.getByRole('button', { name: 'Hold brake' })
+  await Promise.all([
+    page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerdown'),
+    departureBrake.dispatchEvent('pointerdown'),
+  ])
+  await page.waitForTimeout(650)
+  await page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerup')
+  await holdDepartureControl(page, 'Advance thrust levers', 200)
+  await departureBrake.dispatchEvent('pointerup')
+  await page.waitForTimeout(3_300)
+  await Promise.all([
+    page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerdown'),
+    departureBrake.dispatchEvent('pointerdown'),
+  ])
+  await page.waitForTimeout(650)
+  await page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerup')
+  await expect(departureBeat).toContainText('Quiet hold', { timeout: 10_000 })
+  await expect(page.getByRole('button', { name: 'Ready to line up' })).toBeEnabled()
+  await page.waitForTimeout(120)
+  for (let attempt = 0; attempt < 3 && (await departureBeat.textContent())?.startsWith('Quiet hold'); attempt += 1) {
+    await page.getByRole('button', { name: 'Ready to line up' }).dispatchEvent('click')
+    await page.waitForTimeout(120)
+  }
+  await departureBrake.dispatchEvent('pointerup')
+  await expect(departureBeat).toContainText('Line up')
+  await holdDepartureControl(page, 'Advance thrust levers', 500)
+  await expect(departureBeat).toContainText('Legacy roll', { timeout: 3_000 })
+  await page.waitForTimeout(950)
+  await holdDeparturePointer(page, 'Pull column aft', 250)
+  await expect(departureBeat).toContainText('Climb out', { timeout: 3_000 })
+  await expect(page.getByRole('dialog', { name: 'Home Operations Log' })).toBeVisible({ timeout: 10_000 })
+
   for (let pageNumber = 1; pageNumber < dc9LegacyFlow.homeOperationsPages.length; pageNumber += 1) {
     await page.getByRole('button', { name: 'Next page' }).click()
   }

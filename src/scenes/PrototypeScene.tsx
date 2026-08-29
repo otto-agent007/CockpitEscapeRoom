@@ -75,6 +75,14 @@ const AIRBUS_NARROW_GAME_FOV = 92
 const AIRBUS_LOOK_POINTER_DEGREES_PER_PIXEL = 0.08
 const AIRBUS_LEAN_METERS_PER_PIXEL = 0.00008
 const DC9_WIDE_GAME_FOV = 64
+/**
+ * Every DC-9 camera is authored with a 100 m far plane, which is right for the
+ * parked cockpit but clips the Memphis environment (authored out to 700 m) out
+ * of the windshield. Only the departure stage widens the frustum; the near
+ * plane rises with it to keep depth precision across the long scene.
+ */
+const DC9_MEMPHIS_CAMERA_NEAR = 0.05
+const DC9_MEMPHIS_CAMERA_FAR = 2500
 const DC9_NARROW_GAME_FOV = 76
 const DC9_ROUTE_WIDE_FOV = 50
 const DC9_ROUTE_NARROW_FOV = 60
@@ -654,15 +662,20 @@ function AirbusCameraDirector({
   return null
 }
 
-function applyDc9GameplayCameraTransform(runtimeCamera: THREE.Camera, sourceCamera: THREE.Camera, fovOverride?: number) {
+function applyDc9GameplayCameraTransform(
+  runtimeCamera: THREE.Camera,
+  sourceCamera: THREE.Camera,
+  fovOverride?: number,
+  frustumOverride?: { near: number; far: number },
+) {
   sourceCamera.updateMatrixWorld(true)
   sourceCamera.getWorldPosition(runtimeCamera.position)
   sourceCamera.getWorldQuaternion(runtimeCamera.quaternion)
   runtimeCamera.scale.set(1, 1, 1)
   if (runtimeCamera instanceof THREE.PerspectiveCamera && sourceCamera instanceof THREE.PerspectiveCamera) {
     runtimeCamera.fov = fovOverride ?? sourceCamera.fov
-    runtimeCamera.near = Math.max(0.01, sourceCamera.near)
-    runtimeCamera.far = sourceCamera.far
+    runtimeCamera.near = frustumOverride?.near ?? Math.max(0.01, sourceCamera.near)
+    runtimeCamera.far = frustumOverride?.far ?? sourceCamera.far
     runtimeCamera.updateProjectionMatrix()
   }
   runtimeCamera.updateMatrix()
@@ -758,6 +771,9 @@ function Dc9SeatLookControls({
       runtimeCamera.quaternion.w,
       runtimeCamera instanceof THREE.PerspectiveCamera ? runtimeCamera.fov : 0,
     ].map((value) => value.toFixed(5)).join(',')
+    if (runtimeCamera instanceof THREE.PerspectiveCamera) {
+      canvasRef.current.dataset.dc9CameraFrustum = `${runtimeCamera.near.toFixed(5)},${runtimeCamera.far.toFixed(5)}`
+    }
     cameraDirtyRef.current = false
   })
 
@@ -2936,6 +2952,9 @@ function Dc9Cockpit({
       camera,
       sourceCamera,
       size.width < 900 ? narrowFov : wideFov,
+      chapterStage === 'memphisDeparture'
+        ? { near: DC9_MEMPHIS_CAMERA_NEAR, far: DC9_MEMPHIS_CAMERA_FAR }
+        : undefined,
     )
     canvasRef.current.dataset.dc9CameraNode = sourceCamera.name
   }, [camera, chapterStage, loaded, size.width])

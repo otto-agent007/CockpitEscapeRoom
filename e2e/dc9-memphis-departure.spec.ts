@@ -110,6 +110,13 @@ async function waitForMemphisEnvironment(page: Page): Promise<void> {
   const parsed = JSON.parse(pose!) as { position: number[]; quaternion: number[] }
   expect(parsed.position).toHaveLength(3)
   expect(parsed.quaternion).toHaveLength(4)
+  // The environment is authored out to 700 m; the parked cockpit's 100 m far
+  // plane must not clip the Memphis frontage out of the windshield.
+  const frustum = await canvas.getAttribute('data-dc9-camera-frustum')
+  expect(frustum).not.toBeNull()
+  const [nearPlane, farPlane] = frustum!.split(',').map(Number)
+  expect(nearPlane).toBeGreaterThan(0)
+  expect(farPlane).toBeGreaterThanOrEqual(1500)
   expect([...parsed.position, ...parsed.quaternion].every(Number.isFinite)).toBe(true)
 }
 
