@@ -1,30 +1,30 @@
 {
-  "approvalId": "dc9-memphis-legacy-shading-approval-002",
+  "approvalId": "dc9-memphis-legacy-shading-approval-003",
   "jobId": "dc9-memphis-legacy-shading",
   "assemblyJobId": "dc9-memphis-legacy-assembly",
   "stage": "shading-approved",
   "approved": true,
-  "approvedBy": "owner review 2026-08-28 (terminal-composition re-shading; direction and canopy previews reviewed in session, detail judgment delegated)",
+  "approvedBy": "owner-directed update 2026-08-28 (background scenery and clerestory shading; grade unchanged, detail judgment delegated, previews presented on completion)",
   "approvedAt": "2026-08-28",
   "shadingManifest": "art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-shading/manifests/shading-complete.json",
-  "shadingManifestSha256": "a52bf1abd08a9cdeadb54db5dc760ef27a292932160d4cac031f719f72bcb8da",
+  "shadingManifestSha256": "888defe6faed22445991714d1ee8cedf10cc68bd464c494077ffb941343b5e00",
   "materialGate": "art-source/cockpit-pipeline/gates/dc9-memphis-legacy-material-optimization.json",
-  "materialGateSha256": "d22587c78acb0e35edd4fdffdd618e06c93c668c792cf007a08dccb5eab78998",
+  "materialGateSha256": "a4585953f05a45dbe9743012bdfbc26bfa933da972a490e5c5440b255ce36676",
   "sourceVariant": "Ted Davis KMEM X-Plane scenery revision 2019-01-22",
   "targetVariant": "1995 Memphis memory recreation",
   "variantScope": "common",
-  "scope": "Materials, packed textures, preservation-first optimization, the exact owner-selected restrained review grade, the terminal-apron ramp material, and the matte off-white canopy material are approved for production promotion; browser/runtime integration remains a separate task.",
-  "note": "Re-shading of the approved west-frontage composition with the martini-glass canopy accent. The owner-selected restrained grade, terminal texture wiring, normal strength, and emissive support are unchanged from shading-approval-001; the only material additions are KMEM_CANOPY_MATERIAL (matte off-white, sixth and final material within the contract budget) and the existing ramp material reused on KMEM_TERMINAL_APRON. Semantic validation against the approved Task 7 inputs passed at 27 objects / 17 meshes / 676 triangles / 6 materials.",
+  "scope": "Materials, packed textures, preservation-first optimization, and the unchanged owner-ruled restrained grade are approved for production promotion, now including the muted field, distant tree-line, and dark clerestory-band assignments (eight materials within the raised contract budget); browser/runtime integration remains a separate task.",
+  "note": "Owner-directed scenery update: KMEM_FIELD_MATERIAL and KMEM_TREELINE_MATERIAL added, KMEM_TERMINAL_CLERESTORY reuses the near-black runway matte as the recessed glazing band. Terminal texture wiring, normal strength, restrained lit support, and review lighting are unchanged from shading-approval-002. Semantic validation passed at 32 objects / 22 meshes / 736 triangles / 8 materials.",
   "approvedArtifacts": [
     {
       "path": "art-source/cockpit-pipeline/builds/shaded/dc9-memphis-legacy-shading/dc9-memphis-legacy-shaded.blend",
-      "sha256": "cb9ed896e4c248b2ad9c194619a01fb9442eefb4a2745254153982acabe991e6",
-      "bytes": 1913516
+      "sha256": "ffe69551d30369a934c5668068dfe3858a56fd6c3d8bcdc25c764a3b050c1c27",
+      "bytes": 1917891
     },
     {
       "path": "art-source/cockpit-pipeline/builds/shaded/dc9-memphis-legacy-shading/dc9-memphis-legacy-shaded.glb",
-      "sha256": "4732f1dcfff0f999ed77cb008b225b7d980be210553397f267554cd0c71045be",
-      "bytes": 1906412
+      "sha256": "e730c5918007e7200096f743b149c8cd1ad748da6ffc1e449d6795cd4b564d63",
+      "bytes": 1916956
     }
   ]
 }

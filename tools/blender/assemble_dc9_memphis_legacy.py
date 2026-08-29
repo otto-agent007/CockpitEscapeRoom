@@ -178,6 +178,7 @@ def build_scene(metadata: dict[str, Any], output_dir: Path) -> dict[str, Any]:
 
     from tools.blender.cockpit_pipeline.kmem_legacy_layout import (
         ANCHORS,
+        BACKGROUND_SCENERY,
         CONCOURSE_GROUP_NAME,
         CONCOURSE_SOURCE_TRANSFORMS,
         GROUND_SURFACES,
@@ -187,6 +188,7 @@ def build_scene(metadata: dict[str, Any], output_dir: Path) -> dict[str, Any]:
         route_distances,
         terminal_canopy_parts,
         terminal_canopy_world_bounds,
+        terminal_clerestory_box,
         validate_layout,
     )
 
@@ -256,6 +258,18 @@ def build_scene(metadata: dict[str, Any], output_dir: Path) -> dict[str, Any]:
     route.diffuse_color = (0.63, 0.66, 0.62, 1.0)
     for surface in GROUND_SURFACES:
         _add_box(bpy, surface["name"], tuple(surface["center"]), tuple(surface["dimensions"]), ground, root)
+
+    # Owner-requested background scenery: a field under everything plus three
+    # distant tree lines, all far from the guided route (validated above).
+    for scenery in BACKGROUND_SCENERY:
+        box = _add_box(bpy, scenery["name"], tuple(scenery["center"]), tuple(scenery["dimensions"]), ground, root)
+        box["role"] = f"background-{scenery['role']}"
+
+    # Dark recessed band connecting the block roof to the canopy valleys so the
+    # roofline reads attached to the terminal instead of floating.
+    clerestory_spec = terminal_clerestory_box()
+    clerestory = _add_box(bpy, clerestory_spec["name"], tuple(clerestory_spec["center"]), tuple(clerestory_spec["dimensions"]), ground, root)
+    clerestory["role"] = "terminal-clerestory-band"
 
     # Stylized martini-glass canopy accent over the main block, joined into one
     # project-authored object. Transforms are applied so the exported node is
@@ -391,9 +405,17 @@ def build_scene(metadata: dict[str, Any], output_dir: Path) -> dict[str, Any]:
         "layoutSpace": "compressed authored game space; not airport-chart geography",
         "root": ROOT_NAME,
         "sourceGroup": CONCOURSE_GROUP_NAME,
-        "projectOwnedGeometry": [*(surface["name"] for surface in GROUND_SURFACES), TERMINAL_CANOPY["name"], "KMEM_CENTERLINE_01..09"],
+        "projectOwnedGeometry": [
+            *(surface["name"] for surface in GROUND_SURFACES),
+            *(scenery["name"] for scenery in BACKGROUND_SCENERY),
+            TERMINAL_CANOPY["name"],
+            terminal_clerestory_box()["name"],
+            "KMEM_CENTERLINE_01..09",
+        ],
         "groundSurfaces": [dict(surface) for surface in GROUND_SURFACES],
+        "backgroundScenery": [dict(scenery) for scenery in BACKGROUND_SCENERY],
         "terminalCanopy": dict(TERMINAL_CANOPY),
+        "terminalClerestory": dict(terminal_clerestory_box()),
         "anchors": [{**anchor, "routeDistance": round(distance, 6)} for anchor, distance in zip(ANCHORS, route_distances(), strict=True)],
         "concourseSourceTransforms": CONCOURSE_SOURCE_TRANSFORMS,
         "validationErrors": [],

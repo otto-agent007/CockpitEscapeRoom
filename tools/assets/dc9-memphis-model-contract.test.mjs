@@ -100,12 +100,18 @@ test('scans every non-node named and extras-bearing glTF collection', () => {
 test('enforces triangle, material, selected-texture, and byte budgets', () => {
   const fixture = validFixture()
   fixture.accessors[0].count = 15_003
-  fixture.materials.push({ name: 'EXTRA_1' }, { name: 'EXTRA_2' }, { name: 'EXTRA_3' })
+  fixture.materials.push(
+    { name: 'EXTRA_1' },
+    { name: 'EXTRA_2' },
+    { name: 'EXTRA_3' },
+    { name: 'EXTRA_4' },
+    { name: 'EXTRA_5' },
+  )
   fixture.images[0].extras.width = 4096
 
   const errors = validateDc9MemphisModelContract(fixture, 8 * 1024 * 1024 + 1)
   assert.ok(errors.some((error) => error.includes('5,000 triangles')))
-  assert.ok(errors.some((error) => error.includes('six materials')))
+  assert.ok(errors.some((error) => error.includes('eight materials')))
   assert.ok(errors.some((error) => error.includes('2048x1024')))
   assert.ok(errors.some((error) => error.includes('8 MiB')))
 })

@@ -73,7 +73,7 @@
   ],
   "failures": [],
   "materialCount": 3,
-  "meshCount": 17,
+  "meshCount": 22,
   "root": "KMEM_LEGACY_ROOT",
   "sourceTransforms": [
     {
@@ -108,5 +108,5 @@
     }
   ],
   "status": "pass",
-  "triangleCount": 676
+  "triangleCount": 736
 }

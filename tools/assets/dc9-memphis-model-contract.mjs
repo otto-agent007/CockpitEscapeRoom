@@ -58,7 +58,9 @@ export function validateDc9MemphisModelContract(json, byteLength) {
     errors.push('The environment must exclude AutoGate/OpenSceneryX/Planes library content.')
   }
   if (triangleCount(json) > 5_000) errors.push('The Memphis environment must remain at or below 5,000 triangles.')
-  if ((json.materials ?? []).length > 6) errors.push('The Memphis environment must use no more than six materials.')
+  // Raised from six on 2026-08-28 for the owner-requested background scenery
+  // (field + tree lines) alongside the canopy accent.
+  if ((json.materials ?? []).length > 8) errors.push('The Memphis environment must use no more than eight materials.')
   for (const image of json.images ?? []) {
     if (!SELECTED_TEXTURES.has(image.name)) continue
     const { width, height } = image.extras ?? {}

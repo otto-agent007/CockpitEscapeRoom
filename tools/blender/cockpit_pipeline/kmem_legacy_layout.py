@@ -128,6 +128,44 @@ def terminal_canopy_parts(spec: dict[str, Any] = TERMINAL_CANOPY) -> list[dict[s
     return parts
 
 
+TERMINAL_CLERESTORY_NAME = "KMEM_TERMINAL_CLERESTORY"
+
+# Owner-requested background scenery (2026-08-28): a ground field closes the
+# sky-colored void below the horizon, and three distant tree lines frame the
+# compressed memory beyond the frontage, the runway end, and the east apron.
+# All project-authored, all far from the guided route.
+BACKGROUND_SCENERY = (
+    {"name": "KMEM_FIELD", "center": (-150.0, 375.0, -0.83), "dimensions": (1100.0, 1450.0, 1.5), "role": "field"},
+    {"name": "KMEM_TREELINE_WEST", "center": (-330.0, 400.0, 6.0), "dimensions": (22.0, 1200.0, 12.0), "role": "treeline"},
+    {"name": "KMEM_TREELINE_NORTH", "center": (-150.0, 1030.0, 6.0), "dimensions": (1060.0, 24.0, 12.0), "role": "treeline"},
+    {"name": "KMEM_TREELINE_EAST", "center": (360.0, 320.0, 6.0), "dimensions": (24.0, 1050.0, 12.0), "role": "treeline"},
+)
+
+BACKGROUND_ROUTE_CLEARANCE = 100.0
+
+
+def terminal_clerestory_box(spec: dict[str, Any] = TERMINAL_CANOPY) -> dict[str, Any]:
+    """Dark recessed band connecting the block roof to the canopy valleys.
+
+    Inset from the canopy eaves so the winged overhang still reads, and
+    overlapping both the roof and the valley slabs so no sky slit remains.
+    """
+    x_low, x_high = (float(value) for value in spec["x_range"])
+    inset = 2.0
+    overlap = 0.15
+    first_center = float(spec["first_module_center_y"])
+    last_center = first_center + float(spec["module_pitch"]) * (int(spec["module_count"]) - 1)
+    y_low = first_center - float(spec["module_half_width"])
+    y_high = last_center + float(spec["module_half_width"])
+    z_low = float(spec["roof_z"]) - overlap
+    z_high = float(spec["valley_z"]) + overlap
+    return {
+        "name": TERMINAL_CLERESTORY_NAME,
+        "center": ((x_low + x_high) / 2.0, (y_low + y_high) / 2.0, (z_low + z_high) / 2.0),
+        "dimensions": (x_high - x_low - 2.0 * inset, y_high - y_low, z_high - z_low),
+    }
+
+
 def terminal_canopy_world_bounds(spec: dict[str, Any] = TERMINAL_CANOPY) -> dict[str, tuple[float, float, float]]:
     """Axis-aligned world bounds of the canopy accent, X-rotation aware."""
     minimum = [math.inf, math.inf, math.inf]
@@ -411,6 +449,7 @@ def validate_layout(
     source_transforms: dict[str, dict[str, Any]] = CONCOURSE_SOURCE_TRANSFORMS,
     ground_surfaces: Iterable[dict[str, Any]] = GROUND_SURFACES,
     terminal_canopy: dict[str, Any] = TERMINAL_CANOPY,
+    background_scenery: Iterable[dict[str, Any]] = BACKGROUND_SCENERY,
 ) -> list[str]:
     """Return deterministic errors for invalid authored game-space data."""
     entries = list(anchors)
@@ -518,6 +557,30 @@ def validate_layout(
                 or bounds["max"][1] > host_max_y
             ):
                 errors.append("terminal canopy leaves its host block footprint (2 m eave overhang allowed)")
+
+    for scenery in background_scenery:
+        name = str(scenery.get("name", "<unnamed>"))
+        center = scenery.get("center", ())
+        dimensions = scenery.get("dimensions", ())
+        if len(center) != 3 or len(dimensions) != 3 or not _is_finite((*center, *dimensions)):
+            errors.append(f"background scenery has a non-finite box: {name}")
+            continue
+        top = float(center[2]) + float(dimensions[2]) / 2.0
+        if top <= 0.0:
+            continue  # Below-ground fill such as the field never nears the route.
+        half_x = float(dimensions[0]) / 2.0
+        half_y = float(dimensions[1]) / 2.0
+        worst = math.inf
+        for index in range(GROUND_TRACK_SAMPLES + 1):
+            x, y, _ = sample_route(index / GROUND_TRACK_SAMPLES, entries)
+            dx = max(abs(x - float(center[0])) - half_x, 0.0)
+            dy = max(abs(y - float(center[1])) - half_y, 0.0)
+            worst = min(worst, math.hypot(dx, dy))
+        if worst < BACKGROUND_ROUTE_CLEARANCE:
+            errors.append(
+                f"background scenery {name} is too near the guided route: {worst:.1f} m "
+                f"is below the required {BACKGROUND_ROUTE_CLEARANCE:.1f} m"
+            )
 
     coverage = ramp_start_windshield_coverage(source_transforms, entries)
     for viewport_name, minimum in WINDSHIELD_COVERAGE_MINIMUMS.items():

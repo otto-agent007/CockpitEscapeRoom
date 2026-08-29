@@ -3,6 +3,7 @@ import unittest
 
 from tools.blender.cockpit_pipeline.kmem_legacy_layout import (
     ANCHORS,
+    BACKGROUND_SCENERY,
     CONCOURSE_SOURCE_TRANSFORMS,
     GROUND_SURFACES,
     TERMINAL_CANOPY,
@@ -11,6 +12,7 @@ from tools.blender.cockpit_pipeline.kmem_legacy_layout import (
     route_camera_pose,
     terminal_canopy_parts,
     terminal_canopy_world_bounds,
+    terminal_clerestory_box,
     validate_layout,
 )
 
@@ -132,6 +134,37 @@ class KmemLegacyLayoutTests(unittest.TestCase):
         adrift["x_range"] = (-200.0, -154.0)
         errors = validate_layout(terminal_canopy=adrift)
         self.assertTrue(any("canopy" in error for error in errors))
+
+    def test_clerestory_band_connects_the_canopy_to_the_roof(self):
+        band = terminal_clerestory_box()
+        self.assertEqual(band["name"], "KMEM_TERMINAL_CLERESTORY")
+        low_z = band["center"][2] - band["dimensions"][2] / 2.0
+        high_z = band["center"][2] + band["dimensions"][2] / 2.0
+        self.assertLess(low_z, TERMINAL_CANOPY["roof_z"])
+        self.assertGreater(high_z, TERMINAL_CANOPY["valley_z"])
+        # Inset from the canopy eaves so the overhang still reads.
+        canopy_x_low, canopy_x_high = TERMINAL_CANOPY["x_range"]
+        self.assertGreater(band["center"][0] - band["dimensions"][0] / 2.0, canopy_x_low)
+        self.assertLess(band["center"][0] + band["dimensions"][0] / 2.0, canopy_x_high)
+
+    def test_background_scenery_stays_far_from_route_and_pavement(self):
+        names = [entry["name"] for entry in BACKGROUND_SCENERY]
+        self.assertEqual(
+            names,
+            ["KMEM_FIELD", "KMEM_TREELINE_WEST", "KMEM_TREELINE_NORTH", "KMEM_TREELINE_EAST"],
+        )
+        self.assertEqual(validate_layout(), [])
+        field = BACKGROUND_SCENERY[0]
+        # The field closes the void horizon under everything, below pavement tops.
+        self.assertLess(field["center"][2] + field["dimensions"][2] / 2.0, -0.05)
+
+    def test_background_scenery_on_the_route_is_rejected(self):
+        blocking = (
+            *BACKGROUND_SCENERY,
+            {"name": "KMEM_TREELINE_BAD", "center": (-120.0, 400.0, 6.0), "dimensions": (24.0, 200.0, 12.0), "role": "treeline"},
+        )
+        errors = validate_layout(background_scenery=blocking)
+        self.assertTrue(any("background" in error for error in errors))
 
     def test_route_camera_pose_matches_measured_ramp_start_rig(self):
         pose = route_camera_pose(0.0)

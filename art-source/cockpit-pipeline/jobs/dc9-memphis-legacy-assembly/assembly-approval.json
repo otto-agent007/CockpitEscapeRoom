@@ -1,28 +1,28 @@
 {
-  "approvalId": "dc9-memphis-legacy-assembly-approval-002",
+  "approvalId": "dc9-memphis-legacy-assembly-approval-003",
   "jobId": "dc9-memphis-legacy-assembly",
   "sourceJobId": "dc9-memphis-legacy-source",
   "stage": "assembly-approved",
   "approved": true,
-  "approvedBy": "owner review 2026-08-28 (canopy-bearing windshield and 36 mm previews reviewed in session)",
+  "approvedBy": "owner-directed update 2026-08-28 (background scenery, roof-to-terminal connection, retry, and easier tuning requested in session; detail judgment delegated, previews presented on completion)",
   "approvedAt": "2026-08-28",
   "assemblyManifest": "art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-assembly/manifests/assembly-complete.json",
-  "assemblyManifestSha256": "56d8b53c423d1d92d1659af24d27851e7a3fd11d24403ee34c93d02e8968d571",
+  "assemblyManifestSha256": "47e1a3b4072ca692bf84b08bc0c35a56296752cba163238d5e13ad8b92764036",
   "sourceVariant": "Ted Davis KMEM X-Plane scenery revision 2019-01-22",
   "targetVariant": "1995 Memphis memory recreation",
   "variantScope": "common",
   "knownDeviation": "compressed 1995 memory composition, not exact KMEM geography",
-  "scope": "West-frontage terminal composition, right satellite arm, route-over-void ground repair, terminal apron, and stylized martini-glass canopy accent approved for materials work; textures, final fidelity, and runtime promotion are not approved. Re-recorded after the dedicated windshield-preview camera repair; the deployable-geometry GLB is byte-identical to the reviewed one and previews are pixel-equivalent re-renders.",
+  "scope": "Adds the owner-requested background scenery (ground field plus west/north/east tree lines, all at least 100 m from the guided route) and the dark clerestory band connecting the martini-glass canopy to the terminal roof, on top of the previously approved west-frontage composition; approved for materials work only.",
   "approvedArtifacts": [
     {
       "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/dc9-memphis-legacy-neutral.blend",
-      "sha256": "ce79b2b9373c9f2cd213f679d24603aba6d00162b750c8bd257a053cafc93e15",
-      "bytes": 110121
+      "sha256": "0f1c82d9cd861d5aed0245a2cee433a51d9ca708a46e0cedadcc6717ce9e218b",
+      "bytes": 112483
     },
     {
       "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/dc9-memphis-legacy-neutral.glb",
-      "sha256": "8c7b2b9e3d008b11fc3df76b02cafc64cc3e7c80d05adf186b794970d55c26e3",
-      "bytes": 63128
+      "sha256": "0d6c668a177e4eb98e488b999c534aaa53decb0609349b5a2d61375eecd4ce91",
+      "bytes": 70440
     },
     {
       "path": "art-source/cockpit-pipeline/gates/dc9-memphis-legacy-runtime-contract.json",
@@ -31,58 +31,58 @@
     },
     {
       "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/resolved-layout.json",
-      "sha256": "bed9742136ccc2ff1a2c1aabdae444de6002ecdadfe6d57210193b3046d1438b",
-      "bytes": 2969
+      "sha256": "c34c46ab87ff630ae0ce52a7bfc002fa5285d6a79d551edfbdf2f496a7bafeb7",
+      "bytes": 4202
     },
     {
       "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/node-pivot-report.json",
-      "sha256": "cd2d97bd91f1698b28a68461f15813a68c262ffc09587e66f9363317b966bb3c",
+      "sha256": "d804452ad2723b1854e5dadd53fab010702e712aaf498ad851001918010f69d4",
       "bytes": 1908
     },
     {
       "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/neutral-1440.png",
-      "sha256": "226e306eb286352f030033e4505ea8d3ff792d8403c08847a6b13ce0dfe95c80",
-      "bytes": 1355779
+      "sha256": "ab65c7cc3ba7312f6969fa817038a3b4b452a158d603259d09d05711a6ee4285",
+      "bytes": 1352244
     },
     {
       "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/neutral-768.png",
-      "sha256": "322bd2e784e04ed95cab0ea432e40304a2f581f9bab09875dd1b6a85c197fcb4",
-      "bytes": 378160
+      "sha256": "f8599b932ce9d6be59c2772a4a146c2a1f2286f2339c5041b1777fb8d87bd4ac",
+      "bytes": 364958
     },
     {
       "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/neutral-375.png",
-      "sha256": "de1dc86cbcf68fe524c0db746c5f09daff4c79ecfa9e988c9d7666c69e1ca7ea",
-      "bytes": 94514
+      "sha256": "eb3b229c2fef91d4c21ea964901fca656b5f5c74174b7ca60eca2266a49ad50a",
+      "bytes": 90541
     },
     {
       "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/windshield-ramp-start-1440.png",
-      "sha256": "65a136ac3f75a1f3f94ea05f0e466e0b2e34d33335381b37c54f5c6f16194961",
-      "bytes": 1263801
+      "sha256": "d87fe0d4aa45e787155adcf3789f705c4c8ec29086be29928a7bcf7c86fe361d",
+      "bytes": 1347790
     },
     {
       "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/windshield-ramp-start-768.png",
-      "sha256": "54cb0928cfb34b91e894ad761e8fea2c35eb1d7ea479b7fdf26c120afda04670",
-      "bytes": 680614
+      "sha256": "472a053043b50349745b0c23971ddb2b4d2733551d4864272027af28f0bd91cd",
+      "bytes": 730249
     },
     {
       "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/windshield-ramp-start-375.png",
-      "sha256": "99d606f7c4d1f424042962181b44c7a88bbcead0860c60f033096b220ae75da8",
-      "bytes": 303016
+      "sha256": "7d0d0a70cb994b0f6b0388da7d4e0930aa099c59a5a12819aa56829404b54dcc",
+      "bytes": 327663
     },
     {
       "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/windshield-hold-short-1440.png",
-      "sha256": "9a07a1e71e2e509ad7c63110cd9a19391f836d1f943bd91a61f968247460cf21",
-      "bytes": 1257567
+      "sha256": "87361974b39bf56a65de148a4028a56600fcdeb075d5489afcf37a034cf0916b",
+      "bytes": 1336920
     },
     {
       "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/windshield-runway-lineup-1440.png",
-      "sha256": "fbee94fd0eb30fb10140f08ca6bd73bdbdd3bc3079b057460cc5348b2e5b228f",
-      "bytes": 1252990
+      "sha256": "5cb6102aa463e9c91d8b62bb47c6468d0f1c5da720e0227e253d84acd7e5b1a1",
+      "bytes": 1334555
     },
     {
       "path": "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/windshield-takeoff-roll-1440.png",
-      "sha256": "8da35ed39f907f0fd761bde757a5a9304d9adea12a52914557b78c5878755dc5",
-      "bytes": 1307566
+      "sha256": "9bb8eb7ae0dd626040acfb06dd7dcb2b592e675569396b6f11b7497b8db25471",
+      "bytes": 1377234
     }
   ]
 }

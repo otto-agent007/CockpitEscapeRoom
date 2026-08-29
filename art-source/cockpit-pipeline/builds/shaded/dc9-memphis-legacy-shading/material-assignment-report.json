@@ -27,9 +27,10 @@
     {
       "material": "KMEM_RUNWAY_MATERIAL",
       "objects": [
-        "KMEM_RUNWAY_SURFACE"
+        "KMEM_RUNWAY_SURFACE",
+        "KMEM_TERMINAL_CLERESTORY"
       ],
-      "role": "matte project-owned runway surface"
+      "role": "matte project-owned runway surface, reused as the dark recessed clerestory band"
     },
     {
       "material": "KMEM_FADED_RUNWAY_CENTERLINE",
@@ -52,9 +53,25 @@
         "KMEM_TERMINAL_CANOPY"
       ],
       "role": "matte off-white martini-glass canopy accent"
+    },
+    {
+      "material": "KMEM_FIELD_MATERIAL",
+      "objects": [
+        "KMEM_FIELD"
+      ],
+      "role": "muted grass field closing the horizon"
+    },
+    {
+      "material": "KMEM_TREELINE_MATERIAL",
+      "objects": [
+        "KMEM_TREELINE_WEST",
+        "KMEM_TREELINE_NORTH",
+        "KMEM_TREELINE_EAST"
+      ],
+      "role": "distant tree lines framing the memory"
     }
   ],
-  "materialCount": 6,
+  "materialCount": 8,
   "memoryGrade": {
     "backgroundColor": [
       0.075,

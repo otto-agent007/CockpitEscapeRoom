@@ -51,6 +51,64 @@
       "routeDistance": 745.05645
     }
   ],
+  "backgroundScenery": [
+    {
+      "center": [
+        -150.0,
+        375.0,
+        -0.83
+      ],
+      "dimensions": [
+        1100.0,
+        1450.0,
+        1.5
+      ],
+      "name": "KMEM_FIELD",
+      "role": "field"
+    },
+    {
+      "center": [
+        -330.0,
+        400.0,
+        6.0
+      ],
+      "dimensions": [
+        22.0,
+        1200.0,
+        12.0
+      ],
+      "name": "KMEM_TREELINE_WEST",
+      "role": "treeline"
+    },
+    {
+      "center": [
+        -150.0,
+        1030.0,
+        6.0
+      ],
+      "dimensions": [
+        1060.0,
+        24.0,
+        12.0
+      ],
+      "name": "KMEM_TREELINE_NORTH",
+      "role": "treeline"
+    },
+    {
+      "center": [
+        360.0,
+        320.0,
+        6.0
+      ],
+      "dimensions": [
+        24.0,
+        1050.0,
+        12.0
+      ],
+      "name": "KMEM_TREELINE_EAST",
+      "role": "treeline"
+    }
+  ],
   "concourseSourceTransforms": {
     "ConcourseB.obj": {
       "location": [
@@ -137,7 +195,12 @@
     "KMEM_TAXI_SURFACE",
     "KMEM_RUNWAY_SURFACE",
     "KMEM_TERMINAL_APRON",
+    "KMEM_FIELD",
+    "KMEM_TREELINE_WEST",
+    "KMEM_TREELINE_NORTH",
+    "KMEM_TREELINE_EAST",
     "KMEM_TERMINAL_CANOPY",
+    "KMEM_TERMINAL_CLERESTORY",
     "KMEM_CENTERLINE_01..09"
   ],
   "root": "KMEM_LEGACY_ROOT",
@@ -158,6 +221,19 @@
       -230.0,
       -184.0
     ]
+  },
+  "terminalClerestory": {
+    "center": [
+      -207.0,
+      262.05,
+      12.32
+    ],
+    "dimensions": [
+      42.0,
+      222.5,
+      2.8000000000000007
+    ],
+    "name": "KMEM_TERMINAL_CLERESTORY"
   },
   "validationErrors": []
 }

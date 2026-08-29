@@ -32,30 +32,30 @@ SHADING_MANIFEST_PATH = REPO_ROOT / "art-source/cockpit-pipeline/jobs/dc9-memphi
 CREATED_AT = "2026-08-28T00:00:00Z"
 
 EXPECTED_APPROVAL = {
-    "approvalId": "dc9-memphis-legacy-assembly-approval-002",
+    "approvalId": "dc9-memphis-legacy-assembly-approval-003",
     "jobId": "dc9-memphis-legacy-assembly",
     "sourceJobId": "dc9-memphis-legacy-source",
     "stage": "assembly-approved",
     "approved": True,
-    "approvedBy": "owner review 2026-08-28 (canopy-bearing windshield and 36 mm previews reviewed in session)",
+    "approvedBy": "owner-directed update 2026-08-28 (background scenery, roof-to-terminal connection, retry, and easier tuning requested in session; detail judgment delegated, previews presented on completion)",
     "assemblyManifest": "art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-assembly/manifests/assembly-complete.json",
-    "assemblyManifestSha256": "56d8b53c423d1d92d1659af24d27851e7a3fd11d24403ee34c93d02e8968d571",
+    "assemblyManifestSha256": "47e1a3b4072ca692bf84b08bc0c35a56296752cba163238d5e13ad8b92764036",
 }
 EXPECTED_APPROVED_ARTIFACTS = {
-    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/dc9-memphis-legacy-neutral.blend": "ce79b2b9373c9f2cd213f679d24603aba6d00162b750c8bd257a053cafc93e15",
-    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/dc9-memphis-legacy-neutral.glb": "8c7b2b9e3d008b11fc3df76b02cafc64cc3e7c80d05adf186b794970d55c26e3",
+    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/dc9-memphis-legacy-neutral.blend": "0f1c82d9cd861d5aed0245a2cee433a51d9ca708a46e0cedadcc6717ce9e218b",
+    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/dc9-memphis-legacy-neutral.glb": "0d6c668a177e4eb98e488b999c534aaa53decb0609349b5a2d61375eecd4ce91",
     "art-source/cockpit-pipeline/gates/dc9-memphis-legacy-runtime-contract.json": "1506c791dc2b4e5681eb079a7de3690cec28425d65ec3f619b29d7416e2092a6",
-    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/resolved-layout.json": "bed9742136ccc2ff1a2c1aabdae444de6002ecdadfe6d57210193b3046d1438b",
-    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/node-pivot-report.json": "cd2d97bd91f1698b28a68461f15813a68c262ffc09587e66f9363317b966bb3c",
-    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/neutral-1440.png": "226e306eb286352f030033e4505ea8d3ff792d8403c08847a6b13ce0dfe95c80",
-    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/neutral-768.png": "322bd2e784e04ed95cab0ea432e40304a2f581f9bab09875dd1b6a85c197fcb4",
-    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/neutral-375.png": "de1dc86cbcf68fe524c0db746c5f09daff4c79ecfa9e988c9d7666c69e1ca7ea",
-    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/windshield-ramp-start-1440.png": "65a136ac3f75a1f3f94ea05f0e466e0b2e34d33335381b37c54f5c6f16194961",
-    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/windshield-ramp-start-768.png": "54cb0928cfb34b91e894ad761e8fea2c35eb1d7ea479b7fdf26c120afda04670",
-    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/windshield-ramp-start-375.png": "99d606f7c4d1f424042962181b44c7a88bbcead0860c60f033096b220ae75da8",
-    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/windshield-hold-short-1440.png": "9a07a1e71e2e509ad7c63110cd9a19391f836d1f943bd91a61f968247460cf21",
-    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/windshield-runway-lineup-1440.png": "fbee94fd0eb30fb10140f08ca6bd73bdbdd3bc3079b057460cc5348b2e5b228f",
-    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/windshield-takeoff-roll-1440.png": "8da35ed39f907f0fd761bde757a5a9304d9adea12a52914557b78c5878755dc5",
+    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/resolved-layout.json": "c34c46ab87ff630ae0ce52a7bfc002fa5285d6a79d551edfbdf2f496a7bafeb7",
+    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/node-pivot-report.json": "d804452ad2723b1854e5dadd53fab010702e712aaf498ad851001918010f69d4",
+    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/neutral-1440.png": "ab65c7cc3ba7312f6969fa817038a3b4b452a158d603259d09d05711a6ee4285",
+    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/neutral-768.png": "f8599b932ce9d6be59c2772a4a146c2a1f2286f2339c5041b1777fb8d87bd4ac",
+    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/neutral-375.png": "eb3b229c2fef91d4c21ea964901fca656b5f5c74174b7ca60eca2266a49ad50a",
+    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/windshield-ramp-start-1440.png": "d87fe0d4aa45e787155adcf3789f705c4c8ec29086be29928a7bcf7c86fe361d",
+    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/windshield-ramp-start-768.png": "472a053043b50349745b0c23971ddb2b4d2733551d4864272027af28f0bd91cd",
+    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/windshield-ramp-start-375.png": "7d0d0a70cb994b0f6b0388da7d4e0930aa099c59a5a12819aa56829404b54dcc",
+    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/windshield-hold-short-1440.png": "87361974b39bf56a65de148a4028a56600fcdeb075d5489afcf37a034cf0916b",
+    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/windshield-runway-lineup-1440.png": "5cb6102aa463e9c91d8b62bb47c6468d0f1c5da720e0227e253d84acd7e5b1a1",
+    "art-source/cockpit-pipeline/stages/assembly/output/dc9-memphis-legacy-assembly/previews/windshield-takeoff-roll-1440.png": "9bb8eb7ae0dd626040acfb06dd7dcb2b592e675569396b6f11b7497b8db25471",
 }
 SOURCE_HASHES = {
     "ConcourseB.obj": "e88ab8411a033d5996c53053b14a894ff9824380a76891b27659549a7e9e6424",
@@ -92,10 +92,10 @@ REVIEW_LIGHTING_GRADE = {
     "fillEnergy": 1350,
     "fillColor": (0.45, 0.58, 0.78),
 }
-# 2026-08-28 terminal-composition re-shading: same owner-ruled restrained grade,
-# regenerated over the approved west-frontage assembly with the canopy accent.
-RESTORED_SHADED_BLEND_SHA256 = "cb9ed896e4c248b2ad9c194619a01fb9442eefb4a2745254153982acabe991e6"
-RESTORED_SHADED_GLB_SHA256 = "4732f1dcfff0f999ed77cb008b225b7d980be210553397f267554cd0c71045be"
+# 2026-08-28 owner-directed scenery update: same owner-ruled restrained grade,
+# regenerated with the background field, tree lines, and clerestory band.
+RESTORED_SHADED_BLEND_SHA256 = "ffe69551d30369a934c5668068dfe3858a56fd6c3d8bcdc25c764a3b050c1c27"
+RESTORED_SHADED_GLB_SHA256 = "e730c5918007e7200096f743b149c8cd1ad748da6ffc1e449d6795cd4b564d63"
 
 
 def sha256_file(path: Path) -> str:
@@ -401,11 +401,17 @@ def shade_scene(bpy: Any) -> tuple[list[dict[str, Any]], list[dict[str, Any]], l
     route.name = "KMEM_FADED_RUNWAY_CENTERLINE"
     route = make_surface_material(bpy, route.name, (0.49, 0.44, 0.25, 1.0), 0.9)
     canopy = make_surface_material(bpy, "KMEM_CANOPY_MATERIAL", (0.88, 0.855, 0.80, 1.0), 0.82)
+    field = make_surface_material(bpy, "KMEM_FIELD_MATERIAL", (0.155, 0.185, 0.135, 1.0), 0.95)
+    treeline = make_surface_material(bpy, "KMEM_TREELINE_MATERIAL", (0.095, 0.125, 0.085, 1.0), 0.95)
     assign_material(bpy.data.objects["KMEM_RAMP"], ramp)
     assign_material(bpy.data.objects["KMEM_TAXI_SURFACE"], taxi)
     assign_material(bpy.data.objects["KMEM_RUNWAY_SURFACE"], runway)
     assign_material(bpy.data.objects["KMEM_TERMINAL_APRON"], ramp)
     assign_material(bpy.data.objects["KMEM_TERMINAL_CANOPY"], canopy)
+    assign_material(bpy.data.objects["KMEM_TERMINAL_CLERESTORY"], runway)
+    assign_material(bpy.data.objects["KMEM_FIELD"], field)
+    for name in ("KMEM_TREELINE_WEST", "KMEM_TREELINE_NORTH", "KMEM_TREELINE_EAST"):
+        assign_material(bpy.data.objects[name], treeline)
     for index in range(1, 10):
         assign_material(bpy.data.objects[f"KMEM_CENTERLINE_{index:02d}"], route)
 
@@ -413,9 +419,11 @@ def shade_scene(bpy: Any) -> tuple[list[dict[str, Any]], list[dict[str, Any]], l
         {"material": terminal.name, "objects": sorted(SOURCE_OBJECTS), "role": "approved Concourse B base color + normal + restrained lit support"},
         {"material": ramp.name, "objects": ["KMEM_RAMP", "KMEM_TERMINAL_APRON"], "role": "matte project-owned ramp and terminal apron"},
         {"material": taxi.name, "objects": ["KMEM_TAXI_SURFACE"], "role": "matte project-owned taxi surface"},
-        {"material": runway.name, "objects": ["KMEM_RUNWAY_SURFACE"], "role": "matte project-owned runway surface"},
+        {"material": runway.name, "objects": ["KMEM_RUNWAY_SURFACE", "KMEM_TERMINAL_CLERESTORY"], "role": "matte project-owned runway surface, reused as the dark recessed clerestory band"},
         {"material": route.name, "objects": [f"KMEM_CENTERLINE_{index:02d}" for index in range(1, 10)], "role": "faded non-emissive route centerline"},
         {"material": canopy.name, "objects": ["KMEM_TERMINAL_CANOPY"], "role": "matte off-white martini-glass canopy accent"},
+        {"material": field.name, "objects": ["KMEM_FIELD"], "role": "muted grass field closing the horizon"},
+        {"material": treeline.name, "objects": ["KMEM_TREELINE_WEST", "KMEM_TREELINE_NORTH", "KMEM_TREELINE_EAST"], "role": "distant tree lines framing the memory"},
     ]
     return uv_report, texture_report, assignments
 
@@ -563,7 +571,7 @@ def reimport_validation(bpy: Any, glb_path: Path, before: dict[str, dict[str, An
     material_count = len(bpy.data.materials)
     if triangle_count > 5000:
         failures.append(f"triangle budget exceeded: {triangle_count}")
-    if material_count > 6:
+    if material_count > 8:
         failures.append(f"material budget exceeded: {material_count}")
     if glb_path.stat().st_size > 8 * 1024 * 1024:
         failures.append(f"GLB byte budget exceeded: {glb_path.stat().st_size}")
@@ -574,7 +582,7 @@ def reimport_validation(bpy: Any, glb_path: Path, before: dict[str, dict[str, An
         "triangleCount": triangle_count,
         "materialCount": material_count,
         "glbSizeBytes": glb_path.stat().st_size,
-        "requiredNamesPreservedExactlyOnce": all(names.count(name) == 1 for name in ["KMEM_LEGACY_ROOT", "KMEM_CONCOURSE_B", "KMEM_RAMP", "KMEM_TAXI_SURFACE", "KMEM_RUNWAY_SURFACE", "KMEM_TERMINAL_APRON", "KMEM_TERMINAL_CANOPY", *ANCHOR_GAME_IDS]),
+        "requiredNamesPreservedExactlyOnce": all(names.count(name) == 1 for name in ["KMEM_LEGACY_ROOT", "KMEM_CONCOURSE_B", "KMEM_RAMP", "KMEM_TAXI_SURFACE", "KMEM_RUNWAY_SURFACE", "KMEM_TERMINAL_APRON", "KMEM_TERMINAL_CANOPY", "KMEM_TERMINAL_CLERESTORY", "KMEM_FIELD", "KMEM_TREELINE_WEST", "KMEM_TREELINE_NORTH", "KMEM_TREELINE_EAST", *ANCHOR_GAME_IDS]),
         "hierarchyTransformsAndExtrasPreserved": not compare_contract(before, after),
         "anchorGameIdsPreserved": all(after.get(name, {}).get("extras", {}).get("game_id") == game_id for name, game_id in ANCHOR_GAME_IDS.items()),
         "noInteractiveCockpitMetadata": not any(any(key in record["extras"] for key in ("interaction", "input_axis", "control_id", "cockpit_control")) for record in after.values()),
@@ -672,6 +680,11 @@ def validate_shaded_master(bpy: Any) -> dict[str, Any]:
         "KMEM_RUNWAY_SURFACE": "KMEM_RUNWAY_MATERIAL",
         "KMEM_TERMINAL_APRON": "KMEM_RAMP_MATERIAL",
         "KMEM_TERMINAL_CANOPY": "KMEM_CANOPY_MATERIAL",
+        "KMEM_TERMINAL_CLERESTORY": "KMEM_RUNWAY_MATERIAL",
+        "KMEM_FIELD": "KMEM_FIELD_MATERIAL",
+        "KMEM_TREELINE_WEST": "KMEM_TREELINE_MATERIAL",
+        "KMEM_TREELINE_NORTH": "KMEM_TREELINE_MATERIAL",
+        "KMEM_TREELINE_EAST": "KMEM_TREELINE_MATERIAL",
         **{f"KMEM_CENTERLINE_{index:02d}": "KMEM_FADED_RUNWAY_CENTERLINE" for index in range(1, 10)},
     }
     material_names = sorted(material.name for material in bpy.data.materials)
@@ -725,7 +738,7 @@ def validate_shaded_master(bpy: Any) -> dict[str, Any]:
 
     triangle_count = sum(record["triangleCount"] for record in current_contract.values())
     mesh_count = sum(1 for record in current_contract.values() if record["type"] == "MESH")
-    if len(current_contract) != 27 or mesh_count != 17 or triangle_count != 676 or len(material_names) != 6:
+    if len(current_contract) != 32 or mesh_count != 22 or triangle_count != 736 or len(material_names) != 8:
         failures.append(f"structural metrics changed: objects={len(current_contract)}, meshes={mesh_count}, triangles={triangle_count}, materials={len(material_names)}")
     for name, game_id in ANCHOR_GAME_IDS.items():
         if current_contract.get(name, {}).get("extras", {}).get("game_id") != game_id:
@@ -785,8 +798,8 @@ def main() -> int:
     if approved_hashes(approval) != before_approved_hashes:
         raise ValueError("approved Task 7 inputs changed during shading")
     validation = reimport_validation(bpy, glb_path, neutral_contract)
-    if validation["triangleCount"] != 676:
-        raise ValueError(f"approved triangle count changed: {validation['triangleCount']} != 676")
+    if validation["triangleCount"] != 736:
+        raise ValueError(f"approved triangle count changed: {validation['triangleCount']} != 736")
 
     material_report_path = OUTPUT_DIR / "material-assignment-report.json"
     stable_json(material_report_path, {
