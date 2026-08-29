@@ -12,9 +12,10 @@
     {
       "material": "KMEM_RAMP_MATERIAL",
       "objects": [
-        "KMEM_RAMP"
+        "KMEM_RAMP",
+        "KMEM_TERMINAL_APRON"
       ],
-      "role": "matte project-owned ramp"
+      "role": "matte project-owned ramp and terminal apron"
     },
     {
       "material": "KMEM_TAXI_MATERIAL",
@@ -44,9 +45,16 @@
         "KMEM_CENTERLINE_09"
       ],
       "role": "faded non-emissive route centerline"
+    },
+    {
+      "material": "KMEM_CANOPY_MATERIAL",
+      "objects": [
+        "KMEM_TERMINAL_CANOPY"
+      ],
+      "role": "matte off-white martini-glass canopy accent"
     }
   ],
-  "materialCount": 5,
+  "materialCount": 6,
   "memoryGrade": {
     "backgroundColor": [
       0.075,

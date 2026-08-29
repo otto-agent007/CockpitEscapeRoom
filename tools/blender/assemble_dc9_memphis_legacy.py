@@ -334,8 +334,15 @@ def build_scene(metadata: dict[str, Any], output_dir: Path) -> dict[str, Any]:
     # Windshield-pose previews from the measured first-officer camera rig, so the
     # Assembly Review Gate always shows what the in-game windshield will show.
     # The 2026-08-28 Task 10 stall happened because the review camera alone could
-    # not reveal that the terminal sat behind the ramp-start view.
-    camera_data.sensor_fit = "VERTICAL"
+    # not reveal that the terminal sat behind the ramp-start view. A dedicated
+    # camera keeps the approved 36 mm review camera untouched for Agent 3.
+    windshield_camera_data = bpy.data.cameras.new("CAM_KMEM_WINDSHIELD_PREVIEW")
+    windshield_camera = bpy.data.objects.new("CAM_KMEM_WINDSHIELD_PREVIEW", windshield_camera_data)
+    bpy.context.collection.objects.link(windshield_camera)
+    windshield_camera_data.sensor_fit = "VERTICAL"
+    windshield_camera_data.clip_start = 0.1
+    windshield_camera_data.clip_end = 3000.0
+    scene.camera = windshield_camera
     for label, progress, sizes in (
         ("windshield-ramp-start", 0.0, ((1440, 900, 64.0), (768, 900, 76.0), (375, 812, 76.0))),
         ("windshield-hold-short", 0.42, ((1440, 900, 64.0),)),
@@ -346,13 +353,13 @@ def build_scene(metadata: dict[str, Any], output_dir: Path) -> dict[str, Any]:
         forward = Vector(pose["forward"]).normalized()
         up = Vector(pose["up"]).normalized()
         right = forward.cross(up).normalized()
-        camera.matrix_world = Matrix.Translation(Vector(pose["position"])) @ Matrix((
+        windshield_camera.matrix_world = Matrix.Translation(Vector(pose["position"])) @ Matrix((
             (right.x, up.x, -forward.x),
             (right.y, up.y, -forward.y),
             (right.z, up.z, -forward.z),
         )).to_4x4()
         for width, height, vertical_fov in sizes:
-            camera_data.angle_y = math.radians(vertical_fov)
+            windshield_camera_data.angle_y = math.radians(vertical_fov)
             scene.render.resolution_x = width
             scene.render.resolution_y = height
             scene.render.resolution_percentage = 100
@@ -361,6 +368,7 @@ def build_scene(metadata: dict[str, Any], output_dir: Path) -> dict[str, Any]:
             bpy.ops.render.render(write_still=True)
             preview_paths.append(preview)
 
+    scene.camera = camera
     blend_path = output_dir / "dc9-memphis-legacy-neutral.blend"
     glb_path = output_dir / "dc9-memphis-legacy-neutral.glb"
     bpy.ops.wm.save_as_mainfile(filepath=str(blend_path))
