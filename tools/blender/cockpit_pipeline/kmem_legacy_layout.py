@@ -74,6 +74,74 @@ GROUND_SURFACES = (
 # on the ramp and terminal aprons the way gates do at a real airport.
 MANEUVERING_SURFACE_NAMES = (TAXI_SURFACE_NAME, RUNWAY_SURFACE_NAME)
 
+TERMINAL_CANOPY_NAME = "KMEM_TERMINAL_CANOPY"
+
+# Stylized martini-glass roofline accent over the main block (owner-approved
+# 2026-08-28, delegated detail judgment): eight winged modules, each a pair of
+# thin slabs sweeping up from a low valley over a slender column, floating above
+# the roof so the air gap reads as the recessed glazing band of the 1963 Memphis
+# terminal. Project-authored geometry; explicitly a memory accent, not an exact
+# architectural reconstruction.
+TERMINAL_CANOPY = {
+    "name": TERMINAL_CANOPY_NAME,
+    "attached_source": "ConcourseB.obj",
+    "x_range": (-230.0, -184.0),
+    "module_count": 8,
+    "first_module_center_y": 164.05,
+    "module_pitch": 28.0,
+    "module_half_width": 13.25,
+    "roof_z": 11.07,
+    "valley_z": 13.57,
+    "tip_z": 17.07,
+    "slab_thickness": 0.8,
+    "column_width": 1.4,
+}
+
+
+def terminal_canopy_parts(spec: dict[str, Any] = TERMINAL_CANOPY) -> list[dict[str, Any]]:
+    """Box specs (center, dimensions, X-rotation) for the canopy wings and columns."""
+    x_low, x_high = (float(value) for value in spec["x_range"])
+    depth = x_high - x_low
+    x_center = (x_low + x_high) / 2.0
+    half_width = float(spec["module_half_width"])
+    rise = float(spec["tip_z"]) - float(spec["valley_z"])
+    tilt = math.atan2(rise, half_width)
+    slab_length = math.hypot(half_width, rise)
+    slab_center_z = (float(spec["valley_z"]) + float(spec["tip_z"])) / 2.0 + float(spec["slab_thickness"]) / 2.0
+    column_height = float(spec["valley_z"]) - float(spec["roof_z"]) + 0.4
+    parts: list[dict[str, Any]] = []
+    for index in range(int(spec["module_count"])):
+        center_y = float(spec["first_module_center_y"]) + float(spec["module_pitch"]) * index
+        for sign in (-1.0, 1.0):
+            parts.append({
+                "kind": "wing",
+                "center": (x_center, center_y + sign * half_width / 2.0, slab_center_z),
+                "dimensions": (depth, slab_length, float(spec["slab_thickness"])),
+                "rotation_x_radians": sign * tilt,
+            })
+        parts.append({
+            "kind": "column",
+            "center": (x_center, center_y, float(spec["roof_z"]) + column_height / 2.0),
+            "dimensions": (float(spec["column_width"]), float(spec["column_width"]), column_height),
+            "rotation_x_radians": 0.0,
+        })
+    return parts
+
+
+def terminal_canopy_world_bounds(spec: dict[str, Any] = TERMINAL_CANOPY) -> dict[str, tuple[float, float, float]]:
+    """Axis-aligned world bounds of the canopy accent, X-rotation aware."""
+    minimum = [math.inf, math.inf, math.inf]
+    maximum = [-math.inf, -math.inf, -math.inf]
+    for part in terminal_canopy_parts(spec):
+        dx, dy, dz = part["dimensions"]
+        cos_r = abs(math.cos(part["rotation_x_radians"]))
+        sin_r = abs(math.sin(part["rotation_x_radians"]))
+        half = (dx / 2.0, (dy * cos_r + dz * sin_r) / 2.0, (dy * sin_r + dz * cos_r) / 2.0)
+        for axis in range(3):
+            minimum[axis] = min(minimum[axis], part["center"][axis] - half[axis])
+            maximum[axis] = max(maximum[axis], part["center"][axis] + half[axis])
+    return {"min": tuple(minimum), "max": tuple(maximum)}
+
 # Mirrors PATH_KNOTS in src/scenes/dc9MemphisVisuals.ts.
 PATH_KNOTS = (0.0, 0.12, 0.42, 0.52, 1.0)
 
@@ -339,6 +407,7 @@ def validate_layout(
     anchors: Iterable[dict[str, Any]] = ANCHORS,
     source_transforms: dict[str, dict[str, Any]] = CONCOURSE_SOURCE_TRANSFORMS,
     ground_surfaces: Iterable[dict[str, Any]] = GROUND_SURFACES,
+    terminal_canopy: dict[str, Any] = TERMINAL_CANOPY,
 ) -> list[str]:
     """Return deterministic errors for invalid authored game-space data."""
     entries = list(anchors)
@@ -420,6 +489,32 @@ def validate_layout(
             min_x, max_x, min_y, max_y = _surface_bounds(surface)
             if footprint_min_x < max_x and footprint_max_x > min_x and footprint_min_y < max_y and footprint_max_y > min_y:
                 errors.append(f"{source_name} stands on maneuvering pavement {surface['name']}")
+
+    canopy_host = terminal_canopy.get("attached_source")
+    if canopy_host not in source_transforms:
+        errors.append("terminal canopy must attach to an assembled source object")
+    else:
+        ordered = (
+            float(terminal_canopy.get("roof_z", math.nan)),
+            float(terminal_canopy.get("valley_z", math.nan)),
+            float(terminal_canopy.get("tip_z", math.nan)),
+        )
+        if not _is_finite(ordered) or not (ordered[0] < ordered[1] < ordered[2]):
+            errors.append("terminal canopy roof/valley/tip heights must be finite and ascending")
+        else:
+            host_corners = _footprint_corners(canopy_host, source_transforms[canopy_host])
+            host_min_x = min(corner[0] for corner in host_corners) - 2.0
+            host_max_x = max(corner[0] for corner in host_corners) + 2.0
+            host_min_y = min(corner[1] for corner in host_corners) - 2.0
+            host_max_y = max(corner[1] for corner in host_corners) + 2.0
+            bounds = terminal_canopy_world_bounds(terminal_canopy)
+            if (
+                bounds["min"][0] < host_min_x
+                or bounds["max"][0] > host_max_x
+                or bounds["min"][1] < host_min_y
+                or bounds["max"][1] > host_max_y
+            ):
+                errors.append("terminal canopy leaves its host block footprint (2 m eave overhang allowed)")
 
     coverage = ramp_start_windshield_coverage(source_transforms, entries)
     for viewport_name, minimum in WINDSHIELD_COVERAGE_MINIMUMS.items():

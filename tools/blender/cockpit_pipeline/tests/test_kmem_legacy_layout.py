@@ -1,12 +1,16 @@
+import math
 import unittest
 
 from tools.blender.cockpit_pipeline.kmem_legacy_layout import (
     ANCHORS,
     CONCOURSE_SOURCE_TRANSFORMS,
     GROUND_SURFACES,
+    TERMINAL_CANOPY,
     ground_track_pavement_shoulder,
     ramp_start_windshield_coverage,
     route_camera_pose,
+    terminal_canopy_parts,
+    terminal_canopy_world_bounds,
     validate_layout,
 )
 
@@ -97,6 +101,37 @@ class KmemLegacyLayoutTests(unittest.TestCase):
         on_taxiway["ConcourseB.obj"] = {"location": (-95.0, 125.0, 0.0), "rotation_z_degrees": 0.0}
         errors = validate_layout(source_transforms=on_taxiway)
         self.assertTrue(any("maneuvering pavement" in error for error in errors))
+
+    def test_terminal_canopy_builds_eight_martini_glass_modules(self):
+        parts = terminal_canopy_parts()
+        wings = [part for part in parts if part["kind"] == "wing"]
+        columns = [part for part in parts if part["kind"] == "column"]
+        self.assertEqual(len(wings), 16)
+        self.assertEqual(len(columns), 8)
+        tilt = math.atan2(
+            TERMINAL_CANOPY["tip_z"] - TERMINAL_CANOPY["valley_z"],
+            TERMINAL_CANOPY["module_half_width"],
+        )
+        for wing in wings:
+            self.assertAlmostEqual(abs(wing["rotation_x_radians"]), tilt, places=6)
+        self.assertEqual(sum(1 for wing in wings if wing["rotation_x_radians"] > 0), 8)
+
+    def test_terminal_canopy_stays_over_the_main_block(self):
+        bounds = terminal_canopy_world_bounds()
+        # Main block footprint: X -298.5..-185.5, Y 148.8..375.1; 2 m eave overhang allowed.
+        self.assertGreaterEqual(bounds["min"][0], -300.5)
+        self.assertLessEqual(bounds["max"][0], -183.5)
+        self.assertGreaterEqual(bounds["min"][1], 146.8)
+        self.assertLessEqual(bounds["max"][1], 377.1)
+        self.assertAlmostEqual(bounds["min"][2], 11.07, places=2)
+        self.assertGreater(bounds["max"][2], TERMINAL_CANOPY["tip_z"])
+        self.assertEqual(validate_layout(), [])
+
+    def test_displaced_canopy_is_rejected(self):
+        adrift = dict(TERMINAL_CANOPY)
+        adrift["x_range"] = (-200.0, -154.0)
+        errors = validate_layout(terminal_canopy=adrift)
+        self.assertTrue(any("canopy" in error for error in errors))
 
     def test_route_camera_pose_matches_measured_ramp_start_rig(self):
         pose = route_camera_pose(0.0)

@@ -137,9 +137,27 @@
     "KMEM_TAXI_SURFACE",
     "KMEM_RUNWAY_SURFACE",
     "KMEM_TERMINAL_APRON",
+    "KMEM_TERMINAL_CANOPY",
     "KMEM_CENTERLINE_01..09"
   ],
   "root": "KMEM_LEGACY_ROOT",
   "sourceGroup": "KMEM_CONCOURSE_B",
+  "terminalCanopy": {
+    "attached_source": "ConcourseB.obj",
+    "column_width": 1.4,
+    "first_module_center_y": 164.05,
+    "module_count": 8,
+    "module_half_width": 13.25,
+    "module_pitch": 28.0,
+    "name": "KMEM_TERMINAL_CANOPY",
+    "roof_z": 11.07,
+    "slab_thickness": 0.8,
+    "tip_z": 17.07,
+    "valley_z": 13.57,
+    "x_range": [
+      -230.0,
+      -184.0
+    ]
+  },
   "validationErrors": []
 }

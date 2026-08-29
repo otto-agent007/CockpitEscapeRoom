@@ -392,18 +392,22 @@ def shade_scene(bpy: Any) -> tuple[list[dict[str, Any]], list[dict[str, Any]], l
         raise ValueError("neutral route material is missing")
     route.name = "KMEM_FADED_RUNWAY_CENTERLINE"
     route = make_surface_material(bpy, route.name, (0.49, 0.44, 0.25, 1.0), 0.9)
+    canopy = make_surface_material(bpy, "KMEM_CANOPY_MATERIAL", (0.88, 0.855, 0.80, 1.0), 0.82)
     assign_material(bpy.data.objects["KMEM_RAMP"], ramp)
     assign_material(bpy.data.objects["KMEM_TAXI_SURFACE"], taxi)
     assign_material(bpy.data.objects["KMEM_RUNWAY_SURFACE"], runway)
+    assign_material(bpy.data.objects["KMEM_TERMINAL_APRON"], ramp)
+    assign_material(bpy.data.objects["KMEM_TERMINAL_CANOPY"], canopy)
     for index in range(1, 10):
         assign_material(bpy.data.objects[f"KMEM_CENTERLINE_{index:02d}"], route)
 
     assignments = [
         {"material": terminal.name, "objects": sorted(SOURCE_OBJECTS), "role": "approved Concourse B base color + normal + restrained lit support"},
-        {"material": ramp.name, "objects": ["KMEM_RAMP"], "role": "matte project-owned ramp"},
+        {"material": ramp.name, "objects": ["KMEM_RAMP", "KMEM_TERMINAL_APRON"], "role": "matte project-owned ramp and terminal apron"},
         {"material": taxi.name, "objects": ["KMEM_TAXI_SURFACE"], "role": "matte project-owned taxi surface"},
         {"material": runway.name, "objects": ["KMEM_RUNWAY_SURFACE"], "role": "matte project-owned runway surface"},
         {"material": route.name, "objects": [f"KMEM_CENTERLINE_{index:02d}" for index in range(1, 10)], "role": "faded non-emissive route centerline"},
+        {"material": canopy.name, "objects": ["KMEM_TERMINAL_CANOPY"], "role": "matte off-white martini-glass canopy accent"},
     ]
     return uv_report, texture_report, assignments
 
@@ -562,7 +566,7 @@ def reimport_validation(bpy: Any, glb_path: Path, before: dict[str, dict[str, An
         "triangleCount": triangle_count,
         "materialCount": material_count,
         "glbSizeBytes": glb_path.stat().st_size,
-        "requiredNamesPreservedExactlyOnce": all(names.count(name) == 1 for name in ["KMEM_LEGACY_ROOT", "KMEM_CONCOURSE_B", "KMEM_RAMP", "KMEM_TAXI_SURFACE", "KMEM_RUNWAY_SURFACE", *ANCHOR_GAME_IDS]),
+        "requiredNamesPreservedExactlyOnce": all(names.count(name) == 1 for name in ["KMEM_LEGACY_ROOT", "KMEM_CONCOURSE_B", "KMEM_RAMP", "KMEM_TAXI_SURFACE", "KMEM_RUNWAY_SURFACE", "KMEM_TERMINAL_APRON", "KMEM_TERMINAL_CANOPY", *ANCHOR_GAME_IDS]),
         "hierarchyTransformsAndExtrasPreserved": not compare_contract(before, after),
         "anchorGameIdsPreserved": all(after.get(name, {}).get("extras", {}).get("game_id") == game_id for name, game_id in ANCHOR_GAME_IDS.items()),
         "noInteractiveCockpitMetadata": not any(any(key in record["extras"] for key in ("interaction", "input_axis", "control_id", "cockpit_control")) for record in after.values()),
@@ -658,6 +662,8 @@ def validate_shaded_master(bpy: Any) -> dict[str, Any]:
         "KMEM_RAMP": "KMEM_RAMP_MATERIAL",
         "KMEM_TAXI_SURFACE": "KMEM_TAXI_MATERIAL",
         "KMEM_RUNWAY_SURFACE": "KMEM_RUNWAY_MATERIAL",
+        "KMEM_TERMINAL_APRON": "KMEM_RAMP_MATERIAL",
+        "KMEM_TERMINAL_CANOPY": "KMEM_CANOPY_MATERIAL",
         **{f"KMEM_CENTERLINE_{index:02d}": "KMEM_FADED_RUNWAY_CENTERLINE" for index in range(1, 10)},
     }
     material_names = sorted(material.name for material in bpy.data.materials)

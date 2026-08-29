@@ -182,8 +182,11 @@ def build_scene(metadata: dict[str, Any], output_dir: Path) -> dict[str, Any]:
         CONCOURSE_SOURCE_TRANSFORMS,
         GROUND_SURFACES,
         ROOT_NAME,
+        TERMINAL_CANOPY,
         route_camera_pose,
         route_distances,
+        terminal_canopy_parts,
+        terminal_canopy_world_bounds,
         validate_layout,
     )
 
@@ -253,6 +256,45 @@ def build_scene(metadata: dict[str, Any], output_dir: Path) -> dict[str, Any]:
     route.diffuse_color = (0.63, 0.66, 0.62, 1.0)
     for surface in GROUND_SURFACES:
         _add_box(bpy, surface["name"], tuple(surface["center"]), tuple(surface["dimensions"]), ground, root)
+
+    # Stylized martini-glass canopy accent over the main block, joined into one
+    # project-authored object. Transforms are applied so the exported node is
+    # identity with the mesh in world coordinates.
+    canopy_pieces = []
+    for part in terminal_canopy_parts():
+        bpy.ops.mesh.primitive_cube_add(location=part["center"])
+        piece = bpy.context.object
+        piece.dimensions = part["dimensions"]
+        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+        piece.rotation_euler = (part["rotation_x_radians"], 0.0, 0.0)
+        piece.data.materials.append(ground)
+        canopy_pieces.append(piece)
+    bpy.ops.object.select_all(action="DESELECT")
+    for piece in canopy_pieces:
+        piece.select_set(True)
+    bpy.context.view_layer.objects.active = canopy_pieces[0]
+    bpy.ops.object.join()
+    canopy = bpy.context.object
+    canopy.name = TERMINAL_CANOPY["name"]
+    canopy.data.name = TERMINAL_CANOPY["name"]
+    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+    canopy.parent = root
+    canopy["project_authored"] = True
+    canopy["role"] = "terminal-canopy-accent"
+    bpy.context.view_layer.update()
+    expected_canopy = terminal_canopy_world_bounds()
+    actual_corners = [canopy.matrix_world @ Vector(corner) for corner in canopy.bound_box]
+    actual_min = [min(corner[axis] for corner in actual_corners) for axis in range(3)]
+    actual_max = [max(corner[axis] for corner in actual_corners) for axis in range(3)]
+    canopy_drift = max(
+        *(abs(a - b) for a, b in zip(actual_min, expected_canopy["min"], strict=True)),
+        *(abs(a - b) for a, b in zip(actual_max, expected_canopy["max"], strict=True)),
+    )
+    if canopy_drift > 0.05:
+        raise ValueError(
+            f"assembled terminal canopy bounds drift {canopy_drift:.3f} m from the authored layout: "
+            f"{actual_min}..{actual_max} vs {expected_canopy['min']}..{expected_canopy['max']}"
+        )
     for index, y_value in enumerate(range(280, 690, 48), start=1):
         _add_box(bpy, f"KMEM_CENTERLINE_{index:02d}", (-120.0, float(y_value), 0.03), (1.2, 24.0, 0.08), route, root)
 
@@ -341,8 +383,9 @@ def build_scene(metadata: dict[str, Any], output_dir: Path) -> dict[str, Any]:
         "layoutSpace": "compressed authored game space; not airport-chart geography",
         "root": ROOT_NAME,
         "sourceGroup": CONCOURSE_GROUP_NAME,
-        "projectOwnedGeometry": [*(surface["name"] for surface in GROUND_SURFACES), "KMEM_CENTERLINE_01..09"],
+        "projectOwnedGeometry": [*(surface["name"] for surface in GROUND_SURFACES), TERMINAL_CANOPY["name"], "KMEM_CENTERLINE_01..09"],
         "groundSurfaces": [dict(surface) for surface in GROUND_SURFACES],
+        "terminalCanopy": dict(TERMINAL_CANOPY),
         "anchors": [{**anchor, "routeDistance": round(distance, 6)} for anchor, distance in zip(ANCHORS, route_distances(), strict=True)],
         "concourseSourceTransforms": CONCOURSE_SOURCE_TRANSFORMS,
         "validationErrors": [],
