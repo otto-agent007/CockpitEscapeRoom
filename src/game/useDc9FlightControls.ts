@@ -28,7 +28,6 @@ export interface Dc9FlightControlsRuntime {
 
 interface UseDc9FlightControlsOptions {
   active: boolean
-  departureActive: boolean
   completed: readonly Dc9ControlCheckItemId[]
   reducedMotion: boolean
   onReached: (controls: Dc9ControlState) => void
@@ -58,7 +57,7 @@ function gamepadSnapshot(gamepad: Gamepad | null) {
  * buttons and a direct drag on the yoke, and reports each stop as it is reached.
  */
 export function useDc9FlightControls(options: UseDc9FlightControlsOptions): Dc9FlightControlsRuntime {
-  const { active, departureActive, completed, reducedMotion, onReached } = options
+  const { active, completed, reducedMotion, onReached } = options
   const [controls, setControls] = useState<Dc9ControlState>({ ...NEUTRAL_DC9_CONTROLS })
   const [inputMethod, setInputMethod] = useState<Dc9InputMethod>('keyboard')
   const controlsRef = useRef<Dc9ControlState>({ ...NEUTRAL_DC9_CONTROLS })
@@ -114,15 +113,13 @@ export function useDc9FlightControls(options: UseDc9FlightControlsOptions): Dc9F
       return () => window.clearTimeout(recentre)
     }
     const onKeyDown = (event: KeyboardEvent) => {
-      if (isTypingTarget(event.target) || !isDc9ControlKey(event.code, departureActive)) return
+      if (isTypingTarget(event.target) || !isDc9ControlKey(event.code)) return
       event.preventDefault()
-      if (event.code === 'Space') return
       keysRef.current.add(event.code)
     }
     const onKeyUp = (event: KeyboardEvent) => {
-      if (!isDc9ControlKey(event.code, departureActive)) return
+      if (!isDc9ControlKey(event.code)) return
       event.preventDefault()
-      if (event.code === 'Space') return
       keysRef.current.delete(event.code)
     }
     const onBlur = () => releaseAll()
@@ -140,7 +137,7 @@ export function useDc9FlightControls(options: UseDc9FlightControlsOptions): Dc9F
       document.removeEventListener('visibilitychange', onVisibility)
       releaseAll()
     }
-  }, [active, departureActive, releaseAll])
+  }, [active, releaseAll])
 
   useEffect(() => {
     if (!active) return

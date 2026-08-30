@@ -606,6 +606,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           stage: 'homeOperations',
           departure: advanceDc9DepartureProgress(state.dc9.departure, { type: 'complete' }),
         },
+        statusMessage: 'Memphis legacy departure complete. The Home Operations Log is open.',
       }
     }
 

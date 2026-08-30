@@ -1132,9 +1132,23 @@
   background: rgb(240 200 117 / 12%);
 }
 
-.dc9-memphis-departure__brake[aria-pressed='true'] {
-  color: #162013;
-  background: #b9d99f;
+.dc9-memphis-departure__climb {
+  display: grid;
+  gap: .3rem;
+  margin-top: .7rem;
+}
+
+.dc9-memphis-departure__climb label {
+  color: #b9d99f;
+  font-size: .74rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.dc9-memphis-departure__climb progress {
+  width: 100%;
+  height: .5rem;
+  accent-color: #b9d99f;
 }
 
 .dc9-memphis-departure__method {

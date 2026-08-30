@@ -144,15 +144,23 @@ async function holdPointer(page: Page, name: string, milliseconds: number): Prom
  * tests therefore run only where a hardware-rate renderer is available (locally:
  * headed on DISPLAY=:0); the skip reason keeps that boundary explicit.
  */
-async function skipOnSoftwareRenderer(page: Page): Promise<void> {
-  const renderer = await page.locator('canvas').first().evaluate((element) => {
-    const gl = (element as HTMLCanvasElement).getContext('webgl2') ?? (element as HTMLCanvasElement).getContext('webgl')
+async function detectRenderer(page: Page): Promise<string> {
+  // Probe a canvas of our own: the app's canvas already has a live context
+  // owned by three.js, so re-requesting one there returns null and the check
+  // silently reports "unavailable" — a gate that can never fire.
+  return page.evaluate(() => {
+    const probe = document.createElement('canvas')
+    const gl = probe.getContext('webgl2') ?? probe.getContext('webgl')
     if (!gl) return 'unavailable'
     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
     return debugInfo ? String(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)) : String(gl.getParameter(gl.RENDERER))
   })
+}
+
+async function skipOnSoftwareRenderer(page: Page): Promise<void> {
+  const renderer = await detectRenderer(page)
   test.skip(
-    /swiftshader|llvmpipe|software/i.test(renderer),
+    /swiftshader|llvmpipe|software|unavailable/i.test(renderer),
     `Real-environment drive timings need a hardware-rate renderer; got "${renderer}". Run headed on DISPLAY=:0.`,
   )
 }
@@ -166,8 +174,10 @@ async function reachInitialClimbWithRealEnvironment(page: Page): Promise<void> {
   await page.waitForTimeout(500)
   await advance.dispatchEvent('pointerup')
   await expect(activeBeat).toContainText('Legacy roll', { timeout: 3_000 })
-  await page.waitForTimeout(950)
-  await holdPointer(page, 'Pull column aft', 250)
+  // The readable roll builds for a couple of seconds; rotate on the cue with a
+  // held gentle pull (the rotation is a held arc, not a single tap).
+  await expect(activeBeat).toContainText('Memory lift', { timeout: 10_000 })
+  await holdPointer(page, 'Pull column aft', 900)
   await expect(activeBeat).toContainText('Climb out', { timeout: 3_000 })
   await expect(page.locator('canvas')).toHaveAttribute('data-dc9-memphis-beat', 'initialClimb')
 }
@@ -219,22 +229,10 @@ test('a full continuous real-environment departure returns to Home Operations', 
 
   await hold(page, 'Advance thrust levers', 500)
   await expect(activeBeat).toContainText('Memory lane', { timeout: 10_000 })
-  const brake = page.getByRole('button', { name: 'Hold brake' })
-  await Promise.all([
-    page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerdown'),
-    brake.dispatchEvent('pointerdown'),
-  ])
-  await page.waitForTimeout(650)
-  await page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerup')
-  await hold(page, 'Advance thrust levers', 200)
-  await brake.dispatchEvent('pointerup')
-  await page.waitForTimeout(3_300)
-  await Promise.all([
-    page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerdown'),
-    brake.dispatchEvent('pointerdown'),
-  ])
-  await page.waitForTimeout(650)
-  await page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerup')
+  // Brakeless stopping procedure: taxi to the coast cue with the levers
+  // latched, then close them and let rolling friction settle the hold.
+  await expect(activeBeat).toContainText('Close the levers', { timeout: 15_000 })
+  await hold(page, 'Close thrust levers', 400)
   await expect(activeBeat).toContainText('Quiet hold', { timeout: 10_000 })
   await expect(page.getByRole('button', { name: 'Ready to line up' })).toBeEnabled()
   await page.waitForTimeout(120)
@@ -242,12 +240,11 @@ test('a full continuous real-environment departure returns to Home Operations', 
     await page.getByRole('button', { name: 'Ready to line up' }).dispatchEvent('click')
     await page.waitForTimeout(120)
   }
-  await brake.dispatchEvent('pointerup')
   await expect(activeBeat).toContainText('Line up')
   await hold(page, 'Advance thrust levers', 500)
   await expect(activeBeat).toContainText('Legacy roll', { timeout: 3_000 })
-  await page.waitForTimeout(950)
-  await holdPointer(page, 'Pull column aft', 250)
+  await expect(activeBeat).toContainText('Memory lift', { timeout: 10_000 })
+  await holdPointer(page, 'Pull column aft', 900)
   await expect(activeBeat).toContainText('Climb out', { timeout: 3_000 })
 
   await expect(page.getByRole('heading', { name: 'Home Operations' })).toBeVisible({ timeout: 20_000 })
@@ -292,49 +289,35 @@ test('real Memphis environment requests only after the route record and stays in
   ))).toBe(true)
 })
 
-test('brake keeps a captured pointer hold and Space belongs to its focused native control', async ({ page }) => {
+test('the departure exposes no brake control and Space stays with the native hold buttons', async ({ page }) => {
   await page.goto('/?skip3d=1')
   await seedDeparture(page, 'rampStart')
 
-  const brake = page.getByRole('button', { name: 'Hold brake' })
-  await brake.dispatchEvent('pointerdown', { pointerId: 41 })
-  await expect(brake).toHaveAttribute('aria-pressed', 'true')
-  await brake.dispatchEvent('pointerleave', { pointerId: 41 })
-  await expect(brake).toHaveAttribute('aria-pressed', 'true')
-  await brake.dispatchEvent('pointerup', { pointerId: 41 })
-  await expect(brake).toHaveAttribute('aria-pressed', 'false')
-  await brake.dispatchEvent('pointerdown', { pointerId: 42 })
-  await brake.dispatchEvent('pointercancel', { pointerId: 42 })
-  await expect(brake).toHaveAttribute('aria-pressed', 'false')
-  await brake.dispatchEvent('pointerdown', { pointerId: 43 })
-  await brake.dispatchEvent('lostpointercapture', { pointerId: 43 })
-  await expect(brake).toHaveAttribute('aria-pressed', 'false')
-  await brake.dispatchEvent('pointerdown', { pointerId: 44 })
-  await brake.dispatchEvent('blur')
-  await expect(brake).toHaveAttribute('aria-pressed', 'false')
+  // The hold-brake control is retired: closing the levers is the whole
+  // stopping procedure, so no brake button may render at any beat.
+  await expect(page.getByRole('heading', { name: 'Memphis Legacy Departure' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Hold brake' })).toHaveCount(0)
 
   const advance = page.getByRole('button', { name: 'Advance thrust levers' })
   const thrustMeter = page.getByRole('meter', { name: 'Thrust levers position' })
   await advance.focus()
   await page.keyboard.down(' ')
   await expect(thrustMeter).not.toHaveAttribute('aria-valuenow', '0')
-  await expect(brake).toHaveAttribute('aria-pressed', 'false')
   await page.keyboard.up(' ')
 
-  await hold(page, 'Close thrust levers', 300)
+  await hold(page, 'Close thrust levers', 600)
   await expect(thrustMeter).toHaveAttribute('aria-valuenow', '0')
-  await brake.focus()
-  await page.keyboard.down(' ')
-  await expect(brake).toHaveAttribute('aria-pressed', 'true')
-  await expect(thrustMeter).toHaveAttribute('aria-valuenow', '0')
-  await page.keyboard.up(' ')
-  await expect(brake).toHaveAttribute('aria-pressed', 'false')
 
-  await page.evaluate(() => document.body.focus())
+  // With the global Space binding removed, a body-focused Space drives nothing.
+  // Blur the hold button first: a focused native button still owns Space.
+  await page.evaluate(() => {
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+    document.body.focus()
+  })
   await page.keyboard.down(' ')
-  await expect(brake).toHaveAttribute('aria-pressed', 'true')
+  await page.waitForTimeout(250)
+  await expect(thrustMeter).toHaveAttribute('aria-valuenow', '0')
   await page.keyboard.up(' ')
-  await expect(brake).toHaveAttribute('aria-pressed', 'false')
 })
 
 test('native buttons and keyboard drive the same durable ramp checkpoint', async ({ page }) => {
@@ -374,10 +357,11 @@ test('mistakes, hints, hold and rotation remain recoverable without erasing rout
   await expect(guidance).toContainText('Checkpoint restored')
   await expectDurableProgress(page, 'taxiTurn', ['rampRelease'])
 
-  // Crossing the hold boundary without brake/closed-thrust intent is restored safely.
+  // Crossing the hold boundary with the levers still open is restored safely
+  // to the taxi checkpoint the frame must retry.
   await page.evaluate(() => document.body.focus())
   await page.keyboard.down('KeyW')
-  await expect.poll(async () => (await savedDeparture(page)).attempts.taxi).toBe(4)
+  await expect.poll(async () => (await savedDeparture(page)).attempts.taxi, { timeout: 15_000 }).toBe(4)
   await page.keyboard.up('KeyW')
   await expect(guidance).toContainText(/safe retry/i)
   await expectDurableProgress(page, 'taxiTurn', ['rampRelease'])
@@ -395,13 +379,10 @@ test('mistakes, hints, hold and rotation remain recoverable without erasing rout
   await page.keyboard.up('w')
   await expectDurableProgress(page, 'holdShort', ['rampRelease', 'taxi'])
 
-  const brake = page.getByRole('button', { name: 'Hold brake' })
-  const close = page.getByRole('button', { name: 'Close thrust levers' })
-  await Promise.all([close.dispatchEvent('pointerdown'), brake.dispatchEvent('pointerdown')])
-  await page.waitForTimeout(500)
-  await Promise.all([close.dispatchEvent('pointerup'), brake.dispatchEvent('pointerup')])
+  // Closing the levers is now the whole stopping procedure at the hold.
+  await hold(page, 'Close thrust levers', 500)
   const stoppedLineup = page.getByRole('button', { name: 'Ready to line up' })
-  await expect(stoppedLineup).toBeEnabled()
+  await expect(stoppedLineup).toBeEnabled({ timeout: 10_000 })
   await stoppedLineup.click()
   await expect.poll(() => page.locator('.dc9-memphis-departure__header > p').last().textContent()).toContain('Line up')
 
@@ -470,21 +451,15 @@ test('warm taxi meets the frame budget and scene count stays stable across three
     if (message.type() === 'error' && /webgl/i.test(message.text())) webglErrors.push(message.text())
   })
   await page.goto('/')
+  // The 35 ms budget describes a hardware-rate renderer; a software rasteriser
+  // running this 926k-triangle cockpit cannot meet it by construction.
+  await skipOnSoftwareRenderer(page)
 
   await seedDeparture(page, 'taxiTurn')
   await waitForMemphisEnvironment(page)
   const canvas = page.locator('canvas')
   const sceneObjectCounts = [Number(await canvas.getAttribute('data-dc9-memphis-object-count'))]
-  const renderer = await canvas.evaluate((element) => {
-    const canvasElement = element as HTMLCanvasElement
-    const gl = canvasElement.getContext('webgl2') ?? canvasElement.getContext('webgl')
-    if (!gl) return { vendor: 'unavailable', renderer: 'unavailable' }
-    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
-    return {
-      vendor: debugInfo ? String(gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL)) : String(gl.getParameter(gl.VENDOR)),
-      renderer: debugInfo ? String(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)) : String(gl.getParameter(gl.RENDERER)),
-    }
-  })
+  const renderer = await detectRenderer(page)
   await page.evaluate(() => document.body.focus())
   await page.keyboard.down('KeyW')
   const intervals = await page.evaluate(() => new Promise<number[]>((resolve) => {
@@ -590,11 +565,12 @@ test('Memphis departure progresses through every native beat when 3D is unavaila
     if (viewport.width <= 768) {
       await expect(page.locator('.dc9-memphis-departure')).toHaveCSS('overflow-y', 'auto')
     }
-    for (const name of ['Left rudder pedal', 'Right rudder pedal', 'Close thrust levers', 'Advance thrust levers', 'Hold brake']) {
+    for (const name of ['Left rudder pedal', 'Right rudder pedal', 'Close thrust levers', 'Advance thrust levers']) {
       const control = page.getByRole('button', { name })
       await control.scrollIntoViewIfNeeded()
       await expect(control).toBeVisible()
     }
+    await expect(page.getByRole('button', { name: 'Hold brake' })).toHaveCount(0)
   }
 
   const activeBeat = page.locator('.dc9-memphis-departure__header > p').last()
@@ -607,15 +583,8 @@ test('Memphis departure progresses through every native beat when 3D is unavaila
   // progressive hint/restore feedback without rewinding the completed ramp beat.
   // Settle to a stop first: the softened corridor tolerates brief wrong steering,
   // so a rolling aircraft could reach the hold boundary before the longer holds
-  // accrue a genuine deviation.
-  const settleBrake = page.getByRole('button', { name: 'Hold brake' })
-  await Promise.all([
-    page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerdown'),
-    settleBrake.dispatchEvent('pointerdown'),
-  ])
-  await page.waitForTimeout(800)
-  await page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerup')
-  await settleBrake.dispatchEvent('pointerup')
+  // accrue a genuine deviation. Closing the levers is the whole stop now.
+  await hold(page, 'Close thrust levers', 700)
   for (let attempt = 0; attempt < 3; attempt += 1) {
     await hold(page, 'Right rudder pedal', 2_800)
     await expect(page.getByRole('status', { name: 'Departure guidance' })).toContainText(/safe retry/i)
@@ -627,25 +596,11 @@ test('Memphis departure progresses through every native beat when 3D is unavaila
   await hold(page, 'Advance thrust levers', 500)
   await expect(activeBeat).toContainText('Memory lane', { timeout: 5_000 })
 
-  const brake = page.getByRole('button', { name: 'Hold brake' })
-  await Promise.all([
-    page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerdown'),
-    brake.dispatchEvent('pointerdown'),
-  ])
-  await expect(brake).toHaveAttribute('aria-pressed', 'true')
-  await page.waitForTimeout(650)
-  await page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerup')
-  await hold(page, 'Advance thrust levers', 200)
-  await expect(page.getByRole('meter', { name: 'Thrust levers position' })).not.toHaveAttribute('aria-valuenow', '0')
-  await brake.dispatchEvent('pointerup')
-  await page.waitForTimeout(3_300)
-  await Promise.all([
-    page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerdown'),
-    brake.dispatchEvent('pointerdown'),
-  ])
-  await page.waitForTimeout(650)
-  await page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerup')
-  await expect(activeBeat).toContainText('Quiet hold', { timeout: 5_000 })
+  // Taxi to the coast cue with the levers latched, close them, and let the
+  // rolling friction settle the durable hold-short checkpoint.
+  await expect(activeBeat).toContainText('Close the levers', { timeout: 15_000 })
+  await hold(page, 'Close thrust levers', 400)
+  await expect(activeBeat).toContainText('Quiet hold', { timeout: 10_000 })
   await expect.poll(() => page.evaluate((key) => {
     const saved = window.localStorage.getItem(key)
     return saved ? JSON.parse(saved).dc9.departure.checkpoint : null
@@ -656,7 +611,6 @@ test('Memphis departure progresses through every native beat when 3D is unavaila
     await page.getByRole('button', { name: 'Ready to line up' }).dispatchEvent('click')
     await page.waitForTimeout(120)
   }
-  await brake.dispatchEvent('pointerup')
   await expect(activeBeat).toContainText('Line up')
 
   const advance = page.getByRole('button', { name: 'Advance thrust levers' })
@@ -664,11 +618,10 @@ test('Memphis departure progresses through every native beat when 3D is unavaila
   await page.waitForTimeout(500)
   await advance.dispatchEvent('pointerup')
   await expect(activeBeat).toContainText('Legacy roll', { timeout: 3_000 })
-  // The rotation beat is intentionally brief. The retained fictional lever position
-  // carries the roll forward after release, so begin the native column hold just
-  // before that cue rather than waiting for a transient rendered label.
-  await page.waitForTimeout(950)
-  await holdPointer(page, 'Pull column aft', 250)
+  // The roll builds readably to the rotation cue; the rotation itself is a
+  // held gentle pull rather than a single tap.
+  await expect(activeBeat).toContainText('Memory lift', { timeout: 10_000 })
+  await holdPointer(page, 'Pull column aft', 900)
   await expect(activeBeat).toContainText('Climb out', { timeout: 3_000 })
   await expect.poll(() => page.evaluate((key) => {
     const saved = window.localStorage.getItem(key)

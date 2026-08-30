@@ -41,7 +41,6 @@ function publication(frame: Dc9DepartureFrame): Dc9DepartureHtmlPublication {
   return {
     frame,
     guidance: dc9DepartureGuidance(frame),
-    brakeHeld: false,
   }
 }
 
@@ -149,7 +148,7 @@ describe('DC-9 Memphis departure HTML publication', () => {
     )
     const frame = canonicalDc9DepartureFrame('holdShort')
 
-    scheduler.request({ frame, guidance: dc9DepartureGuidance(frame, next?.hintLevel), brakeHeld: false })
+    scheduler.request({ frame, guidance: dc9DepartureGuidance(frame, next?.hintLevel) })
     timers.advance(80)
     expect(published[0]?.guidance.correctiveText).toBe('Settle fully at the marked hold before confirming.')
   })

@@ -11,15 +11,13 @@ import {
   type Dc9DepartureGuidance,
   type Dc9DepartureProgress,
 } from './dc9MemphisDeparture'
-import { normalizeDc9BrakeDemand, type Dc9ControlState } from './dc9Input'
+import type { Dc9ControlState } from './dc9Input'
 
 export interface Dc9MemphisDepartureRuntime {
   active: boolean
   frame: Dc9DepartureFrame
   frameRef: RefObject<Dc9DepartureFrame>
   guidance: Dc9DepartureGuidance
-  brakeHeld: boolean
-  setBrakeHeld: (pressed: boolean) => void
   confirmLineup: () => void
   restoreCheckpoint: () => void
 }
@@ -41,7 +39,6 @@ const PUBLISH_INTERVAL_MS = 80
 export interface Dc9DepartureHtmlPublication {
   frame: Dc9DepartureFrame
   guidance: Dc9DepartureGuidance
-  brakeHeld: boolean
 }
 
 interface Dc9DepartureHtmlPublicationSchedulerOptions {
@@ -132,11 +129,6 @@ function isStoppedControls(controls: Dc9ControlState): boolean {
   return controls.pitch === 0 && controls.roll === 0 && controls.rudder === 0 && controls.thrust === 0
 }
 
-/** Native hold buttons own Space themselves, so the departure brake must not double-bind it. */
-function departureSpaceOwnedByNativeControl(target: EventTarget | null): boolean {
-  return target instanceof HTMLElement && target.closest('[data-dc9-space-owner]') !== null
-}
-
 function isCanonicalFrame(frame: Dc9DepartureFrame, checkpoint: Dc9DepartureCheckpoint): boolean {
   const canonical = canonicalDc9DepartureFrame(checkpoint)
   return frame.beat === canonical.beat
@@ -185,29 +177,31 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
   const initialFrame = canonicalDc9DepartureFrame(progress.checkpoint)
   const [frame, setFrame] = useState<Dc9DepartureFrame>(initialFrame)
   const [guidance, setGuidance] = useState<Dc9DepartureGuidance>(() => dc9DepartureGuidance(initialFrame, progress.hintLevel))
-  const [brakeHeld, setBrakeHeldState] = useState(false)
   const frameRef = useRef<Dc9DepartureFrame>(initialFrame)
   const progressRef = useRef(progress)
   const committedCheckpointRef = useRef(progress.checkpoint)
   const reducedMotionRef = useRef(reducedMotion)
-  const brakeHeldRef = useRef(false)
   const lineupConfirmedRef = useRef(false)
   const pauseLatchRef = useRef(false)
   const activeRef = useRef(active)
   const emittedEventsRef = useRef(new Set<string>())
   const completionGateRef = useRef(createDc9DepartureCompletionGate())
   const callbacksRef = useRef({ resetControls, onCheckpoint, onMistake, onRestore, onComplete })
-  const htmlPublicationSchedulerRef = useRef<Dc9DepartureHtmlPublicationScheduler>(
-    createDc9DepartureHtmlPublicationScheduler({
+  // The scheduler is created lazily and released to null on unmount, so a
+  // strict-mode remount rebuilds a live scheduler instead of keeping a
+  // disposed one captured in the ref (which froze every HTML publication).
+  const htmlPublicationSchedulerRef = useRef<Dc9DepartureHtmlPublicationScheduler | null>(null)
+  const getHtmlPublicationScheduler = useCallback(() => {
+    htmlPublicationSchedulerRef.current ??= createDc9DepartureHtmlPublicationScheduler({
       schedule: (callback, delayMs) => window.setTimeout(callback, delayMs),
       cancel: (handle) => window.clearTimeout(handle as number),
       publish: (publication) => {
         setFrame(publication.frame)
         setGuidance(publication.guidance)
-        setBrakeHeldState(publication.brakeHeld)
       },
-    }),
-  )
+    })
+    return htmlPublicationSchedulerRef.current
+  }, [])
 
   useEffect(() => {
     callbacksRef.current = { resetControls, onCheckpoint, onMistake, onRestore, onComplete }
@@ -221,31 +215,26 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
   useEffect(() => { activeRef.current = active }, [active])
   useEffect(() => () => {
     completionGateRef.current.clear()
-    htmlPublicationSchedulerRef.current.dispose()
+    htmlPublicationSchedulerRef.current?.dispose()
+    htmlPublicationSchedulerRef.current = null
   }, [])
 
   const scheduleHtmlPublication = useCallback((next: Dc9DepartureFrame, nextProgress = progressRef.current) => {
-    htmlPublicationSchedulerRef.current.request({
+    getHtmlPublicationScheduler().request({
       frame: next,
       guidance: dc9DepartureGuidance(next, nextProgress.hintLevel),
-      brakeHeld: brakeHeldRef.current,
     })
-  }, [])
-
-  const setBrakeHeld = useCallback((pressed: boolean) => {
-    const next = pressed === true
-    brakeHeldRef.current = next
-    if (next) pauseLatchRef.current = false
-    if (activeRef.current) scheduleHtmlPublication(frameRef.current)
-  }, [scheduleHtmlPublication])
+  }, [getHtmlPublicationScheduler])
 
   const restoreCheckpoint = useCallback(() => {
     if (!activeRef.current) return
     completionGateRef.current.clear()
+    // A restored flight may legitimately complete again, so the completion
+    // event identity must be re-emittable after a restore.
+    emittedEventsRef.current.delete('complete')
     const checkpoint = progressRef.current.checkpoint
     const currentControls = controlsRef.current ?? { pitch: 0, roll: 0, thrust: 0, rudder: 0 }
     const alreadyRestored = pauseLatchRef.current
-      && !brakeHeldRef.current
       && !lineupConfirmedRef.current
       && isStoppedControls(currentControls)
       && isCanonicalFrame(frameRef.current, checkpoint)
@@ -253,7 +242,6 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
 
     pauseLatchRef.current = true
     lineupConfirmedRef.current = false
-    brakeHeldRef.current = false
     const canonical = canonicalDc9DepartureFrame(checkpoint)
     frameRef.current = canonical
     callbacksRef.current.resetControls()
@@ -272,11 +260,10 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
     frameRef.current = canonical
     emittedEventsRef.current.clear()
     lineupConfirmedRef.current = false
-    brakeHeldRef.current = false
     pauseLatchRef.current = false
     if (!active) {
       completionGateRef.current.clear()
-      htmlPublicationSchedulerRef.current.clear()
+      htmlPublicationSchedulerRef.current?.clear()
       return
     }
     scheduleHtmlPublication(canonical)
@@ -284,37 +271,17 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
 
   useEffect(() => {
     if (!active) return
-    const clearBrake = () => setBrakeHeld(false)
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (
-        event.code !== 'Space'
-        || departureSpaceOwnedByNativeControl(event.target)
-        || event.target instanceof HTMLElement && (event.target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName))
-      ) return
-      event.preventDefault()
-      setBrakeHeld(true)
-    }
-    const onKeyUp = (event: KeyboardEvent) => {
-      if (event.code !== 'Space' || departureSpaceOwnedByNativeControl(event.target)) return
-      event.preventDefault()
-      clearBrake()
-    }
     const onPause = () => restoreCheckpoint()
     const onVisibility = () => {
       if (document.hidden) onPause()
     }
-    window.addEventListener('keydown', onKeyDown)
-    window.addEventListener('keyup', onKeyUp)
     window.addEventListener('blur', onPause)
     document.addEventListener('visibilitychange', onVisibility)
     return () => {
-      window.removeEventListener('keydown', onKeyDown)
-      window.removeEventListener('keyup', onKeyUp)
       window.removeEventListener('blur', onPause)
       document.removeEventListener('visibilitychange', onVisibility)
-      clearBrake()
     }
-  }, [active, restoreCheckpoint, setBrakeHeld])
+  }, [active, restoreCheckpoint])
 
   useEffect(() => {
     if (!active) return
@@ -325,10 +292,9 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
       const controls = controlsRef.current ?? { pitch: 0, roll: 0, thrust: 0, rudder: 0 }
       const input = {
         ...controls,
-        brake: normalizeDc9BrakeDemand(brakeHeldRef.current ? 1 : 0),
         lineupConfirmed: lineupConfirmedRef.current,
       }
-      const hasFreshInput = !isStoppedControls(controls) || input.brake > 0 || input.lineupConfirmed
+      const hasFreshInput = !isStoppedControls(controls) || input.lineupConfirmed
       if (pauseLatchRef.current && !hasFreshInput) {
         previousTime = now
         frameRequest = window.requestAnimationFrame(tick)
@@ -382,5 +348,5 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
     return () => window.cancelAnimationFrame(frameRequest)
   }, [active, controlsRef, scheduleHtmlPublication])
 
-  return { active, frame, frameRef, guidance, brakeHeld, setBrakeHeld, confirmLineup, restoreCheckpoint }
+  return { active, frame, frameRef, guidance, confirmLineup, restoreCheckpoint }
 }

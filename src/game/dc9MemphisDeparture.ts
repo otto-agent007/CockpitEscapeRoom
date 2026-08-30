@@ -19,7 +19,6 @@ export type Dc9DepartureBeat =
   | 'complete'
 
 export interface Dc9DepartureInput extends Dc9ControlState {
-  brake: number
   lineupConfirmed: boolean
 }
 
@@ -104,11 +103,27 @@ const EARLY_ROTATION_PITCH = 0.48
 const ROTATION_PITCH_MIN = 0.25
 const CLIMB_PITCH_ABS_MAX = 0.45
 const CLIMB_ROLL_ABS_MAX = 0.4
+// Brakeless energy model (owner request 2026-08-29): fictional energy chases the
+// lever position, so closed levers always coast the memory to a calm stop — the
+// lever is the whole interface. Spool-up is slower than coast-down so the
+// takeoff roll reads as a build while a closed-lever stop never feels stuck.
+const PATH_RATE = 0.24
+const ENERGY_SPOOL_RATE = 0.32
+const ENERGY_COAST_RATE = 0.55
+const TAXI_ENERGY_CAP = 0.45
+const CREEP_ENERGY = 0.16
+const THRUST_IDLE = 0.05
+const CLOSE_LEVERS_CUE = 0.3
+const ROLL_SPEED_ALIVE = 0.6
+const ROTATION_HOLD_SECONDS = 0.5
+const ROTATION_LIFT_PROGRESS = 0.15
+const CLIMB_RATE_BASE = 0.28
+const CLIMB_RATE_ENERGY = 0.32
 
 const FIXED_STEP_SECONDS = 1 / 60
 const MAX_DELTA_SECONDS = 0.1
 const STOPPED_ENERGY = 0.02
-const HOLD_SHORT_APPROACH = 0.02
+const HOLD_SHORT_APPROACH = 0.1
 const EPSILON = 1e-9
 
 const COMPLETED_BEATS_AT_CHECKPOINT: Readonly<Record<Dc9DepartureCheckpoint, readonly Dc9DepartureBeat[]>> = {
@@ -167,7 +182,6 @@ function normalizeInput(input: Dc9DepartureInput): Dc9DepartureInput {
     roll: clampAxis(input.roll),
     rudder: clampAxis(input.rudder),
     thrust: clamp01(input.thrust),
-    brake: clamp01(input.brake),
     lineupConfirmed: input.lineupConfirmed === true,
   }
 }
@@ -221,7 +235,11 @@ export function canonicalDc9DepartureFrame(checkpoint: Dc9DepartureCheckpoint): 
     case 'taxiTurn': return frameFor('taxi', RAMP_RELEASE_END, 0, false)
     case 'holdShort': return frameFor('holdShort', HOLD_SHORT_START, 0, true)
     case 'runwayLineup': return frameFor('lineup', RUNWAY_LINEUP_START, 0, true)
-    case 'initialClimb': return frameFor('initialClimb', INITIAL_CLIMB_START, 0, false)
+    // The climb checkpoint keeps the nose-up lift the rotation earned. Every
+    // checkpoint commit snaps the live frame to its canonical form, so without
+    // this the world would drop back to the runway one frame after liftoff —
+    // and a restore here would put the aircraft back on its wheels mid-climb.
+    case 'initialClimb': return frameFor('initialClimb', INITIAL_CLIMB_START, 0, false, ROTATION_LIFT_PROGRESS)
     case 'complete': return frameFor('complete', 1, 0, false, 1)
   }
 }
@@ -320,11 +338,29 @@ function pathError(frame: Dc9DepartureFrame): number {
   return Math.max(Math.abs(frame.lateralError), Math.abs(frame.headingError))
 }
 
-function movingFrame(frame: Dc9DepartureFrame, input: Dc9DepartureInput, delta: number): Dc9DepartureFrame {
-  const energy = clamp01(frame.energy + (input.thrust * 0.9 - input.brake * 1.8) * delta)
+/** Chase a target linearly; step-invariant because both cadences clamp at the target. */
+function approachValue(current: number, target: number, rate: number, delta: number): number {
+  const step = rate * delta
+  const difference = target - current
+  if (Math.abs(difference) <= step) return target
+  return current + Math.sign(difference) * step
+}
+
+function movingFrame(
+  frame: Dc9DepartureFrame,
+  input: Dc9DepartureInput,
+  delta: number,
+  energyCap = 1,
+): Dc9DepartureFrame {
+  const energy = Math.min(energyCap, clamp01(approachValue(
+    frame.energy,
+    input.thrust,
+    input.thrust > frame.energy ? ENERGY_SPOOL_RATE : ENERGY_COAST_RATE,
+    delta,
+  )))
   const headingError = clampAxis(frame.headingError + (input.rudder * 0.65 - frame.headingError) * Math.min(1, delta * 5))
   const lateralError = clampAxis(frame.lateralError + input.rudder * energy * 0.45 * delta)
-  const pathProgress = clamp01(frame.pathProgress + energy * 0.3 * delta)
+  const pathProgress = clamp01(frame.pathProgress + energy * PATH_RATE * delta)
   const provisional = {
     ...frame,
     pathProgress,
@@ -354,7 +390,10 @@ function restoreForPathDeviation(frame: Dc9DepartureFrame): Dc9DepartureStep | n
 
 function advanceFixedStep(frame: Dc9DepartureFrame, input: Dc9DepartureInput, delta: number): Dc9DepartureStep {
   if (frame.beat === 'complete') return { frame }
-  const moving = movingFrame(frame, input, delta)
+  // Ground movement before the runway stays at calm taxi speeds, so a
+  // closed-lever coast always stops within the hold-short approach.
+  const taxiing = frame.beat === 'rampRelease' || frame.beat === 'taxi' || frame.beat === 'holdShort'
+  const moving = movingFrame(frame, input, delta, taxiing ? TAXI_ENERGY_CAP : 1)
 
   if (frame.beat !== 'holdShort' && frame.beat !== 'initialClimb') {
     const deviation = restoreForPathDeviation(moving)
@@ -371,14 +410,28 @@ function advanceFixedStep(frame: Dc9DepartureFrame, input: Dc9DepartureInput, de
       }
       return { frame: { ...moving, safeHold: moving.energy <= STOPPED_ENERGY } }
 
-    case 'taxi':
-      // A brake-held approach may settle at the painted boundary; retain that safe
-      // boundary while the lever and energy dissipate instead of skipping into a retry.
-      if (
-        moving.pathProgress >= HOLD_SHORT_START - HOLD_SHORT_APPROACH
-        && input.brake > 0
-      ) {
-        if (input.thrust <= 0.05 && moving.energy <= STOPPED_ENERGY) {
+    case 'taxi': {
+      // Closing the levers is the entire stopping procedure. Pulling them
+      // back below the fictional energy counts as stopping intent, so an
+      // in-progress lever close near the line never reads as a violation.
+      const decelerating = input.thrust <= THRUST_IDLE || input.thrust < moving.energy - 0.02
+      if (moving.pathProgress >= HOLD_SHORT_START - HOLD_SHORT_APPROACH && decelerating) {
+        if (moving.pathProgress < HOLD_SHORT_START) {
+          // A short stop idles gently forward to the painted boundary, like a
+          // parked-lever creep, so the settle always lands exactly at the hold.
+          return {
+            frame: {
+              ...moving,
+              energy: Math.max(moving.energy, CREEP_ENERGY),
+              pathProgress: Math.min(
+                clamp01(frame.pathProgress + Math.max(moving.energy, CREEP_ENERGY) * PATH_RATE * delta),
+                HOLD_SHORT_START,
+              ),
+              safeHold: false,
+            },
+          }
+        }
+        if (moving.energy <= STOPPED_ENERGY) {
           return {
             frame: canonicalDc9DepartureFrame('holdShort'),
             event: { type: 'checkpoint', checkpoint: 'holdShort' },
@@ -392,11 +445,12 @@ function advanceFixedStep(frame: Dc9DepartureFrame, input: Dc9DepartureInput, de
           },
         }
       }
+      // An open-lever crossing rewinds to the taxi checkpoint like every other
+      // mistake. It must NOT hand out the hold-short frame: the durable
+      // checkpoint would stay behind and silently reject every later
+      // checkpoint, dead-ending the completion dispatch.
       if (moving.pathProgress >= HOLD_SHORT_START) {
-        return {
-          frame: canonicalDc9DepartureFrame('holdShort'),
-          event: { type: 'mistake', beat: 'taxi', reason: 'unsafeHold' },
-        }
+        return mistake(frame, 'unsafeHold')
       }
       return {
         frame: {
@@ -405,10 +459,10 @@ function advanceFixedStep(frame: Dc9DepartureFrame, input: Dc9DepartureInput, de
           safeHold: false,
         },
       }
+    }
 
     case 'holdShort': {
-      const stopped = moving.energy <= STOPPED_ENERGY && input.thrust <= 0.05
-      const safeHold = stopped && (frame.safeHold || input.brake > 0.5)
+      const safeHold = moving.energy <= STOPPED_ENERGY && input.thrust <= THRUST_IDLE
       if (safeHold && input.lineupConfirmed) {
         return {
           frame: canonicalDc9DepartureFrame('runwayLineup'),
@@ -419,13 +473,23 @@ function advanceFixedStep(frame: Dc9DepartureFrame, input: Dc9DepartureInput, de
     }
 
     case 'lineup':
-      if (input.brake > 0) return { frame: { ...moving, pathProgress: RUNWAY_LINEUP_START, safeHold: true } }
       if (moving.energy > TAXI_ENERGY_LIMIT) {
         return { frame: { ...moving, beat: 'takeoffRoll', pathProgress: RUNWAY_LINEUP_START, safeHold: false } }
       }
-      return { frame: { ...moving, pathProgress: RUNWAY_LINEUP_START, safeHold: false } }
+      return {
+        frame: {
+          ...moving,
+          pathProgress: RUNWAY_LINEUP_START,
+          safeHold: moving.energy <= STOPPED_ENERGY,
+        },
+      }
 
     case 'takeoffRoll':
+      // A closed-lever coast to a stop calmly returns to the lineup marker —
+      // an abandoned roll is a quiet reset, never a recorded mistake.
+      if (moving.energy <= STOPPED_ENERGY && input.thrust <= THRUST_IDLE) {
+        return { frame: canonicalDc9DepartureFrame('runwayLineup') }
+      }
       if (moving.pitch >= EARLY_ROTATION_PITCH && moving.pathProgress < ROTATION_CUE_START) {
         return mistake(frame, 'earlyRotation')
       }
@@ -434,28 +498,41 @@ function advanceFixedStep(frame: Dc9DepartureFrame, input: Dc9DepartureInput, de
       }
       return { frame: { ...moving, safeHold: false } }
 
-    case 'rotation':
-      if (moving.pitch < ROTATION_PITCH_MIN) {
+    case 'rotation': {
+      // Rotation is a held, progressive pull: the nose rises over
+      // ROTATION_HOLD_SECONDS while the roll continues to the climb marker.
+      // altitudeProgress carries the lift (scaled to ROTATION_LIFT_PROGRESS)
+      // so the world starts rising with the held column.
+      if (moving.energy <= STOPPED_ENERGY && input.thrust <= THRUST_IDLE) {
+        return { frame: canonicalDc9DepartureFrame('runwayLineup') }
+      }
+      const pulling = moving.pitch >= ROTATION_PITCH_MIN
+      const holdProgress = clamp01(
+        frame.altitudeProgress / ROTATION_LIFT_PROGRESS
+          + (pulling ? delta : -2 * delta) / ROTATION_HOLD_SECONDS,
+      )
+      if (holdProgress >= 1) {
         return {
           frame: {
             ...moving,
-            beat: 'rotation',
-            pathProgress: ROTATION_CUE_START,
+            beat: 'initialClimb',
+            pathProgress: INITIAL_CLIMB_START,
+            altitudeProgress: ROTATION_LIFT_PROGRESS,
             safeHold: false,
+            deviationSeconds: 0,
           },
+          event: { type: 'checkpoint', checkpoint: 'initialClimb' },
         }
       }
       return {
         frame: {
           ...moving,
-          beat: 'initialClimb',
-          pathProgress: INITIAL_CLIMB_START,
-          altitudeProgress: 0,
+          pathProgress: Math.min(moving.pathProgress, INITIAL_CLIMB_START),
+          altitudeProgress: holdProgress * ROTATION_LIFT_PROGRESS,
           safeHold: false,
-          deviationSeconds: 0,
         },
-        event: { type: 'checkpoint', checkpoint: 'initialClimb' },
       }
+    }
 
     case 'initialClimb': {
       if (Math.abs(moving.pitch) > CLIMB_PITCH_ABS_MAX || Math.abs(moving.roll) > CLIMB_ROLL_ABS_MAX) {
@@ -471,13 +548,14 @@ function advanceFixedStep(frame: Dc9DepartureFrame, input: Dc9DepartureInput, de
         }
       }
       const instabilitySeconds = Math.max(0, frame.deviationSeconds - delta * 2)
-      if (moving.altitudeProgress + (0.4 + moving.energy * 0.4) * delta >= 1) {
+      const climbRate = CLIMB_RATE_BASE + moving.energy * CLIMB_RATE_ENERGY
+      if (moving.altitudeProgress + climbRate * delta >= 1) {
         return { frame: canonicalDc9DepartureFrame('complete'), event: { type: 'complete' } }
       }
       return {
         frame: {
           ...moving,
-          altitudeProgress: clamp01(moving.altitudeProgress + (0.4 + moving.energy * 0.4) * delta),
+          altitudeProgress: clamp01(moving.altitudeProgress + climbRate * delta),
           safeHold: false,
           deviationSeconds: instabilitySeconds,
         },
@@ -544,25 +622,39 @@ export function dc9DepartureGuidance(
 
   switch (normalized.beat) {
     case 'rampRelease':
-      return { alignment, energy, intent: 'Ease forward along the lead-out path.', correctiveText: correction }
+      return { alignment, energy, intent: 'Ease the levers forward along the lead-out path.', correctiveText: correction }
     case 'taxi':
-      return { alignment, energy, intent: 'Follow the curved path toward the marked hold.', correctiveText: correction }
+      return {
+        alignment,
+        energy,
+        intent: normalized.pathProgress >= CLOSE_LEVERS_CUE
+          ? 'Close the levers and coast to the marked hold.'
+          : 'Follow the curved path toward the marked hold.',
+        correctiveText: correction,
+      }
     case 'holdShort':
       return {
         alignment,
         energy,
-        intent: normalized.safeHold ? 'Stopped safely. Confirm when ready to line up.' : 'Close the fictional thrust and hold the brake.',
+        intent: normalized.safeHold ? 'Stopped safely. Confirm when ready to line up.' : 'Close the fictional thrust and let it settle.',
         correctiveText: hintLevel >= 2 ? 'Settle fully at the marked hold before confirming.' : correction,
       }
     case 'lineup':
-      return { alignment, energy, intent: 'Release the brake and settle on the centerline.', correctiveText: correction }
+      return { alignment, energy, intent: 'Advance the levers to departure thrust when ready.', correctiveText: correction }
     case 'takeoffRoll':
-      return { alignment, energy, intent: 'Keep the centerline steady as energy builds.', correctiveText: correction }
+      return {
+        alignment,
+        energy,
+        intent: normalized.energy >= ROLL_SPEED_ALIVE
+          ? 'Speed is alive. Hold the centerline — rotation is coming.'
+          : 'Rolling. Let the energy build down the runway.',
+        correctiveText: correction,
+      }
     case 'rotation':
-      return { alignment, energy, intent: 'Ease the column aft now.', correctiveText: 'Use a smooth, broad aft input.' }
+      return { alignment, energy, intent: 'Rotate — ease the column aft and hold it.', correctiveText: 'Keep a smooth, steady aft hold.' }
     case 'initialClimb':
       return { alignment, energy, intent: 'Relax toward neutral and keep the horizon steady.', correctiveText: 'Use small, calm corrections.' }
     case 'complete':
-      return { alignment, energy, intent: 'Memphis legacy departure complete.', correctiveText: 'The memory returns to the Final Flight Log.' }
+      return { alignment, energy, intent: 'Memphis legacy departure complete.', correctiveText: 'The Home Operations Log is ready.' }
   }
 }

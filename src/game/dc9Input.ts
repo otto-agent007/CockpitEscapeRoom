@@ -66,7 +66,9 @@ const DC9_CONTROL_KEY_CODES = new Set([
 const PITCH_ROLL_DRIVE_RATE = 2.2
 const RUDDER_DRIVE_RATE = 1.8
 const SPRING_RETURN_RATE = 3
-const THRUST_RATE = 0.9
+/** Levers advance deliberately but close quickly, like pulling them to idle. */
+const THRUST_ADVANCE_RATE = 0.9
+const THRUST_CLOSE_RATE = 1.8
 
 function clampAxis(value: number): number {
   return Math.max(-1, Math.min(1, Number.isFinite(value) ? value : 0))
@@ -76,14 +78,9 @@ function clamp01(value: number): number {
   return Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0))
 }
 
-/** Normalized fictional brake demand for the Memphis legacy-departure adapter. */
-export function normalizeDc9BrakeDemand(value: number): number {
-  return clamp01(value)
-}
-
-/** Space is a temporary departure brake hold; all other DC-9 controls retain their mapping. */
-export function isDc9ControlKey(code: string, departureActive: boolean): boolean {
-  return DC9_CONTROL_KEY_CODES.has(code) || (departureActive && code === 'Space')
+/** The DC-9 keyboard map: arrows for the yoke, W/S levers, A/D pedals. */
+export function isDc9ControlKey(code: string): boolean {
+  return DC9_CONTROL_KEY_CODES.has(code)
 }
 
 /** Return a fresh stopped control state without changing the public control-state shape. */
@@ -180,6 +177,7 @@ export function advanceDc9Controls(
       rudderDemand === 0 ? SPRING_RETURN_RATE : RUDDER_DRIVE_RATE,
       delta,
     ),
-    thrust: clamp01(clamp01(state.thrust) + clampAxis(input.thrust) * THRUST_RATE * delta),
+    thrust: clamp01(clamp01(state.thrust) + clampAxis(input.thrust)
+      * (clampAxis(input.thrust) < 0 ? THRUST_CLOSE_RATE : THRUST_ADVANCE_RATE) * delta),
   }
 }

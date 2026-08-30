@@ -1,8 +1,18 @@
 # DC-9 Memphis Legacy Departure Design
 
-**Status:** Owner approved 2026-08-27
+**Status:** Owner approved 2026-08-27 · Amended 2026-08-29 (owner direction: brake retired)
 
 **Date:** 2026-08-27
+
+> **Amendment 2026-08-29 — brakeless stopping.** The owner directed removal of the
+> hold-brake control. The separate fictional brake demand, the `Hold brake`
+> button, and the `Space` binding described below are retired. Stopping is now
+> thrust-lever-only: fictional energy chases the lever position and closed
+> levers coast the aircraft to a calm stop; near the hold the closed-lever
+> approach pins at the painted boundary (with a gentle idle creep up to it).
+> The fail-safe hold-short invariant is unchanged. Rotation became a held
+> gentle pull with visible nose lift, and the climb gained a progress meter.
+> See plan 0040's 2026-08-29 Decision-log entry for the full record.
 
 **Scope:** DC-9 right-seat gameplay and the older Memphis International Airport Concourse B environment
 
@@ -46,8 +56,8 @@ The sequence should take approximately two to three minutes on a successful firs
 | --- | --- | --- | --- |
 | Ramp release | Ease the fictional thrust demand forward and keep the nose on the highlighted lead-out path | The terminal begins moving past the windshield, a compact direction cue reports alignment, and the cockpit controls visibly respond | Ramp start |
 | Taxi turn | Use the rudder pedals to follow one meaningful curved centerline and settle on the outbound taxi path | Centerline glow, side-of-line text, and a restrained alignment tone reinforce steering | Start of taxi turn |
-| Hold short | Close thrust and hold the brake in the marked safe zone | The aircraft stops automatically at the safe boundary and the runway environment opens ahead | Hold-short checkpoint |
-| Lineup | Confirm `Ready to line up`, release the brake, and steer onto the runway centerline | The guidance line changes from amber to white and then green when aligned | Hold-short checkpoint |
+| Hold short | Close the thrust levers at the coast cue and let the aircraft settle in the marked safe zone *(amended 2026-08-29: no brake)* | The aircraft coasts to a stop at the safe boundary and the runway environment opens ahead | Hold-short checkpoint |
+| Lineup | Confirm `Ready to line up` and steer onto the runway centerline *(amended 2026-08-29: no brake)* | The guidance line changes from amber to white and then green when aligned | Hold-short checkpoint |
 | Takeoff roll | Advance the thrust levers and maintain the runway centerline with the pedals | Scenery acceleration, instrument animation, and alignment feedback build energy without showing real performance numbers | Runway lineup |
 | Rotation | At the visual `Ease the column aft` cue, pull the yoke into the broad success band | The nose rises, the runway drops in the windshield, and the cue confirms a smooth legacy liftoff | Runway lineup |
 | Initial climb | Relax the yoke toward neutral and use small yoke/pedal corrections to keep the horizon within a forgiving corridor | The Memphis environment recedes and a completion banner recognizes the legacy departure | Initial-climb entry |
@@ -63,11 +73,13 @@ The departure reuses the existing authoritative DC-9 control state:
 - pitch on the yoke performs rotation and initial-climb correction;
 - roll on the yoke provides small initial-climb bank correction.
 
-Add a separate fictional brake demand rather than overloading the thrust control:
+*(Amended 2026-08-29: the separate fictional brake demand below is retired.
+Stopping is thrust-lever-only — closed levers coast to a stop — and `Space` is
+not claimed by the departure. The final bullet's stability requirement stands.)*
 
-- `Space` holds the brake from the keyboard;
-- a native `Hold brake` button provides the accessible pointer/touch path;
-- gamepad brake support may use one documented face button if it does not conflict with existing controls;
+- ~~`Space` holds the brake from the keyboard;~~
+- ~~a native `Hold brake` button provides the accessible pointer/touch path;~~
+- ~~gamepad brake support may use one documented face button if it does not conflict with existing controls;~~
 - releasing every input must leave the experience in a stable, recoverable state.
 
 The current yoke, thrust, and rudder keyboard mappings and native hold buttons remain available. The HUD presents only the controls relevant to the active beat and does not become a simulator checklist.
@@ -131,7 +143,6 @@ interface Dc9DepartureInput {
   roll: number
   thrust: number
   rudder: number
-  brake: number
   lineupConfirmed: boolean
 }
 
@@ -304,7 +315,7 @@ Exact object names and anchor placement become runtime contracts only after Blen
 ### Pure simulation tests
 
 - canonical checkpoint frames are deterministic;
-- thrust and brake demands change fictional energy only within the active beat's safe rules;
+- the thrust demand changes fictional energy only within the active beat's safe rules (amended 2026-08-29: energy chases the lever position; there is no brake demand);
 - rudder changes alignment during taxi and takeoff roll;
 - yoke pitch cannot complete rotation before the visual cue window;
 - a successful rotation and stable correction enter initial climb and then complete;
@@ -353,7 +364,7 @@ Exact object names and anchor placement become runtime contracts only after Blen
 ## Acceptance criteria
 
 - From a fresh game, the owner can complete the flight-control check and Legacy Route Record, then taxi from a recognizable older Concourse B environment to the departure runway and take off without leaving the right-seat cockpit.
-- The guided departure lasts roughly two to three minutes on a successful run and contains meaningful steering, braking, lineup, thrust, rotation, and initial-climb inputs.
+- The guided departure lasts roughly two to three minutes on a successful run and contains meaningful steering, coast-to-stop, lineup, thrust, rotation, and initial-climb inputs (amended 2026-08-29: braking replaced by the closed-lever coast).
 - Concourse B is based on the selected Ted Davis source, with provenance, exclusions, attribution, and the 2026-08-27 owner-attested private-game permission recorded before preview deployment.
 - All required actions work through native HTML controls and keyboard navigation as well as the cockpit interaction path.
 - Wrong actions provide safe feedback, progressive help, and checkpoint restoration without erasing completed progress.

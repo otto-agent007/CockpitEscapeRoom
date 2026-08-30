@@ -1,4 +1,4 @@
-import { useCallback, useState, type KeyboardEvent, type PointerEvent } from 'react'
+import { useCallback, useState } from 'react'
 import type { Dc9DepartureBeat, Dc9DepartureProgress } from '../../game/dc9MemphisDeparture'
 import type { Dc9ControlState, Dc9HoldControl, Dc9InputMethod } from '../../game/dc9Input'
 import type { Dc9MemphisDepartureRuntime } from '../../game/useDc9MemphisDeparture'
@@ -30,10 +30,10 @@ const AXES_BY_BEAT: Readonly<Record<Dc9DepartureBeat, readonly Dc9AxisId[]>> = {
   taxi: ['thrust', 'rudder'],
   holdShort: ['thrust'],
   lineup: ['thrust', 'rudder'],
-  // Keep the column available through the roll so the native path can meet the
-  // deliberately brief fictional rotation cue without relying on 3D controls.
+  // Keep the column available through the roll so the native path can begin the
+  // held rotation pull without relying on 3D controls.
   takeoffRoll: ['pitch', 'thrust', 'rudder'],
-  rotation: ['pitch', 'roll'],
+  rotation: ['pitch', 'roll', 'thrust'],
   initialClimb: ['pitch', 'roll'],
   complete: [],
 }
@@ -54,7 +54,7 @@ function inputMethodCopy(inputMethod: Dc9InputMethod): string {
  * checkpoint and retry decision; this panel only exposes its current safe controls.
  */
 export function MemphisDeparturePanel({ controls, inputMethod, loadState, onHold, progress, runtime }: MemphisDeparturePanelProps) {
-  const { frame, guidance, brakeHeld, setBrakeHeld, confirmLineup: confirmRuntimeLineup, restoreCheckpoint: restoreRuntimeCheckpoint } = runtime
+  const { frame, guidance, confirmLineup: confirmRuntimeLineup, restoreCheckpoint: restoreRuntimeCheckpoint } = runtime
   const attempts = progress.attempts[frame.beat] ?? 0
   const hasRetryFeedback = progress.hintLevel > 0
   const environmentLoadState = loadState.memphisEnvironment
@@ -65,18 +65,15 @@ export function MemphisDeparturePanel({ controls, inputMethod, loadState, onHold
   // The safe retry is always one press away (owner request 2026-08-28); it only
   // ever rewinds to the latest checkpoint and never erases earned beats.
   const showRestore = frame.beat !== 'complete'
+  const climbPercent = frame.beat === 'initialClimb' ? Math.round(frame.altitudeProgress * 100) : null
   const liveAnnouncement = restored
     ? 'Checkpoint restored. Earlier Final Flight Log progress remains safe.'
     : frame.beat === 'complete'
-      ? 'Memphis legacy departure complete. Returning to the Final Flight Log.'
+      ? 'Memphis legacy departure complete. Opening the Home Operations Log.'
     : hasRetryFeedback
       ? `Safe retry available. Hint level ${progress.hintLevel} for ${BEAT_LABELS[frame.beat]}.`
         : `${BEAT_LABELS[frame.beat]}. Path centered. ${guidance.intent}`
 
-  const holdBrake = useCallback((pressed: boolean) => {
-    setRestoreMarker(null)
-    setBrakeHeld(pressed)
-  }, [setBrakeHeld])
   const confirmLineup = useCallback(() => {
     setRestoreMarker(null)
     confirmRuntimeLineup()
@@ -86,21 +83,6 @@ export function MemphisDeparturePanel({ controls, inputMethod, loadState, onHold
     if (environmentStatus === 'error') environmentLoadState?.retry?.()
     setRestoreMarker({ beat: frame.beat, attempts })
   }, [attempts, environmentLoadState, environmentStatus, frame.beat, restoreRuntimeCheckpoint])
-  const onBrakePointerDown = useCallback((event: PointerEvent<HTMLButtonElement>) => {
-    holdBrake(true)
-    try {
-      event.currentTarget.setPointerCapture(event.pointerId)
-    } catch {
-      // Capture improves a pointer hold but is not required for the native control.
-    }
-  }, [holdBrake])
-  const onBrakeRelease = useCallback(() => holdBrake(false), [holdBrake])
-  const onBrakeKeyDown = useCallback((event: KeyboardEvent<HTMLButtonElement>) => {
-    if (event.key === ' ' || event.key === 'Enter') holdBrake(true)
-  }, [holdBrake])
-  const onBrakeKeyUp = useCallback((event: KeyboardEvent<HTMLButtonElement>) => {
-    if (event.key === ' ' || event.key === 'Enter') holdBrake(false)
-  }, [holdBrake])
 
   return (
     <section className="dc9-memphis-departure" aria-labelledby="dc9-memphis-departure-title">
@@ -115,6 +97,13 @@ export function MemphisDeparturePanel({ controls, inputMethod, loadState, onHold
         <p><strong>Energy:</strong> {titleCase(guidance.energy)}</p>
         <p>{guidance.correctiveText}</p>
       </div>
+
+      {climbPercent !== null ? (
+        <div className="dc9-memphis-departure__climb">
+          <label htmlFor="dc9-memphis-climb-progress">Climbing out over Memphis</label>
+          <progress id="dc9-memphis-climb-progress" max={100} value={climbPercent} aria-label="Climb progress" />
+        </div>
+      ) : null}
 
       <p className="dc9-memphis-departure__live" role="status" aria-label="Departure guidance" aria-live="polite" aria-atomic="true">
         {liveAnnouncement}
@@ -141,21 +130,6 @@ export function MemphisDeparturePanel({ controls, inputMethod, loadState, onHold
           <Dc9AxisControls controls={controls} onHold={onHold} axisIds={AXES_BY_BEAT[frame.beat]} />
         </div>
         <div className="dc9-memphis-departure__actions">
-          <button
-            type="button"
-            className="dc9-memphis-departure__brake"
-            aria-pressed={brakeHeld}
-            data-dc9-space-owner="brake"
-            onPointerDown={onBrakePointerDown}
-            onPointerUp={onBrakeRelease}
-            onPointerCancel={onBrakeRelease}
-            onLostPointerCapture={onBrakeRelease}
-            onKeyDown={onBrakeKeyDown}
-            onKeyUp={onBrakeKeyUp}
-            onBlur={onBrakeRelease}
-          >
-            Hold brake
-          </button>
           {canConfirmLineup ? (
             <button type="button" className="primary-button" onClick={confirmLineup}>Ready to line up</button>
           ) : null}

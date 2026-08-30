@@ -578,7 +578,6 @@ export default function App() {
 
   const dc9FlightControls = useDc9FlightControls({
     active: state.phase === 'dc9' && (state.dc9.stage === 'controlCheck' || state.dc9.stage === 'memphisDeparture'),
-    departureActive: dc9DepartureActive,
     completed: state.dc9.controlCheck,
     reducedMotion,
     onReached: applyDc9ControlCheck,

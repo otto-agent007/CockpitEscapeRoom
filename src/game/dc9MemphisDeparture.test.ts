@@ -5,6 +5,7 @@ import {
   advanceDc9DepartureProgress,
   canonicalDc9DepartureFrame,
   createInitialDc9DepartureProgress,
+  dc9DepartureGuidance,
   recordDc9DepartureMistake,
   normalizeDc9DepartureProgress,
 } from './dc9MemphisDeparture'
@@ -14,7 +15,6 @@ const centeredInput = {
   roll: 0,
   rudder: 0,
   thrust: 0,
-  brake: 0,
   lineupConfirmed: false,
 }
 
@@ -54,7 +54,7 @@ describe('DC-9 Memphis departure', () => {
   it('cannot cross hold short until stopped and explicitly confirmed', () => {
     const frame = canonicalDc9DepartureFrame('holdShort')
     const moving = advanceDc9DepartureFrame(frame, {
-      pitch: 0, roll: 0, rudder: 0, thrust: 0.4, brake: 0, lineupConfirmed: true,
+      pitch: 0, roll: 0, rudder: 0, thrust: 0.4, lineupConfirmed: true,
     }, 1 / 60)
 
     expect(moving.frame.beat).toBe('holdShort')
@@ -92,42 +92,38 @@ describe('DC-9 Memphis departure', () => {
     expect(next.frame).toEqual(canonicalDc9DepartureFrame('taxiTurn'))
   })
 
-  it('enters the hold-short safe state only with closed fictional thrust and brake', () => {
+  it('settles into the hold-short checkpoint when the levers are closed near the hold', () => {
     const approachingHold = {
       ...canonicalDc9DepartureFrame('taxiTurn'),
       pathProgress: 0.419,
       energy: 0.08,
     }
-    const next = advanceDc9DepartureFrame(approachingHold, {
-      ...centeredInput,
-      brake: 1,
-    }, 0.1)
+    const next = advanceFor(approachingHold, centeredInput, 0.5)
 
     expect(next.event).toEqual({ type: 'checkpoint', checkpoint: 'holdShort' })
     expect(next.frame).toMatchObject({ beat: 'holdShort', safeHold: true, energy: 0 })
   })
 
-  it('holds a braking, closed-thrust approach at the boundary until it settles', () => {
-    const brakingApproach = {
+  it('holds a closed-lever approach at the boundary until the coast settles', () => {
+    const coastingApproach = {
       ...canonicalDc9DepartureFrame('taxiTurn'),
       pathProgress: 0.419,
       energy: 0.4,
     }
-    const held = advanceDc9DepartureFrame(brakingApproach, {
-      ...centeredInput,
-      thrust: 0.2,
-      brake: 1,
-    }, 1 / 60)
+    const held = advanceDc9DepartureFrame(coastingApproach, centeredInput, 1 / 60)
 
     expect(held.event).toBeUndefined()
     expect(held.frame).toMatchObject({ beat: 'taxi', pathProgress: 0.42, safeHold: false })
 
-    const settled = advanceFor(held.frame, { ...centeredInput, brake: 1 }, 1)
+    const settled = advanceFor(held.frame, centeredInput, 1)
     expect(settled.event).toEqual({ type: 'checkpoint', checkpoint: 'holdShort' })
     expect(settled.frame).toEqual(canonicalDc9DepartureFrame('holdShort'))
   })
 
-  it('restores a moving hold-boundary crossing to the stopped hold-short checkpoint', () => {
+  it('rewinds an open-lever hold crossing to the taxi checkpoint it must retry', () => {
+    // Regression guard: the crossing must NOT hand out the hold-short frame.
+    // The durable checkpoint stays at taxiTurn, and a frame that jumps ahead
+    // of it silently dead-ends every later checkpoint dispatch.
     const movingApproach = {
       ...canonicalDc9DepartureFrame('taxiTurn'),
       pathProgress: 0.419,
@@ -139,18 +135,24 @@ describe('DC-9 Memphis departure', () => {
     }, 0.1)
 
     expect(next.event).toEqual({ type: 'mistake', beat: 'taxi', reason: 'unsafeHold' })
-    expect(next.frame).toEqual(canonicalDc9DepartureFrame('holdShort'))
+    expect(next.frame).toEqual(canonicalDc9DepartureFrame('taxiTurn'))
+
+    const durable = advanceDc9DepartureProgress(
+      advanceDc9DepartureProgress(createInitialDc9DepartureProgress(), { type: 'checkpoint', checkpoint: 'taxiTurn' }),
+      next.event!,
+    )
+    expect(durable.checkpoint).toBe('taxiTurn')
   })
 
-  it('restores an unconfirmed slow hold-boundary crossing to the stopped hold-short checkpoint', () => {
-    const unconfirmedApproach = {
+  it('lets a slow closed-lever coast settle into the hold instead of recording a mistake', () => {
+    const gentleApproach = {
       ...canonicalDc9DepartureFrame('taxiTurn'),
       pathProgress: 0.419,
       energy: 0.1,
     }
-    const next = advanceDc9DepartureFrame(unconfirmedApproach, centeredInput, 0.1)
+    const next = advanceFor(gentleApproach, centeredInput, 0.5)
 
-    expect(next.event).toEqual({ type: 'mistake', beat: 'taxi', reason: 'unsafeHold' })
+    expect(next.event).toEqual({ type: 'checkpoint', checkpoint: 'holdShort' })
     expect(next.frame).toEqual(canonicalDc9DepartureFrame('holdShort'))
   })
 
@@ -169,9 +171,19 @@ describe('DC-9 Memphis departure', () => {
     expect(next.event).toBeUndefined()
   })
 
-  it('tolerates a gentle aft column during the roll and rotates on a gentle pull', () => {
+  it('begins the takeoff roll once departure thrust builds on the runway', () => {
+    const next = advanceFor(canonicalDc9DepartureFrame('runwayLineup'), {
+      ...centeredInput,
+      thrust: 1,
+    }, 1.2)
+
+    expect(next.event).toBeUndefined()
+    expect(next.frame.beat).toBe('takeoffRoll')
+  })
+
+  it('tolerates a gentle aft column during the roll and lifts off on a held gentle pull', () => {
     // Easier tuning (owner request 2026-08-28): only a strong early pull is a
-    // mistake, and a gentle pull is enough once the cue window opens.
+    // mistake, and a held gentle pull is enough once the cue window opens.
     const rolling = {
       ...canonicalDc9DepartureFrame('runwayLineup'),
       beat: 'takeoffRoll' as const,
@@ -192,13 +204,14 @@ describe('DC-9 Memphis departure', () => {
       pathProgress: 0.8,
       energy: 0.8,
     }
-    const gentle = advanceDc9DepartureFrame(cue, {
+    const lifted = advanceFor(cue, {
       ...centeredInput,
       pitch: 0.3,
       thrust: 0.8,
-    }, 1 / 60)
-    expect(gentle.frame.beat).toBe('initialClimb')
-    expect(gentle.event).toEqual({ type: 'checkpoint', checkpoint: 'initialClimb' })
+    }, 1)
+    expect(lifted.event).toEqual({ type: 'checkpoint', checkpoint: 'initialClimb' })
+    expect(lifted.frame.beat).toBe('initialClimb')
+    expect(lifted.frame.altitudeProgress).toBeCloseTo(0.15, 5)
   })
 
   it('restores runway lineup when pitch arrives before the rotation cue', () => {
@@ -218,21 +231,29 @@ describe('DC-9 Memphis departure', () => {
     expect(next.frame).toEqual(canonicalDc9DepartureFrame('runwayLineup'))
   })
 
-  it('enters initial climb when pitch reaches the broad cue window', () => {
+  it('requires the rotation pull to be held before entering the climb', () => {
     const cue = {
       ...canonicalDc9DepartureFrame('runwayLineup'),
       beat: 'rotation' as const,
       pathProgress: 0.8,
       energy: 0.8,
     }
-    const next = advanceDc9DepartureFrame(cue, {
+    const singleFrame = advanceDc9DepartureFrame(cue, {
       ...centeredInput,
       pitch: 0.45,
       thrust: 0.8,
     }, 1 / 60)
+    expect(singleFrame.event).toBeUndefined()
+    expect(singleFrame.frame.beat).toBe('rotation')
+    expect(singleFrame.frame.altitudeProgress).toBeGreaterThan(0)
 
-    expect(next.event).toEqual({ type: 'checkpoint', checkpoint: 'initialClimb' })
-    expect(next.frame.beat).toBe('initialClimb')
+    const held = advanceFor(cue, {
+      ...centeredInput,
+      pitch: 0.45,
+      thrust: 0.8,
+    }, 1)
+    expect(held.event).toEqual({ type: 'checkpoint', checkpoint: 'initialClimb' })
+    expect(held.frame.beat).toBe('initialClimb')
   })
 
   it('keeps the rotation cue available until an aft input arrives', () => {
@@ -242,23 +263,53 @@ describe('DC-9 Memphis departure', () => {
       pathProgress: 0.8,
       energy: 0.8,
     }
-    const waiting = advanceFor(cue, centeredInput, 3 / 60)
+    const waiting = advanceFor(cue, { ...centeredInput, thrust: 0.8 }, 3 / 60)
 
     expect(waiting.event).toBeUndefined()
-    expect(waiting.frame).toMatchObject({
-      beat: 'rotation',
-      pathProgress: 0.78,
-      safeHold: false,
-    })
+    expect(waiting.frame.beat).toBe('rotation')
+    expect(waiting.frame.pathProgress).toBeLessThanOrEqual(0.84)
+    expect(waiting.frame.safeHold).toBe(false)
 
-    const accepted = advanceDc9DepartureFrame(waiting.frame, {
+    const accepted = advanceFor(waiting.frame, {
       ...centeredInput,
       pitch: 0.45,
       thrust: 0.8,
-    }, 1 / 60)
+    }, 1)
 
     expect(accepted.event).toEqual({ type: 'checkpoint', checkpoint: 'initialClimb' })
     expect(accepted.frame.beat).toBe('initialClimb')
+  })
+
+  it('hands liftoff to a climb frame the checkpoint snap cannot undo', () => {
+    // Every checkpoint commit resets the live frame to its canonical form, so
+    // the rotation hand-off must already agree with canonical initialClimb on
+    // altitude — otherwise the world drops back to the runway after liftoff.
+    const canonical = canonicalDc9DepartureFrame('initialClimb')
+    expect(canonical.altitudeProgress).toBeGreaterThan(0)
+
+    const cue = {
+      ...canonicalDc9DepartureFrame('runwayLineup'),
+      beat: 'rotation' as const,
+      pathProgress: 0.8,
+      energy: 0.8,
+    }
+    const lifted = advanceFor(cue, { ...centeredInput, pitch: 0.45, thrust: 0.8 }, 1)
+    expect(lifted.event).toEqual({ type: 'checkpoint', checkpoint: 'initialClimb' })
+    expect(lifted.frame.altitudeProgress).toBe(canonical.altitudeProgress)
+    expect(lifted.frame.pathProgress).toBe(canonical.pathProgress)
+  })
+
+  it('calmly returns a closed-lever coast on the runway to the lineup marker', () => {
+    const abandoned = {
+      ...canonicalDc9DepartureFrame('runwayLineup'),
+      beat: 'takeoffRoll' as const,
+      pathProgress: 0.6,
+      energy: 0.3,
+    }
+    const next = advanceFor(abandoned, centeredInput, 1)
+
+    expect(next.event).toBeUndefined()
+    expect(next.frame).toEqual(canonicalDc9DepartureFrame('runwayLineup'))
   })
 
   it('gives a rotation-required aft input time to settle into the climb', () => {
@@ -343,11 +394,30 @@ describe('DC-9 Memphis departure', () => {
       roll: Infinity,
       rudder: -4,
       thrust: 4,
-      brake: -2,
       lineupConfirmed: true,
     }, Number.NaN)
 
     expect(next.frame).toEqual(canonicalDc9DepartureFrame('rampStart'))
+  })
+
+  it('stages the takeoff guidance from rolling build-up to the held rotation', () => {
+    const lineup = canonicalDc9DepartureFrame('runwayLineup')
+    expect(dc9DepartureGuidance(lineup).intent).toBe('Advance the levers to departure thrust when ready.')
+
+    const earlyRoll = { ...lineup, beat: 'takeoffRoll' as const, pathProgress: 0.56, energy: 0.35 }
+    expect(dc9DepartureGuidance(earlyRoll).intent).toContain('Let the energy build')
+
+    const fastRoll = { ...earlyRoll, pathProgress: 0.7, energy: 0.75 }
+    expect(dc9DepartureGuidance(fastRoll).intent).toContain('rotation is coming')
+
+    const rotation = { ...earlyRoll, beat: 'rotation' as const, pathProgress: 0.78, energy: 0.85 }
+    expect(dc9DepartureGuidance(rotation).intent).toContain('hold it')
+
+    const closeCue = { ...lineup, beat: 'taxi' as const, pathProgress: 0.34, energy: 0.4 }
+    expect(dc9DepartureGuidance(closeCue).intent).toBe('Close the levers and coast to the marked hold.')
+
+    const complete = canonicalDc9DepartureFrame('complete')
+    expect(dc9DepartureGuidance(complete).correctiveText).toBe('The Home Operations Log is ready.')
   })
 
   it('produces the same frame for equivalent fixed-step input samples', () => {

@@ -1489,22 +1489,10 @@ test('complete reordered journey', async ({ page }) => {
   const departureBeat = page.locator('.dc9-memphis-departure__header > p').last()
   await holdDepartureControl(page, 'Advance thrust levers', 500)
   await expect(departureBeat).toContainText('Memory lane', { timeout: 10_000 })
-  const departureBrake = page.getByRole('button', { name: 'Hold brake' })
-  await Promise.all([
-    page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerdown'),
-    departureBrake.dispatchEvent('pointerdown'),
-  ])
-  await page.waitForTimeout(650)
-  await page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerup')
-  await holdDepartureControl(page, 'Advance thrust levers', 200)
-  await departureBrake.dispatchEvent('pointerup')
-  await page.waitForTimeout(3_300)
-  await Promise.all([
-    page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerdown'),
-    departureBrake.dispatchEvent('pointerdown'),
-  ])
-  await page.waitForTimeout(650)
-  await page.getByRole('button', { name: 'Close thrust levers' }).dispatchEvent('pointerup')
+  // Brakeless stopping procedure: taxi to the coast cue with the levers
+  // latched, then close them and let rolling friction settle the hold.
+  await expect(departureBeat).toContainText('Close the levers', { timeout: 15_000 })
+  await holdDepartureControl(page, 'Close thrust levers', 400)
   await expect(departureBeat).toContainText('Quiet hold', { timeout: 10_000 })
   await expect(page.getByRole('button', { name: 'Ready to line up' })).toBeEnabled()
   await page.waitForTimeout(120)
@@ -1512,12 +1500,12 @@ test('complete reordered journey', async ({ page }) => {
     await page.getByRole('button', { name: 'Ready to line up' }).dispatchEvent('click')
     await page.waitForTimeout(120)
   }
-  await departureBrake.dispatchEvent('pointerup')
   await expect(departureBeat).toContainText('Line up')
   await holdDepartureControl(page, 'Advance thrust levers', 500)
   await expect(departureBeat).toContainText('Legacy roll', { timeout: 3_000 })
-  await page.waitForTimeout(950)
-  await holdDeparturePointer(page, 'Pull column aft', 250)
+  // The roll builds readably to the rotation cue; rotate with a held pull.
+  await expect(departureBeat).toContainText('Memory lift', { timeout: 10_000 })
+  await holdDeparturePointer(page, 'Pull column aft', 900)
   await expect(departureBeat).toContainText('Climb out', { timeout: 3_000 })
   await expect(page.getByRole('dialog', { name: 'Home Operations Log' })).toBeVisible({ timeout: 10_000 })
 
