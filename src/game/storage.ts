@@ -264,73 +264,90 @@ function normalizeDc9Progress(
   const routeCompleted = normalizeRouteCodes(candidate.routeCompleted, APPROVED_ROUTE_CODES)
   const routeSelections = normalizeRouteCodes(candidate.routeSelections, ALL_ROUTE_CODES)
   const routesComplete = routeCompleted.length === APPROVED_ROUTE_CODES.length
-  const homeOperationsCompleted = routesComplete && candidate.homeOperationsCompleted === true
-  const secureSequence = homeOperationsCompleted ? normalizeSecureSequence(candidate.secureSequence) : []
-  const secureStarted = secureSequence.length > 0
-  const shutdownComplete = secureSequence.length === DC9_SECURE_ORDER.length
-  const keyClaimed = shutdownComplete && candidate.keyClaimed === true
-  const keyRevealed = shutdownComplete && (candidate.keyRevealed === true || keyClaimed)
   const hasRouteEvidence = routeSelections.length > 0 || routeCompleted.length > 0 || routeAttempts > 0
   const savedStage = candidate.stage
-  const hasReachedPostDepartureStage = savedStage === 'homeOperations'
-    || savedStage === 'instrumentScan'
-    || savedStage === 'shutdown'
-    || savedStage === 'qualification'
-    || savedStage === 'keyReveal'
-    || savedStage === 'complete'
+  // Schema 15 swapped the Legacy Route Record and the Instrument Scan, so the same stage
+  // string means a different position depending on which order wrote the save. Only the
+  // stage-derived facts below need the distinction; the evidence fields themselves are
+  // order-independent, which is what makes the swap migratable at all.
+  const savedInNewOrder = sourceSchemaVersion >= 15
+  const postDepartureStages = savedInNewOrder
+    ? ['homeOperations', 'intro', 'routeRecord', 'shutdown', 'qualification', 'keyReveal', 'complete']
+    : ['homeOperations', 'instrumentScan', 'shutdown', 'qualification', 'keyReveal', 'complete']
+  const hasReachedPostDepartureStage = typeof savedStage === 'string' && postDepartureStages.includes(savedStage)
+  const savedInstrumentScan = normalizeDc9InstrumentScanProgress(candidate.instrumentScan)
+  // Evidence only, never the saved stage string: a corrupt save claiming a late stage must
+  // not be able to grant itself the scan. Completed routes do imply it in both orders — in
+  // schema 15 the record is written after the scan, and in schema 14 it precedes the flight
+  // that the scan now gates — so a pre-15 save is never sent back through the departure.
+  const scanEvidenceComplete = dc9InstrumentScanComplete(savedInstrumentScan) || routesComplete
   const departure = sourceSchemaVersion < 14
     ? routesComplete
       ? advanceDc9DepartureProgress(createInitialDc9DepartureProgress(), { type: 'complete' })
       : createInitialDc9DepartureProgress()
     : hasReachedPostDepartureStage
       ? advanceDc9DepartureProgress(createInitialDc9DepartureProgress(), { type: 'complete' })
-      : savedStage === 'memphisDeparture' && routesComplete
+      : savedStage === 'memphisDeparture' && (savedInNewOrder ? scanEvidenceComplete : routesComplete)
         ? normalizeDc9DepartureProgress(candidate.departure)
         : createInitialDc9DepartureProgress()
+  // A finished flight implies the scan that now releases it, whichever order wrote the save.
+  const instrumentScanComplete = scanEvidenceComplete || departure.completed
+  const homeOperationsCompleted = departure.completed && candidate.homeOperationsCompleted === true
+  // The ceremonial shutdown now follows the route record rather than the scan.
+  const secureSequence = routesComplete && homeOperationsCompleted ? normalizeSecureSequence(candidate.secureSequence) : []
+  const shutdownComplete = secureSequence.length === DC9_SECURE_ORDER.length
+  const keyClaimed = shutdownComplete && candidate.keyClaimed === true
+  const keyRevealed = shutdownComplete && (candidate.keyRevealed === true || keyClaimed)
   // Saves written before schema 13 have no control check or instrument scan. Anyone who
   // was already past where those stages now sit keeps their place rather than being
   // sent back to repeat content the chapter never asked them for.
   const savedControlCheck = normalizeDc9ControlCheckProgress(candidate.controlCheck)
-  const controlCheckComplete = dc9ControlCheckComplete(savedControlCheck) || hasRouteEvidence
-  const savedInstrumentScan = normalizeDc9InstrumentScanProgress(candidate.instrumentScan)
-  const instrumentScanComplete = dc9InstrumentScanComplete(savedInstrumentScan) || secureStarted
-  const normalizedStage: Dc9ChapterProgress['stage'] = keyClaimed
-    ? 'complete'
-    : shutdownComplete
-      ? savedStage === 'qualification' ? 'qualification' : 'keyReveal'
-      : secureStarted
-        ? 'shutdown'
-        : homeOperationsCompleted
-          ? instrumentScanComplete ? 'shutdown' : 'instrumentScan'
-          : routesComplete
-            ? 'homeOperations'
-            : hasRouteEvidence
-              ? 'routeRecord'
-              : controlCheckComplete
-                ? 'intro'
-                : 'controlCheck'
-  const stage: Dc9ChapterProgress['stage'] = sourceSchemaVersion >= 14
-    && savedStage === 'memphisDeparture'
-    && routesComplete
-    && !departure.completed
-    ? 'memphisDeparture'
-    : normalizedStage
+  const controlCheckComplete = dc9ControlCheckComplete(savedControlCheck)
+    || hasRouteEvidence
+    || instrumentScanComplete
+    || departure.completed
+  /*
+   * The first beat of the new order the player has not finished. Read as a ladder of gaps
+   * rather than "most advanced evidence wins": with the implications above, later evidence
+   * always fills the earlier gates, so this can never send anyone backwards — and it is
+   * what places a schema-14 save correctly, because a save mid-flight and a save mid-scan
+   * land on the beat they actually still owe instead of on a stage name that has moved.
+   */
+  const stage: Dc9ChapterProgress['stage'] = !controlCheckComplete
+    ? 'controlCheck'
+    : !instrumentScanComplete
+      ? 'instrumentScan'
+      : !departure.completed
+        ? 'memphisDeparture'
+        : !homeOperationsCompleted
+          ? 'homeOperations'
+          : !routesComplete
+            ? hasRouteEvidence ? 'routeRecord' : 'intro'
+            : !shutdownComplete
+              ? 'shutdown'
+              : keyClaimed
+                ? 'complete'
+                : savedStage === 'qualification' ? 'qualification' : 'keyReveal'
   const finalPage = dc9LegacyFlow.homeOperationsPages.length - 1
-  const homePage = routesComplete && isSafeNonNegativeInteger(candidate.homePage) ? Math.min(candidate.homePage, finalPage) : 0
+  const homePage = departure.completed && isSafeNonNegativeInteger(candidate.homePage)
+    ? Math.min(candidate.homePage, finalPage)
+    : 0
 
-  const beforeRouteRecord = stage === 'intro' || stage === 'controlCheck'
   return {
     stage,
     controlCheck: controlCheckComplete ? [...DC9_CONTROL_CHECK_ITEM_IDS] : savedControlCheck,
-    instrumentScan: !homeOperationsCompleted
+    instrumentScan: !controlCheckComplete
       ? createInitialDc9InstrumentScanProgress()
       : instrumentScanComplete
         ? { identified: [...DC9_INSTRUMENT_SCAN_ORDER], attempts: 0 }
         : savedInstrumentScan,
     departure,
-    routeSelections: beforeRouteRecord ? [] : routeSelections,
-    routeCompleted: beforeRouteRecord ? [] : routeCompleted,
-    routeAttempts: beforeRouteRecord ? 0 : routeAttempts,
+    // Route stamps are kept wherever the player sits. The record is now the chapter's last
+    // puzzle, so a schema-14 save can legitimately carry stamped routes while standing at
+    // a beat that precedes it, and zeroing them there would erase earned progress.
+    routeSelections,
+    routeCompleted,
+    routeAttempts,
     homePage,
     homeOperationsCompleted,
     secureSequence,
@@ -732,7 +749,7 @@ function normalizeV9(value: unknown): GameState | null {
   }
 }
 
-function normalizeCanonicalScenarioState(value: unknown, schemaVersion: 10 | 11 | 12 | 13 | 14): GameState | null {
+function normalizeCanonicalScenarioState(value: unknown, schemaVersion: 10 | 11 | 12 | 13 | 14 | 15): GameState | null {
   if (!value || typeof value !== 'object') return null
   const candidate = value as Record<string, unknown>
   if (candidate.schemaVersion !== schemaVersion || !hasSafeCanonicalCommonState(candidate)) return null
@@ -781,8 +798,12 @@ function migrateV13(value: unknown): GameState | null {
   return normalizeCanonicalScenarioState(value, 13)
 }
 
-function normalizeV14(value: unknown): GameState | null {
+function migrateV14(value: unknown): GameState | null {
   return normalizeCanonicalScenarioState(value, 14)
+}
+
+function normalizeV15(value: unknown): GameState | null {
+  return normalizeCanonicalScenarioState(value, 15)
 }
 
 function migrateV6ToV7(value: unknown): LegacyV7State | null {
@@ -910,7 +931,8 @@ export function loadGameState(storage: Pick<Storage, 'getItem' | 'removeItem'> =
       : migrateV5(normalizedParsed) ?? migrateV4(normalizedParsed) ?? migrateV3(normalizedParsed)
     const legacyV7 = isLegacyV7State(normalizedParsed) ? normalizedParsed : legacyV6 ? migrateV6ToV7(legacyV6) : null
     const migratedV8 = legacyV7 ? migrateV7ToV8(legacyV7) : null
-    const state = normalizeV14(normalizedParsed)
+    const state = normalizeV15(normalizedParsed)
+      ?? migrateV14(normalizedParsed)
       ?? migrateV13(normalizedParsed)
       ?? migrateV12(normalizedParsed)
       ?? migrateV11(normalizedParsed)

@@ -1,6 +1,6 @@
 # DC-9 Memphis Legacy Departure Design
 
-**Status:** Owner approved 2026-08-27 · Amended 2026-08-29 (owner direction: brake retired)
+**Status:** Owner approved 2026-08-27 · Amended 2026-08-29 (owner direction: brake retired; airport visible for the whole chapter) · Amended 2026-08-30 (owner direction: route record and instrument scan swapped)
 
 **Date:** 2026-08-27
 
@@ -13,6 +13,46 @@
 > The fail-safe hold-short invariant is unchanged. Rotation became a held
 > gentle pull with visible nose lift, and the climb gained a progress meter.
 > See plan 0040's 2026-08-29 Decision-log entry for the full record.
+
+> **Amendment 2026-08-29 (evening) — the airport is outside for the whole chapter.**
+> The owner directed that the DC-9 scene open with the airport already outside,
+> with no transition into it. The environment is therefore staged for every DC-9
+> stage and held at the parked ramp-start pose outside the departure, the wide
+> frustum applies at every stage, and Memphis daylight lights the whole chapter
+> (the ceremonial shutdown keeps its dimming arc as an interior fade). The
+> Opening beat below no longer *introduces* the environment — submitting the
+> route record starts the memory and the title card over an airport that is
+> already there. The Performance line "lazy-load the Memphis environment only
+> when the new stage begins" is superseded: it is preloaded alongside the
+> cockpit and the chapter's loading page waits for it, so it is still never
+> paid for outside the DC-9 chapter. See plan 0040's 2026-08-29 (evening)
+> Decision-log entries for the full record, including the depth-bias repair of
+> the coplanar ground slabs that caused the taxi shimmer.
+
+> **Amendment 2026-08-30 — the Legacy Route Record and the Instrument Scan are swapped.**
+> The owner directed that the two puzzles trade places. The approved progression at the
+> top of "Context and approved decisions" is superseded and now reads:
+> **Control Check → Instrument Scan → Memphis Legacy Departure → Home Operations →
+> Legacy Route Record → Secure Aircraft → ATP Qualification → Captain's Key.**
+> Consequences recorded here so no earlier sentence is read as current:
+> - **A completed instrument scan, not a correct route submission, releases the flight.**
+>   Every statement below that ties the departure to the route record — the Opening beat,
+>   the Goal, the era "already established by the Legacy Route Record", the
+>   `routeRecord → memphisDeparture` transition, and the acceptance and validation lines
+>   that name route submission — is superseded on that point only. The fail-safe
+>   hold-short invariant, the qualitative-controls rule, the cockpit-first framing and the
+>   tone contract are all unchanged.
+> - **The route record is now the log written after the flight**, between Home Operations
+>   and the ceremonial shutdown, which is what the chapter's name always described.
+> - **Saves migrate at schema 15.** The stage vocabulary is unchanged by a swap, so the
+>   bump is what makes an old-order save distinguishable from a new-order one at all. The
+>   migration contract in "Data and persistence" is superseded: placement is now the first
+>   beat of the new order the player has not finished, later evidence still fills the
+>   earlier gates, and no completed work is discarded.
+> This reverses the 2026-08-18 owner choice recorded at `plans/0032-dc9-right-seat-systems-check.md:126-129`,
+> whose rationale was that finishing the control-check sweep revealed the route strip on
+> the same yoke. That adjacency is lost; the sweep now hands over to the panel instead.
+> See plan 0040's 2026-08-30 Decision-log entry for the full record.
 
 **Scope:** DC-9 right-seat gameplay and the older Memphis International Airport Concourse B environment
 
@@ -30,7 +70,7 @@ The existing DC-9 progression is:
 
 The approved progression becomes:
 
-**Control Check → Legacy Route Record → Memphis Legacy Departure → Home Operations → Instrument Scan → Secure Aircraft → ATP Qualification → Captain's Key**
+**Control Check → Legacy Route Record → Memphis Legacy Departure → Home Operations → Instrument Scan → Secure Aircraft → ATP Qualification → Captain's Key** *(superseded 2026-08-30 — see the amendment above)*
 
 The owner approved these product decisions:
 
@@ -303,7 +343,7 @@ Exact object names and anchor placement become runtime contracts only after Blen
 
 ## Performance
 
-- Lazy-load the Memphis environment only when the new stage begins.
+- Lazy-load the Memphis environment with the DC-9 chapter *(amended 2026-08-29: preloaded alongside the cockpit and staged for every DC-9 stage, rather than only when the departure begins, so the airport never arrives mid-chapter)*.
 - Reuse existing cockpit materials and instruments rather than duplicating the DC-9 asset.
 - Keep the selected Concourse B geometry low-poly where silhouette permits and preserve texture clarity nearest the ramp start.
 - Use bounded draw distance, culled or instanced repeated fixtures, mipmapped textures, and compressed web-safe texture formats after source approval.

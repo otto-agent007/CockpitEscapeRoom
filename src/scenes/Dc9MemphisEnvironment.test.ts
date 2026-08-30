@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import {
   disposeMemphisClone,
   handleMemphisLoadFailure,
+  memphisGroundDepthBiasLevel,
   publishMemphisDataset,
   stageMemphisClone,
 } from './dc9MemphisEnvironmentSupport'
@@ -27,8 +28,21 @@ function fixtureScene(): {
   secondaryMaterial.name = 'KMEM_RUNWAY'
   const geometry = new THREE.BoxGeometry(1, 1, 1)
 
-  for (const name of ['KMEM_CONCOURSE_B', 'KMEM_RAMP', 'KMEM_TAXI_SURFACE', 'KMEM_RUNWAY_SURFACE']) {
-    const mesh = new THREE.Mesh(geometry, name === 'KMEM_RUNWAY_SURFACE' ? secondaryMaterial : material)
+  // Mirrors the shipped asset's material sharing: the ramp and the apron share one
+  // material, and the runway shares its material with a building band that must not
+  // inherit the ground's depth bias.
+  const meshes = [
+    ['KMEM_CONCOURSE_B', material],
+    ['KMEM_RAMP', material],
+    ['KMEM_TERMINAL_APRON', material],
+    ['KMEM_TAXI_SURFACE', material],
+    ['KMEM_RUNWAY_SURFACE', secondaryMaterial],
+    ['KMEM_TERMINAL_CLERESTORY', secondaryMaterial],
+    ['KMEM_CENTERLINE_01', secondaryMaterial],
+    ['KMEM_FIELD', material],
+  ] as const
+  for (const [name, meshMaterial] of meshes) {
+    const mesh = new THREE.Mesh(geometry, meshMaterial)
     mesh.name = name
     mesh.userData.memory = { year: 1995 }
     root.add(mesh)
@@ -61,10 +75,15 @@ describe('DC-9 Memphis environment ownership', () => {
     const stagedMaterial = ramp.material as THREE.MeshStandardMaterial
     const stagedRunwayMaterial = runway.material as THREE.MeshStandardMaterial
 
+    const apron = staged.scene.getObjectByName('KMEM_TERMINAL_APRON') as THREE.Mesh
+
     expect(ramp.geometry).not.toBe(geometry)
     expect(ramp.geometry).toBe(taxi.geometry)
     expect(stagedMaterial).not.toBe(material)
-    expect(stagedMaterial).toBe(taxi.material)
+    // One clone per source material and stacking level: the apron shares the ramp's
+    // level so it shares the clone, while the taxiway needs its own to sit above it.
+    expect(stagedMaterial).toBe(apron.material)
+    expect(stagedMaterial).not.toBe(taxi.material)
     expect(stagedMaterial.map).not.toBe(texture)
     expect(stagedMaterial.map).toBe((taxi.material as THREE.MeshStandardMaterial).map)
     expect(stagedRunwayMaterial).not.toBe(stagedMaterial)
@@ -73,6 +92,40 @@ describe('DC-9 Memphis environment ownership', () => {
     expect(stagedMaterial.map?.name).toBe(texture.name)
     expect(ramp.userData).toEqual({ memory: { year: 1995 } })
     expect(ramp.parent?.name).toBe('KMEM_LEGACY_ROOT')
+  })
+
+  it('stacks the coplanar ground slabs with a depth bias and leaves buildings unbiased', () => {
+    const { source } = fixtureScene()
+    const staged = stageMemphisClone(source)
+    const materialFor = (name: string) => (staged.scene.getObjectByName(name) as THREE.Mesh).material as THREE.Material
+    const bias = (material: THREE.Material) => (material.polygonOffset ? material.polygonOffsetFactor : 0)
+
+    const field = materialFor('KMEM_FIELD')
+    const ramp = materialFor('KMEM_RAMP')
+    const taxi = materialFor('KMEM_TAXI_SURFACE')
+    const runway = materialFor('KMEM_RUNWAY_SURFACE')
+    const centerline = materialFor('KMEM_CENTERLINE_01')
+    const clerestory = materialFor('KMEM_TERMINAL_CLERESTORY')
+    const concourse = materialFor('KMEM_CONCOURSE_B')
+
+    // Nearer the eye wins, so the three bit-coplanar slabs can never trade pixels:
+    // field below ramp/apron below taxiway below runway below the painted centreline.
+    expect([bias(field), bias(ramp), bias(taxi), bias(runway), bias(centerline)]).toEqual([0, -1, -2, -3, -4])
+    for (const material of [ramp, taxi, runway, centerline]) {
+      expect(material.polygonOffset).toBe(true)
+      expect(material.polygonOffsetUnits).toBe(material.polygonOffsetFactor)
+    }
+
+    // The clerestory shares KMEM_RUNWAY_MATERIAL with the runway in the shipped asset;
+    // biasing a building band toward the eye would push it through the canopy above it.
+    expect(clerestory.polygonOffset).toBe(false)
+    expect(clerestory).not.toBe(runway)
+    expect(clerestory).not.toBe(centerline)
+    expect(concourse.polygonOffset).toBe(false)
+    expect(field.polygonOffset).toBe(false)
+
+    expect(memphisGroundDepthBiasLevel('KMEM_CENTERLINE_09')).toBe(4)
+    expect(memphisGroundDepthBiasLevel('KMEM_CONCOURSE_B')).toBe(0)
   })
 
   it('disposes only owned clone resources and leaves cached source resources live', () => {

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 const { test } = await import(process.env.VITEST ? 'vitest' : 'node:test')
 import {
+  DC9_MEMPHIS_GROUND_NODES,
   DC9_MEMPHIS_REQUIRED_NODES,
   validateDc9MemphisModelContract,
 } from './dc9-memphis-model-contract.mjs'
@@ -13,8 +14,16 @@ const GAME_IDS = {
   KMEM_INITIAL_CLIMB: 'dc9.memphis.initialClimb',
 }
 
+// The ground slabs and the painted centreline strips carry no game_id and are not part of
+// the required-node list, but the runtime orders them by name to break their authored
+// coplanarity, so the contract pins them too.
+const GROUND_ONLY_NODES = [
+  ...DC9_MEMPHIS_GROUND_NODES.filter((name) => !DC9_MEMPHIS_REQUIRED_NODES.includes(name)),
+  'KMEM_CENTERLINE_01',
+]
+
 function validFixture() {
-  const nodes = DC9_MEMPHIS_REQUIRED_NODES.map((name, index) => ({
+  const nodes = [...DC9_MEMPHIS_REQUIRED_NODES, ...GROUND_ONLY_NODES].map((name, index) => ({
     name,
     translation: [index, index * 2, index * 3],
     rotation: [0, 0, 0, 1],

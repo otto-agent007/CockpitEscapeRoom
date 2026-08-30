@@ -59,3 +59,18 @@ export function clearCockpitModel(url: string): void {
 export function preloadDc9Cockpit(): Promise<void> {
   return loadCockpitModel(DC9_MODEL_URL).then(() => undefined)
 }
+
+/**
+ * The Memphis ramp is outside the windows from the first DC-9 stage, so its GLB is
+ * fetched with the cockpit rather than at the departure. It is roughly a twentieth
+ * of the cockpit's size, so it lands well inside the wait the cockpit already owns.
+ */
+export function preloadDc9MemphisEnvironment(): Promise<void> {
+  return loadCockpitModel(DC9_MEMPHIS_MODEL_URL).then(() => undefined).catch((error: unknown) => {
+    // The cache stores the promise, so a rejection is cached like any other result. A
+    // two-second blip on the opening screen would otherwise hand the chapter's own load
+    // the same stale failure and leave the windows empty for the whole chapter.
+    clearCockpitModel(DC9_MEMPHIS_MODEL_URL)
+    throw error
+  })
+}

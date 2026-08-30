@@ -707,6 +707,29 @@
   background: rgb(42 24 18 / 94%);
 }
 
+/*
+ * The outside-view notice sits below the cockpit-failure panel and reads quieter than it:
+ * a missing airport costs the player nothing they need, so it must not look like an error
+ * that blocks the chapter.
+ */
+.dc9-chapter__environment-error {
+  position: absolute;
+  top: 6.5rem;
+  left: 1rem;
+  display: grid;
+  gap: .55rem;
+  width: min(26rem, calc(100vw - 2rem));
+  padding: .85rem 1rem;
+  border: 1px solid rgb(190 205 214 / 38%);
+  color: #e8f1f5;
+  background: rgb(18 30 36 / 92%);
+  font-size: .92rem;
+}
+
+.dc9-chapter__load-error ~ .dc9-chapter__environment-error {
+  top: 16rem;
+}
+
 .dc9-chapter__status {
   position: absolute;
   left: 1rem;

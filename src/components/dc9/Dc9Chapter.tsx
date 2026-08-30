@@ -321,6 +321,24 @@ export function Dc9Chapter({
         </div>
       ) : null}
 
+      {/*
+        The Memphis view is outside the windows for the whole chapter, so it can now fail
+        at any stage — not only at the departure, where the departure panel owns the
+        message and the retry. Without this a load failure would read as an empty sky for
+        several stages with nothing to say so and nothing to press.
+      */}
+      {state.dc9.stage !== 'memphisDeparture' && loadState.memphisEnvironment?.status === 'error' ? (
+        <div className="dc9-chapter__environment-error" role="status">
+          <strong>Windshield memory view unavailable.</strong>
+          <span>{loadState.memphisEnvironment.message} Every step of the chapter still works; only the view outside is missing.</span>
+          {loadState.memphisEnvironment.retry ? (
+            <button type="button" className="secondary-button" onClick={loadState.memphisEnvironment.retry}>
+              Retry the outside view
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+
       <footer className="dc9-chapter__status">
         <p aria-live="polite" aria-atomic="true">{state.statusMessage}</p>
         <button type="button" className="text-button" onClick={onRestart}>Restart</button>

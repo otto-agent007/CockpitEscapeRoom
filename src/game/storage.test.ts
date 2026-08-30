@@ -192,7 +192,7 @@ describe('schema-v11 to schema-v14 Airbus workload migration', () => {
       },
     }))
 
-    expect(migrated.schemaVersion).toBe(14)
+    expect(migrated.schemaVersion).toBe(15)
     expect(migrated.airbusSimulator.workload.completedTasks).toEqual(completedTasks)
   })
 
@@ -275,7 +275,7 @@ describe('schema-v10 to schema-v14 Airbus scenario migration', () => {
       },
     }))
 
-    expect(migrated.schemaVersion).toBe(14)
+    expect(migrated.schemaVersion).toBe(15)
     expect(migrated.airbusSimulator.location).toBe('hub')
     expect(migrated.airbusSimulator.stormLine.status).toBe('not_started')
     expect(migrated.airbusSimulator.engineOut.status).toBe('locked')
@@ -453,7 +453,7 @@ describe('schema-v9 to schema-v14 mandatory qualification migration', () => {
       },
     }))
 
-    expect(migrated.schemaVersion).toBe(14)
+    expect(migrated.schemaVersion).toBe(15)
     expect(migrated.airbusSimulator.familiarization).toBe('completed')
     expect(migrated.airbusSimulator.cameraPhase).toBe('qualified')
     expect(migrated.airbusSimulator.stormLine.status).toBe('not_started')
@@ -480,7 +480,7 @@ describe('schema-v9 to schema-v14 mandatory qualification migration', () => {
       },
     }))
 
-    expect(migrated.schemaVersion).toBe(14)
+    expect(migrated.schemaVersion).toBe(15)
     expect(migrated.airbusSimulator).toEqual({
       familiarization: 'unseen',
       cameraPhase: 'familiarization',
@@ -528,7 +528,7 @@ describe('schema-v9 to schema-v14 mandatory qualification migration', () => {
       },
     }))
 
-    expect(migrated.schemaVersion).toBe(14)
+    expect(migrated.schemaVersion).toBe(15)
     expect(migrated.completedPuzzles).toContain('airbus')
     expect(migrated.rewardUnlocked).toBe(true)
     expect(migrated.airbusSimulator.familiarization).toBe('completed')
@@ -572,7 +572,7 @@ describe('schema-v7 through schema-v14 migration', () => {
       dc9: completedPuzzles.some((id) => id === 'captain') ? completedDc9() : legacyV7().dc9,
     }))
 
-    expect(migrated.schemaVersion).toBe(14)
+    expect(migrated.schemaVersion).toBe(15)
     expect(migrated.phase).toBe(phase)
   })
 
@@ -678,7 +678,9 @@ describe('schema-v7 through schema-v14 migration', () => {
 
     expect(migrated.phase).toBe('dc9')
     expect(migrated.dc9).toMatchObject({
-      stage: 'routeRecord',
+      // The scan is the chapter's first puzzle, so it is now the recoverable boundary. The
+      // one stamped route survives for the record, which the swap moved to the end.
+      stage: 'instrumentScan',
       routeSelections: [],
       routeCompleted: ['DTW'],
       routeAttempts: 0,
@@ -703,7 +705,7 @@ describe('schema-v3 through schema-v6 migration chain', () => {
       }),
     })
 
-    expect(migrated.schemaVersion).toBe(14)
+    expect(migrated.schemaVersion).toBe(15)
     expect(migrated.phase).toBe('mars')
     expect(migrated.dc9.stage).toBe('complete')
     expect(migrated.completedPuzzles).toEqual(['airbus', 'locker', 'dc9'])
@@ -740,7 +742,7 @@ describe('schema-v3 through schema-v6 migration chain', () => {
       lockerAttempts: undefined,
     })
 
-    expect(migrated.schemaVersion).toBe(14)
+    expect(migrated.schemaVersion).toBe(15)
     expect(migrated.phase).toBe('dc9')
     expect(migrated.lockerCompleted).toEqual(['watch'])
     expect(migrated.lockerAttempts).toEqual({ watch: 0, baseball: 0, chargingBull: 0, wings: 0 })
@@ -758,7 +760,7 @@ describe('schema-v3 through schema-v6 migration chain', () => {
       lockerIntroCompleted: undefined,
     })
 
-    expect(migrated.schemaVersion).toBe(14)
+    expect(migrated.schemaVersion).toBe(15)
     expect(migrated.phase).toBe('dc9')
     expect(migrated.lockerIntroCompleted).toBe(true)
     expect(migrated.completedPuzzles).toEqual(['airbus'])
@@ -809,7 +811,7 @@ describe('schema-v8 to schema-v14 Airbus simulator migration', () => {
       },
     }))
 
-    expect(migrated.schemaVersion).toBe(14)
+    expect(migrated.schemaVersion).toBe(15)
     expect(migrated.phase).toBe('airbus')
     expect(migrated.airbusSimulator.familiarization).toBe('unseen')
     expect(migrated.airbusSimulator.stormLine.status).toBe('not_started')
@@ -830,7 +832,7 @@ describe('schema-v8 to schema-v14 Airbus simulator migration', () => {
 })
 
 describe('schema-v13 to schema-v14 Memphis departure migration', () => {
-  it('keeps a route-record save at the route record with canonical initial departure progress', () => {
+  it('moves a v13 route-record save to the instrument scan and keeps its stamped route', () => {
     const loaded = loadRaw(v13Dc9({
       stage: 'routeRecord',
       routeSelections: ['DTW'],
@@ -838,8 +840,13 @@ describe('schema-v13 to schema-v14 Memphis departure migration', () => {
       routeAttempts: 1,
     }))
 
-    expect(loaded.schemaVersion).toBe(14)
-    expect(loaded.dc9.stage).toBe('routeRecord')
+    expect(loaded.schemaVersion).toBe(15)
+    // Schema 15 put the scan first and the record last. This save had reached neither, so
+    // it owes the scan — and its stamped route is carried forward to the record it will
+    // reach after the flight rather than being thrown away.
+    expect(loaded.dc9.stage).toBe('instrumentScan')
+    expect(loaded.dc9.routeCompleted).toEqual(['DTW'])
+    expect(loaded.dc9.routeAttempts).toBe(1)
     expect(loaded.dc9.departure).toEqual(createInitialDc9DepartureProgress())
   })
 
@@ -888,7 +895,10 @@ describe('schema-v13 to schema-v14 Memphis departure migration', () => {
   ] as const)('moves a v13 %s save forward without inserting unfinished departure', (stage, dc9) => {
     const loaded = loadRaw(v13Dc9(dc9))
 
-    expect(loaded.dc9.stage).toBe(stage)
+    // Schema 15 swapped the record and the scan, so a v13 save mid-scan has now finished
+    // every beat before the ceremonial shutdown: it had already written the record, which
+    // the swap moved to the end. Every other v13 stage keeps its place.
+    expect(loaded.dc9.stage).toBe(stage === 'instrumentScan' ? 'shutdown' : stage)
     expect(loaded.dc9.departure).toMatchObject({ checkpoint: 'complete', completed: true })
   })
 
@@ -949,11 +959,10 @@ describe('schema-v13 to schema-v14 Memphis departure migration', () => {
 
   it.each([
     ['controlCheck', {}, {}],
-    ['intro', { controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS] }, {}],
-    ['routeRecord', {
+    ['instrumentScan', { controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS] }, {}],
+    ['instrumentScan', {
       controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS],
-      routeSelections: ['DTW'],
-      routeCompleted: ['DTW'],
+      instrumentScan: { identified: ['airspeed'], attempts: 0 },
     }, {}],
   ] as const)('rejects valid-shaped late departure progress before %s is reached', (stage, dc9, departure) => {
     const state = createInitialState()
@@ -1008,7 +1017,7 @@ describe('schema-v13 to schema-v14 Memphis departure migration', () => {
     expect(loaded.dc9.routeCompleted).toEqual(['DTW', 'MSP', 'STL'])
   })
 
-  it('requires a complete route record before retaining a current Memphis departure checkpoint', () => {
+  it('requires a complete instrument scan before retaining a current Memphis departure checkpoint', () => {
     const state = createInitialState()
     const loaded = loadRaw({
       ...state,
@@ -1017,8 +1026,7 @@ describe('schema-v13 to schema-v14 Memphis departure migration', () => {
         ...state.dc9,
         stage: 'memphisDeparture',
         controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS],
-        routeSelections: ['DTW'],
-        routeCompleted: ['DTW'],
+        instrumentScan: { identified: ['airspeed', 'attitude'], attempts: 0 },
         departure: {
           checkpoint: 'taxiTurn',
           completedBeats: ['rampRelease'],
@@ -1029,13 +1037,17 @@ describe('schema-v13 to schema-v14 Memphis departure migration', () => {
       },
     })
 
-    expect(loaded.dc9.stage).toBe('routeRecord')
+    // The scan is what releases the flight now, so an unfinished scan cannot carry a
+    // departure checkpoint — the same guarantee the route record used to give.
+    expect(loaded.dc9.stage).toBe('instrumentScan')
+    expect(loaded.dc9.instrumentScan.identified).toEqual(['airspeed', 'attitude'])
     expect(loaded.dc9.departure).toEqual(createInitialDc9DepartureProgress())
   })
 
   it.each([
     ['homeOperations', {}],
-    ['instrumentScan', { homeOperationsCompleted: true }],
+    ['intro', { homeOperationsCompleted: true }],
+    ['routeRecord', { homeOperationsCompleted: true, routeSelections: ['DTW'], routeCompleted: ['DTW'] }],
     ['shutdown', {
       homeOperationsCompleted: true,
       instrumentScan: { identified: [...DC9_INSTRUMENT_SCAN_ORDER], attempts: 0 },
@@ -1236,7 +1248,7 @@ describe('canonical schema-v14 storage', () => {
     saveGameState(createInitialState(), storage)
     const saved = JSON.parse(storage.getItem(STORAGE_KEY) ?? '{}') as Record<string, unknown>
 
-    expect(saved.schemaVersion).toBe(14)
+    expect(saved.schemaVersion).toBe(15)
     expect(saved).toHaveProperty('airbusSimulator')
     expect(saved).toHaveProperty('airbusQualificationAnswer')
     expect(saved).toHaveProperty('airbusCaptainModeUnlocked')
@@ -1276,18 +1288,20 @@ describe('schema-v12 to schema-v14 DC-9 right-seat migration', () => {
 
   it('puts an untouched v12 opening into the new control check', () => {
     const migrated = loadRaw(v12Dc9({ stage: 'intro' }))
-    expect(migrated.schemaVersion).toBe(14)
+    expect(migrated.schemaVersion).toBe(15)
     expect(migrated.dc9.stage).toBe('controlCheck')
     expect(migrated.dc9.controlCheck).toEqual([])
   })
 
   it('does not send a player who already reached the route record back to the yoke sweep', () => {
     const migrated = loadRaw(v12Dc9({ stage: 'routeRecord', routeSelections: ['DTW'], routeAttempts: 1 }))
-    expect(migrated.dc9.stage).toBe('routeRecord')
+    // Route evidence still proves the control check, so the sweep is never repeated. The
+    // record itself now comes after the flight, so the scan is the beat this save owes.
+    expect(migrated.dc9.stage).toBe('instrumentScan')
     expect(migrated.dc9.controlCheck).toHaveLength(DC9_CONTROL_CHECK_ITEM_IDS.length)
   })
 
-  it('offers the new instrument scan to a v12 save that had only reached the shutdown', () => {
+  it('keeps a v12 save that had reached the shutdown there rather than rewinding it', () => {
     const migrated = loadRaw(v12Dc9({
       stage: 'shutdown',
       routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
@@ -1295,8 +1309,13 @@ describe('schema-v12 to schema-v14 DC-9 right-seat migration', () => {
       homeOperationsCompleted: true,
       homePage: 4,
     }))
-    expect(migrated.dc9.stage).toBe('instrumentScan')
-    expect(migrated.dc9.instrumentScan).toEqual({ identified: [], attempts: 0 })
+    // Until schema 15 the scan sat between Home Operations and the shutdown, so offering it
+    // to a save like this cost one beat. The swap moved it in front of the flight, where
+    // offering it would march a finished chapter back to its opening — so a save this far
+    // along is credited with it, exactly as it is credited with the departure it predates.
+    expect(migrated.dc9.stage).toBe('shutdown')
+    expect(migrated.dc9.instrumentScan.identified).toHaveLength(DC9_INSTRUMENT_SCAN_ORDER.length)
+    expect(migrated.dc9.departure).toMatchObject({ completed: true })
   })
 
   it('leaves a part-secured v12 cockpit alone rather than rewinding it', () => {
@@ -1342,10 +1361,6 @@ describe('schema-v12 to schema-v14 DC-9 right-seat migration', () => {
         stage: 'instrumentScan',
         controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS],
         instrumentScan: { identified: ['airspeed', 'attitude'], attempts: 2 },
-        routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
-        routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
-        homePage: dc9LegacyFlow.homeOperationsPages.length - 1,
-        homeOperationsCompleted: true,
       },
     }
     saveGameState(state, storage)

@@ -78,8 +78,10 @@ const DC9_WIDE_GAME_FOV = 64
 /**
  * Every DC-9 camera is authored with a 100 m far plane, which is right for the
  * parked cockpit but clips the Memphis environment (authored out to 700 m) out
- * of the windshield. Only the departure stage widens the frustum; the near
- * plane rises with it to keep depth precision across the long scene.
+ * of the windshield. The airport is outside the windows for the whole chapter,
+ * so every DC-9 stage uses this frustum; the near plane rises with the far one
+ * to keep depth precision across the long scene, and is still three times finer
+ * per metre than the 0.015 near plane authored into the cockpit cameras.
  */
 const DC9_MEMPHIS_CAMERA_NEAR = 0.05
 const DC9_MEMPHIS_CAMERA_FAR = 2500
@@ -2306,14 +2308,30 @@ function LockerRoom({
   )
 }
 
+/**
+ * Interior fill for the flight deck. The Memphis environment now supplies the
+ * sky, the key light and the bounce for the whole chapter, so this rig is only
+ * what the cockpit adds on top: a little ambient lift into the shadowed footwell
+ * and the panel glow beside the right seat. It keeps the ceremonial shutdown's
+ * arc — each secured control takes a step of light out of the cabin — but as a
+ * fade inside a daylit cockpit rather than a slide into darkness.
+ *
+ * The daylight rig is a constant 3.30 of non-local intensity, so an ambient step
+ * alone is lost against it: the arc has to live mostly in the point light, which
+ * is local enough to read as the panel glow going out. Even so this is a much
+ * quieter beat than the pre-daylight rig's 46% fall, and it is on the owner's
+ * visual-gate list rather than settled.
+ */
 function Dc9RuntimeLighting({ secureSteps }: { secureSteps: number }) {
   return (
     <>
-      <ambientLight intensity={secureSteps >= 3 ? 0.13 : secureSteps >= 1 ? 0.23 : 0.32} color="#dce6e7" />
-      <hemisphereLight args={['#d8e8ef', '#132023', secureSteps >= 2 ? 0.22 : 0.42]} />
-      <directionalLight position={[-2.2, 3.2, 2.8]} intensity={secureSteps >= 3 ? 0.72 : 1.18} color="#ffe0bd" />
-      <directionalLight position={[2.5, 1.9, 2.2]} intensity={secureSteps >= 1 ? 0.38 : 0.76} color="#b8d5ff" />
-      <pointLight position={[-0.7, 0.75, 3.0]} intensity={secureSteps >= 2 ? 0.12 : 0.5} distance={3.2} color="#d8efff" />
+      <ambientLight intensity={secureSteps >= 3 ? 0.05 : secureSteps >= 1 ? 0.13 : 0.22} color="#dce6e7" />
+      <pointLight
+        position={[-0.7, 0.75, 3.0]}
+        intensity={secureSteps >= 3 ? 0.04 : secureSteps >= 2 ? 0.18 : secureSteps >= 1 ? 0.36 : 0.55}
+        distance={3.2}
+        color="#d8efff"
+      />
     </>
   )
 }
@@ -2952,9 +2970,7 @@ function Dc9Cockpit({
       camera,
       sourceCamera,
       size.width < 900 ? narrowFov : wideFov,
-      chapterStage === 'memphisDeparture'
-        ? { near: DC9_MEMPHIS_CAMERA_NEAR, far: DC9_MEMPHIS_CAMERA_FAR }
-        : undefined,
+      { near: DC9_MEMPHIS_CAMERA_NEAR, far: DC9_MEMPHIS_CAMERA_FAR },
     )
     canvasRef.current.dataset.dc9CameraNode = sourceCamera.name
   }, [camera, chapterStage, loaded, size.width])
@@ -2989,12 +3005,7 @@ function Dc9Cockpit({
 
   return (
     <>
-      {chapterStage !== 'memphisDeparture' ? (
-        <>
-          <color attach="background" args={['#070b0d']} />
-          <Dc9RuntimeLighting secureSteps={activeControls.length} />
-        </>
-      ) : null}
+      <Dc9RuntimeLighting secureSteps={activeControls.length} />
       {loaded && !loadFailed ? (
         <>
           <primitive object={loaded.scene} dispose={null} />
@@ -3099,15 +3110,22 @@ function CaptainCockpit({
         onYokeDrag={onYokeDrag}
         onHoverInteractive={onHoverInteractive}
       />
-      {chapterStage === 'memphisDeparture' ? (
-        <Dc9MemphisEnvironment
-          key={`dc9-memphis-${dc9MemphisRetryToken}`}
-          frameRef={dc9MemphisDeparture.frameRef}
-          reducedMotion={reducedMotion}
-          retryToken={dc9MemphisRetryToken}
-          onLoadState={onMemphisLoadState}
-        />
-      ) : null}
+      {/*
+        Memphis is outside the windows for the whole chapter, not just the flight:
+        the aircraft is parked on the ramp where the memory begins, so there is no
+        moment where the airport arrives. Only the departure stage drives the pose
+        from the live frame — every other stage holds the parked ramp view, which
+        also keeps the completed flight from leaving the world at climb altitude
+        for the ceremonial shutdown.
+      */}
+      <Dc9MemphisEnvironment
+        key={`dc9-memphis-${dc9MemphisRetryToken}`}
+        frameRef={dc9MemphisDeparture.frameRef}
+        parked={chapterStage !== 'memphisDeparture'}
+        reducedMotion={reducedMotion}
+        retryToken={dc9MemphisRetryToken}
+        onLoadState={onMemphisLoadState}
+      />
     </>
   )
 }

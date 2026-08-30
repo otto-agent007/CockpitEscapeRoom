@@ -21,6 +21,41 @@ const ANCHOR_CONTRACT = Object.freeze([
   { name: 'KMEM_INITIAL_CLIMB', gameId: 'dc9.memphis.initialClimb' },
 ] as const)
 
+/**
+ * Fixed draw order for the ground slabs, highest level nearest the eye.
+ *
+ * `KMEM_RAMP`, `KMEM_TAXI_SURFACE` and `KMEM_RUNWAY_SURFACE` are authored with
+ * bit-identical top faces (world Y is exactly 0) and overlapping footprints:
+ * 8,492 m² of ramp under taxiway and 2,040 m² of taxiway under runway. Both
+ * patches lie directly under the guided taxi legs, which is why the taxi
+ * shimmered while the takeoff roll — over runway that overlaps nothing north of
+ * Y 265 — stayed clean. `KMEM_FIELD` sits only 8 cm below all of them, and the
+ * departure frustum cannot resolve 8 cm past 259 m, so the far ground fought too.
+ *
+ * A depth-slope-scaled polygon offset settles both ties the way a decal is
+ * settled: it grows with the grazing angle, so one bias holds from the nose to
+ * the horizon. Staggering the boxes vertically cannot do that — resolving two
+ * surfaces 400 m out needs 19 cm of separation, which reads as a visible step.
+ */
+const GROUND_DEPTH_BIAS_LEVELS: ReadonlyMap<string, number> = new Map([
+  ['KMEM_FIELD', 0],
+  // The apron never overlaps the ramp, so they may share one biased material.
+  ['KMEM_TERMINAL_APRON', 1],
+  ['KMEM_RAMP', 1],
+  ['KMEM_TAXI_SURFACE', 2],
+  ['KMEM_RUNWAY_SURFACE', 3],
+])
+
+/** The nine centreline strips are painted on the runway and must stay proud of it. */
+const GROUND_CENTERLINE_PREFIX = 'KMEM_CENTERLINE_'
+const GROUND_CENTERLINE_BIAS_LEVEL = 4
+
+/** Ground stacking level for one object name; 0 for anything that takes no bias. */
+export function memphisGroundDepthBiasLevel(name: string): number {
+  if (name.startsWith(GROUND_CENTERLINE_PREFIX)) return GROUND_CENTERLINE_BIAS_LEVEL
+  return GROUND_DEPTH_BIAS_LEVELS.get(name) ?? 0
+}
+
 function cloneMemphisTexture(
   source: THREE.Texture,
   textures: Map<THREE.Texture, THREE.Texture>,
@@ -34,13 +69,24 @@ function cloneMemphisTexture(
 
 function cloneMemphisMaterial(
   source: THREE.Material,
-  materials: Map<THREE.Material, THREE.Material>,
+  depthBiasLevel: number,
+  materials: Map<string, THREE.Material>,
   textures: Map<THREE.Texture, THREE.Texture>,
 ): THREE.Material {
-  const existing = materials.get(source)
+  // Keyed by level as well as source, because the shipped asset shares
+  // KMEM_RAMP_MATERIAL between the ramp and the apron and KMEM_RUNWAY_MATERIAL
+  // between the runway and the KMEM_TERMINAL_CLERESTORY building band. One
+  // clone per level keeps the bias off the building without orphaning a clone.
+  const key = `${source.uuid}:${depthBiasLevel}`
+  const existing = materials.get(key)
   if (existing) return existing
   const owned = source.clone()
-  materials.set(source, owned)
+  materials.set(key, owned)
+  if (depthBiasLevel > 0) {
+    owned.polygonOffset = true
+    owned.polygonOffsetFactor = -depthBiasLevel
+    owned.polygonOffsetUnits = -depthBiasLevel
+  }
   const ownedValues = owned as unknown as Record<string, unknown>
   for (const [key, value] of Object.entries(source)) {
     if (value instanceof THREE.Texture) {
@@ -65,12 +111,13 @@ function cloneMemphisMaterial(
 
 function ownMemphisRenderResources(root: THREE.Object3D): void {
   const geometries = new Map<THREE.BufferGeometry, THREE.BufferGeometry>()
-  const materials = new Map<THREE.Material, THREE.Material>()
+  const materials = new Map<string, THREE.Material>()
   const textures = new Map<THREE.Texture, THREE.Texture>()
   root.traverse((object) => {
     if (!(object instanceof THREE.Mesh)) return
     const sourceGeometry = object.geometry
     if (!sourceGeometry) return
+    const depthBiasLevel = memphisGroundDepthBiasLevel(object.name)
     const ownedGeometry = geometries.get(sourceGeometry)
     if (ownedGeometry) {
       object.geometry = ownedGeometry
@@ -80,8 +127,8 @@ function ownMemphisRenderResources(root: THREE.Object3D): void {
       object.geometry = clonedGeometry
     }
     object.material = Array.isArray(object.material)
-      ? object.material.map((material) => cloneMemphisMaterial(material, materials, textures))
-      : cloneMemphisMaterial(object.material, materials, textures)
+      ? object.material.map((material) => cloneMemphisMaterial(material, depthBiasLevel, materials, textures))
+      : cloneMemphisMaterial(object.material, depthBiasLevel, materials, textures)
   })
 }
 

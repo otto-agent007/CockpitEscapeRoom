@@ -1,7 +1,7 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useRef, useState, type RefObject } from 'react'
 import * as THREE from 'three'
-import type { Dc9DepartureFrame } from '../game/dc9MemphisDeparture'
+import { canonicalDc9DepartureFrame, type Dc9DepartureFrame } from '../game/dc9MemphisDeparture'
 import {
   clearCockpitModel,
   DC9_MEMPHIS_MODEL_URL,
@@ -22,8 +22,17 @@ import {
 
 export type { Dc9MemphisLoadState } from './dc9MemphisLoadState'
 
+/**
+ * The pose every stage but the departure holds. A module constant, not a memo: it is a
+ * pure function of a literal, and the load effect depends on it — a dropped memo cache
+ * would otherwise dispose and re-clone the staged airport mid-chapter.
+ */
+const DC9_MEMPHIS_PARKED_FRAME = canonicalDc9DepartureFrame('rampStart')
+
 interface Dc9MemphisEnvironmentProps {
   frameRef: RefObject<Dc9DepartureFrame>
+  /** Hold the parked ramp view and ignore the live frame (every stage but the departure). */
+  parked: boolean
   reducedMotion: boolean
   retryToken: number
   onLoadState: (state: Dc9MemphisLoadState) => void
@@ -45,9 +54,10 @@ function applyMemphisWorldPose(
   })
 }
 
-/** A lazy exterior sibling; only its root moves while the approved cockpit stays fixed. */
+/** An exterior sibling; only its root moves while the approved cockpit stays fixed. */
 export function Dc9MemphisEnvironment({
   frameRef,
+  parked,
   reducedMotion,
   retryToken,
   onLoadState,
@@ -58,6 +68,11 @@ export function Dc9MemphisEnvironment({
   const canvasRef = useRef(gl.domElement)
   const reducedMotionRef = useRef(reducedMotion)
   const datasetCacheRef = useRef(new Map<string, string>())
+  // The parked stages hold the pose the memory opens on, not the live frame: after the
+  // flight completes the live frame reads climb altitude, which would leave the airport
+  // 110 m below the windows for the ceremonial shutdown.
+  const parkedRef = useRef(parked)
+  const parkedPoseAppliedRef = useRef(false)
 
   useEffect(() => {
     canvasRef.current = gl.domElement
@@ -66,6 +81,11 @@ export function Dc9MemphisEnvironment({
   useEffect(() => {
     loadedRef.current = loaded
   }, [loaded])
+
+  useEffect(() => {
+    parkedRef.current = parked
+    if (!parked) parkedPoseAppliedRef.current = false
+  }, [parked])
 
   useEffect(() => {
     reducedMotionRef.current = reducedMotion
@@ -81,7 +101,12 @@ export function Dc9MemphisEnvironment({
     if (retryToken > 0) clearCockpitModel(DC9_MEMPHIS_MODEL_URL)
     loadedRef.current = null
     publishMemphisDataset(canvas.dataset, datasetCache, 'dc9MemphisModelState', 'loading')
-    publishMemphisDataset(canvas.dataset, datasetCache, 'dc9MemphisBeat', frameRef.current?.beat ?? '')
+    publishMemphisDataset(
+      canvas.dataset,
+      datasetCache,
+      'dc9MemphisBeat',
+      (parkedRef.current ? DC9_MEMPHIS_PARKED_FRAME : frameRef.current)?.beat ?? '',
+    )
     onLoadState({ status: 'loading', loadedBytes: 0 })
     const stopObserving = observeCockpitModelProgress(DC9_MEMPHIS_MODEL_URL, (progress) => {
       if (!active) return
@@ -100,7 +125,7 @@ export function Dc9MemphisEnvironment({
         if (!active) return
         const staged = stageMemphisClone(source)
         stagedScene = staged.scene
-        const frame = frameRef.current
+        const frame = parkedRef.current ? DC9_MEMPHIS_PARKED_FRAME : frameRef.current
         if (frame) {
           publishMemphisDataset(canvas.dataset, datasetCache, 'dc9MemphisBeat', frame.beat)
           publishMemphisDataset(canvas.dataset, datasetCache, 'dc9MemphisWorldPose', applyMemphisWorldPose(
@@ -109,6 +134,7 @@ export function Dc9MemphisEnvironment({
             frame,
             reducedMotionRef.current,
           ))
+          parkedPoseAppliedRef.current = parkedRef.current
         }
         loadedRef.current = staged
         setLoaded(staged)
@@ -152,7 +178,10 @@ export function Dc9MemphisEnvironment({
   }, [frameRef, onLoadState, retryToken])
 
   useFrame(() => {
-    const frame = frameRef.current
+    // A parked stage holds one pose for as long as it lasts, so it is solved once
+    // rather than re-solved sixty times a second for eight stages that never move.
+    if (parked && parkedPoseAppliedRef.current) return
+    const frame = parked ? DC9_MEMPHIS_PARKED_FRAME : frameRef.current
     const current = loadedRef.current
     if (!frame) return
     const canvas = canvasRef.current
@@ -165,6 +194,7 @@ export function Dc9MemphisEnvironment({
       frame,
       reducedMotion,
     ))
+    parkedPoseAppliedRef.current = parked
   })
 
   return (

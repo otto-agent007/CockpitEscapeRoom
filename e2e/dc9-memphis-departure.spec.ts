@@ -63,14 +63,15 @@ async function seedState(page: Page, state: GameState): Promise<void> {
   await page.reload()
 }
 
-function routeRecordState(): GameState {
+/** The chapter's opening beat since the 2026-08-30 swap: the scan releases the flight. */
+function instrumentScanState(): GameState {
   const state = createInitialState()
   return {
     ...state,
     phase: 'dc9',
     dc9: {
       ...state.dc9,
-      stage: 'intro',
+      stage: 'instrumentScan',
       controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS],
     },
   }
@@ -98,6 +99,31 @@ async function expectDurableProgress(
   }
 }
 
+/**
+ * Memphis is outside the windows for the whole chapter, so a stage that is not the
+ * departure must still have the environment staged — and holding the parked ramp
+ * view. A completed flight leaves the live frame at climb altitude and full path
+ * progress, so without that hold Home Operations and the ceremonial shutdown would
+ * look out at the airport from 110 m up and 700 m down the runway.
+ */
+async function expectParkedMemphisEnvironment(page: Page): Promise<void> {
+  const canvas = page.locator('canvas')
+  await expect(canvas).toHaveAttribute('data-dc9-memphis-model-state', 'ready', { timeout: 30_000 })
+  await expect(canvas).toHaveAttribute('data-dc9-memphis-beat', 'rampRelease')
+  const pose = await canvas.getAttribute('data-dc9-memphis-world-pose')
+  expect(pose).not.toBeNull()
+  const parked = JSON.parse(pose!) as { position: number[] }
+  // Validate the measurement before trusting it: Math.hypot() of an empty array is 0,
+  // which would satisfy the bound below without measuring anything at all.
+  expect(parked.position).toHaveLength(3)
+  expect(parked.position.every((value) => Number.isFinite(value))).toBe(true)
+  // Ramp start is the world origin plus the gear-height clearance, so the parked inverse
+  // translation is 2.5 m. Every other checkpoint is far outside this bound: taxiTurn
+  // 105.5 m, holdShort 241.9 m, runwayLineup 272.8 m, initialClimb 553.2 m, complete
+  // 719.1 m — so this fails by two orders of magnitude if the parked hold is lost.
+  expect(Math.hypot(...parked.position)).toBeLessThan(10)
+}
+
 async function waitForMemphisEnvironment(page: Page): Promise<void> {
   const canvas = page.locator('canvas')
   await expect(canvas).toHaveAttribute('data-dc9-model-state', 'ready', { timeout: 30_000 })
@@ -115,9 +141,28 @@ async function waitForMemphisEnvironment(page: Page): Promise<void> {
   const frustum = await canvas.getAttribute('data-dc9-camera-frustum')
   expect(frustum).not.toBeNull()
   const [nearPlane, farPlane] = frustum!.split(',').map(Number)
-  expect(nearPlane).toBeGreaterThan(0)
+  // Pin the documented pair, not merely "positive": the near plane is what keeps depth
+  // precision across a 700 m scene, and the authored cockpit value (0.015) is 3x coarser
+  // per metre. A silent revert to it would pass any is-it-positive check.
+  expect(nearPlane).toBeCloseTo(0.05, 5)
   expect(farPlane).toBeGreaterThanOrEqual(1500)
   expect([...parsed.position, ...parsed.quaternion].every(Number.isFinite)).toBe(true)
+}
+
+/** Answer the six-gauge scan from its native list, which is what releases the flight. */
+async function completeInstrumentScan(page: Page): Promise<void> {
+  const scan = page.getByRole('region', { name: 'The scan he flew by' })
+  await expect(scan).toBeVisible()
+  for (const name of [
+    'Airspeed indicator',
+    'Attitude director indicator',
+    'Altimeter',
+    'Horizontal situation indicator',
+    'Vertical speed indicator',
+    'Engine pressure ratio gauges',
+  ]) {
+    await scan.locator('.dc9-instrument-choice').filter({ hasText: name }).click()
+  }
 }
 
 async function hold(page: Page, name: string, milliseconds: number): Promise<void> {
@@ -190,7 +235,7 @@ test('real-environment completion returns to Home Operations', async ({ page }) 
   // Relax toward neutral exactly as the guidance asks and let the climb finish.
   await expect(page.getByRole('heading', { name: 'Home Operations' })).toBeVisible({ timeout: 20_000 })
   await expect(page.getByRole('dialog', { name: 'Home Operations Log' })).toBeVisible()
-  await expect(page.locator('canvas')).not.toHaveAttribute('data-dc9-memphis-model-state', /.+/)
+  await expectParkedMemphisEnvironment(page)
   await expect.poll(() => savedDeparture(page)).toMatchObject({ checkpoint: 'complete', completed: true })
 })
 
@@ -249,11 +294,11 @@ test('a full continuous real-environment departure returns to Home Operations', 
 
   await expect(page.getByRole('heading', { name: 'Home Operations' })).toBeVisible({ timeout: 20_000 })
   await expect(page.getByRole('dialog', { name: 'Home Operations Log' })).toBeVisible()
-  await expect(page.locator('canvas')).not.toHaveAttribute('data-dc9-memphis-model-state', /.+/)
+  await expectParkedMemphisEnvironment(page)
   await expect.poll(() => savedDeparture(page)).toMatchObject({ checkpoint: 'complete', completed: true })
 })
 
-test('real Memphis environment requests only after the route record and stays in the right seat', async ({ page }) => {
+test('real Memphis environment is fetched once for the whole chapter and stays in the right seat', async ({ page }) => {
   test.setTimeout(90_000)
   await page.emulateMedia({ reducedMotion: 'reduce' })
   const requestedPaths: string[] = []
@@ -266,19 +311,35 @@ test('real Memphis environment requests only after the route record and stays in
   })
 
   await page.goto('/')
-  await seedState(page, routeRecordState())
+  await seedState(page, instrumentScanState())
   await expect(page).toHaveTitle("The Captain's Key")
   await expect(page.locator('main.game-shell')).toBeVisible()
   await expect(page.locator('vite-error-overlay')).toHaveCount(0)
-  expect(requestedPaths.filter((path) => path === MEMPHIS_MODEL_PATH)).toHaveLength(0)
-
-  await page.getByRole('button', { name: 'Open Legacy Route Record' }).click()
-  for (const code of dc9LegacyFlow.routePuzzleAnswers) {
-    await page.getByRole('button', { name: new RegExp(`^${code},`) }).click()
-  }
-  await page.getByRole('button', { name: 'Record selected routes' }).click()
-  await expect(page.getByRole('heading', { name: 'Memphis Legacy Departure' })).toBeVisible()
+  // The airport is outside the windows from the chapter's first frame, so the
+  // environment is already requested here, before the instrument scan is answered.
   await expect.poll(() => requestedPaths.filter((path) => path === MEMPHIS_MODEL_PATH).length).toBe(1)
+  await expectParkedMemphisEnvironment(page)
+
+  // Record every value the model-state attribute takes across the stage change. The GLB is
+  // memoised per URL, so a teardown and remount would not show up as a second request —
+  // but it would show up here as the attribute being removed and returning through
+  // 'loading'. This is what "no transition into it" has to mean at the stage boundary.
+  await page.evaluate(() => {
+    const canvas = document.querySelector('canvas')
+    if (!canvas) throw new Error('Missing canvas')
+    const seen: string[] = [canvas.dataset.dc9MemphisModelState ?? 'absent']
+    ;(window as unknown as { __memphisStates: string[] }).__memphisStates = seen
+    new MutationObserver(() => seen.push(canvas.dataset.dc9MemphisModelState ?? 'absent'))
+      .observe(canvas, { attributes: true, attributeFilter: ['data-dc9-memphis-model-state'] })
+  })
+
+  await completeInstrumentScan(page)
+  await expect(page.getByRole('heading', { name: 'Memphis Legacy Departure' })).toBeVisible()
+  // Entering the departure hands the same staged environment to the live frame; it
+  // must not be torn down and fetched a second time.
+  await expect.poll(() => requestedPaths.filter((path) => path === MEMPHIS_MODEL_PATH).length).toBe(1)
+  expect(await page.evaluate(() => (window as unknown as { __memphisStates: string[] }).__memphisStates))
+    .toEqual(['ready'])
   await waitForMemphisEnvironment(page)
   expect(requestedPaths).not.toContain(MODEL_Y_MODEL_PATH)
   await expect(page.getByText(/Model Y|Tesla/i)).toHaveCount(0)
@@ -480,14 +541,14 @@ test('warm taxi meets the frame budget and scene count stays stable across three
 
   await seedState(page, departureState('complete'))
   await expect(page.getByRole('heading', { name: 'Home Operations' })).toBeVisible()
-  await expect(page.locator('canvas')).not.toHaveAttribute('data-dc9-memphis-model-state', /.+/)
+  await expectParkedMemphisEnvironment(page)
   for (let cycle = 1; cycle < 3; cycle += 1) {
     await seedDeparture(page, 'taxiTurn')
     await waitForMemphisEnvironment(page)
     sceneObjectCounts.push(Number(await page.locator('canvas').getAttribute('data-dc9-memphis-object-count')))
     await seedState(page, departureState('complete'))
     await expect(page.getByRole('heading', { name: 'Home Operations' })).toBeVisible()
-    await expect(page.locator('canvas')).not.toHaveAttribute('data-dc9-memphis-model-state', /.+/)
+    await expectParkedMemphisEnvironment(page)
   }
 
   console.log(`DC9_MEMPHIS_FRAME_METRICS ${JSON.stringify({ median, p95, sceneObjectCounts, renderer })}`)

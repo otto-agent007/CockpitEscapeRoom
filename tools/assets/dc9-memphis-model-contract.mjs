@@ -11,6 +11,23 @@ export const DC9_MEMPHIS_REQUIRED_NODES = [
   'KMEM_INITIAL_CLIMB',
 ]
 
+/**
+ * Ground slabs whose top faces are authored coplanar. The runtime breaks the resulting
+ * depth tie by name (memphisGroundDepthBiasLevel in src/scenes/dc9MemphisEnvironmentSupport.ts),
+ * so an export that renames one would silently drop its bias and bring back the taxi
+ * shimmer with every other check still green. Pin the names here instead.
+ */
+export const DC9_MEMPHIS_GROUND_NODES = [
+  'KMEM_FIELD',
+  'KMEM_TERMINAL_APRON',
+  'KMEM_RAMP',
+  'KMEM_TAXI_SURFACE',
+  'KMEM_RUNWAY_SURFACE',
+]
+
+/** Painted strips that must stay proud of the runway they sit on. */
+const GROUND_CENTERLINE_PATTERN = /^KMEM_CENTERLINE_\d+$/
+
 const ANCHOR_GAME_IDS = {
   KMEM_RAMP_START: 'dc9.memphis.rampStart',
   KMEM_TAXI_TURN: 'dc9.memphis.taxiTurn',
@@ -50,6 +67,14 @@ export function validateDc9MemphisModelContract(json, byteLength) {
     const node = nodes.find((candidate) => candidate.name === name)
     if (node?.extras?.game_id !== gameId) errors.push(`${name} must export exact game_id ${gameId}.`)
   }
+  for (const name of DC9_MEMPHIS_GROUND_NODES) {
+    const matches = nodes.filter((node) => node.name === name)
+    if (matches.length !== 1) {
+      errors.push(`DC-9 Memphis environment must export exactly one ${name} for the ground depth order; found ${matches.length}.`)
+    }
+  }
+  const centerlines = nodes.filter((node) => GROUND_CENTERLINE_PATTERN.test(node.name ?? ''))
+  if (centerlines.length === 0) errors.push('DC-9 Memphis environment must export KMEM_CENTERLINE_NN runway strips.')
   if (nodes.some((node) => !finiteTransform(node))) errors.push('Every DC-9 Memphis node must have a finite transform.')
   if (contractObjects.some((object) => Object.keys(object.extras ?? {}).some((key) => INTERACTIVE_KEYS.has(key)))) {
     errors.push('The environment must not export interactive cockpit metadata.')

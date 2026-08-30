@@ -147,10 +147,19 @@ function AirbusLoader({ state, fading, onRetry, onFallback }: { state: AirbusLoa
   )
 }
 
-function Dc9Loader({ state, fading }: { state: Dc9LoadState; fading: boolean }) {
-  const loadedMb = ((state.loadedBytes ?? 0) / 1_000_000).toFixed(1)
-  const totalMb = state.totalBytes ? (state.totalBytes / 1_000_000).toFixed(1) : null
-  const { percentage } = state
+function Dc9Loader({ state, environment, fading }: {
+  state: Dc9LoadState
+  environment: Dc9MemphisLoadState
+  fading: boolean
+}) {
+  // Once the cockpit is ready the page is waiting on the Memphis ramp, so it reports that
+  // asset rather than leaving a finished cockpit bar sitting at 100% with a stale caption.
+  const waitingOnEnvironment = state.status === 'ready' && environment.status === 'loading'
+  const source = waitingOnEnvironment ? environment : state
+  const label = waitingOnEnvironment ? 'Preparing the Memphis ramp outside' : 'Preparing the DC-9-32 flight deck'
+  const loadedMb = ((source.loadedBytes ?? 0) / 1_000_000).toFixed(1)
+  const totalMb = source.totalBytes ? (source.totalBytes / 1_000_000).toFixed(1) : null
+  const { percentage } = source
   return (
     <section className={`chapter-loader dc9-loader${fading ? ' chapter-loader--fading' : ''}`} aria-labelledby="dc9-loader-title">
       <img src={`${import.meta.env.BASE_URL}images/dc9-game-ready-first-officer.png`} alt="DC-9-32 flight deck seen from the first-officer seat" />
@@ -161,7 +170,7 @@ function Dc9Loader({ state, fading }: { state: Dc9LoadState; fading: boolean }) 
         <p className="chapter-loader-quote">Every hour of it hand-flown.</p>
         <p>The right seat, six dials in a fixed scan, and the routes that built a career.</p>
         <div className="chapter-loader-progress" role="status" aria-live="polite">
-          <div><span>Preparing the DC-9-32 flight deck</span><strong>{percentage !== undefined ? `${percentage}%` : `${loadedMb} MB`}</strong></div>
+          <div><span>{label}</span><strong>{percentage !== undefined ? `${percentage}%` : `${loadedMb} MB`}</strong></div>
           <progress max={100} value={percentage ?? 0} />
           <small>{totalMb ? `${loadedMb} of ${totalMb} MB downloaded` : `${loadedMb} MB downloaded`}</small>
         </div>
@@ -300,7 +309,14 @@ export default function App() {
 
   useEffect(() => {
     if (state.phase !== 'briefing' || skipPrototypeScene) return
-    void import('./scenes/cockpitModelLoader').then(({ preloadDc9Cockpit }) => preloadDc9Cockpit()).catch(() => undefined)
+    void import('./scenes/cockpitModelLoader')
+      .then(({ preloadDc9Cockpit, preloadDc9MemphisEnvironment }) => Promise.all([
+        preloadDc9Cockpit(),
+        // The airport is outside the windows from the first DC-9 stage, so it is
+        // part of the chapter's opening wait, not something that arrives later.
+        preloadDc9MemphisEnvironment().catch(() => undefined),
+      ]))
+      .catch(() => undefined)
   }, [skipPrototypeScene, state.phase])
 
   useEffect(() => {
@@ -398,8 +414,14 @@ export default function App() {
 
   // The DC-9 loading page owns the wait for the 36 MiB cockpit. On an error it steps aside
   // immediately so the chapter's own retry/fallback panel is the single place to recover.
+  // It also holds for the Memphis environment while that is still in flight, so the chapter
+  // never opens on empty windows and then has the airport appear a beat later. A 'loading'
+  // status always resolves to ready or error, so this can defer the page but never strand it
+  // — and the hold applies only when the cockpit itself succeeded, because a cockpit error
+  // must still step the page aside at once rather than wait behind a second download.
   useEffect(() => {
     if (dc9LoadState.status !== 'ready' && dc9LoadState.status !== 'error') return
+    if (dc9LoadState.status === 'ready' && dc9MemphisLoadState.status === 'loading') return
     const minimumRemaining = dc9LoadState.status === 'error'
       ? 0
       : Math.max(0, CHAPTER_LOADER_MINIMUM_MS - (performance.now() - dc9LoaderStartedAtRef.current))
@@ -412,7 +434,7 @@ export default function App() {
       window.clearTimeout(fadeTimeout)
       window.clearTimeout(hideTimeout)
     }
-  }, [dc9LoadState.status, reducedMotion])
+  }, [dc9LoadState.status, dc9MemphisLoadState.status, reducedMotion])
 
   useEffect(() => {
     if (lockerIntroStage === 'idle' || lockerIntroStage === 'waiting-for-locker' || lockerIntroStage === 'focus-watch') return
@@ -568,7 +590,9 @@ export default function App() {
   const handleDc9MemphisLoadState = useCallback((loadState: Dc9MemphisLoadState) => {
     setDc9MemphisLoadState(loadState)
   }, [])
-  const dc9ChapterLoadState = dc9DepartureActive
+  // Reported for the whole chapter, because the environment is now loaded for the whole
+  // chapter; the departure panel is still the one place that offers the retry.
+  const dc9ChapterLoadState = state.phase === 'dc9'
     ? attachDc9MemphisEnvironmentState(
         dc9LoadState,
         dc9MemphisLoadState,
@@ -801,7 +825,7 @@ export default function App() {
         />
       )}
       {state.phase === 'dc9' && !skipPrototypeScene && showDc9Loader && dc9LoadState.status !== 'accessible-fallback' && (
-        <Dc9Loader state={dc9LoadState} fading={dc9LoaderFading} />
+        <Dc9Loader state={dc9LoadState} environment={dc9MemphisLoadState} fading={dc9LoaderFading} />
       )}
       {state.phase === 'airbus' && !skipPrototypeScene && showAirbusLoader && airbusLoadState.status !== 'accessible-fallback' && (
         <AirbusLoader
