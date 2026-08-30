@@ -106,21 +106,27 @@ function anchorPoints(anchors: Dc9MemphisAnchorMap): Dc9MemphisVector[] {
   return DC9_MEMPHIS_ANCHOR_GAME_IDS.map((gameId) => anchors.get(gameId) as Dc9MemphisVector)
 }
 
-function samplePosition(progress: number, points: readonly Dc9MemphisVector[]): [number, number, number] {
-  const bounded = clamp01(progress)
-  const exactKnot = PATH_KNOTS.indexOf(bounded as (typeof PATH_KNOTS)[number])
-  if (exactKnot >= 0) return [...points[exactKnot] as Dc9MemphisVector]
+/** Dense samples per spline segment used to measure the route's arc length. */
+const CURVE_SAMPLES_PER_SEGMENT = 96
 
-  let segment = PATH_KNOTS.length - 2
-  for (let index = 0; index < PATH_KNOTS.length - 1; index += 1) {
-    if (bounded <= (PATH_KNOTS[index + 1] ?? 1)) {
-      segment = index
-      break
-    }
-  }
-  const start = PATH_KNOTS[segment] ?? 0
-  const end = PATH_KNOTS[segment + 1] ?? 1
-  const localProgress = (bounded - start) / (end - start)
+interface Dc9MemphisRouteTable {
+  /** Curve parameter (segment index + local progress) of each dense sample. */
+  params: number[]
+  /** Cumulative metres travelled at each dense sample. */
+  lengths: number[]
+  /** Cumulative metres travelled at each anchor knot. */
+  knotLengths: number[]
+  /** Monotone metres-per-unit-progress at each knot. */
+  knotSpeeds: number[]
+}
+
+const routeTables = new WeakMap<Dc9MemphisAnchorMap, Dc9MemphisRouteTable>()
+
+/** Evaluate the authored corridor at a raw curve parameter (segment + local). */
+function curvePoint(parameter: number, points: readonly Dc9MemphisVector[]): [number, number, number] {
+  const segmentCount = points.length - 1
+  const segment = Math.max(0, Math.min(segmentCount - 1, Math.floor(parameter)))
+  const localProgress = Math.max(0, Math.min(1, parameter - segment))
   const p0 = points[Math.max(0, segment - 1)] as Dc9MemphisVector
   const p1 = points[segment] as Dc9MemphisVector
   const p2 = points[Math.min(points.length - 1, segment + 1)] as Dc9MemphisVector
@@ -134,14 +140,127 @@ function samplePosition(progress: number, points: readonly Dc9MemphisVector[]): 
   )) as [number, number, number]
 }
 
-/** Sample the authored five-anchor corridor without importing Three.js. */
+/**
+ * Fritsch–Carlson slopes for the progress-to-distance curve. A weighted
+ * harmonic mean of the neighbouring average speeds is always positive and
+ * never overshoots them, so the route can never stall or double back.
+ */
+function monotoneSpeeds(knotLengths: readonly number[]): number[] {
+  const count = knotLengths.length
+  const spans: number[] = []
+  const averages: number[] = []
+  for (let index = 0; index < count - 1; index += 1) {
+    const span = (PATH_KNOTS[index + 1] as number) - (PATH_KNOTS[index] as number)
+    spans.push(span)
+    averages.push(span > 0 ? ((knotLengths[index + 1] as number) - (knotLengths[index] as number)) / span : 0)
+  }
+  const speeds = new Array<number>(count).fill(0)
+  speeds[0] = averages[0] as number
+  speeds[count - 1] = averages[count - 2] as number
+  for (let index = 1; index < count - 1; index += 1) {
+    const before = averages[index - 1] as number
+    const after = averages[index] as number
+    if (before <= 0 || after <= 0) continue
+    const weightBefore = 2 * (spans[index] as number) + (spans[index - 1] as number)
+    const weightAfter = (spans[index] as number) + 2 * (spans[index - 1] as number)
+    speeds[index] = (weightBefore + weightAfter) / (weightBefore / before + weightAfter / after)
+  }
+  return speeds
+}
+
+function routeTable(anchors: Dc9MemphisAnchorMap, points: readonly Dc9MemphisVector[]): Dc9MemphisRouteTable {
+  const cached = routeTables.get(anchors)
+  if (cached) return cached
+  const params = [0]
+  const lengths = [0]
+  const knotLengths = [0]
+  let previous = curvePoint(0, points)
+  let travelled = 0
+  for (let segment = 0; segment < points.length - 1; segment += 1) {
+    for (let step = 1; step <= CURVE_SAMPLES_PER_SEGMENT; step += 1) {
+      const parameter = segment + step / CURVE_SAMPLES_PER_SEGMENT
+      const point = curvePoint(parameter, points)
+      travelled += Math.hypot(point[0] - previous[0], point[1] - previous[1], point[2] - previous[2])
+      previous = point
+      params.push(parameter)
+      lengths.push(travelled)
+    }
+    knotLengths.push(travelled)
+  }
+  const table: Dc9MemphisRouteTable = { params, lengths, knotLengths, knotSpeeds: monotoneSpeeds(knotLengths) }
+  routeTables.set(anchors, table)
+  return table
+}
+
+/**
+ * Metres travelled at a normalized progress. Cubic Hermite through the anchor
+ * distances: the knots stay pinned to their anchors while the speed stays
+ * continuous across them, so no checkpoint boundary can step the world's pace.
+ */
+function distanceAtProgress(progress: number, table: Dc9MemphisRouteTable): number {
+  let segment = PATH_KNOTS.length - 2
+  for (let index = 0; index < PATH_KNOTS.length - 1; index += 1) {
+    if (progress <= (PATH_KNOTS[index + 1] ?? 1)) {
+      segment = index
+      break
+    }
+  }
+  const start = PATH_KNOTS[segment] as number
+  const span = (PATH_KNOTS[segment + 1] as number) - start
+  const local = span > 0 ? (progress - start) / span : 0
+  const squared = local * local
+  const cubed = squared * local
+  return (2 * cubed - 3 * squared + 1) * (table.knotLengths[segment] as number)
+    + (cubed - 2 * squared + local) * span * (table.knotSpeeds[segment] as number)
+    + (-2 * cubed + 3 * squared) * (table.knotLengths[segment + 1] as number)
+    + (cubed - squared) * span * (table.knotSpeeds[segment + 1] as number)
+}
+
+/** Invert the measured arc-length table back to a curve parameter. */
+function curveParameterAtDistance(distance: number, table: Dc9MemphisRouteTable): number {
+  const last = table.lengths.length - 1
+  if (distance <= 0) return table.params[0] as number
+  if (distance >= (table.lengths[last] as number)) return table.params[last] as number
+  let low = 0
+  let high = last
+  while (high - low > 1) {
+    const middle = (low + high) >> 1
+    if ((table.lengths[middle] as number) <= distance) low = middle
+    else high = middle
+  }
+  const span = (table.lengths[high] as number) - (table.lengths[low] as number)
+  const fraction = span > 0 ? (distance - (table.lengths[low] as number)) / span : 0
+  return (table.params[low] as number)
+    + ((table.params[high] as number) - (table.params[low] as number)) * fraction
+}
+
+function samplePosition(
+  progress: number,
+  points: readonly Dc9MemphisVector[],
+  table: Dc9MemphisRouteTable,
+): [number, number, number] {
+  const bounded = clamp01(progress)
+  const exactKnot = PATH_KNOTS.indexOf(bounded as (typeof PATH_KNOTS)[number])
+  if (exactKnot >= 0) return [...points[exactKnot] as Dc9MemphisVector]
+  return curvePoint(curveParameterAtDistance(distanceAtProgress(bounded, table), table), points)
+}
+
+/**
+ * Sample the authored five-anchor corridor without importing Three.js.
+ *
+ * Progress advances by distance travelled, not by knot fraction: the segments
+ * are very unevenly long (105 m of ramp against 468 m of runway), so a knot
+ * parameterization made the world lurch to a different speed at every
+ * checkpoint while the player held one lever position.
+ */
 export function sampleDc9MemphisPath(progress: number, anchors: Dc9MemphisAnchorMap): Dc9MemphisPathSample {
   const points = anchorPoints(anchors)
+  const table = routeTable(anchors, points)
   const bounded = clamp01(progress)
-  const position = samplePosition(bounded, points)
+  const position = samplePosition(bounded, points, table)
   const epsilon = 0.0001
-  const before = samplePosition(Math.max(0, bounded - epsilon), points)
-  const after = samplePosition(Math.min(1, bounded + epsilon), points)
+  const before = samplePosition(Math.max(0, bounded - epsilon), points, table)
+  const after = samplePosition(Math.min(1, bounded + epsilon), points, table)
   const deltaX = after[0] - before[0]
   const deltaY = after[1] - before[1]
   const headingRadians = Math.atan2(-deltaX, deltaY)

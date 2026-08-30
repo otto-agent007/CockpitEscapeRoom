@@ -184,6 +184,7 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
   const lineupConfirmedRef = useRef(false)
   const pauseLatchRef = useRef(false)
   const activeRef = useRef(active)
+  const selfAdvancedCheckpointRef = useRef<Dc9DepartureCheckpoint | null>(null)
   const emittedEventsRef = useRef(new Set<string>())
   const completionGateRef = useRef(createDc9DepartureCompletionGate())
   const callbacksRef = useRef({ resetControls, onCheckpoint, onMistake, onRestore, onComplete })
@@ -250,22 +251,32 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
   }, [controlsRef, scheduleHtmlPublication])
 
   const confirmLineup = useCallback(() => {
-    if (!active || frameRef.current.beat !== 'holdShort' || !frameRef.current.safeHold) return
+    if (!active || frameRef.current.beat !== 'holdShort') return
     pauseLatchRef.current = false
+    // Record the intent and let the rules decide. The button is drawn from a
+    // frame published up to 80 ms ago, so requiring the live frame to already
+    // read "settled" swallowed presses that landed a frame early.
     lineupConfirmedRef.current = true
   }, [active])
 
   useEffect(() => {
+    if (!active) {
+      completionGateRef.current.clear()
+      htmlPublicationSchedulerRef.current?.clear()
+      selfAdvancedCheckpointRef.current = null
+      return
+    }
+    // Seed the live frame from the durable checkpoint on entry, reload, or an
+    // externally changed save — but never when the running flight just reached
+    // this checkpoint itself. Its frame is already rolling past the canonical
+    // stopped pose, and re-seeding there halted the aircraft and respooled its
+    // energy from zero at every checkpoint.
+    if (selfAdvancedCheckpointRef.current === progress.checkpoint) return
     const canonical = canonicalDc9DepartureFrame(progress.checkpoint)
     frameRef.current = canonical
     emittedEventsRef.current.clear()
     lineupConfirmedRef.current = false
     pauseLatchRef.current = false
-    if (!active) {
-      completionGateRef.current.clear()
-      htmlPublicationSchedulerRef.current?.clear()
-      return
-    }
     scheduleHtmlPublication(canonical)
   }, [active, progress.checkpoint, scheduleHtmlPublication])
 
@@ -308,7 +319,10 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
       const elapsed = Math.min(0.1, Math.max(0, (now - previousTime) / 1000))
       previousTime = now
       const step = advanceDc9DepartureFrame(frameRef.current, input, elapsed)
-      lineupConfirmedRef.current = false
+      // The confirmation waits at the hold until the aircraft has actually
+      // settled, and is withdrawn the moment the player commands thrust again.
+      // Consuming it after a single frame silently dropped one-press confirms.
+      if (step.frame.beat !== 'holdShort' || controls.thrust > 0) lineupConfirmedRef.current = false
       frameRef.current = step.frame
 
       if (step.event) {
@@ -329,6 +343,7 @@ export function useDc9MemphisDeparture(options: UseDc9MemphisDepartureOptions): 
         )
         if (nextProgress) {
           progressRef.current = nextProgress
+          if (step.event.type === 'checkpoint') selfAdvancedCheckpointRef.current = step.event.checkpoint
           if (step.event.type === 'mistake') {
             pauseLatchRef.current = true
             callbacksRef.current.resetControls()

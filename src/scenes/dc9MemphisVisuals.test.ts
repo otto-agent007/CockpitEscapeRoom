@@ -99,6 +99,37 @@ describe('DC-9 Memphis visual path', () => {
     expect(sampleDc9MemphisPath(5, approvedAnchorFixture).position).toEqual([-120, 700, 110])
   })
 
+  it('travels at a continuous speed across every checkpoint knot', () => {
+    // Owner report 2026-08-29: the ground lurched during the ramp and taxi but
+    // ran smoothly on the takeoff roll. The route was parameterized by knot
+    // fraction, so a 105 m ramp leg and a 468 m runway leg each consumed their
+    // own slice of progress and the world changed pace at every boundary.
+    const speedAt = (progress: number) => {
+      const epsilon = 1e-5
+      const low = Math.max(0, progress - epsilon)
+      const high = Math.min(1, progress + epsilon)
+      const before = sampleDc9MemphisPath(low, approvedAnchorFixture).position
+      const after = sampleDc9MemphisPath(high, approvedAnchorFixture).position
+      return Math.hypot(
+        after[0] - before[0],
+        after[1] - before[1],
+        after[2] - before[2],
+      ) / (high - low)
+    }
+
+    let previous = speedAt(0.005)
+    let worstStep = 0
+    for (let sample = 1; sample <= 199; sample += 1) {
+      const speed = speedAt(sample / 200)
+      expect(speed).toBeGreaterThan(0)
+      worstStep = Math.max(worstStep, Math.abs(speed - previous) / previous)
+      previous = speed
+    }
+    // Knot-fraction sampling stepped 60% between two adjacent samples at the
+    // ramp/taxi boundary; arc-length sampling keeps every step gradual.
+    expect(worstStep).toBeLessThan(0.08)
+  })
+
   it('curves smoothly between taxi anchors without importing presentation state', () => {
     const beforeTurn = sampleDc9MemphisPath(0.10, approvedAnchorFixture)
     const afterTurn = sampleDc9MemphisPath(0.14, approvedAnchorFixture)
