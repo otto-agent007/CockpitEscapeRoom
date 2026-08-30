@@ -63,8 +63,12 @@ async function seedState(page: Page, state: GameState): Promise<void> {
   await page.reload()
 }
 
-/** The chapter's opening beat since the 2026-08-30 swap: the scan releases the flight. */
-function instrumentScanState(): GameState {
+/**
+ * The last answer of the chapter's opening scan. The lightweight smoke suite covers
+ * all six answers; this real-GLB fixture keeps only the stage-boundary action that can
+ * expose an environment teardown or reload.
+ */
+function instrumentScanReleaseState(): GameState {
   const state = createInitialState()
   return {
     ...state,
@@ -73,6 +77,10 @@ function instrumentScanState(): GameState {
       ...state.dc9,
       stage: 'instrumentScan',
       controlCheck: [...DC9_CONTROL_CHECK_ITEM_IDS],
+      instrumentScan: {
+        identified: ['airspeed', 'attitude', 'altimeter', 'heading', 'verticalSpeed'],
+        attempts: 0,
+      },
     },
   }
 }
@@ -147,22 +155,6 @@ async function waitForMemphisEnvironment(page: Page): Promise<void> {
   expect(nearPlane).toBeCloseTo(0.05, 5)
   expect(farPlane).toBeGreaterThanOrEqual(1500)
   expect([...parsed.position, ...parsed.quaternion].every(Number.isFinite)).toBe(true)
-}
-
-/** Answer the six-gauge scan from its native list, which is what releases the flight. */
-async function completeInstrumentScan(page: Page): Promise<void> {
-  const scan = page.getByRole('region', { name: 'The scan he flew by' })
-  await expect(scan).toBeVisible()
-  for (const name of [
-    'Airspeed indicator',
-    'Attitude director indicator',
-    'Altimeter',
-    'Horizontal situation indicator',
-    'Vertical speed indicator',
-    'Engine pressure ratio gauges',
-  ]) {
-    await scan.locator('.dc9-instrument-choice').filter({ hasText: name }).click()
-  }
 }
 
 async function hold(page: Page, name: string, milliseconds: number): Promise<void> {
@@ -311,12 +303,12 @@ test('real Memphis environment is fetched once for the whole chapter and stays i
   })
 
   await page.goto('/')
-  await seedState(page, instrumentScanState())
+  await seedState(page, instrumentScanReleaseState())
   await expect(page).toHaveTitle("The Captain's Key")
   await expect(page.locator('main.game-shell')).toBeVisible()
   await expect(page.locator('vite-error-overlay')).toHaveCount(0)
-  // The airport is outside the windows from the chapter's first frame, so the
-  // environment is already requested here, before the instrument scan is answered.
+  // The airport is outside the windows throughout the scan, so the environment is
+  // already requested here, before the final answer releases the departure.
   await expect.poll(() => requestedPaths.filter((path) => path === MEMPHIS_MODEL_PATH).length).toBe(1)
   await expectParkedMemphisEnvironment(page)
 
@@ -333,7 +325,9 @@ test('real Memphis environment is fetched once for the whole chapter and stays i
       .observe(canvas, { attributes: true, attributeFilter: ['data-dc9-memphis-model-state'] })
   })
 
-  await completeInstrumentScan(page)
+  const scan = page.getByRole('region', { name: 'The scan he flew by' })
+  await expect(scan).toContainText('5 of 6 identified')
+  await scan.locator('.dc9-instrument-choice').filter({ hasText: 'Engine pressure ratio gauges' }).click()
   await expect(page.getByRole('heading', { name: 'Memphis Legacy Departure' })).toBeVisible()
   // Entering the departure hands the same staged environment to the live frame; it
   // must not be torn down and fetched a second time.
@@ -341,6 +335,19 @@ test('real Memphis environment is fetched once for the whole chapter and stays i
   expect(await page.evaluate(() => (window as unknown as { __memphisStates: string[] }).__memphisStates))
     .toEqual(['ready'])
   await waitForMemphisEnvironment(page)
+
+  // The same staged scene must now follow the live departure frame, not remain
+  // permanently parked. One native thrust hold produces a material world-pose change
+  // without driving the full real-time departure under the software renderer.
+  const canvas = page.locator('canvas')
+  const parkedPose = await canvas.getAttribute('data-dc9-memphis-world-pose')
+  expect(parkedPose).not.toBeNull()
+  const advance = page.getByRole('button', { name: 'Advance thrust levers' })
+  await advance.dispatchEvent('pointerdown')
+  await expect.poll(() => canvas.getAttribute('data-dc9-memphis-world-pose'), { timeout: 15_000 })
+    .not.toBe(parkedPose)
+  await advance.dispatchEvent('pointerup')
+
   expect(requestedPaths).not.toContain(MODEL_Y_MODEL_PATH)
   await expect(page.getByText(/Model Y|Tesla/i)).toHaveCount(0)
   expect(consoleErrors).toEqual([])
