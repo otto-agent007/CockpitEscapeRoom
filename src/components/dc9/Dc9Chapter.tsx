@@ -5,9 +5,11 @@ import { HomeOperationsLog } from './HomeOperationsLog'
 import { LegacyRouteRecord } from './LegacyRouteRecord'
 import { CaptainsKeyReveal } from './CaptainsKeyReveal'
 import { ControlCheckPanel } from './ControlCheckPanel'
+import { MemphisDeparturePanel } from './MemphisDeparturePanel'
 import { InstrumentScanPanel } from './InstrumentScanPanel'
 import type { Dc9InstrumentId } from '../../game/dc9FlightDeck'
 import type { Dc9ControlState, Dc9HoldControl, Dc9InputMethod } from '../../game/dc9Input'
+import type { Dc9MemphisDepartureRuntime } from '../../game/useDc9MemphisDeparture'
 import type { Dc9HotspotScreenPositions, Dc9LoadState } from '../../scenes/PrototypeScene'
 import './dc9Chapter.css'
 
@@ -40,6 +42,7 @@ interface Dc9ChapterProps {
   controls: Dc9ControlState
   inputMethod: Dc9InputMethod
   onHoldControl: (control: Dc9HoldControl, pressed: boolean) => void
+  dc9MemphisDeparture: Dc9MemphisDepartureRuntime
 }
 
 export function Dc9Chapter({
@@ -54,6 +57,7 @@ export function Dc9Chapter({
   controls,
   inputMethod,
   onHoldControl,
+  dc9MemphisDeparture,
 }: Dc9ChapterProps) {
   const [routeRecordDismissed, setRouteRecordDismissed] = useState(false)
   const [keyRevealDismissed, setKeyRevealDismissed] = useState(false)
@@ -126,6 +130,17 @@ export function Dc9Chapter({
           controls={controls}
           inputMethod={inputMethod}
           onHold={onHoldControl}
+        />
+      ) : null}
+
+      {state.dc9.stage === 'memphisDeparture' ? (
+        <MemphisDeparturePanel
+          controls={controls}
+          inputMethod={inputMethod}
+          loadState={loadState}
+          onHold={onHoldControl}
+          progress={state.dc9.departure}
+          runtime={dc9MemphisDeparture}
         />
       ) : null}
 
@@ -303,6 +318,24 @@ export function Dc9Chapter({
           <strong>3D cockpit unavailable.</strong>
           <span>{loadState.message ?? 'The DC-9 model could not be loaded.'} Your progress is safe; the complete chapter remains available here.</span>
           <button type="button" className="secondary-button" onClick={onUseFallback}>Use static cockpit view</button>
+        </div>
+      ) : null}
+
+      {/*
+        The Memphis view is outside the windows for the whole chapter, so it can now fail
+        at any stage — not only at the departure, where the departure panel owns the
+        message and the retry. Without this a load failure would read as an empty sky for
+        several stages with nothing to say so and nothing to press.
+      */}
+      {state.dc9.stage !== 'memphisDeparture' && loadState.memphisEnvironment?.status === 'error' ? (
+        <div className="dc9-chapter__environment-error" role="status">
+          <strong>Windshield memory view unavailable.</strong>
+          <span>{loadState.memphisEnvironment.message} Every step of the chapter still works; only the view outside is missing.</span>
+          {loadState.memphisEnvironment.retry ? (
+            <button type="button" className="secondary-button" onClick={loadState.memphisEnvironment.retry}>
+              Retry the outside view
+            </button>
+          ) : null}
         </div>
       ) : null}
 

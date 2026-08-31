@@ -46,6 +46,10 @@ import {
   type Dc9InstrumentId,
 } from '../game/dc9FlightDeck'
 import { NEUTRAL_DC9_CONTROLS, type Dc9ControlInput, type Dc9ControlState } from '../game/dc9Input'
+import type { Dc9MemphisDepartureRuntime } from '../game/useDc9MemphisDeparture'
+import { Dc9MemphisEnvironment } from './Dc9MemphisEnvironment'
+import type { Dc9LoadState, Dc9MemphisLoadState } from './dc9MemphisLoadState'
+export type { Dc9LoadState } from './dc9MemphisLoadState'
 import {
   advanceDc9SelfTests,
   applyDc9JointValue,
@@ -71,6 +75,16 @@ const AIRBUS_NARROW_GAME_FOV = 92
 const AIRBUS_LOOK_POINTER_DEGREES_PER_PIXEL = 0.08
 const AIRBUS_LEAN_METERS_PER_PIXEL = 0.00008
 const DC9_WIDE_GAME_FOV = 64
+/**
+ * Every DC-9 camera is authored with a 100 m far plane, which is right for the
+ * parked cockpit but clips the Memphis environment (authored out to 700 m) out
+ * of the windshield. The airport is outside the windows for the whole chapter,
+ * so every DC-9 stage uses this frustum; the near plane rises with the far one
+ * to keep depth precision across the long scene, and is still three times finer
+ * per metre than the 0.015 near plane authored into the cockpit cameras.
+ */
+const DC9_MEMPHIS_CAMERA_NEAR = 0.05
+const DC9_MEMPHIS_CAMERA_FAR = 2500
 const DC9_NARROW_GAME_FOV = 76
 const DC9_ROUTE_WIDE_FOV = 50
 const DC9_ROUTE_NARROW_FOV = 60
@@ -193,13 +207,6 @@ export type AirbusLoadState =
   | { status: 'accessible-fallback'; loadedBytes: number; totalBytes?: number }
 
 export type LockerLoadState = { status: 'idle' | 'loading' | 'ready' | 'error' | 'accessible-fallback' }
-export type Dc9LoadState = {
-  status: 'idle' | 'loading' | 'ready' | 'error' | 'accessible-fallback'
-  message?: string
-  loadedBytes?: number
-  totalBytes?: number
-  percentage?: number
-}
 /** Which way the player has to look to bring a target into comfortable view. */
 export type Dc9OffscreenDirection = 'left' | 'right' | 'up' | 'down'
 export type Dc9HotspotScreenPositions = Record<string, {
@@ -222,6 +229,8 @@ interface PrototypeSceneProps {
   activeDc9Controls: Dc9SecureControlId[]
   dc9ChapterStage: Dc9ChapterStage
   dc9FlightControlsRef?: React.RefObject<Dc9ControlState>
+  dc9MemphisDeparture: Dc9MemphisDepartureRuntime
+  dc9MemphisRetryToken: number
   dc9IdentifiedInstruments: readonly Dc9InstrumentId[]
   onDc9YokeDrag?: (input: Partial<Dc9ControlInput> | null) => void
   reducedMotion: boolean
@@ -242,6 +251,7 @@ interface PrototypeSceneProps {
   onAirbusLoadState: (state: AirbusLoadState) => void
   onLockerLoadState: (state: LockerLoadState) => void
   onDc9LoadState: (state: Dc9LoadState) => void
+  onDc9MemphisLoadState: (state: Dc9MemphisLoadState) => void
   onAirbusHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
   onDc9HotspotsChange?: (positions: Dc9HotspotScreenPositions) => void
   onAirbusTarget: (control: AirbusControl) => void
@@ -654,15 +664,20 @@ function AirbusCameraDirector({
   return null
 }
 
-function applyDc9GameplayCameraTransform(runtimeCamera: THREE.Camera, sourceCamera: THREE.Camera, fovOverride?: number) {
+function applyDc9GameplayCameraTransform(
+  runtimeCamera: THREE.Camera,
+  sourceCamera: THREE.Camera,
+  fovOverride?: number,
+  frustumOverride?: { near: number; far: number },
+) {
   sourceCamera.updateMatrixWorld(true)
   sourceCamera.getWorldPosition(runtimeCamera.position)
   sourceCamera.getWorldQuaternion(runtimeCamera.quaternion)
   runtimeCamera.scale.set(1, 1, 1)
   if (runtimeCamera instanceof THREE.PerspectiveCamera && sourceCamera instanceof THREE.PerspectiveCamera) {
     runtimeCamera.fov = fovOverride ?? sourceCamera.fov
-    runtimeCamera.near = Math.max(0.01, sourceCamera.near)
-    runtimeCamera.far = sourceCamera.far
+    runtimeCamera.near = frustumOverride?.near ?? Math.max(0.01, sourceCamera.near)
+    runtimeCamera.far = frustumOverride?.far ?? sourceCamera.far
     runtimeCamera.updateProjectionMatrix()
   }
   runtimeCamera.updateMatrix()
@@ -758,6 +773,9 @@ function Dc9SeatLookControls({
       runtimeCamera.quaternion.w,
       runtimeCamera instanceof THREE.PerspectiveCamera ? runtimeCamera.fov : 0,
     ].map((value) => value.toFixed(5)).join(',')
+    if (runtimeCamera instanceof THREE.PerspectiveCamera) {
+      canvasRef.current.dataset.dc9CameraFrustum = `${runtimeCamera.near.toFixed(5)},${runtimeCamera.far.toFixed(5)}`
+    }
     cameraDirtyRef.current = false
   })
 
@@ -2290,14 +2308,30 @@ function LockerRoom({
   )
 }
 
+/**
+ * Interior fill for the flight deck. The Memphis environment now supplies the
+ * sky, the key light and the bounce for the whole chapter, so this rig is only
+ * what the cockpit adds on top: a little ambient lift into the shadowed footwell
+ * and the panel glow beside the right seat. It keeps the ceremonial shutdown's
+ * arc — each secured control takes a step of light out of the cabin — but as a
+ * fade inside a daylit cockpit rather than a slide into darkness.
+ *
+ * The daylight rig is a constant 3.30 of non-local intensity, so an ambient step
+ * alone is lost against it: the arc has to live mostly in the point light, which
+ * is local enough to read as the panel glow going out. Even so this is a much
+ * quieter beat than the pre-daylight rig's 46% fall, and it is on the owner's
+ * visual-gate list rather than settled.
+ */
 function Dc9RuntimeLighting({ secureSteps }: { secureSteps: number }) {
   return (
     <>
-      <ambientLight intensity={secureSteps >= 3 ? 0.13 : secureSteps >= 1 ? 0.23 : 0.32} color="#dce6e7" />
-      <hemisphereLight args={['#d8e8ef', '#132023', secureSteps >= 2 ? 0.22 : 0.42]} />
-      <directionalLight position={[-2.2, 3.2, 2.8]} intensity={secureSteps >= 3 ? 0.72 : 1.18} color="#ffe0bd" />
-      <directionalLight position={[2.5, 1.9, 2.2]} intensity={secureSteps >= 1 ? 0.38 : 0.76} color="#b8d5ff" />
-      <pointLight position={[-0.7, 0.75, 3.0]} intensity={secureSteps >= 2 ? 0.12 : 0.5} distance={3.2} color="#d8efff" />
+      <ambientLight intensity={secureSteps >= 3 ? 0.05 : secureSteps >= 1 ? 0.13 : 0.22} color="#dce6e7" />
+      <pointLight
+        position={[-0.7, 0.75, 3.0]}
+        intensity={secureSteps >= 3 ? 0.04 : secureSteps >= 2 ? 0.18 : secureSteps >= 1 ? 0.36 : 0.55}
+        distance={3.2}
+        color="#d8efff"
+      />
     </>
   )
 }
@@ -2936,6 +2970,7 @@ function Dc9Cockpit({
       camera,
       sourceCamera,
       size.width < 900 ? narrowFov : wideFov,
+      { near: DC9_MEMPHIS_CAMERA_NEAR, far: DC9_MEMPHIS_CAMERA_FAR },
     )
     canvasRef.current.dataset.dc9CameraNode = sourceCamera.name
   }, [camera, chapterStage, loaded, size.width])
@@ -2960,7 +2995,8 @@ function Dc9Cockpit({
     loaded.scene.traverse((object) => {
       const gameId = object.userData.collider_target_game_id
       if (typeof gameId !== 'string') return
-      if (gameId.startsWith('dc9.route.')) object.visible = routeInteractive
+      if (chapterStage === 'memphisDeparture') object.visible = false
+      else if (gameId.startsWith('dc9.route.')) object.visible = routeInteractive
       else if (gameId.startsWith('dc9.secure.')) object.visible = shutdownInteractive
       else if (gameId.startsWith('dc9.gauge.')) object.visible = chapterStage === 'instrumentScan'
       else if (gameId === 'dc9.key.open') object.visible = keyInteractive
@@ -2969,7 +3005,6 @@ function Dc9Cockpit({
 
   return (
     <>
-      <color attach="background" args={['#070b0d']} />
       <Dc9RuntimeLighting secureSteps={activeControls.length} />
       {loaded && !loadFailed ? (
         <>
@@ -3005,7 +3040,7 @@ function Dc9Cockpit({
           />
           <Dc9YokeDragControls
             yokeTarget={loaded.yokeTarget}
-            enabled={interactionEnabled && chapterStage === 'controlCheck'}
+            enabled={interactionEnabled && (chapterStage === 'controlCheck' || chapterStage === 'memphisDeparture')}
             suppressLookRef={suppressLookRef}
             onDrag={onYokeDrag}
             onHoverInteractive={onHoverInteractive}
@@ -3013,7 +3048,7 @@ function Dc9Cockpit({
           <Dc9HotspotProjector targets={loaded.targets} lookRef={lookRef} onChange={onHotspotsChange} />
           <Dc9InteractionRaycaster
             scene={loaded.scene}
-            enabled={interactionEnabled}
+            enabled={interactionEnabled && chapterStage !== 'memphisDeparture'}
             onInteraction={onInteraction}
             onHoverInteractive={onHoverInteractive}
           />
@@ -3031,11 +3066,14 @@ function Dc9Cockpit({
 function CaptainCockpit({
   activeControls,
   chapterStage,
+  dc9MemphisDeparture,
+  dc9MemphisRetryToken,
   reducedMotion,
   cameraResetRevision,
   flightControlsRef,
   identifiedInstruments,
   onLoadState,
+  onMemphisLoadState,
   onHotspotsChange,
   onInteraction,
   onYokeDrag,
@@ -3043,11 +3081,14 @@ function CaptainCockpit({
 }: {
   activeControls: Dc9SecureControlId[]
   chapterStage: Dc9ChapterStage
+  dc9MemphisDeparture: Dc9MemphisDepartureRuntime
+  dc9MemphisRetryToken: number
   reducedMotion: boolean
   cameraResetRevision: number
   flightControlsRef?: React.RefObject<Dc9ControlState>
   identifiedInstruments: readonly Dc9InstrumentId[]
   onLoadState: (state: Dc9LoadState) => void
+  onMemphisLoadState: (state: Dc9MemphisLoadState) => void
   onHotspotsChange?: (positions: Dc9HotspotScreenPositions) => void
   onInteraction: (gameId: string) => void
   onYokeDrag?: (input: Partial<Dc9ControlInput> | null) => void
@@ -3069,6 +3110,22 @@ function CaptainCockpit({
         onYokeDrag={onYokeDrag}
         onHoverInteractive={onHoverInteractive}
       />
+      {/*
+        Memphis is outside the windows for the whole chapter, not just the flight:
+        the aircraft is parked on the ramp where the memory begins, so there is no
+        moment where the airport arrives. Only the departure stage drives the pose
+        from the live frame — every other stage holds the parked ramp view, which
+        also keeps the completed flight from leaving the world at climb altitude
+        for the ceremonial shutdown.
+      */}
+      <Dc9MemphisEnvironment
+        key={`dc9-memphis-${dc9MemphisRetryToken}`}
+        frameRef={dc9MemphisDeparture.frameRef}
+        parked={chapterStage !== 'memphisDeparture'}
+        reducedMotion={reducedMotion}
+        retryToken={dc9MemphisRetryToken}
+        onLoadState={onMemphisLoadState}
+      />
     </>
   )
 }
@@ -3078,6 +3135,8 @@ export function PrototypeScene({
   activeDc9Controls,
   dc9ChapterStage,
   dc9FlightControlsRef,
+  dc9MemphisDeparture,
+  dc9MemphisRetryToken,
   dc9IdentifiedInstruments,
   onDc9YokeDrag,
   reducedMotion,
@@ -3098,6 +3157,7 @@ export function PrototypeScene({
   onAirbusLoadState,
   onLockerLoadState,
   onDc9LoadState,
+  onDc9MemphisLoadState,
   onAirbusHotspotsChange,
   onDc9HotspotsChange,
   onAirbusTarget,
@@ -3163,12 +3223,15 @@ export function PrototypeScene({
           <CaptainCockpit
             activeControls={activeDc9Controls}
             chapterStage={dc9ChapterStage}
+            dc9MemphisDeparture={dc9MemphisDeparture}
+            dc9MemphisRetryToken={dc9MemphisRetryToken}
             flightControlsRef={dc9FlightControlsRef}
             identifiedInstruments={dc9IdentifiedInstruments}
             onYokeDrag={onDc9YokeDrag}
             reducedMotion={reducedMotion}
             cameraResetRevision={cameraResetRevision}
             onLoadState={onDc9LoadState}
+            onMemphisLoadState={onDc9MemphisLoadState}
             onHotspotsChange={onDc9HotspotsChange}
             onInteraction={onDc9Interaction}
             onHoverInteractive={onInteractiveHover}

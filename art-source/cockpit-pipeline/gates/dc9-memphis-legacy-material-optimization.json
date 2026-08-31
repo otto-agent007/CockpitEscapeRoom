@@ -1,0 +1,32 @@
+{
+  "artifactId": "dc9-memphis-legacy-material-optimization-001",
+  "assetPath": "art-source/cockpit-pipeline/builds/shaded/dc9-memphis-legacy-shading/dc9-memphis-legacy-shaded.glb",
+  "createdAt": "2026-08-28T00:00:00Z",
+  "destructiveOptimizationUsed": false,
+  "gate": "material-optimization",
+  "glbSizeBytes": 1916956,
+  "materialCount": 8,
+  "optimizationDecision": "Preservation-first shading only. Restored approved OBJ8 UV coordinates and wired the exact selected 2048x1024 base-color, normal, and lit maps; preserved mesh topology, names, hierarchy, transforms, pivots, and custom properties. No mesh joining, decimation, texture resizing, rebake, or destructive GLB optimization was used.",
+  "reimportValidation": "pass",
+  "runtimeContractPreserved": true,
+  "textureReports": [
+    {
+      "height": 1024,
+      "path": ".cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/Memphis_Nashville/KMEM/KMEMterminal.png",
+      "usage": "base color",
+      "width": 2048
+    },
+    {
+      "height": 1024,
+      "path": ".cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/Memphis_Nashville/KMEM/KMEMterminal_NML.png",
+      "usage": "normal",
+      "width": 2048
+    },
+    {
+      "height": 1024,
+      "path": ".cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/Memphis_Nashville/KMEM/KMEMterminal_LIT.png",
+      "usage": "restrained emissive support",
+      "width": 2048
+    }
+  ]
+}

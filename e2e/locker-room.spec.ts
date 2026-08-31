@@ -10,6 +10,13 @@ function lockerState(overrides: Partial<GameState> = {}): GameState {
     phase: 'locker',
     dc9: {
       stage: 'complete',
+      departure: {
+        checkpoint: 'complete',
+        completedBeats: ['rampRelease', 'taxi', 'holdShort', 'lineup', 'takeoffRoll', 'rotation', 'initialClimb', 'complete'],
+        attempts: {},
+        hintLevel: 0,
+        completed: true,
+      },
       routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
       routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
       routeAttempts: 0,
@@ -61,6 +68,13 @@ test("Captain's Key plays the narrative handoff and settles on the watch-first g
     phase: 'dc9',
     dc9: {
       stage: 'keyReveal',
+      departure: {
+        checkpoint: 'complete',
+        completedBeats: ['rampRelease', 'taxi', 'holdShort', 'lineup', 'takeoffRoll', 'rotation', 'initialClimb', 'complete'],
+        attempts: {},
+        hintLevel: 0,
+        completed: true,
+      },
       routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
       routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
       routeAttempts: 0,
@@ -128,6 +142,13 @@ test("Captain's Key celebration honors reduced motion", async ({ page }) => {
     phase: 'dc9',
     dc9: {
       stage: 'keyReveal',
+      departure: {
+        checkpoint: 'complete',
+        completedBeats: ['rampRelease', 'taxi', 'holdShort', 'lineup', 'takeoffRoll', 'rotation', 'initialClimb', 'complete'],
+        attempts: {},
+        hintLevel: 0,
+        completed: true,
+      },
       routeSelections: [...dc9LegacyFlow.routePuzzleAnswers],
       routeCompleted: [...dc9LegacyFlow.routePuzzleAnswers],
       routeAttempts: 0,

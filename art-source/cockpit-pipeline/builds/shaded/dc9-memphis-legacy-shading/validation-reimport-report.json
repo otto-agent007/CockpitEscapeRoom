@@ -1,0 +1,20 @@
+{
+  "anchorGameIdsPreserved": true,
+  "approvedAssemblyApprovalVerified": true,
+  "approvedAssemblyInputsImmutable": true,
+  "destructiveOptimizationUsed": false,
+  "excludedLibraryNames": [],
+  "failures": [],
+  "glbSizeBytes": 1916956,
+  "hierarchyTransformsAndExtrasPreserved": true,
+  "materialCount": 8,
+  "noInteractiveCockpitMetadata": true,
+  "objectCount": 32,
+  "optimizationDecision": "Preservation-first shading only. Restored approved OBJ8 UV coordinates and wired the exact selected 2048x1024 base-color, normal, and lit maps; preserved mesh topology, names, hierarchy, transforms, pivots, and custom properties. No mesh joining, decimation, texture resizing, rebake, or destructive GLB optimization was used.",
+  "packedTexturesVerified": true,
+  "requiredNamesPreservedExactlyOnce": true,
+  "root": "KMEM_LEGACY_ROOT",
+  "selectedSourceHashesVerified": true,
+  "status": "pass",
+  "triangleCount": 736
+}

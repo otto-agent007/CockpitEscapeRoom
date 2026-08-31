@@ -198,7 +198,7 @@ export const dc9LegacyFlow = {
       thrustClosed: { label: 'Levers closed', detail: 'Bring both levers all the way back to idle.' },
     } as const,
     completionText:
-      'Controls free and correct. A narrow paper strip clipped to the column comes into view.',
+      'Controls free and correct. The panel settles, and the six dials he flew by are waiting to be read.',
     disclaimer: 'The aircraft is parked and powered down. Nothing here commands the aeroplane.',
   } as const,
   instrumentScan: {
@@ -251,7 +251,7 @@ export const dc9LegacyFlow = {
         strongerHint: 'Centre panel, the top pair of engine dials above the N1 and EGT rows.',
       },
     } as const,
-    completionText: 'Instrument scan complete. The panel is read and the aircraft is ready to be put to bed.',
+    completionText: 'Scan complete. The panel is read, the ramp is clear, and Memphis is waiting outside.',
     disclaimer: 'A power-on self-test on a parked aeroplane. The needles are showing what they can do, not what the aircraft is doing.',
   } as const,
   routePuzzleAnswers: ['DTW', 'MSP', 'STL'] as const,
@@ -269,7 +269,9 @@ export const dc9LegacyFlow = {
     'Think Michigan, Minnesota, and Missouri.',
   ] as const,
   routeFinalHintCodes: ['DTW', 'MSP', 'STL'] as const,
-  routeCompletionText: 'Legacy routes recorded. A companion record is ready.',
+  routeIntro:
+    'The flight is flown and the crew is recognized. A narrow paper strip clipped to the column is still blank — the routes he flew, waiting to be logged.',
+  routeCompletionText: 'Legacy routes recorded. The log is closed and the aircraft can be put to bed.',
   routeRetry: 'Those selections do not complete this legacy record. Your stamped routes remain recorded.',
   routeMileageHint: 'Think Michigan, Minnesota, and Missouri.',
   homeOperationsPages: [

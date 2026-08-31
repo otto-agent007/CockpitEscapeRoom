@@ -1,0 +1,239 @@
+{
+  "anchors": [
+    {
+      "game_id": "dc9.memphis.rampStart",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "name": "KMEM_RAMP_START",
+      "routeDistance": 0.0
+    },
+    {
+      "game_id": "dc9.memphis.taxiTurn",
+      "location": [
+        -55.0,
+        90.0,
+        0.0
+      ],
+      "name": "KMEM_TAXI_TURN",
+      "routeDistance": 105.475116
+    },
+    {
+      "game_id": "dc9.memphis.holdShort",
+      "location": [
+        -120.0,
+        210.0,
+        0.0
+      ],
+      "name": "KMEM_HOLD_SHORT",
+      "routeDistance": 241.948556
+    },
+    {
+      "game_id": "dc9.memphis.runwayLineup",
+      "location": [
+        -120.0,
+        245.0,
+        0.0
+      ],
+      "name": "KMEM_RUNWAY_LINEUP",
+      "routeDistance": 276.948556
+    },
+    {
+      "game_id": "dc9.memphis.initialClimb",
+      "location": [
+        -120.0,
+        700.0,
+        110.0
+      ],
+      "name": "KMEM_INITIAL_CLIMB",
+      "routeDistance": 745.05645
+    }
+  ],
+  "backgroundScenery": [
+    {
+      "center": [
+        -150.0,
+        375.0,
+        -0.83
+      ],
+      "dimensions": [
+        1100.0,
+        1450.0,
+        1.5
+      ],
+      "name": "KMEM_FIELD",
+      "role": "field"
+    },
+    {
+      "center": [
+        -330.0,
+        400.0,
+        6.0
+      ],
+      "dimensions": [
+        22.0,
+        1200.0,
+        12.0
+      ],
+      "name": "KMEM_TREELINE_WEST",
+      "role": "treeline"
+    },
+    {
+      "center": [
+        -150.0,
+        1030.0,
+        6.0
+      ],
+      "dimensions": [
+        1060.0,
+        24.0,
+        12.0
+      ],
+      "name": "KMEM_TREELINE_NORTH",
+      "role": "treeline"
+    },
+    {
+      "center": [
+        360.0,
+        320.0,
+        6.0
+      ],
+      "dimensions": [
+        24.0,
+        1050.0,
+        12.0
+      ],
+      "name": "KMEM_TREELINE_EAST",
+      "role": "treeline"
+    }
+  ],
+  "concourseSourceTransforms": {
+    "ConcourseB.obj": {
+      "location": [
+        -242.0,
+        250.0,
+        0.0
+      ],
+      "rotation_z_degrees": 0.0
+    },
+    "ConcourseB_2.obj": {
+      "location": [
+        -200.0,
+        385.0,
+        0.0
+      ],
+      "rotation_z_degrees": 90.0
+    },
+    "ConcourseB_2e.obj": {
+      "location": [
+        18.0,
+        118.0,
+        0.0
+      ],
+      "rotation_z_degrees": 116.0
+    }
+  },
+  "groundSurfaces": [
+    {
+      "center": [
+        0.0,
+        70.0,
+        -0.75
+      ],
+      "dimensions": [
+        180.0,
+        320.0,
+        1.5
+      ],
+      "name": "KMEM_RAMP"
+    },
+    {
+      "center": [
+        -95.25,
+        140.0,
+        -0.7
+      ],
+      "dimensions": [
+        89.5,
+        250.0,
+        1.4
+      ],
+      "name": "KMEM_TAXI_SURFACE"
+    },
+    {
+      "center": [
+        -120.0,
+        475.0,
+        -0.72
+      ],
+      "dimensions": [
+        62.0,
+        500.0,
+        1.44
+      ],
+      "name": "KMEM_RUNWAY_SURFACE"
+    },
+    {
+      "center": [
+        -225.5,
+        380.0,
+        -0.74
+      ],
+      "dimensions": [
+        149.0,
+        520.0,
+        1.44
+      ],
+      "name": "KMEM_TERMINAL_APRON"
+    }
+  ],
+  "layoutSpace": "compressed authored game space; not airport-chart geography",
+  "projectOwnedGeometry": [
+    "KMEM_RAMP",
+    "KMEM_TAXI_SURFACE",
+    "KMEM_RUNWAY_SURFACE",
+    "KMEM_TERMINAL_APRON",
+    "KMEM_FIELD",
+    "KMEM_TREELINE_WEST",
+    "KMEM_TREELINE_NORTH",
+    "KMEM_TREELINE_EAST",
+    "KMEM_TERMINAL_CANOPY",
+    "KMEM_TERMINAL_CLERESTORY",
+    "KMEM_CENTERLINE_01..09"
+  ],
+  "root": "KMEM_LEGACY_ROOT",
+  "sourceGroup": "KMEM_CONCOURSE_B",
+  "terminalCanopy": {
+    "attached_source": "ConcourseB.obj",
+    "column_width": 1.4,
+    "first_module_center_y": 164.05,
+    "module_count": 8,
+    "module_half_width": 13.25,
+    "module_pitch": 28.0,
+    "name": "KMEM_TERMINAL_CANOPY",
+    "roof_z": 11.07,
+    "slab_thickness": 0.8,
+    "tip_z": 17.07,
+    "valley_z": 13.57,
+    "x_range": [
+      -230.0,
+      -184.0
+    ]
+  },
+  "terminalClerestory": {
+    "center": [
+      -207.0,
+      262.05,
+      12.32
+    ],
+    "dimensions": [
+      42.0,
+      222.5,
+      2.8000000000000007
+    ],
+    "name": "KMEM_TERMINAL_CLERESTORY"
+  },
+  "validationErrors": []
+}

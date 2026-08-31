@@ -1,0 +1,30 @@
+{
+  "approvalId": "dc9-memphis-legacy-shading-approval-003",
+  "jobId": "dc9-memphis-legacy-shading",
+  "assemblyJobId": "dc9-memphis-legacy-assembly",
+  "stage": "shading-approved",
+  "approved": true,
+  "approvedBy": "owner-directed update 2026-08-28 (background scenery and clerestory shading; grade unchanged, detail judgment delegated, previews presented on completion)",
+  "approvedAt": "2026-08-28",
+  "shadingManifest": "art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-shading/manifests/shading-complete.json",
+  "shadingManifestSha256": "888defe6faed22445991714d1ee8cedf10cc68bd464c494077ffb941343b5e00",
+  "materialGate": "art-source/cockpit-pipeline/gates/dc9-memphis-legacy-material-optimization.json",
+  "materialGateSha256": "a4585953f05a45dbe9743012bdfbc26bfa933da972a490e5c5440b255ce36676",
+  "sourceVariant": "Ted Davis KMEM X-Plane scenery revision 2019-01-22",
+  "targetVariant": "1995 Memphis memory recreation",
+  "variantScope": "common",
+  "scope": "Materials, packed textures, preservation-first optimization, and the unchanged owner-ruled restrained grade are approved for production promotion, now including the muted field, distant tree-line, and dark clerestory-band assignments (eight materials within the raised contract budget); browser/runtime integration remains a separate task.",
+  "note": "Owner-directed scenery update: KMEM_FIELD_MATERIAL and KMEM_TREELINE_MATERIAL added, KMEM_TERMINAL_CLERESTORY reuses the near-black runway matte as the recessed glazing band. Terminal texture wiring, normal strength, restrained lit support, and review lighting are unchanged from shading-approval-002. Semantic validation passed at 32 objects / 22 meshes / 736 triangles / 8 materials.",
+  "approvedArtifacts": [
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-memphis-legacy-shading/dc9-memphis-legacy-shaded.blend",
+      "sha256": "ffe69551d30369a934c5668068dfe3858a56fd6c3d8bcdc25c764a3b050c1c27",
+      "bytes": 1917891
+    },
+    {
+      "path": "art-source/cockpit-pipeline/builds/shaded/dc9-memphis-legacy-shading/dc9-memphis-legacy-shaded.glb",
+      "sha256": "e730c5918007e7200096f743b149c8cd1ad748da6ffc1e449d6795cd4b564d63",
+      "bytes": 1916956
+    }
+  ]
+}

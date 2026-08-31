@@ -4,12 +4,12 @@ import { createInitialState, gameReducer, isLockerMemoryAvailable, type GameStat
 import { DC9_INSTRUMENT_SCAN_ORDER } from './dc9InstrumentScan'
 import { NEUTRAL_DC9_CONTROLS, type Dc9ControlState } from './dc9Input'
 
-describe('schema-v13 canonical state', () => {
+describe('schema-v15 canonical state', () => {
   it('starts with seat-role semantic fields and no schema-v6 compatibility fields', () => {
     const state = createInitialState() as unknown as Record<string, unknown>
     const dc9 = state.dc9 as Record<string, unknown>
 
-    expect(state.schemaVersion).toBe(13)
+    expect(state.schemaVersion).toBe(15)
     expect(state.phase).toBe('briefing')
     expect(state.airbusQualificationAnswer).toBe('')
     expect(state.airbusCaptainModeUnlocked).toBe(false)
@@ -132,17 +132,37 @@ function completeDc9InstrumentScan(state: GameState): GameState {
   )
 }
 
-function enterDc9RouteRecord(): GameState {
-  const started = completeDc9ControlCheck(gameReducer(createInitialState(), { type: 'START' }))
-  return gameReducer(started, { type: 'OPEN_DC9_ROUTE_RECORD' })
+/** The scan is the chapter's first puzzle and the beat that releases the flight. */
+function enterDc9InstrumentScan(): GameState {
+  return completeDc9ControlCheck(gameReducer(createInitialState(), { type: 'START' }))
+}
+
+function enterDc9MemphisDeparture(): GameState {
+  return completeDc9InstrumentScan(enterDc9InstrumentScan())
 }
 
 function enterDc9HomeOperations(): GameState {
-  let state = enterDc9RouteRecord()
-  for (const code of dc9LegacyFlow.routePuzzleAnswers) {
-    state = gameReducer(state, { type: 'TOGGLE_DC9_ROUTE', code })
+  let state = enterDc9MemphisDeparture()
+  for (const checkpoint of ['taxiTurn', 'holdShort', 'runwayLineup', 'initialClimb'] as const) {
+    state = gameReducer(state, { type: 'SAVE_DC9_DEPARTURE_CHECKPOINT', checkpoint })
   }
-  return gameReducer(state, { type: 'SUBMIT_DC9_ROUTES' })
+  return gameReducer(state, { type: 'COMPLETE_DC9_MEMPHIS_DEPARTURE' })
+}
+
+/** The route record is now the log written after the flight, before the shutdown. */
+function enterDc9RouteRecord(): GameState {
+  let state = enterDc9HomeOperations()
+  state = gameReducer(state, { type: 'SET_HOME_OPERATIONS_PAGE', page: dc9LegacyFlow.homeOperationsPages.length - 1 })
+  state = gameReducer(state, { type: 'COMPLETE_HOME_OPERATIONS' })
+  return gameReducer(state, { type: 'OPEN_DC9_ROUTE_RECORD' })
+}
+
+function completeDc9RouteRecord(state: GameState): GameState {
+  let next = state
+  for (const code of dc9LegacyFlow.routePuzzleAnswers) {
+    next = gameReducer(next, { type: 'TOGGLE_DC9_ROUTE', code })
+  }
+  return gameReducer(next, { type: 'SUBMIT_DC9_ROUTES' })
 }
 
 describe('DC-9 Final Flight Log configuration', () => {
@@ -170,24 +190,113 @@ describe('DC-9 Final Flight Log configuration', () => {
 })
 
 describe('DC-9 Final Flight Log reducer', () => {
-  it('starts in the DC-9 and advances from the route record to Home Operations', () => {
+  it('starts in the DC-9 and advances from the instrument scan through Memphis departure to Home Operations', () => {
     let state = gameReducer(createInitialState(), { type: 'START' })
     expect(state.phase).toBe('dc9')
     expect(state.dc9.stage).toBe('controlCheck')
 
     state = completeDc9ControlCheck(state)
-    expect(state.dc9.stage).toBe('intro')
+    expect(state.dc9.stage).toBe('instrumentScan')
 
-    state = gameReducer(state, { type: 'OPEN_DC9_ROUTE_RECORD' })
-    expect(state.dc9.stage).toBe('routeRecord')
+    // The scan, not the route record, is what releases the flight.
+    state = completeDc9InstrumentScan(state)
+    expect(state.dc9.stage).toBe('memphisDeparture')
+    expect(state.dc9.routeCompleted).toEqual([])
 
-    for (const code of ['DTW', 'MSP', 'STL']) {
-      state = gameReducer(state, { type: 'TOGGLE_DC9_ROUTE', code })
+    const beforeSkippedCheckpoint = state
+    expect(gameReducer(state, {
+      type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
+      checkpoint: 'initialClimb',
+    })).toBe(beforeSkippedCheckpoint)
+    for (const checkpoint of ['taxiTurn', 'holdShort', 'runwayLineup', 'initialClimb'] as const) {
+      state = gameReducer(state, { type: 'SAVE_DC9_DEPARTURE_CHECKPOINT', checkpoint })
     }
-    state = gameReducer(state, { type: 'SUBMIT_DC9_ROUTES' })
-
-    expect(state.dc9.routeCompleted).toEqual(['DTW', 'MSP', 'STL'])
+    state = gameReducer(state, { type: 'COMPLETE_DC9_MEMPHIS_DEPARTURE' })
+    expect(state.dc9.departure.completed).toBe(true)
     expect(state.dc9.stage).toBe('homeOperations')
+  })
+
+  it('guards Memphis departure actions by stage and ordered checkpoints', () => {
+    const routeRecord = enterDc9RouteRecord()
+    expect(gameReducer(routeRecord, {
+      type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
+      checkpoint: 'initialClimb',
+    })).toBe(routeRecord)
+
+    let departure = routeRecord
+    for (const code of dc9LegacyFlow.routePuzzleAnswers) {
+      departure = gameReducer(departure, { type: 'TOGGLE_DC9_ROUTE', code })
+    }
+    departure = gameReducer(departure, { type: 'SUBMIT_DC9_ROUTES' })
+    expect(gameReducer(departure, {
+      type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
+      checkpoint: 'holdShort',
+    })).toBe(departure)
+    departure = gameReducer(departure, {
+      type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
+      checkpoint: 'taxiTurn',
+    })
+    expect(gameReducer(departure, {
+      type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
+      checkpoint: 'rampStart',
+    })).toBe(departure)
+    expect(gameReducer(departure, {
+      type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
+      checkpoint: 'complete',
+    })).toBe(departure)
+    expect(gameReducer(departure, { type: 'COMPLETE_DC9_MEMPHIS_DEPARTURE' })).toBe(departure)
+  })
+
+  it('records only the active Memphis departure beat and restores without losing the scan', () => {
+    let state = enterDc9MemphisDeparture()
+    state = gameReducer(state, {
+      type: 'SAVE_DC9_DEPARTURE_CHECKPOINT',
+      checkpoint: 'taxiTurn',
+    })
+    const beforeWrongBeat = state
+    expect(gameReducer(state, {
+      type: 'RECORD_DC9_DEPARTURE_MISTAKE',
+      beat: 'rampRelease',
+    })).toBe(beforeWrongBeat)
+
+    state = gameReducer(state, {
+      type: 'RECORD_DC9_DEPARTURE_MISTAKE',
+      beat: 'taxi',
+    })
+    expect(state.dc9.departure.attempts).toEqual({ taxi: 1 })
+    // The scan is the earned progress that now sits behind the flight; a restore must not
+    // cost it any more than it used to cost the route stamps.
+    const identified = [...state.dc9.instrumentScan.identified]
+    state = gameReducer(state, { type: 'RESTORE_DC9_DEPARTURE_CHECKPOINT' })
+    expect(state.dc9.instrumentScan.identified).toEqual(identified)
+    expect(state.dc9.departure.checkpoint).toBe('taxiTurn')
+  })
+
+  it('resets Memphis departure to the ramp start', () => {
+    const initial = createInitialState()
+    const reset = gameReducer({
+      ...initial,
+      phase: 'dc9',
+      dc9: {
+        ...initial.dc9,
+        stage: 'memphisDeparture',
+        departure: {
+          checkpoint: 'initialClimb',
+          completedBeats: ['rampRelease', 'taxi', 'holdShort', 'lineup', 'takeoffRoll', 'rotation'],
+          attempts: { taxi: 2 },
+          hintLevel: 2,
+          completed: false,
+        },
+      },
+    }, { type: 'RESET' })
+
+    expect(reset.dc9.departure).toEqual({
+      checkpoint: 'rampStart',
+      completedBeats: [],
+      attempts: {},
+      hintLevel: 0,
+      completed: false,
+    })
   })
 
   it('stamps familiar routes permanently while a wrong submission advances support', () => {
@@ -209,9 +318,11 @@ describe('DC-9 Final Flight Log reducer', () => {
     state = gameReducer(state, { type: 'COMPLETE_HOME_OPERATIONS' })
 
     expect(state.dc9.homeOperationsCompleted).toBe(true)
-    expect(state.dc9.stage).toBe('instrumentScan')
+    expect(state.dc9.stage).toBe('intro')
 
-    state = completeDc9InstrumentScan(state)
+    // The Legacy Route Record is now the last log written before the aircraft is secured.
+    state = completeDc9RouteRecord(gameReducer(state, { type: 'OPEN_DC9_ROUTE_RECORD' }))
+    expect(state.dc9.routeCompleted).toEqual([...dc9LegacyFlow.routePuzzleAnswers])
     expect(state.dc9.stage).toBe('shutdown')
 
     state = gameReducer(state, { type: 'ACTIVATE_DC9_CONTROL', controlId: 'battery' })
@@ -244,7 +355,7 @@ describe('DC-9 Final Flight Log reducer', () => {
     let state = enterDc9HomeOperations()
     state = gameReducer(state, { type: 'SET_HOME_OPERATIONS_PAGE', page: 4 })
     state = gameReducer(state, { type: 'COMPLETE_HOME_OPERATIONS' })
-    state = completeDc9InstrumentScan(state)
+    state = completeDc9RouteRecord(gameReducer(state, { type: 'OPEN_DC9_ROUTE_RECORD' }))
     for (const controlId of dc9LegacyFlow.secureSequence) {
       state = gameReducer(state, { type: 'ACTIVATE_DC9_CONTROL', controlId })
     }
@@ -718,7 +829,7 @@ describe('gameReducer', () => {
     let state = enterDc9HomeOperations()
     state = gameReducer(state, { type: 'SET_HOME_OPERATIONS_PAGE', page: 4 })
     state = gameReducer(state, { type: 'COMPLETE_HOME_OPERATIONS' })
-    state = completeDc9InstrumentScan(state)
+    state = completeDc9RouteRecord(gameReducer(state, { type: 'OPEN_DC9_ROUTE_RECORD' }))
     for (const controlId of dc9LegacyFlow.secureSequence) {
       state = gameReducer(state, { type: 'ACTIVATE_DC9_CONTROL', controlId })
     }
@@ -872,10 +983,11 @@ describe('DC-9 right-seat control check', () => {
     expect(sweepTo(state, { pitch: 0.4 })).toBe(state)
   })
 
-  it('reveals the route strip once every control has been swept', () => {
+  it('opens the instrument scan once every control has been swept', () => {
     const state = completeDc9ControlCheck(started())
-    expect(state.dc9.stage).toBe('intro')
-    expect(state.statusMessage).toBe(dc9LegacyFlow.controlCheck.completionText)
+    expect(state.dc9.stage).toBe('instrumentScan')
+    expect(state.statusMessage).toContain(dc9LegacyFlow.controlCheck.completionText)
+    expect(state.statusMessage).toContain(dc9LegacyFlow.instrumentScan.intro)
     expect(state.dc9.controlCheck).toHaveLength(8)
   })
 
@@ -895,13 +1007,9 @@ describe('DC-9 right-seat control check', () => {
 })
 
 describe('DC-9 instrument scan', () => {
-  const atScan = () => {
-    let state = enterDc9HomeOperations()
-    state = gameReducer(state, { type: 'SET_HOME_OPERATIONS_PAGE', page: 4 })
-    return gameReducer(state, { type: 'COMPLETE_HOME_OPERATIONS' })
-  }
+  const atScan = () => enterDc9InstrumentScan()
 
-  it('follows the Home Operations Log and precedes the shutdown', () => {
+  it('follows the control check and precedes the Memphis departure', () => {
     const state = atScan()
     expect(state.dc9.stage).toBe('instrumentScan')
     expect(state.dc9.instrumentScan).toEqual({ identified: [], attempts: 0 })
@@ -933,10 +1041,12 @@ describe('DC-9 instrument scan', () => {
     expect(state.statusMessage).toContain('outlined for you now')
   })
 
-  it('opens the ceremonial shutdown when all six are identified', () => {
+  it('releases the Memphis departure when all six are identified', () => {
     const state = completeDc9InstrumentScan(atScan())
-    expect(state.dc9.stage).toBe('shutdown')
-    expect(state.statusMessage).toContain(dc9LegacyFlow.secureInstruction)
+    expect(state.dc9.stage).toBe('memphisDeparture')
+    expect(state.statusMessage).toContain(dc9LegacyFlow.instrumentScan.completionText)
+    // The scan now precedes the flight, so it must not talk about securing the aircraft.
+    expect(state.statusMessage).not.toContain(dc9LegacyFlow.secureInstruction)
   })
 
   it('does not accept answers outside its own stage', () => {

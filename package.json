@@ -27,6 +27,8 @@
     "asset:tmb2-ident": "python3 tools/assets/build-tmb2-ident-assets.py && node tools/assets/build-intro-manifest.mjs",
     "asset:tmb2-emblem": "python3 tools/assets/build-intro-emblem.py && node tools/assets/build-intro-manifest.mjs",
     "asset:dc9": "node tools/assets/build-asset.mjs dc9",
+    "asset:dc9-memphis": "node tools/assets/build-asset.mjs dc9-memphis",
+    "asset:dc9-memphis:intake": "node tools/assets/dc9-memphis-source-contract.mjs --source-dir .cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville --output asset-reports/dc9-memphis-source-intake.json",
     "asset:airbus": "node tools/assets/build-asset.mjs airbus",
     "asset:airbus:promote-gate": "python3 tools/blender/promote_airbus_captain_gate.py",
     "asset:tesla": "node tools/assets/build-asset.mjs tesla",

@@ -1,0 +1,118 @@
+{
+  "approval": "owner Source Review Gate pending",
+  "candidateId": "dc9-memphis-concourse-b-source",
+  "credit": "Memphis scenery derived from the Memphis/Nashville Scenery Package by Ted Davis.",
+  "exclusions": [
+    "AutoGate",
+    "OpenSceneryX",
+    "Planes",
+    "aircraft",
+    "vehicles",
+    "clutter",
+    "scripts",
+    "add-ons",
+    "unrelated KMEM objects"
+  ],
+  "historicalLimitation": "Ted Davis KMEM scenery revision 2019-01-22 is a later simulator source used only as a 1995-memory geometry base; it is not an exact historical reconstruction.",
+  "material": {
+    "mode": "neutral-base-color-only",
+    "name": "KMEM_SOURCE_NEUTRAL_BASE_COLOR",
+    "textureWiring": "none"
+  },
+  "objects": [
+    {
+      "boundsBlenderMeters": {
+        "dimensions": [
+          113.010078,
+          226.324524,
+          10.969081
+        ],
+        "max": [
+          56.517921,
+          125.139893,
+          11.069048
+        ],
+        "min": [
+          -56.492157,
+          -101.184631,
+          0.099967
+        ]
+      },
+      "litTexture": "KMEMterminal_LIT.png",
+      "preview": "art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source/previews/ConcourseB-orthographic.png",
+      "sourceFile": "ConcourseB.obj",
+      "sourceRoot": "KMEM_SOURCE_CONCOURSEB",
+      "texture": "KMEMterminal.png",
+      "triangleCount": 178,
+      "unsupportedDirectives": {
+        "TEXTURE_NORMAL": 1
+      }
+    },
+    {
+      "boundsBlenderMeters": {
+        "dimensions": [
+          214.772103,
+          30.4086,
+          8.0
+        ],
+        "max": [
+          214.442703,
+          14.7366,
+          8.1
+        ],
+        "min": [
+          -0.3294,
+          -15.672,
+          0.1
+        ]
+      },
+      "litTexture": "KMEMterminal_LIT.png",
+      "preview": "art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source/previews/ConcourseB_2-orthographic.png",
+      "sourceFile": "ConcourseB_2.obj",
+      "sourceRoot": "KMEM_SOURCE_CONCOURSEB_2",
+      "texture": "KMEMterminal.png",
+      "triangleCount": 30,
+      "unsupportedDirectives": {
+        "TEXTURE_NORMAL": 1
+      }
+    },
+    {
+      "boundsBlenderMeters": {
+        "dimensions": [
+          216.586105,
+          28.7824,
+          8.0
+        ],
+        "max": [
+          107.209602,
+          16.972,
+          8.1
+        ],
+        "min": [
+          -109.376503,
+          -11.8104,
+          0.1
+        ]
+      },
+      "litTexture": "KMEMterminal_LIT.png",
+      "preview": "art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source/previews/ConcourseB_2e-orthographic.png",
+      "sourceFile": "ConcourseB_2e.obj",
+      "sourceRoot": "KMEM_SOURCE_CONCOURSEB_2E",
+      "texture": "KMEMterminal.png",
+      "triangleCount": 24,
+      "unsupportedDirectives": {
+        "TEXTURE_NORMAL": 1
+      }
+    }
+  ],
+  "permissionBasis": "owner-attested-private-noncommercial-2026-08-27",
+  "root": "KMEM_CONCOURSE_B_SOURCE_CANDIDATE",
+  "sourceScaleOrientation": "Preserved from the OBJ8 importer (X-right/Y-up/Z-south to Blender X-right/Y-forward/Z-up).",
+  "stage": "sourcing_complete",
+  "textureDeclarations": {
+    "day": "KMEMterminal.png",
+    "lit": "KMEMterminal_LIT.png",
+    "normal": "KMEMterminal_NML.png"
+  },
+  "unsupportedSourceDirective": "TEXTURE_NORMAL"
+}

@@ -1,0 +1,112 @@
+{
+  "anchors": [
+    {
+      "gameId": "dc9.memphis.rampStart",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "name": "KMEM_RAMP_START",
+      "pivot": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "gameId": "dc9.memphis.taxiTurn",
+      "location": [
+        -55.0,
+        90.0,
+        0.0
+      ],
+      "name": "KMEM_TAXI_TURN",
+      "pivot": [
+        -55.0,
+        90.0,
+        0.0
+      ]
+    },
+    {
+      "gameId": "dc9.memphis.holdShort",
+      "location": [
+        -120.0,
+        210.0,
+        0.0
+      ],
+      "name": "KMEM_HOLD_SHORT",
+      "pivot": [
+        -120.0,
+        210.0,
+        0.0
+      ]
+    },
+    {
+      "gameId": "dc9.memphis.runwayLineup",
+      "location": [
+        -120.0,
+        245.0,
+        0.0
+      ],
+      "name": "KMEM_RUNWAY_LINEUP",
+      "pivot": [
+        -120.0,
+        245.0,
+        0.0
+      ]
+    },
+    {
+      "gameId": "dc9.memphis.initialClimb",
+      "location": [
+        -120.0,
+        700.0,
+        110.0
+      ],
+      "name": "KMEM_INITIAL_CLIMB",
+      "pivot": [
+        -120.0,
+        700.0,
+        110.0
+      ]
+    }
+  ],
+  "failures": [],
+  "materialCount": 3,
+  "meshCount": 22,
+  "root": "KMEM_LEGACY_ROOT",
+  "sourceTransforms": [
+    {
+      "location": [
+        -242.0,
+        250.0,
+        0.0
+      ],
+      "name": "KMEM_SOURCE_CONCOURSEB",
+      "rotationZDegrees": 0.0,
+      "sourceFile": "ConcourseB.obj"
+    },
+    {
+      "location": [
+        -200.0,
+        385.0,
+        0.0
+      ],
+      "name": "KMEM_SOURCE_CONCOURSEB_2",
+      "rotationZDegrees": 90.0,
+      "sourceFile": "ConcourseB_2.obj"
+    },
+    {
+      "location": [
+        18.0,
+        118.0,
+        0.0
+      ],
+      "name": "KMEM_SOURCE_CONCOURSEB_2E",
+      "rotationZDegrees": 116.0,
+      "sourceFile": "ConcourseB_2e.obj"
+    }
+  ],
+  "status": "pass",
+  "triangleCount": 736
+}

@@ -1,0 +1,28 @@
+{
+  "approved": false,
+  "candidateBlend": ".cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/optimized/dc9-memphis-concourse-b-source-candidate.blend",
+  "candidateGlb": "art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source/dc9-memphis-concourse-b-source.glb",
+  "firstGlb": ".cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/optimized/dc9-memphis-concourse-b-source-first-export.glb",
+  "forbiddenContentFound": [],
+  "materialCount": 1,
+  "materialNames": [
+    "KMEM_SOURCE_NEUTRAL_BASE_COLOR"
+  ],
+  "noGameIds": true,
+  "noNormalOrEmissiveWiring": true,
+  "noProjectAuthoredGroundPathOrAnchors": true,
+  "root": "KMEM_CONCOURSE_B_SOURCE_CANDIDATE",
+  "selectedSourceCount": 3,
+  "selectedSourceFiles": [
+    "ConcourseB.obj",
+    "ConcourseB_2.obj",
+    "ConcourseB_2e.obj"
+  ],
+  "stage": "sourcing_complete",
+  "status": "pass",
+  "triangleCounts": {
+    "ConcourseB.obj": 178,
+    "ConcourseB_2.obj": 30,
+    "ConcourseB_2e.obj": 24
+  }
+}

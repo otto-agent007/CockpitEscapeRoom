@@ -33,6 +33,15 @@ import {
   type Dc9InstrumentScanProgress,
 } from './dc9InstrumentScan'
 import {
+  advanceDc9DepartureProgress,
+  createInitialDc9DepartureProgress,
+  DC9_DEPARTURE_CHECKPOINTS,
+  recordDc9DepartureMistake,
+  type Dc9DepartureBeat,
+  type Dc9DepartureCheckpoint,
+  type Dc9DepartureProgress,
+} from './dc9MemphisDeparture'
+import {
   airbusWorkloadHint,
   applyAirbusWorkloadAction,
   createInitialAirbusWorkloadProgress,
@@ -43,7 +52,10 @@ import {
   type AirbusWorkloadTaskId,
 } from './airbusWorkload'
 
-export const GAME_SCHEMA_VERSION = 13 as const
+// 15 swapped the Legacy Route Record and the Instrument Scan. The bump is load-bearing:
+// the stage vocabulary is unchanged by a swap, so an old-order and a new-order save are
+// otherwise byte-identical and could not be told apart at load time.
+export const GAME_SCHEMA_VERSION = 15 as const
 export const DC9_SECURE_ORDER = dc9LegacyFlow.secureSequence
 export const PUZZLE_IDS = ['dc9', 'locker', 'airbus'] as const
 export type GamePhase = 'briefing' | 'dc9' | 'locker' | 'airbus' | 'reward' | 'mars'
@@ -51,6 +63,7 @@ export type Dc9ChapterStage =
   | 'controlCheck'
   | 'intro'
   | 'routeRecord'
+  | 'memphisDeparture'
   | 'homeOperations'
   | 'instrumentScan'
   | 'shutdown'
@@ -61,6 +74,7 @@ export interface Dc9ChapterProgress {
   stage: Dc9ChapterStage
   controlCheck: Dc9ControlCheckItemId[]
   instrumentScan: Dc9InstrumentScanProgress
+  departure: Dc9DepartureProgress
   routeSelections: string[]
   routeCompleted: string[]
   routeAttempts: number
@@ -105,6 +119,10 @@ export type GameAction =
   | { type: 'OPEN_DC9_ROUTE_RECORD' }
   | { type: 'TOGGLE_DC9_ROUTE'; code: string }
   | { type: 'SUBMIT_DC9_ROUTES' }
+  | { type: 'SAVE_DC9_DEPARTURE_CHECKPOINT'; checkpoint: Dc9DepartureCheckpoint }
+  | { type: 'RECORD_DC9_DEPARTURE_MISTAKE'; beat: Dc9DepartureBeat }
+  | { type: 'RESTORE_DC9_DEPARTURE_CHECKPOINT' }
+  | { type: 'COMPLETE_DC9_MEMPHIS_DEPARTURE' }
   | { type: 'SET_HOME_OPERATIONS_PAGE'; page: number }
   | { type: 'COMPLETE_HOME_OPERATIONS' }
   | { type: 'ACTIVATE_DC9_CONTROL'; controlId: Dc9SecureControlId }
@@ -343,6 +361,26 @@ export function isLockerMemoryAvailable(
   return false
 }
 
+function isDc9DepartureBeatActive(
+  checkpoint: Dc9DepartureCheckpoint,
+  beat: Dc9DepartureBeat,
+): boolean {
+  if (checkpoint === 'rampStart') return beat === 'rampRelease'
+  if (checkpoint === 'taxiTurn') return beat === 'taxi'
+  if (checkpoint === 'holdShort') return beat === 'holdShort'
+  if (checkpoint === 'runwayLineup') {
+    return beat === 'lineup' || beat === 'takeoffRoll' || beat === 'rotation'
+  }
+  return checkpoint === 'initialClimb' && beat === 'initialClimb'
+}
+
+function isNextDc9DepartureCheckpoint(
+  current: Dc9DepartureCheckpoint,
+  next: Dc9DepartureCheckpoint,
+): boolean {
+  return DC9_DEPARTURE_CHECKPOINTS.indexOf(next) === DC9_DEPARTURE_CHECKPOINTS.indexOf(current) + 1
+}
+
 function hintFor(state: GameState): string {
   if (state.phase === 'airbus') {
     if (countPlacedAirbusCards(state.airbusAssignments) !== airbusCaptainFlow.controlCards.length) {
@@ -383,8 +421,22 @@ function hintFor(state: GameState): string {
       : dc9LegacyFlow.instrumentScan.completionText
   }
 
+  if (state.phase === 'dc9' && state.dc9.stage === 'memphisDeparture') {
+    return dc9LegacyFlow.instrumentScan.completionText
+  }
+
+  if (state.phase === 'dc9' && state.dc9.stage === 'homeOperations') {
+    return 'Read each page of the Home Operations Log, then apply its legacy seal.'
+  }
+
   if (state.phase === 'dc9') {
-    if (state.dc9.routeCompleted.length !== dc9LegacyFlow.routePuzzleAnswers.length) {
+    // Only while the route record is the active beat. It now sits after the flight, so an
+    // unstamped record is the normal state through the departure and Home Operations — and
+    // this fallback would otherwise answer a mid-takeoff hint with route-puzzle advice.
+    if (
+      (state.dc9.stage === 'intro' || state.dc9.stage === 'routeRecord')
+      && state.dc9.routeCompleted.length !== dc9LegacyFlow.routePuzzleAnswers.length
+    ) {
       return state.dc9.routeAttempts > 0
         ? dc9LegacyFlow.routeMileageHint
         : 'Use the code, city, and period-mileage columns to identify the three short MEM DC-9 routes.'
@@ -422,6 +474,7 @@ export function createInitialState(): GameState {
       stage: 'controlCheck',
       controlCheck: [],
       instrumentScan: createInitialDc9InstrumentScanProgress(),
+      departure: createInitialDc9DepartureProgress(),
       routeSelections: [],
       routeCompleted: [],
       routeAttempts: 0,
@@ -503,11 +556,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           ...state,
           dc9: {
             ...state.dc9,
-            stage: 'homeOperations',
+            stage: 'shutdown',
             routeSelections: [...approved],
             routeCompleted: [...approved],
           },
-          statusMessage: dc9LegacyFlow.routeCompletionText,
+          statusMessage: `${dc9LegacyFlow.routeCompletionText} ${dc9LegacyFlow.secureInstruction}`,
         }
       }
       const routeAttempts = state.dc9.routeAttempts + 1
@@ -525,6 +578,52 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           routeAttempts,
         },
         statusMessage: hint,
+      }
+    }
+
+    case 'SAVE_DC9_DEPARTURE_CHECKPOINT': {
+      if (state.phase !== 'dc9' || state.dc9.stage !== 'memphisDeparture') return state
+      if (
+        action.checkpoint === 'complete'
+        || !isNextDc9DepartureCheckpoint(state.dc9.departure.checkpoint, action.checkpoint)
+      ) return state
+      const departure = advanceDc9DepartureProgress(state.dc9.departure, {
+        type: 'checkpoint',
+        checkpoint: action.checkpoint,
+      })
+      if (departure === state.dc9.departure) return state
+      return { ...state, dc9: { ...state.dc9, departure } }
+    }
+
+    case 'RECORD_DC9_DEPARTURE_MISTAKE': {
+      if (state.phase !== 'dc9' || state.dc9.stage !== 'memphisDeparture') return state
+      if (!isDc9DepartureBeatActive(state.dc9.departure.checkpoint, action.beat)) return state
+      return {
+        ...state,
+        dc9: {
+          ...state.dc9,
+          departure: recordDc9DepartureMistake(state.dc9.departure, action.beat),
+        },
+      }
+    }
+
+    case 'RESTORE_DC9_DEPARTURE_CHECKPOINT':
+      return state
+
+    case 'COMPLETE_DC9_MEMPHIS_DEPARTURE': {
+      if (
+        state.phase !== 'dc9'
+        || state.dc9.stage !== 'memphisDeparture'
+        || state.dc9.departure.checkpoint !== 'initialClimb'
+      ) return state
+      return {
+        ...state,
+        dc9: {
+          ...state.dc9,
+          stage: 'homeOperations',
+          departure: advanceDc9DepartureProgress(state.dc9.departure, { type: 'complete' }),
+        },
+        statusMessage: 'Memphis legacy departure complete. The Home Operations Log is open.',
       }
     }
 
@@ -550,10 +649,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         dc9: {
           ...state.dc9,
-          stage: 'instrumentScan',
+          stage: 'intro',
           homeOperationsCompleted: true,
         },
-        statusMessage: dc9LegacyFlow.instrumentScan.intro,
+        statusMessage: dc9LegacyFlow.routeIntro,
       }
     }
 
@@ -567,8 +666,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (dc9ControlCheckComplete(controlCheck)) {
         return {
           ...state,
-          dc9: { ...state.dc9, stage: 'intro', controlCheck },
-          statusMessage: dc9LegacyFlow.controlCheck.completionText,
+          dc9: { ...state.dc9, stage: 'instrumentScan', controlCheck },
+          statusMessage: `${dc9LegacyFlow.controlCheck.completionText} ${dc9LegacyFlow.instrumentScan.intro}`,
         }
       }
       const remaining = DC9_CONTROL_CHECK_ITEM_IDS.length - controlCheck.length
@@ -604,9 +703,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (dc9InstrumentScanComplete(result.progress)) {
         return {
           ...state,
-          dc9: { ...state.dc9, stage: 'shutdown', instrumentScan: result.progress },
-          statusMessage: `${identifiedCopy.feedback} ${dc9LegacyFlow.instrumentScan.completionText} `
-            + dc9LegacyFlow.secureInstruction,
+          dc9: { ...state.dc9, stage: 'memphisDeparture', instrumentScan: result.progress },
+          statusMessage: `${identifiedCopy.feedback} ${dc9LegacyFlow.instrumentScan.completionText}`,
         }
       }
       return {

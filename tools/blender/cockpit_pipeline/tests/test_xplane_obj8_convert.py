@@ -12,9 +12,41 @@ from tools.blender.cockpit_pipeline.xplane_obj8_convert import (
     transform_point,
     xplane_to_blender_matrix,
 )
+from tools.blender.inspect_dc9_memphis_source import REPO_ROOT, require_approved_paths, selected_source_names
 
 
 class XPlaneObj8ConvertTests(unittest.TestCase):
+    def test_kmem_source_inspector_admits_only_concourse_b_objects(self) -> None:
+        self.assertEqual(
+            selected_source_names(),
+            (
+                "ConcourseB.obj",
+                "ConcourseB_2.obj",
+                "ConcourseB_2e.obj",
+            ),
+        )
+
+    def test_kmem_source_inspector_requires_only_the_approved_repository_paths(self) -> None:
+        source_dir = REPO_ROOT / ".cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/Memphis_Nashville/KMEM"
+        working_dir = REPO_ROOT / ".cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/optimized"
+        output_dir = REPO_ROOT / "art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source"
+        manifest_path = REPO_ROOT / "art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-source/manifests/sourcing-complete.json"
+        self.assertEqual(
+            require_approved_paths(source_dir, working_dir, output_dir, manifest_path),
+            (source_dir.resolve(), working_dir.resolve(), output_dir.resolve(), manifest_path.resolve()),
+        )
+        invalid_cases = {
+            "source directory": (source_dir.parent, working_dir, output_dir, manifest_path),
+            "working directory": (source_dir, working_dir.parent, output_dir, manifest_path),
+            "output directory": (source_dir, working_dir, output_dir.parent / "unapproved-output", manifest_path),
+            "manifest path": (source_dir, working_dir, output_dir, manifest_path.parent / "unapproved.json"),
+            "resolved path escape": (source_dir, working_dir, REPO_ROOT / "art-source/cockpit-pipeline/stages/source/output/dc9-memphis-legacy-source/../outside", manifest_path),
+        }
+        for label, arguments in invalid_cases.items():
+            with self.subTest(label=label):
+                with self.assertRaisesRegex(ValueError, "approved Task 6 path"):
+                    require_approved_paths(*arguments)
+
     def write_fixture(self, body: str) -> Path:
         temporary = tempfile.NamedTemporaryFile("w", suffix=".obj", delete=False, encoding="utf-8")
         temporary.write("I\n800\nOBJ\n" + body)

@@ -1,6 +1,11 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
+import {
+  DC9_MEMPHIS_SHADING_PATHS,
+  validateDc9MemphisShadingApproval,
+} from './dc9-memphis-shading-approval-contract.mjs'
 
 const assetName = process.argv[2]
 const assets = {
@@ -18,6 +23,13 @@ const assets = {
       distanceFactor: 2.1,
       presentationRotationDegrees: [-90, 98, 67],
     },
+  },
+  'dc9-memphis': {
+    blend: 'art-source/blender/dc9-memphis-legacy-departure.blend',
+    output: 'public/models/dc9-memphis-legacy-departure.glb',
+    root: 'KMEM_LEGACY_ROOT',
+    approvedGlb: 'art-source/cockpit-pipeline/builds/shaded/dc9-memphis-legacy-shading/dc9-memphis-legacy-shaded.glb',
+    formalApproval: 'art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-shading/shading-approval.json',
   },
   airbus: {
     blend: 'art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend',
@@ -51,7 +63,7 @@ const assets = {
 }
 
 if (!assetName || !(assetName in assets)) {
-  console.error('Usage: node tools/assets/build-asset.mjs <dc9|airbus|tesla|locker>')
+  console.error('Usage: node tools/assets/build-asset.mjs <dc9|dc9-memphis|airbus|tesla|locker>')
   process.exit(2)
 }
 
@@ -67,7 +79,9 @@ if (!existsSync(blender)) {
 }
 const cacheDir = resolve('.cache', 'assets', assetName)
 const rawGlb = resolve(cacheDir, `${assetName}.raw.glb`)
-const deployableGlb = config.tangentMesh ? resolve(cacheDir, `${assetName}.tangents.glb`) : rawGlb
+const deployableGlb = config.approvedGlb
+  ? resolve(config.approvedGlb)
+  : (config.tangentMesh ? resolve(cacheDir, `${assetName}.tangents.glb`) : rawGlb)
 const reportPath = resolve(cacheDir, 'asset-report.json')
 mkdirSync(cacheDir, { recursive: true })
 
@@ -85,6 +99,15 @@ function run(command, args, label) {
   })
   if (result.error) throw result.error
   if (result.status !== 0) process.exit(result.status ?? 1)
+}
+
+function fileRecord(path, recordPath = path) {
+  const bytes = readFileSync(resolve(path))
+  return {
+    path: recordPath,
+    sha256: createHash('sha256').update(bytes).digest('hex'),
+    bytes: bytes.length,
+  }
 }
 
 if (config.build) {
@@ -107,11 +130,54 @@ if (config.prepare) {
   )
 }
 
-run(blender, ['--background', config.blend, '--python', 'tools/blender/validate_scene.py'], 'validate scene')
-run(blender, ['--background', config.blend, '--python', 'tools/blender/render_preview.py'], 'render approval views')
-run(blender, ['--background', config.blend, '--python', 'tools/blender/export_glb.py'], 'export raw GLB')
-if (config.tangentMesh) {
-  run('node', ['tools/assets/generate-node-tangents.mjs', rawGlb, deployableGlb, config.tangentMesh], 'generate required tangents')
+if (config.approvedGlb) {
+  if (config.formalApproval !== DC9_MEMPHIS_SHADING_PATHS.approval || !existsSync(config.formalApproval)) {
+    console.error(`Missing exact formal shading approval: ${DC9_MEMPHIS_SHADING_PATHS.approval}`)
+    process.exit(2)
+  }
+  if (!existsSync(config.approvedGlb)) {
+    console.error(`Missing approved deployable GLB: ${config.approvedGlb}`)
+    process.exit(2)
+  }
+  let approval
+  try {
+    approval = JSON.parse(readFileSync(config.formalApproval, 'utf8'))
+  } catch (error) {
+    console.error(`Could not read formal shading approval: ${error instanceof Error ? error.message : String(error)}`)
+    process.exit(2)
+  }
+  const approvalErrors = validateDc9MemphisShadingApproval({
+    approval,
+    approvalPath: config.formalApproval,
+    manifest: fileRecord(DC9_MEMPHIS_SHADING_PATHS.manifest),
+    materialGate: fileRecord(DC9_MEMPHIS_SHADING_PATHS.materialGate),
+    currentBlend: fileRecord(config.blend, DC9_MEMPHIS_SHADING_PATHS.productionBlend),
+    currentGlb: fileRecord(config.approvedGlb, DC9_MEMPHIS_SHADING_PATHS.approvedGlb),
+  })
+  if (approvalErrors.length > 0) {
+    for (const error of approvalErrors) console.error(error)
+    process.exit(1)
+  }
+  run(
+    blender,
+    [
+      '--background', '--factory-startup', '--disable-autoexec', config.blend,
+      '--python', 'tools/blender/shade_dc9_memphis_legacy.py', '--',
+      '--assembly-approval', 'art-source/cockpit-pipeline/jobs/dc9-memphis-legacy-assembly/assembly-approval.json',
+      '--source-dir', '.cache/cockpit-pipeline/sources/dc9-memphis/ted-davis-memphis-nashville/extracted/Memphis_Nashville/KMEM',
+      '--output-dir', 'art-source/cockpit-pipeline/builds/shaded/dc9-memphis-legacy-shading',
+      '--material-gate', 'art-source/cockpit-pipeline/gates/dc9-memphis-legacy-material-optimization.json',
+      '--validate-shaded-master',
+    ],
+    'validate owner-approved shaded master',
+  )
+} else {
+  run(blender, ['--background', config.blend, '--python', 'tools/blender/validate_scene.py'], 'validate scene')
+  run(blender, ['--background', config.blend, '--python', 'tools/blender/render_preview.py'], 'render approval views')
+  run(blender, ['--background', config.blend, '--python', 'tools/blender/export_glb.py'], 'export raw GLB')
+  if (config.tangentMesh) {
+    run('node', ['tools/assets/generate-node-tangents.mjs', rawGlb, deployableGlb, config.tangentMesh], 'generate required tangents')
+  }
 }
 run('npx', ['gltf-transform', 'validate', deployableGlb], 'validate GLB')
 run('npx', ['gltf-transform', 'inspect', deployableGlb], 'inspect GLB')
@@ -195,7 +261,9 @@ writeFileSync(
       deployableOutput: config.output,
       rootObject: config.root,
       builtAt: new Date().toISOString(),
-      note: 'No destructive optimization is applied by default; preserve node names, pivots, hierarchy, extras, and animations.',
+      note: config.approvedGlb
+        ? 'Promotes the exact owner-approved GLB after read-only semantic Blender validation; no re-export or destructive optimization is applied.'
+        : 'No destructive optimization is applied by default; preserve node names, pivots, hierarchy, extras, and animations.',
       exportContract,
       validation,
     },

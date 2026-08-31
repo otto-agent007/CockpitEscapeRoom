@@ -51,11 +51,24 @@ export const ZERO_DC9_INPUT: Readonly<Dc9ControlInput> = { pitch: 0, roll: 0, th
 
 export const NEUTRAL_DC9_CONTROLS: Readonly<Dc9ControlState> = { pitch: 0, roll: 0, thrust: 0, rudder: 0 }
 
+const DC9_CONTROL_KEY_CODES = new Set([
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+  'KeyW',
+  'KeyS',
+  'KeyA',
+  'KeyD',
+])
+
 /** Seconds-to-stop rates. Spring axes drive faster than they recentre. */
 const PITCH_ROLL_DRIVE_RATE = 2.2
 const RUDDER_DRIVE_RATE = 1.8
 const SPRING_RETURN_RATE = 3
-const THRUST_RATE = 0.9
+/** Levers advance deliberately but close quickly, like pulling them to idle. */
+const THRUST_ADVANCE_RATE = 0.9
+const THRUST_CLOSE_RATE = 1.8
 
 function clampAxis(value: number): number {
   return Math.max(-1, Math.min(1, Number.isFinite(value) ? value : 0))
@@ -63,6 +76,16 @@ function clampAxis(value: number): number {
 
 function clamp01(value: number): number {
   return Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0))
+}
+
+/** The DC-9 keyboard map: arrows for the yoke, W/S levers, A/D pedals. */
+export function isDc9ControlKey(code: string): boolean {
+  return DC9_CONTROL_KEY_CODES.has(code)
+}
+
+/** Return a fresh stopped control state without changing the public control-state shape. */
+export function resetDc9Controls(): Dc9ControlState {
+  return { ...NEUTRAL_DC9_CONTROLS }
 }
 
 export function normalizeDc9Axis(value: number, deadzone = 0.12): number {
@@ -154,6 +177,7 @@ export function advanceDc9Controls(
       rudderDemand === 0 ? SPRING_RETURN_RATE : RUDDER_DRIVE_RATE,
       delta,
     ),
-    thrust: clamp01(clamp01(state.thrust) + clampAxis(input.thrust) * THRUST_RATE * delta),
+    thrust: clamp01(clamp01(state.thrust) + clampAxis(input.thrust)
+      * (clampAxis(input.thrust) < 0 ? THRUST_CLOSE_RATE : THRUST_ADVANCE_RATE) * delta),
   }
 }
