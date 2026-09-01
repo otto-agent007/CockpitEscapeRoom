@@ -6,9 +6,9 @@ The project is named **CockpitEscapeRoom**. Never rename it or reintroduce earli
 
 ## Journey order — do not reorder or rename
 
-Opening screen (button: **Start Game**) → **DC-9 First-Officer Final Flight Log** from the right seat → locker reveal → **Enter Pop T Captain Mode** → **Airbus A320 Pop T Captain** gameplay from the left seat → red Tesla Model Y reward → **Flight Mode** transformation → hidden Mars mission, an optional Easter egg after the main ending.
+Automatic console-era cinematic → cinematic **PRESS START** → **DC-9 First-Officer Final Flight Log** from the right seat, including the fictional Memphis memory departure → locker reveal → **Enter Pop T Captain Mode** → **Airbus A320 Pop T Captain** gameplay from the left seat → red Tesla Model Y reward → **Flight Mode** transformation → hidden Mars mission, an optional Easter egg after the main ending.
 
-**Tone contract:** the aircraft is safely parked for a commemorative legacy flight. Never frame Dad as causing an accident, emergency, or systems failure.
+**Tone contract:** the present-day tribute aircraft is safely parked. The taxi and takeoff are explicitly labeled as a fictional 1995 memory recreation. Never frame Dad as causing an accident, emergency, or systems failure.
 
 ## Read before changing code
 
@@ -18,7 +18,7 @@ Inspect the tree and `git status` before editing. Preserve unrelated local work.
 
 ## Commands
 
-Standard scripts are in `package.json`. The asset builds (`asset:dc9`, `asset:airbus`, `asset:tesla`, `asset:locker`) additionally require `BLENDER_BIN` to be set and the source `.blend` files to be present.
+Standard scripts are in `package.json`. The asset builds (`asset:dc9`, `asset:dc9-memphis`, `asset:airbus`, `asset:tesla`, `asset:locker`) additionally require `BLENDER_BIN` to be set and the source `.blend` files to be present.
 
 ## Never
 
@@ -36,7 +36,7 @@ Standard scripts are in `package.json`. The asset builds (`asset:dc9`, `asset:ai
 - Stable object names, pivots, hierarchy, animations, and `game_id` custom properties are **public runtime contracts** — changing one breaks the app.
 - Tripo AI is a rapid candidate/proxy generator only, never production authority, and must not silently override aircraft-specific references. Its output must be imported into Blender, cleaned, optimized, given stable object names, checked for pivots and local axes, and documented in `asset-reports/` before runtime use.
 - Blender MCP is appropriate for scene inspection, controlled cleanup, validation, naming, pivots, metadata, preview renders, and export support.
-- Keep generated assets separated by scene group: A320 Pop T Captain cockpit, locker room, DC-9-32 First-Officer cockpit, Model Y hangar reward and Flight Mode, Mars Easter egg.
+- Keep generated assets separated by scene group: A320 Pop T Captain cockpit, locker room, DC-9-32 First-Officer cockpit, Memphis legacy environment, Model Y hangar reward and Flight Mode, Mars Easter egg.
 - The DC-9-32 must be model-correct in major visible geometry — do not invent a generic retro cockpit. The greybox label was retired at owner request on 2026-08-23; do not reintroduce it.
 - Record material count, texture sizes, optimization decisions, validation output, and preview-render evidence before treating an asset as production-ready.
 - Flight Mode stays sleek, plausible-futuristic, and premium: clean mechanical panels, wing/stabilizer deployment, hidden lift fans or concealed propulsion accents, restrained lighting. No aggressive sci-fi styling, no humanoid robot transformation.
@@ -47,7 +47,7 @@ Standard scripts are in `package.json`. The asset builds (`asset:dc9`, `asset:ai
 - Keep game rules and content separate from Three.js presentation components.
 - Mirror every required 3D interaction with a native HTML control or equivalent accessible path.
 - Version persisted data and recover safely from corrupt or stale saves.
-- Lazy-load the production DC-9-32, A320, vehicle, and Mars assets as appropriate.
+- Preload the production DC-9-32 and Memphis environment during the cinematic; lazy-load the locker, A320, vehicle, and Mars assets as their chapters unlock.
 - Interactions are fictional and non-operational even when the cockpit looks authentic.
 
 ## Player loop

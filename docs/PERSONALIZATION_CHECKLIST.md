@@ -1,42 +1,42 @@
-# Personalization checklist
+# Personalization status
 
-Edit `src/game/config.ts` only after the answers are confirmed. Keep unknown facts labeled as unknown rather than guessing.
+Keep confirmed details in `src/game/config.ts`. Unknown personal facts stay visibly unconfirmed rather than being guessed.
 
-## Pilot and aircraft
+## Confirmed in the current build
 
-- [ ] Preferred name displayed in the game.
-- [ ] Exact DC-9 variant or variants flown.
-- [ ] Exact Airbus model.
+- [x] Display name: **Pop T**.
+- [x] Opening aircraft: **McDonnell Douglas DC-9-32**.
+- [x] Later aircraft: **Airbus A320**.
+- [x] Primary airport context: **MEM / Northwest-era Memphis hub operation**.
+- [x] Reward vehicle: **red Tesla Model Y**.
+- [x] Locker memory order: watch → baseball → Charging Bull → airline wings → captain's hat.
+- [x] Representative Final Flight Log routes: `DTW`, `MSP`, and `STL`.
+
+## Still to confirm or finalize
+
+### Pilot and career
+
+- [ ] Other DC-9 variants flown, if they should appear in copy rather than reference notes.
 - [ ] Airlines or employers that may be named directly.
-- [ ] Approximate career years suitable for the timeline.
-- [ ] Favorite aircraft detail or cockpit habit.
+- [ ] Approximate career years suitable for a family-facing timeline.
+- [ ] Favorite aircraft detail, cockpit habit, or saying.
 
-## Routes and places
+### Routes and places
 
-- [ ] Three to six real memorable routes.
-- [ ] Favorite airport codes.
-- [ ] A Memphis or Concourse B memory.
+- [ ] Additional memorable routes or favorite airport codes.
+- [ ] A specific Memphis or Concourse B memory.
 - [ ] A favorite layover or destination.
-- [ ] Whether Northwest/Delta history is personally relevant or only general atmosphere.
+- [ ] Which Northwest/Delta history is personally relevant rather than atmospheric.
 
-## Family content
+### Family content
 
-- [ ] One recognizable saying.
-- [ ] One piece of advice.
-- [ ] One funny flying story.
-- [ ] One family photo cleared for local use.
-- [ ] Final Father’s Day letter.
+- [ ] One piece of advice and one funny flying story.
+- [ ] Family photos cleared for local use and the end-credit montage.
+- [ ] Final Father's Day letter.
 
-## Reward
+### Reward and Mars
 
-- [ ] Preferred red Model Y plate joke.
-- [ ] Whether the reward scene references his real car configuration.
+- [ ] Final Model Y plate joke or real-car detail.
 - [ ] Real-world gift or outing revealed after the game.
-- [ ] Date and destination for an optional printable boarding pass.
-
-## Mars and technology
-
-- [ ] Preferred Mars mission name.
-- [ ] Favorite space/technology topic.
-- [ ] How prominent the Elon Musk references should be.
-- [ ] Whether references should be general, humorous, or fact-based.
+- [ ] Optional printable boarding-pass date and destination.
+- [ ] Mars mission name, preferred technology references, and desired prominence.

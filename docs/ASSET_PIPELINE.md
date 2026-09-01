@@ -51,12 +51,13 @@ Keep generated assets separated by scene group:
 - Airbus A320 Pop T Captain cockpit
 - Locker room scene
 - DC-9 First-Officer cockpit
+- Memphis legacy departure environment
 - Model Y hangar reward
 - Mars Easter egg
 
 Do not mix Airbus and DC-9 aircraft-specific details. The Airbus cockpit must remain a separate model-specific asset, and the DC-9 cockpit must stay model-correct in major visible geometry. Tripo-generated parts may help explore shape, scale, or prop options, but they may not silently override approved aircraft reference boards.
 
-The active aircraft seat contract is DC-9 first officer/right seat and Airbus A320 Pop T captain/left seat. Build the DC-9 from `art-source/blender/dc9_master.blend` into `public/models/dc9-cockpit.glb`; build the Airbus from the authoritative shaded source into `public/models/airbus-captain.glb`. Runtime camera names and target contracts are defined in `docs/ASSET_CONTRACT.md`.
+The active aircraft seat contract is DC-9 first officer/right seat and Airbus A320 Pop T captain/left seat. Build the DC-9 from `art-source/blender/dc9_master.blend` into `public/models/dc9-cockpit.glb`; build the separate Memphis view from `art-source/blender/dc9-memphis-legacy-departure.blend` into `public/models/dc9-memphis-legacy-departure.glb`; build the Airbus from the authoritative shaded source into `public/models/airbus-captain.glb`. Runtime camera, environment-anchor, and target contracts are defined in `docs/ASSET_CONTRACT.md`.
 
 ## Tripo AI candidate rules
 
@@ -116,12 +117,21 @@ Production exports continue to use the repository asset commands:
 
 ```bash
 npm run asset:dc9
+npm run asset:dc9-memphis
 npm run asset:airbus
 npm run asset:airbus:promote-gate
 npm run asset:tesla
 npm run asset:locker
 npm run assets:check
 ```
+
+The Memphis source intake is additionally guarded by:
+
+```bash
+npm run asset:dc9-memphis:intake
+```
+
+That contract accepts only the owner-approved Ted Davis Concourse B objects and three selected terminal textures, preserves the private noncommercial permission basis and attribution, and rejects bundled aircraft, AutoGate, OpenSceneryX, and unrelated scenery content.
 
 Run `asset:airbus:promote-gate` only after the durable 1440x900 initial and dragged-look captain-view captures exist. It regenerates the current deployable gate from `public/models/airbus-captain.glb` and those evidence files. The older A320 assembly job writes its own assembly-stage contract and cannot overwrite this deployable gate.
 

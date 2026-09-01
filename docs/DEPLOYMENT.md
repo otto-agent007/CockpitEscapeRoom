@@ -2,20 +2,14 @@
 
 ## GitHub
 
-Use short-lived branches and pull requests. The starter includes CI for lint, TypeScript, unit tests, production build, model validation, and Chromium smoke tests.
+Use short-lived milestone branches and pull requests. CI runs on every pull request and on pushes to `main` with Node.js 24:
 
-Recommended branch progression:
+- `npm ci`
+- `npm run check`
+- `npm run assets:check`
+- `npm run test:e2e` in a separate Chromium browser-smoke job
 
-```text
-chore/design-sync
-asset/dc9-pipeline-proof
-feature/dc9-first-puzzle
-feature/dc9-main-game
-feature/model-y-reward
-agent/dc9-fo-airbus-captain-seat-swap
-feature/mars-easter-egg
-release/fathers-day
-```
+Failed browser runs upload the Playwright report for seven days. A green build does not replace the owner visual gate for cockpit, Memphis, locker, Airbus, or reward milestones.
 
 ## Vercel
 
@@ -29,7 +23,7 @@ Output directory: dist
 Node.js: 24.x
 ```
 
-Every pull request should receive a preview deployment. Use that URL for owner visual approval and phone testing.
+Every pull request should receive a preview deployment. Use that URL for owner visual approval and the approximately 375, 768, and 1440 CSS pixel checks relevant to the change.
 
 ## What is not deployed
 
