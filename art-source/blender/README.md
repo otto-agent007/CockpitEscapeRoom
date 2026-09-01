@@ -5,14 +5,18 @@ Place editable source files here:
 ```text
 web_asset_template.blend
 dc9_master.blend
+dc9-memphis-legacy-departure.blend
+locker_room_master.blend
 tesla_reward.blend
 ```
 
 Install Git LFS before committing them. Machine-specific Blender paths do not belong in the repository.
 
-Start with the DC-9 proof asset described in `plans/0001-dc9-pipeline-proof.md`. Do not create the Airbus production file until the exact model is confirmed.
+The original DC-9 proof asset in `plans/0001-dc9-pipeline-proof.md` is historical. Current production work must preserve the validated roots, cameras, pivots, hierarchy, animations, and `game_id` contracts documented in `docs/ASSET_CONTRACT.md`.
 
-The authoritative Airbus source is the shaded pipeline master at `../cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend`; do not introduce a separate `airbus_master.blend`. Airbus source references (photos, notes, and onboard copy) are organized in `../references/a320`.
+`dc9-memphis-legacy-departure.blend` is the approved separate outside-memory environment; do not merge it into `dc9_master.blend`. Rebuild it with `npm run asset:dc9-memphis` only after its source, assembly, and shading approvals match.
+
+The authoritative Airbus A320 source is the shaded pipeline master at `../cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend`; do not introduce a separate `airbus_master.blend`. Airbus source references are organized in `../references/a320`.
 
 `tesla_reward.blend` is generated deterministically by
 `tools/blender/build_tesla_reward.py` from the hash-pinned, owner-supplied Tripo

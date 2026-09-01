@@ -16,6 +16,26 @@ Use when adding or changing a puzzle, scene transition, reward, persistence beha
 
 Use when a `.blend`, material, texture, interactive node, GLB, or asset report changes. It enforces validation, stable contracts, browser integration, and approval renders.
 
+### `$blender-browser-visual-gate`
+
+Use after Blender or GLB work to prove the actual browser result at the required seat, route, and responsive viewports before claiming a visual milestone.
+
+### `$blender-source-intake`
+
+Use to import, normalize, inspect, license, and stage downloaded or generated 3D sources without promoting candidates directly to production.
+
+### `$blender-visual-repair`
+
+Use for a bounded repair after owner feedback or browser evidence such as dark, upside-down, unreadable, misframed, or visually implausible output.
+
+### `$aircraft-reference-curator`
+
+Use to build or maintain aircraft reference manifests, contact sheets, callouts, modeling briefs, and source-role boundaries.
+
+### `$sketchfab-inspector-capture`
+
+Use when candidate review needs recorded Sketchfab Model Inspector evidence and reproducible crops.
+
 ### `$loop-doctor`
 
 Use when an existing prompt, workflow, agent handoff, asset pipeline, or repair loop needs an audit. It checks whether the loop reads fresh state, takes bounded action, verifies with reproducible evidence, records outcomes, and stops safely.
@@ -23,6 +43,10 @@ Use when an existing prompt, workflow, agent handoff, asset pipeline, or repair 
 ### `$loop-discovery`
 
 Use when looking for repeated CockpitEscapeRoom work that should become a feedback loop or Skill. It mines repo evidence and authorized coding-thread history, rejects one-shot checklists, and ranks only candidates with observable feedback and safe terminal states.
+
+### `$marble-developer-api`
+
+Use only when explaining or implementing the World Labs / Marble Public API; it is not part of the current game runtime by default.
 
 ## Allowed Blender MCP use
 

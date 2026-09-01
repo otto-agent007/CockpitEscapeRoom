@@ -2,15 +2,15 @@
 
 ## Goal
 
-A former DC-9 pilot should recognize the main cockpit immediately from the first-officer/right-seat viewpoint. A former Airbus pilot should recognize the A320 from the captain/left-seat viewpoint. Realism comes from correct proportions, materials, camera placement, lighting, and familiar visual relationships—not from simulating every operational system.
+A former DC-9 pilot should recognize the main cockpit immediately from the first-officer/right-seat viewpoint. Older Memphis Concourse B should read as a deliberate memory outside that fixed seat without claiming exact historical geography. A former Airbus pilot should recognize the A320 from the captain/left-seat viewpoint. Realism comes from correct proportions, materials, camera placement, lighting, and familiar visual relationships—not from simulating every operational system.
 
 ## Reference policy
 
 Build an approved reference board for each aircraft. Record source, model/variant, angle, date if known, and what the reference is used for.
 
-## DC-9 approval criteria
+## DC-9 cockpit approval criteria
 
-The first DC-9 blockout must demonstrate:
+The production DC-9-32 must demonstrate:
 
 - First-officer eye camera height, field of view, and sightline.
 - Main instrument panel silhouette and density.
@@ -23,11 +23,26 @@ The first DC-9 blockout must demonstrate:
 
 The owner must answer “yes” to: **Does this feel unmistakably like the DC-9 he flew?**
 
+## Memphis memory approval criteria
+
+**Status:** The current environment is a separate, lazy-loaded GLB using owner-permitted Ted Davis Concourse B source geometry plus project-authored ramp, taxi, runway, canopy, field, and treeline context. It is labeled **1995 MEMORY · Fictional — non operational** and remains visually subordinate to the production cockpit.
+
+The fixed right-seat browser view must demonstrate:
+
+- A recognizable older Concourse B frontage at ramp release, including the long terminal mass and martini-glass canopy rhythm.
+- Continuous, grounded pavement through ramp release, taxi, quiet hold, lineup, rollout, and initial climb, with no sky-colored voids or coplanar surface fighting.
+- A compressed guided route that reads clearly without presenting exact taxiway/runway geography, identifiers, or procedures.
+- Stable horizon, cockpit orientation, and camera framing across checkpoint restore, reload, and repeated chapter entry.
+- Qualitative guidance and native controls that remain usable if the outside view fails.
+- Readable layouts at approximately 375, 768, and 1440 CSS pixels without the departure panel covering required controls.
+
+The environment may evoke historical Memphis; it must not present itself as documentary reconstruction or training material.
+
 ## Airbus approval criteria
 
 **Status:** The 2026-07-10 right-seat presentation was superseded on 2026-07-15. The current Airbus A320 Pop T Captain contract uses the exported left-seat camera, captain-side sidestick, live Storm Line PFD/ND/ECAM surfaces, and paired-thrust motion. Actual-browser evidence is tracked under `preview-renders/storm-line/`; owner visual approval remains open.
 
-Do not model the production Airbus cockpit until the exact model is confirmed. The blockout must demonstrate model-specific:
+The production target is the confirmed Airbus A320. Its current cockpit and future repairs must demonstrate model-specific:
 
 - Side-stick and seat relationship.
 - Main display arrangement.
@@ -67,5 +82,6 @@ Each visual gate includes:
 - Vercel preview URL.
 - GLB size and object/material counts.
 - Consistent 1440×900 desktop screenshots for this seat-role milestone.
+- Narrow and intermediate browser captures near 375 and 768 CSS pixels when the milestone changes layout, interaction reachability, or the windshield composition.
 - Known deviations from the reference set.
 - Source manifest updates.

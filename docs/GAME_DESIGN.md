@@ -22,7 +22,7 @@ Wrong answers must never erase completed progress or force a restart.
 
 ## Progression
 
-1. **DC-9 Final Flight Log** — a warm opening memory chapter in the safely parked DC-9-32.
+1. **DC-9 Final Flight Log** — a warm right-seat chapter that moves from parked cockpit recognition into an explicitly fictional 1995 Memphis departure memory, then closes the legacy log safely.
 2. **Locker Room / Captain’s Locker Scene** — personal reveal space with memory objects and milestone clues.
 3. **Airbus A320 Pop T Captain Mode** — a mandatory five-card cockpit qualification followed by the Storm Line arcade flight simulator from the left seat.
 4. **Ground Transport Upgrade Authorized** — protected red Tesla Model Y surprise.
@@ -32,17 +32,21 @@ Wrong answers must never erase completed progress or force a restart.
 
 ## DC-9 Final Flight Log
 
-On a fresh or restarted game, the console-era cinematic starts automatically as soon as its initial art tier is decoded. There is no pre-intro DC-9 station page and no outer **Start Game** gate. If audible autoplay is rejected, the visual timeline continues silently and exposes the existing sound retry. The cinematic's own **PRESS START** opens Pop T’s safely parked DC-9-32 from the first-officer/right seat; persisted later saves still resume their current chapter. This is a warm, lightly realistic family-memory chapter, not a simulator emergency and not a claim about a literal final itinerary. Keep the production GLB, interaction registry, first-officer yoke trigger, first-officer game/route/overhead cameras, and the three supported shutdown pivots.
+On a fresh or restarted game, the console-era cinematic starts automatically as soon as its initial art tier is decoded. There is no pre-intro DC-9 station page and no outer **Start Game** gate. If audible autoplay is rejected, the visual timeline continues silently and exposes the existing sound retry. The cinematic's own **PRESS START** opens Pop T's DC-9-32 from the first-officer/right seat; persisted later saves resume their current chapter directly. The present-day tribute remains safely parked. The later taxi and takeoff are clearly labeled as a fictional, non-operational **1995 MEMORY**, not a literal final itinerary or a simulator lesson.
 
-The chapter opens with hands on the controls. **Flight controls — free and correct** is the ordinary pre-taxi sweep every leg started with: the player walks the control column full aft and full forward, rolls the wheel to both stops, walks both rudder pedals, then advances both thrust levers and closes them again. The real donor yoke, levers and pedals move on their own pivots, and the captain's linked column and pedals track with them. Arrow keys drive the yoke, `W`/`S` the levers, `A`/`D` the pedals; every movement also has a native hold button, and the yoke can be dragged directly in the cockpit. There is no failure state and no timer — each of the eight movements latches when it reaches its stop and is never taken away. Completing the sweep is what brings the narrow paper strip clipped to the yoke into view, which opens the readable Legacy Route Record.
+The chapter opens with hands on the controls. **Flight controls — free and correct** is the ordinary pre-taxi sweep every leg started with: the player walks the control column full aft and full forward, rolls the wheel to both stops, walks both rudder pedals, then advances both thrust levers and closes them again. The real donor yoke, levers, and pedals move on their own pivots, and the captain's linked column and pedals track with them. Arrow keys drive the yoke, `W`/`S` the levers, `A`/`D` the pedals; every movement also has a native hold button, and the yoke can be dragged directly in the cockpit. There is no timer or failure state. Each of the eight movements latches at its stop and is never taken away. Completing the sweep opens the instrument scan.
 
-The narrow strip attached to the first-officer yoke opens the readable Legacy Route Record. The representative familiar routes are `DTW`, `MSP`, and `STL`. Wrong submissions progressively offer a Northwest-hubs/Midwestern-stop annotation, then Michigan/Minnesota/Missouri, then a warm outline on the three codes. Correct stamps are permanent and later mistakes never remove them.
+The **instrument scan** calls six right-seat instruments in the order a DC-9 crew read them: airspeed indicator, attitude director indicator, altimeter, horizontal situation indicator, vertical speed indicator, and the EPR gauges that set JT8D thrust. The player answers by clicking the gauge in the cockpit or choosing it from a keyboard-reachable list; both paths are equivalent. A correct answer is permanent and runs that instrument's own needle through a power-on self-test sweep on the donor geometry. Wrong answers cost nothing and produce steadily clearer coaching until the third miss outlines the right gauge. The scan is a test of the parked panel, not a claim about aircraft motion.
 
-The completed route record opens the five-page **Home Operations Log**. This is recognition, never a puzzle: it has no answers, sorting, timer, failure state, or test. Its pages recognize the care and steady logistics required to feed and prepare three children, support sports and cheerleading schedules, shop for school clothes, and manage changing household needs while Pop T traveled. The key sentiment is: **“Pop T kept his passengers and crews on course. Momma Cheryl kept the family on course. Both were essential to bringing the crew home.”** The family-photo montage remains deferred to the end-game movie-style credits and is not part of this chapter.
+Completing the scan opens **Memphis Legacy Departure** without changing the production cockpit or right-seat camera. The separate outside environment evokes older Concourse B through an intentionally compressed route. The player releases from the ramp, follows one taxi turn, settles at a quiet hold, confirms the lineup, advances into the legacy roll, pulls on the qualitative rotation cue, and holds a short initial climb. There are no real speeds, runway numbers, radio frequencies, engine settings, checklists, or procedures. The sequence begins after a fictional ground-tow handoff and contains no engine-start or pushback task.
 
-The completed Home Operations Log opens the **instrument scan**. Six right-seat instruments are called one at a time in the order a DC-9 crew read them — airspeed indicator, attitude director indicator, altimeter, horizontal situation indicator, vertical speed indicator, and the EPR gauges that set JT8D thrust. The player answers by clicking the gauge in the cockpit or by choosing it from a keyboard-reachable list; both paths are equivalent. A correct answer is permanent and runs that instrument's own needle through a power-on self-test sweep on the real donor geometry. Wrong answers cost nothing, never clear a correct answer, and produce steadily clearer coaching until the third miss outlines the right gauge. The scan is a power-on instrument test on a parked aeroplane, not a claim about what the aircraft is doing.
+The departure reuses the yoke, rudder, and paired thrust controls across keyboard, gamepad, direct cockpit input, and native hold buttons. Closing the levers produces a calm stop; **Ready to line up** appears only at the safe hold. Five durable checkpoints protect earned beats. A path deviation, early pull, or unstable climb restores only the active checkpoint and strengthens coaching, while **Retry from checkpoint** remains available at every active beat. Reload and visibility loss resume the latest checkpoint at rest. If the outside GLB fails, the native qualitative guidance remains authoritative and offers a retry.
 
-After both records and the scan are complete, the existing overhead view supports a forgiving ceremonial shutdown: APU buses off, APU master off, then battery off. Out-of-order actions receive calm guidance and never clear a completed step. Completion reveals a lightweight HTML Captain’s Key cinematic with the engravings **“THE CAPTAIN’S KEY”** and **“POP T & MOMMA CHERYL.”** Taking it opens the locker.
+The completed departure opens the five-page **Home Operations Log**. This is recognition, never a puzzle: it has no answers, sorting, timer, failure state, or test. Its pages recognize the care and steady logistics required to feed and prepare three children, support sports and cheerleading schedules, shop for school clothes, and manage changing household needs while Pop T traveled. The key sentiment is: **“Pop T kept his passengers and crews on course. Momma Cheryl kept the family on course. Both were essential to bringing the crew home.”** The family-photo montage remains deferred to the end-game movie-style credits and is not part of this chapter.
+
+Completing Home Operations reveals the narrow strip clipped to the first-officer column and opens the readable **Legacy Route Record**. The representative familiar routes are `DTW`, `MSP`, and `STL`. Wrong submissions progressively offer a Northwest-hubs/Midwestern-stop annotation, then Michigan/Minnesota/Missouri, then a warm outline on the three codes. Correct stamps are permanent and later mistakes never remove them.
+
+After the route record, the existing overhead view supports a forgiving ceremonial shutdown: APU buses off, APU master off, then battery off. Out-of-order actions receive calm guidance and never clear a completed step. The closing ATP milestone recognizes the standard total-time answer, then reveals a lightweight HTML Captain's Key cinematic with the engravings **“THE CAPTAIN'S KEY”** and **“POP T & MOMMA CHERYL.”** Taking it opens the locker.
 
 ## Locker Room / Captain’s Locker Scene
 
@@ -78,7 +82,7 @@ The red Tesla Model Y must remain hidden until the reordered DC-9 → locker →
 
 Reward sequence:
 
-1. Airbus crew qualification completes.
+1. Airbus qualification and captain scenarios complete.
 2. The hangar confirms the full family journey.
 3. The red Tesla Model Y is revealed.
 4. Title: **“Ground Transport Upgrade Authorized.”**
@@ -127,7 +131,7 @@ This should never block the main ending.
 - Readable live PFD, weather-display, and ECAM feedback.
 - Visible sidestick and paired-thrust response.
 - Cinematic procedural storm weather without operational emergency framing.
-- Readable object highlighting during the optional familiarization.
+- Readable object highlighting during the required five-card qualification.
 - Clear A320 cockpit landmarks for family players.
 - Friendly lighting and obvious interaction zones.
 
@@ -141,6 +145,8 @@ This should never block the main ending.
 - Control column, wheel, thrust levers and rudder pedals that move on their donor pivots.
 - Readable first-officer basic-T with instrument needles that can be driven.
 - Lighting that makes the cockpit feel real but still readable.
+- An older Concourse B memory view that is recognizable from the fixed right seat at ramp release and remains readable through taxi, hold, rollout, and climb.
+- A compressed route that never implies exact KMEM geography or operational instruction.
 
 ### Model Y Flight Mode reward
 
@@ -152,13 +158,14 @@ This should never block the main ending.
 
 ## Technical direction
 
-Default stack: Vite, React, TypeScript, Three.js through React Three Fiber, Drei where useful, Blender, GLB/glTF assets, Vitest, Playwright, GitHub, and Vercel preview deployments.
+Default stack: Vite, React, TypeScript, Three.js through React Three Fiber, Blender, GLB/glTF assets, Vitest, Playwright, GitHub, and Vercel preview deployments.
 
 Keep asset groups separate and lazy-loaded:
 
 - Airbus A320 Pop T Captain cockpit
 - Locker room scene
 - DC-9-32 First-Officer cockpit
+- Memphis legacy departure environment
 - Model Y hangar reward and Flight Mode transformation
 - Mars Easter egg
 
@@ -168,10 +175,9 @@ Narrow screens receive a functional stacking/overflow fallback. Dedicated mobile
 
 ## Approval gates
 
-1. DC-9-32 Final Flight Log opening proof
+1. DC-9-32 Final Flight Log and Memphis memory departure proof
 2. Locker room reveal proof
 3. Airbus A320 Pop T Captain left-seat interaction proof — the previous right-seat presentation was superseded on 2026-07-15 and owner approval is reopened
 4. Complete reordered journey proof
 5. Model Y reward reveal and Flight Mode transformation
-6. Mars Easter egg
-7. Release candidate
+6. Final complete-game review, including the Mars Easter egg if it is present in the release

@@ -4,6 +4,7 @@
 
 ```text
 art-source/blender/dc9_master.blend
+art-source/blender/dc9-memphis-legacy-departure.blend
 art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend
 art-source/blender/tesla_reward.blend
 art-source/blender/locker_room_master.blend
@@ -13,6 +14,7 @@ art-source/blender/locker_room_master.blend
 
 ```text
 DC9_ROOT
+KMEM_LEGACY_ROOT
 AIRBUS_ROOT
 TESLA_ROOT
 LOCKER_ROOT
@@ -31,6 +33,25 @@ DC9_ROOT
 ```
 
 Use equivalent prefixes for Airbus and vehicle assets.
+
+The Memphis memory environment remains separate from `DC9_ROOT`:
+
+```text
+KMEM_LEGACY_ROOT
+├── KMEM_CONCOURSE_B
+├── KMEM_RAMP
+├── KMEM_TAXI_SURFACE
+├── KMEM_RUNWAY_SURFACE
+├── KMEM_FIELD
+├── KMEM_TERMINAL_APRON
+├── KMEM_RAMP_START                    game_id = dc9.memphis.rampStart
+├── KMEM_TAXI_TURN                     game_id = dc9.memphis.taxiTurn
+├── KMEM_HOLD_SHORT                    game_id = dc9.memphis.holdShort
+├── KMEM_RUNWAY_LINEUP                 game_id = dc9.memphis.runwayLineup
+└── KMEM_INITIAL_CLIMB                 game_id = dc9.memphis.initialClimb
+```
+
+The renderer keeps the production cockpit and camera fixed, then applies the pure departure frame as an inverse world transform to this environment. Anchor names, unique `game_id` values, selected Concourse B source objects, materials, and texture budgets are enforced by `tools/assets/dc9-memphis-model-contract.mjs`.
 
 The current locker hierarchy uses:
 
@@ -140,9 +161,11 @@ Do not run a flattening, joining, or destructive deduplication optimization unle
 
 ## Seat-role camera contract
 
-The active DC-9 camera family is `CAM_DC9_FIRST_OFFICER_GAME`, `CAM_DC9_FIRST_OFFICER_APPROVAL`, and the `CAM_DC9_FIRST_OFFICER_*_APPROVAL` route, main-panel, overhead, and pedestal cameras. The active Airbus cameras are `CAM_AIRBUS_CAPTAIN_GAME_VIEW` and `AIRBUS_A320_CAM_CAPTAIN_APPROVAL`. Old seat cameras may remain only with explicit `deprecated`, `compatibility_only`, and `replacement_camera` metadata.
+The active DC-9 camera family is `CAM_DC9_FIRST_OFFICER_GAME`, `CAM_DC9_FIRST_OFFICER_APPROVAL`, and the `CAM_DC9_FIRST_OFFICER_*_APPROVAL` route, main-panel, overhead, and pedestal cameras. Memphis adds no exterior gameplay camera; the separate environment moves outside the unchanged right-seat view. The active Airbus cameras are `CAM_AIRBUS_CAPTAIN_GAME_VIEW` and `AIRBUS_A320_CAM_CAPTAIN_APPROVAL`. Old seat cameras may remain only with explicit `deprecated`, `compatibility_only`, and `replacement_camera` metadata.
 
 The deployable Airbus path is `public/models/airbus-captain.glb`. React Three Fiber consumes `CAM_AIRBUS_CAPTAIN_GAME_VIEW` and its 68° vertical field of view during qualification, then transitions to `CAM_AIRBUS_CAPTAIN_STORM_FLIGHT` and its 58° vertical field of view for the Storm Flight simulator. The Storm camera exports `game_id = airbus.a320.camera.captain_storm_flight`, `purpose = storm-flight`, `seat_role = captain`, and `aircraft = Airbus A320`. The DC-9 route strip and colliders are children of the actual first-officer yoke while retaining their stable route and shutdown `game_id` values.
+
+The deployable Memphis path is `public/models/dc9-memphis-legacy-departure.glb`. It is preloaded with the cockpit for the opening chapter, staged only under the DC-9 scene, and treated as an optional visual layer when its request fails. `MemphisDeparturePanel` remains the authoritative native control and guidance surface.
 
 The deployable Model Y path is `public/models/model-y-reward.glb`. It is loaded
 only in the protected reward phase after DC-9, locker, and Airbus completion.

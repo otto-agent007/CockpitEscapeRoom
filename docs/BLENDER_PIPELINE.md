@@ -34,26 +34,37 @@ Create `art-source/blender/web_asset_template.blend` with:
 
 Do not replace Blender’s global startup file; keep the template versioned with the project.
 
-## 3. First DC-9 source file
+## 3. Production source files
 
-Save a copy as `dc9_master.blend`. Create `DC9_ROOT` and the hierarchy in `docs/ASSET_CONTRACT.md`. Add `CAM_DC9_FIRST_OFFICER_APPROVAL` before modeling detail so proportions are always reviewed from the intended right-seat eye point.
+The current production sources are:
 
-## 4. Proof-of-pipeline asset
+```text
+art-source/blender/dc9_master.blend
+art-source/blender/dc9-memphis-legacy-departure.blend
+art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend
+art-source/blender/locker_room_master.blend
+art-source/blender/tesla_reward.blend
+```
 
-Model only:
+The DC-9 keeps `DC9_ROOT` and its first-officer camera family. The Memphis source keeps `KMEM_LEGACY_ROOT` and moves as a separate environment around the fixed cockpit. The Airbus shaded pipeline master is authoritative; do not introduce an `airbus_master.blend` duplicate.
 
-- Cockpit shell and recognizable main-panel blockout.
-- Three interactive switches.
-- One animated gauge.
-- One emissive annunciator.
-- One Memphis route card.
+## 4. DC-9 and Memphis contract
 
-Assign stable names, pivots, and custom properties. This asset exists to prove export and browser interaction, not to impress with surface detail.
+The original proof-of-pipeline milestone is historical. Current DC-9 work must preserve:
+
+- production cockpit geometry, donor pivots, instrument needles, route strip, shutdown controls, and first-officer cameras in `dc9_master.blend`;
+- the separate Memphis Concourse B source selection, project-authored ground/path context, five checkpoint anchors, and `1995 MEMORY` provenance in `dc9-memphis-legacy-departure.blend`; and
+- the runtime rule that a Memphis load failure removes only the outside view, never the playable native guidance.
+
+Do not merge the Memphis environment into the cockpit GLB or add an exterior gameplay camera.
 
 ## 5. Validate and export
 
 ```bash
 npm run asset:dc9
+npm run asset:dc9-memphis
+npm run asset:airbus
+npm run asset:tesla
 npm run asset:locker
 ```
 
@@ -64,7 +75,7 @@ The command:
 3. Exports a raw GLB with custom properties.
 4. Runs glTF validation and inspection.
 5. Copies only a valid result into `public/models`.
-6. Writes an asset report under `.cache/assets/dc9/`.
+6. Writes an export-contract report under the asset-specific `.cache/assets/<asset>/` directory.
 
 Use `tools/blender/render_preview.py` to create consistent approval renders. The future Blender add-on should call these same Python functions rather than duplicating logic.
 
@@ -75,6 +86,7 @@ Load the GLB in the actual React Three Fiber application. Verify:
 - Scale and camera feel.
 - Every expected node name.
 - `userData.game_id` metadata.
+- Memphis anchor uniqueness and inverse-world motion outside the fixed right-seat camera.
 - Switch pivot and travel.
 - Gauge animation.
 - Emissive material response.

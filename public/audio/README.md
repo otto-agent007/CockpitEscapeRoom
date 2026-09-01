@@ -2,9 +2,9 @@
 
 This is a private, personal build, so owner-supplied or self-made audio may be used freely.
 
-Production audio must include mute and volume controls and must not autoplay before a player gesture.
+Production audio must fail safely. The automatic cinematic may attempt its soundtrack when it mounts; browser rejection keeps the visual timeline running silently and exposes a visible retry. The long-form cinematic provides mute and volume controls, while one-shot milestone and simulator layers provide persistent sound toggles appropriate to their scope.
 
-## Genesis-style placeholder intro
+## Console-era cinematic soundtrack
 
 - Owner-supplied source: `/mnt/2TBHDD/Downloads/IntroAudio.mp3`
 - Source size: `5,015,659` bytes
@@ -17,7 +17,7 @@ Production audio must include mute and volume controls and must not autoplay bef
 
 The source file remains unchanged outside the repository. The deployable copy was decoded and re-encoded with the workstation's GStreamer 1.24.2 `decodebin`, `audioresample`, `lamemp3enc`, and `id3v2mux` elements. An accurate `0..53 seconds` bounded seek was applied before playback-through-EOS so the MP3 finalized cleanly; the reproducible command and the rejected `identity eos-after` experiment are recorded in `plans/0015-genesis-game-intro.md`.
 
-The app preloads this file on the existing briefing, but playback begins only inside the player's **Start Game** gesture. The intro provides mute, volume, retry-sound, and skip controls. This is owner-supplied placeholder music for the private CockpitEscapeRoom build.
+The app loads this file with the automatic cinematic and attempts playback once. There is no outer **Start Game** gesture. If autoplay is rejected, the visual timeline advances on its silent fallback clock and exposes **Retry sound**; the cinematic also provides mute, volume, retry-sound, and skip controls. This is owner-supplied music for the private CockpitEscapeRoom build.
 
 ## Captain's Key celebration cheer
 

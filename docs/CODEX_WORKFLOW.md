@@ -1,6 +1,6 @@
 # Codex workflow for CockpitEscapeRoom
 
-Verified against official OpenAI Codex documentation on 2026-06-21.
+Verified against current official OpenAI Codex documentation on 2026-09-01.
 
 ## Operating principle
 
@@ -27,12 +27,18 @@ Use Codex Plan mode for complex, ambiguous, or visually consequential work. The 
 
 ## Skills
 
-The pack includes four repo-local Skills:
+The repo-local Skill pack is organized by job:
 
 - `$cockpit-feature` for implementing and validating a game feature or puzzle.
 - `$blender-web-assets` for validating, exporting, inspecting, and integrating a Blender asset.
+- `$blender-browser-visual-gate` for proving Blender/GLB work in the actual game at required viewports.
+- `$blender-source-intake` for controlled third-party source import, normalization, provenance, and staging.
+- `$blender-visual-repair` for bounded visual repair after owner or screenshot feedback.
+- `$aircraft-reference-curator` for aircraft reference manifests, contact sheets, and modeling briefs.
+- `$sketchfab-inspector-capture` for recorded Model Inspector evidence during source review.
 - `$loop-doctor` for auditing, diagnosing, and minimally repairing an existing workflow loop, prompt loop, asset pipeline loop, or agent handoff loop.
 - `$loop-discovery` for mining repo evidence and authorized coding-thread history for recurring work that should become a loop or Skill.
+- `$marble-developer-api` for work specifically involving the World Labs / Marble Public API.
 
 Use explicit invocation while the workflows are new. After the descriptions prove reliable, Codex may select them implicitly.
 
@@ -44,7 +50,7 @@ Tripo AI is allowed only as a rapid candidate/proxy generator. Its outputs must 
 
 The official Blender MCP may be used for scene inspection and controlled edits such as cleanup, naming, pivot checks, metadata review, validation support, preview renders, and export support. It must not be used for uncontrolled broad rewrites of approved scenes or to bypass deterministic scripts, asset reports, owner visual gates, or runtime-contract validation.
 
-Keep generated assets separated by scene group: Airbus A320 Pop T Captain cockpit, locker room scene, DC-9 First-Officer cockpit, Model Y hangar reward, and Mars Easter egg. Do not mix Airbus and DC-9 aircraft-specific details.
+Keep generated assets separated by scene group: Airbus A320 Pop T Captain cockpit, locker room scene, DC-9 First-Officer cockpit, Memphis legacy departure environment, Model Y hangar reward, and Mars Easter egg. Do not mix Airbus and DC-9 aircraft-specific details.
 
 ## Implementation and repair loop
 

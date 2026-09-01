@@ -1,147 +1,77 @@
 # CockpitEscapeRoom Blueprint
 
-## 1. Core thesis
+## Core thesis
 
-CockpitEscapeRoom is a personalized Father’s Day tribute flow with one emotional arc:
-automatic console-era cinematic / PRESS START → DC-9 First-Officer Final Flight Log → unchanged locker memory reveal → Airbus A320 Pop T Captain Mode → hidden Model Y reveal.
+CockpitEscapeRoom is a personalized, family-friendly browser escape room with one emotional arc:
 
-## 2. Player and occasion
+**automatic console-era cinematic → DC-9 First-Officer Final Flight Log → Captain's Locker → Airbus A320 Pop T Captain Mode → red Model Y Flight Mode reward → optional Mars Easter egg**
 
-The honoree is a former pilot who began on DC-9 and later flew Airbus aircraft. The game should remain ceremonial and family-friendly.
+It honors an expert pilot who began on the McDonnell Douglas DC-9 and later flew Airbus aircraft. Dad is always portrayed as capable, calm, and respected. The present-day tribute aircraft is safely parked; the Memphis taxi and takeoff are an explicitly fictional 1995 memory recreation, never an accident or operational lesson.
 
-Wrong choices should never erase earned milestones. The aircraft is safely parked; this is legacy, not an emergency.
+## Current journey
 
-## 3. Experience structure
+1. A fresh or restarted game mounts the cinematic immediately. There is no outer **Start Game** screen; the cinematic's own **PRESS START** opens the DC-9 chapter.
+2. From the DC-9-32 first-officer/right seat, the player completes the control check and instrument scan.
+3. **Memphis Legacy Departure** recreates a short, qualitative Concourse B taxi and takeoff memory through checkpoint-safe arcade controls.
+4. The non-puzzle **Home Operations Log** recognizes Momma Cheryl's parallel work at home.
+5. The **Legacy Route Record**, ceremonial shutdown, ATP milestone, and Captain's Key close the Final Flight Log.
+6. The key opens the unchanged Captain's Locker sequence: watch → baseball → Charging Bull → airline wings → captain's hat.
+7. **Enter Pop T Captain Mode** opens the separate Airbus A320 captain/left-seat cockpit, five-card qualification, Storm Line, and Engine-Out Handling scenarios.
+8. Completing Airbus unlocks the protected red Model Y reveal and sleek Flight Mode transformation, followed by the Father's Day message.
+9. Mars remains optional and separate from the main ending.
 
-1. **DC-9 First-Officer Final Flight Log** opening memory chapter from the right seat.
-2. **Locker room sequence** with personal memory objects.
-3. **Airbus A320 Pop T Captain Mode** crew experience, now occupying the Captain-mode slot.
-4. **Red Tesla Model Y reveal** as the personal reward.
-5. **Optional Mars Easter egg** after completion.
+Persisted later chapters resume directly. Wrong choices may rewind the active checkpoint but never erase completed puzzle or chapter progress.
 
-## 4. Player loop
+## Player loop
 
-**Observe → inspect → decide → feedback → retry or hint → unlock next layer → reveal personal reward → advance**
+**Observe → inspect → decide → receive feedback → retry or request a progressive hint → restore the active system → receive a personal reward → advance**
 
-Wrong answers must never erase completed stages.
+Every required 3D action has a native HTML, keyboard, or equivalent accessible path. Reduced-motion, audio fallback, corrupt-save recovery, and narrow-screen functionality are part of the experience contract.
 
-## 5. Story and spoiler rules
+## Visual identity and safety
 
-- The DC-9 is the first gameplay layer and should feel personal, warm, and safely parked.
-- Do not show the Model Y before the DC-9, locker, and Airbus chapters are complete.
-- The DC-9 and Airbus remain distinct aircraft experiences.
+- The production legacy aircraft is the owner-cleared **McDonnell Douglas DC-9-32**, viewed from the first-officer/right seat.
+- The Memphis environment is a compressed 1995 memory inspired by older Concourse B, not an exact KMEM reconstruction and not a training aid.
+- The later cockpit is a separate **Airbus A320** from the captain/left seat. It may not reuse DC-9 geometry or aircraft-specific details.
+- The Model Y remains hidden until DC-9, locker, and Airbus are complete.
+- Flight Mode stays premium and plausible-futuristic: articulated panels, wings or stabilizers, integrated lift details, restrained lighting, and no humanoid transformation.
+- Authentic-looking controls support fictional, non-operational interactions only.
 
-## 6. Technical direction
+## Architecture
 
-- Vite + React + TypeScript + React Three Fiber + Three.js.
-- Pure reducer/state in `src/game`, presentation in `src/scenes`, controls and status in `src/components`.
-- Load DC-9 first, then locker, Airbus, and reward layers as unlocked.
-- Keep hints progressive and persistent saves robust.
+- Vite, React, TypeScript, React Three Fiber, and Three.js power the browser game.
+- Pure rules, content, reducer state, and persistence live in `src/game/`; 3D presentation lives in `src/scenes/`; accessible UI lives in `src/components/`.
+- Canonical schema 15 stores local-only progress across `briefing | dc9 | locker | airbus | reward | mars` and migrates older saves safely.
+- The app loads the cinematic first, preloads the DC-9 cockpit and Memphis view during it, and lazy-loads later chapter assets.
+- Blender is authoritative for production geometry, materials, pivots, cameras, animation, hierarchy, and exported `game_id` metadata. Validated GLBs are the runtime format.
 
-## 7. Delivery priorities
+## Asset boundaries
 
-1. Stable Final Flight Log records, shutdown, and Captain’s Key.
-2. Locker memory interaction and hat-reveal gate.
-3. Airbus Pop T Captain Storm Line simulator from the left seat, unlocked only after the five-card qualification is completed.
-4. Reward reveal UI and final closing message.
-5. Mars optional trigger.
+Each production group has a separate source and deployable:
 
-## 4. Player loop
+- `art-source/blender/dc9_master.blend` → `public/models/dc9-cockpit.glb`
+- `art-source/blender/dc9-memphis-legacy-departure.blend` → `public/models/dc9-memphis-legacy-departure.glb`
+- authoritative shaded A320 master → `public/models/airbus-captain.glb`
+- `art-source/blender/locker_room_master.blend` → `public/models/locker-room.glb`
+- `art-source/blender/tesla_reward.blend` → `public/models/model-y-reward.glb`
 
-Every puzzle follows the same loop:
+Stable names, pivots, hierarchy, animations, cameras, and `game_id` properties are public runtime contracts. Tripo outputs remain candidates until Blender cleanup, deterministic validation, asset reporting, and browser review are complete.
 
-**Observe → inspect → decide → receive immediate feedback → retry or request a progressive hint → restore one system → receive a personal or visual reward → advance.**
+## Delivery model
 
-Wrong answers never erase completed puzzles. Final Flight Log route stamps and shutdown steps remain complete across later mistakes.
+`AGENTS.md` carries durable repository rules, `plans/` carries living ExecPlans, scoped Skills carry repeated workflows, and `TEST_REPORT.md` records actual validation. Work proceeds through small implementation checkpoints, focused tests, real-browser exercise, responsive visual inspection, full-diff review, root-cause repair, and recorded evidence.
 
-## 5. Final Flight Log and Airbus experience
+Owner review remains required after the DC-9, locker, Airbus, reordered journey, Model Y Flight Mode, and final complete-game visual gates. A Vercel preview and consistent screenshots accompany visual milestones.
 
-Fresh and restarted games mount the console-era cinematic immediately. Its initial art tier gates playback without exposing a separate landing page; soundtrack autoplay is attempted once, and a browser rejection moves the visuals onto the silent fallback clock with a visible sound retry. The cinematic's native **PRESS START** remains available from its authored cue and routes to the Final Flight Log. Persisted later chapters resume directly. The Final Flight Log uses the DC-9 right-seat first-officer view, a reliable route strip attached to the first-officer yoke, a readable HTML route record, progressive hints, a non-puzzle Home Operations Log, the three supported shutdown controls, and the ATP milestone. The later Airbus experience uses the left-seat captain view, opens with an instruction box announcing the drag-and-drop label check (with a tap-based path named alongside), requires all five labels to be matched, and then offers **Begin Storm Line** before transitioning to the focused fictional Storm Flight view. Storm Line names the west gap as "off your left wing" and shows a live Route guidance line with a drift meter: the green band is derived from the same exported corridor constants the flight model enforces, so the player can always see whether they are in the west lane and how long Weather Entry remains open. Storm Line and Engine-Out Handling add four short captain-workload decisions on the existing ND and upper ECAM. They are required but forgiving: an unfinished decision safely holds only the next simulator boundary, wrong choices strengthen coaching, and completed decisions survive retry and reload.
-
-The Final Flight Log is not a memorization exam. The Northwest/Memphis/DC-9 history should appear mainly in scenery, route choices, dispatch texture, sounds, and the rhythm of the hub. Fleet counts, exact retirement dates, and economics are reference material, not required answers unless a later puzzle proves fun in playtesting.
-
-## 6. Personalized narrative and rewards
-
-The DC-9 level celebrates the aircraft as a durable short-haul workhorse in the Memphis network. The family crew restores a fictional “legacy lockout” and rebuilds a small portion of the Southern funnel around MEM.
-
-Completing the reordered DC-9 → locker → Airbus journey opens the hangar and reveals a red Model Y. The production reward scene may use a playful plate such as `CAPT DAD`, `DC9 2 EV`, `MEM FLYR`, or `MARS 09` after the owner chooses one.
-
-The later Airbus Pop T Captain chapter represents type transition and adaptability. A hidden Mars control turns the Model Y into a humorous surface vehicle and awards the rank “Commander, Mars Transport Division.”
-
-## 7. Visual realism standard
-
-The DC-9 must read immediately as a DC-9 from the first-officer/right seat. Required qualities include correct major geometry, analog instrument density, center-panel proportions, yokes, overhead and pedestal relationships, era-appropriate panel color, believable wear, glass, labels, restrained annunciator light, and a convincing first-officer eye camera.
-
-The Airbus Pop T Captain cockpit must be a completely separate asset. It may not be a recolored or rearranged DC-9. The exact Airbus model must be confirmed before final modeling because display, side-stick, flight-control-unit, overhead, pedestal, and lighting details depend on the model.
-
-Visual accuracy and puzzle behavior are separated: the cockpit can look authentic while the interactive sequences remain fictional.
-
-## 8. Technical architecture
-
-The browser stack is Vite, React, TypeScript, React Three Fiber, and Three.js. Blender is the source of truth for production geometry, materials, pivots, animations, cameras, and custom interaction metadata. GLB/glTF is the runtime asset format.
-
-HTML overlays carry instructions, hints, settings, captions, and accessible alternatives. Game rules live outside 3D components. Progress is stored locally and versioned. The Airbus, vehicle reward, and Mars assets should be lazy-loaded after unlock.
-
-## 9. Blender and asset pipeline
-
-Each production scene has its own master file and deployable GLB:
-
-- `dc9_master.blend` → `dc9-cockpit.glb`
-- `art-source/cockpit-pipeline/builds/shaded/a320-cockpit-2-shading/a320-cockpit-2-shaded.blend` → `airbus-captain.glb`
-- `tesla_reward.blend` → `model-y-reward.glb`
-
-The pipeline validates roots, cameras, pivots, object names, `game_id` values, textures, materials, scale, and GLB structure before copying an asset into `public/models`.
-
-The first milestone is a proof of pipeline, not a complete cockpit.
-
-## 10. Codex operating model
-
-Codex receives durable repository guidance through `AGENTS.md`, longer work through living ExecPlans based on `PLANS.md`, and repeated workflows through scoped Skills.
-
-Every task prompt should state:
-
-- Goal.
-- Context.
-- Constraints.
-- Done when.
-
-Complex tasks begin in Plan mode. Codex must inspect existing work, make small coherent changes, test in the actual browser, review the diff, and record evidence.
-
-## 11. Implementation and repair loop
-
-For each milestone, Codex repeats:
-
-**Orient → plan → implement → validate → launch → exercise success and failure paths → inspect visually → review the diff → repair root causes → record evidence and checkpoint.**
-
-The loop stops when validation passes, the maximum bounded attempts are reached, the remaining failure delta stops shrinking, or a genuine visual/product decision requires human review. Every pass leaves an audit trail in the ExecPlan and `TEST_REPORT.md`.
-
-## 12. Delivery roadmap
-
-**Phase 0 — Bootstrap:** working greybox, docs, tests, CI, Vercel preview, Blender scripts.
-
-**Phase 1 — DC-9 Final Flight Log proof:** route record, Home Operations recognition, ceremonial shutdown, Captain’s Key, browser integration.
-
-**Phase 2 — locker reveal proof:** personal locker objects, captain’s hat reveal, accessible inspection flow, and spoiler-safe transition.
-
-**Phase 3 — Airbus Pop T Captain proof:** left-seat qualification camera, mandatory object matching, exported Storm Flight camera, Storm Line manual-flight scenario, live cockpit displays and controls, browser integration, and owner visual gate.
-
-**Phase 4 — Model Y reward:** red Model Y asset, achievement card, optional plate.
-
-**Phase 5 — main game polish:** progressive hints, saved progress, final message, performance budget, and cross-scene regression pass.
-
-**Phase 6 — Mars Easter egg and release:** hidden trigger, final family copy, complete regression pass, print/share packaging if desired.
-
-## 13. Definition of done
+## Definition of done
 
 A release candidate is done only when:
 
-- All required puzzles can be completed across the DC-9, locker, and Airbus chapters.
-- Correct, wrong, repeated-wrong, hint, reload, resume, and reset paths work.
-- The DC-9 passes owner visual approval from the first-officer/right seat and the Airbus from the captain/left seat.
-- The Airbus model and DC-9 variant are documented.
-- Keyboard and screen-reader equivalents exist for every required 3D action.
-- Reduced-motion mode, sound controls, and readable contrast are present.
-- The app works at approximately 375, 768, and 1440 CSS pixels wide.
-- No uncaught console errors, broken assets, or high-severity review findings remain.
-- `npm run check`, `npm run test:e2e`, and `npm run assets:check` pass.
-- A Vercel production build has been reviewed in the browser.
+- the complete cinematic → DC-9 → locker → Airbus → reward journey works, with Mars remaining optional;
+- success, failure, repeated-failure, hint, keyboard, reload, resume, restart, reduced-motion, and asset-fallback paths behave safely;
+- the DC-9 and Airbus pass owner visual approval from their fixed seat roles;
+- every required WebGL interaction has an accessible equivalent;
+- approximately 375, 768, and 1440 CSS pixel layouts remain functional and readable;
+- no Model Y spoiler leaks, uncaught console errors, broken assets, or critical/high review findings remain;
+- `npm run check`, `npm run test:e2e`, and `npm run assets:check` pass; and
+- the reviewed Vercel build matches the validated local result.
