@@ -1,6 +1,6 @@
 # CockpitEscapeRoom
 
-A personalized 3D browser escape room celebrating an expert pilot's journey from the McDonnell Douglas DC-9 to the Airbus A320.
+A personalized 3D browser game celebrating my dad, a pilot's journey from the McDonnell Douglas DC-9 to the Airbus A320.
 
 The game opens with a console-era cinematic, then moves through a right-seat DC-9 Final Flight Log and fictional Memphis departure memory, the Captain's Locker, Airbus Pop T Captain Mode, and a protected red Model Y Flight Mode reward. Mars remains a hidden post-ending Easter egg. Every aircraft interaction is fictional, non-operational, and framed as a warm family tribute.
 
