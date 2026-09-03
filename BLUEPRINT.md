@@ -61,7 +61,7 @@ Stable names, pivots, hierarchy, animations, cameras, and `game_id` properties a
 
 `AGENTS.md` carries durable repository rules, `plans/` carries living ExecPlans, scoped Skills carry repeated workflows, and `TEST_REPORT.md` records actual validation. Work proceeds through small implementation checkpoints, focused tests, real-browser exercise, responsive visual inspection, full-diff review, root-cause repair, and recorded evidence.
 
-Owner review remains required after the DC-9, locker, Airbus, reordered journey, Model Y Flight Mode, and final complete-game visual gates. A Vercel preview and consistent screenshots accompany visual milestones.
+Owner review remains required after the DC-9, locker, Airbus, complete journey, Model Y Flight Mode, and final complete-game visual gates. A Vercel preview and consistent screenshots accompany visual milestones.
 
 ## Definition of done
 

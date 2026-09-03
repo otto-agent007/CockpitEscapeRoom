@@ -1,8 +1,10 @@
 # Scene contract summary
 
-Required roots:
+Required roots (authoritative list and hierarchy in `docs/ASSET_CONTRACT.md`):
 
 - `DC9_ROOT`
+- `KMEM_LEGACY_ROOT` (Memphis memory environment, kept separate from `DC9_ROOT`)
+- `LOCKER_ROOT`
 - `AIRBUS_ROOT`
 - `TESLA_ROOT`
 

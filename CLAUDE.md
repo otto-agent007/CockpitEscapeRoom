@@ -37,7 +37,7 @@ Standard scripts are in `package.json`. The asset builds (`asset:dc9`, `asset:dc
 - Tripo AI is a rapid candidate/proxy generator only, never production authority, and must not silently override aircraft-specific references. Its output must be imported into Blender, cleaned, optimized, given stable object names, checked for pivots and local axes, and documented in `asset-reports/` before runtime use.
 - Blender MCP is appropriate for scene inspection, controlled cleanup, validation, naming, pivots, metadata, preview renders, and export support.
 - Keep generated assets separated by scene group: A320 Pop T Captain cockpit, locker room, DC-9-32 First-Officer cockpit, Memphis legacy environment, Model Y hangar reward and Flight Mode, Mars Easter egg.
-- The DC-9-32 must be model-correct in major visible geometry — do not invent a generic retro cockpit. The greybox label was retired at owner request on 2026-08-23; do not reintroduce it.
+- The DC-9-32 must be model-correct in major visible geometry — do not invent a generic retro cockpit. The DC-9 panel carries no greybox or placeholder label.
 - Record material count, texture sizes, optimization decisions, validation output, and preview-render evidence before treating an asset as production-ready.
 - Flight Mode stays sleek, plausible-futuristic, and premium: clean mechanical panels, wing/stabilizer deployment, hidden lift fans or concealed propulsion accents, restrained lighting. No aggressive sci-fi styling, no humanoid robot transformation.
 - Owner-approved airline artwork, logos, and textures may be used when they match the current scene group and asset authority.
@@ -64,6 +64,6 @@ Test in a real browser, not only source. Exercise the success, failure, repeated
 
 ## Approval gates
 
-Pause for owner review after: (1) DC-9-32 Final Flight Log interaction proof, (2) locker room reveal proof, (3) A320 Pop T Captain left-seat interaction proof, (4) complete reordered journey proof, (5) red Model Y reward and Flight Mode asset, (6) final complete-game review. Each visual gate should carry a Vercel preview and consistent screenshots.
+Pause for owner review after: (1) DC-9-32 Final Flight Log interaction proof, (2) locker room reveal proof, (3) A320 Pop T Captain left-seat interaction proof, (4) complete journey proof, (5) red Model Y reward and Flight Mode asset, (6) final complete-game review. Each visual gate should carry a Vercel preview and consistent screenshots.
 
 Before presenting a milestone as complete: run the relevant checks, do a full-diff review, resolve all critical and high-severity findings, and report files changed, commands actually run, results, placeholders, and genuine limitations.

@@ -4,7 +4,7 @@
 
 This directory defines Blender tooling, pipeline contracts, validation scripts, smoke tests, and generated asset handoff checks for CockpitEscapeRoom.
 
-The old split-workspace ownership rule is retired. Asset changes may be implemented alongside browser/runtime changes from this computer when a milestone requires both, but generated GLBs must still be produced through the documented pipeline and validated before runtime use.
+Asset changes may be implemented alongside browser/runtime changes when a milestone requires both, but generated GLBs must still be produced through the documented pipeline and validated before runtime use.
 
 ## Required pipeline playbook
 
@@ -35,7 +35,7 @@ Do not operate the agents as a swarm editing the same cockpit simultaneously. Ru
 - Blender Python performs only scene and asset operations.
 - Run Blender with background mode, factory startup, and auto-execution disabled.
 - Do not create or replace production models under `public/models/**` for foundation tasks.
-- Preserve `sourceVariant`, `targetVariant`, and `variantScope` in all DC-9 job and manifest records until the owner resolves the final variant.
+- Preserve `sourceVariant`, `targetVariant`, and `variantScope` in all DC-9 job and manifest records. The DC-9 production target is the owner-cleared DC-9-32 (see `docs/GAME_DESIGN.md`); a `targetVariant` of `unresolved` in pipeline code or older records is historical, not an open decision.
 - Preserve stable object names, pivots, hierarchy, animations, and `game_id` custom properties as runtime contracts.
 - Treat Tripo AI outputs as candidate/proxy inputs only until imported into Blender, inspected, cleaned, optimized, documented, and approved.
 - Record a browser integration handoff when an asset needs React loader, interaction, accessibility, or screenshot verification.

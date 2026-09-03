@@ -19,7 +19,7 @@ Use low reasoning for small mechanical edits, medium/high for multi-file changes
 
 ## Plan first
 
-Use Codex Plan mode for complex, ambiguous, or visually consequential work. The first production DC-9 milestone should begin with an ExecPlan in `plans/`. Planning is not the finish line: after owner review of the approach, Codex should continue through implementation and evidence collection.
+Use Codex Plan mode for complex, ambiguous, or visually consequential work. Production milestones begin with an ExecPlan in `plans/`. Planning is not the finish line: after owner review of the approach, Codex should continue through implementation and evidence collection.
 
 ## Durable instructions
 
@@ -40,7 +40,7 @@ The repo-local Skill pack is organized by job:
 - `$loop-discovery` for mining repo evidence and authorized coding-thread history for recurring work that should become a loop or Skill.
 - `$marble-developer-api` for work specifically involving the World Labs / Marble Public API.
 
-Use explicit invocation while the workflows are new. After the descriptions prove reliable, Codex may select them implicitly.
+Invoke a Skill explicitly by name when the job is known; Codex may also select one implicitly when its description matches.
 
 ## Asset pipeline and MCP
 

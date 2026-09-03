@@ -29,7 +29,7 @@ Use this skill when asked to mine the repository, coding-thread history, or both
    - issue and PR templates,
    - runbooks,
    - ExecPlans and asset reports,
-   - repeated lifecycle patterns in Windows and Ubuntu workstreams.
+   - repeated lifecycle patterns across the app, asset-pipeline, and documentation workstreams.
 3. Use coding-thread history only when the user has authorized it and the tool is available. If unavailable, continue with repo evidence and disclose the limitation.
 4. In threads, identify completed actions and outcomes. Group semantically equivalent work, count distinct occurrences, and record compact source handles such as thread title, PR, plan ID, or report path. Do not copy secrets or unnecessary private content.
 5. Corroborate thread claims against repository files or runtime evidence when practical. Treat old thread history as possibly stale.
@@ -45,7 +45,7 @@ A candidate is loop-shaped only when all of these are present or can be derived 
 
 Require at least two distinct occurrences before describing a thread-derived task as repeated. A codebase pattern without run history may be reported as a potential loop, but not as proven recurrent.
 
-Reject one-shot migrations, straight-line checklists, vague goals, tasks where another pass receives no new evidence, and broad loops that bundle unrelated Windows and Ubuntu ownership areas.
+Reject one-shot migrations, straight-line checklists, vague goals, tasks where another pass receives no new evidence, and broad loops that bundle unrelated workstreams.
 
 Rank qualified candidates by:
 

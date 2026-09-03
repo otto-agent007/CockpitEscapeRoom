@@ -12,7 +12,7 @@ Use this for owner-approved Sketchfab source candidates when visual evidence fro
 - Treat Sketchfab captures as visual/reference evidence, not new geometry.
 - Keep raw desktop screenshots in `.cache/screenshots/`.
 - Track only cropped, useful evidence under `preview-renders/cockpit-pipeline/<job-or-stage>/sketchfab-inspector/`.
-- Do not edit `docs/**`, `src/**`, `tests/**`, `package.json`, or `TEST_REPORT.md` from the Ubuntu asset branch.
+- A capture pass produces evidence only; leave app code, tests, docs, and `TEST_REPORT.md` to the milestone that consumes the evidence.
 - Do not run Agent 3 optimization from inspector evidence unless assembly approval exists.
 
 ## Desktop Tool Setup
@@ -45,7 +45,7 @@ XDOTOOL="$PWD/.cache/tools/xdotool-root/usr/bin/xdotool"
 2. Activate the Sketchfab window:
 
 ```bash
-win=$($XDOTOOL search --name 'A320 Cockpit 2' | head -1)
+win=$($XDOTOOL search --name '<model title>' | head -1)
 $XDOTOOL windowactivate --sync "$win"
 ```
 
@@ -53,10 +53,10 @@ $XDOTOOL windowactivate --sync "$win"
 
 ```bash
 mkdir -p .cache/screenshots
-import -window "$win" .cache/screenshots/sketchfab-a320-inspector-final-render.png
+import -window "$win" .cache/screenshots/sketchfab-<asset>-inspector-final-render.png
 ```
 
-4. Click inspector modes by window-relative coordinates when the left inspector panel is visible. For the A320 Cockpit 2 page at roughly `976x1058`, these worked:
+4. Click inspector modes by window-relative coordinates when the left inspector panel is visible. The offsets below were measured on one `976x1058` window; re-measure them for any other page layout or window size:
 
 ```bash
 $XDOTOOL mousemove --window "$win" 92 392 click 1  # No Post-Processing
@@ -73,15 +73,15 @@ Wait about one second after each click before calling `import`.
 Copy useful captures into a tracked evidence folder, then crop out browser chrome and lower page content:
 
 ```bash
-mkdir -p preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector
-cp .cache/screenshots/sketchfab-a320-inspector-final-render.png preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/final-render.png
-cp .cache/screenshots/sketchfab-a320-inspector-no-post-processing.png preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/no-post-processing.png
-cp .cache/screenshots/sketchfab-a320-inspector-base-color.png preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/base-color.png
-cp .cache/screenshots/sketchfab-a320-inspector-matcap.png preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/matcap.png
-cp .cache/screenshots/sketchfab-a320-inspector-wireframe.png preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/wireframe.png
-cp .cache/screenshots/sketchfab-a320-inspector-uv-checker.png preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/uv-checker.png
+mkdir -p preview-renders/cockpit-pipeline/<job-or-stage>/sketchfab-inspector
+cp .cache/screenshots/sketchfab-<asset>-inspector-final-render.png preview-renders/cockpit-pipeline/<job-or-stage>/sketchfab-inspector/final-render.png
+cp .cache/screenshots/sketchfab-<asset>-inspector-no-post-processing.png preview-renders/cockpit-pipeline/<job-or-stage>/sketchfab-inspector/no-post-processing.png
+cp .cache/screenshots/sketchfab-<asset>-inspector-base-color.png preview-renders/cockpit-pipeline/<job-or-stage>/sketchfab-inspector/base-color.png
+cp .cache/screenshots/sketchfab-<asset>-inspector-matcap.png preview-renders/cockpit-pipeline/<job-or-stage>/sketchfab-inspector/matcap.png
+cp .cache/screenshots/sketchfab-<asset>-inspector-wireframe.png preview-renders/cockpit-pipeline/<job-or-stage>/sketchfab-inspector/wireframe.png
+cp .cache/screenshots/sketchfab-<asset>-inspector-uv-checker.png preview-renders/cockpit-pipeline/<job-or-stage>/sketchfab-inspector/uv-checker.png
 
-for f in preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/*.png; do
+for f in preview-renders/cockpit-pipeline/<job-or-stage>/sketchfab-inspector/*.png; do
   convert "$f" -crop 946x675+16+152 +repage "$f"
 done
 ```
@@ -89,7 +89,7 @@ done
 Adjust crop geometry for different browser sizes. Verify with:
 
 ```bash
-identify preview-renders/cockpit-pipeline/a320-cockpit-2-assembly/sketchfab-inspector/*.png
+identify preview-renders/cockpit-pipeline/<job-or-stage>/sketchfab-inspector/*.png
 ```
 
 Open at least one final-render crop and one geometry crop with `view_image` before committing.
