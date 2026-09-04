@@ -1,8 +1,6 @@
 # Workspace Workflow
 
-CockpitEscapeRoom now uses one active development workspace on this computer.
-
-The previous strict Windows/Ubuntu path ownership model is retired. Agents may edit application code, tests, docs, asset-pipeline files, deployable models, reports, and validation records when the current task requires it.
+CockpitEscapeRoom uses one development workspace. Agents may edit application code, tests, docs, asset-pipeline files, deployable models, reports, and validation records when the current task requires it.
 
 ## Current Rules
 

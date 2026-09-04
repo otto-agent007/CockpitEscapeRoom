@@ -7,7 +7,7 @@ description: Validate, export, inspect, preview, and integrate Blender cockpit o
 
 ## Inputs
 
-- Asset identifier: `dc9`, `airbus`, or `tesla`.
+- Asset identifier matching an `asset:*` script in `package.json`: `dc9`, `dc9-memphis`, `airbus`, `tesla`, or `locker`.
 - Approved reference set and exact aircraft model/variant where required.
 - Master `.blend` path.
 - Active visual or pipeline ExecPlan.
@@ -30,7 +30,7 @@ description: Validate, export, inspect, preview, and integrate Blender cockpit o
 
 ## Guardrails
 
-- Do not begin the production Airbus cockpit until the exact model is confirmed.
+- The Airbus cockpit target is the owner-locked A320; build A320-specific geometry only.
 - Preserve stable names, hierarchy, pivots, animation tracks, and extras.
 - Use invisible colliders instead of distorting visible controls.
 - Visual realism does not authorize real operational puzzle procedures.

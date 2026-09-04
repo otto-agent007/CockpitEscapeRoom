@@ -38,7 +38,7 @@ description: Implement or revise a CockpitEscapeRoom puzzle, scene transition, r
 
 - Dad is an expert pilot and the story does not blame him for an emergency.
 - Wrong answers never erase completed puzzles.
-- Captain Mode is harder through subtler presentation, not obscure trivia.
+- Pop T Captain Mode is the A320 left-seat chapter (five-card qualification, then Storm Line); its challenge comes from cockpit judgment, not obscure trivia.
 - Required 3D interactions have native HTML equivalents.
 - Do not convert real procedures into an operational training simulation.
 - Keep personal data local.

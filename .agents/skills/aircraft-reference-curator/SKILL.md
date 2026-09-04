@@ -31,9 +31,9 @@ Use this skill when adding or revising aircraft references, source manifests, co
 
 ## Variant-Mixing Guardrails
 
-- The DC-9 target is Northwest-style DC-9-51 unless an owner decision changes it.
+- The DC-9 target is the owner-cleared Roger2009 DC-9-32 donor, which is the geometry and texture authority. DC-9-51 material is limited to Northwest-era color, wear, atmosphere, and provenance cues.
 - Lower-ranked DC-9 variants may fill gaps only for shared analog layout, material family, or component shape.
-- MD-80/MD-81 references are derivative-family references and must not drive target DC-9-51 geometry unless a specific shared component is documented.
+- MD-80/MD-81 references are derivative-family references and must not drive target DC-9-32 geometry unless a specific shared component is documented.
 - Simulator sources are presentation benchmarks only.
 - If two strong real-aircraft references conflict on a major cockpit feature, stop and record the conflict instead of choosing silently.
 
