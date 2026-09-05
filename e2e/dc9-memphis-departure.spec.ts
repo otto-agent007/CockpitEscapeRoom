@@ -157,6 +157,76 @@ async function waitForMemphisEnvironment(page: Page): Promise<void> {
   expect([...parsed.position, ...parsed.quaternion].every(Number.isFinite)).toBe(true)
 }
 
+/**
+ * Windshield window per viewport, in CSS pixels: the panes between the top of the
+ * scene and the glareshield (plus the right side window at 1440), clear of the
+ * cockpit's own yellow handles and of the departure panel's gold eyebrow text.
+ */
+const WINDSHIELD_WINDOWS = {
+  1440: { left: 560, top: 100, right: 1440, bottom: 360 },
+  768: { left: 0, top: 100, right: 768, bottom: 255 },
+  375: { left: 0, top: 60, right: 375, bottom: 230 },
+} as const
+
+/**
+ * Count pixels of faded taxi-yellow paint in the windshield window, plus the widest
+ * single-row run of them. The browser decodes its own screenshot, so the check needs
+ * no image library. Measured 2026-09-05 on the GPU workstation: the build before the
+ * route markings reads 0 hits in every window at every checkpoint, and this build
+ * reads 608/339/271 hits at ramp start and a 189/151/136-pixel widest row at the
+ * taxi turn (the hold-short bars lying across the route ahead) at 1440/768/375.
+ */
+async function windshieldPaintCensus(
+  page: Page,
+  width: keyof typeof WINDSHIELD_WINDOWS,
+): Promise<{ hits: number; widestRow: number }> {
+  const screenshot = await page.screenshot({ animations: 'disabled' })
+  return page.evaluate(async ({ base64, window }) => {
+    const image = new Image()
+    image.src = `data:image/png;base64,${base64}`
+    await image.decode()
+    const canvas = document.createElement('canvas')
+    canvas.width = image.naturalWidth
+    canvas.height = image.naturalHeight
+    const context = canvas.getContext('2d')
+    if (!context) throw new Error('2D canvas unavailable for the paint census')
+    context.drawImage(image, 0, 0)
+    const columns = window.right - window.left
+    const rows = window.bottom - window.top
+    const { data } = context.getImageData(window.left, window.top, columns, rows)
+    let hits = 0
+    let widestRow = 0
+    for (let row = 0; row < rows; row += 1) {
+      let first = -1
+      let last = -1
+      for (let column = 0; column < columns; column += 1) {
+        const offset = (row * columns + column) * 4
+        const r = data[offset] as number
+        const g = data[offset + 1] as number
+        const b = data[offset + 2] as number
+        // Faded yellow paint on grey pavement: warm, with red and green well above blue.
+        if (r > 120 && g > 100 && r - b > 55 && g - b > 35 && r >= g - 20) {
+          hits += 1
+          if (first < 0) first = column
+          last = column
+        }
+      }
+      if (first >= 0) widestRow = Math.max(widestRow, last - first + 1)
+    }
+    return { hits, widestRow }
+  }, { base64: screenshot.toString('base64'), window: WINDSHIELD_WINDOWS[width] })
+}
+
+/** Drive from the taxi checkpoint toward the hold with the keyboard, then close the levers. */
+async function approachTheHold(page: Page): Promise<void> {
+  await page.keyboard.down('w')
+  await page.waitForTimeout(1300)
+  await page.keyboard.up('w')
+  await page.keyboard.down('s')
+  await page.waitForTimeout(500)
+  await page.keyboard.up('s')
+}
+
 async function hold(page: Page, name: string, milliseconds: number): Promise<void> {
   const button = await page.getByRole('button', { name }).elementHandle()
   if (!button) throw new Error(`Missing native hold button: ${name}`)
@@ -565,10 +635,77 @@ test('warm taxi meets the frame budget and scene count stays stable across three
   expect(webglErrors).toEqual([])
 })
 
+test('paints the guided route and the hold-short marking where the panel copy points', async ({ page }) => {
+  // Owner report 2026-09-05: "There is not curved path rendered or marked hold spot."
+  // The shipped GLB paints only the runway dashes; the build before the runtime
+  // markings measures 0 paint pixels in every window below, so this cannot pass on it.
+  test.setTimeout(180_000)
+  await page.goto('/')
+  const expectations = [
+    { width: 1440, height: 900, lineHits: 300, holdBarsWidestRow: 90 },
+    { width: 768, height: 900, lineHits: 150, holdBarsWidestRow: 70 },
+    { width: 375, height: 812, lineHits: 120, holdBarsWidestRow: 60 },
+  ] as const
+  for (const { width, height, lineHits, holdBarsWidestRow } of expectations) {
+    await page.setViewportSize({ width, height })
+    await seedDeparture(page, 'rampStart')
+    await waitForMemphisEnvironment(page)
+    // The lead-out line curves ahead from under the nose.
+    await expect.poll(async () => (await windshieldPaintCensus(page, width)).hits, {
+      message: `${width}px ramp start should show the lead-out line`,
+      timeout: 20_000,
+    }).toBeGreaterThanOrEqual(lineHits)
+
+    await seedDeparture(page, 'taxiTurn')
+    await waitForMemphisEnvironment(page)
+    // From the taxi turn the hold-short bars lie across the route ahead: one row of
+    // paint far wider than the line itself could ever fill.
+    await expect.poll(async () => (await windshieldPaintCensus(page, width)).widestRow, {
+      message: `${width}px taxi turn should show the hold-short bars across the route`,
+      timeout: 20_000,
+    }).toBeGreaterThanOrEqual(holdBarsWidestRow)
+    expect((await windshieldPaintCensus(page, width)).hits).toBeGreaterThanOrEqual(lineHits)
+  }
+
+  // Stopped on the boundary, the first bar runs out beside the cockpit through the
+  // right side window at 1440 (narrower viewports crop that window out).
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await seedDeparture(page, 'holdShort')
+  await waitForMemphisEnvironment(page)
+  await expect.poll(async () => (await windshieldPaintCensus(page, 1440)).hits, {
+    message: 'stopped at the hold, the bar beside the cockpit should show in the right window',
+    timeout: 20_000,
+  }).toBeGreaterThanOrEqual(900)
+
+  // Lined up, the guidance ends behind the aircraft; only the shipped beige runway
+  // dashes lie ahead and they do not read as taxi yellow.
+  await seedDeparture(page, 'runwayLineup')
+  await waitForMemphisEnvironment(page)
+  await page.waitForTimeout(500)
+  expect((await windshieldPaintCensus(page, 1440)).hits).toBeLessThan(50)
+})
+
+test('the hold-short marking grows in the windshield on the approach', async ({ page }) => {
+  await page.goto('/')
+  await skipOnSoftwareRenderer(page)
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await seedDeparture(page, 'taxiTurn')
+  await waitForMemphisEnvironment(page)
+  await expect.poll(async () => (await windshieldPaintCensus(page, 1440)).widestRow, { timeout: 20_000 })
+    .toBeGreaterThan(0)
+  const atRest = await windshieldPaintCensus(page, 1440)
+
+  await approachTheHold(page)
+  const approaching = await windshieldPaintCensus(page, 1440)
+  // The bars are a fixed 30 m across, so their run of pixels widens as they close.
+  expect(approaching.widestRow).toBeGreaterThan(atRest.widestRow * 1.25)
+  await expect(page.locator('canvas')).toHaveAttribute('data-dc9-memphis-beat', 'taxi')
+})
+
 test('captures deterministic Memphis browser evidence', async ({ page }) => {
   const evidenceDirectory = process.env.DC9_MEMPHIS_EVIDENCE_DIR
   test.skip(!evidenceDirectory, 'Set DC9_MEMPHIS_EVIDENCE_DIR to capture committed Task 10 browser evidence.')
-  test.setTimeout(240_000)
+  test.setTimeout(300_000)
   await page.goto('/')
 
   const checkpoints = [
@@ -597,6 +734,21 @@ test('captures deterministic Memphis browser evidence', async ({ page }) => {
   ]) {
     await page.setViewportSize({ width: evidence.width, height: evidence.height })
     await reachInitialClimbWithRealEnvironment(page)
+    await page.screenshot({ path: `${evidenceDirectory}/${evidence.name}`, animations: 'disabled' })
+  }
+
+  // The approach to the hold, where the transverse marking reads from the seat: drive
+  // from the taxi checkpoint with the keyboard and capture while still rolling toward it.
+  for (const evidence of [
+    { width: 375, height: 812, name: '375-hold-short-approach.png' },
+    { width: 768, height: 900, name: '768-hold-short-approach.png' },
+    { width: 1440, height: 900, name: '1440-hold-short-approach.png' },
+  ]) {
+    await page.setViewportSize({ width: evidence.width, height: evidence.height })
+    await seedDeparture(page, 'taxiTurn')
+    await waitForMemphisEnvironment(page)
+    await approachTheHold(page)
+    await page.waitForTimeout(600)
     await page.screenshot({ path: `${evidenceDirectory}/${evidence.name}`, animations: 'disabled' })
   }
 

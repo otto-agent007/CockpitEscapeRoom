@@ -11,9 +11,13 @@ export const DC9_MEMPHIS_ANCHOR_GAME_IDS = Object.freeze([
   'dc9.memphis.initialClimb',
 ] as const)
 
-// These knots match the pure departure frame's durable path boundaries. The last
-// anchor is the end of the short memory climb, not the initial-climb checkpoint.
-const PATH_KNOTS = Object.freeze([0, 0.12, 0.42, 0.52, 1] as const)
+/**
+ * Progress at each anchor: ramp start, taxi turn, hold short, runway lineup, and
+ * the end of the short memory climb (not the initial-climb checkpoint). These
+ * match the pure departure frame's durable path boundaries.
+ */
+export const DC9_MEMPHIS_PATH_KNOTS = Object.freeze([0, 0.12, 0.42, 0.52, 1] as const)
+const PATH_KNOTS = DC9_MEMPHIS_PATH_KNOTS
 const MAX_LATERAL_OFFSET_METERS = 8
 const MAX_HEADING_OFFSET_RADIANS = 0.12
 const MAX_PITCH_RADIANS = 0.18
