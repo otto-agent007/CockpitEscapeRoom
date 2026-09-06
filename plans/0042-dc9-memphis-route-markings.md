@@ -81,7 +81,9 @@ Excluded:
 - [x] 2026-09-05 — Line widened 0.9 → 1.2 m (the shipped runway-dash width) after the 375 capture read it as a 3-pixel sliver.
 - [x] 2026-09-05 — Full Memphis spec headed on `DISPLAY=:0`: 14 passed in 3.0 min, no skips (every hardware-rate case ran); frame budget unchanged at median/p95 16.7 ms, scene objects [37, 37, 37] (was 33: the marking group and its three meshes). Evidence re-captured into `preview-renders/dc9-memphis-legacy-departure/` (10 frames changed, 3 approach frames added, 3 byte-identical where the paint is not in view). DC-9 smoke subset (`Memphis|DC-9|journey|departure`): 14 passed in 1.0 min. `assets:check` clean.
 - [x] 2026-09-05 — `npm run check` passed (ESLint, `tsc -b`, 579/579 Vitest, Vite build).
-- [ ] Commit, push, pull request, owner visual review (approval gate 1: DC-9 Final Flight Log and Memphis proof).
+- [x] 2026-09-05 — Committed, pushed, PR #71 opened.
+- [x] 2026-09-05 (later) — PR #71 CI (`browser-smoke`) failed on the new census test under CI's software renderer; reproduced, root-caused, and fixed with `skipOnSoftwareRenderer` (see Evidence). Re-pushed.
+- [ ] Owner visual review (approval gate 1: DC-9 Final Flight Log and Memphis proof).
 
 ## Discoveries
 
@@ -224,6 +226,37 @@ the GTX 1050 Ti; `e2e/smoke.spec.ts --grep "Memphis|DC-9|journey|departure"` 14 
 Committed evidence: `preview-renders/dc9-memphis-legacy-departure/{375,768,1440}-hold-short-approach.png`
 (new) plus the re-captured checkpoint set. A first full-suite attempt was killed by the machine's memory
 watchdog after the Memphis spec had already reported 14 passed; the smoke subset was re-run alone.
+
+**2026-09-05 (later) — PR #71's `browser-smoke` CI job failed on the new
+`paints the guided route and the hold-short marking where the panel copy points` test**
+(`e2e/dc9-memphis-departure.spec.ts:657`, `1440px ramp start should show the lead-out line`,
+`Timeout 20000ms exceeded while waiting on the predicate`). Reproduced locally headless (default
+Playwright headless mode uses SwiftShader, the same software renderer CI has no GPU for) with a
+targeted diagnostic that seeded `rampStart` and sampled the census repeatedly: `detectRenderer`
+read `ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero)…), SwiftShader driver)`, the
+census read 0 hits at t=11.9s (the first `page.screenshot()` call after "ready") then **611**
+hits by t=21.8s — matching the ~608 hits measured earlier on the GPU at the same checkpoint — and
+held steady through t=146.9s. The paint is correct; a single `page.screenshot()` round-trip
+under SwiftShader took 10–20+ seconds, so the test's 20 s poll timeout expired before the first
+census could even complete. The test drives 14 full reload+census cycles, so raising the
+per-poll timeout would not fix it without ballooning the CI job (already 46.5 real minutes for
+the suite under software rendering) by many more minutes, and would still be racing an
+inherently slow pipeline rather than proving anything additional.
+
+**Fix:** gate the test behind `skipOnSoftwareRenderer(page)`, the same helper four sibling
+real-GLB tests in this file already use for hardware-rate-only assertions (`warm taxi meets the
+frame budget…`, `the hold-short marking grows in the windshield on the approach`, and two
+continuous real-time drives). This is not a weakened assertion — the thresholds are unchanged
+and the test still runs its full, real proof whenever a hardware renderer is available (it
+passed headed on the GTX 1050 Ti in 17.5–19.6 s across two re-runs after the fix). It declares
+the same honest environment precondition this file already applies to every assertion that
+depends on actual rendered pixels from the 926k-triangle cockpit plus the Memphis environment,
+which CI's software renderer cannot produce fast enough by construction — exactly the class of
+limitation already documented in this file's own comments. Verified: both new tests skip
+cleanly under local headless (SwiftShader) in under a second; the full Memphis spec still passes
+13/13 (1 pre-existing evidence-capture skip) headed with an unchanged frame budget
+(median/p95 16.7–16.8 ms, objects [37,37,37]); `npm run check` (ESLint, `tsc -b`, 579/579
+Vitest, build) passes.
 
 ## Outcome and handoff
 
