@@ -32,6 +32,7 @@ The fixed right-seat browser view must demonstrate:
 - A recognizable older Concourse B frontage at ramp release, including the long terminal mass and martini-glass canopy rhythm.
 - Continuous, grounded pavement through ramp release, taxi, quiet hold, lineup, rollout, and initial climb, with no sky-colored voids or coplanar surface fighting.
 - A compressed guided route that reads clearly without presenting exact taxiway/runway geography, identifiers, or procedures.
+- A painted guidance line along that route and a hold-short marking across it that read from the fixed right seat on the approach at 1440, 768, and 375, embedded in the pavement rather than drawn as a neon track. The runtime derives both from the GLB anchors; the shipped asset itself carries only the runway dashes.
 - Stable horizon, cockpit orientation, and camera framing across checkpoint restore, reload, and repeated chapter entry.
 - Qualitative guidance and native controls that remain usable if the outside view fails.
 - Readable layouts at approximately 375, 768, and 1440 CSS pixels without the departure panel covering required controls.

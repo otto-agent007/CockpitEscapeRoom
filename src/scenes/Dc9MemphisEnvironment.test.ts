@@ -128,6 +128,72 @@ describe('DC-9 Memphis environment ownership', () => {
     expect(memphisGroundDepthBiasLevel('KMEM_CONCOURSE_B')).toBe(0)
   })
 
+  it('paints the runtime route markings under the root with the centreline depth bias', () => {
+    const { source } = fixtureScene()
+    const staged = stageMemphisClone(source)
+    const group = staged.scene.getObjectByName('KMEM_RUNTIME_ROUTE_MARKINGS')
+    expect(group).toBeInstanceOf(THREE.Group)
+    expect(group?.parent?.name).toBe('KMEM_LEGACY_ROOT')
+    // The cached source is shared across mounts and must never grow runtime nodes.
+    expect(source.getObjectByName('KMEM_RUNTIME_ROUTE_MARKINGS')).toBeUndefined()
+
+    const meshFor = (name: string) => {
+      const mesh = staged.scene.getObjectByName(name)
+      expect(mesh).toBeInstanceOf(THREE.Mesh)
+      expect(mesh?.parent).toBe(group)
+      expect(mesh?.userData).toMatchObject({ project_authored: true, runtime_authored: true })
+      const geometry = (mesh as THREE.Mesh).geometry
+      expect(geometry.getAttribute('position').count).toBeGreaterThan(0)
+      expect(geometry.index?.count ?? 0).toBeGreaterThan(0)
+      expect(geometry.getAttribute('normal').count).toBe(geometry.getAttribute('position').count)
+      return mesh as THREE.Mesh
+    }
+    const guidance = meshFor('KMEM_RUNTIME_TAXI_GUIDANCE')
+    const bars = meshFor('KMEM_RUNTIME_HOLD_SHORT_BARS')
+    const posts = meshFor('KMEM_RUNTIME_HOLD_SHORT_POSTS')
+
+    // Paint shares one material at the shipped centreline's stacking level, so it can
+    // never trade pixels with the pavement it lies on; the posts stand proud and need none.
+    const paint = guidance.material as THREE.MeshStandardMaterial
+    expect(bars.material).toBe(paint)
+    expect(paint.polygonOffset).toBe(true)
+    expect(paint.polygonOffsetFactor).toBe(-4)
+    expect(paint.polygonOffsetUnits).toBe(-4)
+    expect(memphisGroundDepthBiasLevel('KMEM_RUNTIME_TAXI_GUIDANCE')).toBe(4)
+    expect(memphisGroundDepthBiasLevel('KMEM_RUNTIME_HOLD_SHORT_BARS')).toBe(4)
+    expect(memphisGroundDepthBiasLevel('KMEM_RUNTIME_HOLD_SHORT_POSTS')).toBe(0)
+    expect((posts.material as THREE.Material).polygonOffset).toBe(false)
+
+    // The guidance is laid from the fixture's ramp start to its lineup anchor, in the
+    // glTF frame the rest of the environment uses (Y up, forward along -Z).
+    const position = guidance.geometry.getAttribute('position')
+    expect(Math.abs(position.getX(0))).toBeLessThan(1)
+    expect(Math.abs(position.getZ(0))).toBeLessThan(1)
+    // The last edge vertex sits half a line width beside the lineup anchor.
+    const last = position.count - 1
+    expect(Math.abs(position.getX(last) + 120)).toBeLessThan(1)
+    expect(Math.abs(position.getZ(last) + 245)).toBeLessThan(1)
+    expect(position.getY(last)).toBeGreaterThan(0)
+    expect(position.getY(last)).toBeLessThan(0.1)
+  })
+
+  it('disposes the runtime markings with the clone', () => {
+    const { source } = fixtureScene()
+    const staged = stageMemphisClone(source)
+    const disposed = vi.fn()
+    for (const name of ['KMEM_RUNTIME_TAXI_GUIDANCE', 'KMEM_RUNTIME_HOLD_SHORT_BARS', 'KMEM_RUNTIME_HOLD_SHORT_POSTS']) {
+      const mesh = staged.scene.getObjectByName(name) as THREE.Mesh
+      mesh.geometry.addEventListener('dispose', disposed)
+      ;(mesh.material as THREE.Material).addEventListener('dispose', disposed)
+    }
+
+    disposeMemphisClone(staged.scene)
+
+    // Three geometries plus the two distinct materials (paint is shared by two meshes).
+    expect(disposed).toHaveBeenCalledTimes(5)
+    expect(staged.scene.getObjectByName('KMEM_RUNTIME_ROUTE_MARKINGS')).toBeUndefined()
+  })
+
   it('disposes only owned clone resources and leaves cached source resources live', () => {
     const { source, geometry, material, secondaryMaterial, texture } = fixtureScene()
     const staged = stageMemphisClone(source)

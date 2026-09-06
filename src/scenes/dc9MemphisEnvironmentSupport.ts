@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { dc9MemphisRouteMarkings, type Dc9MemphisMarkingGeometry } from './dc9MemphisRouteMarkings'
 import {
   validateDc9MemphisAnchors,
   type Dc9MemphisAnchorMap,
@@ -50,10 +51,69 @@ const GROUND_DEPTH_BIAS_LEVELS: ReadonlyMap<string, number> = new Map([
 const GROUND_CENTERLINE_PREFIX = 'KMEM_CENTERLINE_'
 const GROUND_CENTERLINE_BIAS_LEVEL = 4
 
+/**
+ * Runtime-authored paint (see `dc9MemphisRouteMarkings.ts`) lies on the ramp and
+ * taxiway exactly as the shipped dashes lie on the runway, and takes the same level.
+ */
+const ROUTE_MARKINGS_GROUP_NAME = 'KMEM_RUNTIME_ROUTE_MARKINGS'
+const ROUTE_PAINT_NODE_NAMES = Object.freeze(['KMEM_RUNTIME_TAXI_GUIDANCE', 'KMEM_RUNTIME_HOLD_SHORT_BARS'] as const)
+const ROUTE_POST_NODE_NAME = 'KMEM_RUNTIME_HOLD_SHORT_POSTS'
+/** Faded mid-1990s taxiway yellow (sRGB), a shade warmer than the shipped runway dashes. */
+const ROUTE_PAINT_COLOR = '#d2b04a'
+const ROUTE_POST_COLOR = '#c9a441'
+
 /** Ground stacking level for one object name; 0 for anything that takes no bias. */
 export function memphisGroundDepthBiasLevel(name: string): number {
   if (name.startsWith(GROUND_CENTERLINE_PREFIX)) return GROUND_CENTERLINE_BIAS_LEVEL
+  if ((ROUTE_PAINT_NODE_NAMES as readonly string[]).includes(name)) return GROUND_CENTERLINE_BIAS_LEVEL
   return GROUND_DEPTH_BIAS_LEVELS.get(name) ?? 0
+}
+
+function markingBufferGeometry(source: Dc9MemphisMarkingGeometry): THREE.BufferGeometry {
+  const geometry = new THREE.BufferGeometry()
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(source.positions, 3))
+  geometry.setIndex([...source.indices])
+  geometry.computeVertexNormals()
+  geometry.computeBoundingSphere()
+  return geometry
+}
+
+/**
+ * Paint the guided route onto the staged clone: the taxi guidance line from ramp
+ * release to the lineup point, and the hold-short marking with its two posts. The
+ * geometry is derived from the validated anchors by the same sampler that moves the
+ * world, so the painted line is the line the rules score against. Nothing here
+ * touches the cached source scene or the shipped asset.
+ */
+function attachMemphisRouteMarkings(root: THREE.Object3D, anchors: Dc9MemphisAnchorMap): THREE.Group {
+  const markings = dc9MemphisRouteMarkings(anchors)
+  const paintLevel = memphisGroundDepthBiasLevel(ROUTE_PAINT_NODE_NAMES[0])
+  const paint = new THREE.MeshStandardMaterial({
+    color: ROUTE_PAINT_COLOR,
+    roughness: 0.92,
+    metalness: 0,
+    polygonOffset: true,
+    polygonOffsetFactor: -paintLevel,
+    polygonOffsetUnits: -paintLevel,
+  })
+  paint.name = 'KMEM_RUNTIME_ROUTE_PAINT'
+  const post = new THREE.MeshStandardMaterial({ color: ROUTE_POST_COLOR, roughness: 0.8, metalness: 0.05 })
+  post.name = 'KMEM_RUNTIME_HOLD_POST'
+
+  const group = new THREE.Group()
+  group.name = ROUTE_MARKINGS_GROUP_NAME
+  group.userData = { project_authored: true, runtime_authored: true, role: 'painted-route-marking' }
+  const add = (name: string, geometry: Dc9MemphisMarkingGeometry, material: THREE.Material) => {
+    const mesh = new THREE.Mesh(markingBufferGeometry(geometry), material)
+    mesh.name = name
+    mesh.userData = { project_authored: true, runtime_authored: true, role: 'painted-route-marking' }
+    group.add(mesh)
+  }
+  add(ROUTE_PAINT_NODE_NAMES[0], markings.taxiGuidance, paint)
+  add(ROUTE_PAINT_NODE_NAMES[1], markings.holdShortBars, paint)
+  add(ROUTE_POST_NODE_NAME, markings.holdShortPosts, post)
+  root.add(group)
+  return group
 }
 
 function cloneMemphisTexture(
@@ -191,6 +251,7 @@ export function stageMemphisClone(source: THREE.Group): { scene: THREE.Group; an
     disposeMemphisClone(scene)
     throw new Error(anchorErrors.join(' '))
   }
+  attachMemphisRouteMarkings(scene.getObjectByName('KMEM_LEGACY_ROOT') as THREE.Object3D, anchors)
   return { scene, anchors }
 }
 
