@@ -3,6 +3,58 @@ import { airbusCaptainFlow } from '../src/game/config'
 import { createInitialState, type GameState } from '../src/game/state'
 import { STORAGE_KEY } from '../src/game/storage'
 
+type CockpitId = 'dc9' | 'airbus'
+type OrientationEvidence = Record<CockpitId, {
+  cameraStates: string[]
+  progresses: number[]
+}>
+
+async function openWithInitialState(page: Page, state: GameState): Promise<void> {
+  await page.addInitScript(({ key, value }) => {
+    const browserWindow = window as typeof window & {
+      __cockpitOrientationEvidence?: OrientationEvidence
+    }
+    if (!sessionStorage.getItem('cockpit-orientation-initial-state')) {
+      localStorage.setItem(key, JSON.stringify(value))
+      sessionStorage.setItem('cockpit-orientation-initial-state', 'seeded')
+    }
+    browserWindow.__cockpitOrientationEvidence = {
+      dc9: { cameraStates: [], progresses: [] },
+      airbus: { cameraStates: [], progresses: [] },
+    }
+    const sample = () => {
+      const canvas = document.querySelector('canvas')
+      const cockpit = canvas?.dataset.cockpitOrientation
+      if (canvas && (cockpit === 'dc9' || cockpit === 'airbus')) {
+        const evidence = browserWindow.__cockpitOrientationEvidence![cockpit]
+        const cameraState = cockpit === 'dc9'
+          ? canvas.dataset.dc9CameraState
+          : canvas.dataset.airbusCameraState
+        if (cameraState && evidence.cameraStates.at(-1) !== cameraState) {
+          evidence.cameraStates.push(cameraState)
+        }
+        const progress = Number(canvas.dataset.cockpitOrientationProgress)
+        if (Number.isFinite(progress)) evidence.progresses.push(progress)
+      }
+      requestAnimationFrame(sample)
+    }
+    requestAnimationFrame(sample)
+  }, { key: STORAGE_KEY, value: state })
+  await page.goto('/')
+}
+
+async function orientationEvidence(page: Page, cockpit: CockpitId) {
+  return page.evaluate((cockpitId) => {
+    const browserWindow = window as typeof window & {
+      __cockpitOrientationEvidence?: OrientationEvidence
+    }
+    return browserWindow.__cockpitOrientationEvidence?.[cockpitId] ?? {
+      cameraStates: [],
+      progresses: [],
+    }
+  }, cockpit)
+}
+
 async function seed(page: Page, state: GameState): Promise<void> {
   await page.evaluate(
     ({ key, value }) => localStorage.setItem(key, JSON.stringify(value)),
@@ -21,8 +73,7 @@ async function savedOrientationSeen(page: Page, cockpit: 'dc9' | 'airbus'): Prom
 test('the first DC-9 entry orients the right seat once before enabling the control check', async ({ page }) => {
   test.setTimeout(180_000)
   await page.emulateMedia({ reducedMotion: 'no-preference' })
-  await page.goto('/')
-  await seed(page, { ...createInitialState(), phase: 'dc9' })
+  await openWithInitialState(page, { ...createInitialState(), phase: 'dc9' })
 
   const canvas = page.locator('canvas')
   await expect.poll(() => canvas.getAttribute('data-dc9-model-state'), { timeout: 120_000 })
@@ -34,12 +85,10 @@ test('the first DC-9 entry orients the right seat once before enabling the contr
   await expect(page.getByRole('heading', { name: 'Flight controls — free and correct' })).toHaveCount(0)
   await expect(canvas).toHaveAttribute('data-cockpit-orientation', 'dc9')
 
-  const openingCamera = await canvas.getAttribute('data-dc9-camera-state')
-  await expect.poll(async () => Number(await canvas.getAttribute('data-cockpit-orientation-progress')))
-    .toBeGreaterThan(0.2)
-  await expect.poll(() => canvas.getAttribute('data-dc9-camera-state')).not.toBe(openingCamera)
-
   await expect(orientation).toHaveCount(0, { timeout: 8_000 })
+  const evidence = await orientationEvidence(page, 'dc9')
+  expect(new Set(evidence.cameraStates).size).toBeGreaterThan(1)
+  expect(Math.max(...evidence.progresses)).toBeGreaterThan(0.2)
   await expect(page.getByRole('heading', { name: 'Flight controls — free and correct' })).toBeVisible()
   await expect.poll(() => savedOrientationSeen(page, 'dc9')).toBe(true)
 
@@ -51,8 +100,7 @@ test('the first DC-9 entry orients the right seat once before enabling the contr
 test('the first Airbus entry orients the left seat once before enabling label placement', async ({ page }) => {
   test.setTimeout(180_000)
   await page.emulateMedia({ reducedMotion: 'no-preference' })
-  await page.goto('/')
-  await seed(page, {
+  await openWithInitialState(page, {
     ...createInitialState(),
     phase: 'airbus',
     airbusCaptainModeUnlocked: true,
@@ -65,12 +113,10 @@ test('the first Airbus entry orients the left seat once before enabling label pl
   await expect(page.getByRole('heading', { name: 'Airbus cockpit label placement' })).toHaveCount(0)
   await expect(canvas).toHaveAttribute('data-cockpit-orientation', 'airbus')
 
-  const openingCamera = await canvas.getAttribute('data-airbus-camera-state')
-  await expect.poll(async () => Number(await canvas.getAttribute('data-cockpit-orientation-progress')))
-    .toBeGreaterThan(0.2)
-  await expect.poll(() => canvas.getAttribute('data-airbus-camera-state')).not.toBe(openingCamera)
-
   await expect(orientation).toHaveCount(0, { timeout: 8_000 })
+  const evidence = await orientationEvidence(page, 'airbus')
+  expect(new Set(evidence.cameraStates).size).toBeGreaterThan(1)
+  expect(Math.max(...evidence.progresses)).toBeGreaterThan(0.2)
   await expect(page.getByRole('heading', { name: 'Airbus cockpit label placement' })).toBeAttached()
   await expect.poll(() => savedOrientationSeen(page, 'airbus')).toBe(true)
 

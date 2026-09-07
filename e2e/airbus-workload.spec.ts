@@ -17,6 +17,7 @@ function workloadState(
   return {
     ...initial,
     phase: 'airbus',
+    cockpitOrientationSeen: { dc9: true, airbus: true },
     dc9: {
       stage: 'complete',
       departure: {
@@ -143,7 +144,7 @@ test('native Engine-Out tasks acknowledge training and choose the forgiving SAFE
   const eventTask = page.getByRole('region', { name: 'Captain task: Event recognition' })
   await page.clock.runFor(12_000)
   await expect(page.getByText(/Engine-Out Handling · recognition/)).toBeVisible()
-  await expect(eventTask).toContainText('safely holding this checkpoint')
+  await expect(eventTask).toContainText('This checkpoint is holding for your decision.')
   await page.getByRole('button', { name: 'Acknowledge training event' }).click()
   await expect(eventTask).toContainText('Captain task complete')
   await page.clock.runFor(500)

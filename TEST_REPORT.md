@@ -31,8 +31,23 @@
   absent at all three widths.
 - Full-diff review repaired an accidental effect dependency change, added explicit progressbar
   semantics, and found no critical/high defect, unsafe DOM insertion, new dependency, generated
-  asset edit, progress loss, input leakage, or Model Y spoiler. No Vercel preview, deployment, push,
-  or PR was performed; hosted owner review remains the open approval gate.
+  asset edit, progress loss, input leakage, or Model Y spoiler. At this initial validation point no
+  Vercel preview, deployment, push, or PR had been performed; the owner subsequently authorized PR
+  #72.
+- PR #72 follow-up CI RED: `browser-smoke` reported 79 passed, 10 skipped, and four failed after
+  retries. One assertion expected retired Engine-Out copy; the production workload fixture modeled
+  an in-progress Airbus challenge without marking its new first-entry tour complete; and both tour
+  tests began observing only after a cache-warming navigation, allowing a loaded CI worker to miss
+  the short overlay or compare one camera frame with itself. A focused local RED reproduced both
+  workload failures while the tour cases passed, confirming the production tours were not the
+  shared cause.
+- Follow-up GREEN is test-contract only: progressed workload fixtures now set both orientation
+  flags, the copy assertion matches **This checkpoint is holding for your decision**, and each tour
+  state is installed before its first navigation while browser animation frames collect independent
+  camera/progress evidence. All four workload cases passed across two 2/2 subsets; repaired tour
+  tests passed 2/2 and then 4/4 with `--repeat-each=2`. Fresh `npm run check` passed lint,
+  typecheck, 596/596 Vitest tests, and production build. Hosted replacement CI remains the
+  authoritative full-E2E confirmation.
 
 ## 2026-08-28 Task 9 cockpit-first Memphis scene integration
 

@@ -141,6 +141,11 @@ export function sampleCockpitOrientation(
 - 2026-09-07 — The software WebGL renderer could race a direct 1440 px startup capture. Starting
   the evidence page at 768 px, resizing to 1440 px, and allowing one render turn produced a stable
   full-resolution capture without changing production behavior.
+- 2026-09-07 — PR #72 browser CI exposed two test-contract drifts that the earlier selected local
+  runs did not cover. The workload builder described an already-running Airbus challenge but left
+  the new orientation flags unseen, and one Engine-Out assertion retained removed copy. The tour
+  tests also warmed the cockpit on an initial navigation before beginning their short observation
+  window; a loaded CI worker could therefore miss or sample the same 4.5-second tour frame.
 
 ## Decision log
 
@@ -375,11 +380,21 @@ an implementation defect and never claim an unrun check passed.
   progressbar semantics. No unsafe DOM insertion, dependency addition, asset edit, progress loss,
   duplicate completion, input leakage, or Model Y spoiler was found. Final reruns are recorded in
   `TEST_REPORT.md`.
+- 2026-09-07 — PR #72 CI RED: `browser-smoke` ended with 79 passed, 10 skipped, and four failed
+  after retries: one stale Engine-Out copy expectation, one progressed workload fixture replaying
+  the new entry tour, and two tour tests whose post-cache observation window could miss motion.
+  The same four-case local reproduction passed the two tours but reproduced both workload failures.
+  GREEN marks progressed workload state as post-orientation, expects the approved checkpoint copy,
+  seeds each tour before its first navigation, and records camera/progress history inside browser
+  animation frames. All four workload cases passed across two 2/2 subsets, the repaired tour subset
+  passed 2/2 and then 4/4 with `--repeat-each=2`, and `npm run check` passed 596/596 plus lint,
+  typecheck, and build.
 
 ## Outcome and handoff
 
-The requested local implementation and verification are complete. Both tours run once for 4.5
+The requested implementation and local verification are complete. Both tours run once for 4.5
 seconds in their correct seats, save independently, allow keyboard skip, and bypass motion for
 reduced-motion or accessible fallback. The retired player-facing wording is gone from the approved
-runtime/docs scope. No GLB, Blender source, dependency, deployment, push, or PR was changed. A
-hosted Vercel preview and formal owner visual gate remain pending explicit publication approval.
+runtime/docs scope. No GLB, Blender source, dependency, or manual deployment was changed. The owner
+authorized publication as PR #72; its Vercel preview passed, and replacement GitHub CI after the
+browser-smoke repair remains the final hosted gate.
