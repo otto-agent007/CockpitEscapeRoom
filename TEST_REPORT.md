@@ -1,5 +1,39 @@
 # Test report
 
+## 2026-09-07 First-entry cockpit orientation and natural player copy
+
+- Fresh normal-motion entries now give the DC-9 right seat and Airbus A320 left seat independent
+  4.5-second automatic cockpit looks. Gameplay HUD, native controls, canvas targets, drag, and
+  manual look stay gated until settlement; a focused native **Skip cockpit tour** control completes
+  the same durable path. Schema 16 records each cockpit independently, migrates old saves by phase,
+  and resumes/reloads without replay.
+- Reduced-motion and `skip3d=1` accessible fallback complete immediately without an animated wait.
+  The later Airbus familiarization-to-Storm camera move remains separate and was observed changing
+  from `transitioning` to `storm` in the browser.
+- Player-facing uses natural challenge/memory language: **Captain Challenges**, **Captain task**,
+  **Challenge paused**, **1995 MEMPHIS MEMORY**, and **ENG 1**. A manual allowlist audit found no
+  remaining retired simulator/non-operational wording in runtime display sources, README, or the
+  two current living design documents. Internal identifiers and historical evidence were preserved.
+- TDD evidence: reducer/storage RED failed on the absent schema-16 field/action and normalization;
+  GREEN passed 154/154. Camera-sampler RED failed on the absent module; GREEN passed 6/6. Activation
+  RED failed on the absent decision module; GREEN passed 7/7. Copy browser RED failed to find
+  **Captain Challenges** against the former UI; the final focused copy/workload run passed 2/2.
+- Expanded focused Vitest passed 186/186. Fresh `npm run check` passed lint, typecheck, 596/596
+  Vitest tests across 46 files, and the production build. `npm run assets:check` passed with only
+  existing informational validator output. `git diff --check` passed.
+- Dedicated orientation Playwright passed 4/4: both camera sweeps, semantic progress, input/HUD
+  gates, completion, reload persistence, keyboard skip, reduced motion, accessible fallback, and
+  the unchanged Storm transition. Nearby regression evidence passed 7/7 DC-9/journey cases, 1/1
+  production Airbus placement/camera case, and the focused Airbus challenge cases.
+- Twelve production-preview screenshots were inspected at 375, 768, and 1440 px under
+  `preview-renders/cockpit-orientation/`. The overlays are readable, seat identity is correct,
+  gameplay UI is absent during travel, settled controls are usable, and horizontal overflow is
+  absent at all three widths.
+- Full-diff review repaired an accidental effect dependency change, added explicit progressbar
+  semantics, and found no critical/high defect, unsafe DOM insertion, new dependency, generated
+  asset edit, progress loss, input leakage, or Model Y spoiler. No Vercel preview, deployment, push,
+  or PR was performed; hosted owner review remains the open approval gate.
+
 ## 2026-08-28 Task 9 cockpit-first Memphis scene integration
 
 - TDD RED: `npm test -- --run src/scenes/dc9MemphisVisuals.test.ts` failed before production

@@ -205,14 +205,14 @@ function AirbusCaptainTask({
       aria-live="polite"
     >
       <div className="airbus-workload-copy">
-        <span>Captain task · SIM — NON OPERATIONAL</span>
+        <span>Captain task</span>
         <strong>{workloadTaskCopy[task].instruction}</strong>
         {complete ? (
           <small>Captain task complete.</small>
         ) : attempts > 0 ? (
           <small>{airbusWorkloadHint(task, attempts)}</small>
         ) : gated ? (
-          <small>The simulator is safely holding this checkpoint for your decision.</small>
+          <small>This checkpoint is holding for your decision.</small>
         ) : null}
       </div>
 
@@ -307,7 +307,7 @@ function AirbusStormLineHud({
               className="secondary-button"
               onClick={() => dispatch({ type: 'RETURN_TO_AIRBUS_SCENARIO_HUB' })}
             >
-              Back to Simulator Hub
+              Back to Captain Challenges
             </button>
           )}
           <button type="button" className="text-button" onClick={onRestart}>Restart game</button>
@@ -330,7 +330,7 @@ function AirbusStormLineHud({
       <div className="storm-topbar">
         <div>
           <p className="eyebrow">Storm Line · {checkpoint}</p>
-          <h2 id="storm-line-title" className="sr-only">Storm Line flight simulator</h2>
+          <h2 id="storm-line-title" className="sr-only">Storm Line flight challenge</h2>
           <p className="storm-crew-caption" aria-live="polite">{stormCaption(simulation)}</p>
         </div>
         <div className="storm-topbar-actions">
@@ -395,7 +395,7 @@ function AirbusStormLineHud({
 
       {runtime.paused && (
         <div className="storm-modal" role="status">
-          <strong>Simulator paused</strong>
+          <strong>Challenge paused</strong>
           <span>Inputs are centered and progress is safe.</span>
         </div>
       )}
@@ -446,8 +446,8 @@ function AirbusScenarioHub({
     <section className="airbus-simulator airbus-scenario-hub" aria-labelledby="airbus-scenario-hub-title">
       <div className="scenario-hub-panel">
         <p className="eyebrow">Airbus A320 Pop T Captain Mode</p>
-        <h2 id="airbus-scenario-hub-title">Simulator Hub</h2>
-        <p>Qualification is complete. Choose the next fictional, non-operational captain exercise.</p>
+        <h2 id="airbus-scenario-hub-title">Captain Challenges</h2>
+        <p>Qualification is complete. Choose the next captain challenge.</p>
         <div className="scenario-card-grid">
           <article className="scenario-card" data-status={stormAvailability}>
             <span className="scenario-card-status">{stormAvailability}</span>
@@ -512,7 +512,7 @@ const engineOutFailureCoaching = {
 
 function engineOutCaption(checkpoint: 'recognition' | 'stabilization' | 'diversion'): string {
   if (checkpoint === 'recognition') {
-    return 'Instructor: Deliberate simulator event. SIM ENG 1 power is reducing for training.'
+    return 'Instructor: Deliberate training event. ENG 1 power is reducing.'
   }
   if (checkpoint === 'stabilization') {
     return 'Instructor: Balance the drift to the right and protect the green energy band.'
@@ -545,10 +545,10 @@ function AirbusEngineOutHud({
     return (
       <section className="airbus-simulator airbus-simulator--briefing" aria-labelledby="engine-out-title">
         <div className="storm-briefing-card">
-          <p className="eyebrow">Simulator exercise · Non operational</p>
+          <p className="eyebrow">Captain challenge</p>
           <h2 id="engine-out-title">Engine-Out Handling</h2>
           <p>
-            The instructor deliberately reduces SIM ENG 1 power in stable cruise, and the nose
+            The instructor deliberately reduces ENG 1 power in stable cruise, and the nose
             will drift LEFT. Hold Balance right to keep the drift marker in the green band,
             guard the energy tape, then roll a gentle RIGHT bank to follow SAFE RETURN.
           </p>
@@ -571,7 +571,7 @@ function AirbusEngineOutHud({
             className="secondary-button"
             onClick={() => dispatch({ type: 'RETURN_TO_AIRBUS_SCENARIO_HUB' })}
           >
-            Back to Simulator Hub
+            Back to Captain Challenges
           </button>
           <button type="button" className="text-button" onClick={onRestart}>Restart game</button>
         </div>
@@ -599,7 +599,7 @@ function AirbusEngineOutHud({
       <div className="storm-topbar">
         <div>
           <p className="eyebrow">Engine-Out Handling · {simulation.checkpoint}</p>
-          <h2 id="engine-out-title" className="sr-only">Engine-Out Handling simulator</h2>
+          <h2 id="engine-out-title" className="sr-only">Engine-Out Handling challenge</h2>
           <p className="storm-crew-caption" aria-live="polite">
             {engineOutCaption(simulation.checkpoint)}
           </p>
@@ -637,7 +637,7 @@ function AirbusEngineOutHud({
         <div className={directionalPercent < 45 ? 'is-in-range' : 'is-outside'}>
           <span>Directional error</span><strong>{directionalPercent}%</strong>
         </div>
-        <div><span>SIM ENG 1</span><strong>{Math.round(simulation.aircraft.leftEnginePower * 100)}%</strong></div>
+        <div><span>ENG 1</span><strong>{Math.round(simulation.aircraft.leftEnginePower * 100)}%</strong></div>
         <div><span>SAFE RETURN</span><strong>{Math.round(simulation.corridorProgress * 100)}%</strong></div>
       </div>
 
@@ -683,7 +683,7 @@ function AirbusEngineOutHud({
 
       {runtime.paused && (
         <div className="storm-modal" role="status">
-          <strong>Simulator paused</strong>
+          <strong>Challenge paused</strong>
           <span>Inputs are centered and progress is safe.</span>
         </div>
       )}

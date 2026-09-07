@@ -15,7 +15,7 @@ import {
   type AirbusWorkloadTaskId,
 } from '../game/airbusWorkload'
 import { dc9LegacyFlow, airbusCaptainFlow, type AirbusControl, type LockerMemoryId } from '../game/config'
-import { type AirbusCameraPhase, type Dc9ChapterStage, type Dc9SecureControlId, type GamePhase } from '../game/state'
+import { type AirbusCameraPhase, type CockpitOrientationId, type Dc9ChapterStage, type Dc9SecureControlId, type GamePhase } from '../game/state'
 import {
   AIRBUS_CAMERA_TRANSITION_SECONDS,
   clampAirbusLook,
@@ -64,6 +64,7 @@ import {
   type Dc9ActiveSelfTest,
   type Dc9JointHandle,
 } from './dc9FlightDeckVisuals'
+import { sampleCockpitOrientation } from './cockpitOrientation'
 
 const AIRBUS_GAME_CAMERA = 'CAM_AIRBUS_CAPTAIN_GAME_VIEW'
 const AIRBUS_STORM_FLIGHT_CAMERA = 'CAM_AIRBUS_CAPTAIN_STORM_FLIGHT'
@@ -236,6 +237,7 @@ interface PrototypeSceneProps {
   reducedMotion: boolean
   lockerHatRevealed: boolean
   selectedAirbusCard: string | null
+  activeCockpitOrientation: CockpitOrientationId | null
   airbusCameraPhase: AirbusCameraPhase
   airbusSimulationFrameRef: MutableRefObject<AirbusActiveSimulationFrame | null>
   airbusInputRef: MutableRefObject<AirbusFlightInput>
@@ -255,6 +257,7 @@ interface PrototypeSceneProps {
   onAirbusHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
   onDc9HotspotsChange?: (positions: Dc9HotspotScreenPositions) => void
   onAirbusTarget: (control: AirbusControl) => void
+  onCockpitOrientationComplete: (cockpit: CockpitOrientationId) => void
   onAirbusWorkloadAction: (action: AirbusWorkloadAction) => void
   onLockerCameraSettled: (cue: LockerCameraCue) => void
   onDc9Interaction: (gameId: string) => void
@@ -525,16 +528,20 @@ function applyAirbusCameraPose(
 
 function AirbusCameraDirector({
   phase,
+  orientationActive,
   reducedMotion,
   cameraResetRevision,
   interactionCamera,
   stormCamera,
+  onOrientationComplete,
 }: {
   phase: AirbusCameraPhase
+  orientationActive: boolean
   reducedMotion: boolean
   cameraResetRevision: number
   interactionCamera: THREE.Camera
   stormCamera: THREE.Camera
+  onOrientationComplete: () => void
 }) {
   const { camera, gl, size } = useThree()
   const interactionPoseRef = useRef<AirbusCameraPose | null>(null)
@@ -543,6 +550,8 @@ function AirbusCameraDirector({
   const draggingRef = useRef(false)
   const lastPointerRef = useRef({ x: 0, y: 0 })
   const transitionElapsedRef = useRef(0)
+  const orientationElapsedRef = useRef(0)
+  const orientationReportedRef = useRef(false)
   const previousPhaseRef = useRef<AirbusCameraPhase>(phase)
   const canvasRef = useRef(gl.domElement)
 
@@ -565,6 +574,11 @@ function AirbusCameraDirector({
     transitionElapsedRef.current = 0
   }, [phase])
 
+  useEffect(() => {
+    orientationElapsedRef.current = 0
+    orientationReportedRef.current = false
+  }, [orientationActive])
+
   useFrame((_, delta) => {
     const interactionPose = interactionPoseRef.current
     const stormPose = stormPoseRef.current
@@ -577,7 +591,26 @@ function AirbusCameraDirector({
 
     let pose = interactionPose
     let look = recenterAirbusLook()
-    if (phase === 'transitioning') {
+    if (orientationActive) {
+      orientationElapsedRef.current += delta
+      const orientation = sampleCockpitOrientation('airbus', orientationElapsedRef.current)
+      pose = {
+        ...interactionPose,
+        verticalFov: interactionPose.verticalFov + orientation.fovDegrees,
+      }
+      look = {
+        yawDegrees: THREE.MathUtils.radToDeg(orientation.yawRadians),
+        pitchDegrees: THREE.MathUtils.radToDeg(orientation.pitchRadians),
+        leanMeters: orientation.leanMeters,
+        rollDegrees: 0,
+      }
+      canvasRef.current.dataset.cockpitOrientation = 'airbus'
+      canvasRef.current.dataset.cockpitOrientationProgress = orientation.progress.toFixed(4)
+      if (orientation.complete && !orientationReportedRef.current) {
+        orientationReportedRef.current = true
+        onOrientationComplete()
+      }
+    } else if (phase === 'transitioning') {
       transitionElapsedRef.current += delta
       const progress = reducedMotion
         ? 1
@@ -586,6 +619,10 @@ function AirbusCameraDirector({
     } else if (phase === 'storm') {
       pose = stormPose
       look = lookRef.current
+    }
+    if (!orientationActive) {
+      canvasRef.current.dataset.cockpitOrientation = 'idle'
+      canvasRef.current.dataset.cockpitOrientationProgress = '1.0000'
     }
     applyAirbusCameraPose(camera, pose, look)
     canvasRef.current.dataset.airbusCameraPhase = phase
@@ -616,7 +653,7 @@ function AirbusCameraDirector({
       lookRef.current = recenterAirbusLook()
     }
     const onLookStart = (event: PointerEvent) => {
-      if (phase !== 'storm' || event.button !== 0) return
+      if (orientationActive || phase !== 'storm' || event.button !== 0) return
       draggingRef.current = true
       lastPointerRef.current = { x: event.clientX, y: event.clientY }
       try {
@@ -626,7 +663,7 @@ function AirbusCameraDirector({
       }
     }
     const onLookMove = (event: PointerEvent) => {
-      if (phase !== 'storm' || !draggingRef.current) return
+      if (orientationActive || phase !== 'storm' || !draggingRef.current) return
       const deltaX = event.clientX - lastPointerRef.current.x
       const deltaY = event.clientY - lastPointerRef.current.y
       lastPointerRef.current = { x: event.clientX, y: event.clientY }
@@ -638,7 +675,7 @@ function AirbusCameraDirector({
       })
     }
     const onKeyDown = (event: KeyboardEvent) => {
-      if (phase !== 'storm' || event.code !== 'KeyR') return
+      if (orientationActive || phase !== 'storm' || event.code !== 'KeyR') return
       const target = event.target
       if (target instanceof HTMLElement
         && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) return
@@ -659,7 +696,12 @@ function AirbusCameraDirector({
       canvas.removeEventListener('pointercancel', stopDrag)
       window.removeEventListener('keydown', onKeyDown)
     }
-  }, [gl, phase])
+  }, [gl, orientationActive, phase])
+
+  useEffect(() => () => {
+    delete canvasRef.current.dataset.cockpitOrientation
+    delete canvasRef.current.dataset.cockpitOrientationProgress
+  }, [])
 
   return null
 }
@@ -694,6 +736,8 @@ export interface Dc9LookState {
 function Dc9SeatLookControls({
   sourceCamera,
   cameraResetRevision,
+  orientationActive,
+  onOrientationComplete,
   wideFov,
   narrowFov,
   initialYaw,
@@ -703,6 +747,8 @@ function Dc9SeatLookControls({
 }: {
   sourceCamera: THREE.Camera
   cameraResetRevision: number
+  orientationActive: boolean
+  onOrientationComplete: () => void
   wideFov: number
   narrowFov: number
   initialYaw: number
@@ -722,6 +768,8 @@ function Dc9SeatLookControls({
   const draggingRef = useRef(false)
   const lastPointerRef = useRef({ x: 0, y: 0 })
   const cameraDirtyRef = useRef(true)
+  const orientationElapsedRef = useRef(0)
+  const orientationReportedRef = useRef(false)
   const runtimeCameraRef = useRef(camera)
   const canvasRef = useRef(gl.domElement)
   const widthRef = useRef(size.width)
@@ -749,15 +797,47 @@ function Dc9SeatLookControls({
     cameraDirtyRef.current = true
   }, [cameraResetRevision, initialPitch, initialYaw, lookRef, narrowFov, sourceCamera, wideFov])
 
-  useFrame(() => {
-    if (!cameraDirtyRef.current) return
+  useEffect(() => {
+    orientationElapsedRef.current = 0
+    orientationReportedRef.current = false
+    if (orientationActive) {
+      yawRef.current = initialYaw
+      pitchRef.current = initialPitch
+    }
+    cameraDirtyRef.current = true
+  }, [initialPitch, initialYaw, orientationActive])
+
+  useFrame((_, delta) => {
+    if (!orientationActive && !cameraDirtyRef.current) return
     const runtimeCamera = runtimeCameraRef.current
-    const yawQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yawRef.current)
-    const pitchQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), pitchRef.current)
-    runtimeCamera.position.copy(basePositionRef.current)
+    let yaw = yawRef.current
+    let pitch = pitchRef.current
+    let leanMeters = 0
+    let fov = widthRef.current < 900 ? narrowFovRef.current : fovRef.current
+    if (orientationActive) {
+      orientationElapsedRef.current += delta
+      const orientation = sampleCockpitOrientation('dc9', orientationElapsedRef.current)
+      yaw = initialYaw + orientation.yawRadians
+      pitch = initialPitch + orientation.pitchRadians
+      leanMeters = orientation.leanMeters
+      fov += orientation.fovDegrees
+      canvasRef.current.dataset.cockpitOrientation = 'dc9'
+      canvasRef.current.dataset.cockpitOrientationProgress = orientation.progress.toFixed(4)
+      if (orientation.complete && !orientationReportedRef.current) {
+        orientationReportedRef.current = true
+        onOrientationComplete()
+      }
+    } else {
+      canvasRef.current.dataset.cockpitOrientation = 'idle'
+      canvasRef.current.dataset.cockpitOrientationProgress = '1.0000'
+    }
+    const yawQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw)
+    const pitchQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), pitch)
+    const lean = new THREE.Vector3(leanMeters, 0, 0).applyQuaternion(baseQuaternionRef.current)
+    runtimeCamera.position.copy(basePositionRef.current).add(lean)
     runtimeCamera.quaternion.copy(baseQuaternionRef.current).multiply(yawQuaternion).multiply(pitchQuaternion)
     if (runtimeCamera instanceof THREE.PerspectiveCamera) {
-      runtimeCamera.fov = widthRef.current < 900 ? narrowFovRef.current : fovRef.current
+      runtimeCamera.fov = fov
       runtimeCamera.updateProjectionMatrix()
     }
     runtimeCamera.updateMatrix()
@@ -785,7 +865,7 @@ function Dc9SeatLookControls({
       draggingRef.current = false
     }
     const onLookStart = (event: PointerEvent) => {
-      if (event.button !== 0 || suppressLookRef?.current) return
+      if (orientationActive || event.button !== 0 || suppressLookRef?.current) return
       draggingRef.current = true
       lastPointerRef.current = { x: event.clientX, y: event.clientY }
       try {
@@ -795,7 +875,7 @@ function Dc9SeatLookControls({
       }
     }
     const onLookMove = (event: PointerEvent) => {
-      if (suppressLookRef?.current) draggingRef.current = false
+      if (orientationActive || suppressLookRef?.current) draggingRef.current = false
       if (!draggingRef.current) return
       const deltaX = event.clientX - lastPointerRef.current.x
       const deltaY = event.clientY - lastPointerRef.current.y
@@ -817,6 +897,7 @@ function Dc9SeatLookControls({
       cameraDirtyRef.current = true
     }
     const onWheel = (event: WheelEvent) => {
+      if (orientationActive) return
       event.preventDefault()
       fovRef.current = THREE.MathUtils.clamp(fovRef.current + event.deltaY * 0.025, DC9_MIN_FOV, DC9_MAX_FOV)
       cameraDirtyRef.current = true
@@ -834,7 +915,12 @@ function Dc9SeatLookControls({
       canvas.removeEventListener('pointercancel', stopDrag)
       canvas.removeEventListener('wheel', onWheel)
     }
-  }, [gl, lookRef, suppressLookRef])
+  }, [gl, lookRef, orientationActive, suppressLookRef])
+
+  useEffect(() => () => {
+    delete canvasRef.current.dataset.cockpitOrientation
+    delete canvasRef.current.dataset.cockpitOrientationProgress
+  }, [])
 
   return null
 }
@@ -1409,7 +1495,7 @@ function drawWeatherRadar(
   context.textAlign = 'center'
   context.fillText('TILT AUTO', originX, 18)
   context.textAlign = 'right'
-  context.fillText('SIM — NON OP', 368, 18)
+  context.fillText('CAPTAIN MODE', 368, 18)
   context.textAlign = 'left'
   context.fillText(`GAP ${radar.gapBearingDegrees.toFixed(0)}°`, 16, 42)
   context.textAlign = 'right'
@@ -1519,7 +1605,7 @@ function drawEcam(canvas: HTMLCanvasElement, simulation: StormLineState, input: 
   context.fillText(`ENERGY ${Math.round(simulation.aircraft.energy * 100)}%`, 18, 222)
   context.fillStyle = '#7ef9ff'
   context.fillText(`WX ${Math.round(simulation.weatherIntensity * 100)}%`, 260, 222)
-  context.fillText('SIMULATOR — NON OPERATIONAL', 38, 265)
+  context.fillText('POP T CAPTAIN MODE', 38, 265)
 }
 
 function drawEngineOutPfd(canvas: HTMLCanvasElement, simulation: EngineOutState) {
@@ -1590,7 +1676,7 @@ function drawEngineOutEcam(
 ) {
   const context = instrumentContext(canvas)
   context.fillStyle = '#ffb05d'
-  context.fillText('SIM ENG 1 REDUCED — TRAINING', 18, 26)
+  context.fillText('ENG 1 REDUCED — TRAINING', 18, 26)
   const engines = [
     { x: 112, label: 'ENG 1', power: simulation.aircraft.leftEnginePower },
     { x: 272, label: 'ENG 2', power: simulation.aircraft.rightEnginePower },
@@ -1637,7 +1723,7 @@ function drawEngineOutEcam(
     context.strokeRect(3, 3, canvas.width - 6, canvas.height - 6)
     context.textAlign = 'left'
   }
-  context.fillText('SIMULATOR — NON OPERATIONAL', 38, 265)
+  context.fillText('POP T CAPTAIN MODE', 38, 265)
 }
 
 function AirbusSimulatorAnimator({
@@ -1818,6 +1904,7 @@ function useInteractiveCursor() {
 
 function AirbusCockpit({
   selectedAirbusCard,
+  orientationActive,
   cameraPhase,
   simulationFrameRef,
   inputRef,
@@ -1830,9 +1917,11 @@ function AirbusCockpit({
   onAirbusHotspotsChange,
   onAirbusTarget,
   onAirbusWorkloadAction,
+  onOrientationComplete,
   onHoverInteractive,
 }: {
   selectedAirbusCard: string | null
+  orientationActive: boolean
   cameraPhase: AirbusCameraPhase
   simulationFrameRef: MutableRefObject<AirbusActiveSimulationFrame | null>
   inputRef: MutableRefObject<AirbusFlightInput>
@@ -1845,6 +1934,7 @@ function AirbusCockpit({
   onAirbusHotspotsChange?: (positions: AirbusHotspotScreenPositions) => void
   onAirbusTarget: (control: AirbusControl) => void
   onAirbusWorkloadAction: (action: AirbusWorkloadAction) => void
+  onOrientationComplete: () => void
   onHoverInteractive: HoverHandler
 }) {
   const { camera, size } = useThree()
@@ -1972,10 +2062,12 @@ function AirbusCockpit({
           />
           <AirbusCameraDirector
             phase={cameraPhase}
+            orientationActive={orientationActive}
             reducedMotion={reducedMotion}
             cameraResetRevision={cameraResetRevision}
             interactionCamera={loaded.interactionCamera}
             stormCamera={loaded.stormCamera}
+            onOrientationComplete={onOrientationComplete}
           />
           <AirbusHotspotProjector targetPivots={loaded.targetPivots} onHotspotsChange={onAirbusHotspotsChange} />
           <AirbusTargetRaycaster
@@ -2786,6 +2878,7 @@ function Dc9InteractionRaycaster({
 
 function Dc9Cockpit({
   cameraResetRevision,
+  orientationActive,
   activeControls,
   chapterStage,
   reducedMotion,
@@ -2797,8 +2890,10 @@ function Dc9Cockpit({
   onInteraction,
   onYokeDrag,
   onHoverInteractive,
+  onOrientationComplete,
 }: {
   cameraResetRevision: number
+  orientationActive: boolean
   activeControls: Dc9SecureControlId[]
   chapterStage: Dc9ChapterStage
   reducedMotion: boolean
@@ -2810,6 +2905,7 @@ function Dc9Cockpit({
   onInteraction: (gameId: string) => void
   onYokeDrag?: (input: Partial<Dc9ControlInput> | null) => void
   onHoverInteractive: HoverHandler
+  onOrientationComplete: () => void
 }) {
   const { camera, gl, size } = useThree()
   const [loaded, setLoaded] = useState<{
@@ -3016,6 +3112,8 @@ function Dc9Cockpit({
                 ? loaded.secureCamera
                 : loaded.camera}
             cameraResetRevision={cameraResetRevision}
+            orientationActive={orientationActive}
+            onOrientationComplete={onOrientationComplete}
             wideFov={dc9DocumentFraming(chapterStage) ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV}
             narrowFov={dc9DocumentFraming(chapterStage) ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV}
             initialYaw={chapterStage === 'keyReveal'
@@ -3078,6 +3176,8 @@ function CaptainCockpit({
   onInteraction,
   onYokeDrag,
   onHoverInteractive,
+  interactionEnabled,
+  onOrientationComplete,
 }: {
   activeControls: Dc9SecureControlId[]
   chapterStage: Dc9ChapterStage
@@ -3093,15 +3193,18 @@ function CaptainCockpit({
   onInteraction: (gameId: string) => void
   onYokeDrag?: (input: Partial<Dc9ControlInput> | null) => void
   onHoverInteractive: HoverHandler
+  interactionEnabled: boolean
+  onOrientationComplete: () => void
 }) {
   return (
     <>
       <Dc9Cockpit
         cameraResetRevision={cameraResetRevision}
+        orientationActive={!interactionEnabled}
         activeControls={activeControls}
         chapterStage={chapterStage}
         reducedMotion={reducedMotion}
-        interactionEnabled
+        interactionEnabled={interactionEnabled}
         flightControlsRef={flightControlsRef}
         identifiedInstruments={identifiedInstruments}
         onLoadState={onLoadState}
@@ -3109,6 +3212,7 @@ function CaptainCockpit({
         onInteraction={onInteraction}
         onYokeDrag={onYokeDrag}
         onHoverInteractive={onHoverInteractive}
+        onOrientationComplete={onOrientationComplete}
       />
       {/*
         Memphis is outside the windows for the whole chapter, not just the flight:
@@ -3142,6 +3246,7 @@ export function PrototypeScene({
   reducedMotion,
   lockerHatRevealed,
   selectedAirbusCard,
+  activeCockpitOrientation,
   airbusCameraPhase,
   airbusSimulationFrameRef,
   airbusInputRef,
@@ -3161,6 +3266,7 @@ export function PrototypeScene({
   onAirbusHotspotsChange,
   onDc9HotspotsChange,
   onAirbusTarget,
+  onCockpitOrientationComplete,
   onAirbusWorkloadAction,
   onLockerCameraSettled,
   onDc9Interaction,
@@ -3180,6 +3286,7 @@ export function PrototypeScene({
         {phase === 'airbus' && (
           <AirbusCockpit
             selectedAirbusCard={selectedAirbusCard}
+            orientationActive={activeCockpitOrientation === 'airbus'}
             cameraPhase={airbusCameraPhase}
             simulationFrameRef={airbusSimulationFrameRef}
             inputRef={airbusInputRef}
@@ -3192,6 +3299,7 @@ export function PrototypeScene({
             onAirbusHotspotsChange={onAirbusHotspotsChange}
             onAirbusTarget={onAirbusTarget}
             onAirbusWorkloadAction={onAirbusWorkloadAction}
+            onOrientationComplete={() => onCockpitOrientationComplete('airbus')}
             onHoverInteractive={onInteractiveHover}
           />
         )}
@@ -3235,6 +3343,8 @@ export function PrototypeScene({
             onHotspotsChange={onDc9HotspotsChange}
             onInteraction={onDc9Interaction}
             onHoverInteractive={onInteractiveHover}
+            interactionEnabled={activeCockpitOrientation !== 'dc9'}
+            onOrientationComplete={() => onCockpitOrientationComplete('dc9')}
           />
         )}
       </Canvas>

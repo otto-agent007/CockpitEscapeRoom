@@ -112,7 +112,7 @@ test('Storm Line stays locked until the five-card Airbus qualification is comple
   await seed(page)
 
   await expect(page.getByRole('button', { name: /skip familiarization/i })).toHaveCount(0)
-  await expect(page.getByRole('heading', { name: 'Simulator Hub' })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Captain Challenges' })).toHaveCount(0)
 
   await seed(page, {
     ...airbusState(),
@@ -136,7 +136,7 @@ test('Storm Line stays locked until the five-card Airbus qualification is comple
     },
   })
 
-  await expect(page.getByRole('heading', { name: 'Simulator Hub' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Captain Challenges' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Open Storm Line' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Complete Storm Line first' })).toBeDisabled()
 })
@@ -155,7 +155,7 @@ test('Storm Line supports keyboard flight, pause, and durable checkpoint reload'
   await page.keyboard.up('w')
 
   await page.getByRole('button', { name: 'Pause' }).click()
-  await expect(page.getByText('Simulator paused')).toBeVisible()
+  await expect(page.getByText('Challenge paused')).toBeVisible()
   await expect(page.getByText('Inputs are centered and progress is safe.')).toBeVisible()
   await page.getByRole('button', { name: 'Resume' }).click()
 

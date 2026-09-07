@@ -177,7 +177,7 @@ export function deriveEngineOutRouteGuidance(state: EngineOutState): AirbusRoute
     }
     return {
       tone: 'settled',
-      message: 'Deliberate training event — SIM ENG 1 is reducing. Acknowledge it on the upper ECAM.',
+      message: 'Deliberate training event — ENG 1 is reducing. Acknowledge it on the upper ECAM.',
       meter: directionalMeter(error),
     }
   }

@@ -36,13 +36,13 @@ the repository's safety policy still prevents operational training content.
 
 ## Current state
 
-- `Dc9SeatLookControls` begins at the control-check yaw/pitch as soon as the DC-9 scene loads.
-- `AirbusCameraDirector` begins at the authored familiarization pose as soon as Airbus loads.
-- `GameState` schema 15 has no durable chapter-introduction state.
-- App already distinguishes real-3D readiness, accessible fallbacks, reduced motion, and loader
-  visibility; those are the authoritative inputs for starting or bypassing a tour.
-- Player-visible retired wording is concentrated in `Hud.tsx`, `MemphisDeparturePanel.tsx`,
-  `QualificationCelebration.tsx`, reducer/guidance strings, and canvas-generated Airbus displays.
+- `Dc9SeatLookControls` and `AirbusCameraDirector` now layer independent 4.5-second orientation
+  offsets over their seat-correct authored camera poses and settle back to exact zero offset.
+- `GameState` schema 16 persists independent DC-9 and Airbus orientation completion flags.
+- App uses real-3D readiness, accessible fallbacks, reduced motion, and loader visibility as the
+  authoritative inputs for starting or bypassing a tour, and gates HUD/input until completion.
+- Player-visible retired wording has been replaced in runtime displays and current living docs;
+  internal simulator identifiers remain unchanged as intended.
 - The checkout began clean on `fix/dc9-memphis-route-markings`; this work was moved to
   `feat/cockpit-orientation-copy` at `origin/main` before any feature files changed.
 
@@ -113,9 +113,11 @@ export function sampleCockpitOrientation(
 - [x] 2026-09-06 — Approved design recorded and committed as `06bed97` on the dedicated branch.
 - [x] 2026-09-06 — Milestone 1 schema-16 persistence completed RED then GREEN.
 - [x] 2026-09-06 — Milestone 2 pure 4.5-second camera timelines completed RED then GREEN.
-- [ ] Milestone 3 — first-entry overlay, camera integration, and input gates are RED then GREEN.
-- [ ] Milestone 4 — player-visible wording is removed and contract-tested.
-- [ ] Milestone 5 — browser/responsive proof, full checks, review, and evidence are complete.
+- [x] 2026-09-07 — Milestone 3 first-entry overlay, camera integration, and input gates completed
+  RED then GREEN.
+- [x] 2026-09-07 — Milestone 4 player-visible wording removed and contract-tested.
+- [x] 2026-09-07 — Milestone 5 local browser/responsive proof, checks, review, and evidence
+  completed. Hosted preview and owner gate remain separate.
 
 ## Discoveries
 
@@ -130,6 +132,15 @@ export function sampleCockpitOrientation(
 - 2026-09-06 — TypeScript's strict indexed-access setting cannot infer that a general readonly
   keyframe array is non-empty. Modeling each timeline as a tuple with at least two frames and
   walking adjacent frames expresses the real invariant without assertions in production code.
+- 2026-09-07 — Existing browser fixtures that seed directly into a cockpit must declare whether
+  they represent first arrival or post-orientation play. The production Airbus placement fixture
+  now explicitly sets both flags true so its existing assertion continues after the entry gate.
+- 2026-09-07 — React compiler lint began checking manual memoization dependencies in `App` once
+  the new orientation values crossed callback boundaries. Adding the stable state setters to the
+  affected dependency lists preserved behavior and satisfied the compiler without disabling it.
+- 2026-09-07 — The software WebGL renderer could race a direct 1440 px startup capture. Starting
+  the evidence page at 768 px, resizing to 1440 px, and allowing one render turn produced a stable
+  full-resolution capture without changing production behavior.
 
 ## Decision log
 
@@ -216,20 +227,20 @@ Files:
 
 Steps:
 
-- [ ] Write the smallest failing test for orientation activation: first-entry + scene-ready +
+- [x] Write the smallest failing test for orientation activation: first-entry + scene-ready +
   unseen activates; loader/not-ready, seen, reduced-motion, and fallback do not. Prefer a pure
   exported decision helper if App cannot be tested without mocking scene loaders.
-- [ ] Run that focused test and record RED.
-- [ ] Implement the overlay with heading, one-sentence status, progress semantics, and a native
+- [x] Run that focused test and record RED.
+- [x] Implement the overlay with heading, one-sentence status, progress semantics, and a native
   **Skip cockpit tour** button. Keep it outside the canvas.
-- [ ] Gate DC-9 `useDc9FlightControls`, `Dc9Chapter`, WebGL raycasters/drag/look, Airbus HUD/cards,
+- [x] Gate DC-9 `useDc9FlightControls`, `Dc9Chapter`, WebGL raycasters/drag/look, Airbus HUD/cards,
   and Airbus WebGL targets while the matching tour is active.
-- [ ] Pass the active tour to `PrototypeScene`. In `Dc9SeatLookControls` and
+- [x] Pass the active tour to `PrototypeScene`. In `Dc9SeatLookControls` and
   `AirbusCameraDirector`, sample elapsed rendered time, apply the tour to the appropriate authored
   base camera, publish the data attributes, settle exactly, and call completion once.
-- [ ] Add immediate completion effects for reduced motion, `skip3d=1`, and explicit accessible
+- [x] Add immediate completion effects for reduced motion, `skip3d=1`, and explicit accessible
   fallback. Make the skip handler dispatch the same completion action.
-- [ ] Re-run focused state/component/scene tests and require GREEN.
+- [x] Re-run focused state/component/scene tests and require GREEN.
 
 ### Milestone 4: Natural player copy
 
@@ -249,15 +260,15 @@ Files:
 
 Steps:
 
-- [ ] Add or update assertions for `Captain Challenges`, `Challenge paused`, `Captain task`, the
+- [x] Add or update assertions for `Captain Challenges`, `Challenge paused`, `Captain task`, the
   shorter Memphis memory label, `ENG 1`, and natural completion/status copy.
-- [ ] Add Playwright assertions at the Memphis header, Captain Challenges hub, Storm Line,
+- [x] Add Playwright assertions at the Memphis header, Captain Challenges hub, Storm Line,
   Engine-Out, pause modal, workload prompt, and qualification celebration. Each assertion checks
   the real rendered DOM wording and fails against the current UI.
-- [ ] Run the focused browser cases and record RED with the current phrases.
-- [ ] Apply the exact copy replacements approved in the spec. Preserve deliberate instructor
+- [x] Run the focused browser cases and record RED with the current phrases.
+- [x] Apply the exact copy replacements approved in the spec. Preserve deliberate instructor
   action and no-blame framing without repeating disclaimers.
-- [ ] Re-run the focused browser cases and require GREEN. Inspect the generated PFD/ND/ECAM text
+- [x] Re-run the focused browser cases and require GREEN. Inspect the generated PFD/ND/ECAM text
   in a real browser frame, then run `rg` manually across the player-facing runtime-file allowlist
   and three current docs and record zero hits. This is a completion audit, not a source-grep test.
 
@@ -275,24 +286,24 @@ Files:
 
 Steps:
 
-- [ ] Start the production preview using the repository's existing Playwright web-server flow or
+- [x] Start the production preview using the repository's existing Playwright web-server flow or
   `npm run preview` on a unique port.
-- [ ] Fresh normal-motion path: complete **PRESS START**, assert the DC-9 orientation overlay,
+- [x] Fresh normal-motion path: complete **PRESS START**, assert the DC-9 orientation overlay,
   changing camera data, gated first control, completion near 4.5 seconds, settled pose, saved flag,
   and no replay after reload.
-- [ ] Seed the final locker handoff, select **Enter Pop T Captain Mode**, and assert equivalent
+- [x] Seed the final locker handoff, select **Enter Pop T Captain Mode**, and assert equivalent
   Airbus behavior; then prove **Begin Storm Line** still uses its existing 1.25-second transition.
-- [ ] Prove keyboard focus/activation of **Skip cockpit tour** for both aircraft and saved no-replay.
-- [ ] Prove reduced-motion and `skip3d=1` paths expose gameplay without an animated wait.
-- [ ] Capture normal-motion orientation and settled frames at approximately 375, 768, and 1440 CSS
+- [x] Prove keyboard focus/activation of **Skip cockpit tour** for both aircraft and saved no-replay.
+- [x] Prove reduced-motion and `skip3d=1` paths expose gameplay without an animated wait.
+- [x] Capture normal-motion orientation and settled frames at approximately 375, 768, and 1440 CSS
   pixels; inspect overflow, overlay readability, seat identity, and controls after settlement.
-- [ ] Exercise relevant correct, wrong, repeated-wrong, hint, reload, and keyboard paths in the
+- [x] Exercise relevant correct, wrong, repeated-wrong, hint, reload, and keyboard paths in the
   nearby DC-9 control-check/instrument and Airbus familiarization tests.
-- [ ] Run focused Vitest; `npm run check`; relevant Playwright journey/DC-9/Airbus subsets;
+- [x] Run focused Vitest; `npm run check`; relevant Playwright journey/DC-9/Airbus subsets;
   `npm run assets:check`; and `git diff --check`.
-- [ ] Review the complete diff for progress loss, duplicate completion, input leakage, stale copy,
+- [x] Review the complete diff for progress loss, duplicate completion, input leakage, stale copy,
   unsafe DOM insertion, unnecessary dependencies, asset-contract drift, and Model Y spoilers.
-- [ ] Repair each finding from root cause, rerun its failed check plus nearby regression checks,
+- [x] Repair each finding from root cause, rerun its failed check plus nearby regression checks,
   and record exact evidence below.
 
 ## Validation plan
@@ -341,9 +352,34 @@ an implementation defect and never claim an unrun check passed.
   import the absent module. GREEN: 6/6 tests passed. The first strict typecheck then identified
   an unexpressed non-empty-array invariant; after the tuple repair, the same 6/6 test run,
   `npm run typecheck`, and `git diff --check` exited 0.
-- Validation evidence will be appended as each checkbox completes.
+- 2026-09-07 — Milestone 3 RED: the focused activation test failed to import the absent
+  `cockpitOrientationState` module. GREEN: 7/7 activation-decision tests passed, including scene
+  readiness, loaders, saved state, reduced motion, and accessible fallback.
+- 2026-09-07 — Milestone 4 RED: the focused player-copy browser test could not find `Captain
+  Challenges` against the previous copy. GREEN: the final focused copy/workload run passed 2/2;
+  the manual player-facing allowlist audit returned zero retired-term matches.
+- 2026-09-07 — Expanded focused Vitest passed 186/186. `npm run check` passed lint, typecheck,
+  596/596 tests across 46 files, and the production build. `npm run assets:check` exited 0 with
+  only its existing informational model-validator output.
+- 2026-09-07 — Dedicated orientation Playwright passed 4/4: normal DC-9 and Airbus camera motion,
+  progress semantics, HUD/input gating, 4.5-second completion, persisted no-replay, keyboard skip,
+  reduced motion, accessible fallback, and the unchanged Airbus `transitioning` to `storm` camera
+  transition. Relevant DC-9 journey/control-check regression passed 7/7; the production Airbus
+  placement/camera case passed 1/1; nearby Airbus challenge regressions passed after narrowing one
+  pre-existing ambiguous text locator.
+- 2026-09-07 — Twelve orientation/settled screenshots passed and were inspected at 375, 768, and
+  1440 px. They show readable overlays, correct right/left seat composition, no gameplay HUD during
+  travel, and no horizontal overflow after settlement. Evidence is in
+  `preview-renders/cockpit-orientation/`.
+- 2026-09-07 — Full-diff review repaired an accidental effect dependency change and added explicit
+  progressbar semantics. No unsafe DOM insertion, dependency addition, asset edit, progress loss,
+  duplicate completion, input leakage, or Model Y spoiler was found. Final reruns are recorded in
+  `TEST_REPORT.md`.
 
 ## Outcome and handoff
 
-Implementation is pending. The owner approved the design on 2026-09-06; the next action is milestone
-1's reducer RED test, followed by the matching persistence RED/GREEN cycle.
+The requested local implementation and verification are complete. Both tours run once for 4.5
+seconds in their correct seats, save independently, allow keyboard skip, and bypass motion for
+reduced-motion or accessible fallback. The retired player-facing wording is gone from the approved
+runtime/docs scope. No GLB, Blender source, dependency, deployment, push, or PR was changed. A
+hosted Vercel preview and formal owner visual gate remain pending explicit publication approval.

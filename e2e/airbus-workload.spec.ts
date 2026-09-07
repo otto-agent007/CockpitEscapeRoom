@@ -100,6 +100,7 @@ test('native Storm tasks survive safe retry, coach wrong choices, and persist', 
   await seed(page, workloadState({ scenario: 'stormLine', checkpoint: 'stormEntry' }))
 
   const scanTask = page.getByRole('region', { name: 'Captain task: Weather picture' })
+  await expect(scanTask.getByText('Captain task', { exact: true })).toBeVisible()
   await expect(scanTask).toContainText('Range NEAR')
   const routeGuidance = page.locator('.storm-route-guidance')
   await expect(routeGuidance).toContainText('Bank left into the west lane')

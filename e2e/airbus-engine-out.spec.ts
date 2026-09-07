@@ -67,7 +67,7 @@ function engineOutState(status: 'not_started' | 'in_progress' = 'not_started'): 
         bestTraits: [],
       },
     },
-    statusMessage: 'Engine-Out Handling simulator ready.',
+    statusMessage: 'Engine-Out Handling ready.',
   }
 }
 
@@ -79,23 +79,23 @@ async function seed(page: Page, state: GameState) {
   await page.reload()
 }
 
-test('Simulator Hub unlocks Engine-Out only after Storm and starts explicit training', async ({ page }) => {
+test('Captain Challenges unlocks Engine-Out only after Storm and starts explicit training', async ({ page }) => {
   await page.goto('/?skip3d=1')
   await seed(page, engineOutState())
 
-  await expect(page.getByRole('heading', { name: 'Simulator Hub' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Captain Challenges' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Replay Storm Line' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Open Engine-Out' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Open Engine-Out' }).click()
   await expect(page.getByRole('heading', { name: 'Engine-Out Handling' })).toBeVisible()
-  await expect(page.getByText(/deliberately reduces SIM ENG 1 power/i)).toBeVisible()
+  await expect(page.getByText(/deliberately reduces ENG 1 power/i)).toBeVisible()
   await page.getByRole('button', { name: 'Begin Engine-Out' }).click()
 
   const instruments = page.getByRole('region', { name: 'Accessible Engine-Out instruments' })
   await expect(instruments).toBeVisible()
-  await expect(page.getByText(/Deliberate simulator event/)).toBeVisible()
-  await expect(instruments).toContainText('SIM ENG 1')
+  await expect(page.locator('.storm-crew-caption')).toContainText('Deliberate training event')
+  await expect(instruments).toContainText('ENG 1')
 
   await page.keyboard.down('d')
   await expect.poll(async () => instruments.textContent()).toMatch(
@@ -113,7 +113,7 @@ test('Engine-Out native controls pause and retry only Stabilization', async ({ p
   await expect(page.getByRole('button', { name: 'Hold Balance right' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Pause' }).click()
-  await expect(page.getByText('Simulator paused')).toBeVisible()
+  await expect(page.getByText('Challenge paused')).toBeVisible()
   await page.getByRole('button', { name: 'Resume' }).click()
 
   const pitchUp = page.getByRole('button', { name: 'Hold Pitch up' })
@@ -202,11 +202,11 @@ test('Engine-Out diversion completes Airbus without exposing the reward early', 
   })
 })
 
-test('Simulator Hub and Engine-Out controls remain usable at tablet and phone widths', async ({ page }) => {
+test('Captain Challenges and Engine-Out controls remain usable at tablet and phone widths', async ({ page }) => {
   await page.setViewportSize({ width: 768, height: 900 })
   await page.goto('/?skip3d=1')
   await seed(page, engineOutState())
-  await expect(page.getByRole('heading', { name: 'Simulator Hub' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Captain Challenges' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Open Engine-Out' })).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(768)
   await page.screenshot({ path: '/tmp/airbus-simulator-hub-tablet-768.png', fullPage: true })
@@ -294,7 +294,7 @@ test('production Airbus cockpit renders live Engine-Out displays and control res
     { timeout: 30_000 },
   )
   const evidenceDirectory = process.env.ENGINE_OUT_EVIDENCE_DIR ?? '/tmp'
-  await expect(page.getByRole('heading', { name: 'Simulator Hub' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Captain Challenges' })).toBeVisible()
   await page.screenshot({
     path: `${evidenceDirectory}/airbus-simulator-hub-1440.png`,
     fullPage: true,
@@ -308,7 +308,7 @@ test('production Airbus cockpit renders live Engine-Out displays and control res
   await page.getByRole('button', { name: 'Begin Engine-Out' }).click()
   await expect(canvas).toHaveAttribute('data-airbus-camera-phase', 'storm', { timeout: 15_000 })
   await expect(page.getByText(/Engine-Out Handling · recognition/)).toBeVisible()
-  await expect(page.getByText(/Deliberate simulator event/)).toBeVisible()
+  await expect(page.locator('.storm-crew-caption')).toContainText('Deliberate training event')
   await expect(canvas).toHaveAttribute('data-engine-out-safe-return-visible', 'false')
   await expect(canvas).toHaveAttribute('data-airbus-weather-depth-bands', '3')
   await expect(canvas).toHaveAttribute('data-airbus-rain-shaft-count', '0')
@@ -353,7 +353,7 @@ test('production Airbus cockpit renders live Engine-Out displays and control res
     const text = await page
       .getByRole('region', { name: 'Accessible Engine-Out instruments' })
       .textContent()
-    const match = text?.match(/SIM ENG 1(\d+)%/)
+    const match = text?.match(/ENG 1(\d+)%/)
     return Number(match?.[1] ?? 100)
   }).toBeLessThan(70)
 

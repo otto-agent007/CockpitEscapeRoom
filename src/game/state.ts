@@ -287,7 +287,7 @@ function activeAirbusWorkloadTask(state: GameState): AirbusWorkloadTaskId | null
 function completedAirbusWorkloadMessage(task: AirbusWorkloadTaskId): string {
   if (task === 'stormScanRange') return 'Captain ND training range set to MID.'
   if (task === 'stormGapSelection') return 'Stable western weather gap confirmed.'
-  if (task === 'engineEventAcknowledgement') return 'Deliberate simulator event acknowledged.'
+  if (task === 'engineEventAcknowledgement') return 'Deliberate training event acknowledged.'
   return 'Right-side SAFE RETURN corridor selected.'
 }
 
@@ -781,7 +781,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         airbusDecoyAssignments: cleared.decoyAssignments,
         airbusSimulator: qualificationProgress,
         statusMessage: familiarizationComplete
-          ? 'Cockpit familiarization complete. Storm Line simulator ready.'
+          ? 'Cockpit familiarization complete. Storm Line ready.'
           : correctPlacement && !hasWrongPlacement
           ? airbusCaptainFlow.controlHints[action.control]
           : feedback,
@@ -907,7 +907,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
               : 'not_started',
           },
         },
-        statusMessage: 'Storm Line clear. Engine-Out Handling unlocked in the Simulator Hub.',
+        statusMessage: 'Storm Line clear. Engine-Out Handling unlocked in Captain Challenges.',
       }
     }
 
@@ -1028,7 +1028,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           location: 'hub',
           cameraPhase: 'qualified',
         },
-        statusMessage: 'Simulator Hub ready.',
+        statusMessage: 'Captain Challenges ready.',
       }
 
     case 'ASSIGN_AIRBUS_DECOY_CARD': {

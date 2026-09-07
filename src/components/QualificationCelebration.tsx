@@ -114,7 +114,7 @@ export function AirbusCompletionCelebration({
 }) {
   const debrief = traits.length > 0
     ? `Captain traits: ${traits.map((trait) => captainTraitLabels[trait]).join(' · ')}`
-    : 'Both simulator exercises are complete. Captain knowledge logged.'
+    : 'Both captain challenges are complete. Captain knowledge logged.'
   return (
     <MilestoneCelebration
       eyebrow="Airbus A320"

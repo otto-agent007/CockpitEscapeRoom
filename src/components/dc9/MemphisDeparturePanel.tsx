@@ -87,7 +87,7 @@ export function MemphisDeparturePanel({ controls, inputMethod, loadState, onHold
   return (
     <section className="dc9-memphis-departure" aria-labelledby="dc9-memphis-departure-title">
       <header className="dc9-memphis-departure__header">
-        <p className="eyebrow">1995 MEMORY · <span>Fictional — non operational</span></p>
+        <p className="eyebrow">1995 MEMPHIS MEMORY</p>
         <h2 id="dc9-memphis-departure-title">Memphis Legacy Departure</h2>
         <p>{BEAT_LABELS[frame.beat]} · {guidance.intent}</p>
       </header>

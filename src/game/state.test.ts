@@ -534,7 +534,7 @@ describe('gameReducer', () => {
     expect(state.airbusSimulator.familiarization).toBe('completed')
     expect(state.airbusSimulator.cameraPhase).toBe('qualified')
     expect(state.airbusSimulator.stormLine.status).toBe('not_started')
-    expect(state.statusMessage).toContain('Storm Line simulator ready')
+    expect(state.statusMessage).toContain('Storm Line ready')
   })
 
   it('does not begin the Storm Line transition before every label is correct', () => {
