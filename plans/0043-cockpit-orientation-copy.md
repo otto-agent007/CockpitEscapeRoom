@@ -112,7 +112,7 @@ export function sampleCockpitOrientation(
 
 - [x] 2026-09-06 — Approved design recorded and committed as `06bed97` on the dedicated branch.
 - [x] 2026-09-06 — Milestone 1 schema-16 persistence completed RED then GREEN.
-- [ ] Milestone 2 — pure 4.5-second camera timelines are RED then GREEN.
+- [x] 2026-09-06 — Milestone 2 pure 4.5-second camera timelines completed RED then GREEN.
 - [ ] Milestone 3 — first-entry overlay, camera integration, and input gates are RED then GREEN.
 - [ ] Milestone 4 — player-visible wording is removed and contract-tested.
 - [ ] Milestone 5 — browser/responsive proof, full checks, review, and evidence are complete.
@@ -127,6 +127,9 @@ export function sampleCockpitOrientation(
   unchanged.
 - 2026-09-06 — The current branch at task start carried completed Memphis-marking work and PR #71.
   A new branch from `origin/main` avoids mixing those unrelated commits.
+- 2026-09-06 — TypeScript's strict indexed-access setting cannot infer that a general readonly
+  keyframe array is non-empty. Modeling each timeline as a tuple with at least two frames and
+  walking adjacent frames expresses the real invariant without assertions in production code.
 
 ## Decision log
 
@@ -184,16 +187,16 @@ Files:
 
 Steps:
 
-- [ ] Write tests for the public interface above: clamp negative time to progress 0, reach complete
+- [x] Write tests for the public interface above: clamp negative time to progress 0, reach complete
   at 4.5 seconds, return exact zero yaw/pitch/lean/FOV offset at completion, produce at least three
   distinct intermediate poses per aircraft, stay inside DC-9 and Airbus tour bounds, and remain
   continuous on both sides of every keyframe.
-- [ ] Run `npm test -- src/scenes/cockpitOrientation.test.ts` and record RED because the module is
+- [x] Run `npm test -- src/scenes/cockpitOrientation.test.ts` and record RED because the module is
   absent.
-- [ ] Implement a small keyframe table per aircraft, smoothstep interpolation, finite-time
+- [x] Implement a small keyframe table per aircraft, smoothstep interpolation, finite-time
   normalization, and exact endpoint handling. Keep the DC-9 and Airbus keyframes separate so visual
   tuning cannot mix aircraft-specific composition.
-- [ ] Re-run the focused test and require GREEN.
+- [x] Re-run the focused test and require GREEN.
 
 ### Milestone 3: Tour orchestration, overlay, cameras, and gates
 
@@ -334,6 +337,10 @@ an implementation defect and never claim an unrun check passed.
   migration, round-trip, and corrupt-field recovery.
 - 2026-09-06 — Milestone 1 GREEN: `npm test -- src/game/state.test.ts
   src/game/storage.test.ts` passed 154/154; `npm run typecheck` and `git diff --check` exited 0.
+- 2026-09-06 — Milestone 2 RED: `npm test -- src/scenes/cockpitOrientation.test.ts` failed to
+  import the absent module. GREEN: 6/6 tests passed. The first strict typecheck then identified
+  an unexpressed non-empty-array invariant; after the tuple repair, the same 6/6 test run,
+  `npm run typecheck`, and `git diff --check` exited 0.
 - Validation evidence will be appended as each checkbox completes.
 
 ## Outcome and handoff
