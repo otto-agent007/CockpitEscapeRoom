@@ -22,6 +22,7 @@ import {
   type Dc9ChapterProgress,
   type Dc9SecureControlId,
   type AirbusSimulatorProgress,
+  type CockpitOrientationSeen,
   type GamePhase,
   type GameState,
   type PuzzleId,
@@ -71,7 +72,7 @@ interface LegacyCommonState {
 
 type LegacyV6State = LegacyCommonState & { schemaVersion: 6 }
 type LegacyV7State = LegacyCommonState & { schemaVersion: 7; dc9: unknown }
-type CanonicalV8State = Omit<GameState, 'schemaVersion' | 'airbusSimulator'> & { schemaVersion: 8 }
+type CanonicalV8State = Omit<GameState, 'schemaVersion' | 'airbusSimulator' | 'cockpitOrientationSeen'> & { schemaVersion: 8 }
 
 const APPROVED_ROUTE_CODES = [...dc9LegacyFlow.routePuzzleAnswers] as string[]
 const ALL_ROUTE_CODES = dc9LegacyFlow.routePuzzleOptions.map((route) => route.code) as string[]
@@ -94,6 +95,22 @@ function isLegacyPhase(value: unknown): value is LegacyPhase {
 
 function isCanonicalPhase(value: unknown): value is GamePhase {
   return value === 'briefing' || value === 'dc9' || value === 'locker' || value === 'airbus' || value === 'reward' || value === 'mars'
+}
+
+function inferredCockpitOrientationSeen(phase: GamePhase): CockpitOrientationSeen {
+  return {
+    dc9: phase !== 'briefing',
+    airbus: phase === 'airbus' || phase === 'reward' || phase === 'mars',
+  }
+}
+
+function normalizeCockpitOrientationSeen(value: unknown, phase: GamePhase): CockpitOrientationSeen {
+  if (!value || typeof value !== 'object') return inferredCockpitOrientationSeen(phase)
+  const candidate = value as Record<string, unknown>
+  if (typeof candidate.dc9 !== 'boolean' || typeof candidate.airbus !== 'boolean') {
+    return inferredCockpitOrientationSeen(phase)
+  }
+  return { dc9: candidate.dc9, airbus: candidate.airbus }
 }
 
 function isSafeAssignments(value: unknown): value is Record<AirbusControl, string | null> {
@@ -459,6 +476,7 @@ function normalizeV8(value: unknown): GameState | null {
   return {
     schemaVersion: GAME_SCHEMA_VERSION,
     phase,
+    cockpitOrientationSeen: inferredCockpitOrientationSeen(phase),
     airbusAssignments: candidate.airbusAssignments as GameState['airbusAssignments'],
     airbusDecoyAssignments: candidate.airbusDecoyAssignments as GameState['airbusDecoyAssignments'],
     airbusQualificationAnswer: candidate.airbusQualificationAnswer as string,
@@ -727,6 +745,7 @@ function normalizeV9(value: unknown): GameState | null {
   return {
     schemaVersion: GAME_SCHEMA_VERSION,
     phase,
+    cockpitOrientationSeen: inferredCockpitOrientationSeen(phase),
     airbusAssignments: candidate.airbusAssignments as GameState['airbusAssignments'],
     airbusDecoyAssignments: candidate.airbusDecoyAssignments as GameState['airbusDecoyAssignments'],
     airbusQualificationAnswer: candidate.airbusQualificationAnswer as string,
@@ -749,7 +768,7 @@ function normalizeV9(value: unknown): GameState | null {
   }
 }
 
-function normalizeCanonicalScenarioState(value: unknown, schemaVersion: 10 | 11 | 12 | 13 | 14 | 15): GameState | null {
+function normalizeCanonicalScenarioState(value: unknown, schemaVersion: 10 | 11 | 12 | 13 | 14 | 15 | 16): GameState | null {
   if (!value || typeof value !== 'object') return null
   const candidate = value as Record<string, unknown>
   if (candidate.schemaVersion !== schemaVersion || !hasSafeCanonicalCommonState(candidate)) return null
@@ -760,6 +779,9 @@ function normalizeCanonicalScenarioState(value: unknown, schemaVersion: 10 | 11 
   return {
     schemaVersion: GAME_SCHEMA_VERSION,
     phase,
+    cockpitOrientationSeen: schemaVersion === 16
+      ? normalizeCockpitOrientationSeen(candidate.cockpitOrientationSeen, phase)
+      : inferredCockpitOrientationSeen(phase),
     airbusAssignments: candidate.airbusAssignments as GameState['airbusAssignments'],
     airbusDecoyAssignments: candidate.airbusDecoyAssignments as GameState['airbusDecoyAssignments'],
     airbusQualificationAnswer: candidate.airbusQualificationAnswer as string,
@@ -804,6 +826,10 @@ function migrateV14(value: unknown): GameState | null {
 
 function normalizeV15(value: unknown): GameState | null {
   return normalizeCanonicalScenarioState(value, 15)
+}
+
+function normalizeV16(value: unknown): GameState | null {
+  return normalizeCanonicalScenarioState(value, 16)
 }
 
 function migrateV6ToV7(value: unknown): LegacyV7State | null {
@@ -931,7 +957,8 @@ export function loadGameState(storage: Pick<Storage, 'getItem' | 'removeItem'> =
       : migrateV5(normalizedParsed) ?? migrateV4(normalizedParsed) ?? migrateV3(normalizedParsed)
     const legacyV7 = isLegacyV7State(normalizedParsed) ? normalizedParsed : legacyV6 ? migrateV6ToV7(legacyV6) : null
     const migratedV8 = legacyV7 ? migrateV7ToV8(legacyV7) : null
-    const state = normalizeV15(normalizedParsed)
+    const state = normalizeV16(normalizedParsed)
+      ?? normalizeV15(normalizedParsed)
       ?? migrateV14(normalizedParsed)
       ?? migrateV13(normalizedParsed)
       ?? migrateV12(normalizedParsed)

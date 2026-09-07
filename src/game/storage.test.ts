@@ -154,6 +154,65 @@ function canonicalV11(overrides: Record<string, unknown> = {}): Record<string, u
   }
 }
 
+function canonicalV15(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  const state = { ...createInitialState() } as Record<string, unknown>
+  delete state.cockpitOrientationSeen
+  return {
+    ...state,
+    schemaVersion: 15,
+    ...overrides,
+  }
+}
+
+describe('schema-v16 cockpit orientation migration', () => {
+  it.each([
+    ['briefing', { dc9: false, airbus: false }],
+    ['dc9', { dc9: true, airbus: false }],
+    ['locker', { dc9: true, airbus: false }],
+    ['airbus', { dc9: true, airbus: true }],
+    ['reward', { dc9: true, airbus: true }],
+    ['mars', { dc9: true, airbus: true }],
+  ] as const)('infers tours already seen by a schema-v15 player in %s', (phase, expected) => {
+    const migrated = loadRaw(canonicalV15({ phase }))
+
+    expect(migrated.schemaVersion).toBe(16)
+    expect(migrated.phase).toBe(phase)
+    expect(migrated.cockpitOrientationSeen).toEqual(expected)
+  })
+
+  it('round-trips independent schema-v16 orientation flags', () => {
+    const saved = {
+      ...createInitialState(),
+      schemaVersion: 16,
+      phase: 'locker',
+      cockpitOrientationSeen: { dc9: true, airbus: false },
+    }
+
+    const loaded = loadRaw(saved)
+
+    expect(loaded.phase).toBe('locker')
+    expect(loaded.cockpitOrientationSeen).toEqual({ dc9: true, airbus: false })
+  })
+
+  it.each([
+    [undefined, { dc9: true, airbus: false }],
+    [{ dc9: 'yes', airbus: false }, { dc9: true, airbus: false }],
+    [{ dc9: true, airbus: null }, { dc9: true, airbus: false }],
+  ])('recovers missing or corrupt schema-v16 orientation data', (cockpitOrientationSeen, expected) => {
+    const saved = {
+      ...createInitialState(),
+      schemaVersion: 16,
+      phase: 'dc9',
+      cockpitOrientationSeen,
+    }
+
+    const loaded = loadRaw(saved)
+
+    expect(loaded.phase).toBe('dc9')
+    expect(loaded.cockpitOrientationSeen).toEqual(expected)
+  })
+})
+
 function v13Dc9(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   const state = createInitialState()
   const dc9 = { ...state.dc9 } as Record<string, unknown>
@@ -192,7 +251,7 @@ describe('schema-v11 to schema-v14 Airbus workload migration', () => {
       },
     }))
 
-    expect(migrated.schemaVersion).toBe(15)
+    expect(migrated.schemaVersion).toBe(16)
     expect(migrated.airbusSimulator.workload.completedTasks).toEqual(completedTasks)
   })
 
@@ -275,7 +334,7 @@ describe('schema-v10 to schema-v14 Airbus scenario migration', () => {
       },
     }))
 
-    expect(migrated.schemaVersion).toBe(15)
+    expect(migrated.schemaVersion).toBe(16)
     expect(migrated.airbusSimulator.location).toBe('hub')
     expect(migrated.airbusSimulator.stormLine.status).toBe('not_started')
     expect(migrated.airbusSimulator.engineOut.status).toBe('locked')
@@ -453,7 +512,7 @@ describe('schema-v9 to schema-v14 mandatory qualification migration', () => {
       },
     }))
 
-    expect(migrated.schemaVersion).toBe(15)
+    expect(migrated.schemaVersion).toBe(16)
     expect(migrated.airbusSimulator.familiarization).toBe('completed')
     expect(migrated.airbusSimulator.cameraPhase).toBe('qualified')
     expect(migrated.airbusSimulator.stormLine.status).toBe('not_started')
@@ -480,7 +539,7 @@ describe('schema-v9 to schema-v14 mandatory qualification migration', () => {
       },
     }))
 
-    expect(migrated.schemaVersion).toBe(15)
+    expect(migrated.schemaVersion).toBe(16)
     expect(migrated.airbusSimulator).toEqual({
       familiarization: 'unseen',
       cameraPhase: 'familiarization',
@@ -528,7 +587,7 @@ describe('schema-v9 to schema-v14 mandatory qualification migration', () => {
       },
     }))
 
-    expect(migrated.schemaVersion).toBe(15)
+    expect(migrated.schemaVersion).toBe(16)
     expect(migrated.completedPuzzles).toContain('airbus')
     expect(migrated.rewardUnlocked).toBe(true)
     expect(migrated.airbusSimulator.familiarization).toBe('completed')
@@ -572,7 +631,7 @@ describe('schema-v7 through schema-v14 migration', () => {
       dc9: completedPuzzles.some((id) => id === 'captain') ? completedDc9() : legacyV7().dc9,
     }))
 
-    expect(migrated.schemaVersion).toBe(15)
+    expect(migrated.schemaVersion).toBe(16)
     expect(migrated.phase).toBe(phase)
   })
 
@@ -705,7 +764,7 @@ describe('schema-v3 through schema-v6 migration chain', () => {
       }),
     })
 
-    expect(migrated.schemaVersion).toBe(15)
+    expect(migrated.schemaVersion).toBe(16)
     expect(migrated.phase).toBe('mars')
     expect(migrated.dc9.stage).toBe('complete')
     expect(migrated.completedPuzzles).toEqual(['airbus', 'locker', 'dc9'])
@@ -742,7 +801,7 @@ describe('schema-v3 through schema-v6 migration chain', () => {
       lockerAttempts: undefined,
     })
 
-    expect(migrated.schemaVersion).toBe(15)
+    expect(migrated.schemaVersion).toBe(16)
     expect(migrated.phase).toBe('dc9')
     expect(migrated.lockerCompleted).toEqual(['watch'])
     expect(migrated.lockerAttempts).toEqual({ watch: 0, baseball: 0, chargingBull: 0, wings: 0 })
@@ -760,7 +819,7 @@ describe('schema-v3 through schema-v6 migration chain', () => {
       lockerIntroCompleted: undefined,
     })
 
-    expect(migrated.schemaVersion).toBe(15)
+    expect(migrated.schemaVersion).toBe(16)
     expect(migrated.phase).toBe('dc9')
     expect(migrated.lockerIntroCompleted).toBe(true)
     expect(migrated.completedPuzzles).toEqual(['airbus'])
@@ -811,7 +870,7 @@ describe('schema-v8 to schema-v14 Airbus simulator migration', () => {
       },
     }))
 
-    expect(migrated.schemaVersion).toBe(15)
+    expect(migrated.schemaVersion).toBe(16)
     expect(migrated.phase).toBe('airbus')
     expect(migrated.airbusSimulator.familiarization).toBe('unseen')
     expect(migrated.airbusSimulator.stormLine.status).toBe('not_started')
@@ -840,7 +899,7 @@ describe('schema-v13 to schema-v14 Memphis departure migration', () => {
       routeAttempts: 1,
     }))
 
-    expect(loaded.schemaVersion).toBe(15)
+    expect(loaded.schemaVersion).toBe(16)
     // Schema 15 put the scan first and the record last. This save had reached neither, so
     // it owes the scan — and its stamped route is carried forward to the record it will
     // reach after the flight rather than being thrown away.
@@ -1248,7 +1307,7 @@ describe('canonical schema-v14 storage', () => {
     saveGameState(createInitialState(), storage)
     const saved = JSON.parse(storage.getItem(STORAGE_KEY) ?? '{}') as Record<string, unknown>
 
-    expect(saved.schemaVersion).toBe(15)
+    expect(saved.schemaVersion).toBe(16)
     expect(saved).toHaveProperty('airbusSimulator')
     expect(saved).toHaveProperty('airbusQualificationAnswer')
     expect(saved).toHaveProperty('airbusCaptainModeUnlocked')
@@ -1288,7 +1347,7 @@ describe('schema-v12 to schema-v14 DC-9 right-seat migration', () => {
 
   it('puts an untouched v12 opening into the new control check', () => {
     const migrated = loadRaw(v12Dc9({ stage: 'intro' }))
-    expect(migrated.schemaVersion).toBe(15)
+    expect(migrated.schemaVersion).toBe(16)
     expect(migrated.dc9.stage).toBe('controlCheck')
     expect(migrated.dc9.controlCheck).toEqual([])
   })

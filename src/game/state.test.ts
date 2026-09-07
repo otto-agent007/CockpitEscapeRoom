@@ -4,12 +4,12 @@ import { createInitialState, gameReducer, isLockerMemoryAvailable, type GameStat
 import { DC9_INSTRUMENT_SCAN_ORDER } from './dc9InstrumentScan'
 import { NEUTRAL_DC9_CONTROLS, type Dc9ControlState } from './dc9Input'
 
-describe('schema-v15 canonical state', () => {
+describe('schema-v16 canonical state', () => {
   it('starts with seat-role semantic fields and no schema-v6 compatibility fields', () => {
     const state = createInitialState() as unknown as Record<string, unknown>
     const dc9 = state.dc9 as Record<string, unknown>
 
-    expect(state.schemaVersion).toBe(15)
+    expect(state.schemaVersion).toBe(16)
     expect(state.phase).toBe('briefing')
     expect(state.airbusQualificationAnswer).toBe('')
     expect(state.airbusCaptainModeUnlocked).toBe(false)
@@ -51,6 +51,33 @@ describe('schema-v15 canonical state', () => {
     expect(state).not.toHaveProperty('captainAttempts')
     expect(state).not.toHaveProperty('routeSelections')
     expect(state).not.toHaveProperty('captainRewardUnlocked')
+  })
+
+  it('tracks first-entry cockpit orientations independently without changing progress', () => {
+    const initial = createInitialState()
+
+    expect(initial.cockpitOrientationSeen).toEqual({ dc9: false, airbus: false })
+
+    const dc9Seen = gameReducer(initial, {
+      type: 'COMPLETE_COCKPIT_ORIENTATION',
+      cockpit: 'dc9',
+    })
+    expect(dc9Seen.cockpitOrientationSeen).toEqual({ dc9: true, airbus: false })
+    expect(dc9Seen.completedPuzzles).toEqual([])
+    expect(dc9Seen.dc9).toEqual(initial.dc9)
+
+    const bothSeen = gameReducer(dc9Seen, {
+      type: 'COMPLETE_COCKPIT_ORIENTATION',
+      cockpit: 'airbus',
+    })
+    expect(bothSeen.cockpitOrientationSeen).toEqual({ dc9: true, airbus: true })
+    expect(gameReducer(bothSeen, {
+      type: 'COMPLETE_COCKPIT_ORIENTATION',
+      cockpit: 'airbus',
+    })).toBe(bothSeen)
+
+    expect(gameReducer(bothSeen, { type: 'RESET' }).cockpitOrientationSeen)
+      .toEqual({ dc9: false, airbus: false })
   })
 
   it('starts the Final Flight Log in the canonical dc9 phase from the right seat', () => {

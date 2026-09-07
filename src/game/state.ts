@@ -52,13 +52,17 @@ import {
   type AirbusWorkloadTaskId,
 } from './airbusWorkload'
 
-// 15 swapped the Legacy Route Record and the Instrument Scan. The bump is load-bearing:
-// the stage vocabulary is unchanged by a swap, so an old-order and a new-order save are
-// otherwise byte-identical and could not be told apart at load time.
-export const GAME_SCHEMA_VERSION = 15 as const
+// 16 records whether each first-entry cockpit orientation has finished. The flags are durable so
+// a player who reloads before touching the first control does not have to replay the camera tour.
+export const GAME_SCHEMA_VERSION = 16 as const
 export const DC9_SECURE_ORDER = dc9LegacyFlow.secureSequence
 export const PUZZLE_IDS = ['dc9', 'locker', 'airbus'] as const
 export type GamePhase = 'briefing' | 'dc9' | 'locker' | 'airbus' | 'reward' | 'mars'
+export type CockpitOrientationId = 'dc9' | 'airbus'
+export interface CockpitOrientationSeen {
+  dc9: boolean
+  airbus: boolean
+}
 export type Dc9ChapterStage =
   | 'controlCheck'
   | 'intro'
@@ -87,6 +91,7 @@ export interface Dc9ChapterProgress {
 }
 export type GameAction =
   | { type: 'START' }
+  | { type: 'COMPLETE_COCKPIT_ORIENTATION'; cockpit: CockpitOrientationId }
   | { type: 'ASSIGN_AIRBUS_CARD'; control: AirbusControl; card: string }
   | { type: 'ASSIGN_AIRBUS_DECOY_CARD'; decoy: AirbusDecoy; card: string }
   | { type: 'SELECT_AIRBUS_SCENARIO'; scenario: AirbusScenarioId }
@@ -176,6 +181,7 @@ export type LockerAttempts = Record<LockerQuestionId, number>
 export interface GameState {
   schemaVersion: typeof GAME_SCHEMA_VERSION
   phase: GamePhase
+  cockpitOrientationSeen: CockpitOrientationSeen
   airbusAssignments: AirbusAssignments
   airbusDecoyAssignments: AirbusDecoyAssignments
   airbusQualificationAnswer: string
@@ -462,6 +468,7 @@ export function createInitialState(): GameState {
   return {
     schemaVersion: GAME_SCHEMA_VERSION,
     phase: 'briefing',
+    cockpitOrientationSeen: { dc9: false, airbus: false },
     airbusAssignments: createEmptyAssignments(),
     airbusDecoyAssignments: createEmptyDecoyAssignments(),
     airbusQualificationAnswer: '',
@@ -502,6 +509,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         phase: 'dc9',
         statusMessage: 'The parked DC-9 is ready. Walk every right-seat control to its stops.',
+      }
+
+    case 'COMPLETE_COCKPIT_ORIENTATION':
+      if (state.cockpitOrientationSeen[action.cockpit]) return state
+      return {
+        ...state,
+        cockpitOrientationSeen: {
+          ...state.cockpitOrientationSeen,
+          [action.cockpit]: true,
+        },
       }
 
     case 'OPEN_DC9_ROUTE_RECORD':
