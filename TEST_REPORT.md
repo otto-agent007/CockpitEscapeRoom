@@ -1,5 +1,68 @@
 # Test report
 
+## 2026-09-07 First-entry cockpit orientation and natural player copy
+
+- Fresh normal-motion entries now give the DC-9 right seat and Airbus A320 left seat independent
+  4.5-second automatic cockpit looks. Gameplay HUD, native controls, canvas targets, drag, and
+  manual look stay gated until settlement; a focused native **Skip cockpit tour** control completes
+  the same durable path. Schema 16 records each cockpit independently, migrates old saves by phase,
+  and resumes/reloads without replay.
+- Reduced-motion and `skip3d=1` accessible fallback complete immediately without an animated wait.
+  The later Airbus familiarization-to-Storm camera move remains separate and was observed changing
+  from `transitioning` to `storm` in the browser.
+- Player-facing uses natural challenge/memory language: **Captain Challenges**, **Captain task**,
+  **Challenge paused**, **1995 MEMPHIS MEMORY**, and **ENG 1**. A manual allowlist audit found no
+  remaining retired simulator/non-operational wording in runtime display sources, README, or the
+  two current living design documents. Internal identifiers and historical evidence were preserved.
+- TDD evidence: reducer/storage RED failed on the absent schema-16 field/action and normalization;
+  GREEN passed 154/154. Camera-sampler RED failed on the absent module; GREEN passed 6/6. Activation
+  RED failed on the absent decision module; GREEN passed 7/7. Copy browser RED failed to find
+  **Captain Challenges** against the former UI; the final focused copy/workload run passed 2/2.
+- Expanded focused Vitest passed 186/186. Fresh `npm run check` passed lint, typecheck, 596/596
+  Vitest tests across 46 files, and the production build. `npm run assets:check` passed with only
+  existing informational validator output. `git diff --check` passed.
+- Dedicated orientation Playwright passed 4/4: both camera sweeps, semantic progress, input/HUD
+  gates, completion, reload persistence, keyboard skip, reduced motion, accessible fallback, and
+  the unchanged Storm transition. Nearby regression evidence passed 7/7 DC-9/journey cases, 1/1
+  production Airbus placement/camera case, and the focused Airbus challenge cases.
+- Twelve production-preview screenshots were inspected at 375, 768, and 1440 px under
+  `preview-renders/cockpit-orientation/`. The overlays are readable, seat identity is correct,
+  gameplay UI is absent during travel, settled controls are usable, and horizontal overflow is
+  absent at all three widths.
+- Full-diff review repaired an accidental effect dependency change, added explicit progressbar
+  semantics, and found no critical/high defect, unsafe DOM insertion, new dependency, generated
+  asset edit, progress loss, input leakage, or Model Y spoiler. At this initial validation point no
+  Vercel preview, deployment, push, or PR had been performed; the owner subsequently authorized PR
+  #72.
+- PR #72 follow-up CI RED: `browser-smoke` reported 79 passed, 10 skipped, and four failed after
+  retries. One assertion expected retired Engine-Out copy; the production workload fixture modeled
+  an in-progress Airbus challenge without marking its new first-entry tour complete; and both tour
+  tests began observing only after a cache-warming navigation, allowing a loaded CI worker to miss
+  the short overlay or compare one camera frame with itself. A focused local RED reproduced both
+  workload failures while the tour cases passed, confirming the production tours were not the
+  shared cause.
+- Follow-up GREEN is test-contract only: progressed workload fixtures now set both orientation
+  flags, the copy assertion matches **This checkpoint is holding for your decision**, and each tour
+  state is installed before its first navigation while browser animation frames collect independent
+  camera/progress evidence. All four workload cases passed across two 2/2 subsets; repaired tour
+  tests passed 2/2 and then 4/4 with `--repeat-each=2`. Fresh `npm run check` passed lint,
+  typecheck, 596/596 Vitest tests, and production build. Hosted replacement CI remains the
+  authoritative full-E2E confirmation.
+- PR #72 replacement CI RED: run `34156582087` completed 81 passed and 10 skipped with one failure
+  and one flaky orientation case. In both, the real tour had already exposed gameplay, but a
+  Playwright-side persistence poll retained its default five-second budget; one retry also began
+  observing after the 4.5-second overlay had disappeared. The failure moved between aircraft and
+  retries under the full software-rendered suite, identifying a short-lived observation race rather
+  than an aircraft-specific runtime failure.
+- Second test-contract repair holds the requested real cockpit GLB until Playwright has registered
+  its overlay assertion and an in-page mutation observer. The observer retains intermediate camera
+  poses and normalized progress even if the camera completes and returns to its authored seat pose
+  before the CI runner's next polling turn. Persistence checks use an explicit 30-second CI budget;
+  the real models, production camera code, HUD/input gate, skip control, reload, and Storm transition
+  remain exercised. Focused DC-9 passed 1/1; focused Airbus passed 2/2; the complete orientation spec
+  passed 8/8 with `--repeat-each=2` in 5.4 minutes. Fresh `npm run check` passed lint, typecheck,
+  596/596 Vitest tests, and production build.
+
 ## 2026-08-28 Task 9 cockpit-first Memphis scene integration
 
 - TDD RED: `npm test -- --run src/scenes/dc9MemphisVisuals.test.ts` failed before production

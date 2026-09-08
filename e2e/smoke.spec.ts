@@ -130,6 +130,7 @@ function createAirbusState(): GameState {
   return {
     ...createLockerState(),
     phase: 'airbus',
+    cockpitOrientationSeen: { dc9: true, airbus: true },
     lockerCompleted: [...lockerFlow.memoryIds],
     lockerHatRevealed: true,
     airbusCaptainModeUnlocked: true,

@@ -778,7 +778,7 @@ test('Memphis departure progresses through every native beat when 3D is unavaila
   await seedDeparture(page, 'rampStart')
 
   await expect(page.getByRole('heading', { name: 'Memphis Legacy Departure' })).toBeVisible()
-  await expect(page.getByText('Fictional — non operational')).toBeVisible()
+  await expect(page.getByText('1995 MEMPHIS MEMORY', { exact: true })).toBeVisible()
   for (const viewport of [
     { width: 375, height: 667 },
     { width: 768, height: 768 },

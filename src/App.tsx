@@ -1,6 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Hud } from './components/Hud'
 import { GameIntro } from './components/GameIntro'
+import { CockpitOrientation } from './components/CockpitOrientation'
 import { Dc9Chapter } from './components/dc9/Dc9Chapter'
 import { LockerTransition, type LockerIntroStage } from './components/LockerTransition'
 import { AirbusCompletionCelebration, CaptainHatCelebration } from './components/QualificationCelebration'
@@ -17,7 +18,8 @@ import {
   type AirbusWorkloadAction,
   type AirbusWorkloadTaskId,
 } from './game/airbusWorkload'
-import { isLockerMemoryAvailable } from './game/state'
+import { isLockerMemoryAvailable, type CockpitOrientationId } from './game/state'
+import { deriveCockpitOrientationDecision } from './game/cockpitOrientationState'
 import { clearGameState } from './game/storage'
 import { useAirbusSimulator } from './game/useAirbusSimulator'
 import { useGame } from './game/useGame'
@@ -232,9 +234,34 @@ export default function App() {
   const captainHatCelebrationActive = state.phase === 'locker' && state.lockerHatRevealed && !lockerIntroActive && lockerHatFinaleStage === 'ready'
   const lockerIntroErrorVisible = lockerIntroStage === 'waiting-for-locker' && lockerLoadState.status === 'error'
   const lockerSceneReady = skipPrototypeScene || lockerLoadState.status === 'ready' || lockerLoadState.status === 'accessible-fallback'
+  const cockpitOrientationDecision = deriveCockpitOrientationDecision({
+    phase: state.phase,
+    seen: state.cockpitOrientationSeen,
+    sceneReady: state.phase === 'dc9'
+      ? dc9LoadState.status === 'ready'
+      : state.phase === 'airbus' && airbusLoadState.status === 'ready',
+    loaderVisible: state.phase === 'dc9'
+      ? showDc9Loader
+      : state.phase === 'airbus' && showAirbusLoader,
+    reducedMotion,
+    accessibleFallback: skipPrototypeScene || (
+      state.phase === 'dc9'
+        ? dc9LoadState.status === 'accessible-fallback'
+        : state.phase === 'airbus' && airbusLoadState.status === 'accessible-fallback'
+    ),
+  })
+  const activeCockpitOrientation = cockpitOrientationDecision.active
+  const cockpitOrientationActive = activeCockpitOrientation !== null
+  const completeCockpitOrientation = useCallback((cockpit: CockpitOrientationId) => {
+    dispatch({ type: 'COMPLETE_COCKPIT_ORIENTATION', cockpit })
+  }, [dispatch])
+  useEffect(() => {
+    if (!cockpitOrientationDecision.completeImmediately) return
+    completeCockpitOrientation(cockpitOrientationDecision.completeImmediately)
+  }, [cockpitOrientationDecision.completeImmediately, completeCockpitOrientation])
   const lockerInteractionEnabled = state.phase === 'locker' && state.lockerIntroCompleted && !lockerIntroActive && !captainHatCelebrationActive && !lockerHatFinaleActive
   const availableLockerMemories = lockerFlow.memoryIds.filter((memoryId) => isLockerMemoryAvailable(state, memoryId))
-  const viewerResetReady = !lockerIntroActive && !lockerHatFinaleActive && (state.phase !== 'airbus' || airbusSceneReady)
+  const viewerResetReady = !cockpitOrientationActive && !lockerIntroActive && !lockerHatFinaleActive && (state.phase !== 'airbus' || airbusSceneReady)
   const saveAirbusCheckpoint = useCallback((
     checkpoint: StormLineCheckpoint,
     attempts: Record<StormLineCheckpoint, number>,
@@ -257,7 +284,7 @@ export default function App() {
   ) => {
     dispatch({ type: 'COMPLETE_AIRBUS_ENGINE_OUT', traits })
   }, [dispatch])
-  const activeAirbusScenario = state.phase === 'airbus'
+  const activeAirbusScenario = state.phase === 'airbus' && !cockpitOrientationActive
     ? state.airbusSimulator.location === 'stormLine' &&
         state.airbusSimulator.stormLine.status === 'in_progress'
       ? 'stormLine'
@@ -304,8 +331,8 @@ export default function App() {
     )
     return () => window.clearTimeout(timeout)
   }, [dispatch, reducedMotion, state.airbusSimulator.cameraPhase, state.phase])
-  const beginDc9Entry = useCallback(() => setDc9EntryStage((stage) => stage === 'idle' ? 'fade-out' : stage), [])
-  const finishDc9Entry = useCallback(() => setDc9EntryStage('idle'), [])
+  const beginDc9Entry = useCallback(() => setDc9EntryStage((stage) => stage === 'idle' ? 'fade-out' : stage), [setDc9EntryStage])
+  const finishDc9Entry = useCallback(() => setDc9EntryStage('idle'), [setDc9EntryStage])
 
   useEffect(() => {
     if (state.phase !== 'briefing' || skipPrototypeScene) return
@@ -526,19 +553,19 @@ export default function App() {
     setAirbusLoaderFading(false)
     setShowAirbusLoader(true)
     setAirbusLoadState({ status: 'loading', loadedBytes: 0 })
-  }, [])
+  }, [setAirbusLoaderFading, setAirbusLoadState, setShowAirbusLoader])
   const updateAirbusHotspots = useCallback((positions: AirbusHotspotScreenPositions) => {
     setAirbusHotspots((current) => {
       if (Object.keys(positions).length === 0 && Object.keys(current).length > 0) return current
       return positions
     })
-  }, [])
-  const activeSelectedAirbusCard = state.phase === 'airbus' ? selectedAirbusCard : null
+  }, [setAirbusHotspots])
+  const activeSelectedAirbusCard = state.phase === 'airbus' && !cockpitOrientationActive ? selectedAirbusCard : null
   const placeSelectedAirbusCard = useCallback((control: AirbusControl) => {
-    if (!activeSelectedAirbusCard) return
+    if (!activeSelectedAirbusCard || cockpitOrientationActive) return
     dispatch({ type: 'ASSIGN_AIRBUS_CARD', control, card: activeSelectedAirbusCard })
     setSelectedAirbusCard(null)
-  }, [activeSelectedAirbusCard, dispatch])
+  }, [activeSelectedAirbusCard, cockpitOrientationActive, dispatch, setSelectedAirbusCard])
 
   const beginLockerIntro = useCallback(() => {
     setHelpOpen(false)
@@ -550,7 +577,17 @@ export default function App() {
     setLockerCameraCue('entry-wide')
     setLockerCameraImmediate(reducedMotion)
     setLockerIntroStage('arming')
-  }, [reducedMotion])
+  }, [
+    reducedMotion,
+    setHelpOpen,
+    setLastAutoFocusedLockerMemory,
+    setLockerCameraCue,
+    setLockerCameraImmediate,
+    setLockerIntroSkipRequested,
+    setLockerIntroStage,
+    setPendingLockerMemoryFocus,
+    setSelectedLockerMemory,
+  ])
 
   const skipLockerIntro = useCallback(() => {
     setSelectedLockerMemory(null)
@@ -560,7 +597,16 @@ export default function App() {
     setLockerCameraCue('watch-focus')
     if (state.phase === 'dc9' && (lockerIntroStage === 'arming' || lockerIntroStage === 'fade-to-black')) return
     setLockerIntroStage(state.phase === 'locker' && lockerSceneReady ? 'focus-watch' : 'waiting-for-locker')
-  }, [lockerIntroStage, lockerSceneReady, state.phase])
+  }, [
+    lockerIntroStage,
+    lockerSceneReady,
+    setLockerCameraCue,
+    setLockerCameraImmediate,
+    setLockerIntroSkipRequested,
+    setLockerIntroStage,
+    setSelectedLockerMemory,
+    state.phase,
+  ])
 
   const continueToAirbus = useCallback(() => {
     dispatch({ type: 'CLAIM_CAPTAIN_HAT' })
@@ -586,10 +632,10 @@ export default function App() {
 
   const retryDc9MemphisEnvironment = useCallback(() => {
     setDc9MemphisRetryToken((token) => token + 1)
-  }, [])
+  }, [setDc9MemphisRetryToken])
   const handleDc9MemphisLoadState = useCallback((loadState: Dc9MemphisLoadState) => {
     setDc9MemphisLoadState(loadState)
-  }, [])
+  }, [setDc9MemphisLoadState])
   // Reported for the whole chapter, because the environment is now loaded for the whole
   // chapter; the departure panel is still the one place that offers the retry.
   const dc9ChapterLoadState = state.phase === 'dc9'
@@ -601,7 +647,7 @@ export default function App() {
     : dc9LoadState
 
   const dc9FlightControls = useDc9FlightControls({
-    active: state.phase === 'dc9' && (state.dc9.stage === 'controlCheck' || state.dc9.stage === 'memphisDeparture'),
+    active: state.phase === 'dc9' && !cockpitOrientationActive && (state.dc9.stage === 'controlCheck' || state.dc9.stage === 'memphisDeparture'),
     completed: state.dc9.controlCheck,
     reducedMotion,
     onReached: applyDc9ControlCheck,
@@ -620,6 +666,7 @@ export default function App() {
   })
 
   const handleDc9Interaction = useCallback((gameId: string) => {
+    if (cockpitOrientationActive) return
     const instrument = dc9InstrumentIdFromGameId(gameId)
     if (instrument) {
       dispatch({ type: 'IDENTIFY_DC9_INSTRUMENT', instrument })
@@ -635,7 +682,7 @@ export default function App() {
     }
     const controlId = dc9LegacyFlow.secureControlIds.find((id) => `dc9.secure.${id}` === gameId)
     if (controlId) dispatch({ type: 'ACTIVATE_DC9_CONTROL', controlId })
-  }, [dispatch])
+  }, [cockpitOrientationActive, dispatch])
 
   const handleLockerCameraSettled = useCallback((cue: LockerCameraCue) => {
     if (cue === 'watch-focus' && lockerIntroStage === 'focus-watch') {
@@ -653,7 +700,18 @@ export default function App() {
     if (!settledMemory || pendingLockerMemoryFocus !== settledMemory) return
     setSelectedLockerMemory(settledMemory)
     setPendingLockerMemoryFocus(null)
-  }, [dispatch, lockerHatFinaleStage, lockerIntroStage, pendingLockerMemoryFocus, state.lockerIntroCompleted])
+  }, [
+    dispatch,
+    lockerHatFinaleStage,
+    lockerIntroStage,
+    pendingLockerMemoryFocus,
+    setLockerHatFinaleStage,
+    setLockerIntroSkipRequested,
+    setLockerIntroStage,
+    setPendingLockerMemoryFocus,
+    setSelectedLockerMemory,
+    state.lockerIntroCompleted,
+  ])
 
   const restart = () => {
     const confirmed = window.confirm(`Restart ${gameCopy.title} and clear saved progress?`)
@@ -682,7 +740,7 @@ export default function App() {
   const closeHelp = useCallback(() => {
     setHelpOpen(false)
     requestAnimationFrame(() => helpTriggerRef.current?.focus())
-  }, [])
+  }, [setHelpOpen])
 
   const toggleFullscreen = useCallback(async () => {
     if (document.fullscreenElement) await document.exitFullscreen()
@@ -759,6 +817,7 @@ export default function App() {
             reducedMotion={reducedMotion}
             lockerHatRevealed={state.lockerHatRevealed}
             selectedAirbusCard={activeSelectedAirbusCard}
+            activeCockpitOrientation={activeCockpitOrientation}
             airbusCameraPhase={state.airbusSimulator.cameraPhase}
             airbusSimulationFrameRef={airbusSimulator.activeFrameRef}
             airbusInputRef={airbusSimulator.inputRef}
@@ -778,6 +837,7 @@ export default function App() {
             onAirbusHotspotsChange={updateAirbusHotspots}
             onDc9HotspotsChange={setDc9Hotspots}
             onAirbusTarget={placeSelectedAirbusCard}
+            onCockpitOrientationComplete={completeCockpitOrientation}
             onAirbusWorkloadAction={applyAirbusWorkloadAction}
             onLockerCameraSettled={handleLockerCameraSettled}
             onDc9Interaction={handleDc9Interaction}
@@ -789,7 +849,13 @@ export default function App() {
           />
         </Suspense>
       )}
-      {!lockerIntroActive && !captainHatCelebrationActive && !lockerHatFinaleActive && state.phase !== 'dc9' && (
+      {activeCockpitOrientation && (
+        <CockpitOrientation
+          cockpit={activeCockpitOrientation}
+          onSkip={() => completeCockpitOrientation(activeCockpitOrientation)}
+        />
+      )}
+      {!cockpitOrientationActive && !lockerIntroActive && !captainHatCelebrationActive && !lockerHatFinaleActive && state.phase !== 'dc9' && (
         <Hud
           state={state}
           dispatch={dispatch}
@@ -806,7 +872,7 @@ export default function App() {
           onSelectedLockerMemoryChange={setSelectedLockerMemory}
         />
       )}
-      {state.phase === 'dc9' && (
+      {state.phase === 'dc9' && !cockpitOrientationActive && (
         <Dc9Chapter
           state={state}
           dispatch={dispatch}

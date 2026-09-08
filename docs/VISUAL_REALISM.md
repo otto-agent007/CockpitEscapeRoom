@@ -25,7 +25,7 @@ The owner must answer “yes” to: **Does this feel unmistakably like the DC-9 
 
 ## Memphis memory approval criteria
 
-**Status:** The current environment is a separate, lazy-loaded GLB using owner-permitted Ted Davis Concourse B source geometry plus project-authored ramp, taxi, runway, canopy, field, and treeline context. It is labeled **1995 MEMORY · Fictional — non operational** and remains visually subordinate to the production cockpit.
+**Status:** The current environment is a separate, lazy-loaded GLB using owner-permitted Ted Davis Concourse B source geometry plus project-authored ramp, taxi, runway, canopy, field, and treeline context. It is labeled **1995 MEMPHIS MEMORY** and remains visually subordinate to the production cockpit.
 
 The fixed right-seat browser view must demonstrate:
 
