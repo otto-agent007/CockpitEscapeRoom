@@ -146,6 +146,12 @@ export function sampleCockpitOrientation(
   the new orientation flags unseen, and one Engine-Out assertion retained removed copy. The tour
   tests also warmed the cockpit on an initial navigation before beginning their short observation
   window; a loaded CI worker could therefore miss or sample the same 4.5-second tour frame.
+- 2026-09-07 — Replacement run `34156582087` proved that seeding before navigation was necessary
+  but not sufficient under the complete SwiftShader suite. Playwright can miss an entire short tour
+  between Node-side polling turns, or observe only the final authored pose. Holding the real model
+  response creates a deterministic point to register the overlay assertion and an in-page mutation
+  observer before the first orientation frame; the browser then retains motion evidence independent
+  of runner scheduling.
 
 ## Decision log
 
@@ -389,6 +395,13 @@ an implementation defect and never claim an unrun check passed.
   animation frames. All four workload cases passed across two 2/2 subsets, the repaired tour subset
   passed 2/2 and then 4/4 with `--repeat-each=2`, and `npm run check` passed 596/596 plus lint,
   typecheck, and build.
+- 2026-09-07 — PR #72 replacement CI run `34156582087` ended 81 passed / 10 skipped / 1 failed,
+  with one additional flaky retry. The failures moved between the DC-9 and Airbus persistence checks
+  and short overlay observation while the completed gameplay UI was present. GREEN now pauses the
+  real cockpit request until assertions and an in-page camera/progress mutation observer are ready,
+  and gives cross-process persistence polling a 30-second CI budget. Focused DC-9 passed 1/1,
+  focused Airbus passed 2/2, and the full orientation spec passed 8/8 with `--repeat-each=2` in
+  5.4 minutes. Fresh `npm run check` passed lint, typecheck, 596/596 tests, and build.
 
 ## Outcome and handoff
 
@@ -397,4 +410,4 @@ seconds in their correct seats, save independently, allow keyboard skip, and byp
 reduced-motion or accessible fallback. The retired player-facing wording is gone from the approved
 runtime/docs scope. No GLB, Blender source, dependency, or manual deployment was changed. The owner
 authorized publication as PR #72; its Vercel preview passed, and replacement GitHub CI after the
-browser-smoke repair remains the final hosted gate.
+second browser-smoke repair remains the final hosted gate.

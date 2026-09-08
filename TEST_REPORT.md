@@ -48,6 +48,20 @@
   tests passed 2/2 and then 4/4 with `--repeat-each=2`. Fresh `npm run check` passed lint,
   typecheck, 596/596 Vitest tests, and production build. Hosted replacement CI remains the
   authoritative full-E2E confirmation.
+- PR #72 replacement CI RED: run `34156582087` completed 81 passed and 10 skipped with one failure
+  and one flaky orientation case. In both, the real tour had already exposed gameplay, but a
+  Playwright-side persistence poll retained its default five-second budget; one retry also began
+  observing after the 4.5-second overlay had disappeared. The failure moved between aircraft and
+  retries under the full software-rendered suite, identifying a short-lived observation race rather
+  than an aircraft-specific runtime failure.
+- Second test-contract repair holds the requested real cockpit GLB until Playwright has registered
+  its overlay assertion and an in-page mutation observer. The observer retains intermediate camera
+  poses and normalized progress even if the camera completes and returns to its authored seat pose
+  before the CI runner's next polling turn. Persistence checks use an explicit 30-second CI budget;
+  the real models, production camera code, HUD/input gate, skip control, reload, and Storm transition
+  remain exercised. Focused DC-9 passed 1/1; focused Airbus passed 2/2; the complete orientation spec
+  passed 8/8 with `--repeat-each=2` in 5.4 minutes. Fresh `npm run check` passed lint, typecheck,
+  596/596 Vitest tests, and production build.
 
 ## 2026-08-28 Task 9 cockpit-first Memphis scene integration
 
