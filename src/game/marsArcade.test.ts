@@ -5,6 +5,7 @@ import {
   NEUTRAL_MARS_ARCADE_INPUT,
   advanceMarsArcade,
   createMarsArcadeRound,
+  marsArcadeActiveMove,
   marsArcadeHealthFraction,
   marsArcadeTimerSeconds,
   type MarsArcadeEvent,
@@ -456,6 +457,54 @@ describe('ending the round', () => {
     const drawn = pump(level, 1)
     expect(drawn.state.phase).toBe('timeOver')
     expect(drawn.state.winner).toBeNull()
+  })
+})
+
+describe('marsArcadeActiveMove', () => {
+  it('reports nothing while idle', () => {
+    expect(marsArcadeActiveMove(startedRound().fighters[0])).toBeNull()
+  })
+
+  it('walks startup, active and recovery in step with the frame data', () => {
+    const move = MARS_ARCADE_FIGHTERS.booster.moves.heavy
+    const total = move.startupFrames + move.activeFrames + move.recoveryFrames
+    const state = placedAtWall(startedRound(), 90)
+    const phases: string[] = []
+    let current = state
+    // The frame that starts a move does not also advance it, so the move occupies
+    // total + 1 pumped frames and the last one lands back on idle.
+    for (let frame = 1; frame <= total + 1; frame += 1) {
+      current = advanceMarsArcade(
+        current,
+        [frame === 1 ? hold('heavy') : neutral(), neutral()],
+        MARS_ARCADE_TIMING.frameSeconds,
+      ).state
+      phases.push(marsArcadeActiveMove(current.fighters[0])?.phase ?? 'none')
+    }
+    expect(phases.filter((phase) => phase === 'startup')).toHaveLength(move.startupFrames)
+    expect(phases.filter((phase) => phase === 'active')).toHaveLength(move.activeFrames)
+    expect(phases.indexOf('active')).toBe(move.startupFrames)
+    expect(phases[phases.length - 1]).toBe('none')
+  })
+
+  it('counts the remaining frames down to zero', () => {
+    const state = placedAtWall(startedRound(), 90)
+    const started = pump(state, 2, [hold('heavy'), neutral()])
+    const active = marsArcadeActiveMove(started.state.fighters[0])
+    expect(active).not.toBeNull()
+    expect(active?.framesRemaining).toBe((active?.totalFrames ?? 0) - (active?.frame ?? 0))
+  })
+
+  it('follows the landing window when it lengthens recovery', () => {
+    const cost = MARS_ARCADE_FIGHTERS.booster.moves.special.meterCost
+    const state = placedAtWall(startedRound(), 90, cost)
+    const tipped = pumpWith(state, 40, (frame) =>
+      frame === 1 ? [hold('special'), neutral()] : neutralPair(),
+    )
+    const active = marsArcadeActiveMove(tipped.state.fighters[0])
+    const move = MARS_ARCADE_FIGHTERS.booster.moves.special
+    const baseTotal = move.startupFrames + move.activeFrames + move.recoveryFrames
+    expect(active?.totalFrames).toBeGreaterThan(baseTotal)
   })
 })
 

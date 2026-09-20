@@ -65,6 +65,9 @@ the character-select screen. Nothing imports these modules yet, so nothing ships
 - [x] 2026-09-19 — 34 tests; 11/11 mutations caught; `npm run check` green.
 - [x] 2026-09-19 — Sprite contract and frame prompt pack drafted; the existing python
       normaliser and gate verified against the new contract in both directions.
+- [x] 2026-09-19 — Box harness at `/dev/arcade.html`: the committed loop rendered as boxes,
+      with hitboxes, frame-by-frame stepping and a live frame-data readout, so the feel can
+      be tuned before any art exists.
 - [ ] Owner review of the fight feel, the archetype framing, and the three identities.
 - [ ] Milestone 2 — Wave 0 anchors, then sprite generation and the character-select screen.
 - [ ] Milestone 3 — the Mars cabinet scene and chapter wiring.
@@ -86,6 +89,14 @@ the character-select screen. Nothing imports these modules yet, so nothing ships
 - **Projectile moves could also register as melee hits.** `reach: 0` made this harmless in
   practice (pushboxes keep fighters ≥ 24 px apart), but it was latent. Projectile moves are
   now excluded from melee collection explicitly.
+- **Reach is centre-to-centre, not box overlap — and it does not look like it.** The harness
+  made this visible: at 41.5 px separation with `booster.staticFire` at reach 38, the drawn
+  hit region visibly overlaps the opponent's 24 px pushbox, but the move whiffs, because the
+  engine compares fighter centres. Classic 2D fighters approximate range this way and it is
+  defensible, but it reads as a bug unless it is drawn honestly. The harness now draws each
+  fighter's centre line and an end-cap at the reach limit. **Open tuning question for the
+  owner:** whether a move should instead reach `reach + pushboxWidth / 2`, so contact lands
+  when it looks like it lands.
 - **Landing-window frames must be counted from the press.** Counting the stuck-landing
   recovery from the start of recovery rewarded pressing *late*, which is backwards. It is
   now `recoveryElapsed + stuckRecoveryFrames`, so early is strictly better: press at the
@@ -251,7 +262,38 @@ chapters.
 route, which the rest of that file explicitly supersedes. The arcade pack carries its own
 correct rejection list and flags the stale section rather than editing another asset's pack.
 
-**Not done and not claimed:** no browser run, no screenshots, no Vercel preview, no sprite
-art generated, no scene, no chapter wiring, no persistence. No reach-accuracy checker exists
+### Box harness — 2026-09-19
+
+`dev/arcade.html` plus `src/dev/arcadeHarness.ts` and `src/dev/arcadeHarnessInput.ts`, with
+`marsArcadeActiveMove` added to the engine as the read helper both the harness and the
+eventual sprite renderer need. Vanilla TS on a canvas, deliberately not React, so a tool
+whose whole job is a stable animation loop has no StrictMode double-mount to reason about.
+
+Served only by `npm run dev`. It is not an entry in the production build and nothing in the
+application imports it — verified: `dist/` contains only `index.html`, no `dev/` directory,
+and none of `MARS ARCADE`, `BOX HARNESS`, `THE BOOSTER`, `arcadeHarness`, `marsArcade` or
+`ORBITAL INSERTION` appear anywhere in it.
+
+**Browser evidence** (headless Chromium against the dev server on port 5317, chosen to avoid
+a peer session's server):
+
+- The round advanced frame 90 → 216 with no console errors and no page errors.
+- Pause held the frame (227 → 227) and `N` advanced exactly one (227 → 228).
+- Stepping through `booster.staticFire` read out
+  `STARTUP ×11, ACTIVE ×4, RECOVERY…` — exactly its committed `11 / 4 / 18`.
+- A connecting hit was captured mid-active-frame: `174 HIT oracle.hardCutoff -11`, with the
+  low sweep drawn at its `maxHeight 24` band and the reach end-cap past the opponent's centre
+  line. Screenshots in the session scratchpad.
+
+**Two harness bugs found by running it and fixed:** buttons could not be input at all in step
+mode, because a tap was released long before the next step sampled the held set — presses
+made while paused are now queued for the next stepped frame; and the computer opponent's
+intent timer advanced on every animation frame while the fight was paused, burning roughly
+600 frames of AI state per ten seconds of inspection — inputs are now sampled only when the
+world is about to move.
+
+**Not done and not claimed:** no Vercel preview, no sprite art generated, no scene, no
+chapter wiring, no persistence. The harness is a dev tool and has no responsive, reduced-motion
+or accessible path, by design. No reach-accuracy checker exists
 yet — it is specified in the contract but cannot be written usefully until real frames do.
 The fight has never been seen, only proven.

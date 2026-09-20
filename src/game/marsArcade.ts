@@ -606,6 +606,43 @@ export function advanceMarsArcade(
   return { state: { ...next, carrySeconds }, events }
 }
 
+export type MarsArcadeMovePhase = 'startup' | 'active' | 'recovery'
+
+export interface MarsArcadeActiveMove {
+  move: MarsArcadeMove
+  phase: MarsArcadeMovePhase
+  frame: number
+  totalFrames: number
+  framesRemaining: number
+}
+
+/**
+ * Which part of a move a fighter is in, and how long is left of it.
+ *
+ * A read helper, not a rule: the sprite renderer needs it to pick a drawing, and
+ * the box harness needs it to draw the hitbox only while the hitbox exists.
+ */
+export function marsArcadeActiveMove(
+  fighter: MarsArcadeFighterState,
+): MarsArcadeActiveMove | null {
+  const move = activeMoveOf(fighter)
+  if (!move) return null
+  const totalFrames = moveTotalFrames(move, fighter.recoveryOverrideFrames)
+  const phase: MarsArcadeMovePhase =
+    fighter.moveFrame < move.startupFrames
+      ? 'startup'
+      : fighter.moveFrame < move.startupFrames + move.activeFrames
+        ? 'active'
+        : 'recovery'
+  return {
+    move,
+    phase,
+    frame: fighter.moveFrame,
+    totalFrames,
+    framesRemaining: Math.max(0, totalFrames - fighter.moveFrame),
+  }
+}
+
 export function marsArcadeTimerSeconds(state: MarsArcadeState): number {
   return Math.ceil(state.timerFrames * MARS_ARCADE_TIMING.frameSeconds)
 }
