@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mars arcade — box harness</title>
+    <style>
+      :root { color-scheme: dark; }
+      body {
+        margin: 0;
+        padding: 24px;
+        background: #0c0c11;
+        color: #e9e9f2;
+        font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+        align-items: flex-start;
+      }
+      h1 { font-size: 16px; margin: 0 0 4px; letter-spacing: 0.08em; }
+      .sub { color: #8b8b9c; margin: 0 0 16px; font-size: 12px; }
+      .stage-column { width: 960px; flex: 0 0 auto; }
+      canvas { display: block; background: #14101a; image-rendering: pixelated; }
+      .panels { display: flex; flex-direction: column; gap: 16px; min-width: 460px; }
+      .panel { background: #15151d; border: 1px solid #2a2a36; padding: 12px 14px; }
+      .panel h2 {
+        font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+        color: #8b8b9c; margin: 0 0 8px;
+      }
+      pre { margin: 0; white-space: pre-wrap; font: inherit; }
+      kbd {
+        background: #262633; border: 1px solid #3a3a49; border-bottom-width: 2px;
+        border-radius: 3px; padding: 0 5px; font: inherit; font-size: 12px;
+      }
+      .keys { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 12px; }
+      .keys span:nth-child(odd) { color: #b9b9c8; white-space: nowrap; }
+      .note { color: #8b8b9c; font-size: 12px; margin-top: 12px; }
+    </style>
+  </head>
+  <body>
+    <div class="stage-column">
+      <h1>MARS ARCADE — BOX HARNESS</h1>
+      <p class="sub">
+        Boxes driven by the real fight loop. Tune the frame data in
+        <code>src/game/marsArcadeFighters.ts</code> and save — it hot-reloads.
+      </p>
+      <canvas id="stage"></canvas>
+      <p class="note">
+        Solid red = hitbox live this frame. Dashed amber = startup, the telegraph.
+        Blue outline = blocking. Faint dashed box = the 44&nbsp;px sprite silhouette around the
+        24&nbsp;px pushbox. Edge lines = the stage walls.
+        <br /><strong>Reach is centre-to-centre:</strong> a move connects when the opponent's
+        dashed centre line is inside the solid end-cap, not when the boxes overlap.
+      </p>
+    </div>
+
+    <div class="panels">
+      <div class="panel">
+        <h2>Controls</h2>
+        <div class="keys">
+          <span>P1 move / jump</span><span><kbd>A</kbd> <kbd>D</kbd> <kbd>W</kbd></span>
+          <span>P1 light / heavy / special</span><span><kbd>J</kbd> <kbd>K</kbd> <kbd>L</kbd></span>
+          <span>P2 move / jump</span><span><kbd>&larr;</kbd> <kbd>&rarr;</kbd> <kbd>&uarr;</kbd></span>
+          <span>P2 light / heavy / special</span><span><kbd>,</kbd> <kbd>.</kbd> <kbd>/</kbd></span>
+          <span>pause / step one frame</span><span><kbd>Space</kbd> <kbd>N</kbd></span>
+          <span>speed 1x / 0.5x / 0.25x</span><span><kbd>S</kbd></span>
+          <span>restart round</span><span><kbd>R</kbd></span>
+          <span>P2 human or CPU</span><span><kbd>T</kbd></span>
+          <span>CPU difficulty</span><span><kbd>G</kbd></span>
+          <span>hitbox overlay</span><span><kbd>H</kbd></span>
+          <span>pick P1 / P2 fighter</span><span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> / <kbd>Shift</kbd>+</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Live state</h2>
+        <pre id="readout"></pre>
+      </div>
+
+      <div class="panel">
+        <h2>Events</h2>
+        <pre id="log"></pre>
+      </div>
+    </div>
+
+    <script type="module" src="/src/dev/arcadeHarness.ts"></script>
+  </body>
+</html>

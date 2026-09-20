@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "asset": "mars-arcade",
+  "contractVersion": 1,
+  "status": "drafted-awaiting-wave-0-anchors",
+  "derivation": {
+    "principle": "Every number below is derived from the fight loop that already exists in src/game/, or inherited from the approved Pop T v3 contract. Nothing here is a tool default, and nothing here may be changed without changing the rules it mirrors.",
+    "stage": {
+      "width": 320,
+      "height": 224,
+      "source": "src/game/marsArcade.ts MARS_ARCADE_STAGE",
+      "halfWidth": 140,
+      "pushboxWidth": 24,
+      "displayScale": "integer only, as the intro stage"
+    },
+    "characterOnStage": {
+      "standingHeightStagePx": 104,
+      "shareOfStageHeight": 0.46,
+      "rationale": "Inherited unchanged from asset-reports/popt-sprite-contract.json. THE CAPTAIN is Pop T, so his arcade frames must stand exactly as tall as his intro frames or the same character changes size between chapters. The other two archetypes share the stage with him and therefore share the number. It also lands where the arcade fighters of the era sat, a little under half the screen."
+    }
+  },
+  "view": {
+    "projection": "strict side profile, facing right",
+    "mirroring": "The runtime flips horizontally for the left-facing fighter. Never author a left-facing frame.",
+    "differsFromPopt": "The intro anchor is three-quarter view. Arcade frames are strict profile, so every pose is a redraw, not a reuse."
+  },
+  "cell": {
+    "canonical": [128, 128],
+    "pivot": { "x": 64, "y": 120 },
+    "baseline": 119,
+    "inheritedFrom": "asset-reports/popt-sprite-contract.json",
+    "note": "Identical to the Pop T v3 cell so tools/assets/normalise-popt-frame.py and check-popt-frames-fullcolour.py run unchanged against this contract via --contract. The pivot is the fighter's x position in the fight loop: engine x maps to the pivot column, engine y raises the whole cell."
+  },
+  "character": {
+    "standingHeightPx": 104,
+    "standingHeightTolerancePx": 2,
+    "standingWidthPx": 44,
+    "maxPoseHeightPx": 112,
+    "maxPoseWidthPx": 96,
+    "envelopeBounds": { "x": [5, 123], "y": [7, 127] },
+    "envelope": "A pose must fit x in [5,123] and y in [7,127] of the cell. The longest reach in the rules is 40 px from the pivot, which lands at column 104 and clears the bound by 19 px.",
+    "standingWidthNote": "Wider than Pop T's 34 px intro stance because a fighting guard stands with the feet apart. It does not change the pushbox, which is 24 px and is rules, not art."
+  },
+  "travel": {
+    "rule": "Drawings never encode travel. The fight loop owns x and y, and the sprite is blitted at the pivot.",
+    "why": "This is the opposite of the intro walk cycles, where stride distance had to come from the drawings. Here a drawn step offset would double up with the engine's own walk speed and the fighter would skate.",
+    "consequence": "Walk cycles are authored in place: the feet cycle, the hips stay on the pivot column. Airborne frames are authored at the cell baseline; the engine lifts them."
+  },
+  "reachBinding": {
+    "rule": "On every active-frame drawing, the striking surface must sit at the move's `reach` value, measured in cell pixels forward of the pivot column, within tolerance.",
+    "tolerancePx": 3,
+    "why": "Reach is already rules. If the drawn fist stops short of it, the fighter hits opponents it visibly is not touching, and no amount of art polish will fix the read.",
+    "measurement": "After normalising, the furthest opaque pixel forward of column 64 in the active drawing, minus 64.",
+    "heightBands": {
+      "low": { "maxHeightUpTo": 26, "draw": "a sweep at ankle or shin height" },
+      "mid": { "maxHeightUpTo": 40, "draw": "a strike at chest height" },
+      "high": { "maxHeightAbove": 40, "draw": "a rising strike that finishes above the head" }
+    },
+    "heightBandSource": "Each move's `maxHeight` in src/game/marsArcadeFighters.ts is the highest opponent the move can touch. The drawing must read as covering that height or it will appear to whiff on airborne opponents it legitimately hits."
+  },
+  "sharedClips": [
+    { "id": "idle", "frames": 4, "loopMode": "loop", "engineState": "activity 'idle'" },
+    { "id": "walk-forward", "frames": 4, "loopMode": "loop", "engineState": "activity 'walk', toward the opponent" },
+    { "id": "walk-back", "frames": 4, "loopMode": "loop", "engineState": "activity 'walk', away; this is also the guard-ready stance" },
+    { "id": "block", "frames": 2, "loopMode": "hold-last", "engineState": "blocking true, and activity 'blockstun' on the second frame" },
+    { "id": "hitstun", "frames": 2, "loopMode": "hold-last", "engineState": "activity 'hitstun'" },
+    { "id": "airborne", "frames": 3, "loopMode": "by-velocity", "engineState": "activity 'airborne'; frame chosen by velocityY sign - rise, apex, fall" },
+    { "id": "ko", "frames": 3, "loopMode": "hold-last", "engineState": "phase 'ko', this fighter is not the winner" },
+    { "id": "win", "frames": 3, "loopMode": "hold-last", "engineState": "phase 'ko' or 'timeOver', this fighter is the winner" }
+  ],
+  "sharedClipFrameTotal": 25,
+  "moveClips": {
+    "derivedBy": "src/game/marsArcadeSpriteBudget.ts drawingBudget()",
+    "rule": "One startup drawing per 6 frames (max 3), one active drawing per 4 frames (max 2), one recovery drawing per 10 frames (max 2), each at least 1. Bound to the committed frame data by src/game/marsArcadeSpriteContract.test.ts, so re-tuning a move restates its art budget instead of silently leaving the sheet a frame short.",
+    "booster": {
+      "booster.padJab": { "drawings": 3, "startup": 1, "active": 1, "recovery": 1 },
+      "booster.staticFire": { "drawings": 5, "startup": 2, "active": 1, "recovery": 2 },
+      "booster.orbitalInsertion": { "drawings": 5, "startup": 1, "active": 2, "recovery": 2 }
+    },
+    "oracle": {
+      "oracle.prompt": { "drawings": 3, "startup": 1, "active": 1, "recovery": 1 },
+      "oracle.hardCutoff": { "drawings": 6, "startup": 3, "active": 1, "recovery": 2 },
+      "oracle.textBubble": { "drawings": 5, "startup": 2, "active": 1, "recovery": 2 }
+    },
+    "captain": {
+      "captain.setDownTheCoffee": { "drawings": 3, "startup": 1, "active": 1, "recovery": 1 },
+      "captain.runTheChecklist": { "drawings": 5, "startup": 2, "active": 1, "recovery": 2 },
+      "captain.flyby": { "drawings": 7, "startup": 3, "active": 2, "recovery": 2 }
+    },
+    "moveDrawingTotal": 42
+  },
+  "outcomeClips": [
+    {
+      "id": "booster.landing-stuck",
+      "frames": 2,
+      "loopMode": "hold-last",
+      "engineState": "the 'stuckLanding' event; replaces the orbitalInsertion recovery drawings when the landing window is answered"
+    },
+    {
+      "id": "booster.landing-tipped",
+      "frames": 3,
+      "loopMode": "hold-last",
+      "engineState": "the 'tippedOver' event; the long punish window, so it must read as helpless and funny, never injured"
+    }
+  ],
+  "effects": {
+    "note": "Effect sprites are authored outside the character cell and are not gated by the character checker.",
+    "sprites": [
+      {
+        "id": "fx.textBubble",
+        "cell": [40, 40],
+        "frames": 3,
+        "loopMode": "loop",
+        "spec": "The oracle's projectile. Diameter must read at about 36 px, matching MARS_ARCADE_STAGE.projectileRadius of 18, and it travels at the height of projectileSpawnHeight, 24 px above the floor."
+      },
+      {
+        "id": "fx.flyby",
+        "cell": [320, 96],
+        "frames": 4,
+        "loopMode": "once",
+        "spec": "The captain's DC-9, crossing the full stage. Full-width because the move's reach is the whole stage. The aircraft is an effect, never part of the character cell."
+      },
+      { "id": "fx.hitSpark", "cell": [32, 32], "frames": 3, "loopMode": "once", "spec": "Clean hit." },
+      { "id": "fx.guardSpark", "cell": [32, 32], "frames": 2, "loopMode": "once", "spec": "Blocked hit; visibly weaker than the clean-hit spark." }
+    ],
+    "effectFrameTotal": 12
+  },
+  "frameTotals": {
+    "anchors": 3,
+    "sharedPerFighter": 25,
+    "sharedAllFighters": 75,
+    "moves": 42,
+    "outcomes": 5,
+    "effects": 12,
+    "grandTotal": 137,
+    "note": "For comparison, the approved Pop T v3 set is 56 frames. Generate one fighter end to end before committing to the rest; a mirror match is a complete playable slice on one fighter's art."
+  },
+  "generation": {
+    "tool": "Codex CLI built-in image_gen, billed against the ChatGPT plan",
+    "neverSetApiKey": true,
+    "canvas": "the largest size the generator produces natively; never ask it to resize or upscale",
+    "chromaField": "#FF00FF",
+    "identityReference": {
+      "captain": "art-source/intro/tmb2/popt-v2/references/identity-anchor-1024.png",
+      "booster": "created by this contract's Wave 0; no prior reference exists",
+      "oracle": "created by this contract's Wave 0; no prior reference exists"
+    }
+  },
+  "render": {
+    "route": "full-colour",
+    "sourceArt": "Flat cel-shaded illustration on a solid #FF00FF chroma field.",
+    "normaliser": "tools/assets/normalise-popt-frame.py --contract asset-reports/mars-arcade-sprite-contract.json",
+    "gate": "tools/assets/check-popt-frames-fullcolour.py --contract asset-reports/mars-arcade-sprite-contract.json",
+    "sourcePxPerCellPx": "derive once per fighter from that fighter's Wave 0 anchor with --derive-scale, then reuse it unchanged for every frame of that fighter",
+    "alignment": "feet",
+    "airborneNote": "Airborne and knocked-down poses have no foot span on the baseline. Align those with --align bbox and record the offset once per clip."
+  },
+  "palette": {
+    "binding": false,
+    "role": "No palette is enforced. The full-colour route of the Pop T v3 contract applies: flat cel shading, at most three shades per material, no gradients, no gloss, no texture, no dithering.",
+    "why": "Palette conformance was retired on 2026-08-17 after quantisation deleted Pop T's mouth and fragmented his belt. Do not reintroduce it."
+  },
+  "qualityGates": {
+    "standingHeight": "104 px, tolerance 2, on idle, walk-forward, walk-back and block frames",
+    "baselineDrift": "Feet touch y=119 in every grounded frame; airborne clips declare one offset and hold it",
+    "envelope": "Every opaque pixel inside x [5,123], y [7,127]",
+    "silhouette": "One connected opaque region per frame, ignoring deliberately detached props such as the coffee cup once released",
+    "chromaResidue": "No leftover #FF00FF and no magenta spill on the silhouette edge",
+    "reachAccuracy": "Active-frame striking surface within 3 px of the move's reach. No checker exists yet; see the prompt pack.",
+    "identity": "Owner review. For THE CAPTAIN, against the existing Pop T identity anchor."
+  },
+  "toneConstraints": {
+    "noRealPeople": "The fighters are invented archetypes. No real or public person may be named, caricatured or made recognisable, in the artwork or in any prompt text. Owner decision, 2026-09-19.",
+    "familyFriendly": "Cartoon arcade contact only. No blood, no injury read, no cruelty. A knockout is comic and recoverable.",
+    "captainDignity": "THE CAPTAIN is Pop T. He may be funny; he is never the butt of the joke, never clumsy, and never loses composure.",
+    "spoilerProtection": "Nothing in this asset group may depict or reference the protected ground-transport reward. The cabinet sits behind the ending."
+  },
+  "promptPack": "asset-reports/mars-arcade-frame-prompt-pack.md",
+  "plan": "plans/0044-mars-arcade-fight-loop.md",
+  "rulesSource": {
+    "fighters": "src/game/marsArcadeFighters.ts",
+    "engine": "src/game/marsArcade.ts",
+    "budget": "src/game/marsArcadeSpriteBudget.ts",
+    "test": "src/game/marsArcadeSpriteContract.test.ts"
+  }
+}
