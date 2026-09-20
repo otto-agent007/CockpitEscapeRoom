@@ -63,8 +63,10 @@ the character-select screen. Nothing imports these modules yet, so nothing ships
       launchers, knockback, round end.
 - [x] 2026-09-19 — Seeded opponent with two difficulties.
 - [x] 2026-09-19 — 34 tests; 11/11 mutations caught; `npm run check` green.
-- [ ] Owner review of the fight feel and the archetype framing.
-- [ ] Milestone 2 — sprite generation and the character-select screen.
+- [x] 2026-09-19 — Sprite contract and frame prompt pack drafted; the existing python
+      normaliser and gate verified against the new contract in both directions.
+- [ ] Owner review of the fight feel, the archetype framing, and the three identities.
+- [ ] Milestone 2 — Wave 0 anchors, then sprite generation and the character-select screen.
 - [ ] Milestone 3 — the Mars cabinet scene and chapter wiring.
 
 ## Discoveries
@@ -109,9 +111,12 @@ the character-select screen. Nothing imports these modules yet, so nothing ships
 1. **Fight loop provable headlessly** *(this plan)* — a round can be played to KO or time
    over entirely from scripted inputs, and the rules are proven by tests that fail when the
    rules break.
-2. **The fighters can be seen** — sprite sheets generated through the existing TMB2 pipeline
-   (Codex/ChatGPT `image_gen`, then snapped, quantised and despeckled to the 320x224 grid
-   like the existing prompt packs), a character-select screen, and the HUD.
+2. **The fighters can be seen** — sprite sheets generated through the existing TMB2
+   full-colour pipeline (Codex `image_gen`, then `normalise-popt-frame.py` and
+   `check-popt-frames-fullcolour.py` against the arcade contract), a character-select screen,
+   and the HUD. The contract is `asset-reports/mars-arcade-sprite-contract.json` and the pack
+   is `asset-reports/mars-arcade-frame-prompt-pack.md`; 137 drawings in four waves, with Wave
+   1 alone yielding a playable mirror match.
 3. **The cabinet exists** — a Mars surface scene, the cabinet interaction, chapter wiring,
    persistence of the CAPTAIN unlock, and the accessible native control path.
 
@@ -210,6 +215,43 @@ Spoiler check against the production build — `THE BOOSTER`, `THE ORACLE`,
 `ORBITAL INSERTION`, `DC-9 FLYBY` and `marsArcade` are all absent from `dist/`, and no file
 outside `src/game/marsArcade*` imports the modules.
 
+### Sprite contract and prompt pack — 2026-09-19
+
+`asset-reports/mars-arcade-sprite-contract.json` and
+`asset-reports/mars-arcade-frame-prompt-pack.md`, plus `src/game/marsArcadeSpriteBudget.ts`
+and `src/game/marsArcadeSpriteContract.test.ts`.
+
+No new tooling was needed. Both python tools take `--contract`, and both were run against the
+arcade contract in **both directions**: a correct 104 px frame on the baseline passed, while a
+60 px floating frame and a frame with leftover `#FF00FF` were rejected with the right reasons
+(`lowest opaque row is 99, contract baseline is 119`; `standing height is 60 rows, contract
+requires 104 +/- 2`; `chroma key leaked onto 2520 px`).
+
+Four drift cases were injected against the contract test and all four were caught:
+
+```
+a move is re-tuned without re-reading the art budget   caught   2 failed | 5 passed
+a shared clip loses a frame in the contract            caught   1 failed | 6 passed
+the stage is widened in code but not in the contract   caught   1 failed | 6 passed
+a field the python tools index is renamed              caught   2 failed | 5 passed
+```
+
+`npm run check` after the pack: ESLint, `tsc -b`, **50 files, 644 tests**, `vite build` in
+2.28 s. The arcade content is still absent from `dist/`.
+
+**Decisions recorded while drafting:** drawings never encode travel (the engine owns x and y,
+the opposite of the intro walk cycles); strict side profile facing right with runtime
+mirroring; the active-frame striking surface is bound to the move's `reach` within 3 px, and
+the drawn strike height is bound to its `maxHeight` band. THE CAPTAIN inherits Pop T's 104 px
+standing height and 128 cell unchanged, so the same character cannot change size between
+chapters.
+
+**Observed, not fixed:** the closing "When a frame comes back" section of
+`asset-reports/popt-frame-prompt-pack.md` still describes the retired 14-colour pixel-art
+route, which the rest of that file explicitly supersedes. The arcade pack carries its own
+correct rejection list and flags the stale section rather than editing another asset's pack.
+
 **Not done and not claimed:** no browser run, no screenshots, no Vercel preview, no sprite
-art, no scene, no chapter wiring, no persistence. The fight has never been seen, only
-proven.
+art generated, no scene, no chapter wiring, no persistence. No reach-accuracy checker exists
+yet — it is specified in the contract but cannot be written usefully until real frames do.
+The fight has never been seen, only proven.
