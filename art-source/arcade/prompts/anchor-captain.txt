@@ -1,0 +1,69 @@
+# Mars arcade Wave 0 anchor - THE CAPTAIN (captain)
+
+# Assembled from asset-reports/mars-arcade-frame-prompt-pack.md.
+
+# Identity reference to attach: art-source/intro/tmb2/popt-v2/references/identity-anchor-1024.png
+
+
+
+A flat cel-shaded 2D character illustration of a single invented cartoon character, full
+body, drawn in clean vector style with hard-edged colour regions, in the style of a 1990s
+arcade fighting game character.
+
+This is an invented character. It must NOT resemble, caricature or portray any real,
+living, historical or public person. If the face begins to look like someone recognisable,
+change it.
+
+View - IMPORTANT: strict SIDE PROFILE, facing RIGHT. The shoulders and hips are square to
+the side. Both feet are visible and level. This is not a three-quarter view and not a front
+view.
+
+Colour and shading rules, followed strictly:
+- Use at most three flat shades per material: a base, one darker shade, one lighter shade.
+- Every colour region is a solid area of ONE flat colour with a hard edge. No gradients, no
+  blending, no soft edges, no glow.
+- NO specular highlights, NO shine, NO reflective streaks, NO gloss anywhere.
+- NO fabric texture, NO fine wrinkles, NO creases, NO folds, NO stitching, NO patterns.
+- NO noise, NO speckling, NO dithering, NO grain, NO stippling.
+
+Motion rules - IMPORTANT: draw the character at rest in the described pose. NO motion blur,
+NO speed lines, NO trailing streaks, NO impact stars, NO dust clouds, NO ground shadow, NO
+energy effects of any kind. Effects are drawn separately.
+
+Proportions - IMPORTANT: this is a stylised cartoon fighter, not a realistic figure. The
+head is large relative to the body: the whole figure is about FIVE head-heights tall. Short
+legs, compact torso, big head, chunky hands and feet.
+
+Facial features - IMPORTANT: this artwork will be reduced to a sprite only 104 pixels tall,
+so every facial feature must be BOLD, HIGH-CONTRAST and SIMPLIFIED or it will disappear.
+Eyes, eyebrows and mouth are each solid dark shapes, generously sized, well separated, in
+the lower half of the face. No subtle tonal shading on the face, no cheek blush, no soft
+contour.
+
+The character matches the attached reference exactly, redrawn in strict side profile: a
+young male cartoon airline pilot, blonde hair, navy peaked cap with a gold band above the
+brim, white short-sleeve uniform shirt with gold-striped epaulettes on both shoulders, dark
+navy necktie, navy trousers with a belt, dark boots.
+
+He carries a plain white ceramic coffee cup - no logo, no text, no saucer.
+
+Colour direction: unchanged from the reference. The gold epaulettes are his signature
+accent.
+
+Tone rule, which overrides anything else: he may be funny, but he is never the butt of the
+joke, never clumsy, and never loses his composure.
+
+Pose: neutral fighting stance, strict side profile facing right, played his way - squared
+and entirely unhurried. Weight settled, knees soft, one hand relaxed at his side, the other
+holding the coffee cup level at waist height. He looks like a man waiting for a gate
+assignment, not a man about to fight. This is the reference pose every later frame is
+measured against, so it must be a rest pose, not an action pose.
+
+Framing: the whole figure is fully visible and vertically centred, occupying about 90
+percent of the image height, with a small even margin above the head and below the feet.
+
+Background: a completely flat solid pure magenta field, RGB 255 0 255, filling the entire
+canvas edge to edge. The magenta must appear NOWHERE on the character. No ground, no
+shadow, no horizon, no props, no text, no logo, no border, no watermark, no checkerboard.
+
+Generate at the largest size you can produce natively. Do not upscale or resize the result.

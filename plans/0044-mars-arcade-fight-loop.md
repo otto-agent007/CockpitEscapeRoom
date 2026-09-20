@@ -69,6 +69,9 @@ the character-select screen. Nothing imports these modules yet, so nothing ships
       with hitboxes, frame-by-frame stepping and a live frame-data readout, so the feel can
       be tuned before any art exists.
 - [ ] Owner review of the fight feel, the archetype framing, and the three identities.
+- [x] 2026-09-19 — Codex handoff written: `prompts/05_MARS_ARCADE_SPRITE_WAVE_0.md`, with
+      assembled ready-to-send prompts in `art-source/arcade/prompts/` and the commands in
+      `art-source/arcade/README.md`.
 - [ ] Milestone 2 — Wave 0 anchors, then sprite generation and the character-select screen.
 - [ ] Milestone 3 — the Mars cabinet scene and chapter wiring.
 
@@ -101,6 +104,15 @@ the character-select screen. Nothing imports these modules yet, so nothing ships
   recovery from the start of recovery rewarded pressing *late*, which is backwards. It is
   now `recoveryElapsed + stuckRecoveryFrames`, so early is strictly better: press at the
   window's open and recovery ends ~26 frames sooner than tipping over.
+
+## Open conflict
+
+`prompts/04_AIRBUS_BONUS_AND_MARS.md` line 18 already claims the Mars Easter egg for the red
+Model Y "as a humorous Mars surface vehicle", and `docs/GAME_DESIGN.md` says the same while
+noting the design is not finalised. The arcade cabinet occupies that slot. Either the cabinet
+sits inside the Mars mission beside the rover, or it supersedes it. **Owner decision, not
+taken.** Nothing in Wave 0 depends on the answer, so art can proceed either way, but the
+Milestone 3 scene work cannot start until it is settled.
 
 ## Decision log
 
