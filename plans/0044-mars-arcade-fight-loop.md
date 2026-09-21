@@ -443,6 +443,8 @@ the character-select screen. Nothing imports these modules yet, so nothing ships
       *Wider stage, camera and backdrop* below.
 - [x] 2026-09-20 — Likeness wording reconciled across the contract, pack, plan, Wave 0
       prompt and `marsArcadeFighters.ts`; the pack no longer rejects the art it asked for.
+- [x] 2026-09-20 — HUD rebuilt: portraits, framed bars with a damage trail, a pixel clock
+      and round presentation, on a 5x7 pixel font. See *The HUD* below.
 - [ ] Optional: replace the code-drawn backdrop layers with generated art, layer by layer,
       to the brief in the prompt pack. Needs `image_gen`, so it belongs to Codex.
 - [x] 2026-09-20 — Four source probes plus three corrections saved with exact prompts.
@@ -904,12 +906,69 @@ pixels. Screenshots: `preview-renders/mars-arcade/stage-backdrop-neutral.png`,
 against this build unchanged and passes, so the sprite pilot, the native controls, the
 reduced-motion path and the box fallback still work with the camera in front of them.
 
+### The HUD — 2026-09-20
+
+Owner ask: *"yeah do the HUD too"*. The retired HUD was three flat bars, a one-pixel guard
+line and browser-font text — the other half of the original *"a little too plain"*.
+
+- `src/game/marsArcadeHud.ts` — layout, colours, the damage trail and the banner text, as
+  pure content and pure functions. No canvas, like the stage module.
+- `src/dev/arcadePixelFont.ts` — a 5x7 pixel font. The browser font was the one thing on the
+  stage that could not be pixel art: it antialiases and does not land on the grid.
+- Per side: a 22x24 portrait cropped from that fighter's approved anchor and mirrored on the
+  right so both face inward, a framed health bar with a **lagging damage trail**, a super
+  meter and a guard bar, each changing colour at their thresholds, and the name in pixel type.
+- Centre: a framed clock that turns red under ten seconds.
+- Round presentation: `ROUND 1`, then `FIGHT!` which clears 36 frames into the fight, then
+  `K.O.` / `TIME UP` / `DRAW` with the winner named underneath.
+
+**The HUD and the backdrop have a shared boundary.** The HUD owns screen rows 2–27 and the
+backdrop's star layer begins at row 28 — which is why no moon is ever drawn behind a health
+bar. Both sides of that agreement are asserted, in `marsArcadeHud.test.ts` and in the star
+layer's own comment.
+
+**Portrait crops are measured per fighter, not shared.** A single crop centred on the pivot
+column cut the booster's face off: the three profiles are 23–37 px wide across the head, and
+his headset runs well past the pivot. Recorded in the contract, with the warning that the
+test only catches a crop leaving the cell, not one that misses the head.
+
+18 new tests (12 in `marsArcadeHud.test.ts`, 6 in `arcadePixelFont.test.ts`), **12/12
+mutations caught**:
+
+```
+the damage trail never holds                 caught   2 failed | 16 passed
+the trail is allowed below health            caught   1 failed | 17 passed
+a second hit does not restart the hold       caught   2 failed | 16 passed
+the trail never drains                       caught   3 failed | 15 passed
+the fight banner never clears                caught   1 failed | 17 passed
+the round card is skipped                    caught   1 failed | 17 passed
+the name row runs into the backdrop band     caught   1 failed | 17 passed
+the guard bar overlaps the meter             caught   1 failed | 17 passed
+the right side stops mirroring               caught   2 failed | 16 passed
+a portrait crop leaves the sprite cell       caught   1 failed | 17 passed
+a glyph loses a row                          caught   1 failed | 17 passed
+a glyph the HUD needs is deleted             caught   1 failed | 17 passed
+```
+
+Browser proof — `tools/assets/check-arcade-hud.mjs`, pixel measurements rather than
+screenshots, because *"the HUD looks better"* is not something a screenshot settles:
+
+```
+PASS the round card is on screen during the intro
+PASS the banner clears after the call to fight
+PASS portrait drawn (292 colours) and the clock is legible
+PASS a hit leaves a 360 px damage trail on the health bar
+PASS the trail drains back to the new health
+PASS the round ended on timeOver and the card names the winner
+PASS HUD holds together at the 375 px integer scale
+PASS no uncaught browser errors
+```
+
+Screenshots: `hud-round-card.png`, `hud-damage-trail.png`, `hud-round-end.png`, `hud-375.png`.
+
 ### Not done and not claimed
 
 - **No owner review.** Nothing here has been seen by the owner.
-- **The HUD is untouched** and is still hairline bars with no portraits, frames, round pips
-  or presentation type. It was the other half of the original *"a little too plain"* and is
-  not in this change.
 - **No hit stop, screen shake, hit flash or impact effects.** All are engine work against
   events the loop already emits, and all are the cheapest remaining wins.
 - **No generated backdrop art**, no Vercel preview, no Mars scene, no chapter wiring, no

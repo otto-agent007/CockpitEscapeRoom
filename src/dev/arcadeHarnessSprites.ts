@@ -7,6 +7,9 @@ const anchors: Record<MarsArcadeFighterId, string> = {
   oracle: '/art-source/arcade/oracle/normalised-clean/anchor/anchor-00.png',
   captain: '/art-source/arcade/captain/normalised-clean/anchor/anchor-00.png',
 }
+/** The anchor frame per fighter, reused by the HUD as the portrait source. */
+export const ARCADE_ANCHOR_SOURCES = anchors
+
 const boosterRoot = '/art-source/arcade/booster/normalised-sleek-ready'
 const boosterInhale = `${boosterRoot}/idle/idle-01.png`
 const jab = `${boosterRoot}/jab/jab-00.png`

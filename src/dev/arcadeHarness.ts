@@ -41,8 +41,24 @@ import {
   PLAYER_TWO_BINDINGS,
   inputFromKeys,
 } from './arcadeHarnessInput'
-import { loadArcadeSprites, selectArcadeSprite } from './arcadeHarnessSprites'
+import { ARCADE_ANCHOR_SOURCES, loadArcadeSprites, selectArcadeSprite } from './arcadeHarnessSprites'
 import { advanceExchange, EXCHANGE_END_FRAME } from './arcadeHarnessExchange'
+import {
+  GLYPH_HEIGHT,
+  drawTextShadowed,
+  measureText,
+} from './arcadePixelFont'
+import {
+  MARS_ARCADE_HUD,
+  MARS_ARCADE_HUD_COLOURS,
+  advanceChipBar,
+  createChipBar,
+  marsArcadeBanner,
+  marsArcadeGuardColour,
+  marsArcadeHealthColour,
+  marsArcadeMeterColour,
+  type MarsArcadeChipBar,
+} from '../game/marsArcadeHud'
 import {
   MARS_ARCADE_BACKDROP,
   MARS_ARCADE_BANDS,
@@ -100,6 +116,8 @@ interface Harness {
   exchange: boolean
   /** Camera centre in stage pixels. Whole numbers only; see drawBackdrop. */
   cameraX: number
+  /** Lagging damage trail per fighter — presentation only, never a rule. */
+  chip: [MarsArcadeChipBar, MarsArcadeChipBar]
   log: string[]
   seed: number
 }
@@ -123,6 +141,10 @@ function newRound(harness: Harness): void {
   harness.seed += 1
   harness.opponent = createMarsArcadeOpponent(1, harness.difficulty, harness.seed)
   harness.cameraX = marsArcadeCameraTarget(harness.state)
+  harness.chip = [
+    createChipBar(harness.state.fighters[0].health),
+    createChipBar(harness.state.fighters[1].health),
+  ]
   harness.log = []
 }
 
@@ -448,7 +470,8 @@ function drawProjectiles(
   }
 }
 
-function drawBar(
+/** A framed bar in stage pixels, with the lagging damage trail behind the fill. */
+function drawFramedBar(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
@@ -457,57 +480,181 @@ function drawBar(
   fraction: number,
   colour: string,
   rightToLeft: boolean,
+  trailFraction: number | null = null,
 ): void {
-  ctx.fillStyle = '#1b1b22'
-  ctx.fillRect(x, y, width, height)
-  const filled = Math.max(0, Math.min(1, fraction)) * width
+  const px = x * SCALE
+  const py = y * SCALE
+  const pw = width * SCALE
+  const ph = height * SCALE
+
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frame
+  ctx.fillRect(px - SCALE, py - SCALE, pw + SCALE * 2, ph + SCALE * 2)
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.trough
+  ctx.fillRect(px, py, pw, ph)
+
+  const fill = (value: number): [number, number] => {
+    const filled = Math.round(Math.max(0, Math.min(1, value)) * width) * SCALE
+    return [rightToLeft ? px + pw - filled : px, filled]
+  }
+
+  if (trailFraction !== null && trailFraction > fraction) {
+    const [trailX, trailWidth] = fill(trailFraction)
+    ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.chip
+    ctx.fillRect(trailX, py, trailWidth, ph)
+  }
+
+  const [fillX, fillWidth] = fill(fraction)
   ctx.fillStyle = colour
-  ctx.fillRect(rightToLeft ? x + width - filled : x, y, filled, height)
-  ctx.strokeStyle = '#55555f'
-  ctx.lineWidth = 1
-  ctx.strokeRect(x + 0.5, y + 0.5, width - 1, height - 1)
+  ctx.fillRect(fillX, py, fillWidth, ph)
+  // One lit row along the top, so the bar has a surface rather than being a slab.
+  ctx.fillStyle = 'rgba(255,255,255,0.28)'
+  ctx.fillRect(fillX, py, fillWidth, SCALE)
+
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frameLight
+  ctx.fillRect(px - SCALE, py - SCALE, pw + SCALE * 2, SCALE)
 }
 
-function drawHud(ctx: CanvasRenderingContext2D, harness: Harness): void {
+/**
+ * The fighter's head, cropped out of the anchor frame.
+ *
+ * The right-hand portrait is mirrored so both fighters face into the screen, which
+ * is what every cabinet of the era did and what makes the two sides read as
+ * opponents rather than as two copies of the same panel.
+ */
+function drawPortrait(
+  ctx: CanvasRenderingContext2D,
+  id: MarsArcadeFighterId,
+  x: number,
+  side: 0 | 1,
+  sprites: ReturnType<typeof loadArcadeSprites>,
+): void {
+  const { portrait } = MARS_ARCADE_HUD
+  const px = x * SCALE
+  const py = portrait.y * SCALE
+  const pw = portrait.width * SCALE
+  const ph = portrait.height * SCALE
+
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frame
+  ctx.fillRect(px - SCALE, py - SCALE, pw + SCALE * 2, ph + SCALE * 2)
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.trough
+  ctx.fillRect(px, py, pw, ph)
+
+  const image = sprites.get(ARCADE_ANCHOR_SOURCES[id])
+  const sourceX = portrait.sourceX[id]
+  if (image && sourceX !== undefined) {
+    ctx.save()
+    ctx.imageSmoothingEnabled = false
+    ctx.beginPath()
+    ctx.rect(px, py, pw, ph)
+    ctx.clip()
+    if (side === 1) {
+      ctx.translate(px + pw, py)
+      ctx.scale(-1, 1)
+    } else {
+      ctx.translate(px, py)
+    }
+    ctx.drawImage(
+      image,
+      sourceX,
+      portrait.sourceY,
+      portrait.width,
+      portrait.height,
+      0,
+      0,
+      pw,
+      ph,
+    )
+    ctx.restore()
+  } else {
+    // No art loaded: the box stays, in the fighter's colour, so the HUD keeps its shape.
+    ctx.fillStyle = COLOURS[id]
+    ctx.fillRect(px + SCALE * 4, py + SCALE * 4, pw - SCALE * 8, ph - SCALE * 8)
+  }
+
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frameLight
+  ctx.fillRect(px - SCALE, py - SCALE, pw + SCALE * 2, SCALE)
+}
+
+function drawHud(
+  ctx: CanvasRenderingContext2D,
+  harness: Harness,
+  sprites: ReturnType<typeof loadArcadeSprites>,
+): void {
   const { state } = harness
-  const width = STAGE_WIDTH * SCALE
-  const barWidth = width * 0.38
+  const { portrait, bars, name, timer, banner } = MARS_ARCADE_HUD
+  const view = STAGE_WIDTH
 
   for (const side of [0, 1] as const) {
     const fighter = state.fighters[side]
     const content = marsArcadeFighter(fighter.id)
-    const x = side === 0 ? 16 : width - 16 - barWidth
-    drawBar(ctx, x, 16, barWidth, 18, fighter.health / content.health, '#ff5f4d', side === 1)
-    drawBar(ctx, x, 38, barWidth, 7, fighter.meter / MARS_ARCADE_METER_MAX, '#ffd23f', side === 1)
-    drawBar(ctx, x, 49, barWidth, 5, fighter.guard / content.guardMax, '#4a7bff', side === 1)
+    const mirrored = side === 1
+    const barsX = mirrored ? view - bars.x - bars.width : bars.x
+    const portraitX = mirrored ? view - portrait.x - portrait.width : portrait.x
+    const healthFraction = fighter.health / content.health
 
-    ctx.fillStyle = '#e9e9f2'
-    ctx.font = '600 13px ui-monospace, monospace'
-    ctx.textAlign = side === 0 ? 'left' : 'right'
-    ctx.fillText(content.label, side === 0 ? x : x + barWidth, 70)
+    drawPortrait(ctx, fighter.id, portraitX, side, sprites)
+    drawFramedBar(
+      ctx, barsX, bars.healthY, bars.width, bars.healthHeight,
+      healthFraction, marsArcadeHealthColour(healthFraction), mirrored,
+      (harness.chip[side]?.value ?? fighter.health) / content.health,
+    )
+    drawFramedBar(
+      ctx, barsX, bars.meterY, bars.width, bars.meterHeight,
+      fighter.meter / MARS_ARCADE_METER_MAX, marsArcadeMeterColour(fighter), mirrored,
+    )
+    drawFramedBar(
+      ctx, barsX, bars.guardY, bars.width, bars.guardHeight,
+      fighter.guard / content.guardMax, marsArcadeGuardColour(fighter), mirrored,
+    )
+
+    const labelWidth = measureText(content.label) * name.pixel
+    const labelX = mirrored ? barsX + bars.width - labelWidth : barsX
+    drawTextShadowed(
+      ctx, content.label, labelX * SCALE, name.y * SCALE,
+      name.pixel * SCALE, MARS_ARCADE_HUD_COLOURS.name,
+    )
   }
 
-  ctx.textAlign = 'center'
-  ctx.fillStyle = '#ffffff'
-  ctx.font = '700 26px ui-monospace, monospace'
-  ctx.fillText(String(marsArcadeTimerSeconds(state)), width / 2, 40)
+  // Clock.
+  const seconds = marsArcadeTimerSeconds(state)
+  const digits = String(seconds).padStart(2, '0')
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frame
+  ctx.fillRect(
+    (timer.x - 1) * SCALE, (timer.y - 1) * SCALE,
+    (timer.width + 2) * SCALE, (timer.height + 2) * SCALE,
+  )
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.trough
+  ctx.fillRect(timer.x * SCALE, timer.y * SCALE, timer.width * SCALE, timer.height * SCALE)
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frameLight
+  ctx.fillRect((timer.x - 1) * SCALE, (timer.y - 1) * SCALE, (timer.width + 2) * SCALE, SCALE)
+  const digitsWidth = measureText(digits) * timer.digitPixel
+  drawTextShadowed(
+    ctx, digits,
+    (timer.x + Math.round((timer.width - digitsWidth) / 2)) * SCALE,
+    (timer.y + Math.round((timer.height - GLYPH_HEIGHT * timer.digitPixel) / 2)) * SCALE,
+    timer.digitPixel * SCALE,
+    seconds <= 10 ? MARS_ARCADE_HUD_COLOURS.timerLow : MARS_ARCADE_HUD_COLOURS.timer,
+  )
 
-  if (state.phase === 'intro') {
-    ctx.font = '700 30px ui-monospace, monospace'
-    ctx.fillText('READY', width / 2, STAGE_HEIGHT * SCALE * 0.45)
-  } else if (state.phase === 'ko' || state.phase === 'timeOver') {
-    const banner =
-      state.winner === null
-        ? 'DRAW'
-        : `${state.phase === 'ko' ? 'K.O.' : 'TIME'} — ${marsArcadeFighter(state.fighters[state.winner].id).label}`
-    ctx.font = '700 28px ui-monospace, monospace'
-    ctx.fillStyle = '#ffd23f'
-    ctx.fillText(banner, width / 2, 36 * SCALE)
-    ctx.font = '500 15px ui-monospace, monospace'
-    ctx.fillStyle = '#c9c9d6'
-    ctx.fillText('R to run it again', width / 2, 46 * SCALE)
+  // Round presentation.
+  const call = marsArcadeBanner(state)
+  if (call) {
+    const width = measureText(call.text) * banner.pixel
+    drawTextShadowed(
+      ctx, call.text,
+      Math.round((view - width) / 2) * SCALE, banner.y * SCALE,
+      banner.pixel * SCALE, MARS_ARCADE_HUD_COLOURS.banner,
+    )
+    if (call.subtitle) {
+      const subtitleWidth = measureText(call.subtitle) * banner.subtitlePixel
+      drawTextShadowed(
+        ctx, call.subtitle,
+        Math.round((view - subtitleWidth) / 2) * SCALE,
+        (banner.y + GLYPH_HEIGHT * banner.pixel + banner.subtitleGap) * SCALE,
+        banner.subtitlePixel * SCALE, MARS_ARCADE_HUD_COLOURS.subtitle,
+      )
+    }
   }
-  ctx.textAlign = 'left'
 }
 
 function draw(ctx: CanvasRenderingContext2D, harness: Harness, sprites: ReturnType<typeof loadArcadeSprites>): void {
@@ -560,7 +707,7 @@ function draw(ctx: CanvasRenderingContext2D, harness: Harness, sprites: ReturnTy
     drawMoveRegion(ctx, harness.state.fighters[side], harness.showHitboxes, camera)
     if (harness.showHitboxes) drawCentreLine(ctx, harness.state.fighters[side], camera)
   }
-  drawHud(ctx, harness)
+  drawHud(ctx, harness, sprites)
 }
 
 function describeFighter(fighter: MarsArcadeFighterState): string {
@@ -665,6 +812,7 @@ function mount(): void {
     leftId: 'booster',
     rightId: 'oracle',
     cameraX: 0,
+    chip: [createChipBar(100), createChipBar(100)],
     difficulty: 'veteran',
     humanRight: false,
     speedIndex: 0,
@@ -854,6 +1002,11 @@ function mount(): void {
           : harness.cameraX +
             Math.sign(cameraGap) *
               Math.max(1, Math.round(Math.abs(cameraGap) * MARS_ARCADE_CAMERA.followPerFrame))
+
+      harness.chip = [
+        advanceChipBar(harness.chip[0], harness.state.fighters[0].health),
+        advanceChipBar(harness.chip[1], harness.state.fighters[1].health),
+      ]
       for (const event of transition.events) {
         const line = formatEvent(event, harness.state.frame)
         if (line) harness.log.push(line)

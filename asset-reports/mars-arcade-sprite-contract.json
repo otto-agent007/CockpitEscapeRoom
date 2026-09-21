@@ -194,6 +194,23 @@
     "deckRule": "The nearest layer sits at parallax 1 with a short 64 px span, so its seams and rivets pass the screen as the fighters walk. This is what makes the wider stage legible; a single flat floor reads as standing still no matter how far the camera moved.",
     "ifGeneratedLater": "Should the owner want painted art instead, replace layer by layer, keep the parallax factors and span widths, author each layer as a seamless tile of its span width on the #FF00FF chroma field, and keep the silhouette rule above. Do not author one wide painting: it cannot tile, and the stage is longer than any single screen."
   },
+  "hud": {
+    "status": "built in code, 2026-09-20",
+    "source": "src/game/marsArcadeHud.ts, drawn by src/dev/arcadeHarness.ts with the 5x7 font in src/dev/arcadePixelFont.ts",
+    "reservedBand": "Screen rows 2 to 27 inclusive. Row 28 is where the backdrop's star layer begins; that boundary is an agreement between the two modules and both sides of it are held by tests.",
+    "elements": "Per side: a 22x24 portrait, a framed health bar with a lagging damage trail, a super meter, a guard bar, and the fighter's name. Centre: a framed clock. Across the middle of the screen: the round card, the call to fight, and the end-of-round card naming the winner.",
+    "portrait": {
+      "width": 22,
+      "height": 24,
+      "sourceY": 14,
+      "sourceYDerivation": "cell baseline 119 minus the 104 px standing height, less two rows of headroom",
+      "sourceX": { "booster": 54, "oracle": 49, "captain": 52 },
+      "sourceXNote": "Measured per fighter from each approved anchor, because the profiles are not the same width — the booster's headset runs well past the pivot column and a shared crop cut his face off. A new or re-cut anchor must be re-measured; `crops a portrait that is inside the sprite cell` only catches a crop that leaves the cell, not one that misses the head.",
+      "mirrored": "The right-hand portrait is flipped so both fighters face into the screen."
+    },
+    "typeface": "A 5x7 pixel font, drawn only at whole multiples. Browser fonts are not used anywhere on the stage: they antialias and do not land on the pixel grid. Every character the HUD can emit is asserted to exist, because a missing glyph draws nothing at all.",
+    "consequenceForArt": "The HUD reads the approved anchor frames directly. Re-cutting an anchor changes the portraits, so a new anchor wave must re-check them."
+  },
   "promptPack": "asset-reports/mars-arcade-frame-prompt-pack.md",
   "plan": "plans/0044-mars-arcade-fight-loop.md",
   "rulesSource": {
