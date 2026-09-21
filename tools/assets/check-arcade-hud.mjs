@@ -70,7 +70,8 @@ try {
   report(`portrait drawn (${Object.keys(portrait).length} colours) and the clock is legible`)
 
   // --- a hit leaves a readable damage trail -------------------------------
-  const healthBar = () => census(page, 28, 2, 108, 10)
+  // The vitals box: health, divider and guard inside one slanted frame.
+  const healthBar = () => census(page, 28, 2, 110, 15)
   const trail = '#fff0d0'
   assert.equal(countOf(await healthBar(), trail), 0, 'a trail was showing before any hit')
 
@@ -85,7 +86,7 @@ try {
   for (let attempt = 0; attempt < 8 && landed === 0; attempt += 1) {
     await page.keyboard.press('Comma')
     await tick(220)
-    landed = countOf(await census(page, 28, 2, 108, 10), trail)
+    landed = countOf(await healthBar(), trail)
   }
   assert.ok(landed > 60, `no damage trail after a hit (${landed} px)`)
   await stage.screenshot({ path: `${out}hud-damage-trail.png` })
@@ -95,6 +96,23 @@ try {
   await tick(2000)
   assert.equal(countOf(await healthBar(), trail), 0, 'the damage trail never drained')
   report('the trail drains back to the new health')
+
+  // --- the segmented meter and the name plate -----------------------------
+  const meterBand = await census(page, 102, 19, 36, 9)
+  assert.ok(countOf(meterBand, '#4a3242') > 200, 'the meter is not segmented — no empty chunks')
+  const plate = await census(page, 28, 19, 72, 9)
+  assert.ok(countOf(plate, '#31202c') > 400, 'the name is not sitting on a plate')
+  assert.ok(countOf(plate, '#f4e6d2') > 80, 'the name did not render on the plate')
+  report('the meter reads as chunks and the name sits on a plate')
+
+  // --- the slant is actually cut ------------------------------------------
+  // Two-sided, so it cannot pass by the bar simply being absent: the inner end is
+  // full width along the top rows and short by the 5 px skew along the bottom ones.
+  const topCorner = await census(page, 135, 2, 3, 2)
+  const bottomCorner = await census(page, 135, 15, 3, 2)
+  assert.ok(countOf(topCorner, '#1a1016') > 0, 'the bar does not reach its inner end at the top')
+  assert.equal(countOf(bottomCorner, '#1a1016'), 0, 'the inner end was not cut on a slant')
+  report('the vitals bar is square at the top and cut on a slant at the bottom')
 
   // --- the end-of-round card ----------------------------------------------
   await tick(70000)

@@ -5,10 +5,12 @@ import {
   MARS_ARCADE_CHIP,
   MARS_ARCADE_HUD,
   MARS_ARCADE_HUD_BAND,
+  MARS_ARCADE_METER_SEGMENTS,
   advanceChipBar,
   createChipBar,
   marsArcadeBanner,
   marsArcadeHudBoxes,
+  marsArcadeMeterSegments,
 } from './marsArcadeHud'
 import { MARS_ARCADE_VIEW } from './marsArcadeStage'
 
@@ -61,15 +63,83 @@ describe('mars arcade hud layout', () => {
   })
 
   it('crops a portrait that is inside the sprite cell', () => {
-    const { portrait } = MARS_ARCADE_HUD
+    const { portrait, frame } = MARS_ARCADE_HUD
     for (const id of Object.keys(MARS_ARCADE_FIGHTERS)) {
       const sourceX = portrait.sourceX[id]
       expect(sourceX, `no portrait crop for ${id}`).toBeDefined()
       if (sourceX === undefined) continue
       expect(sourceX).toBeGreaterThanOrEqual(0)
-      expect(sourceX + portrait.width).toBeLessThanOrEqual(128)
+      expect(sourceX + portrait.sourceWidth).toBeLessThanOrEqual(128)
     }
-    expect(portrait.sourceY + portrait.height).toBeLessThanOrEqual(128)
+    expect(portrait.sourceY + portrait.sourceHeight).toBeLessThanOrEqual(128)
+    // The crop has to fit inside the frame that is drawn around it.
+    expect(portrait.sourceWidth).toBe(portrait.width - frame * 2)
+    expect(portrait.sourceHeight).toBe(portrait.height - frame * 2)
+  })
+
+  it('sizes the meter to hold whole chunks with whole gaps', () => {
+    const { meter, frame } = MARS_ARCADE_HUD
+    const inner = meter.width - frame * 2
+    const gaps = MARS_ARCADE_METER_SEGMENTS - 1
+    expect((inner - gaps) % MARS_ARCADE_METER_SEGMENTS).toBe(0)
+  })
+
+  it('leaves no gap or overlap across the second row', () => {
+    const { vitals, namePlate, meter } = MARS_ARCADE_HUD
+    expect(namePlate.x).toBe(vitals.x)
+    expect(meter.x + meter.width).toBe(vitals.x + vitals.width)
+    expect(meter.x).toBeGreaterThan(namePlate.x + namePlate.width)
+    expect(namePlate.y).toBe(meter.y)
+    expect(namePlate.height).toBe(meter.height)
+  })
+
+  it('keeps the slant inside the bar it cuts', () => {
+    expect(MARS_ARCADE_HUD.skew).toBeGreaterThan(0)
+    expect(MARS_ARCADE_HUD.skew).toBeLessThan(MARS_ARCADE_HUD.vitals.width / 4)
+  })
+
+  it('stacks health, divider and guard to exactly fill the vitals frame', () => {
+    const { vitals, frame } = MARS_ARCADE_HUD
+    const stacked = vitals.healthHeight + vitals.dividerHeight + vitals.guardHeight
+    expect(stacked).toBe(vitals.height - frame * 2)
+  })
+})
+
+describe('mars arcade meter segments', () => {
+  it('divides the meter into chunks of one cheapest special', () => {
+    // If a move is re-costed, the meter has to be re-divided; this is what says so.
+    const step = 100 / MARS_ARCADE_METER_SEGMENTS
+    const cheapest = Math.min(
+      ...Object.values(MARS_ARCADE_FIGHTERS).flatMap((fighter) =>
+        Object.values(fighter.moves)
+          .map((move) => move.meterCost)
+          .filter((cost) => cost > 0),
+      ),
+    )
+    expect(step).toBe(cheapest)
+  })
+
+  it('is empty at zero and full at maximum', () => {
+    expect(marsArcadeMeterSegments(0)).toEqual([0, 0, 0, 0, 0])
+    expect(marsArcadeMeterSegments(100)).toEqual([1, 1, 1, 1, 1])
+  })
+
+  it('fills one chunk at a time, outermost first', () => {
+    expect(marsArcadeMeterSegments(20)).toEqual([1, 0, 0, 0, 0])
+    expect(marsArcadeMeterSegments(40)).toEqual([1, 1, 0, 0, 0])
+    const partial = marsArcadeMeterSegments(30)
+    expect(partial[0]).toBe(1)
+    expect(partial[1]).toBeCloseTo(0.5)
+    expect(partial[2]).toBe(0)
+  })
+
+  it('never reports a chunk outside its own bounds', () => {
+    for (let meter = -20; meter <= 140; meter += 1) {
+      for (const amount of marsArcadeMeterSegments(meter)) {
+        expect(amount).toBeGreaterThanOrEqual(0)
+        expect(amount).toBeLessThanOrEqual(1)
+      }
+    }
   })
 })
 

@@ -57,7 +57,9 @@ import {
   marsArcadeGuardColour,
   marsArcadeHealthColour,
   marsArcadeMeterColour,
+  marsArcadeMeterSegments,
   type MarsArcadeChipBar,
+  type MarsArcadeFill,
 } from '../game/marsArcadeHud'
 import {
   MARS_ARCADE_BACKDROP,
@@ -470,48 +472,180 @@ function drawProjectiles(
   }
 }
 
-/** A framed bar in stage pixels, with the lagging damage trail behind the fill. */
-function drawFramedBar(
+/**
+ * Path for a bar whose inner end is cut on a slant, in canvas pixels.
+ *
+ * The slant is the whole reason the pair reads as a cabinet HUD rather than as two
+ * progress bars: both bars lean into the centre of the screen. Everything drawn
+ * inside is clipped to this path, so the strips inherit the cut for free.
+ */
+function skewedBarPath(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  skew: number,
+  mirrored: boolean,
+): void {
+  ctx.beginPath()
+  if (mirrored) {
+    ctx.moveTo(x, y)
+    ctx.lineTo(x + width, y)
+    ctx.lineTo(x + width, y + height)
+    ctx.lineTo(x + skew, y + height)
+  } else {
+    ctx.moveTo(x, y)
+    ctx.lineTo(x + width, y)
+    ctx.lineTo(x + width - skew, y + height)
+    ctx.lineTo(x, y + height)
+  }
+  ctx.closePath()
+}
+
+/** One filled strip: two tones and a shadow line, optionally behind a damage trail. */
+function fillStrip(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
   width: number,
   height: number,
   fraction: number,
-  colour: string,
-  rightToLeft: boolean,
+  fill: MarsArcadeFill,
+  mirrored: boolean,
   trailFraction: number | null = null,
 ): void {
-  const px = x * SCALE
-  const py = y * SCALE
-  const pw = width * SCALE
-  const ph = height * SCALE
-
-  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frame
-  ctx.fillRect(px - SCALE, py - SCALE, pw + SCALE * 2, ph + SCALE * 2)
-  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.trough
-  ctx.fillRect(px, py, pw, ph)
-
-  const fill = (value: number): [number, number] => {
-    const filled = Math.round(Math.max(0, Math.min(1, value)) * width) * SCALE
-    return [rightToLeft ? px + pw - filled : px, filled]
+  const extent = (value: number): [number, number] => {
+    const filled = Math.round(Math.max(0, Math.min(1, value)) * width)
+    return [mirrored ? x + width - filled : x, filled]
   }
 
   if (trailFraction !== null && trailFraction > fraction) {
-    const [trailX, trailWidth] = fill(trailFraction)
+    const [trailX, trailWidth] = extent(trailFraction)
     ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.chip
-    ctx.fillRect(trailX, py, trailWidth, ph)
+    ctx.fillRect(trailX * SCALE, y * SCALE, trailWidth * SCALE, height * SCALE)
   }
 
-  const [fillX, fillWidth] = fill(fraction)
-  ctx.fillStyle = colour
-  ctx.fillRect(fillX, py, fillWidth, ph)
-  // One lit row along the top, so the bar has a surface rather than being a slab.
-  ctx.fillStyle = 'rgba(255,255,255,0.28)'
-  ctx.fillRect(fillX, py, fillWidth, SCALE)
+  const [fillX, fillWidth] = extent(fraction)
+  if (fillWidth === 0) return
+  const lit = Math.max(1, Math.round(height * 0.42))
+  ctx.fillStyle = fill.base
+  ctx.fillRect(fillX * SCALE, y * SCALE, fillWidth * SCALE, height * SCALE)
+  ctx.fillStyle = fill.light
+  ctx.fillRect(fillX * SCALE, y * SCALE, fillWidth * SCALE, lit * SCALE)
+  ctx.fillStyle = fill.shade
+  ctx.fillRect(fillX * SCALE, (y + lit) * SCALE, fillWidth * SCALE, SCALE)
+}
+
+/** Health and guard, sharing one slanted frame. */
+function drawVitals(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  fighter: MarsArcadeFighterState,
+  chip: number,
+  mirrored: boolean,
+): void {
+  const { vitals, frame, skew } = MARS_ARCADE_HUD
+  const content = marsArcadeFighter(fighter.id)
+  const healthFraction = fighter.health / content.health
+  const skewPx = skew * SCALE
+
+  skewedBarPath(ctx, x * SCALE, vitals.y * SCALE, vitals.width * SCALE, vitals.height * SCALE, skewPx, mirrored)
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frame
+  ctx.fill()
+
+  const innerX = x + frame
+  const innerY = vitals.y + frame
+  const innerWidth = vitals.width - frame * 2
+  const innerHeight = vitals.height - frame * 2
+
+  ctx.save()
+  skewedBarPath(
+    ctx, innerX * SCALE, innerY * SCALE, innerWidth * SCALE, innerHeight * SCALE,
+    skewPx, mirrored,
+  )
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.trough
+  ctx.fill()
+  ctx.clip()
+
+  fillStrip(
+    ctx, innerX, innerY, innerWidth, vitals.healthHeight,
+    healthFraction, marsArcadeHealthColour(healthFraction), mirrored, chip,
+  )
+  const guardY = innerY + vitals.healthHeight + vitals.dividerHeight
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frame
+  ctx.fillRect(innerX * SCALE, (innerY + vitals.healthHeight) * SCALE, innerWidth * SCALE, vitals.dividerHeight * SCALE)
+  fillStrip(
+    ctx, innerX, guardY, innerWidth, vitals.guardHeight,
+    fighter.guard / content.guardMax, marsArcadeGuardColour(fighter), mirrored,
+  )
+  ctx.restore()
+
+  // Lit top edge along the frame, so the bar sits in the screen rather than on it.
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frameLight
+  ctx.fillRect(x * SCALE, vitals.y * SCALE, vitals.width * SCALE, SCALE)
+}
+
+/** The super meter, in chunks of one cheapest-special each. */
+function drawMeter(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  fighter: MarsArcadeFighterState,
+  mirrored: boolean,
+): void {
+  const { meter, frame } = MARS_ARCADE_HUD
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frame
+  ctx.fillRect(x * SCALE, meter.y * SCALE, meter.width * SCALE, meter.height * SCALE)
+
+  const innerX = x + frame
+  const innerY = meter.y + frame
+  const innerWidth = meter.width - frame * 2
+  const innerHeight = meter.height - frame * 2
+  const segments = marsArcadeMeterSegments(fighter.meter)
+  const gap = 1
+  const segmentWidth = Math.floor((innerWidth - gap * (segments.length - 1)) / segments.length)
+  const fill = marsArcadeMeterColour(fighter)
+
+  segments.forEach((amount, index) => {
+    const offset = index * (segmentWidth + gap)
+    const segmentX = mirrored
+      ? innerX + innerWidth - offset - segmentWidth
+      : innerX + offset
+    ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.meterEmpty
+    ctx.fillRect(segmentX * SCALE, innerY * SCALE, segmentWidth * SCALE, innerHeight * SCALE)
+    if (amount > 0) {
+      fillStrip(ctx, segmentX, innerY, segmentWidth, innerHeight, amount, fill, mirrored)
+    }
+  })
 
   ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frameLight
-  ctx.fillRect(px - SCALE, py - SCALE, pw + SCALE * 2, SCALE)
+  ctx.fillRect(x * SCALE, meter.y * SCALE, meter.width * SCALE, SCALE)
+}
+
+/** The fighter's name, on a plate rather than floating on the sky. */
+function drawNamePlate(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  label: string,
+  mirrored: boolean,
+): void {
+  const { namePlate, frame } = MARS_ARCADE_HUD
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frame
+  ctx.fillRect(x * SCALE, namePlate.y * SCALE, namePlate.width * SCALE, namePlate.height * SCALE)
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.plate
+  ctx.fillRect(
+    (x + frame) * SCALE, (namePlate.y + frame) * SCALE,
+    (namePlate.width - frame * 2) * SCALE, (namePlate.height - frame * 2) * SCALE,
+  )
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frameLight
+  ctx.fillRect(x * SCALE, namePlate.y * SCALE, namePlate.width * SCALE, SCALE)
+
+  const width = measureText(label)
+  const textX = mirrored ? x + namePlate.width - frame - 1 - width : x + frame + 1
+  drawTextShadowed(
+    ctx, label, textX * SCALE, (namePlate.y + frame) * SCALE,
+    SCALE, MARS_ARCADE_HUD_COLOURS.name,
+  )
 }
 
 /**
@@ -528,14 +662,14 @@ function drawPortrait(
   side: 0 | 1,
   sprites: ReturnType<typeof loadArcadeSprites>,
 ): void {
-  const { portrait } = MARS_ARCADE_HUD
-  const px = x * SCALE
-  const py = portrait.y * SCALE
-  const pw = portrait.width * SCALE
-  const ph = portrait.height * SCALE
+  const { portrait, frame } = MARS_ARCADE_HUD
+  const px = (x + frame) * SCALE
+  const py = (portrait.y + frame) * SCALE
+  const pw = portrait.sourceWidth * SCALE
+  const ph = portrait.sourceHeight * SCALE
 
   ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frame
-  ctx.fillRect(px - SCALE, py - SCALE, pw + SCALE * 2, ph + SCALE * 2)
+  ctx.fillRect(x * SCALE, portrait.y * SCALE, portrait.width * SCALE, portrait.height * SCALE)
   ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.trough
   ctx.fillRect(px, py, pw, ph)
 
@@ -554,25 +688,17 @@ function drawPortrait(
       ctx.translate(px, py)
     }
     ctx.drawImage(
-      image,
-      sourceX,
-      portrait.sourceY,
-      portrait.width,
-      portrait.height,
-      0,
-      0,
-      pw,
-      ph,
+      image, sourceX, portrait.sourceY, portrait.sourceWidth, portrait.sourceHeight,
+      0, 0, pw, ph,
     )
     ctx.restore()
   } else {
-    // No art loaded: the box stays, in the fighter's colour, so the HUD keeps its shape.
     ctx.fillStyle = COLOURS[id]
     ctx.fillRect(px + SCALE * 4, py + SCALE * 4, pw - SCALE * 8, ph - SCALE * 8)
   }
 
   ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frameLight
-  ctx.fillRect(px - SCALE, py - SCALE, pw + SCALE * 2, SCALE)
+  ctx.fillRect(x * SCALE, portrait.y * SCALE, portrait.width * SCALE, SCALE)
 }
 
 function drawHud(
@@ -581,52 +707,37 @@ function drawHud(
   sprites: ReturnType<typeof loadArcadeSprites>,
 ): void {
   const { state } = harness
-  const { portrait, bars, name, timer, banner } = MARS_ARCADE_HUD
+  const { portrait, vitals, namePlate, meter, timer, banner, frame } = MARS_ARCADE_HUD
   const view = STAGE_WIDTH
+  const outer = (x: number, width: number, mirrored: boolean): number =>
+    mirrored ? view - x - width : x
 
   for (const side of [0, 1] as const) {
     const fighter = state.fighters[side]
     const content = marsArcadeFighter(fighter.id)
     const mirrored = side === 1
-    const barsX = mirrored ? view - bars.x - bars.width : bars.x
-    const portraitX = mirrored ? view - portrait.x - portrait.width : portrait.x
-    const healthFraction = fighter.health / content.health
 
-    drawPortrait(ctx, fighter.id, portraitX, side, sprites)
-    drawFramedBar(
-      ctx, barsX, bars.healthY, bars.width, bars.healthHeight,
-      healthFraction, marsArcadeHealthColour(healthFraction), mirrored,
-      (harness.chip[side]?.value ?? fighter.health) / content.health,
+    drawPortrait(ctx, fighter.id, outer(portrait.x, portrait.width, mirrored), side, sprites)
+    drawVitals(
+      ctx, outer(vitals.x, vitals.width, mirrored), fighter,
+      (harness.chip[side]?.value ?? fighter.health) / content.health, mirrored,
     )
-    drawFramedBar(
-      ctx, barsX, bars.meterY, bars.width, bars.meterHeight,
-      fighter.meter / MARS_ARCADE_METER_MAX, marsArcadeMeterColour(fighter), mirrored,
-    )
-    drawFramedBar(
-      ctx, barsX, bars.guardY, bars.width, bars.guardHeight,
-      fighter.guard / content.guardMax, marsArcadeGuardColour(fighter), mirrored,
-    )
-
-    const labelWidth = measureText(content.label) * name.pixel
-    const labelX = mirrored ? barsX + bars.width - labelWidth : barsX
-    drawTextShadowed(
-      ctx, content.label, labelX * SCALE, name.y * SCALE,
-      name.pixel * SCALE, MARS_ARCADE_HUD_COLOURS.name,
-    )
+    drawNamePlate(ctx, outer(namePlate.x, namePlate.width, mirrored), content.label, mirrored)
+    drawMeter(ctx, outer(meter.x, meter.width, mirrored), fighter, mirrored)
   }
 
   // Clock.
   const seconds = marsArcadeTimerSeconds(state)
   const digits = String(seconds).padStart(2, '0')
   ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frame
-  ctx.fillRect(
-    (timer.x - 1) * SCALE, (timer.y - 1) * SCALE,
-    (timer.width + 2) * SCALE, (timer.height + 2) * SCALE,
-  )
-  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.trough
   ctx.fillRect(timer.x * SCALE, timer.y * SCALE, timer.width * SCALE, timer.height * SCALE)
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.trough
+  ctx.fillRect(
+    (timer.x + frame) * SCALE, (timer.y + frame) * SCALE,
+    (timer.width - frame * 2) * SCALE, (timer.height - frame * 2) * SCALE,
+  )
   ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frameLight
-  ctx.fillRect((timer.x - 1) * SCALE, (timer.y - 1) * SCALE, (timer.width + 2) * SCALE, SCALE)
+  ctx.fillRect(timer.x * SCALE, timer.y * SCALE, timer.width * SCALE, SCALE)
   const digitsWidth = measureText(digits) * timer.digitPixel
   drawTextShadowed(
     ctx, digits,

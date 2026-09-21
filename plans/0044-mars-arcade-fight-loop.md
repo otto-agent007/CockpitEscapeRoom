@@ -932,8 +932,20 @@ column cut the booster's face off: the three profiles are 23–37 px wide across
 his headset runs well past the pivot. Recorded in the contract, with the warning that the
 test only catches a crop leaving the cell, not one that misses the head.
 
-18 new tests (12 in `marsArcadeHud.test.ts`, 6 in `arcadePixelFont.test.ts`), **12/12
-mutations caught**:
+**Second pass, same day, after looking at it.** The first HUD was correct but flat — a
+big red slab over a muddy strip where the meter and guard were unreadable, and names
+floating on bare sky. Changed: health and guard now share one frame whose **inner end is
+cut on a 5 px slant**, so the pair leans into the centre of the screen; every fill is two
+tones plus a shadow line instead of one colour; the meter moved to its own box **in five
+chunks**; and the names sit on plates. The slant is the single thing that separates a
+cabinet HUD from a progress bar.
+
+**Five chunks, not four.** One chunk has to equal the cheapest special so the bar answers
+*can I afford it yet* at a glance. Four was the first guess; the test comparing the chunk
+size against the actual move costs caught that the cheapest special is 20, not 25.
+
+26 tests across `marsArcadeHud.test.ts` and `arcadePixelFont.test.ts`, **20/20 mutations
+caught across the two passes**. First pass:
 
 ```
 the damage trail never holds                 caught   2 failed | 16 passed
@@ -962,6 +974,28 @@ PASS the trail drains back to the new health
 PASS the round ended on timeOver and the card names the winner
 PASS HUD holds together at the 375 px integer scale
 PASS no uncaught browser errors
+```
+
+Second pass added, and all still pass:
+
+```
+PASS the meter reads as chunks and the name sits on a plate
+PASS the vitals bar is square at the top and cut on a slant at the bottom
+```
+
+That slant check is two-sided on purpose — it asserts the frame colour is *present* at the
+top inner corner and *absent* at the bottom one, so it cannot pass by the bar simply being
+missing. Eight more mutations on the second pass, all caught:
+
+```
+the meter is divided into the wrong chunks       caught   4 failed | 22 passed
+the meter no longer holds whole chunks           caught   2 failed | 24 passed
+a segment reports more than full                 caught   3 failed | 23 passed
+the slant is flattened out                       caught   1 failed | 25 passed
+the vitals strips stop filling their frame       caught   1 failed | 25 passed
+the name plate is shrunk under its longest name  caught   1 failed | 25 passed
+a gap opens between the plate and the meter      caught   1 failed | 25 passed
+the portrait crop stops matching its frame       caught   1 failed | 25 passed
 ```
 
 Screenshots: `hud-round-card.png`, `hud-damage-trail.png`, `hud-round-end.png`, `hud-375.png`.

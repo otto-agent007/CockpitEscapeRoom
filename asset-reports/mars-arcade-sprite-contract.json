@@ -198,7 +198,9 @@
     "status": "built in code, 2026-09-20",
     "source": "src/game/marsArcadeHud.ts, drawn by src/dev/arcadeHarness.ts with the 5x7 font in src/dev/arcadePixelFont.ts",
     "reservedBand": "Screen rows 2 to 27 inclusive. Row 28 is where the backdrop's star layer begins; that boundary is an agreement between the two modules and both sides of it are held by tests.",
-    "elements": "Per side: a 22x24 portrait, a framed health bar with a lagging damage trail, a super meter, a guard bar, and the fighter's name. Centre: a framed clock. Across the middle of the screen: the round card, the call to fight, and the end-of-round card naming the winner.",
+    "elements": "Per side: a 22x24 portrait; health and guard sharing one frame whose inner end is cut on a 5 px slant so the pair leans into the centre; a name plate; and a super meter in five chunks. Centre: a framed clock. Across the middle of the screen: the round card, the call to fight, and the end-of-round card naming the winner.",
+    "fills": "Every bar fill is two tones plus a shadow line rather than one flat colour, and the health bar carries a lagging damage trail that holds for 24 frames then drains.",
+    "meterSegments": "Five chunks, because one chunk must equal the cheapest special's meter cost (20, the oracle's text bubble). Re-costing any special re-divides the meter, and the meter box width has to keep holding whole chunks with whole gaps; both are asserted.",
     "portrait": {
       "width": 22,
       "height": 24,

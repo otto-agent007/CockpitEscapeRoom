@@ -43,12 +43,16 @@ describe('arcade pixel font', () => {
 })
 
 describe('the HUD text actually fits its boxes', () => {
-  it('keeps every fighter name inside the name field', () => {
+  it('keeps every fighter name inside the name plate', () => {
+    const { namePlate, frame } = MARS_ARCADE_HUD
+    // The plate insets by its frame, then one more pixel of padding either side.
+    const usable = namePlate.width - frame * 2 - 2
     for (const fighter of Object.values(MARS_ARCADE_FIGHTERS)) {
-      const width = measureText(fighter.label) * MARS_ARCADE_HUD.name.pixel
-      expect(width, `${fighter.label} overflows the name field`).toBeLessThanOrEqual(
-        MARS_ARCADE_HUD.bars.width,
-      )
+      expect(
+        measureText(fighter.label),
+        `${fighter.label} overflows the name plate`,
+      ).toBeLessThanOrEqual(usable)
+      expect(GLYPH_HEIGHT).toBeLessThanOrEqual(namePlate.height - frame * 2)
     }
   })
 
