@@ -52,8 +52,11 @@ nothing here depends on the answer.
 
 ## Constraints
 
-- The fighters are unnamed invented archetypes. No real or public person may be named,
-  caricatured, or made recognisable, in artwork or in prompt text. Owner decision 2026-09-19.
+- Booster is a cartoon likeness of Elon Musk, Oracle of Sam Altman, and Captain is Pop T.
+  Owner decision 2026-09-20, superseding the invented-archetypes-only rule of 2026-09-19.
+  The likeness is required, the names may be used in prompt text, and a frame that reads as
+  a generic face is a reject. Affectionate caricature only — never unkind, political, or
+  suggestive of an endorsement. Ids and move names stay archetype-named.
 - Full-colour route only. Do not reintroduce the retired 14-colour palette or 8×8 block
   instructions from the Pop T v2 contract; they deleted his mouth and fragmented his belt.
 - Derive `--source-px-per-cell-px` once per fighter from that fighter's own anchor with

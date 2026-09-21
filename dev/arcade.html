@@ -83,6 +83,11 @@
         Solid red = hitbox live this frame. Dashed amber = startup, the telegraph.
         Blue outline = blocking. Faint dashed box = the 44&nbsp;px sprite silhouette around the
         24&nbsp;px pushbox. Edge lines = the stage walls.
+        <br /><strong>The stage is wider than the screen:</strong> 480&nbsp;px of stage behind a
+        320&nbsp;px view. The camera follows the midpoint between the fighters and stops 24&nbsp;px
+        past each wall, so a cornered fighter is still drawn whole. Walk one fighter away and the
+        backdrop parallax shows the stage moving; the deck seams at the fighters' feet move
+        one-for-one with the stage.
         <br /><strong>Reach is centre-to-centre:</strong> a move connects when the opponent's
         dashed centre line is inside the solid end-cap, not when the boxes overlap.
       </p>

@@ -420,10 +420,13 @@ the character-select screen. Nothing imports these modules yet, so nothing ships
 
 - **Architecture.** `src/game/` is pure rules and must not depend on Three.js
   (`docs/ARCHITECTURE.md`). These modules import nothing but each other.
-- **No real people.** The fighters are unnamed archetypes — THE BOOSTER, THE ORACLE,
-  THE CAPTAIN. Owner decision, 2026-09-19. No real person is named, depicted, or
-  referenced in content, identifiers, or comments. This is recorded at the top of
-  `marsArcadeFighters.ts` so a later contributor does not "helpfully" restore names.
+- **Likenesses, approved.** THE BOOSTER is a cartoon likeness of Elon Musk, THE ORACLE of
+  Sam Altman, and THE CAPTAIN is Pop T. Owner decision, 2026-09-20, superseding the
+  invented-archetypes-only rule of 2026-09-19. The likeness is a requirement and the names
+  may appear in prompt text; affectionate caricature only, never unkind, political, or
+  implying endorsement of a private non-commercial project. Ids, move names and module
+  names stay archetype-named, which is recorded at the top of `marsArcadeFighters.ts` so a
+  later contributor does not rename the rules to match the art.
 - **Spoiler protection.** The cabinet sits behind the ending, alongside Mars. Nothing here
   may reference the protected ground-transport reward, and none of this content may enter
   the initial bundle or any preload manifest. Verified below.
@@ -435,6 +438,13 @@ the character-select screen. Nothing imports these modules yet, so nothing ships
 
 ## Progress
 
+- [x] 2026-09-20 — Stage widened to 480 px behind the 320 px screen, with a following
+      camera, a five-layer parallax backdrop and contact shadows. See
+      *Wider stage, camera and backdrop* below.
+- [x] 2026-09-20 — Likeness wording reconciled across the contract, pack, plan, Wave 0
+      prompt and `marsArcadeFighters.ts`; the pack no longer rejects the art it asked for.
+- [ ] Optional: replace the code-drawn backdrop layers with generated art, layer by layer,
+      to the brief in the prompt pack. Needs `image_gen`, so it belongs to Codex.
 - [x] 2026-09-20 — Four source probes plus three corrections saved with exact prompts.
       Transparent sources supported via opt-in alpha import; default exports unchanged.
       Idle passes; jab reaches 28 px (target 30±3) but still fails one-hole gate at retry cap.
@@ -578,7 +588,8 @@ Milestone 3 scene work cannot start until it is settled.
   Oracle passes the sprite gate; Booster fails on three transparent specks. No motion
   generation or production promotion until identity review and sprite cleanup.
 
-- **2026-09-19 — Unnamed archetypes, not real people.** Owner choice. Avoids likeness
+- **2026-09-19 — Unnamed archetypes, not real people. SUPERSEDED 2026-09-20** by the
+  likeness decision above; kept for the reasoning, which no longer applies. Owner choice. Avoids likeness
   questions on a Vercel preview that is on the public internet, and avoids the practical
   wall where an image generator refuses caricatures of named real people frame by frame.
   Consequence: content, ids, and comments carry archetypes only.
@@ -771,3 +782,137 @@ chapter wiring, no persistence. The harness is a dev tool and has no responsive,
 or accessible path, by design. No reach-accuracy checker exists
 yet — it is specified in the contract but cannot be written usefully until real frames do.
 The fight has never been seen, only proven.
+
+
+---
+
+## Wider stage, camera and backdrop — 2026-09-20
+
+Owner ask, in their words: *"let's get a new cool backdrop that goes beyond the normal screen
+so they can move a little bit more"*, alongside *"correct that wording to not care about
+looking like real people"*.
+
+### What changed
+
+- `MARS_ARCADE_STAGE.halfWidth` 140 → 240. The walkable stage is now 480 px behind a 320 px
+  screen, so the fighters can be walked out of frame.
+- New `src/game/marsArcadeStage.ts`: the screen constants, the camera, and the backdrop as
+  flat-shape **data**. Pure content, no canvas, no Three.js — the harness draws it today and
+  the cabinet renderer will draw the same module later.
+- `captain.flyby` reach 320 → 480, so the move that is *"the payoff of the whole cabinet"*
+  still covers the whole stage and cannot be answered by running to the far wall.
+- The harness projects everything through the camera, draws the backdrop and a contact
+  shadow per fighter, and reports the camera in the live readout.
+- Likeness wording corrected in five places; see the decision below.
+
+### Decisions
+
+- **The stage is 1.5 screens, not 2 or 3.** The owner asked for *a little bit more* room.
+  480 px gives 71% more floor and 208 px of camera travel. The cost is a real balance shift
+  toward the zoner: walking wall to wall at THE ORACLE's 1.0 px/frame takes 8.0 s of a 60 s
+  round, up from 4.7 s. One constant if that turns out to be too much, or too little.
+- **The camera looks 24 px past each wall.** Clamping exactly at the wall draws a cornered
+  fighter half off screen, because the sprite is 44 px wide and the pushbox is 24.
+- **The backdrop is built in code, not generated.** Not a verdict on generated art — it is
+  what this session could actually produce and prove, since `image_gen` is a Codex built-in.
+  It is also the shape the problem wants: the stage scrolls, so the backdrop is five
+  independently-scrolling seamless tiles rather than one picture, and a painting cannot
+  tile or parallax. The prompt pack now carries a per-layer generation brief, so replacing
+  any layer with generated art is a bounded job that keeps the parallax factors, the span
+  widths and the silhouette rule.
+- **Likenesses are now required, not forbidden.** The contract's `toneConstraints` key was
+  literally named `noRealPeople` and the pack's rejection list still said *"the face
+  resembles a real or public person"* — the pack would have rejected the art the owner
+  approved on 2026-09-20. Replaced in `mars-arcade-sprite-contract.json`,
+  `mars-arcade-frame-prompt-pack.md` (twice), `prompts/05_MARS_ARCADE_SPRITE_WAVE_0.md`,
+  this plan, and the header of `marsArcadeFighters.ts`. Ids and move names stay
+  archetype-named on purpose: the rules never depended on who a fighter looks like.
+
+### Discoveries
+
+- **A rounded lerp camera stalls short of its target.** Easing 12% of the remaining distance
+  and rounding to a whole pixel means that once the gap is under about 4 px the step rounds
+  to zero and the camera parks permanently off-centre. The follow now always moves at least
+  one whole pixel.
+- **A test had the old stage width baked into a frame count.** `expires off the end of the
+  stage` pumped a flat 60 frames, which only ever cleared the boundary because the stage was
+  140 px half-wide. It now derives the count from the stage and asserts it stays under the
+  projectile's 120-frame lifetime, so it still proves off-stage expiry rather than timeout.
+- **Span coverage is not shape coverage.** The first tiling test asserted the layer's spans
+  covered the view, which a mutation removing the left-hand tile margin passed cleanly:
+  shapes are allowed to overhang their span, so a span entirely off screen can still own a
+  shape that reaches into it. The test now derives what is needed from the real shape
+  extents.
+- **The first backdrop pass had four faults only visible in a screenshot:** the horizon glow
+  was entirely hidden behind the near berm, both moons sat behind the HUD bars, the deck's
+  full-height seams read as a brick wall rather than a floor, and the parked DC-9 read as a
+  table. The aircraft needed the three features that actually identify it — the upswept tail
+  cone into a T-tail, rear-fuselage engines, and a row of lit cabin windows.
+
+### Evidence
+
+`npm run check` in `/mnt/2TBHDD/CockpitEscapeRoom.worktrees/mars-backdrop`:
+
+```
+eslint .                   clean
+tsc -b                     clean
+vitest run                 54 files, 677 tests passed
+vite build                 built in 3.00s
+```
+
+13 new tests in `src/game/marsArcadeStage.test.ts`. Mutation run — inject, run that file,
+revert:
+
+```
+camera clamp removed                                    caught   2 failed | 11 passed
+camera not rounded to a whole pixel                     caught   1 failed | 12 passed
+corner margin removed                                   caught   1 failed | 12 passed
+backdrop tiles lose their edge margin                   caught   1 failed | 12 passed
+parallax scrolls with the camera instead of against it  caught   2 failed | 11 passed
+the deck stops tracking stage space                     caught   1 failed | 12 passed
+the sky goes back to a near-black void                  caught   1 failed | 12 passed
+bands no longer cover the view                          caught   1 failed | 12 passed
+the flyby is left behind when the stage widens          caught   1 failed | 12 passed
+
+9/9 mutations caught
+```
+
+A tenth mutation, removing the tiling's right-hand margin, is **not** caught, and should not
+be: it removes slack that could only matter for a shape overhanging its span by more than a
+whole span. Verified by re-running it with a shape authored at column −90, which still does
+not require it. Recorded in the docstring rather than papered over with a test.
+
+Browser proof — `tools/assets/check-arcade-stage.mjs`, headless Chromium against the dev
+server on port 5319, chosen to avoid the peer session's server on 5317:
+
+```
+PASS the harness is running a 480 px stage behind a 320 px view
+PASS backdrop drawn: 4287 distinct colours, two commonest cover 24.0% (was 88.5%)
+PASS camera scrolled to the left clamp (-104) with a fighter at x -240
+PASS camera scrolled to the right clamp (104) with a fighter at x 240
+PASS total camera travel is 208 px — the stage genuinely scrolls
+PASS jump frame captured for the contact shadow
+PASS no uncaught browser errors
+```
+
+The flatness figure is the measure of the original complaint: on the pre-change stage, two
+flat colours covered 88.5% of the frame and both fighters plus the whole HUD were 9% of the
+pixels. Screenshots: `preview-renders/mars-arcade/stage-backdrop-neutral.png`,
+`stage-corner-left.png`, `stage-corner-right.png`, `stage-jump-shadow.png`.
+
+`tools/assets/check-arcade-pilot.mjs`, the peer session's own 12 browser checks, was re-run
+against this build unchanged and passes, so the sprite pilot, the native controls, the
+reduced-motion path and the box fallback still work with the camera in front of them.
+
+### Not done and not claimed
+
+- **No owner review.** Nothing here has been seen by the owner.
+- **The HUD is untouched** and is still hairline bars with no portraits, frames, round pips
+  or presentation type. It was the other half of the original *"a little too plain"* and is
+  not in this change.
+- **No hit stop, screen shake, hit flash or impact effects.** All are engine work against
+  events the loop already emits, and all are the cheapest remaining wins.
+- **No generated backdrop art**, no Vercel preview, no Mars scene, no chapter wiring, no
+  persistence. The stage module is dev-only until the cabinet scene exists.
+- This work is on `feat/mars-arcade-wide-stage`, on top of a snapshot of the peer session's
+  uncommitted state. It has not been merged into `feat/mars-arcade-fight-loop`.

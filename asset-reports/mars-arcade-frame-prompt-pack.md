@@ -14,11 +14,10 @@
 > remains on hold. See `mars-arcade-wave-1-pilot-2026-09-20.md`. New transparent sources
 > require opt-in `--source-alpha` plus the existing bilinear filter and locked scale.
 
-> **2026-09-20 owner override:** Booster should resemble Elon Musk and Oracle should
-> resemble Sam Altman. The invented-only rule and generic identity briefs below are
-> superseded for these two fighters. Captain remains unchanged. Current likeness
-> prompts are `art-source/arcade/prompts/anchor-{booster,oracle}-likeness.txt`.
-> Identity review and all sprite geometry/quality gates remain open.
+> **2026-09-20 owner decision, now folded into the rules below:** Booster resembles Elon
+> Musk and Oracle resembles Sam Altman; Captain is unchanged. Current likeness prompts are
+> `art-source/arcade/prompts/anchor-{booster,oracle}-likeness.txt`. All sprite
+> geometry and quality gates remain open and unchanged.
 
 > **Later cleanup:** the owner accepted the likeness direction (“yes they are closer”).
 > All three `normalised-clean/anchor/anchor-00.png` candidates now pass the unchanged
@@ -31,9 +30,14 @@
 committed in `src/game/marsArcadeFighters.ts`; the plan is
 `plans/0044-mars-arcade-fight-loop.md`.
 
-The three fighters are **invented archetypes**. No real or public person may be named,
-caricatured or made recognisable — not in the artwork, and not in any prompt text sent to
-the generator. Owner decision, 2026-09-19.
+**Identity, settled 2026-09-20.** THE BOOSTER is a cartoon likeness of Elon Musk and
+THE ORACLE is a cartoon likeness of Sam Altman; THE CAPTAIN is Pop T. This supersedes the
+invented-archetypes-only rule of 2026-09-19. Likeness is a **requirement**, not a hazard: a
+frame that does not read as the intended person is a reject, and the names may be used in
+prompt text. Keep it affectionate caricature in the same register as the rest of the
+tribute — recognisable and good-humoured, never demeaning, and never implying endorsement
+of this private, non-commercial family project. Fighter ids, move ids and module names stay
+archetype-named, because the rules never depended on who a fighter looks like.
 
 ---
 
@@ -488,13 +492,52 @@ Authored outside the character cell and not gated by the character checker.
 
 ---
 
+## The stage backdrop — five layers, optional generation
+
+**Built in code on 2026-09-20 and playable now** (`src/game/marsArcadeStage.ts`), because
+nothing in contract v1 owned the world the fight happens in: all 137 drawings are characters
+and effects, so the finished set would still have been two fighters on an empty dark field.
+
+The stage is now **480 px wide behind a 320 px screen** and the camera follows the fighters,
+so the backdrop is not one picture. It is five layers that each scroll at their own rate and
+each **tile seamlessly** at their own span width. A single wide painting cannot be used: it
+does not tile, and the stage is longer than any one screen.
+
+To replace the code art with generated art, do it **one layer at a time**, keep the parallax
+factor and the span width exactly, and gate each one the same way a character frame is gated.
+
+| Layer | Parallax | Tile | Subject |
+| --- | --- | --- | --- |
+| `stars` | 0.06 | 320×84 | Mars night sky: sparse stars, Phobos and Deimos. Nothing above row 28 — the HUD is there. |
+| `ridge` | 0.20 | 320×48 | A far ridge line, flat silhouette, based on the horizon glow and never reaching the floor. |
+| `colony` | 0.42 | 320×40 | Habitat domes with lit windows, a comms mast, and **a DC-9 parked on the far pad** — the tribute aircraft at rest, and the one piece of story in the backdrop. T-tail, rear-fuselage engines, lit cabin windows; it must read as a DC-9 and not as a generic airliner. |
+| `pad` | 0.74 | 160×12 | The near berm and its landing lights. |
+| `deck` | 1.00 | 64×36 | The deck the fighters stand on: seams, rivets, scuffs. At parallax 1 with a short span, this is what actually tells the player the stage moved. |
+
+**Rules a generated layer must meet, on top of the usual ones**
+
+- **Seamless at its own span width.** Column 0 must join column `spanWidth - 1` with no seam.
+  This is the first thing to check and the commonest way a layer fails.
+- **Flat colour, no gradients, no dithering.** The bands behind these layers are flat steps
+  for a reason: anything interpolated crawls when the camera scrolls at whole pixels.
+- **The fighters must stay readable.** The backdrop exists to silhouette them. Mean luminance
+  must stay well above the retired `#14101a` void and every value behind a standing fighter
+  brighter still — held by `is not a void` in `src/game/marsArcadeStage.test.ts`.
+- **Nothing above row 28 in `stars`**, where the HUD sits.
+- Authored on the `#FF00FF` chroma field like every other asset here, then normalised and
+  checked; the same spoiler rule applies, so no ground-transport reward anywhere in the sky.
+
+---
+
 ## When a frame comes back
 
 Reject and regenerate yourself if any of these is obviously wrong — it is cheaper than a
 validation round trip.
 
 - Not a strict side profile, or the figure faces left.
-- The face resembles a real or public person.
+- The face does not read as the intended person: Booster as Elon Musk, Oracle as Sam
+  Altman, Captain against the Pop T identity anchor. A generic face is a reject.
+- The caricature is unkind, political, or implies an endorsement.
 - Gradients, gloss, specular highlights, or a reflection on the oracle's glasses.
 - Motion blur, speed lines, impact stars, dust, an energy effect, or a ground shadow.
 - A projectile, aircraft, or spark drawn into the character cell.
