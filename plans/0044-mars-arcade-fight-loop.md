@@ -1,5 +1,34 @@
 # Mars arcade cabinet — fight loop prototype
 
+## 2026-09-22 — Heavy recovery in-between continuation
+
+Goal: improve Booster heavy continuity by bridging the abrupt extended contact to low
+follow-through. Owner requested continuing animation work after the reference review.
+Scope: one new early-recovery drawing, selected in the existing recovery window; keep
+all approved cells (including V4 contact) byte-identical, fixed source scale
+14.038461538461538, baseline119/pivot64, 11/4/18 timing, reach38 and damage13.
+Use the built-in imagegen workflow and unchanged source-alpha/bilinear normalizer.
+No new paid video service, combat tuning, other fighters, production wiring or deployment.
+The tutorial video-generation pipeline is a reference, not an available tool here.
+
+Acceptance: new cell passes unchanged asset gate, same foreground arm and body scale
+bridge the poses, selector boundaries and original mechanics pass tests, actual browser
+shows hit/block/whiff, mirrored motion, pause/step/reduced-motion/fallback and responsive
+375/768/1440 layouts. Run npm run check and full-diff review. Save fresh evidence under
+heavy-recovery-v1 without replacing earlier screenshots. Maximum initial generation plus
+two focused corrections; stop without integrating if the cell cannot pass.
+
+Progress: one new cell generated on first attempt, normalized and integrated only into
+frames15–18. Approved art/rules unchanged. Unchanged asset gate passes; selector RED→GREEN;
+final fullcheck745tests/60files plus lint/types/build PASS. Browser continuity2/heavy13/
+exchange7/movement5/pilot12/outcomes7 PASS. Outcome checker repaired for pixel-font renderer,
+with browser-only moved-banner mutation rejected. Fresh before/after normal and half-speed
+recordings, responsive captures, hashes and sidebar comparison saved under heavy-recovery-v1.
+Full-diff self-review found no critical/high finding. No deploy or whole-journey proof.
+Remaining delta: owner visual acceptance; further in-between polish, specials, Oracle/Captain
+outcomes and existing eye-tint concern. See asset-reports/mars-arcade-heavy-recovery-2026-09-22.md.
+
+
 ## 2026-09-22 — Animation checkpoint PR handoff
 
 Owner authorized a new draft PR after PR73 merged. Branch
@@ -1058,3 +1087,181 @@ narrow the stage. This is balance, not a defect, so it is flagged rather than ch
   persistence. The stage module is dev-only until the cabinet scene exists.
 - This work is on `feat/mars-arcade-wide-stage`, on top of a snapshot of the peer session's
   uncommitted state. It has not been merged into `feat/mars-arcade-fight-loop`.
+
+## Reference study — "Vibe Coding an Entire Street Fighter Game With AI" — 2026-09-22
+
+Owner supplied <https://www.youtube.com/watch?v=en37mtF42eQ> (Chong-U, 19:09, 2026-06-05)
+and asked that our fight chapter be built like it. Studied from the transcript plus frame
+grabs at 10:05, 10:58, 12:06 and 15:02. **Nothing below is implemented or decided** — this
+section records what the reference does and how it maps onto our code.
+
+His stack is Phaser + high-res AI sprites; ours is a pure 60 Hz rules module plus a pixel
+grid. The *tooling* discipline transfers; the art pipeline mostly does not.
+
+### Where our engine is already ahead
+
+`marsArcade.ts` has startup/active/recovery frame data, chip damage, a guard meter with
+crush, knockback, launches, projectiles, per-move meter gain on hit and on block, and the
+landing-window mechanic. The reference has none of that depth. We are not behind on rules.
+
+### The four things he has that we do not
+
+1. **Per-frame bounds authored against the sprite.** His logic runs on four box types —
+   `collision` (ground/body), `hit` (hurtbox), `attack` (hitbox) and `guard` — and the
+   attack box is *active on specific frames only* (he shows frames 5-7 of a punch). Ours
+   is a 1-D check: `separation > move.reach` plus a `defender.y > move.maxHeight` ceiling
+   (`marsArcade.ts:380-383`). So our `reach: 41` is a number with no relationship to where
+   the drawn arm actually ends. The sprite and the hitbox can disagree forever and no test
+   would notice.
+2. **No high/low guard.** `defender.blocking` is one boolean (`marsArcade.ts:394`), so a
+   block stops everything. He calls the guard box the specific thing he learned building
+   this: a high attack must beat a low guard and vice versa. His match HUD is labelled
+   `COMBAT (LIGHT = HIGH, HEAVY = LOW)`, so attack height is a first-class property.
+3. **A character gym.** Character dropdown, animation dropdown, numbered frame buttons,
+   PREV/PLAY/NEXT, 0.5x/1x/2x, a bounds-type dropdown, a drag gizmo (Q move / W scale),
+   CENTER X / CENTER Y / WIDTH / HEIGHT fields, an **"Active this frame"** checkbox, and
+   SAVE FRAME / APPLY ALL. This is where the boxes get authored, not in source.
+4. **A playground that persists tuning to JSON.** A fighter-vs-dummy scene reading
+   `public/configs/fighter-playground.json`, with live WALK SPEED / AIR DRIFT / JUMP POWER
+   / GRAVITY / SCALE / MAX HP / per-height DMG, KB, STUN, a "fill special bar" toggle, a
+   "reset fighter" button, and per-type bounds toggles that render *inactive frames faint
+   and active frames solid*. **The shipping game loads the same JSON.** His stated reason:
+   "AI is not gonna be able to make your game feel perfectly right" — the tuning loop has
+   to be human and fast.
+
+Our `/dev/arcade.html` box harness is the closest thing we have to (4), but it draws boxes
+from hardcoded frame data and cannot write anything back.
+
+### Smaller transferable notes
+
+- **Best-of-three rounds.** He has round win pips under the health bars. We have no round
+  structure at all — `grep` for `roundsWon|bestOf|matchOver` returns nothing; `phase` is
+  `intro | fight | ko | timeOver` and a KO ends everything.
+- **Play the walk animation in reverse** instead of generating a backward walk — his
+  generated reverse walk "just didn't look right". We already ship a dedicated
+  `oracle/normalised-footwork-ready/walk-back`, so this is a possible saving on the
+  remaining fighters, not a correction.
+- **Background wider than the viewport** so fighters can drift off-centre. Already done —
+  our 480-behind-320 stage predates this study.
+- **Anchor image** (normalised, neutral, green screen) as the consistency basis for every
+  later animation. We already do this: `anchor/anchor-00.png` per fighter.
+- **Animation via image-to-video, then frame extraction.** He drives Groq Imagine to make
+  a *movie* of the attack, lays out every frame, then picks a subset into a sheet — the
+  motion is consistent because it came from one continuous clip. Ours generates frames
+  individually (see `popt-frame-generation-pipeline`), which is where our drift comes
+  from. Worth a trial, but it fights our pixel grid: his output is smooth and high-res,
+  ours must land on whole-number scales and quantise cleanly.
+- **UI atlas generated as one chroma-keyed image**, then made transparent — health bar
+  with a transparent fill region and a portrait base. Our HUD is drawn procedurally, which
+  is likelier to stay crisp at 320 px; not an obvious win either way.
+- **Specials:** charge animation, multi-hit combo rather than one hit, and a portrait
+  lightbox sliding in from the left. Our specials are single-hit.
+
+### Suggested order, if the owner wants this
+
+Bounds schema and the gym first (1 + 3), because every sprite generated from here on
+should be authored against it and redoing that later is the expensive path. Then high/low
+guard (2), which is a rules change the gym makes verifiable. Then the playground JSON (4).
+Rounds, hit stop, screen shake and hit flash are independent and can land any time — the
+loop already emits `hit`, `blocked`, `guardCrush`, `ko` and `timeOver` for them to hook.
+
+### Backdrop regenerated from the reference stage — 2026-09-22
+
+Owner asked for the backdrop to be as good as the one in the video (see the reference
+study above). Five layers generated with Codex `image_gen` and normalised into seamless
+tiles; full write-up, measurements and known problems in
+`asset-reports/mars-arcade-backdrop-2026-09-22.md`.
+
+**Art candidate only — not integrated, not owner-reviewed.** No runtime code changed and
+nothing imports the tiles. New tool: `tools/assets/normalise-arcade-backdrop.py`.
+
+The load-bearing discovery: the Pop T magenta key (`min(R,B) - G`, votable at 15 or
+below) is **wrong for a violet palette** and silently gutted the first ridge tile to
+11.5% fill. Replaced with distance-to-key versus distance-to-palette. Also confirmed the
+sky bands are screen-space and never scroll, so the prompt pack's "no gradients, they
+crawl" rule binds the parallax layers only — a fine sky ramp is safe, and it is what
+stops the sky reading as stripes.
+
+### Seams closed and a HUD restyle proposed — 2026-09-22
+
+Both outstanding backdrop seams are resolved, and **one of them was never a seam**: the
+first metric in `normalise-arcade-backdrop.py` counted rows whose first and last column
+differ, which any busy texture fails by construction. Measured against each tile's own
+interior column-to-column variation, the colony's join is *smoother* than its average
+interior pair. The apron's break was real (13x its median), caused by the generated image
+having an open bar gap at one edge and a solid crate stack at the other; fixed by cutting
+the source gap-to-gap so only the continuous rails cross the join. The tool now reports
+the relative measure.
+
+A restyled HUD is proposed as a mock-up, built from the reference's **own UI atlas**
+(paused at 15:32) rather than from its assembled screen: chevron-pointed fill strips with
+a gloss line, chamfered multi-step steel plates, gold chevron end-caps, pill-chip meter
+segments, an octagonal timer, angled name plates and round-win pips. It also adds the
+green -> amber -> red health ramp with a critical blink, which the committed flat-salmon
+bar does not have.
+
+His UI-atlas *method* was rejected on measurement: his canvas is ~760 px wide internally,
+ours is 320 with a 26-row HUD band, so a downsampled atlas loses every bevel exactly as
+the 64x36 deck tile did. The mock-up draws the HUD instead, using the real 5x7 glyphs
+parsed from `src/dev/arcadePixelFont.ts`.
+
+**Still no runtime change and no owner review.** Details, measurements and the two
+rejected passes are in `asset-reports/mars-arcade-backdrop-2026-09-22.md`.
+
+### Integrated, plus the bounds schema and the gym — 2026-09-22
+
+**All three landed in the runtime.** `npm run check` green: lint, typecheck, **767 tests
+(61 files)**, build. Verified in a real browser at `/dev/arcade.html` and `/dev/gym.html`
+on a dedicated port (5322), no console errors.
+
+**Backdrop.** `MARS_ARCADE_BACKDROP` is now five generated image layers instead of code
+shapes; `MarsArcadeBackdropShape`, its six `kind`s and the 140-line `drawShape` are gone.
+Tiles load through the new `src/dev/arcadeHarnessBackdrop.ts`, which **size-checks each
+one against the layer that declares it** — a layer is positioned by its bottom row, so a
+tile regenerated one row taller would silently shift the whole layer and still draw. A
+layer that fails to load is skipped, never substituted, because the sky ramp already
+guarantees the fighters are readable.
+
+`MARS_ARCADE_BANDS` is now generated: the same eight anchors interpolated in two-row
+steps instead of held for 24-30 rows each. Safe because the bands are screen-space and
+never scroll. Objective result from `check-arcade-stage.mjs`: **3449 distinct colours,
+two commonest cover 23.3%** (the retired void was 88.5%).
+
+**HUD.** The health ramp ran the **wrong way round** — red at full health, amber at low —
+so a healthy fighter looked as alarming as a dying one and the bar carried no warning at
+all. Now green -> amber -> red with a critical blink that dims rather than hides, so the
+remaining health stays readable while it flashes. Plus a gold end-cap, an octagonal clock,
+pill meter chips, and a meter whose own frame turns gold when a special can be thrown.
+
+**Bounds schema.** `src/game/marsArcadeBounds.ts` + `marsArcadeBounds.json`: four box
+types per drawn frame, authored in sprite-cell pixels facing right and mirrored at read
+time. The load-bearing test is `reaches exactly as far as the move says it does` — the
+authored hitbox's outer edge must equal the move's `reach`, which is what finally ties the
+drawing to the rules.
+
+**Not wired into hit detection, deliberately.** A test pins why: the engine compares
+`|defender.x - attacker.x|` to `reach`, so the jab connects at 41; box overlap also counts
+the defender's hurtbox and connects at **56**. Switching lengthens every move by the
+opponent's half-width. That is a balance change and belongs in its own reviewable step.
+
+**The gym** (`/dev/gym.html`, `src/dev/arcadeGym.ts`) authors those boxes against the
+sprite and POSTs them to `src/game/marsArcadeBounds.json` through a dev-only Vite
+middleware. Three things it caught or needed:
+
+1. **It immediately found a real defect in its own seed data** — the jab's hitbox was at
+   hip height while the glove is at chest height. Both hitboxes were then re-derived by
+   measuring the sprite alpha: booster's jab is high (rows 35-44), oracle's heavy is a low
+   sweep (rows 96-108), which is a natural high/low pair for the guard system.
+2. **Sprites did not redraw on frame change.** `loadImage` had no load handler, so the
+   canvas painted before the new frame decoded and drew boxes over an apparently empty
+   cell — the tool silently lying about the art. Startup timeouts hid it for frame 1 only.
+3. **A near-black canvas hid a black leather jacket.** Replaced with a checkerboard,
+   which also shows where the cell is transparent.
+
+Body boxes for all eight authored frames are now derived from the art rather than guessed:
+the hurtbox is the silhouette clipped at the baseline, the collision box is the torso
+column only — a pushbox as wide as an outstretched arm would have fighters shoving each
+other with a punch.
+
+**Still open:** no owner review; nothing pushed. Hit stop, screen shake and hit flash are
+still the cheapest remaining wins. Only four animations carry bounds so far.
