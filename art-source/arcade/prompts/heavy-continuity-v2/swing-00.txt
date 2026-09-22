@@ -1,0 +1,5 @@
+Use case: identity-preserve.
+Edit target: supplied full-body Elon fighter with camera-near fist cocked behind his head.
+Create the NEXT anticipation key pose in the SAME overhand attack: the formerly cocked CAMERA-NEAR arm swings forward over his head. Near shoulder remains in foreground on viewer-left side of chest, near upper arm raised up/front, bent elbow near temple height, striking fist now IN FRONT of his forehead, projecting to the right of his face. This is the top of an overhand arc, BEFORE the fist descends to contact. No full extension yet.
+Keep the far glove tucked at his chin, no hand swap. Visibly continuous foreground shoulder-elbow-fist chain, fist does not obscure face.
+Preserve exact Elon likeness, black leather jacket and gloves, charcoal jeans/boots, drawing style, body-part dimensions, planted feet and overall figure height. Full-body 1024 x 1536 transparent canvas. Do not enlarge, crop or move feet. Hair and lifted glove fit within top margin; topmost silhouette should not rise above original hair top. Fully opaque garment interiors and no tiny alpha pinholes; no background, ground shadow, glow, text, props or effects.

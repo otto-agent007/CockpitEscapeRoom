@@ -1,0 +1,10 @@
+Use case: precise-object-edit.
+EDIT the supplied leaning-overhand fighter sprite. Keep EXACT head, torso lean, feet, hips, clothes, body scale, rightmost fist position and descending forearm. Do not change punch reach.
+The TWO upper arms are drawn incorrectly. Fix the near-arm attachment by simplifying overlap:
+1. REMOVE the short foreground bent guarding arm, including its bare hanging elbow beneath the chest. That foreground arm must NOT be a guard.
+2. From the big CAMERA-NEAR shoulder on the left side of his chest, draw ONE continuous black leather upper sleeve sweeping forward ACROSS and IN FRONT of his chest, connecting directly to the raised striking elbow on the right. This upper arm has natural length because the shoulder is already leaned forward.
+3. The existing descending forearm and extended fist connect to THAT foreground upper sleeve and stay in place.
+4. The OTHER arm is held in tight guard BEHIND the torso/near shoulder and is FULLY OCCLUDED in this contact drawing. No second bare elbow, second forearm or floating glove. Only ONE complete arm is visible: the near striking arm.
+Result: one unmistakable foreground shoulder -> compact upper arm -> raised elbow -> descending fist chain. No long rubber arm, no hand swap, no disconnected sleeves.
+Also close the tiny notch where the lower-right jacket flap meets the waistband by overlapping a little opaque dark fabric. All clothing interiors solid opaque.
+Same 1024 x 1536 transparent canvas. No background, floor shadow, glow, text or effects.

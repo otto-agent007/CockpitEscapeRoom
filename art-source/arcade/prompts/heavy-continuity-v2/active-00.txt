@@ -1,0 +1,6 @@
+Use case: identity-preserve.
+Edit target: the provided full-body Elon Musk fighter sprite.
+Keep the EXACT figure size, face, clothes, feet positions and 1024 x 1536 transparent canvas.
+Change ONLY the near punching arm's elbow angle: raise that elbow by about 140 pixels, while keeping the fist almost exactly where it is, moving the fist only 25 pixels left and 45 pixels down. Do NOT retract the fist toward his body. The fist must remain far beyond the forward boot, at the original extended reach.
+Result: a powerful descending overhand CONTACT, near elbow visibly above fist, forearm sloping down toward the extended fist. The arm crossing in FRONT of his chest is the striking arm. The far glove stays tightly guarding beside his chin. No hand swap.
+Preserve the shoulder-to-elbow-to-fist continuity and realistic arm proportions. Keep head, torso and legs in the original positions. All leather and zipper seams must have solid opaque alpha, no tiny enclosed transparent pinholes. Genuine transparent exterior, no floor, backdrop, shadow, glow, effects, letters or props.

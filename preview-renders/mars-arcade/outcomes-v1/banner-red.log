@@ -1,0 +1,15 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: outcome banner must clear the fighters faces and raised fists
+    at file:///mnt/2TBHDD/CockpitEscapeRoom.worktrees/mars-arcade/tools/assets/check-arcade-outcomes.mjs:59:14 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v26.3.0

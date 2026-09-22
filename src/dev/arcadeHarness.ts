@@ -41,6 +41,8 @@ import {
   PLAYER_TWO_BINDINGS,
   inputFromKeys,
 } from './arcadeHarnessInput'
+import { loadArcadeSprites, selectArcadeSprite } from './arcadeHarnessSprites'
+import { advanceExchange, EXCHANGE_END_FRAME } from './arcadeHarnessExchange'
 
 const STAGE_WIDTH = 320
 const STAGE_HEIGHT = 224
@@ -82,6 +84,10 @@ interface Harness {
   paused: boolean
   stepRequested: boolean
   showHitboxes: boolean
+  showSprites: boolean
+  reducedMotion: boolean
+  outcomeFrames: number
+  exchange: boolean
   log: string[]
   seed: number
 }
@@ -96,6 +102,11 @@ const held = new Set<string>()
 const pending = new Set<string>()
 
 function newRound(harness: Harness): void {
+  harness.outcomeFrames = 0
+  harness.exchange = false
+  harness.stepRequested = false
+  held.clear()
+  pending.clear()
   harness.state = createMarsArcadeRound(harness.leftId, harness.rightId)
   harness.seed += 1
   harness.opponent = createMarsArcadeOpponent(1, harness.difficulty, harness.seed)
@@ -272,15 +283,15 @@ function drawHud(ctx: CanvasRenderingContext2D, harness: Harness): void {
         : `${state.phase === 'ko' ? 'K.O.' : 'TIME'} — ${marsArcadeFighter(state.fighters[state.winner].id).label}`
     ctx.font = '700 28px ui-monospace, monospace'
     ctx.fillStyle = '#ffd23f'
-    ctx.fillText(banner, width / 2, STAGE_HEIGHT * SCALE * 0.45)
+    ctx.fillText(banner, width / 2, 36 * SCALE)
     ctx.font = '500 15px ui-monospace, monospace'
     ctx.fillStyle = '#c9c9d6'
-    ctx.fillText('R to run it again', width / 2, STAGE_HEIGHT * SCALE * 0.45 + 30)
+    ctx.fillText('R to run it again', width / 2, 46 * SCALE)
   }
   ctx.textAlign = 'left'
 }
 
-function draw(ctx: CanvasRenderingContext2D, harness: Harness): void {
+function draw(ctx: CanvasRenderingContext2D, harness: Harness, sprites: ReturnType<typeof loadArcadeSprites>): void {
   const width = STAGE_WIDTH * SCALE
   const height = STAGE_HEIGHT * SCALE
 
@@ -308,7 +319,22 @@ function draw(ctx: CanvasRenderingContext2D, harness: Harness): void {
   drawProjectiles(ctx, harness.state)
   for (const side of [0, 1] as const) {
     const fighter = harness.state.fighters[side]
-    drawFighter(ctx, fighter, fighter.id)
+    const selection = selectArcadeSprite(harness.state, side, harness.reducedMotion, harness.outcomeFrames)
+    const renderY = selection.renderY ?? fighter.y
+    const image = harness.showSprites ? sprites.get(selection.src) : undefined
+    if (image) {
+      ctx.save()
+      ctx.imageSmoothingEnabled = false
+      ctx.translate(stageX(fighter.x), stageY(renderY))
+      ctx.scale(fighter.facing * SCALE, SCALE)
+      ctx.drawImage(image, -64, -120, 128, 128)
+      ctx.restore()
+      // Color/state feedback remains diagnostic while combat pose art is incomplete.
+      ctx.fillStyle = fighter.blocking ? '#8ab4ff' : STATE_TINT[fighter.activity] ?? COLOURS[fighter.id]
+      ctx.fillRect(stageX(fighter.x) - 18, stageY(renderY) + 4, 36, 3)
+    } else {
+      drawFighter(ctx, fighter, fighter.id)
+    }
   }
   for (const side of [0, 1] as const) {
     drawMoveRegion(ctx, harness.state.fighters[side], harness.showHitboxes)
@@ -351,10 +377,16 @@ function describe(harness: Harness): string {
       `speed ${speed}x${harness.paused ? '   PAUSED' : ''}`,
     `P2 ${harness.humanRight ? 'human' : `CPU (${harness.difficulty})`}   ` +
       `hitboxes ${harness.showHitboxes ? 'on' : 'off'}`,
+    `outcome frame ${Math.floor(harness.outcomeFrames)}`,
+    harness.exchange
+      ? (state.frame >= EXCHANGE_END_FRAME ? 'Exchange complete — replay or choose Free play' : 'Exchange review — recorded inputs, real fight rules')
+      : 'Free play',
     '',
     describeFighter(state.fighters[0]),
+    `  artwork    ${harness.showSprites ? selectArcadeSprite(state, 0, harness.reducedMotion, harness.outcomeFrames).label : 'boxes'}`,
     '',
     describeFighter(state.fighters[1]),
+    `  artwork    ${harness.showSprites ? selectArcadeSprite(state, 1, harness.reducedMotion, harness.outcomeFrames).label : 'boxes'}`,
   ].join('\n')
 }
 
@@ -388,10 +420,19 @@ function mount(): void {
   const canvas = document.querySelector<HTMLCanvasElement>('#stage')
   const readout = document.querySelector<HTMLPreElement>('#readout')
   const logPanel = document.querySelector<HTMLPreElement>('#log')
-  if (!canvas || !readout || !logPanel) throw new Error('harness markup missing')
+  const assetStatus = document.querySelector<HTMLParagraphElement>('#asset-status')
+  if (!canvas || !readout || !logPanel || !assetStatus) throw new Error('harness markup missing')
+  const sprites = loadArcadeSprites()
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
 
   canvas.width = STAGE_WIDTH * SCALE
   canvas.height = STAGE_HEIGHT * SCALE
+  const resize = () => {
+    const available = canvas.parentElement?.clientWidth ?? STAGE_WIDTH * SCALE
+    canvas.style.width = `${STAGE_WIDTH * Math.max(1, Math.min(SCALE, Math.floor(available / STAGE_WIDTH)))}px`
+  }
+  resize()
+  if (canvas.parentElement) new ResizeObserver(resize).observe(canvas.parentElement)
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('2d context unavailable')
 
@@ -406,39 +447,83 @@ function mount(): void {
     paused: false,
     stepRequested: false,
     showHitboxes: true,
+    showSprites: true,
+    reducedMotion: motion.matches,
+    outcomeFrames: 0,
+    exchange: false,
     log: [],
     seed: 1,
   }
 
-  window.addEventListener('keydown', (event) => {
-    if (event.repeat) return
-    switch (event.code) {
+  motion.addEventListener('change', event => { harness.reducedMotion = event.matches })
+
+  function command(code: string): boolean {
+    switch (code) {
       case 'Space':
+        if (harness.exchange && harness.state.frame >= EXCHANGE_END_FRAME) return true
         harness.paused = !harness.paused
-        event.preventDefault()
-        return
+        return true
       case 'KeyN':
+        harness.paused = true
         harness.stepRequested = true
-        return
+        return true
       case 'KeyR':
         newRound(harness)
-        return
+        return true
       case 'KeyT':
+        harness.exchange = false
         harness.humanRight = !harness.humanRight
-        return
+        return true
+      case 'exchange':
+        harness.leftId = 'booster'
+        harness.rightId = 'oracle'
+        harness.humanRight = true
+        newRound(harness)
+        harness.exchange = true
+        harness.paused = false
+        harness.showSprites = true
+        harness.showHitboxes = false
+        harness.speedIndex = 1
+        return true
+      case 'freeplay':
+        newRound(harness)
+        harness.paused = false
+        harness.humanRight = false
+        harness.speedIndex = 0
+        return true
       case 'KeyS':
         harness.speedIndex = (harness.speedIndex + 1) % SPEEDS.length
-        return
+        return true
       case 'KeyH':
         harness.showHitboxes = !harness.showHitboxes
-        return
+        return true
+      case 'KeyV':
+        harness.showSprites = !harness.showSprites
+        return true
       case 'KeyG':
         harness.difficulty = harness.difficulty === 'veteran' ? 'rookie' : 'veteran'
         newRound(harness)
-        return
+        return true
+      case 'mirror':
+        harness.leftId = 'booster'
+        harness.rightId = 'booster'
+        newRound(harness)
+        return true
       default:
-        break
+        return false
     }
+  }
+
+  const combatKeys = new Set([...Object.values(PLAYER_ONE_BINDINGS), ...Object.values(PLAYER_TWO_BINDINGS)])
+  window.addEventListener('keydown', (event) => {
+    // Native fields own navigation; buttons own activation, but not game letter keys.
+    if (event.target instanceof HTMLElement) {
+      if (event.target.closest('select, input, textarea')) return
+      if (event.target.closest('button') && ['Space', 'Enter'].includes(event.code)) return
+    }
+    if (combatKeys.has(event.code) || event.code === 'Space') event.preventDefault()
+    if (event.repeat) return
+    if (command(event.code)) return
     const digit = ['Digit1', 'Digit2', 'Digit3'].indexOf(event.code)
     const chosen = digit >= 0 ? FIGHTER_ORDER[digit] : undefined
     if (chosen) {
@@ -447,11 +532,54 @@ function mount(): void {
       newRound(harness)
       return
     }
-    held.add(event.code)
-    if (harness.paused) pending.add(event.code)
+    if (combatKeys.has(event.code)) {
+      cancelExchange()
+      held.add(event.code)
+      pending.add(event.code)
+    }
   })
   window.addEventListener('keyup', (event) => held.delete(event.code))
-  window.addEventListener('blur', () => held.clear())
+  const clearInput = () => { held.clear(); pending.clear() }
+  function cancelExchange(): void {
+    if (!harness.exchange) return
+    harness.exchange = false
+    clearInput()
+    // Keep a deliberately paused inspection paused; the completed recording
+    // can be taken over immediately without a hidden Resume requirement.
+    if (harness.state.frame >= EXCHANGE_END_FRAME) harness.paused = false
+  }
+  window.addEventListener('blur', clearInput)
+  document.addEventListener('visibilitychange', () => { if (document.hidden) clearInput() })
+
+  document.querySelectorAll<HTMLButtonElement>('[data-command]').forEach(button => {
+    button.addEventListener('click', () => command(button.dataset.command ?? ''))
+  })
+  document.querySelectorAll<HTMLSelectElement>('[data-fighter]').forEach(select => {
+    select.addEventListener('change', () => {
+      const id = FIGHTER_ORDER.find(id => id === select.value)
+      if (!id) return
+      if (select.dataset.fighter === '0') harness.leftId = id
+      else harness.rightId = id
+      newRound(harness)
+    })
+  })
+  document.querySelectorAll<HTMLButtonElement>('[data-combat]').forEach(button => {
+    const code = button.dataset.combat ?? ''
+    button.addEventListener('pointerdown', event => {
+      if (event.button !== 0) return
+      cancelExchange()
+      button.setPointerCapture(event.pointerId)
+      held.add(code)
+      pending.add(code)
+    })
+    button.addEventListener('lostpointercapture', () => held.delete(code))
+    button.addEventListener('pointerup', () => held.delete(code))
+    button.addEventListener('pointercancel', () => { held.delete(code); pending.delete(code) })
+    // Keyboard or assistive-technology activation is a one-frame tap, never a stuck hold.
+    button.addEventListener('click', event => {
+      if (event.detail === 0) { cancelExchange(); pending.add(code) }
+    })
+  })
 
   let previous = performance.now()
 
@@ -464,24 +592,32 @@ function mount(): void {
     if (!harness.paused || stepping) {
       // Sampled only when the world is about to move, so a long pause does not burn
       // the opponent's intent timer against a frozen fight.
-      const sampled = stepping ? new Set([...held, ...pending]) : held
+      const sampled = new Set([...held, ...pending])
       const playerOne = inputFromKeys(sampled, PLAYER_ONE_BINDINGS)
       let playerTwo: MarsArcadeInput
-      if (harness.humanRight) {
+      if (harness.humanRight || harness.exchange) {
         playerTwo = inputFromKeys(sampled, PLAYER_TWO_BINDINGS)
       } else {
         const decision = advanceMarsArcadeOpponent(harness.opponent, harness.state)
         harness.opponent = decision.opponent
         playerTwo = decision.input
       }
-      pending.clear()
-
       const elapsed = stepping
         ? MARS_ARCADE_TIMING.frameSeconds
         : deltaSeconds * (SPEEDS[harness.speedIndex] ?? 1)
       const source = stepping ? { ...harness.state, carrySeconds: 0 } : harness.state
-      const transition = advanceMarsArcade(source, [playerOne, playerTwo], elapsed)
+      const transition = harness.exchange
+        ? advanceExchange(source, elapsed)
+        : advanceMarsArcade(source, [playerOne, playerTwo], elapsed)
+      // A quick tap must survive a render tick that did not advance the fixed-step world.
+      if (transition.state.frame !== harness.state.frame) pending.clear()
+      // The fight intentionally freezes at KO/timeOver. Only this presentation clock advances.
+      const terminal = harness.state.phase === 'ko' || harness.state.phase === 'timeOver'
+      harness.outcomeFrames = terminal
+        ? Math.min(24, harness.outcomeFrames + Math.min(elapsed, MARS_ARCADE_TIMING.maxFrameDeltaSeconds) / MARS_ARCADE_TIMING.frameSeconds)
+        : 0
       harness.state = transition.state
+      if (harness.exchange && harness.state.frame >= EXCHANGE_END_FRAME) harness.paused = true
       for (const event of transition.events) {
         const line = formatEvent(event, harness.state.frame)
         if (line) harness.log.push(line)
@@ -489,9 +625,20 @@ function mount(): void {
       if (harness.log.length > 14) harness.log = harness.log.slice(-14)
     }
 
-    draw(ctx, harness)
+    draw(ctx, harness, sprites)
     readout.textContent = describe(harness)
-    logPanel.textContent = harness.log.join('\n') || '(no events yet)'
+    const status = sprites.status() + (harness.reducedMotion ? '; reduced motion: static idle' : '')
+    if (assetStatus.textContent !== status) assetStatus.textContent = status
+    const events = harness.log.join('\n') || '(no events yet)'
+    if (logPanel.textContent !== events) logPanel.textContent = events
+    const pause = document.querySelector<HTMLButtonElement>('[data-command="Space"]')
+    if (pause) {
+      pause.disabled = harness.exchange && harness.state.frame >= EXCHANGE_END_FRAME
+      pause.textContent = pause.disabled ? 'Exchange complete' : harness.paused ? 'Resume' : 'Pause'
+    }
+    for (const select of document.querySelectorAll<HTMLSelectElement>('[data-fighter]')) {
+      select.value = select.dataset.fighter === '0' ? harness.leftId : harness.rightId
+    }
     window.requestAnimationFrame(frame)
   }
 

@@ -1,5 +1,25 @@
 # Mars arcade sprite Wave 0 prompt
 
+> **Latest handoff:** owner said “good job, continue” after cleaned-anchor review.
+> Wave 0's stop is superseded. A dev-only likeness/idle pilot now exists; full Wave 1
+> is incomplete because the four-frame checkpoint found walk registration drift and
+> a jab speck still failing after two corrections. Do not repeat Wave 0 or bulk-generate
+> from rejected probes. Continue from `asset-reports/mars-arcade-wave-1-pilot-2026-09-20.md`
+> and the latest progress in `plans/0044-mars-arcade-fight-loop.md`.
+
+> **Owner revision, 2026-09-20:** “we need the caracters to look more like elon and sam
+> altman”. This supersedes the invented-only likeness restriction below for Booster
+> (Elon Musk) and Oracle (Sam Altman). Captain remains Pop T. Use the separate
+> `anchor-*-likeness.txt` prompts and `generated/anchor-likeness-00.png` candidates;
+> the original prompts and images are historical. See the dated Wave 0 asset report.
+> Other scope, validation, spoiler and owner-review gates still apply.
+
+> **Cleanup result, 2026-09-20:** owner confirms the likenesses are closer. Current review
+> outputs are `art-source/arcade/<fighter>/normalised-clean/anchor/anchor-00.png` for all
+> three; all pass the unchanged checker. Use `--resample bilinear` and the exact locked
+> scales in `art-source/arcade/README.md`. Earlier images and exports are preserved.
+> The cleaned side-by-side review is `preview-renders/mars-arcade/wave-0-clean-review.png`.
+
 ## Goal
 
 Produce the three Wave 0 identity anchors for the Mars arcade cabinet — one neutral fighting

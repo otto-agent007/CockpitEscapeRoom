@@ -1,0 +1,4 @@
+Use case: precise-object-edit.
+Edit the supplied sprite. Preserve the entire figure EXACTLY, especially the foreground punching sleeve, high elbow, descending forearm, extended fist, hidden far guard, face, legs and body scale.
+ONLY repair the little bottom-right jacket flap where it meets the trousers. Extend that dark leather flap about 35 pixels DOWN and LEFT so its inner edge plainly OVERLAPS the waistband, closing the tiny empty notch near source coordinate x540, y732. Make the overlap a solid opaque patch of black leather, not fine zipper teeth. Keep the outermost right edge of the flap otherwise unchanged.
+Do not change any arm or fist position. Do not shift or resize the body or canvas. Same 1024 x 1536 image and genuine transparent exterior. No tiny enclosed alpha holes in jacket/waistband. No background, shadow, glow, text, props or effects.

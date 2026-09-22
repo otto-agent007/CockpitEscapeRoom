@@ -1,0 +1,8 @@
+Use case: identity-preserve.
+Create one corrected CONTACT sprite of the fighter from image 1, using image 2 as an explicit joint-position guide.
+Image 1 supplies EXACT Elon likeness, black leather jacket, dark shirt, charcoal jeans, boots, gloves, full-body scale and cel-shaded illustration style. Image 2 supplies ONLY the new body lean and shoulder/elbow/wrist positions, not its colors, labels or simplistic shapes.
+Canvas: 1536 x 1536, transparent. Figure head-to-sole height about 1400 pixels, feet at the guide's ground line. Preserve body-part sizes from image 1; do not enlarge the character to fill the square.
+POSE: the same CAMERA-NEAR arm raised in image 1 now lands a strong overhand punch. Follow the BLUE near-arm centerline in image 2: near shoulder -> upper arm that is a STRAIGHT tapered segment -> single slightly bent elbow -> straight forearm -> straight wrist and clenched fist. This is the extended end of a downward arc, not a hooked claw. Elbow bend is subtle, about 15–20 degrees. No bowed/U-shaped sleeve, no inflated biceps, no hanging wrist, no extra elbow. Fitted leather follows the simple arm shape.
+Near sleeve crosses in front of chest. The other hand stays in a compact guard behind the near arm, mostly occluded. Torso leans forward as in guide. Both feet planted.
+Fist's farthest knuckle is about 530 pixels forward of the midpoint of the boot span. Use the guide's reach and joint geometry; do not stretch the arm.
+Neutral gray eyes and clean white sclera, no red shading in the eyes. Clean opaque connected silhouette and clothing, especially waistband/jacket joins; no pinholes. Genuine transparent exterior. No diagram marks, guide text, colored dots, floor, backdrop, shadow or effects.
