@@ -130,6 +130,80 @@ describe('movement', () => {
 })
 
 describe('frame data', () => {
+  it.each([
+    [39, false, true], [40, false, true], [41, false, false],
+    [39, true, true], [40, true, true], [41, true, false],
+  ] as const)('Sam jab at %i px, mirrored=%s, connects=%s with unchanged timing and damage', (distance, mirrored, connects) => {
+    const initial = placedAtWall(startedRound('oracle', 'booster'), distance)
+    if (mirrored) {
+      for (const fighter of initial.fighters) {
+        fighter.x = -fighter.x
+        fighter.facing = fighter.facing === 1 ? -1 : 1
+      }
+    }
+    const attack: InputPair = [hold('light'), neutral()]
+    const startup = pump(initial, 5, attack)
+    expect(startup.events).toEqual([])
+    const active = pump(startup.state, 1, attack)
+    expect(active.events).toEqual(connects
+      ? [{ type: 'hit', attacker: 0, moveId: 'oracle.prompt', damage: 4 }]
+      : [])
+    expect(active.state.fighters[1].health).toBe(connects ? 96 : 100)
+    expect(pump(initial, 15, attack).state.fighters[0].activity).toBe('attack')
+    expect(pump(initial, 16, attack).state.fighters[0].activity).toBe('idle')
+  })
+
+  it('Sam jab still chips for one at its approved 40px limit', () => {
+    const initial = startedRound('oracle', 'booster')
+    initial.fighters[0].x = 0
+    initial.fighters[1].x = 32.5
+    // Six guard-walk ticks at1.25px place the defender at40px on contact.
+    const inputs: InputPair = [hold('light'), { ...neutral(), move: 1 }]
+    const startup = pump(initial, 5, inputs)
+    expect(startup.events).toEqual([])
+    expect(startup.state.fighters[1].x).toBe(38.75)
+    const result = pump(startup.state, 1, inputs)
+    expect(result.events).toEqual([{ type: 'blocked', attacker: 0, moveId: 'oracle.prompt', chipDamage: 1 }])
+    expect(result.state.fighters[1].health).toBe(99)
+  })
+
+  it.each([
+    [40, false, true], [41, false, true], [42, false, false],
+    [40, true, true], [41, true, true], [42, true, false],
+  ] as const)('longer jab at %i px, mirrored=%s, connects=%s without changing its timing', (distance, mirrored, connects) => {
+    const initial = placedAtWall(startedRound(), distance)
+    if (mirrored) {
+      for (const fighter of initial.fighters) {
+        fighter.x = -fighter.x
+        fighter.facing = fighter.facing === 1 ? -1 : 1
+      }
+    }
+    const attack: InputPair = [hold('light'), neutral()]
+    const startup = pump(initial, 4, attack)
+    expect(startup.events).toEqual([])
+    const active = pump(startup.state, 1, attack)
+    expect(active.events).toEqual(connects
+      ? [{ type: 'hit', attacker: 0, moveId: 'booster.padJab', damage: 5 }]
+      : [])
+    expect(active.state.fighters[1].health).toBe(connects ? 95 : 100)
+    expect(pump(initial, 14, attack).state.fighters[0].activity).toBe('attack')
+    expect(pump(initial, 15, attack).state.fighters[0].activity).toBe('idle')
+  })
+
+  it('still chips for one when the longer jab is blocked at its 41px limit', () => {
+    const initial = startedRound()
+    initial.fighters[0].x = 0
+    initial.fighters[1].x = 36
+    const inputs: InputPair = [hold('light'), { ...neutral(), move: 1 }]
+    // Guard walks away: four startup ticks take 36→40; the contact tick takes 40→41.
+    const startup = pump(initial, 4, inputs)
+    expect(startup.state.fighters[1].x).toBe(40)
+    expect(startup.events).toEqual([])
+    const result = pump(startup.state, 1, inputs)
+    expect(result.events).toEqual([{ type: 'blocked', attacker: 0, moveId: 'booster.padJab', chipDamage: 1 }])
+    expect(result.state.fighters[1].health).toBe(99)
+  })
+
   it('cannot hit during startup and connects on the first active frame', () => {
     const state = placedAtWall(startedRound(), 28)
     const attack: InputPair = [hold('light'), neutral()]

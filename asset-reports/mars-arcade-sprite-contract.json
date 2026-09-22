@@ -38,7 +38,7 @@
     "maxPoseHeightPx": 112,
     "maxPoseWidthPx": 96,
     "envelopeBounds": { "x": [5, 123], "y": [7, 127] },
-    "envelope": "A pose must fit x in [5,123] and y in [7,127] of the cell. The longest reach in the rules is 40 px from the pivot, which lands at column 104 and clears the bound by 19 px.",
+    "envelope": "A pose must fit x in [5,123] and y in [7,127] of the cell. The owner-approved Booster jab reaches 41 px from the pivot, landing at column 105 with 18 px clearance. Effect-based full-stage moves are separate sprites.",
     "standingWidthNote": "Wider than Pop T's 34 px intro stance because a fighting guard stands with the feet apart. It does not change the pushbox, which is 24 px and is rules, not art."
   },
   "travel": {

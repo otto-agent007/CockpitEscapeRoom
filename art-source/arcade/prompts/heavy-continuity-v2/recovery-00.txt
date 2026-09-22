@@ -1,0 +1,5 @@
+Use case: identity-preserve.
+Edit target: provided Elon Musk fighter follow-through sprite. Keep exact face, black leather outfit, full-body scale, legs, planted feet, 1024 x 1536 transparent canvas.
+Improve the follow-through: bend the CAMERA-NEAR elbow a little more and carry its lowered fist LEFTWARD across the front of his abdomen, resting over the belt/front hip rather than dangling beyond the jacket's right edge. Near forearm and fist must overlap solid opaque torso fabric, leaving no narrow empty slit between glove and jacket.
+The FAR glove stays up at the chin in exactly the same guard; only the foreground striking arm moves. The near arm clearly follows through DOWN from an overhand punch, it must not move behind the back.
+Preserve all other proportions, hair and foot placement. Crisp connected silhouette and fully opaque clothing interiors. Genuine transparent exterior, no shadows, backgrounds, glow, text or effect streaks.

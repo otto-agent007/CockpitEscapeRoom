@@ -1,0 +1,12 @@
+PASS assets loaded; pause freezes simulation; step advances exactly one frame
+PASS 375/768/1440 responsive layouts, no overflow, integer stage scaling; screenshots saved
+PASS native keyboard activation and P1/P2 movement work; close jab hits
+PASS move-away guard blocks an attack
+PASS jump and landing update real state and use authored jump artwork
+PASS native attack tap is retained while paused and delivered on step
+PASS restart, mirror preset and identity selector work
+PASS reduced-motion preference honored; reload starts a fresh dev round
+PASS pointer hold moves; release outside clears it; blur discards a paused attack tap
+PASS explicit box mode remains available
+PASS all thirty-eight failed image requests use visible box fallback without crashing
+PASS no uncaught browser errors

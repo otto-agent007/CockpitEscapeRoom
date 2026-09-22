@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1536" viewBox="0 0 1536 1536">
+<rect width="1536" height="1536" fill="#eef1f5"/>
+<path d="M180 1480H1220" stroke="#9da8b8" stroke-width="4"/>
+<path d="M620 785 L455 1130 L345 1408 M650 795 L815 1100 L875 1408" fill="none" stroke="#666f7c" stroke-width="108" stroke-linejoin="round"/>
+<path d="M290 1415L430 1450 M815 1415L955 1450" stroke="#343c48" stroke-width="90" stroke-linecap="round"/>
+<path d="M535 775 L620 465 Q660 385 740 405 L864 454 L727 819Z" fill="#b2bbc9" stroke="#444f62" stroke-width="9"/>
+<path d="M812 446L858 576L834 456" fill="none" stroke="#747e8b" stroke-width="63" stroke-linecap="round" stroke-linejoin="round"/>
+<ellipse cx="796" cy="253" rx="118" ry="164" fill="#d9bd9c" stroke="#444f62" stroke-width="8"/>
+<path d="M858 210L897 259L875 283" fill="#d9bd9c" stroke="#444f62" stroke-width="8"/>
+<path d="M740 420L930 440L1080 500" fill="none" stroke="#267ab3" stroke-width="88" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M740 420L930 440L1080 500" fill="none" stroke="#e0f7ff" stroke-width="5"/>
+<ellipse cx="1110" cy="510" rx="43" ry="50" fill="#273448" stroke="#15202e" stroke-width="8"/>
+<g fill="#fcce45" stroke="#182331" stroke-width="5"><circle cx="740" cy="420" r="16"/><circle cx="930" cy="440" r="16"/><circle cx="1080" cy="500" r="16"/></g>
+<g font-family="sans-serif" font-size="25" fill="#28334a"><text x="25" y="40">CONTACT POSE GUIDE — geometry only, not final art</text><text x="650" y="355">near shoulder</text><text x="905" y="380">elbow</text><text x="1090" y="435">wrist / fist</text><text x="1080" y="640">Slight bend. Straight wrist.</text><text x="1080" y="680">No curved sleeve or hinge.</text><text x="20" y="1520">Planted feet. Lean comes from torso, not a stretched upper arm.</text></g></svg>

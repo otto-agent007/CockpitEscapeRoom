@@ -1,0 +1,7 @@
+Use case: precise-object-edit.
+Image 1 is the EDIT TARGET: contact pose. Image 2 is the ARM IDENTITY reference: earlier swing pose.
+Keep image 1's exact full body, face, legs, clothing, fist position, elbow position, dimensions and genuine transparent alpha.
+Fix one anatomical drawing error: the contact arm is attached to the far shoulder. It MUST attach to the NEAR shoulder, the same foreground arm raised in image 2.
+Redraw ONLY the upper-arm sleeve and its overlap: connect the big near shoulder on the viewer-LEFT side of the chest directly across the FRONT of the chest to the raised elbow on viewer-RIGHT. This long near upper sleeve must visibly OCCLUDE the jacket zipper and cross IN FRONT of the far guarding glove. The far glove is partially visible BELOW this crossing near sleeve, with its forearm tucked against the body.
+The descending extended forearm and fist STAY EXACTLY at their current positions. No shortening, changing angle or scale. Move no feet, head, torso or fist. Only reroute upper sleeve to the foreground shoulder and correct guard occlusion.
+End result: foreground shoulder -> foreground sleeve across chest -> raised elbow -> descending forward forearm -> extended fist. Other hand is tucked BELOW and behind the crossing upper arm. No third arm or detached sleeve. Fully opaque clothing, no alpha pinholes. Transparent outside, no background, shadow, glow, text or effects.

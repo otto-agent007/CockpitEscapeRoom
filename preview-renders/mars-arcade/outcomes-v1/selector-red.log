@@ -1,0 +1,85 @@
+npm notice run cockpit-escape-room@0.1.0 test
+npm notice run vitest run src/dev/arcadeHarnessOutcomes.test.ts
+
+ RUN  v4.1.9 /mnt/2TBHDD/CockpitEscapeRoom.worktrees/mars-arcade
+
+ ❯ src/dev/arcadeHarnessOutcomes.test.ts (5 tests | 4 failed) 10ms
+     × plays all winner/loser beats on side 0 without changing the frozen game 6ms
+     × plays all winner/loser beats on side 1 without changing the frozen game 1ms
+     × settles immediately with reduced motion and does not invent a knockout on timeout 1ms
+     × settles an airborne result onto the floor without editing frozen fighter coordinates 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/dev/arcadeHarnessOutcomes.test.ts > Booster round outcome presentation > plays all winner/loser beats on side 0 without changing the frozen game
+AssertionError: expected '/art-source/arcade/booster/normalised…' to contain '/normalised-outcomes-ready/win/win-00…'
+
+Expected: "/normalised-outcomes-ready/win/win-00.png"
+Received: "/art-source/arcade/booster/normalised-sleek-ready/anchor/anchor-00.png"
+
+ ❯ src/dev/arcadeHarnessOutcomes.test.ts:19:26
+     17|         const expected = clip === 'ko' && index === '00' ? '/normalise…
+     18|           '/normalised-outcomes-ready/' + clip + '/' + clip + '-' + in…
+     19|         expect(pose.src).toContain(expected)
+       |                          ^
+     20|         expect(pose.placeholder).toBe(false)
+     21|         expect(ARCADE_SPRITE_SOURCES).toContain(pose.src)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/dev/arcadeHarnessOutcomes.test.ts > Booster round outcome presentation > plays all winner/loser beats on side 1 without changing the frozen game
+AssertionError: expected '/art-source/arcade/booster/normalised…' to contain '/normalised-sleek-ready/recoil/recoil…'
+
+Expected: "/normalised-sleek-ready/recoil/recoil-00.png"
+Received: "/art-source/arcade/booster/normalised-sleek-ready/anchor/anchor-00.png"
+
+ ❯ src/dev/arcadeHarnessOutcomes.test.ts:19:26
+     17|         const expected = clip === 'ko' && index === '00' ? '/normalise…
+     18|           '/normalised-outcomes-ready/' + clip + '/' + clip + '-' + in…
+     19|         expect(pose.src).toContain(expected)
+       |                          ^
+     20|         expect(pose.placeholder).toBe(false)
+     21|         expect(ARCADE_SPRITE_SOURCES).toContain(pose.src)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/dev/arcadeHarnessOutcomes.test.ts > Booster round outcome presentation > settles immediately with reduced motion and does not invent a knockout on timeout
+AssertionError: expected '/art-source/arcade/booster/normalised…' to contain '/win/win-02.png'
+
+Expected: "/win/win-02.png"
+Received: "/art-source/arcade/booster/normalised-sleek-ready/anchor/anchor-00.png"
+
+ ❯ src/dev/arcadeHarnessOutcomes.test.ts:31:55
+     29|     state.phase = 'timeOver'
+     30|     state.winner = 0
+     31|     expect(selectArcadeSprite(state, 0, true, 0).src).toContain('/win/…
+       |                                                       ^
+     32|     expect(selectArcadeSprite(state, 1, false, 100).src).toContain('/a…
+     33|     state.winner = null
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/dev/arcadeHarnessOutcomes.test.ts > Booster round outcome presentation > settles an airborne result onto the floor without editing frozen fighter coordinates
+AssertionError: expected undefined to be 30 // Object.is equality
+
+- Expected:
+30
+
++ Received:
+undefined
+
+ ❯ src/dev/arcadeHarnessOutcomes.test.ts:57:60
+     55|     state.fighters[0].health = 0
+     56|     state.fighters[0].y = 30
+     57|     expect(selectArcadeSprite(state, 0, false, 0).renderY).toBe(30)
+       |                                                            ^
+     58|     expect(selectArcadeSprite(state, 0, false, 12).renderY).toBe(15)
+     59|     expect(selectArcadeSprite(state, 0, false, 24).renderY).toBe(0)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 1 passed (5)
+   Start at  00:17:14
+   Duration  193ms (transform 54ms, setup 0ms, import 68ms, tests 10ms, environment 0ms)

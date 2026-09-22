@@ -1,0 +1,7 @@
+PASS paused review advances one real tick per step; block and hit use active jab artwork
+PASS Sam wind-up, blocked jab, pullback and clean hit draw with Elon block/recoil at real engine frames
+PASS actual canvas draws both fighters attacks/reactions; two blocks, two hits, clean stop
+PASS replay resets; fighter change, restart, combat input and CPU toggle exit the recording; Free play restores CPU
+PASS reduced motion retains essential action poses and completes the exchange
+PASS reload leaves review mode; a missing Sam jab uses box fallback without blocking the counterattack
+PASS no uncaught browser errors

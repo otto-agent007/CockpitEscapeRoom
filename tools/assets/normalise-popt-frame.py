@@ -12,6 +12,13 @@ Scale must be IDENTICAL across every frame or the character changes size between
 supplied explicitly as --source-px-per-cell-px rather than re-fitted per frame. Derive it once
 from the anchor with --derive-scale and reuse the printed value for the whole set.
 
+The default Lanczos resampler preserves existing exports. Use --resample bilinear for a
+sprite set whose narrow diagonal gaps develop ringing specks at the contract resolution;
+the same positive-weight filter is applied to premultiplied colour and alpha. Keep the
+chosen filter fixed for that set and validate the result with the full-colour checker.
+For an already transparent source use --source-alpha; hidden RGB is ignored and existing
+edge alpha is preserved. This opt-in never changes the legacy magenta-key path.
+
 Exit 0 on success, 1 on a usage error.
 """
 
@@ -68,6 +75,10 @@ def main() -> int:
                     help="derive the scale from this frame's standing height and print it")
     ap.add_argument("--align", choices=("feet", "bbox"), default="feet",
                     help="feet: baseline row and horizontal midpoint of the foot span (default)")
+    ap.add_argument("--resample", choices=("lanczos", "bilinear"), default="lanczos",
+                    help="downsampling filter; bilinear avoids ringing in narrow sprite gaps")
+    ap.add_argument("--source-alpha", action="store_true",
+                    help="use existing transparency instead of the magenta key")
     args = ap.parse_args()
 
     contract = json.loads(args.contract.read_text())
@@ -76,11 +87,13 @@ def main() -> int:
     pivot_x = contract["cell"]["pivot"]["x"]
     stand_h = contract["derivation"]["characterOnStage"]["standingHeightStagePx"]
 
-    rgb = np.asarray(Image.open(args.src).convert("RGB")).astype(np.float64)
+    source = Image.open(args.src).convert("RGBA")
+    rgb = np.asarray(source.convert("RGB")).astype(np.float64)
+    source_alpha = np.asarray(source)[:, :, 3].astype(np.float64) / 255.0
     mag = magentaness(rgb)
-    figure_full = mag <= KEY_BACKGROUND
+    figure_full = source_alpha > 8 / 255 if args.source_alpha else mag <= KEY_BACKGROUND
     if not figure_full.any():
-        print("error: no figure found - is the background the magenta key?", file=sys.stderr)
+        print("error: no figure found for the selected background mode", file=sys.stderr)
         return 1
 
     ys, xs = np.where(figure_full)
@@ -101,17 +114,35 @@ def main() -> int:
               file=sys.stderr)
         return 1
 
-    spilled = despill(sub, figure, clean)
+    spilled = 0 if args.source_alpha else despill(sub, figure, clean)
 
     scale = args.source_px_per_cell_px
     new_h = max(1, round(src_h / scale))
     new_w = max(1, round(src_w / scale))
-    alpha = figure.astype(np.float64)
-    premul = Image.fromarray((sub * alpha[:, :, None]).astype(np.uint8))
-    premul = np.asarray(premul.resize((new_w, new_h), Image.LANCZOS)).astype(np.float64)
-    amask = np.asarray(Image.fromarray((alpha * 255).astype(np.uint8))
-                       .resize((new_w, new_h), Image.LANCZOS)).astype(np.float64) / 255.0
+    resample = Image.Resampling.BILINEAR if args.resample == "bilinear" else Image.Resampling.LANCZOS
+    alpha = (source_alpha[y0:y1 + 1, x0:x1 + 1] * figure
+             if args.source_alpha else figure.astype(np.float64))
+    if args.resample == "bilinear":
+        # Keep precision until unpremultiplication: an 8-bit rounding error divided by
+        # a small edge alpha becomes a visible colour shift (including false magenta).
+        amask = np.asarray(Image.fromarray(alpha.astype(np.float32))
+                           .resize((new_w, new_h), resample))
+        premul = np.stack([
+            np.asarray(Image.fromarray((sub[:, :, channel] * alpha).astype(np.float32))
+                       .resize((new_w, new_h), resample))
+            for channel in range(3)
+        ], axis=2)
+    else:
+        # Retain the exact legacy export path for existing intro assets.
+        premul = Image.fromarray((sub * alpha[:, :, None]).astype(np.uint8))
+        premul = np.asarray(premul.resize((new_w, new_h), resample)).astype(np.float64)
+        amask = np.asarray(Image.fromarray((alpha * 255).astype(np.uint8))
+                           .resize((new_w, new_h), resample)).astype(np.float64) / 255.0
     flat = np.divide(premul, np.maximum(amask, 1e-6)[:, :, None]).clip(0, 255)
+    if args.source_alpha:
+        # Restore the nearest 8-bit source colour after float premultiplication.
+        # Truncation would turn an exact 120 into 119.99999 -> 119 at soft edges.
+        flat = np.rint(flat)
     sprite = np.dstack([flat, amask * 255]).astype(np.uint8)
 
     # placement

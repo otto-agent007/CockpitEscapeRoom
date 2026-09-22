@@ -1,5 +1,318 @@
 # Test report
 
+## 2026-09-22 Animation checkpoint PR preparation
+
+- Based on current main14eca18 (includes PR73 arcade foundation and PR74 build filter).
+- Fresh `npm run check` on this base passed lint/types,705tests in57files and build.
+  Python normalizer3, Sam repair2, heavy repair3 and checker negative fixtures pass;
+  `git diff --check` passes. Existing outcome and adjacent browser proof is retained.
+- PR contains selected source/runtime assets and regression fixtures. Rejected raw art,
+  duplicate recordings and draft sheets stay local; historical report paths may refer
+  to that local archive. All38 runtime asset paths are included in the commit.
+- Draft dev-only checkpoint; whole-journey e2e and3D assets checks not rerun. Vercel's
+  production build does not expose `/dev/arcade.html`; local browser media is the visual
+  proof. Sam/Captain outcomes, specials, effects and further visual polish remain open.
+
+## 2026-09-22 Mars arcade — Booster victory and knockdown
+
+- Five new selected drawings plus existing recoil form three-beat victory/knockdown;
+ 38unique runtime sprites. Fixed scale/contract and accepted V4 heavy contact unchanged.
+ Nine raw sources, corrections and exact prompts preserved; no manual pixel edits.
+- Five new selector tests RED then GREEN. Fullcheck: lint/types,696tests/56files,
+ build PASS. Unchanged asset gate:5frames,0failures. Saved V4contact checksum PASS.
+- Native KO both winners/reduced-motion settings, pause/step/half-speed/resume/reset,
+ actual timeout draw/winner, missing-art fallback and375/768/1440layouts checked.
+ Combat readout stays frozen while the presentation clock runs. Healthy losers stand.
+- Adjacent heavy13/continuity2/exchange7/movement5/pilot12 browser groups PASS.
+ Real-time both-winner23.28s video saved. Independent review found no blocking issue;
+ banner overlap fixed with RED/GREEN browser proof. Sidebar uses the six-pose sheet.
+- Dev-only art milestone, not full journey/production/owner approval. Sam/Captain
+ outcomes, specials, FX, in-between polish and prior eye-tint feedback remain open.
+- Source, commands, evidence and limitations:
+ `asset-reports/mars-arcade-outcomes-2026-09-22.md`.
+
+## 2026-09-21 Mars arcade — V4 contact integrated after owner reach acceptance
+
+- Owner accepted the one-pixel shortfall from the earlier art minimum. Selected contact
+  now exactly matches V4 C2:104px tall,34px art reach. Gameplay reach38, timing11/4/18,
+  damage13, other sprites, normalizer and global contract unchanged. No pixel edits.
+- Fresh `npm run check`: lint/types,691tests in55files and build PASS. Selected four
+  heavy cells pass unchanged alpha/silhouette gate. Exact source/runtime byte proof PASS.
+- Heavy browser13groups and exact paused five-beat2groups PASS. Hit/block/whiff,
+  reduced motion, missing-art fallback and375/768/1440widths checked. Both facing
+  recordings at1×/0.5× complete two cycles each with no page errors; five-pose sidebar
+  refreshed. Browser plugin absent; existing Playwright used. No fulljourney rerun.
+- Independent review found no new blocking/critical/high issues and confirmed accepted
+  shape continuity. Full animation polish and older red-eye concern remain open.
+- Evidence: `asset-reports/mars-arcade-heavy-contact-v4-2026-09-21.md` and V4 preview folder.
+  All following entries are earlier checkpoints, not current runtime selection.
+
+## 2026-09-21 Mars arcade — V4 arm direction approved, reach still short
+
+- Owner approved initialV4 arm shape. Two built-in-imagegen corrections preserved;
+  finalC2 height104 matches adjacent103px poses, but fist reach34 fails minimum35.
+- C1 and C2 each pass unchanged full-colour checker(1frame,0failures), no tiny holes.
+  Passing alpha checks do not waive the separate reach failure. No pixel editing.
+- Fixed14.038461538461538scale and normalizer/contract unchanged. New portrait guide,
+  exact prompts, raw/normalized attempts and five-pose sidebar comparison saved.
+- No runtime replacement, combat change, browser/fullcheck rerun or playback success
+  claimed. Previous V3 evidence below remains historical; V3 runtime art still rejected.
+- Bounded two-correction batch stopped. Further reach correction pending owner direction.
+  See `asset-reports/mars-arcade-heavy-contact-v4-2026-09-21.md`.
+
+## 2026-09-21 Mars arcade — five-beat code verified, contact artwork still rejected
+
+- Booster now has wind-up/swing/contact/follow-through/guard beats inside unchanged
+  11/4/18timing;33sources. V2 and V3 contact artwork were both explicitly owner-rejected.
+  Do not interpret the passing checks below as a completed visual fix.
+- Fresh fullcheck: lint/types,691tests/55files and production build pass. Heavy13 and
+  exact frozen-tick five-beat2 browser groups pass; normal/half-speed native videos saved.
+  Adjacent exchange7/movement5/pilot12 finalV3 groups pass. Responsive375/768/1440,
+  missing-art fallback, keyboard/reload/reduced-motion paths covered by these scripts.
+- Owner individually approved V2pixel70,31 and V3pixel74,67. Three Python tests prove
+  exactly one changed pixel per output, immutable source and safe overwrite refusal.
+  No eye-pixel cleanup authorized or performed. Red-eye concern remains open.
+- Review found misleading racing screenshots and an ever-drawn guard assertion; fixed
+  with per-tick actual draw observation and frozen captures. SeparateV3evidence folder.
+- V3 source/body lean did not satisfy owner anatomy judgment. V4 now restarts from an
+  original shoulder/elbow/wrist guide instead of another edit of the bowed sleeve.
+  See asset-reports/mars-arcade-heavy-contact-v3-2026-09-21.md for rejectedV3evidence.
+- V4 fresh joint-guided draft shown in sidebar, not integrated. Alpha gate passes but
+  fixed-scale height84/reach44 expose incorrect output size and out-of-tolerance reach.
+  Waiting for owner anatomy judgment before further pose/dimension work. No visual fix
+  or anatomy acceptance claimed; V3 remains a rejected preview, not approved artwork.
+
+## 2026-09-21 Mars arcade — Booster arm-continuity repair incomplete
+
+- Owner found near-arm startup switching to far-arm contact. Generated two replacement
+  poses plus two corrections each; all six sources/prompts and normalized attempts saved.
+- Final drafts visibly retain the foreground striking arm and tucked far glove, confirmed
+  by independent read-only review. Contact fist reach27 fails target38±3; its silhouette
+  max29 is the boot. Recovery still has2tiny alpha holes. Unchanged checker:2frames,
+  1silhouette failure; reach fails separately. No acceptance criteria relaxed.
+- Retry cap exhausted. No new ready cells, runtime selector changes, pixel repairs,
+  balance changes or deployment. The reported arm swap remains in current gameplay.
+- Source-version assertion initially RED1/3, then restored to the unchanged runtime after
+  rejecting the candidates; existing4heavy tests pass. Browser assertions also restored.
+  No fullcheck/browser/motion rerun claimed for rejected art. Recorder prepared but unrun.
+- Final before/candidate comparison shown in existing sidebar. Evidence, hashes, failed
+  gate log and provenance: `asset-reports/mars-arcade-heavy-continuity-2026-09-21.md`.
+  Further artwork attempts require a new owner decision beyond this bounded batch.
+
+## 2026-09-21 Mars arcade — heavy-attack key poses
+
+- Six new key poses: Elon overhand and Sam low sweep, startup/contact/recovery each;
+ 32sprites loaded. Heavy reach38/40, timing11/4/18 and13/3/20, damage13/11 unchanged.
+- Four new tests RED then GREEN. Full `npm run check`: lint/types,691tests/55files,
+  build pass. Existing unauthored-pose assertion now exercises the still-unauthored special.
+- All six ready cells pass unchanged full-colour gates. Fixed scale/baseline119/pivot64;
+  active drawings measure40/42px, within respective±3tolerances. These lean/crouch poses
+  are not standing-height clips (Elon active101px). No pixel edits or gate changes.
+- Browser heavy13PASS groups: both players' hit/block/whiff with reduced motion on/off,
+  all phases actually canvas-drawn, idle return, six missing images recover safely.
+  Existing exchange7/movement5/pilot12 PASS groups pass with32sprites, no uncaught errors.
+  375/768/1440layouts inspected; native keyboard/pointer/reload/pause/step checks pass.
+- Initial proof-script failures were wrong event-log locator and insufficient approach;
+  corrected against actual DOM/state. Range precondition uses legal reach, not exact wall
+  separation (observed22.8 while pushing). No engine modifications to accommodate proof.
+- Native-input half-speed video and pose sheet saved. Independent reviewer found no
+  blocking findings; independently checked gates/copy identity and unchanged rules.
+  Centered hits replace wall-clipped hit evidence; wall block captures remain diagnostic.
+- Evidence/source report: `asset-reports/mars-arcade-heavy-2026-09-21.md`. Thirteen raw
+  generations, exact prompts and failed attempts preserved; no source overwrites.
+  Production exclusion/whitespace pass. No whole-journey e2e/3D asset rerun or deployment.
+  Key-pose pilot only: heavy in-betweens, specials, outcomes, FX and Captain remain.
+
+## 2026-09-21 Mars arcade — movement and jumps
+
+- Eight new dev-only cells: Sam forward shuffle2, Elon/Sam airborne rise/apex/fall3each.
+  Approved clothes, reach40/41, damage/timing and460-frame counterattack unchanged.
+- Five movement tests RED then GREEN;66focused tests pass. Full `npm run check` passes:
+  lint, types,687tests/54files, production build. Initial typecheck failed on widened
+  pose-array indexing; fixed with tuples/fallback and reran the entire command GREEN.
+- All eight cells pass unchanged full-colour arcade checks; Sam forward standing104px.
+  Fixed scales and baseline119 retained; originals/corrections preserved, no pixel repairs.
+  Selected source-to-runtime copies byte-identical;20source/runtime hashes saved.
+- Fresh actual-browser movement5/exchange7/pilot12 PASS groups after type repair:
+  all26load, both facings, real jumps/landing,375/768/1440, reduced motion, keyboard/pointer,
+  missing apex/all-image fallback, reload, pause/step and original combat events.
+- Native-input half-speed recording saved. Pose sheet and responsive/runtime captures
+  inspected; existing tmux sidebar shows new poses. Independent review found no blocking
+  code findings. Sam rise proportions and apex-to-fall extension remain a polish item.
+- Production exclusion and whitespace checks pass. Full-journey e2e/3D asset checks not
+  rerun; no deployment. Heavy/special, KO/win, effects and Captain animation remain open.
+- Source/evidence: `asset-reports/mars-arcade-movement-2026-09-21.md` and
+  `preview-renders/mars-arcade/movement/`. This is not complete animation approval.
+
+## 2026-09-21 Mars arcade — approved40px Sam counterattack integrated
+
+- Five new poses: Sam wind-up/active jab/pullback and Elon guard/recoil. Sam reach40 matches
+  accepted artwork; damage4/chip1/timing5/2/8 unchanged. Elon's41px jab/wardrobe preserved.
+  No new generation or pixel repair after owner40px decision; accepted copies byte-identical.
+- RED then GREEN:61focused tests. Full `npm run check`:lint/types,682tests/53files,build pass.
+  All18runtime cells pass unchanged gates; Python normalizer3/repair2 and7negative gates pass.
+- Actual-browser exchange7PASS/pilot12PASS groups,375/768/1440,reduced-motion,missing-image,
+  keyboard/pointer,reload,replay/pause/step checks pass. Original events167/227 preserved;
+  Sam block336/hit416; idle at460. Normal/half-speed recordings saved with the same events.
+- Independent read-only review: no blocking findings; copy hashes verified. Reviewer test
+  rerun blocked by EROFS, so61/682test results above are coordinator runs. Production exclusion
+  and whitespace checks pass. Existing sidebar shows actual Sam counterpunch.
+- Evidence: `asset-reports/mars-arcade-counterattack-2026-09-21.md` and
+  `preview-renders/mars-arcade/counterattack/`. Dev-only; full animation and owner motion
+  review remain open. No production wiring/deploy/commit/push/PR or whole-journey/3D rerun.
+
+## 2026-09-21 Mars arcade — counterattack art gate, incomplete
+
+- Generated five requested poses and three targeted corrections using built-in imagegen;
+  all eight sources/prompts and normalized attempts saved separately. No runtime/code edits.
+- Sam wind-up/pullback and Elon block/recoil pass unchanged silhouette/standing gates.
+  Sam jab attempts reach39,27,40px against unchanged34±3; final jab NOT integrated.
+  Two-correction cap reached. Original recovery's two holes fixed by generation, not pixel edits.
+- Fixed scales, existing13sprites and combat rules unchanged. Sidebar comparison saved to
+  `preview-renders/mars-arcade/counterattack/pose-review.png`. Source hashes and commands:
+  `asset-reports/mars-arcade-counterattack-2026-09-21.md`.
+- No fresh npm/full-game/browser-motion pass claimed. Counterattack implementation and its
+  tests remain pending a valid jab; no production integration/deploy/commit/push/PR.
+
+## 2026-09-20 Mars arcade — Sam guarded backward footwork
+
+- Two new104px Sam shuffle cells alternate during guarded walking only; block/recoil
+  keep priority. Both facings and reduced motion covered. Existing likeness/outfit,
+  block/recoil pixel repairs, Elon's41px jab and all fight rules unchanged.
+- Regression RED on fixed-guard selection, then GREEN. Focused52tests and
+  `npm run check` pass: lint/types, **673 tests / 53 files**, build.
+  All13 runtime cells pass unchanged gates; normalizer3tests, Sam repair2tests and
+  clean-plus7negative gate fixtures pass. No corrective generations/manual pixel edits.
+- Browser exchange6PASS/pilot12PASS groups: both Sam frames actually drawn, reaction
+  priority, native input, pause/step, replay/cancel, reload,375/768/1440, reduced motion
+  and failed-image fallback verified. Real-time normal/half-speed videos saved.
+- Independent review found no issues and separately validated the two sprites.
+  Production exclusion and diff whitespace pass. Sidebar comparison updated.
+- Evidence: `asset-reports/mars-arcade-sam-footwork-2026-09-20.md` and
+  `preview-renders/mars-arcade/sam-footwork/`. Full animation/owner motion acceptance
+  remain open; no production integration/deploy/commit/push/PR. Main-game e2e/3D checks not rerun.
+
+## 2026-09-20 Mars arcade — approved sleek outfit and 41px jab
+
+- Seven matching Booster cells integrated; all eleven runtime sprites pass unchanged gates.
+  Owner accepted41px extension; hit range41, damage5/chip1 and timing4/3/7 unchanged.
+  Dedicated early pullback; no outfit switching on movement or placeholder fallback.
+- RED then GREEN for outfit/recovery,40/41/42px hit-whiff boundaries in both facings,
+  guard at41 and recorded approach spacing. Fresh `npm run check`: lint/types,
+  **672 tests / 53 files**, build pass. Normalizer3tests, prior Sam repair2tests and
+  clean-plus7negative gate fixtures pass. No new manual pixel edits or validator relaxation.
+- Real Chromium exchange6PASS groups and pilot12PASS groups; actual canvas pose draws,
+  keyboard/pointer, replay/cancel, pause/step, reduced motion, reload,375/768/1440 and
+  missing-image fallback pass. Normal/half-speed videos saved; block167, hit227, idle290.
+- Independent code review: no findings; reviewer separately checked7cells and41px extent.
+  Production exclusion and diff whitespace checks pass. Sidebar shows fresh in-game result.
+- Evidence: `asset-reports/mars-arcade-sleek-jab-2026-09-20.md` and
+  `preview-renders/mars-arcade/wardrobe-sleek/`. Earlier incomplete logs are historical.
+  Full animation/owner motion acceptance remain open. No Vercel/deploy/commit/push/PR;
+  main-journey e2e and3D asset checks not rerun.
+
+## 2026-09-20 Mars arcade — short exchange continuation
+
+- Dev-only walking/jab/guard/recoil pose selection now follows the actual engine. Native
+  `Play exchange` demonstrates one block, one clean hit, then both idle; fixed-tick sampling
+  preserves short presses through slow render frames. Free-play, pause/step and cancellation tested.
+- Owner explicitly approved exact localized repairs: one transparent pixel in each of Sam's
+  block/recoil copies. SHA-verified originals untouched; all other pixels identical, no blanket
+  fill, no checker relaxation. All ten loaded cells pass unchanged gates.
+- `npm run check`: lint/types, **664 tests / 53 files**, build pass. Python repair **2 tests**,
+  normalizer **3 tests**, clean gate fixture plus **7 rejection fixtures**, all pass.
+- Both browser scripts pass (**6 exchange + 12 pilot PASS groups**): actual canvas pose draws,
+  real block/hit, replay/cancel, paused stepping, responsive375/768/1440, reduced-motion essential
+  poses, missing image behavior, native keyboard/pointer input, reload, no uncaught page errors.
+- Visual finding: shorten second recorded approach to prevent crowding; new test RED at26px
+  post-hit separation then GREEN at30.8px. Rules unchanged. Browser timing observations corrected
+  to real contact frames167/227, not guessed166/226.
+- Real-time normal/half-speed videos and fresh screenshots saved under
+  `preview-renders/mars-arcade/exchange-*`; existing tmux sidebar refreshed with the review sheet.
+- Independent code review findings resolved; original repair tests independently rerun.
+  Production exclusion scan and `git diff --check` pass. No main-game/public/dependency changes.
+- Full Wave1/owner visual acceptance remain open. No deploy/Vercel preview/commit/push/PR;
+  whole-journey e2e and3D asset checks not rerun. Details/provenance:
+  `asset-reports/mars-arcade-exchange-2026-09-20.md`.
+
+## 2026-09-20 Mars arcade Wave 1 likeness pilot — full animation incomplete
+
+- Four first animation probes plus three corrective outputs saved with exact prompts.
+  Active jab now matches reach (28 vs 30±3), but one tiny transparency hole remains at the
+  two-correction cap. Walk registration also needs work. Neither is integrated. Bulk Wave 1
+  generation stopped at the failed sample checkpoint; remaining fighter poses/FX not generated.
+- Added opt-in source-alpha normalization with exact-color rounding; Python regression **3/3**,
+  default magenta/Lanczos exports byte-identical, seven existing negative gate fixtures rejected.
+  All four images actually loaded by the dev pilot pass the unchanged standing sprite gate.
+- `/dev/arcade.html` displays accepted Elon/Sam/Pop T anchors and the clean Booster idle frame.
+  Combat/outcome art explicitly remains anchor placeholders. Native controls, mirror preset,
+  responsive integer canvas scaling, reduced-motion idle, and missing-image box fallback added.
+  No fight-rule, main-app, persistence, public-asset, dependency or preload changes.
+- Fresh `npm run check`: lint, types, **657/657 tests in 52 files**, build pass. Production
+  output excludes arcade source/identifiers and has no `dist/dev`; `git diff --check` passes.
+- Reproducible browser script `tools/assets/check-arcade-pilot.mjs` passes: loading, pause/step,
+  375/768/1440 no-overflow layouts, keyboard hit/block/jump/landing, paused native attacks,
+  pointer hold/release outside, blur cancellation, restart/mirror/fighter selection, box toggle,
+  reduced motion/reload, all-four-image failure fallback, and no uncaught page errors.
+- Browser checks now wait for actual ResizeObserver/media-query delivery after two test-timing
+  failures. agent-browser smoke passes using isolated container-compatible Chromium launch.
+- Independent read-only review: no actionable code defects in the bounded pilot; reviewer
+  independently passed Python 3 and focused Vitest 9 tests. Art completeness/full accessibility
+  not approved. Both special landing outcomes and complete win/loss animation proof remain open.
+- Evidence and screenshots: `preview-renders/mars-arcade/wave-1-pilot-*`; detailed asset report:
+  `asset-reports/mars-arcade-wave-1-pilot-2026-09-20.md`. Existing owned tmux pane refreshed.
+  No deployment, Vercel preview, commit, push, PR, or production integration.
+
+## 2026-09-20 Mars arcade Wave 0 identity candidates — incomplete art gate
+
+- **Final cleanup checkpoint:** owner confirmed the likeness direction. Investigation
+  traced the 3/1 specks to Lanczos downsampling of intact source silhouettes. Added an
+  opt-in `--resample bilinear` normalizer path with float precision before unpremultiplication;
+  default output remains byte-identical. All three separate `normalised-clean` candidates
+  now pass the unchanged checker. Source images, locked scales and runtime code unchanged.
+- New `normalise-popt-frame.test.py`: RED on missing option, then on edge-colour precision;
+  GREEN **2 tests**, each covering all three real images. Existing gate mutation test still
+  rejects all seven injected defects. Fresh `npm run check` passes lint, types, **653 tests /
+  51 files**, and build (2.41 s); completed `dist/` excludes arcade content. Full scoped
+  diff and clean image comparison reviewed. No new production dependency.
+- Latest review sheet `preview-renders/mars-arcade/wave-0-clean-review.png` displayed in
+  tmux pane `%1`, confirmed active. Latest log `preview-renders/mars-arcade/wave-0-clean-check.log`.
+  This is static sprite proof, not gameplay, Vercel, or final visual approval. The failures
+  below are historical and preserved in earlier outputs.
+
+- **Later owner revision:** Booster should resemble Elon Musk and Oracle Sam Altman.
+  Generated and saved separate likeness candidates and prompts; Captain unchanged.
+  Fresh normalisations passed. Oracle's likeness sprite passes the unchanged checker;
+  Booster's fails on three transparent specks. New scales are 14.0385 (1460 / 104) and
+  13.6058 (1415 / 104). Updated comparison:
+  `preview-renders/mars-arcade/wave-0-likeness-review.png`. The project checks below
+  preceded these art-only revisions; there have been no runtime or tooling changes.
+
+- Continued Claude's `07081b7` handoff in the existing `feat/mars-arcade-fight-loop`
+  worktree. Built-in image generation produced three attempts each for Booster, Oracle,
+  and Captain; raw outputs and final 128×128 RGBA candidates are saved under
+  `art-source/arcade/`. No runtime, fight-rule, persistence, or preload changes.
+- Unchanged `normalise-popt-frame.py --derive-scale` exited 0 for all three, producing
+  104 px standing height at row 119. Source scales: Booster 13.9519, Oracle 13.5000,
+  Captain 13.9904. Exact derivations are in `asset-reports/mars-arcade-wave-0-2026-09-20.md`.
+- Unchanged `check-popt-frames-fullcolour.py` against the arcade contract: Oracle passed
+  (exit 0); Booster failed with two enclosed transparent specks and Captain failed with
+  one (exit 3 each). These failures are preserved; no checker or normaliser changes.
+- Fresh `npm run check` passed ESLint, TypeScript, **653/653 tests across 51 files**, and
+  the production build. A scan of completed `dist/` found no arcade strings/modules and
+  no `dist/dev` directory. `git diff --check` passed. Check log:
+  `preview-renders/mars-arcade/wave-0-check.log`.
+- Visually inspected all attempts and the browser-rendered side-by-side review sheet,
+  `preview-renders/mars-arcade/wave-0-identity-review.png`; displayed it in the existing
+  tmux preview pane `%1` and confirmed the pane active. This is a static art review,
+  not gameplay browser proof, a Vercel preview, or owner approval.
+- Full scoped diff review: only source PNGs, review evidence, and documentation changed;
+  runtime files, sprite tooling and contracts remain unchanged. Remaining art findings:
+  residual soft shading, Booster torso not fully side-on, uneven Booster/Captain soles,
+  and Captain head/hat proportions. Two corrections per fighter exhausted the brief's
+  regeneration limit. Identity approval, corrected sprite gates, Wave 1, and the later
+  Mars mission/cabinet placement decision remain open.
+
 ## 2026-09-07 First-entry cockpit orientation and natural player copy
 
 - Fresh normal-motion entries now give the DC-9 right seat and Airbus A320 left seat independent

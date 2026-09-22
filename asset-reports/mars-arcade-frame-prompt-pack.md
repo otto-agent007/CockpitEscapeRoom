@@ -1,5 +1,31 @@
 # Mars arcade cabinet — frame generation pack
 
+> **Current owner-approved wardrobe/jab:** Booster uses the sleek black leather jacket,
+> dark T-shirt, charcoal jeans, black boots and gloves; no orange headphones or cargo pockets.
+> Appearance authority: `booster/generated/wardrobe-sleek/anchor-00.png` under `art-source/arcade`.
+> Owner accepted41px jab extension ("41 is ok"); game reach is41, damage5/chip1 and4/3/7 timing
+> unchanged. Current runtime set is `booster/normalised-sleek-ready`; prior art briefs below
+> are historical. Preserve the locked scale and unchanged silhouette/geometry gates.
+
+> **Latest checkpoint, 2026-09-20:** owner approved continuing from the cleaned anchors.
+> The Wave 0 boundary below is historical. Four Wave 1 probes were generated; idle is
+> accepted into a dev-only pilot, while walk registration and active-jab transparency
+> remain unresolved. The jab exhausted two corrective generations; full-wave batching
+> remains on hold. See `mars-arcade-wave-1-pilot-2026-09-20.md`. New transparent sources
+> require opt-in `--source-alpha` plus the existing bilinear filter and locked scale.
+
+> **2026-09-20 owner override:** Booster should resemble Elon Musk and Oracle should
+> resemble Sam Altman. The invented-only rule and generic identity briefs below are
+> superseded for these two fighters. Captain remains unchanged. Current likeness
+> prompts are `art-source/arcade/prompts/anchor-{booster,oracle}-likeness.txt`.
+> Identity review and all sprite geometry/quality gates remain open.
+
+> **Later cleanup:** the owner accepted the likeness direction (“yes they are closer”).
+> All three `normalised-clean/anchor/anchor-00.png` candidates now pass the unchanged
+> pixel checker. For this set, add `--resample bilinear` to normalization commands and
+> use the locked scales in `art-source/arcade/README.md`. Keep the original default for
+> the intro set. Final art review and the Wave 0 scope boundary still apply.
+
 **Contract v1, full colour.** The machine-readable contract is
 `asset-reports/mars-arcade-sprite-contract.json`. The rules these frames illustrate are
 committed in `src/game/marsArcadeFighters.ts`; the plan is
@@ -195,11 +221,11 @@ pixels forward of the pivot column, within 3 px.
 
 | Move | Reach | Height band | What the active drawing shows |
 | --- | --- | --- | --- |
-| `booster.padJab` | 30 px | mid (34) | Straight jab, fist at chest height |
+| `booster.padJab` | 41 px | mid (34) | Extended straight jab, fist at chest height; owner-approved reach increase |
 | `booster.staticFire` | 38 px | mid (30) | Big committed overhand swing, fully extended |
 | `booster.orbitalInsertion` | 26 px | **high (70)** | Rising uppercut that finishes above his own head |
-| `oracle.prompt` | 34 px | mid (34) | Quick straight finger-jab, arm nearly locked |
-| `oracle.hardCutoff` | 40 px | **low (24)** | Low sweep at shin height — the longest reach in the game |
+| `oracle.prompt` | 40 px | mid (34) | Owner-approved straight fist jab, arm nearly locked |
+| `oracle.hardCutoff` | 40 px | **low (24)** | Low sweep at shin height |
 | `oracle.textBubble` | projectile | (26) | Release gesture only; the bubble is `fx.textBubble`, spawning 20 px forward at 24 px height |
 | `captain.setDownTheCoffee` | no hitbox | — | He sets the cup down. Nothing is struck |
 | `captain.runTheChecklist` | 36 px | mid (32) | A flat, economical forearm strike |
@@ -335,7 +361,7 @@ committed frame data. `s/a/r` is startup / active / recovery in engine frames at
 | Frame | Pose |
 | --- | --- |
 | `padJab-00` | Startup: rear shoulder loading, lead fist cocked an inch. |
-| `padJab-01` | **Active:** straight jab, fist 30 px forward at chest height, arm locked. |
+| `padJab-01` | **Active:** straight jab, fist 41 px forward at chest height, shoulder driven forward and arm nearly straight. |
 | `padJab-02` | Recovery: fist snapping back to guard. |
 
 **`booster.staticFire`** — 5 drawings, `11/4/18`
@@ -383,8 +409,8 @@ Helpless and funny, never injured.
 
 | Frame | Pose |
 | --- | --- |
-| `prompt-00` | Startup: hand rising, one finger extending. |
-| `prompt-01` | **Active:** straight finger-jab, 34 px forward at chest height, arm nearly locked, expression unchanged. |
+| `prompt-00` | Startup: fist draws back into a compact wind-up. |
+| `prompt-01` | **Active:** straight fist jab, 40 px forward at chest height, arm nearly locked, expression unchanged. |
 | `prompt-02` | Recovery: hand withdrawing to the ribs. |
 
 **`oracle.hardCutoff`** — 6 drawings, `13/3/20`
