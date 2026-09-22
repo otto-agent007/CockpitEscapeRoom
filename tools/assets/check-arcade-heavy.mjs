@@ -34,8 +34,22 @@ try {
       await tick(700)
       await page.keyboard.up('KeyD'); await page.keyboard.up('ArrowLeft')
     } else if (outcome === 'blocked') {
-      await page.keyboard.down(away); await tick(1200); await page.keyboard.up(away)
-      await page.keyboard.down(approach); await tick(3000); await page.keyboard.up(approach)
+      // The defender has to be CORNERED before the attack. Blocking means holding
+      // away, and holding away means walking away, so anywhere else on the stage the
+      // defender simply retreats out of the attacker's reach: the oracle's heavy has
+      // reach 40 and 13 startup frames, and a booster walking back at 1.25 px/frame is
+      // 40.25 away by the first active frame. Against the wall the input still counts
+      // as blocking while x cannot move, which is what makes the block land.
+      //
+      // This precondition used to hold by accident, because on the old 280 px stage a
+      // 1200 ms retreat overshot the wall. The stage is 480 px now, so it is arranged
+      // and then checked rather than assumed.
+      await page.keyboard.down(away); await tick(3400); await page.keyboard.up(away)
+      const wall = Number((await read()).match(/walls (-?\d+)/)[1])
+      const cornered = [...(await read()).matchAll(/position   x (-?[\d.]+)/g)]
+        .map(m => Number(m[1]))[side === 0 ? 1 : 0]
+      assert.equal(cornered, side === 0 ? -wall : wall, 'defender never reached the corner')
+      await page.keyboard.down(approach); await tick(5200); await page.keyboard.up(approach)
     }
     if (outcome !== 'whiff') {
       const gap = Number((await read()).match(/separation ([\d.]+)px/)?.[1])

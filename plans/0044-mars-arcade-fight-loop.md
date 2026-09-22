@@ -1000,9 +1000,58 @@ the portrait crop stops matching its frame       caught   1 failed | 25 passed
 
 Screenshots: `hud-round-card.png`, `hud-damage-trail.png`, `hud-round-end.png`, `hud-375.png`.
 
+### Rebased onto the animation checkpoint — 2026-09-22
+
+PR #73 merged the fight loop to `main`, but `main` does not carry the sprite harness —
+that went to PR #75, `feat/mars-arcade-animation-checkpoint`. This work builds on the
+sprite harness, so it was cherry-picked onto **#75**, not onto main, as
+`feat/mars-arcade-stage-hud`.
+
+Three conflicts, all one-liners where both sides had touched the same call: the peer
+session had added `renderY` and an outcome-frame readout where this branch had added the
+camera, so both sides were kept. One judgement call: the peer had already moved its own
+banner up out of the play area for animation review, and the pixel-type banner put the card
+back across the fighters' heads — that intent is restored and now held by a test.
+
+**Running a peer's browser checks rewrites the screenshots they commit as evidence.** A
+`git add -A` then swept 43 of the animation checkpoint's own proof images into this branch,
+which would have silently replaced them with renders from this build. All 43 restored, and
+five stale `wave-1-pilot-*.png` deleted at paths the checkpoint has since moved. Worth
+knowing before running anyone else's suites: the branch went from 69 changed files to 26.
+
+### The wider stage moved a balance line — 2026-09-22
+
+`check-arcade-heavy.mjs` failed on the rebase, and it is not a test artefact. **On a wider
+stage a defender can walk backwards out of a heavy's reach where the corner used to hold
+them.** The numbers, for the one case that failed:
+
+```
+oracle heavy (hardCutoff): reach 40, startup 13
+defender (booster) walks away at 1.25 px/frame
+separation at the first active frame = 24 + 13 x 1.25 = 40.25   ->  whiffs by 0.25 px
+```
+
+Blocking in this engine *is* holding away, and holding away *is* walking away, so outside
+the corner the defender retreats out of range while trying to block. Against a wall the
+input still counts as blocking while x cannot move, which is what made the block land.
+
+Confirmed by running the same suite against `79eafbd` with none of this branch's commits:
+it passes there and fails here, so the cause is the stage width and nothing else.
+
+The check now **arranges the corner and asserts it** rather than getting it by accident off
+a 1200 ms retreat that happened to overshoot the old 280 px wall. It reads the wall
+position out of the readout rather than hard-coding it, so it survives the next width
+change too.
+
+**Open for the owner — not decided here.** Whether the oracle's heavy should keep reach 40
+now that midfield gives 0.25 px of escape. Options: leave it (the corner becomes genuinely
+more valuable, which is how fighting games are meant to work), nudge the reach to ~44, or
+narrow the stage. This is balance, not a defect, so it is flagged rather than changed.
+
 ### Not done and not claimed
 
 - **No owner review.** Nothing here has been seen by the owner.
+- **Nothing pushed.** `feat/mars-arcade-stage-hud` is local; no PR opened.
 - **No hit stop, screen shake, hit flash or impact effects.** All are engine work against
   events the loop already emits, and all are the cheapest remaining wins.
 - **No generated backdrop art**, no Vercel preview, no Mars scene, no chapter wiring, no
