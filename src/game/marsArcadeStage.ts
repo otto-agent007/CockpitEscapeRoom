@@ -75,28 +75,31 @@ export function marsArcadeScreenX(stageX: number, cameraX: number): number {
   return MARS_ARCADE_VIEW.width / 2 + stageX - cameraX
 }
 
-export type MarsArcadeBackdropShapeKind = 'rect' | 'ridge' | 'dome' | 'disc' | 'mast' | 'aircraft'
-
-export interface MarsArcadeBackdropShape {
-  kind: MarsArcadeBackdropShapeKind
-  /** Column within the layer's span; may overhang, the span tiles either side. */
-  x: number
-  /** Top row, measured down from the top of the view. */
-  y: number
-  width: number
-  height: number
-  colour: string
-  /** Lit edge, window glow, beacon — whatever the kind uses as its second colour. */
-  accent?: string
-}
-
+/**
+ * One tile of generated backdrop art.
+ *
+ * The backdrop used to be flat shapes drawn in code — bands, four triangles, two
+ * domes and a line that was supposed to read as a DC-9. It was legible but plain,
+ * and the aircraft read as a park bench. These layers are generated pixel art,
+ * normalised to a fixed palette and proven to tile, authored by
+ * `tools/assets/normalise-arcade-backdrop.py` and documented in
+ * `asset-reports/mars-arcade-backdrop-2026-09-22.md`.
+ *
+ * `src` is a dev-server URL. The cabinet is dev-only today, and Vite serves the
+ * project root in dev, which is the same route `arcadeHarnessSprites.ts` already
+ * uses for character frames. A production cabinet must move these under `public/`.
+ */
 export interface MarsArcadeBackdropLayer {
   id: string
+  src: string
   /** 0 = pinned to the screen, 1 = locked to the stage and scrolling with it. */
   parallax: number
   /** The layer repeats every `spanWidth` columns. */
   spanWidth: number
-  shapes: MarsArcadeBackdropShape[]
+  width: number
+  height: number
+  /** View row the tile's BOTTOM edge sits on. */
+  bottomRow: number
 }
 
 export interface MarsArcadeBand {
@@ -107,131 +110,87 @@ export interface MarsArcadeBand {
 }
 
 /**
- * The flat sky-to-deck ramp behind everything, dusk on Mars.
+ * The sky, as a fine ramp between eight anchor colours.
  *
- * These bands are the reason the fighters read at all. The retired stage was
- * #14101a above the floor line and near-black below it, so a dark sprite sat on a
- * dark field and the silhouette — the one thing a fighting game cannot compromise
- * on — disappeared. The ramp brightens on the way down, and the brightest part of
- * it sits exactly where the fighters stand. `the stage is not a void` in the tests
- * holds that.
+ * These bands are the reason the fighters read at all: the retired stage was
+ * near-black above and below the floor line, so a dark sprite sat on a dark field
+ * and the silhouette — the one thing a fighting game cannot compromise on —
+ * disappeared. `the stage is not a void` in the tests holds that.
  *
- * Flat bands, not a gradient: this is pixel art at an integer scale and a
- * dithered or interpolated sky would crawl when the camera scrolls.
+ * The anchors used to be held for 24 to 30 rows each, which made the sky read as
+ * eight stripes rather than as dusk. They are now interpolated in two-row steps.
+ * That is safe because **these bands are screen-space and never scroll** — the
+ * harness fills them at x = 0 across the full width with no camera offset — so the
+ * prompt pack's "no gradients, they crawl at integer scroll" rule binds the
+ * parallax layers above and not this ramp. Two-row steps rather than one keeps a
+ * visible banding, because the cabinet should still look drawn rather than shaded.
  */
-export const MARS_ARCADE_BANDS: MarsArcadeBand[] = [
-  // Above the fighters' heads the steps can be wide, and carry the dusk.
-  { y: 0, height: 30, colour: '#1a1226' },
-  { y: 30, height: 28, colour: '#2b1c36' },
-  { y: 58, height: 26, colour: '#402541' },
-  // Row 84 is the top of a standing fighter. From here down the steps are small,
-  // so the ramp does not draw hard stripes across the characters.
-  { y: 84, height: 30, colour: '#5c3347' },
-  { y: 114, height: 28, colour: '#78413f' },
-  { y: 142, height: 24, colour: '#94523f' },
-  { y: 166, height: 10, colour: '#b26a45' },
-  { y: 176, height: 12, colour: '#d68d55' },
-  // Below the floor line. The lit edge first, then falling away, so the ground
-  // reads as a floor seen edge-on and not as a wall behind the fighters.
-  { y: 188, height: 4, colour: '#9c6149' },
-  { y: 192, height: 14, colour: '#7a4a3a' },
-  { y: 206, height: 18, colour: '#5e382e' },
+const SKY_ANCHORS: ReadonlyArray<readonly [number, string]> = [
+  [0, '#0d0816'], [30, '#180e22'], [58, '#281534'], [84, '#47203f'],
+  [114, '#7a2a3c'], [142, '#ad3b31'], [166, '#db652b'], [176, '#f2913c'],
+  [188, '#ffb457'],
 ]
+const SKY_STEP = 2
+
+function channels(hex: string): [number, number, number] {
+  const value = Number.parseInt(hex.slice(1), 16)
+  return [(value >> 16) & 255, (value >> 8) & 255, value & 255]
+}
+
+function mix(from: string, to: string, t: number): string {
+  const a = channels(from)
+  const b = channels(to)
+  const parts = a.map((channel, index) => Math.round(channel + ((b[index] ?? 0) - channel) * t))
+  return `#${parts.map((c) => c.toString(16).padStart(2, '0')).join('')}`
+}
+
+function skyRamp(): MarsArcadeBand[] {
+  const bands: MarsArcadeBand[] = []
+  for (let y = 0; y < MARS_ARCADE_VIEW.floorRow; y += SKY_STEP) {
+    const height = Math.min(SKY_STEP, MARS_ARCADE_VIEW.floorRow - y)
+    let colour = SKY_ANCHORS[SKY_ANCHORS.length - 1]?.[1] ?? '#000000'
+    for (let i = 0; i < SKY_ANCHORS.length - 1; i += 1) {
+      const [y0, c0] = SKY_ANCHORS[i] as readonly [number, string]
+      const [y1, c1] = SKY_ANCHORS[i + 1] as readonly [number, string]
+      if (y >= y0 && y <= y1) {
+        colour = mix(c0, c1, (y - y0) / (y1 - y0))
+        break
+      }
+    }
+    bands.push({ y, height, colour })
+  }
+  return bands
+}
+
+/** Below the floor line: the lit front lip first, then falling away. */
+const FLOOR_BANDS: MarsArcadeBand[] = [
+  { y: 188, height: 4, colour: '#c47a4e' },
+  { y: 192, height: 14, colour: '#7a4a3a' },
+  { y: 206, height: 18, colour: '#4e2d26' },
+]
+
+export const MARS_ARCADE_BANDS: MarsArcadeBand[] = [...skyRamp(), ...FLOOR_BANDS]
 
 /**
  * Parallax layers, far to near.
  *
- * Span widths get smaller as the layers get nearer, because a near layer has to
- * repeat often enough that its features cross the screen while the camera moves.
- * The deck is at parallax 1 with a 64 px span: it is what actually tells the
- * player the stage moved, which the old single flat floor never could.
+ * Proportions follow the reference stage studied for this pass: the sky carries big
+ * underlit cloud banks over more than half the frame, the horizon is left open and
+ * blazing directly behind a LOW skyline so the colony is backlit, and a see-through
+ * barrier splits the near ground from the distance. Raising the colony to fill that
+ * gap was tried and merged the two dark masses into one.
+ *
+ * Span widths stay at the tile widths. The deck is parallax 1 with a 64 px span: it
+ * is what actually tells the player the stage moved.
  */
+const BACKDROP_ROOT = '/art-source/arcade/generated/backdrop-v1'
+
 export const MARS_ARCADE_BACKDROP: MarsArcadeBackdropLayer[] = [
-  {
-    id: 'stars',
-    parallax: 0.06,
-    spanWidth: 320,
-    // Nothing above row 28: the HUD lives there, and a moon behind a health bar
-    // reads as a rendering fault rather than as sky.
-    shapes: [
-      { kind: 'disc', x: 244, y: 34, width: 9, height: 9, colour: '#c9b39a', accent: '#9c8974' },
-      { kind: 'disc', x: 66, y: 56, width: 5, height: 5, colour: '#9a8a7e' },
-      ...[
-        [12, 40], [37, 52], [58, 36], [88, 64], [104, 44], [120, 72], [136, 34],
-        [152, 60], [170, 76], [186, 46], [204, 38], [221, 68], [238, 52],
-        [258, 42], [274, 70], [289, 34], [303, 62], [315, 44],
-      ].map(([x, y]) => ({
-        kind: 'rect' as const,
-        x: x ?? 0,
-        y: y ?? 0,
-        width: (x ?? 0) % 4 === 2 ? 2 : 1,
-        height: 1,
-        colour: '#ffe9c8',
-      })),
-    ],
-  },
-  {
-    id: 'ridge',
-    parallax: 0.2,
-    spanWidth: 320,
-    // Based on the horizon glow, not on the floor: the ridge is far away, and a
-    // ridge that reaches the fighters' feet reads as scenery standing next to them.
-    shapes: [
-      { kind: 'ridge', x: -12, y: 148, width: 96, height: 28, colour: '#3b2a3e' },
-      { kind: 'ridge', x: 58, y: 138, width: 124, height: 38, colour: '#3b2a3e' },
-      { kind: 'ridge', x: 150, y: 152, width: 104, height: 24, colour: '#3b2a3e' },
-      { kind: 'ridge', x: 244, y: 152, width: 104, height: 24, colour: '#3b2a3e' },
-    ],
-  },
-  {
-    id: 'colony',
-    parallax: 0.42,
-    spanWidth: 320,
-    shapes: [
-      { kind: 'dome', x: 30, y: 159, width: 48, height: 24, colour: '#523446', accent: '#7e5c68' },
-      { kind: 'rect', x: 40, y: 172, width: 3, height: 3, colour: '#ffd58a' },
-      { kind: 'rect', x: 52, y: 170, width: 3, height: 3, colour: '#ffd58a' },
-      { kind: 'rect', x: 64, y: 174, width: 3, height: 3, colour: '#ffd58a' },
-      { kind: 'rect', x: 92, y: 165, width: 58, height: 18, colour: '#472e3c' },
-      { kind: 'rect', x: 100, y: 170, width: 4, height: 3, colour: '#ffd58a' },
-      { kind: 'rect', x: 112, y: 170, width: 4, height: 3, colour: '#ffd58a' },
-      { kind: 'rect', x: 124, y: 170, width: 4, height: 3, colour: '#ffd58a' },
-      { kind: 'rect', x: 136, y: 170, width: 4, height: 3, colour: '#ffd58a' },
-      { kind: 'mast', x: 166, y: 141, width: 3, height: 42, colour: '#654556', accent: '#ff9a52' },
-      // The DC-9 parked on the far pad. The tribute aircraft, at rest, watching.
-      { kind: 'aircraft', x: 190, y: 147, width: 94, height: 36, colour: '#5f4a66', accent: '#9d8aa6' },
-      { kind: 'dome', x: 294, y: 169, width: 34, height: 14, colour: '#4d3142', accent: '#75535f' },
-    ],
-  },
-  {
-    id: 'pad',
-    parallax: 0.74,
-    spanWidth: 160,
-    // Only five rows tall: the horizon glow above it is the brightest thing on the
-    // stage and the berm used to cover all of it.
-    shapes: [
-      { kind: 'rect', x: 0, y: 183, width: 160, height: 5, colour: '#6a4034' },
-      { kind: 'rect', x: 18, y: 180, width: 2, height: 2, colour: '#ff9a52' },
-      { kind: 'rect', x: 76, y: 180, width: 2, height: 2, colour: '#ff9a52' },
-      { kind: 'rect', x: 134, y: 180, width: 2, height: 2, colour: '#ff9a52' },
-    ],
-  },
-  {
-    id: 'deck',
-    parallax: 1,
-    spanWidth: 64,
-    // Detail stays short and mostly horizontal. Full-height vertical seams turned
-    // the ground into a brick wall standing behind the fighters.
-    shapes: [
-      { kind: 'rect', x: 0, y: 188, width: 2, height: 9, colour: '#583229' },
-      { kind: 'rect', x: 4, y: 191, width: 26, height: 1, colour: '#b4795a' },
-      { kind: 'rect', x: 38, y: 190, width: 20, height: 1, colour: '#b4795a' },
-      { kind: 'rect', x: 16, y: 199, width: 2, height: 2, colour: '#93604a' },
-      { kind: 'rect', x: 44, y: 199, width: 2, height: 2, colour: '#93604a' },
-      { kind: 'rect', x: 6, y: 209, width: 24, height: 1, colour: '#6d4034' },
-      { kind: 'rect', x: 40, y: 217, width: 18, height: 1, colour: '#6d4034' },
-    ],
-  },
+  { id: 'clouds', src: `${BACKDROP_ROOT}/clouds-320x104.png`, parallax: 0.1, spanWidth: 320, width: 320, height: 104, bottomRow: 132 },
+  { id: 'ridge', src: `${BACKDROP_ROOT}/ridge-320x40.png`, parallax: 0.2, spanWidth: 320, width: 320, height: 40, bottomRow: 174 },
+  { id: 'colony', src: `${BACKDROP_ROOT}/colony-320x62.png`, parallax: 0.42, spanWidth: 320, width: 320, height: 62, bottomRow: 181 },
+  { id: 'apron', src: `${BACKDROP_ROOT}/apron-320x40.png`, parallax: 0.74, spanWidth: 320, width: 320, height: 40, bottomRow: 189 },
+  { id: 'deck', src: `${BACKDROP_ROOT}/deck-64x36.png`, parallax: 1, spanWidth: 64, width: 64, height: 36, bottomRow: 224 },
 ]
 
 /**

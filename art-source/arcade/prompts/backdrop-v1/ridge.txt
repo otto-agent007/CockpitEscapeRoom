@@ -1,0 +1,11 @@
+Flat 1990s arcade pixel-art game backdrop layer: a DRAMATIC MARTIAN CANYON WALL in flat silhouette, seen from a distance.
+
+COMPOSITION: one horizontal band of terrain spanning the ENTIRE width of the image, edge to edge. The band occupies the middle 30 percent of the image height. Everything ABOVE and BELOW it must be absolutely OPAQUE SOLID PURE MAGENTA RGB(255,0,255).
+
+SUBJECT: a harsh, jagged Martian horizon. Not gentle hills. Include tall flat-topped mesas with sheer vertical cliff faces, a deep narrow canyon notch cutting right down through the terrain, sharp angular spires of rock, a broken crater rim, and a steep scree slope. The profile must be aggressive and irregular, with strong vertical cliff edges and sharp changes in height. The tallest mesa should reach the top of the band.
+
+COLOUR: exactly ONE flat tone for the entire ridge, a dark violet-grey RGB(52,36,55), and nothing else. No lights, no highlights, no second tone, no detail inside the silhouette.
+
+STYLE: flat 1990s arcade pixel art. A hard-edged solid silhouette with a crisp top edge. NO gradients, NO dithering, NO blur, NO glow, NO haze, NO shading, NO texture, NO outlines, NO anti-aliasing, NO text.
+
+TILING: repeated side by side horizontally forever. The terrain at the extreme LEFT edge must continue the terrain at the extreme RIGHT edge seamlessly, at the same height, with no seam and no step.

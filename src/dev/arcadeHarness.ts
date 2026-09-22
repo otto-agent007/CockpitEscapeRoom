@@ -42,6 +42,7 @@ import {
   inputFromKeys,
 } from './arcadeHarnessInput'
 import { ARCADE_ANCHOR_SOURCES, loadArcadeSprites, selectArcadeSprite } from './arcadeHarnessSprites'
+import { loadArcadeBackdrop, type ArcadeBackdropImages } from './arcadeHarnessBackdrop'
 import { advanceExchange, EXCHANGE_END_FRAME } from './arcadeHarnessExchange'
 import {
   GLYPH_HEIGHT,
@@ -51,6 +52,8 @@ import {
 import {
   MARS_ARCADE_HUD,
   MARS_ARCADE_HUD_COLOURS,
+  marsArcadeDimmed,
+  marsArcadeHealthBlink,
   advanceChipBar,
   createChipBar,
   marsArcadeBanner,
@@ -69,7 +72,6 @@ import {
   marsArcadeBackdropTiles,
   marsArcadeCameraTarget,
   marsArcadeScreenX,
-  type MarsArcadeBackdropShape,
 } from '../game/marsArcadeStage'
 
 const STAGE_WIDTH = MARS_ARCADE_VIEW.width
@@ -270,160 +272,32 @@ function drawCentreLine(
 }
 
 /**
- * One backdrop shape, in the tile at `offset`.
- *
- * Every kind is flat fill and straight edges on purpose: the stage is pixel art at
- * an integer scale, and anything smoothly shaded would crawl as the camera scrolls.
- */
-function drawShape(ctx: CanvasRenderingContext2D, shape: MarsArcadeBackdropShape, offset: number): void {
-  const x = (offset + shape.x) * SCALE
-  const y = shape.y * SCALE
-  const w = shape.width * SCALE
-  const h = shape.height * SCALE
-  ctx.fillStyle = shape.colour
-
-  switch (shape.kind) {
-    case 'rect':
-      ctx.fillRect(x, y, w, h)
-      return
-
-    case 'ridge':
-      ctx.beginPath()
-      ctx.moveTo(x, y + h)
-      ctx.lineTo(x + w / 2, y)
-      ctx.lineTo(x + w, y + h)
-      ctx.closePath()
-      ctx.fill()
-      return
-
-    case 'dome':
-      ctx.beginPath()
-      ctx.ellipse(x + w / 2, y + h, w / 2, h, 0, Math.PI, Math.PI * 2)
-      ctx.closePath()
-      ctx.fill()
-      if (shape.accent) {
-        // Lit rim on the side the horizon glow comes from.
-        ctx.strokeStyle = shape.accent
-        ctx.lineWidth = 2
-        ctx.beginPath()
-        ctx.ellipse(x + w / 2, y + h, w / 2, h, 0, Math.PI * 1.05, Math.PI * 1.5)
-        ctx.stroke()
-      }
-      return
-
-    case 'disc':
-      ctx.beginPath()
-      ctx.ellipse(x + w / 2, y + h / 2, w / 2, h / 2, 0, 0, Math.PI * 2)
-      ctx.fill()
-      if (shape.accent) {
-        ctx.fillStyle = shape.accent
-        ctx.beginPath()
-        ctx.ellipse(x + w * 0.66, y + h * 0.56, w / 2.6, h / 2.6, 0, 0, Math.PI * 2)
-        ctx.fill()
-      }
-      return
-
-    case 'mast':
-      ctx.fillRect(x, y, w, h)
-      ctx.fillRect(x - w * 2, y + h * 0.2, w * 5, Math.max(SCALE, h * 0.04))
-      if (shape.accent) {
-        ctx.fillStyle = shape.accent
-        ctx.fillRect(x - SCALE, y - 2 * SCALE, w + 2 * SCALE, 2 * SCALE)
-      }
-      return
-
-    case 'aircraft': {
-      // A DC-9 in side profile, nose right, sitting on its gear.
-      //
-      // Four things carry the identity at this size, and the first pass had none
-      // of them right: the tail cone sweeps UP to the fin instead of ending in a
-      // spike at mid-height, the stabiliser sits ON TOP of the fin (the T-tail),
-      // the engines hang on the REAR fuselage rather than under the wings, and a
-      // row of lit cabin windows says airliner faster than any outline can.
-      const top = y + h * 0.46
-      const bottom = y + h * 0.64
-      const ground = y + h
-
-      // Fuselage and the upswept tail cone behind it.
-      ctx.fillRect(x + w * 0.1, top, w * 0.78, bottom - top)
-      ctx.beginPath()
-      ctx.moveTo(x + w * 0.12, top)
-      ctx.lineTo(x + w * 0.12, bottom)
-      ctx.lineTo(x + w * 0.02, top + h * 0.01)
-      ctx.closePath()
-      ctx.fill()
-      // Nose: tapers, and keeps a flatter underside.
-      ctx.beginPath()
-      ctx.moveTo(x + w * 0.86, top)
-      ctx.lineTo(x + w * 0.98, top + h * 0.07)
-      ctx.lineTo(x + w * 0.98, bottom)
-      ctx.lineTo(x + w * 0.86, bottom)
-      ctx.closePath()
-      ctx.fill()
-      // Fin, swept back — aft is to the left, so the top edge sits left of the base.
-      ctx.beginPath()
-      ctx.moveTo(x + w * 0.21, top)
-      ctx.lineTo(x + w * 0.18, y + h * 0.17)
-      ctx.lineTo(x + w * 0.08, y + h * 0.17)
-      ctx.lineTo(x + w * 0.04, top)
-      ctx.closePath()
-      ctx.fill()
-      // Rear-fuselage engine nacelle, overlapping the fuselage so it reads attached.
-      ctx.fillRect(x + w * 0.23, top - h * 0.12, w * 0.18, h * 0.16)
-      // Wing: a shallow swept blade, not a hanging fin.
-      ctx.beginPath()
-      ctx.moveTo(x + w * 0.44, bottom - h * 0.02)
-      ctx.lineTo(x + w * 0.68, bottom - h * 0.02)
-      ctx.lineTo(x + w * 0.52, bottom + h * 0.12)
-      ctx.lineTo(x + w * 0.38, bottom + h * 0.12)
-      ctx.closePath()
-      ctx.fill()
-      // Gear: nose and main, with wheels on the pad.
-      for (const [legX, legWidth] of [
-        [0.8, 0.015],
-        [0.47, 0.02],
-      ] as const) {
-        ctx.fillRect(x + w * legX, bottom, Math.max(1, w * legWidth), ground - bottom)
-        ctx.fillRect(x + w * legX - SCALE, ground - 2 * SCALE, Math.max(2, w * 0.04), 2 * SCALE)
-      }
-
-      if (shape.accent) {
-        ctx.fillStyle = shape.accent
-        // The T-tail plane, sitting across the top of the fin.
-        ctx.fillRect(x + w * 0.03, y + h * 0.13, w * 0.2, Math.max(2, h * 0.05))
-        // Sunlit spine.
-        ctx.fillRect(x + w * 0.1, top, w * 0.78, Math.max(1, h * 0.04))
-      }
-
-      // Lit cabin windows and the flight deck. At this scale this is what actually
-      // says "airliner"; without it the silhouette reads as a structure.
-      ctx.fillStyle = '#ffd58a'
-      const windowY = top + h * 0.06
-      const windowSize = Math.max(1, Math.round(SCALE * 0.7))
-      for (let column = 0.22; column < 0.83; column += 0.055) {
-        ctx.fillRect(x + w * column, windowY, windowSize, windowSize)
-      }
-      ctx.fillRect(x + w * 0.88, top + h * 0.04, Math.max(2, w * 0.035), Math.max(2, h * 0.05))
-      return
-    }
-  }
-}
-
-/**
- * Sky bands, then the parallax layers far to near.
+ * Sky bands, then the generated parallax layers far to near.
  *
  * The bands are screen-space; the layers slide against the camera, each at its own
  * rate. The nearest layer is at parallax 1 with a short span, which is the one that
  * actually tells the player the stage moved — the retired flat floor could not.
+ *
+ * A layer that has not loaded is SKIPPED rather than substituted. The sky ramp
+ * already guarantees the fighters have something to read against, so a missing tile
+ * costs scenery and never readability, and the harness prints which one is missing.
  */
-function drawBackdrop(ctx: CanvasRenderingContext2D, camera: number): void {
+function drawBackdrop(
+  ctx: CanvasRenderingContext2D,
+  camera: number,
+  backdrop: ArcadeBackdropImages,
+): void {
   for (const band of MARS_ARCADE_BANDS) {
     ctx.fillStyle = band.colour
     ctx.fillRect(0, band.y * SCALE, STAGE_WIDTH * SCALE, band.height * SCALE)
   }
+  ctx.imageSmoothingEnabled = false
   for (const layer of MARS_ARCADE_BACKDROP) {
+    const image = backdrop.get(layer.id)
+    if (!image) continue
+    const top = (layer.bottomRow - layer.height) * SCALE
     for (const offset of marsArcadeBackdropTiles(layer, camera)) {
-      for (const shape of layer.shapes) drawShape(ctx, shape, offset)
+      ctx.drawImage(image, offset * SCALE, top, layer.width * SCALE, layer.height * SCALE)
     }
   }
 }
@@ -544,8 +418,9 @@ function drawVitals(
   fighter: MarsArcadeFighterState,
   chip: number,
   mirrored: boolean,
+  frame: number,
 ): void {
-  const { vitals, frame, skew } = MARS_ARCADE_HUD
+  const { vitals, frame: frameWidth, skew } = MARS_ARCADE_HUD
   const content = marsArcadeFighter(fighter.id)
   const healthFraction = fighter.health / content.health
   const skewPx = skew * SCALE
@@ -554,10 +429,10 @@ function drawVitals(
   ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frame
   ctx.fill()
 
-  const innerX = x + frame
-  const innerY = vitals.y + frame
-  const innerWidth = vitals.width - frame * 2
-  const innerHeight = vitals.height - frame * 2
+  const innerX = x + frameWidth
+  const innerY = vitals.y + frameWidth
+  const innerWidth = vitals.width - frameWidth * 2
+  const innerHeight = vitals.height - frameWidth * 2
 
   ctx.save()
   skewedBarPath(
@@ -568,10 +443,23 @@ function drawVitals(
   ctx.fill()
   ctx.clip()
 
+  const healthColour = marsArcadeHealthColour(healthFraction)
   fillStrip(
-    ctx, innerX, innerY, innerWidth, vitals.healthHeight,
-    healthFraction, marsArcadeHealthColour(healthFraction), mirrored, chip,
+    ctx, innerX, innerY, innerWidth, vitals.healthHeight, healthFraction,
+    marsArcadeHealthBlink(healthFraction, frame) ? healthColour : marsArcadeDimmed(healthColour),
+    mirrored, chip,
   )
+
+  // Gold end-cap at the OUTER end, present at every health value, so the bar ends in
+  // hardware rather than in paint. Inside the clip, so the slant still cuts it.
+  const capWidth = 5
+  const capX = mirrored ? innerX + innerWidth - capWidth : innerX
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.gold
+  ctx.fillRect(capX * SCALE, innerY * SCALE, capWidth * SCALE, vitals.healthHeight * SCALE)
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.steel
+  ctx.fillRect(capX * SCALE, innerY * SCALE, capWidth * SCALE, SCALE)
+  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.goldLow
+  ctx.fillRect(capX * SCALE, (innerY + vitals.healthHeight - 1) * SCALE, capWidth * SCALE, SCALE)
   const guardY = innerY + vitals.healthHeight + vitals.dividerHeight
   ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frame
   ctx.fillRect(innerX * SCALE, (innerY + vitals.healthHeight) * SCALE, innerWidth * SCALE, vitals.dividerHeight * SCALE)
@@ -587,6 +475,29 @@ function drawVitals(
 }
 
 /** The super meter, in chunks of one cheapest-special each. */
+/**
+ * An octagonal plate path — the arcade clock shape.
+ *
+ * A plain rectangle is the one thing on the HUD that reads as a web widget rather
+ * than as a cabinet. The cut is a hard step, so it survives at this scale.
+ */
+function octagonPath(
+  ctx: CanvasRenderingContext2D,
+  x: number, y: number, w: number, h: number, cut: number,
+): void {
+  const s = SCALE
+  ctx.beginPath()
+  ctx.moveTo((x + cut) * s, y * s)
+  ctx.lineTo((x + w - cut) * s, y * s)
+  ctx.lineTo((x + w) * s, (y + cut) * s)
+  ctx.lineTo((x + w) * s, (y + h - cut) * s)
+  ctx.lineTo((x + w - cut) * s, (y + h) * s)
+  ctx.lineTo((x + cut) * s, (y + h) * s)
+  ctx.lineTo(x * s, (y + h - cut) * s)
+  ctx.lineTo(x * s, (y + cut) * s)
+  ctx.closePath()
+}
+
 function drawMeter(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -594,7 +505,10 @@ function drawMeter(
   mirrored: boolean,
 ): void {
   const { meter, frame } = MARS_ARCADE_HUD
-  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frame
+  const charged = fighter.meter >= MARS_ARCADE_METER_MAX
+  // A charged meter turns its own frame gold. That is the whole "you can throw a
+  // special now" signal: a text label was tried and cost 42 px of a 320 px screen.
+  ctx.fillStyle = charged ? MARS_ARCADE_HUD_COLOURS.goldLow : MARS_ARCADE_HUD_COLOURS.frame
   ctx.fillRect(x * SCALE, meter.y * SCALE, meter.width * SCALE, meter.height * SCALE)
 
   const innerX = x + frame
@@ -614,11 +528,17 @@ function drawMeter(
     ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.meterEmpty
     ctx.fillRect(segmentX * SCALE, innerY * SCALE, segmentWidth * SCALE, innerHeight * SCALE)
     if (amount > 0) {
-      fillStrip(ctx, segmentX, innerY, segmentWidth, innerHeight, amount, fill, mirrored)
+      // Each lit chunk is a chip with its own bevel rather than a flat block, which
+      // is how the reference's atlas builds every small indicator.
+      ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.goldLow
+      ctx.fillRect(segmentX * SCALE, innerY * SCALE, segmentWidth * SCALE, innerHeight * SCALE)
+      fillStrip(
+        ctx, segmentX, innerY + 1, segmentWidth, innerHeight - 2, amount, fill, mirrored,
+      )
     }
   })
 
-  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frameLight
+  ctx.fillStyle = charged ? MARS_ARCADE_HUD_COLOURS.gold : MARS_ARCADE_HUD_COLOURS.frameLight
   ctx.fillRect(x * SCALE, meter.y * SCALE, meter.width * SCALE, SCALE)
 }
 
@@ -707,7 +627,7 @@ function drawHud(
   sprites: ReturnType<typeof loadArcadeSprites>,
 ): void {
   const { state } = harness
-  const { portrait, vitals, namePlate, meter, timer, banner, frame } = MARS_ARCADE_HUD
+  const { portrait, vitals, namePlate, meter, timer, banner } = MARS_ARCADE_HUD
   const view = STAGE_WIDTH
   const outer = (x: number, width: number, mirrored: boolean): number =>
     mirrored ? view - x - width : x
@@ -720,7 +640,7 @@ function drawHud(
     drawPortrait(ctx, fighter.id, outer(portrait.x, portrait.width, mirrored), side, sprites)
     drawVitals(
       ctx, outer(vitals.x, vitals.width, mirrored), fighter,
-      (harness.chip[side]?.value ?? fighter.health) / content.health, mirrored,
+      (harness.chip[side]?.value ?? fighter.health) / content.health, mirrored, state.frame,
     )
     drawNamePlate(ctx, outer(namePlate.x, namePlate.width, mirrored), content.label, mirrored)
     drawMeter(ctx, outer(meter.x, meter.width, mirrored), fighter, mirrored)
@@ -729,15 +649,23 @@ function drawHud(
   // Clock.
   const seconds = marsArcadeTimerSeconds(state)
   const digits = String(seconds).padStart(2, '0')
-  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frame
-  ctx.fillRect(timer.x * SCALE, timer.y * SCALE, timer.width * SCALE, timer.height * SCALE)
-  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.trough
-  ctx.fillRect(
-    (timer.x + frame) * SCALE, (timer.y + frame) * SCALE,
-    (timer.width - frame * 2) * SCALE, (timer.height - frame * 2) * SCALE,
-  )
-  ctx.fillStyle = MARS_ARCADE_HUD_COLOURS.frameLight
-  ctx.fillRect(timer.x * SCALE, timer.y * SCALE, timer.width * SCALE, SCALE)
+  // Four concentric octagons: dark edge, steel, gold trim, then the dial. Stacking
+  // more rings than this was tried and ate the whole plate — the digits ended up
+  // sitting on white with nothing to read against.
+  const clock: ReadonlyArray<readonly [number, number, string]> = [
+    [0, 6, MARS_ARCADE_HUD_COLOURS.frame],
+    [1, 6, MARS_ARCADE_HUD_COLOURS.frameLight],
+    [2, 5, MARS_ARCADE_HUD_COLOURS.goldLow],
+    [3, 5, MARS_ARCADE_HUD_COLOURS.trough],
+  ]
+  for (const [inset, cut, colour] of clock) {
+    octagonPath(
+      ctx, timer.x + inset, timer.y + inset,
+      timer.width - inset * 2, timer.height - inset * 2, cut,
+    )
+    ctx.fillStyle = colour
+    ctx.fill()
+  }
   const digitsWidth = measureText(digits) * timer.digitPixel
   drawTextShadowed(
     ctx, digits,
@@ -768,11 +696,16 @@ function drawHud(
   }
 }
 
-function draw(ctx: CanvasRenderingContext2D, harness: Harness, sprites: ReturnType<typeof loadArcadeSprites>): void {
+function draw(
+  ctx: CanvasRenderingContext2D,
+  harness: Harness,
+  sprites: ReturnType<typeof loadArcadeSprites>,
+  backdrop: ArcadeBackdropImages,
+): void {
   const width = STAGE_WIDTH * SCALE
   const camera = harness.cameraX
 
-  drawBackdrop(ctx, camera)
+  drawBackdrop(ctx, camera, backdrop)
 
   ctx.strokeStyle = '#a5714f'
   ctx.lineWidth = 2
@@ -904,6 +837,7 @@ function mount(): void {
   const assetStatus = document.querySelector<HTMLParagraphElement>('#asset-status')
   if (!canvas || !readout || !logPanel || !assetStatus) throw new Error('harness markup missing')
   const sprites = loadArcadeSprites()
+  const backdrop = loadArcadeBackdrop()
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
 
   canvas.width = STAGE_WIDTH * SCALE
@@ -1125,7 +1059,7 @@ function mount(): void {
       if (harness.log.length > 14) harness.log = harness.log.slice(-14)
     }
 
-    draw(ctx, harness, sprites)
+    draw(ctx, harness, sprites, backdrop)
     readout.textContent = describe(harness)
     const status = sprites.status() + (harness.reducedMotion ? '; reduced motion: static idle' : '')
     if (assetStatus.textContent !== status) assetStatus.textContent = status

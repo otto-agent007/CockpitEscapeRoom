@@ -5,10 +5,16 @@ import {
   MARS_ARCADE_CHIP,
   MARS_ARCADE_HUD,
   MARS_ARCADE_HUD_BAND,
+  MARS_ARCADE_HUD_BLINK_FRAMES,
+  MARS_ARCADE_HUD_COLOURS,
+  MARS_ARCADE_HUD_LOW_HEALTH,
+  MARS_ARCADE_HUD_MID_HEALTH,
   MARS_ARCADE_METER_SEGMENTS,
   advanceChipBar,
   createChipBar,
   marsArcadeBanner,
+  marsArcadeHealthBlink,
+  marsArcadeHealthColour,
   marsArcadeHudBoxes,
   marsArcadeMeterSegments,
 } from './marsArcadeHud'
@@ -231,5 +237,59 @@ describe('mars arcade banner placement', () => {
     const headRow = MARS_ARCADE_VIEW.floorRow - 104
     expect(banner.y).toBeGreaterThanOrEqual(MARS_ARCADE_HUD_BAND.bottomRow)
     expect(subtitleBottom, 'the round card covers the fighters').toBeLessThanOrEqual(headRow)
+  })
+})
+
+describe('mars arcade health colour', () => {
+  it('runs green to amber to red as health drains, never the other way', () => {
+    // The retired ramp was RED at full health and amber at low, so a healthy
+    // fighter looked as alarming as a dying one and the bar carried no warning.
+    expect(marsArcadeHealthColour(1)).toBe(MARS_ARCADE_HUD_COLOURS.health)
+    expect(marsArcadeHealthColour(0.75)).toBe(MARS_ARCADE_HUD_COLOURS.health)
+    expect(marsArcadeHealthColour(0.4)).toBe(MARS_ARCADE_HUD_COLOURS.healthMid)
+    expect(marsArcadeHealthColour(0.1)).toBe(MARS_ARCADE_HUD_COLOURS.healthLow)
+    expect(marsArcadeHealthColour(0)).toBe(MARS_ARCADE_HUD_COLOURS.healthLow)
+  })
+
+  it('switches exactly at each threshold, inclusive downward', () => {
+    expect(marsArcadeHealthColour(MARS_ARCADE_HUD_MID_HEALTH)).toBe(MARS_ARCADE_HUD_COLOURS.healthMid)
+    expect(marsArcadeHealthColour(MARS_ARCADE_HUD_MID_HEALTH + 0.001)).toBe(MARS_ARCADE_HUD_COLOURS.health)
+    expect(marsArcadeHealthColour(MARS_ARCADE_HUD_LOW_HEALTH)).toBe(MARS_ARCADE_HUD_COLOURS.healthLow)
+    expect(marsArcadeHealthColour(MARS_ARCADE_HUD_LOW_HEALTH + 0.001)).toBe(MARS_ARCADE_HUD_COLOURS.healthMid)
+  })
+
+  it('gets brighter as it gets more urgent, so the warning cannot be missed', () => {
+    // A ramp that dimmed toward red would hide the thing it is warning about.
+    const luminance = (hex: string) => {
+      const v = Number.parseInt(hex.slice(1), 16)
+      return 0.2126 * ((v >> 16) & 255) + 0.7152 * ((v >> 8) & 255) + 0.0722 * (v & 255)
+    }
+    for (const fill of [
+      MARS_ARCADE_HUD_COLOURS.health,
+      MARS_ARCADE_HUD_COLOURS.healthMid,
+      MARS_ARCADE_HUD_COLOURS.healthLow,
+    ]) {
+      expect(luminance(fill.light)).toBeGreaterThan(luminance(fill.base))
+      expect(luminance(fill.base)).toBeGreaterThan(luminance(fill.shade))
+    }
+  })
+})
+
+describe('mars arcade critical blink', () => {
+  it('never blinks above the critical threshold', () => {
+    for (let frame = 0; frame < 64; frame += 1) {
+      expect(marsArcadeHealthBlink(0.5, frame)).toBe(true)
+      expect(marsArcadeHealthBlink(1, frame)).toBe(true)
+    }
+  })
+
+  it('alternates on and off below it, spending equal time in each phase', () => {
+    const phases = Array.from({ length: MARS_ARCADE_HUD_BLINK_FRAMES * 4 }, (_, frame) =>
+      marsArcadeHealthBlink(0.1, frame),
+    )
+    expect(phases.filter(Boolean).length).toBe(phases.length / 2)
+    // And it must actually hold each phase, not flicker every frame.
+    expect(phases.slice(0, MARS_ARCADE_HUD_BLINK_FRAMES).every(Boolean)).toBe(true)
+    expect(phases.slice(MARS_ARCADE_HUD_BLINK_FRAMES, MARS_ARCADE_HUD_BLINK_FRAMES * 2).some(Boolean)).toBe(false)
   })
 })

@@ -107,23 +107,36 @@ export function marsArcadeMeterSegments(meter: number): number[] {
 }
 
 export const MARS_ARCADE_HUD_COLOURS = {
-  frame: '#1a1016',
+  frame: '#10101c',
   /**
    * The lit top row on every panel. It has to be clearly lighter than `frame` or
    * the plates read as one dark smear under the health bar, which is exactly what
    * the first pass did.
    */
-  frameLight: '#b08a80',
-  trough: '#2a1a20',
-  plate: '#31202c',
+  frameLight: '#7e88a2',
+  /**
+   * The empty part of a bar.
+   *
+   * Deliberately well clear of the night sky behind the HUD. A trough within a few
+   * values of the scene turns every bar into a wireframe outline — you can see the
+   * frame but not how long the bar is — which is what a restyle pass ran into and
+   * had to back out.
+   */
+  trough: '#2e2850',
+  plate: '#181530',
+  /** Steel and gold trim, matching the cabinet hardware the frames imitate. */
+  steel: '#dee6f4',
+  gold: '#ffb238',
+  goldLow: '#96580c',
   /** Each fill is two tones plus a shadow line, so a bar has a surface, not a slab. */
-  health: { light: '#ff8468', base: '#e04a38', shade: '#8f2a20' },
-  healthLow: { light: '#ffc65a', base: '#e08a20', shade: '#8f5410' },
+  health: { light: '#a8f078', base: '#56d63e', shade: '#2a7a1e' },
+  healthMid: { light: '#ffd06a', base: '#ffba28', shade: '#9a6a0c' },
+  healthLow: { light: '#ff8a7a', base: '#e83232', shade: '#8a1616' },
   /** The lagging trail behind a fresh hit: the bar that shows what was just taken. */
   chip: '#fff0d0',
-  meter: { light: '#ffe77a', base: '#f0b81f', shade: '#946c08' },
-  meterFull: { light: '#fffbe4', base: '#ffd95e', shade: '#b08a18' },
-  meterEmpty: '#4a3242',
+  meter: { light: '#baf0ff', base: '#4ac4ff', shade: '#1c6a96' },
+  meterFull: { light: '#fff6d4', base: '#ffde78', shade: '#b08a18' },
+  meterEmpty: '#241f42',
   guard: { light: '#7fa4ff', base: '#4a7bff', shade: '#243f8f' },
   guardLow: { light: '#ff8098', base: '#ff4a6e', shade: '#8f2038' },
   name: '#f4e6d2',
@@ -140,8 +153,12 @@ export interface MarsArcadeFill {
   shade: string
 }
 
-/** Health fraction below which the bar turns amber. */
+/** Health fraction below which the bar turns red and starts blinking. */
 export const MARS_ARCADE_HUD_LOW_HEALTH = 0.25
+/** Health fraction below which the bar turns amber. */
+export const MARS_ARCADE_HUD_MID_HEALTH = 0.5
+/** Frames per blink phase once health is critical. */
+export const MARS_ARCADE_HUD_BLINK_FRAMES = 8
 
 export const MARS_ARCADE_CHIP = {
   /** Frames the trail sits still after a hit, so the damage is readable. */
@@ -179,10 +196,40 @@ export function advanceChipBar(bar: MarsArcadeChipBar, health: number): MarsArca
   return { value, hold, lastHealth: health }
 }
 
+/**
+ * Green, then amber, then red as health drains.
+ *
+ * The retired ramp ran the wrong way round: it was RED at full health and amber at
+ * low, so a fighter at 100% looked as alarming as one about to be knocked out, and
+ * the bar carried no warning at all. Every arcade fighter this is modelled on runs
+ * green to red, and so does the reference stage.
+ */
 export function marsArcadeHealthColour(fraction: number): MarsArcadeFill {
-  return fraction <= MARS_ARCADE_HUD_LOW_HEALTH
-    ? MARS_ARCADE_HUD_COLOURS.healthLow
-    : MARS_ARCADE_HUD_COLOURS.health
+  if (fraction <= MARS_ARCADE_HUD_LOW_HEALTH) return MARS_ARCADE_HUD_COLOURS.healthLow
+  if (fraction <= MARS_ARCADE_HUD_MID_HEALTH) return MARS_ARCADE_HUD_COLOURS.healthMid
+  return MARS_ARCADE_HUD_COLOURS.health
+}
+
+/**
+ * Whether a critical health bar is in its lit phase this frame.
+ *
+ * Always true above the critical threshold, so a caller can apply it unconditionally
+ * without having to re-test the health fraction and get the boundary wrong.
+ */
+export function marsArcadeHealthBlink(fraction: number, frame: number): boolean {
+  if (fraction > MARS_ARCADE_HUD_LOW_HEALTH) return true
+  return Math.floor(frame / MARS_ARCADE_HUD_BLINK_FRAMES) % 2 === 0
+}
+
+/**
+ * The off phase of a blink: the fill collapsed to its own shadow tone.
+ *
+ * Dimming rather than hiding, so the bar keeps its length while it flashes. Blinking
+ * a bar out of existence makes its remaining health unreadable at exactly the moment
+ * the player most needs to read it.
+ */
+export function marsArcadeDimmed(fill: MarsArcadeFill): MarsArcadeFill {
+  return { light: fill.shade, base: fill.shade, shade: fill.shade }
 }
 
 export function marsArcadeGuardColour(fighter: MarsArcadeFighterState): MarsArcadeFill {

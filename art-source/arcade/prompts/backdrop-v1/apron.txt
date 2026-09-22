@@ -1,0 +1,13 @@
+Flat 1990s arcade pixel-art game backdrop layer: a COLONY PERIMETER BARRIER AND PAD EQUIPMENT in hard silhouette, the mid-ground clutter of a fighting-game stage.
+
+COMPOSITION: one horizontal band spanning the ENTIRE width of the image, edge to edge. The band occupies the middle 35 percent of the image height. Everything ABOVE and BELOW the band, and every gap and opening within the barrier, must be absolutely OPAQUE SOLID PURE MAGENTA RGB(255,0,255). The structures themselves must NOT be magenta. Much of this layer is open magenta showing through, because the barrier is see-through.
+
+THE BARRIER, running the full width: a sturdy industrial safety barrier made of THICK VERTICAL BARS evenly spaced with clear open magenta gaps between them, a solid HORIZONTAL TOP RAIL running unbroken across the whole width, and a second horizontal MID RAIL lower down. Add a heavier square support post every so often, with a diagonal brace. Keep every bar and rail CHUNKY and clearly separated — this is heavy industrial steelwork, not fine wire mesh, and never a fine grid or netting.
+
+EQUIPMENT standing on the pad, in front of and between the barrier posts, spread unevenly across the width with gaps: stacked shipping crates of several sizes, cylindrical fuel drums, a large cable reel, a boxy generator unit with cooling fins, a squat round vent turbine, a tall floodlight mast with a lamp head angled down, a short antenna, and a low pipe manifold. About 12 to 16 objects, clustered irregularly with clear empty stretches between clusters, never evenly spaced.
+
+COLOUR: exactly three flat tones and no others. The main silhouette in near-black plum RGB(34,20,32). A slightly lighter plum RGB(56,33,52) for a few objects further back. A hard-edged warm rim of orange RGB(255,138,60) along the TOP edge only of the top rail, the crate tops, the drum tops and the floodlight head, as if the low sun is catching them from behind. Use the orange sparingly, one or two pixels thick.
+
+STYLE: flat 1990s arcade pixel art. Hard-edged uniform blocks of solid colour, crisp vertical and horizontal edges. NO gradients, NO dithering, NO blur, NO glow, NO shading, NO texture, NO outlines, NO anti-aliasing, NO people, NO text, NO labels, NO logos, NO warning stripes.
+
+TILING: repeated side by side horizontally forever. The barrier and its rails at the extreme LEFT edge must line up exactly with the extreme RIGHT edge so the rails run unbroken across the join, with no seam and no step.

@@ -1,0 +1,17 @@
+Flat 1990s arcade pixel-art game backdrop layer: a HUGE, IMPOSING MARS INDUSTRIAL COLONY IN HARD SILHOUETTE at dusk. Dramatic, heavy, monumental. This is the skyline a boss fight happens in front of.
+
+COMPOSITION: one horizontal band of structures spanning the ENTIRE width of the image, edge to edge with no gap. The band occupies the middle 40 percent of the image height. Everything ABOVE the band and everything BELOW it must be absolutely OPAQUE SOLID PURE MAGENTA RGB(255,0,255). The structures themselves must NOT be magenta.
+
+SCALE IS THE POINT. The skyline must be violently uneven: colossal towers next to low bunkers. The tallest structures must reach the very TOP of the band and the lowest must sit near its base. Nothing should be a medium even height. Silhouette first, detail second.
+
+THE HERO STRUCTURE, left of centre: a COLOSSAL ROCKET LAUNCH TOWER with a tall cylindrical rocket standing upright beside it, the tallest thing in the image by far, reaching the top edge of the band. The tower is an open lattice gantry with horizontal cross-bracing, a swing arm reaching to the rocket, and small red beacon lights up its spine. The rocket is a plain tall cylinder with a tapered nose cone and four small fins at its base.
+
+THE SECOND FEATURE, right of centre and much lower, parked on a flat pad: a DC-9 AIRLINER in strict side view facing right. It must read unmistakably as a DC-9: slim tube fuselage, a T-TAIL with the horizontal stabiliser at the very TOP of the vertical fin, TWO ENGINES mounted on the REAR FUSELAGE sides beside the tail and NOT under the wings, clean low-mounted wings with nothing hanging beneath them, and a row of small lit cabin windows. Parked level on its landing gear, at rest, dwarfed by the tower.
+
+FILL THE REST with heavy industry, tightly packed and overlapping so the skyline never goes quiet: tall slab habitat blocks, pressurised domes, clusters of cylindrical storage tanks, tall chimney stacks, angular refinery towers, lattice antenna masts of several heights, covered pipe bridges spanning between blocks, and stepped low bunkers. About 30 to 40 structures.
+
+COLOUR, HIGH CONTRAST: the structures are a NEAR-BLACK silhouette in exactly two flat tones only, a very dark plum RGB(42,24,38) and a slightly lighter dark plum RGB(61,36,56). Use no other colour for the structures. Scatter many tiny hard-edged LIT WINDOWS of flat hot cream RGB(255,213,138), roughly 80 to 110 of them, in irregular clusters and uneven rows, never a regular grid. Add about 12 hot orange RGB(255,106,42) beacon lights on the tops of the tallest towers, the gantry spine and the chimneys.
+
+STYLE: flat 1990s arcade pixel art. Hard-edged uniform blocks of solid colour with crisp vertical and horizontal edges. NO gradients, NO dithering, NO blur, NO glow, NO haze, NO atmospheric fade, NO shading, NO texture, NO outlines, NO anti-aliasing, NO reflections, NO smoke, NO people, NO text, NO labels, NO logos, NO flags.
+
+TILING: this image will be repeated side by side horizontally forever. The content at the extreme LEFT edge must continue the content at the extreme RIGHT edge seamlessly, as one continuous skyline, with no seam, no gap, and no structure awkwardly bisected at either edge.

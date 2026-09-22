@@ -125,8 +125,28 @@ describe('mars arcade backdrop', () => {
       expect(layer.parallax).toBeGreaterThanOrEqual(0)
       expect(layer.parallax).toBeLessThanOrEqual(1)
       expect(layer.spanWidth).toBeGreaterThan(0)
-      expect(layer.shapes.length).toBeGreaterThan(0)
+      expect(layer.width).toBeGreaterThan(0)
+      expect(layer.height).toBeGreaterThan(0)
+      expect(layer.src).toMatch(/\.png$/)
+      // A tile is placed by its BOTTOM row, so a layer whose art is taller than the
+      // room above that row would be drawn off the top of the view.
+      expect(layer.bottomRow - layer.height).toBeGreaterThanOrEqual(0)
+      expect(layer.bottomRow).toBeLessThanOrEqual(MARS_ARCADE_VIEW.height)
     }
+  })
+
+  it('keeps every layer clear of the band the HUD owns', () => {
+    // The HUD owns rows 2..27. The retired star layer honoured this by starting at
+    // row 28; the generated layers have to honour it too, or a cloud bank is drawn
+    // behind a health bar and reads as a rendering fault rather than as sky.
+    for (const layer of MARS_ARCADE_BACKDROP) {
+      expect(layer.bottomRow - layer.height).toBeGreaterThanOrEqual(28)
+    }
+  })
+
+  it('has a distinct tile for every layer', () => {
+    const sources = MARS_ARCADE_BACKDROP.map((layer) => layer.src)
+    expect(new Set(sources).size).toBe(sources.length)
   })
 
   it('scrolls the backdrop against the camera, faster the nearer the layer', () => {
@@ -149,16 +169,16 @@ describe('mars arcade backdrop', () => {
     }
   })
 
-  it('draws every shape that reaches the view, at every camera position', () => {
-    // Checking that the SPANS cover the view is not enough, and a mutation proved
-    // it: shapes are allowed to overhang their own span — the colony dome starts
-    // at column 294 and is 34 wide — so the tile whose span sits entirely off
-    // screen can still own a shape that reaches into it. Drop that tile and a gap
-    // opens at the screen edge while a span-coverage check stays green.
+  it('draws every tile that reaches the view, at every camera position', () => {
+    // Every layer is now a single tile whose art exactly fills its span, so the
+    // overhang case the old shape layers had cannot arise. The coverage check is
+    // kept because it is what proves no gap opens at a screen edge at ANY camera
+    // position, which is the property that actually matters and the one a wrong
+    // tiling margin would break.
     const limit = marsArcadeCameraLimit()
     for (const layer of MARS_ARCADE_BACKDROP) {
-      const leftMost = Math.min(...layer.shapes.map((shape) => shape.x))
-      const rightMost = Math.max(...layer.shapes.map((shape) => shape.x + shape.width))
+      const leftMost = 0
+      const rightMost = layer.width
       for (let camera = -limit; camera <= limit; camera += 1) {
         const tiles = marsArcadeBackdropTiles(layer, camera)
         const shift = marsArcadeLayerShift(layer, camera)
