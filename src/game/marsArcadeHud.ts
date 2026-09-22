@@ -78,7 +78,14 @@ export const MARS_ARCADE_HUD = {
    */
   meter: { x: 102, y: 19, width: 36, height: 9 },
   timer: { x: 140, y: 2, width: 40, height: 20, digitPixel: 2 },
-  banner: { y: 70, pixel: 3, subtitleGap: 10, subtitlePixel: 2 },
+  /**
+   * The round card sits between the HUD band and the fighters' heads, never across
+   * them. Row 34 puts the title at rows 34-54 and the winner line at 61-74, with a
+   * standing fighter's head starting at row 84. The first version was centred at
+   * row 70 and covered them, which the peer session had already corrected on its
+   * own banner before this landed.
+   */
+  banner: { y: 34, pixel: 3, subtitleGap: 6, subtitlePixel: 2 },
 } as const
 
 /** How many chunks the super meter is divided into. */

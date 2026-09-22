@@ -222,3 +222,14 @@ describe('mars arcade banner', () => {
     expect(marsArcadeBanner(phased('timeOver', 3690, null))?.text).toBe('DRAW')
   })
 })
+
+describe('mars arcade banner placement', () => {
+  it('sits between the HUD band and the fighters heads', () => {
+    const { banner } = MARS_ARCADE_HUD
+    const titleBottom = banner.y + 7 * banner.pixel
+    const subtitleBottom = titleBottom + banner.subtitleGap + 7 * banner.subtitlePixel
+    const headRow = MARS_ARCADE_VIEW.floorRow - 104
+    expect(banner.y).toBeGreaterThanOrEqual(MARS_ARCADE_HUD_BAND.bottomRow)
+    expect(subtitleBottom, 'the round card covers the fighters').toBeLessThanOrEqual(headRow)
+  })
+})

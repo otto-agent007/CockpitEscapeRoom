@@ -50,7 +50,7 @@ try {
 
   // --- the round card, during the intro -----------------------------------
   await tick(120)
-  const bannerBand = () => census(page, 0, 66, 320, 24)
+  const bannerBand = () => census(page, 0, 34, 320, 22)
   const bannerColour = '#ffd23f'
   assert.ok(countOf(await bannerBand(), bannerColour) > 200, 'no round card during the intro')
   await stage.screenshot({ path: `${out}hud-round-card.png` })
@@ -119,7 +119,7 @@ try {
   const endPhase = (await text()).match(/phase (\w+)/)[1]
   assert.ok(['ko', 'timeOver'].includes(endPhase), `round did not end: ${endPhase}`)
   assert.ok(countOf(await bannerBand(), bannerColour) > 150, 'no end-of-round card')
-  const subtitleBand = await census(page, 0, 94, 320, 16)
+  const subtitleBand = await census(page, 0, 61, 320, 15)
   assert.ok(countOf(subtitleBand, '#f0dcc0') > 60, 'the winner line did not render')
   await stage.screenshot({ path: `${out}hud-round-end.png` })
   report(`the round ended on ${endPhase} and the card names the winner`)
