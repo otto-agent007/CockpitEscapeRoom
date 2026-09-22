@@ -1,0 +1,7 @@
+PASS repeated blocks drain guard; fourth heavy crushes it and switches to clean-hit recoil
+PASS p1-normal: brace/compress/settle/guard; pause/step/reset/reload; chip3 guard16
+PASS p2-normal: brace/compress/settle/guard; pause/step/reset/reload; chip3 guard16
+PASS p1-reduced: brace/compress/settle/guard; pause/step/reset/reload; chip3 guard16
+PASS p2-reduced: brace/compress/settle/guard; pause/step/reset/reload; chip3 guard16
+PASS p1-normal-missing: brace/compress/settle/guard; pause/step/reset/reload; chip3 guard16
+PASS no uncaught browser errors

@@ -1,5 +1,44 @@
 # Mars arcade cabinet — sprite source
 
+## 2026-09-22 — Booster received-hit reaction
+
+Booster's stagger/recovery cells live in `booster/normalised-hit-reaction-ready/`;
+46runtime sources now load. Sources are in `booster/generated/hit-reaction-v1/`, exact
+built-in imagegen prompts in `prompts/booster-hit-v1/`. Both selected cells pass the
+unchanged gate; rejected recovery attempts are preserved. See
+`asset-reports/mars-arcade-booster-hit-2026-09-22.md` for validation and scope.
+
+## 2026-09-22 — Block reaction
+
+Oracle compression and settle cells now live in `oracle/normalised-heavy-block-ready/`.
+Both passed fixed-scale checks on their first generation;44sources now load at runtime.
+Sources and exact built-in imagegen prompts are in the `heavy-block-v1` folders.
+See `asset-reports/mars-arcade-heavy-block-2026-09-22.md` for timings and evidence.
+
+## 2026-09-22 — Heavy-hit recovery
+
+Oracle's new recovering cell is selected from `normalised-heavy-hit-ready/`.
+Runtime now loads42sources. Rejected stagger experiments are preserved but not loaded.
+Exact built-in imagegen prompts are in `prompts/heavy-hit-v1/`; source provenance,
+fixed-scale checks and bounded-attempt limits are in
+`asset-reports/mars-arcade-heavy-hit-2026-09-22.md`.
+
+## 2026-09-22 — Heavy drive revision
+
+Two additional drive/settle cells produce eight heavy poses and 41 runtime sources.
+Selected cells are in `booster/normalised-heavy-drive-ready/`; sources and exact prompts
+are preserved in the `heavy-drive-v1` folders. Original heavy art and timing remain.
+See `asset-reports/mars-arcade-heavy-drive-2026-09-22.md` for validation and limitations.
+
+## 2026-09-22 — Heavy recovery continuation
+
+One new Booster retraction cell bridges contact and follow-through during move frames
+15–18, with original timing and all approved sprites unchanged. The dev harness now
+loads39 sources. Source, exact built-in imagegen prompt and unchanged-normalizer output
+are in the `heavy-recovery-v1` folders. Earlier38-source references describe the published
+checkpoint. See `asset-reports/mars-arcade-heavy-recovery-2026-09-22.md` for evidence.
+
+
 ## Published checkpoint contents
 
 The animation checkpoint includes all38 runtime sprites, selected original source art,

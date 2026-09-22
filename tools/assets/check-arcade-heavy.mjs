@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict'
 import { mkdir } from 'node:fs/promises'
 import { chromium } from '@playwright/test'
-const out = new URL('../../preview-renders/mars-arcade/outcomes-v1/regressions/', import.meta.url).pathname
+const out = process.env.ARCADE_EVIDENCE_DIR ? process.env.ARCADE_EVIDENCE_DIR.replace(/\/?$/, "/") : new URL('../../preview-renders/mars-arcade/outcomes-v1/regressions/', import.meta.url).pathname
 await mkdir(out, { recursive: true })
 const browser = await chromium.launch({ headless: true })
 const errors = []
@@ -21,7 +21,7 @@ try {
     await page.clock.install()
     await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
     assert.match(await page.title(), /Mars arcade/)
-    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('38/38 sprites ready'))
+    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('46/46 sprites ready'))
     const tick = ms => page.clock.runFor(ms)
     const command = async code => { await page.locator('[data-command="' + code + '"]').click(); await tick(20) }
     const read = () => page.locator('#readout').innerText()
@@ -85,6 +85,8 @@ try {
     const folder = id === 'booster' ? 'normalised-heavy-continuity-ready' : 'normalised-heavy-ready'
     for (const phase of ['startup', 'active', 'recovery']) assert.ok(drawn.some(s => s.includes('/' + id + '/' + folder + '/heavy-' + phase + '/')))
     if (id === 'booster') {
+      for (const phase of ['drive', 'settle']) assert.ok(drawn.some(s => s.includes('/booster/normalised-heavy-drive-ready/heavy-' + phase + '/')))
+      assert.ok(drawn.some(s => s.includes('/booster/normalised-heavy-recovery-v1/heavy-retract/')))
       assert.ok(drawn.some(s => s.includes('/booster/' + folder + '/heavy-swing/')))
     }
     const events = await page.locator('#log').innerText()
@@ -95,11 +97,11 @@ try {
   }
   const page = await browser.newPage()
   page.on('pageerror', e => errors.push(e.message))
-  await page.route(/\/normalised-heavy(?:-continuity)?-ready\//, r => r.abort())
+  await page.route(/\/normalised-heavy(?:(?:-continuity|-drive)?-ready|-recovery-v1)\//, r => r.abort())
   await page.clock.install()
   await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
-  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('7 failed'))
-  assert.match(await page.locator('#asset-status').innerText(), /31\/38 sprites ready; 7 failed/)
+  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('10 failed'))
+  assert.match(await page.locator('#asset-status').innerText(), /36\/46 sprites ready; 10 failed/)
   await page.locator('[data-command="KeyT"]').click()
   await page.clock.runFor(1700)
   await page.getByRole('button', { name: 'P1 heavy', exact: true }).click()

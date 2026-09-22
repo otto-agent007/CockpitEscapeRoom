@@ -1,0 +1,6 @@
+FAIL recover/recover-00.png
+       2 transparent speck(s) of <= 2px punched through the body - chroma key or resampling damage
+
+checked 2 frames; 1 failures
+
+exit 3

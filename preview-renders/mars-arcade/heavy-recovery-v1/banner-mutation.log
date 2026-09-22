@@ -1,0 +1,15 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: outcome banner must be visible above the fighters faces and raised fists: {"headline":228,"subtitle":1350,"bottom":175}
+    at file:///tmp/mars-outcome-banner-mutation.mjs:79:14 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v26.3.0

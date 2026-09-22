@@ -4,7 +4,7 @@ import { mkdir } from 'node:fs/promises'
 import { chromium } from '@playwright/test'
 
 const base = process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html'
-const out = new URL('../../preview-renders/mars-arcade/outcomes-v1/regressions/', import.meta.url).pathname
+const out = process.env.ARCADE_EVIDENCE_DIR ? process.env.ARCADE_EVIDENCE_DIR.replace(/\/?$/, "/") : new URL('../../preview-renders/mars-arcade/outcomes-v1/regressions/', import.meta.url).pathname
 await mkdir(out, { recursive: true })
 const browser = await chromium.launch({ headless: true })
 const errors = []
@@ -22,7 +22,7 @@ try {
     })
     await page.clock.install()
     await page.goto(base)
-    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('38/38 sprites ready'))
+    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('46/46 sprites ready'))
     const tick = ms => page.clock.runFor(ms)
     const command = async code => { await page.locator(`[data-command="${code}"]`).click(); await tick(20) }
     const read = () => page.locator('#readout').innerText()
@@ -84,7 +84,7 @@ try {
   await missing.getByRole('button', { name: 'P1 jump', exact: true }).click()
   await missing.getByRole('button', { name: 'P2 jump', exact: true }).click()
   await missing.clock.runFor(250)
-  assert.match(await missing.locator('#asset-status').innerText(), /36\/38 sprites ready; 2 failed — box fallback/)
+  assert.match(await missing.locator('#asset-status').innerText(), /44\/46 sprites ready; 2 failed — box fallback/)
   await missing.screenshot({ path: `${out}missing-apex.png` })
   await missing.clock.runFor(1000)
   assert.doesNotMatch(await missing.locator('#readout').innerText(), /activity   airborne/)

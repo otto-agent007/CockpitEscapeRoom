@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict'
 import { mkdir } from 'node:fs/promises'
 import { chromium } from '@playwright/test'
-const out = new URL('../../preview-renders/mars-arcade/outcomes-v1/', import.meta.url).pathname
+const out = process.env.ARCADE_EVIDENCE_DIR ? process.env.ARCADE_EVIDENCE_DIR.replace(/\/?$/, "/") : new URL('../../preview-renders/mars-arcade/outcomes-v1/', import.meta.url).pathname
 await mkdir(out, { recursive: true })
 const browser = await chromium.launch({ headless: true })
 const errors = []
@@ -14,11 +14,16 @@ try {
     if (missing) await page.route('**/normalised-outcomes-ready/**', route => route.abort())
     await page.addInitScript(() => {
       window.frameDraws = []
-      window.bannerPositions = []
-      const fill = CanvasRenderingContext2D.prototype.fillText
-      CanvasRenderingContext2D.prototype.fillText = function (text, x, y, ...rest) {
-        if (String(text).startsWith('K.O.') || text === 'R to run it again') window.bannerPositions.push(y)
-        return fill.call(this, text, x, y, ...rest)
+      window.bannerPixels = []
+      const fill = CanvasRenderingContext2D.prototype.fillRect
+      CanvasRenderingContext2D.prototype.fillRect = function (x, y, width, height) {
+        const scale = this.canvas.width / 320
+        const headline = this.fillStyle === '#ffd23f' && width === 3 * scale
+        const subtitle = this.fillStyle === '#f0dcc0' && width === 2 * scale
+        if ((headline || subtitle) && height === width) {
+          window.bannerPixels.push({ headline, bottom: (y + height) / scale })
+        }
+        return fill.call(this, x, y, width, height)
       }
       const draw = CanvasRenderingContext2D.prototype.drawImage
       CanvasRenderingContext2D.prototype.drawImage = function (image, ...args) {
@@ -29,7 +34,7 @@ try {
     await page.clock.install()
     await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
     assert.match(await page.title(), /Mars arcade/)
-    const ready = missing ? '33/38 sprites ready; 5 failed' : '38/38 sprites ready'
+    const ready = missing ? '41/46 sprites ready; 5 failed' : '46/46 sprites ready'
     await page.waitForFunction(text => document.querySelector('#asset-status').textContent.includes(text), ready)
     const read = () => page.locator('#readout').innerText()
     const command = async code => { await page.locator('[data-command="' + code + '"]').click(); await page.clock.runFor(20) }
@@ -55,11 +60,18 @@ try {
       assert.match(state, new RegExp('artwork    victory ' + expected))
       assert.match(state, new RegExp('artwork    knockout ' + expected))
       assert.equal(frozenCombat(state), frozen, 'presentation must not change game state readout')
-      await page.evaluate(() => { window.frameDraws = [] })
+      await page.evaluate(() => { window.frameDraws = []; window.bannerPixels = [] })
       await page.clock.runFor(100) // paused repaint, not a simulation step
       const drawn = await page.evaluate(() => window.frameDraws)
-      const banner = await page.evaluate(() => window.bannerPositions)
-      assert.ok(banner.length > 0 && banner.every(y => y <= 150), 'outcome banner must clear the fighters faces and raised fists')
+      // Observe the real pixel-font draw calls (not sprite colours or old fillText).
+      // Require both text layers and keep their bottom above the fighter artwork.
+      const banner = await page.evaluate(() => ({
+        headline: window.bannerPixels.filter(pixel => pixel.headline).length,
+        subtitle: window.bannerPixels.filter(pixel => !pixel.headline).length,
+        bottom: Math.max(...window.bannerPixels.map(pixel => pixel.bottom)),
+      }))
+      assert.ok(banner.headline > 0 && banner.subtitle > 0 && banner.bottom <= 80,
+        'outcome banner must be visible above the fighters faces and raised fists: ' + JSON.stringify(banner))
       if (missing) {
         assert.ok(!drawn.some(src => src.includes('/normalised-outcomes-ready/')), 'unavailable outcome art must use the box renderer')
         assert.match(await page.locator('#asset-status').innerText(), /box fallback/)
@@ -103,7 +115,7 @@ try {
     if (scenario === 'missing') await page.route('**/normalised-outcomes-ready/**', route => route.abort())
     await page.clock.install()
     await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
-    const ready = scenario === 'missing' ? '33/38 sprites ready; 5 failed' : '38/38 sprites ready'
+    const ready = scenario === 'missing' ? '41/46 sprites ready; 5 failed' : '46/46 sprites ready'
     await page.waitForFunction(text => document.querySelector('#asset-status').textContent.includes(text), ready)
     const command = async code => { await page.locator('[data-command="' + code + '"]').click(); await page.clock.runFor(20) }
     await command('mirror'); await command('KeyT'); await command('KeyH')

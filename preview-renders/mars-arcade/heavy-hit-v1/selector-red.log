@@ -1,0 +1,49 @@
+npm notice run cockpit-escape-room@0.1.0 npx
+npm notice run 'vitest' run src/dev/arcadeHarnessReactions.test.ts
+
+ RUN  v4.1.9 /mnt/2TBHDD/CockpitEscapeRoom.worktrees/mars-backdrop
+
+ ❯ src/dev/arcadeHarnessReactions.test.ts (4 tests | 3 failed) 12ms
+     × connects impact, stagger and recovery for defender opposite side 0 without changing rules 7ms
+     × connects impact, stagger and recovery for defender opposite side 1 without changing rules 1ms
+     × leaves light-hit recoil and corner-clamped knockback intact 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/dev/arcadeHarnessReactions.test.ts > heavy hit presentation > connects impact, stagger and recovery for defender opposite side 0 without changing rules
+ FAIL  src/dev/arcadeHarnessReactions.test.ts > heavy hit presentation > connects impact, stagger and recovery for defender opposite side 1 without changing rules
+AssertionError: expected 0 to be greater than 0
+ ❯ src/dev/arcadeHarnessReactions.test.ts:42:41
+     40|       previousDistance = distance
+     41|       seen.add(pose.label)
+     42|       if (frame === 0) expect(distance).toBeGreaterThan(0)
+       |                                         ^
+     43|       if (frame >= 8) expect(distance).toBe(0)
+     44|       const reduced = selectArcadeSprite(state, defender, true, 0, rea…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/dev/arcadeHarnessReactions.test.ts > heavy hit presentation > leaves light-hit recoil and corner-clamped knockback intact
+AssertionError: expected undefined to be 240 // Object.is equality
+
+- Expected:
+240
+
++ Received:
+undefined
+
+ ❯ src/dev/arcadeHarnessReactions.test.ts:62:90
+     60|       const { state, reactions } = hit(side, 'heavy', true)
+     61|       const defender = side === 0 ? 1 : 0
+     62|       expect(selectArcadeSprite(state, defender, false, 0, reactions[d…
+       |                                                                                          ^
+     63|     }
+     64|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 1 passed (4)
+   Start at  12:43:48
+   Duration  264ms (transform 81ms, setup 0ms, import 99ms, tests 12ms, environment 0ms)

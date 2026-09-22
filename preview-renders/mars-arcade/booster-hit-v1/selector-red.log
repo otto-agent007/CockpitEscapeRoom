@@ -1,0 +1,29 @@
+npm notice run cockpit-escape-room@0.1.0 npx
+npm notice run 'vitest' run src/dev/arcadeHarnessReactions.test.ts
+
+ RUN  v4.1.9 /mnt/2TBHDD/CockpitEscapeRoom.worktrees/mars-backdrop
+
+ ❯ src/dev/arcadeHarnessReactions.test.ts (7 tests | 2 failed) 22ms
+     × connects 'oracle' heavy reaction from side +0 without changing rules 3ms
+     × connects 'oracle' heavy reaction from side 1 without changing rules 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/dev/arcadeHarnessReactions.test.ts > heavy hit presentation > connects 'oracle' heavy reaction from side +0 without changing rules
+ FAIL  src/dev/arcadeHarnessReactions.test.ts > heavy hit presentation > connects 'oracle' heavy reaction from side 1 without changing rules
+AssertionError: expected 0 to be greater than 0
+ ❯ src/dev/arcadeHarnessReactions.test.ts:51:41
+     49|       seen.add(pose.label)
+     50|       if (state.fighters[defender].activity === 'hitstun') sources.add…
+     51|       if (frame === 0) expect(distance).toBeGreaterThan(0)
+       |                                         ^
+     52|       if (frame >= 8) expect(distance).toBe(0)
+     53|       const reduced = selectArcadeSprite(state, defender, true, 0, rea…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 5 passed (7)
+   Start at  13:41:48
+   Duration  217ms (transform 67ms, setup 0ms, import 81ms, tests 22ms, environment 0ms)

@@ -1,0 +1,33 @@
+npm notice run cockpit-escape-room@0.1.0 check
+npm notice run npm run lint && npm run typecheck && npm run test && npm run build
+npm notice run cockpit-escape-room@0.1.0 lint
+npm notice run eslint .
+npm notice run cockpit-escape-room@0.1.0 typecheck
+npm notice run tsc -b --pretty false
+npm notice run cockpit-escape-room@0.1.0 test
+npm notice run vitest run
+
+ RUN  v4.1.9 /mnt/2TBHDD/CockpitEscapeRoom.worktrees/mars-backdrop
+
+
+ Test Files  62 passed (62)
+      Tests  771 passed (771)
+   Start at  12:49:07
+   Duration  2.74s (transform 2.37s, setup 0ms, import 4.11s, tests 3.26s, environment 9ms)
+
+npm notice run cockpit-escape-room@0.1.0 build
+npm notice run tsc -b && vite build
+vite v8.0.16 building client environment for production...
+[2Ktransforming...✓ 105 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                  0.58 kB │ gzip:   0.34 kB
+dist/assets/index-DRt6nmPX.css                  89.21 kB │ gzip:  18.94 kB
+dist/assets/cockpitModelLoader-DLw8fzPy.js       1.07 kB │ gzip:   0.61 kB │ map:     4.47 kB
+dist/assets/RewardExperience-ji4Y3R0q.js        11.42 kB │ gzip:   4.40 kB │ map:    34.44 kB
+dist/assets/PrototypeScene-C7yPv-7c.js         114.53 kB │ gzip:  34.25 kB │ map:   395.16 kB
+dist/assets/react-three-fiber.esm-BfZFM-Tg.js  156.31 kB │ gzip:  49.89 kB │ map:   893.39 kB
+dist/assets/index-C2staavG.js                  425.27 kB │ gzip: 126.48 kB │ map: 1,584.68 kB
+dist/assets/GLTFLoader-BsaR3_O5.js             767.05 kB │ gzip: 196.99 kB │ map: 3,158.38 kB
+
+✓ built in 2.90s

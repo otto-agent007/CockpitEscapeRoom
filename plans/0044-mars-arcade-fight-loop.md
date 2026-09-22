@@ -1,5 +1,94 @@
 # Mars arcade cabinet — fight loop prototype
 
+## 2026-09-22 — Booster received-heavy reaction
+
+Owner asked to continue next animation needs; next bounded slice is Booster receiving
+Oracle's heavy. Goal: visible impact → stagger → recover → stance in both directions.
+Reuse original recoil at impact, generate two upper-body poses with planted original
+legs/boots, and share existing heavy-reaction timing/presentation. Oracle heavy remains
+13/3/20,damage11,hitstun20,knockback9. Oracle reactions and all blocked hits preserved.
+Keep fixed Booster scale14.038461538461538 and unchanged art gates; initial plus two
+corrections per source. No combat-rule edits or new effects/dependencies. Done when new
+cells pass, native hit/block/whiff/KO/reset/reduced-motion/fallback and responsive checks
+pass, focused/full checks and review pass, and normal/half-speed/sidebar evidence exists.
+Progress: new stagger accepted first attempt; recovery accepted after two alpha-gap
+corrections. Both selected cells pass unchanged fixed-scale gate. Shared heavy-hit
+presentation now supports Booster with three drawings, preserving Oracle and KO behavior.
+RED2fail/5pass then26focused GREEN. Fullcheck778tests/63files plus lint/types/build PASS.
+Native Booster-hit7/Oracle-hit6/Oracle-block7/pilot12/heavy13 groups PASS. Normal/half-speed videos and browser sheet saved; sidebar updated. Original
+art/rules preserved. Full-diff review found no critical/high issue. Owner visual review
+remains open. See asset-reports/mars-arcade-booster-hit-2026-09-22.md.
+
+## 2026-09-22 — Oracle blocked-heavy reaction
+
+Owner approved brace → absorb → recover for Booster's heavy against Oracle.
+Goal: distinguish a blocked hit from the existing clean-hit exchange at normal speed.
+Existing guard is brace; two new upper-body poses compress/settle while feet stay planted.
+Scope: dev presentation, both facings, existing14frame blockstun/chip3/guard16 unchanged.
+Blocked events drive reactions; guard crush uses clean-hit behavior. No game-rule edits,
+new dependencies, sound or broad effects. Fixed Oracle scale13.60576923076923 and unchanged
+asset gates; initial plus two corrections per source, preserve rejected candidates.
+Done when real native-input blocked exchanges show brace/compression/settle/guard, clean
+hits retain their behavior, pause/step/reduced-motion/reset/missing-art and375/768/1440
+checks pass, focused tests/fullcheck/review pass, and motion/sidebar evidence is saved.
+Progress: two generated sources accepted first attempt; both fixed-scale cells pass
+unchanged gates. Existing guard braces/finishes, new compression/settle run within14frames.
+Shared hit/block presentation metadata preserves prior clean-hit behavior. RED2fail/2pass
+then23focused GREEN; final fullcheck775tests/63files plus lint/types/build PASS.
+Native block7/clean-hit6/heavy13/pilot12 groups PASS, including repeated guard crush,
+reduced motion, missing art and responsive controls. Normal/half-speed recordings,
+comparison clips and browser sheet saved; tmux sidebar updated. Full-diff review has no
+critical/high findings. Original art/rules untouched. Owner visual review remains open.
+See asset-reports/mars-arcade-heavy-block-2026-09-22.md.
+
+## 2026-09-22 — Heavy hit exchange
+
+Owner approved the proposed punch → recoil → stagger → regain-stance slice.
+Goal: Booster's heavy hit visibly transfers force into Oracle's reaction. Existing
+recoil is impact; generate stagger and recovering poses, timed within existing hitstun.
+Scope: dev presentation only, both facings, no damage/knockback/stun/rules changes.
+Heavy hit events identify the reaction; jab/block/whiff and KO retain their behavior.
+Use fixed Oracle scale13.60576923076923, unchanged normalizer/gates; preserve source
+art, prior motion work and concurrent gym changes. Initial plus two corrections per
+new source maximum. Done when native input shows all reaction beats in sequence,
+normal/half-speed evidence and sidebar sheet exist, pause/step/reduced-motion/reset/
+missing-art checks pass, focused tests and fullcheck pass. Owner visual review separate.
+Progress: selected recovery passes unchanged gate. Both initial sources had extra-leg
+artifacts; recovery corrected once. Stagger remains rejected after two corrections on
+one tiny alpha hole. Bounded fallback: existing recoil with presentation-only easing
+through actual knockback, then new recovery. No failed art integrated or gate relaxed.
+Four new tests,19focused GREEN; final fullcheck771tests/62files plus lint/types/build PASS.
+Native heavy-hit6/heavy13/pilot12 groups PASS; normal/half-speed video and sidebar sheet.
+Original assets/rules preserved. Dedicated deeper stagger art and owner motion approval
+remain open. See asset-reports/mars-arcade-heavy-hit-2026-09-22.md for limits/evidence.
+
+
+## 2026-09-22 — Owner rejected stiff motion: heavy drive pass
+
+Goal: make Booster heavy read as a connected forceful action at normal speed. Owner
+clarified the weak point is stiff animation/weak attacks; recovery-only pass insufficient.
+Replace the near-duplicate late anticipation with a distinct forward-driving pose and
+add a body-unwinding return-to-guard drawing. Preserve previous sources/cells, V4contact,
+11/4/18 rule timing,damage13,reach38, other fighters and all unrelated stage/HUD work.
+Default pose timing: wind-up0–4,old swing5–7,new drive8–10,contact11–14,retract15–18,
+old follow-through19–23,new settle24–28,guard29–32. No hitstop or balance changes.
+Use existing built-in imagegen and fixed-scale pipeline. Initial+two corrections maximum
+per source; reject wrong-arm, body-scale or silhouette failures without weakening gates.
+Done when both sources pass unchanged gates, their actual normal-speed sequence visibly
+advances shoulder/elbow/fist instead of holding a duplicate, both-facing native hit/block/
+whiff/reduced-motion/fallback and relevant responsive checks pass, fullcheck/review pass,
+and before/revised recordings and sidebar evidence are saved. Owner motion review remains
+separate from automated passing. Tutorial video generation service not used.
+
+Progress: drive and settle integrated; initial drive alpha-hole rejection corrected once
+with imagegen, both selected cells pass unchanged gate. Eight poses verified in actual
+canvas draws in both directions. Fullcheck767tests/61files plus lint/types/build PASS;
+heavy13/continuity2/exchange7/pilot12 browser groups PASS. Before/revised normal-speed
+and revised half-speed recordings saved, sidebar refreshed. Original heavy art unchanged.
+Full-diff self-review found no critical/high issue. Owner visual acceptance remains open;
+no impact-effect or balance change. See asset-reports/mars-arcade-heavy-drive-2026-09-22.md.
+
+
 ## 2026-09-22 — Heavy recovery in-between continuation
 
 Goal: improve Booster heavy continuity by bridging the abrupt extended contact to low

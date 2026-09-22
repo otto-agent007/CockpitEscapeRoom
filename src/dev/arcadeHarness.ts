@@ -42,6 +42,7 @@ import {
   inputFromKeys,
 } from './arcadeHarnessInput'
 import { ARCADE_ANCHOR_SOURCES, loadArcadeSprites, selectArcadeSprite } from './arcadeHarnessSprites'
+import { updateHeavyReactions, type HeavyReactions } from './arcadeHarnessReactions'
 import { loadArcadeBackdrop, type ArcadeBackdropImages } from './arcadeHarnessBackdrop'
 import { advanceExchange, EXCHANGE_END_FRAME } from './arcadeHarnessExchange'
 import {
@@ -117,6 +118,7 @@ interface Harness {
   showSprites: boolean
   reducedMotion: boolean
   outcomeFrames: number
+  heavyReactions: HeavyReactions
   exchange: boolean
   /** Camera centre in stage pixels. Whole numbers only; see drawBackdrop. */
   cameraX: number
@@ -137,6 +139,7 @@ const pending = new Set<string>()
 
 function newRound(harness: Harness): void {
   harness.outcomeFrames = 0
+  harness.heavyReactions = [null, null]
   harness.exchange = false
   harness.stepRequested = false
   held.clear()
@@ -727,22 +730,29 @@ function draw(
   }
 
   drawProjectiles(ctx, harness.state, camera)
-  for (const side of [0, 1] as const) drawContactShadow(ctx, harness.state.fighters[side], camera)
+  // Both shadows stay behind both fighters, including when their feet overlap.
   for (const side of [0, 1] as const) {
     const fighter = harness.state.fighters[side]
-    const selection = selectArcadeSprite(harness.state, side, harness.reducedMotion, harness.outcomeFrames)
+    const selection = selectArcadeSprite(harness.state, side, harness.reducedMotion, harness.outcomeFrames, harness.heavyReactions[side])
+    const image = harness.showSprites ? sprites.get(selection.src) : undefined
+    drawContactShadow(ctx, image ? { ...fighter, x: selection.renderX ?? fighter.x, y: selection.renderY ?? fighter.y } : fighter, camera)
+  }
+  for (const side of [0, 1] as const) {
+    const fighter = harness.state.fighters[side]
+    const selection = selectArcadeSprite(harness.state, side, harness.reducedMotion, harness.outcomeFrames, harness.heavyReactions[side])
     const renderY = selection.renderY ?? fighter.y
+    const renderX = selection.renderX ?? fighter.x
     const image = harness.showSprites ? sprites.get(selection.src) : undefined
     if (image) {
       ctx.save()
       ctx.imageSmoothingEnabled = false
-      ctx.translate(stageX(fighter.x, camera), stageY(renderY))
+      ctx.translate(stageX(renderX, camera), stageY(renderY))
       ctx.scale(fighter.facing * SCALE, SCALE)
       ctx.drawImage(image, -64, -120, 128, 128)
       ctx.restore()
       // Color/state feedback remains diagnostic while combat pose art is incomplete.
       ctx.fillStyle = fighter.blocking ? '#8ab4ff' : STATE_TINT[fighter.activity] ?? COLOURS[fighter.id]
-      ctx.fillRect(stageX(fighter.x, camera) - 18, stageY(renderY) + 4, 36, 3)
+      ctx.fillRect(stageX(renderX, camera) - 18, stageY(renderY) + 4, 36, 3)
     } else {
       drawFighter(ctx, fighter, fighter.id, camera)
     }
@@ -797,10 +807,10 @@ function describe(harness: Harness): string {
       : 'Free play',
     '',
     describeFighter(state.fighters[0]),
-    `  artwork    ${harness.showSprites ? selectArcadeSprite(state, 0, harness.reducedMotion, harness.outcomeFrames).label : 'boxes'}`,
+    `  artwork    ${harness.showSprites ? selectArcadeSprite(state, 0, harness.reducedMotion, harness.outcomeFrames, harness.heavyReactions[0]).label : 'boxes'}`,
     '',
     describeFighter(state.fighters[1]),
-    `  artwork    ${harness.showSprites ? selectArcadeSprite(state, 1, harness.reducedMotion, harness.outcomeFrames).label : 'boxes'}`,
+    `  artwork    ${harness.showSprites ? selectArcadeSprite(state, 1, harness.reducedMotion, harness.outcomeFrames, harness.heavyReactions[1]).label : 'boxes'}`,
   ].join('\n')
 }
 
@@ -867,6 +877,7 @@ function mount(): void {
     showSprites: true,
     reducedMotion: motion.matches,
     outcomeFrames: 0,
+    heavyReactions: [null, null],
     exchange: false,
     log: [],
     seed: 1,
@@ -1033,6 +1044,7 @@ function mount(): void {
       harness.outcomeFrames = terminal
         ? Math.min(24, harness.outcomeFrames + Math.min(elapsed, MARS_ARCADE_TIMING.maxFrameDeltaSeconds) / MARS_ARCADE_TIMING.frameSeconds)
         : 0
+      harness.heavyReactions = updateHeavyReactions(harness.heavyReactions, source, transition.state, transition.events)
       harness.state = transition.state
       if (harness.exchange && harness.state.frame >= EXCHANGE_END_FRAME) harness.paused = true
 

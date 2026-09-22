@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict'
 import { mkdir } from 'node:fs/promises'
 import { chromium } from '@playwright/test'
-const out = new URL('../../preview-renders/mars-arcade/outcomes-v1/regressions/', import.meta.url).pathname
+const out = process.env.ARCADE_EVIDENCE_DIR ? process.env.ARCADE_EVIDENCE_DIR.replace(/\/?$/, "/") : new URL('../../preview-renders/mars-arcade/outcomes-v1/regressions/', import.meta.url).pathname
 await mkdir(out, { recursive: true })
 const browser = await chromium.launch({ headless: true })
 const speed = process.env.ARCADE_MOTION_SPEED ?? '0.5'
@@ -16,7 +16,7 @@ try {
   const errors = []
   page.on('pageerror', e => errors.push(e.message))
   await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
-  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('38/38 sprites ready'))
+  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('46/46 sprites ready'))
   await page.locator('[data-command="mirror"]').click()
   await page.locator('[data-command="KeyT"]').click()
   await page.locator('[data-command="KeyH"]').click()

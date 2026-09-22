@@ -11,7 +11,7 @@ try {
   })
   const page = await context.newPage()
   await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
-  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('38/38 sprites ready'))
+  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('46/46 sprites ready'))
   await page.locator('[data-command="KeyT"]').click()
   await page.waitForFunction(() => document.querySelector('#readout').textContent.includes('phase fight'))
   await page.keyboard.down('KeyD')

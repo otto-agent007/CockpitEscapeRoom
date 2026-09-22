@@ -1,0 +1,13 @@
+PASS P1 heavy whiff, reduced=false; all phases and idle return
+PASS P1 heavy hit, reduced=false; all phases and idle return
+PASS P1 heavy blocked, reduced=false; all phases and idle return
+PASS P2 heavy whiff, reduced=false; all phases and idle return
+PASS P2 heavy hit, reduced=false; all phases and idle return
+PASS P2 heavy blocked, reduced=false; all phases and idle return
+PASS P1 heavy whiff, reduced=true; all phases and idle return
+PASS P1 heavy hit, reduced=true; all phases and idle return
+PASS P1 heavy blocked, reduced=true; all phases and idle return
+PASS P2 heavy whiff, reduced=true; all phases and idle return
+PASS P2 heavy hit, reduced=true; all phases and idle return
+PASS P2 heavy blocked, reduced=true; all phases and idle return
+PASS missing heavy art uses fallback; attacks finish; no uncaught browser errors

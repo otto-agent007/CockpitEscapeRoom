@@ -4,7 +4,7 @@ import { mkdir } from 'node:fs/promises'
 import { chromium } from '@playwright/test'
 
 const base = process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html'
-const out = new URL('../../preview-renders/mars-arcade/outcomes-v1/regressions/', import.meta.url).pathname
+const out = process.env.ARCADE_EVIDENCE_DIR ? process.env.ARCADE_EVIDENCE_DIR.replace(/\/?$/, "/") : new URL('../../preview-renders/mars-arcade/outcomes-v1/regressions/', import.meta.url).pathname
 await mkdir(out, { recursive: true })
 const browser = await chromium.launch({ headless: true })
 const errors = []
@@ -14,7 +14,7 @@ try {
   page.on('pageerror', error => errors.push(error.message))
   await page.clock.install()
   await page.goto(base)
-  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('38/38 sprites ready'))
+  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('46/46 sprites ready'))
   const text = () => page.locator('#readout').innerText()
   const frame = async () => Number((await text()).match(/frame (\d+)/)[1])
   const tick = ms => page.clock.runFor(ms)
@@ -146,11 +146,11 @@ try {
   missing.on('pageerror', error => errors.push(error.message))
   await missing.route('**/art-source/arcade/**', route => route.abort())
   await missing.goto(base)
-  await missing.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('38 failed'))
+  await missing.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('46 failed'))
   assert.match(await missing.locator('#asset-status').innerText(), /box fallback/)
   await missing.getByRole('button', { name: 'Pause', exact: true }).click()
   await missing.screenshot({ path: `${out}wave-1-pilot-missing-art.png`, fullPage: true })
-  report('all thirty-eight failed image requests use visible box fallback without crashing')
+  report('all forty-six failed image requests use visible box fallback without crashing')
   assert.deepEqual(errors, [])
   report('no uncaught browser errors')
 } finally {

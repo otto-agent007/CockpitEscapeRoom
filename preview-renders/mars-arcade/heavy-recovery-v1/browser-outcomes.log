@@ -1,0 +1,7 @@
+PASS native KO, all outcome beats, displayed combat frozen, pause/step/resume/restart/reload; winnerP1, reduced=false, missing=false
+PASS native KO, all outcome beats, displayed combat frozen, pause/step/resume/restart/reload; winnerP1, reduced=true, missing=false
+PASS native KO, all outcome beats, displayed combat frozen, pause/step/resume/restart/reload; winnerP2, reduced=false, missing=false
+PASS native KO, all outcome beats, displayed combat frozen, pause/step/resume/restart/reload; winnerP2, reduced=true, missing=false
+PASS real timer outcome: draw; healthy loser/draw not knocked out
+PASS real timer outcome: time-win; healthy loser/draw not knocked out
+PASS real timer outcome: missing; healthy loser/draw not knocked out
