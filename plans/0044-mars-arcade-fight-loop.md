@@ -1413,3 +1413,26 @@ HUD colours. It now asserts the current colours with unchanged thresholds.
 
 **Open:** owner review; gym entries for the three poses once `ARCADE_GYM_ANIMATIONS` is
 committed; satellite array contrast against the darkest sky rows.
+
+### Booster blocked-heavy reaction — 2026-09-23
+
+This is the documented next slice from `plans/0044-mars-arcade-resume.md`. Booster now braces,
+compresses, settles and returns to guard when he blocks Oracle's heavy. The code shares Oracle's
+logic through a per-fighter pose table, and the rules are unchanged. See
+`asset-reports/mars-arcade-booster-heavy-block-2026-09-23.md`.
+
+**Next:** Booster's walk. The owner said the walk "needs some more work". It has two mismatched
+drawings (a wide lunge and a near-stance) that flip every 6 frames with no passing pose,
+and the same pair plays when he walks backwards. The contract budgets 4 frames for walking
+forward and 4 for walking back.
+
+### Booster walk cycle — 2026-09-23
+
+This answers the owner's "walk poses need some more work". Booster now has four-drawing
+forward and backward step-and-drag cycles, drawn in place. That needed a new alignment mode
+(`--align torso`) and matching in-place gating, because feet alignment made every walk swim.
+See `asset-reports/mars-arcade-booster-walk-2026-09-23.md`.
+
+**Next candidates:** Oracle's walk has the same two-drawing feet-aligned construction and would
+benefit from the same treatment. After that come jab and Oracle heavy polish, the remaining
+specials, and gym entries once the gym manifest lands.

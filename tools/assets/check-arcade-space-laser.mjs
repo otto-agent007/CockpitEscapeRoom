@@ -47,7 +47,7 @@ try {
     })
     await page.clock.install()
     await page.goto(base)
-    await page.waitForFunction(() => /49\/49 sprites ready/.test(document.querySelector('#asset-status').textContent))
+    await page.waitForFunction(() => /57\/57 sprites ready/.test(document.querySelector('#asset-status').textContent))
     await page.waitForFunction(missing => document.querySelector('#asset-status').textContent.includes(
       missing ? '0/8 laser effects' : '8/8 laser effects ready'), Boolean(scenario.missing))
     const read = () => page.locator('#readout').innerText()

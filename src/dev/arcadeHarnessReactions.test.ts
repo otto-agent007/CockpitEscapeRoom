@@ -73,7 +73,7 @@ describe('heavy hit presentation', () => {
     }
   })
 
-  it('keeps Booster KO animation ahead of hit recovery and leaves his blocked hits unchanged', () => {
+  it('keeps Booster KO animation ahead of hit recovery and gives his blocked heavies a reaction', () => {
     for (const side of [0, 1] as const) {
       const defender = side === 0 ? 1 : 0
       const ko = hit(side, 'heavy', false, 'oracle', 11)
@@ -84,8 +84,9 @@ describe('heavy hit presentation', () => {
       blocked.state.fighters[defender].activity = 'blockstun'
       const reactions = updateHeavyReactions(blocked.reactions, blocked.state, blocked.state,
         [{ type: 'blocked', attacker: side, moveId: 'oracle.hardCutoff', chipDamage: 2 }])
-      expect(reactions).toEqual([null, null])
-      expect(selectArcadeSprite(blocked.state, defender, false, 0, reactions[defender]).label).toBe('raised guard')
+      // Booster's blocked heavy now has its own compress/settle reaction, like Oracle's.
+      expect(reactions[defender]).toEqual({ kind: 'block', duration: 13, offsetX: 0 })
+      expect(selectArcadeSprite(blocked.state, defender, false, 0, reactions[defender]).label).toBe('heavy block — compress')
     }
   })
 

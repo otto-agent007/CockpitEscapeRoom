@@ -23,7 +23,8 @@ describe('dev-only arcade sprite pilot', () => {
             activity: fixture.activity, moveFrame: fixture.moveFrame, activeButton: fixture.button,
           })
           const selected = selectArcadeSprite(state, side, reduced).src
-          expect(selected).toContain('/booster/normalised-sleek-ready/')
+          // The walk has its own set since 2026-09-23; everything else is the sleek outfit.
+          expect(selected).toContain(fixture.activity === 'walk' ? '/booster/normalised-walk-ready/' : '/booster/normalised-sleek-ready/')
           expect(ARCADE_SPRITE_SOURCES).toContain(selected)
         }
       }
@@ -213,11 +214,12 @@ describe('dev-only arcade sprite pilot', () => {
         const fighter = state.fighters[side]
         for (const [activity, blocking, clip] of [
           ['idle', true, 'block'], ['blockstun', true, 'block'],
-          ['hitstun', false, 'recoil'], ['walk', true, 'walk'],
+          ['hitstun', false, 'recoil'], ['walk', true, 'walk-back'],
         ] as const) {
           Object.assign(fighter, { activity, blocking })
           const pose = selectArcadeSprite(state, side, reduced)
-          expect(pose.src).toContain(`/booster/normalised-sleek-ready/${clip}/`)
+          const set = clip === 'walk-back' ? 'normalised-walk-ready' : 'normalised-sleek-ready'
+          expect(pose.src).toContain(`/booster/${set}/${clip}/`)
           expect(pose.placeholder).toBe(false)
           expect(ARCADE_SPRITE_SOURCES).toContain(pose.src)
         }

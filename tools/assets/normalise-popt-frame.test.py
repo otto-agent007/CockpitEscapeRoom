@@ -73,6 +73,46 @@ class SpriteResamplingTests(unittest.TestCase):
                         self.assertGreater(gate.interior_holes(mask, 2)[1], 0,
                                            'the drawn gap between the legs must remain')
 
+    def test_torso_alignment_holds_the_body_still_when_only_the_legs_move(self):
+        # A walk is drawn in place: the torso must land on the reference's back line
+        # whatever the feet do, where feet alignment follows whichever foot is planted.
+        def figure(foot_x: int) -> np.ndarray:
+            pixels = np.zeros((128, 128, 4), dtype=np.uint8)
+            pixels[10:70, 40:70] = [40, 40, 40, 255]      # torso, back edge at column 40
+            pixels[70:118, 50:58] = [90, 90, 90, 255]     # planted leg
+            pixels[70:100, foot_x:foot_x + 8] = [90, 90, 90, 255]  # swinging leg, lifted
+            return pixels
+        with tempfile.TemporaryDirectory(prefix='arcade-torso-') as tmp:
+            ref_src, ref_out = Path(tmp) / 'ref.png', Path(tmp) / 'ref-cell.png'
+            Image.fromarray(figure(60)).save(ref_src)
+            common = ['--contract', str(CONTRACT_PATH), '--source-px-per-cell-px', '1',
+                      '--resample', 'bilinear', '--source-alpha']
+            subprocess.run([sys.executable, str(NORMALISER), str(ref_src), str(ref_out), *common], check=True,
+                           capture_output=True)
+            ref_back = np.where(np.asarray(Image.open(ref_out))[40, :, 3] > 8)[0].min()
+            for foot_x in (20, 60, 95):
+                with self.subTest(foot_x=foot_x):
+                    src, out = Path(tmp) / f'walk-{foot_x}.png', Path(tmp) / f'walk-{foot_x}-cell.png'
+                    Image.fromarray(figure(foot_x)).save(src)
+                    result = subprocess.run([sys.executable, str(NORMALISER), str(src), str(out), *common,
+                                             '--align', 'torso', '--torso-reference', str(ref_out)],
+                                            capture_output=True, text=True)
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                    cell = np.asarray(Image.open(out))[:, :, 3] > 8
+                    self.assertEqual(np.where(cell[40])[0].min(), ref_back)
+                    self.assertEqual(np.where(cell.any(axis=1))[0].max(), CONTRACT['cell']['baseline'])
+
+    def test_torso_alignment_requires_a_reference(self):
+        with tempfile.TemporaryDirectory(prefix='arcade-torso-') as tmp:
+            src = Path(tmp) / 'src.png'
+            Image.fromarray(np.full((128, 128, 4), 255, dtype=np.uint8)).save(src)
+            result = subprocess.run([sys.executable, str(NORMALISER), str(src), str(Path(tmp) / 'o.png'),
+                                     '--contract', str(CONTRACT_PATH), '--source-px-per-cell-px', '1',
+                                     '--source-alpha', '--align', 'torso'], capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('--torso-reference', result.stderr)
+            self.assertNotIn('invalid choice', result.stderr)
+
     def test_default_export_remains_byte_identical(self):
         # Changing the default resampler would alter previously authored sprite exports.
         with tempfile.TemporaryDirectory(prefix='arcade-default-') as tmp:

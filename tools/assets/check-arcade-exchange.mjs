@@ -23,7 +23,7 @@ try {
   })
   await page.clock.install()
   await page.goto(base)
-  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('49/49 sprites ready'))
+  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('57/57 sprites ready'))
   const read = () => page.locator('#readout').innerText()
   const frame = async () => Number((await read()).match(/frame (\d+)/)[1])
   const tick = ms => page.clock.runFor(ms)
@@ -93,10 +93,11 @@ try {
   assert.equal((log.match(/block/g) ?? []).length, 2)
   assert.equal((log.match(/HIT/g) ?? []).length, 2)
   const drawn = await page.evaluate(() => window.drawnSprites)
-  for (const path of ['walk/walk-00', 'walk/walk-01', 'walk-back/walk-back-00', 'walk-back/walk-back-01', 'anticipation/anticipation-00', 'jab/jab-00', 'recovery/recovery-00', 'block/block-00', 'recoil/recoil-00']) {
+  for (const path of ['booster/normalised-walk-ready/walk-forward/walk-forward-00', 'booster/normalised-walk-ready/walk-forward/walk-forward-01', 'walk-back/walk-back-00', 'walk-back/walk-back-01', 'anticipation/anticipation-00', 'jab/jab-00', 'recovery/recovery-00', 'block/block-00', 'recoil/recoil-00']) {
     assert.ok(drawn.some(src => src.includes(path)), `never drew ${path}`)
   }
-  assert.ok(drawn.filter(src => src.includes('/booster/')).every(src => src.includes('/normalised-sleek-ready/')))
+  // Booster's walk has had its own set since 2026-09-23; everything else stays the sleek outfit.
+  assert.ok(drawn.filter(src => src.includes('/booster/')).every(src => src.includes('/normalised-sleek-ready/') || src.includes('/normalised-walk-ready/')))
   const counterPaths = [
     'oracle/normalised-counterattack-ready/anticipation/',
     'oracle/normalised-counterattack-ready/jab/',
@@ -135,7 +136,7 @@ try {
   assert.match(await read(), /Exchange complete/)
   assert.match(await page.locator('#asset-status').innerText(), /reduced motion/)
   const reducedDraws = await page.evaluate(() => window.drawnSprites)
-  for (const path of ['/walk/', 'walk-back/walk-back-00', 'walk-back/walk-back-01', '/jab/', '/recovery/', '/block/', '/recoil/']) {
+  for (const path of ['/booster/normalised-walk-ready/walk-forward/', 'walk-back/walk-back-00', 'walk-back/walk-back-01', '/jab/', '/recovery/', '/block/', '/recoil/']) {
     assert.ok(reducedDraws.some(src => src.includes(path)), `reduced motion never drew ${path}`)
   }
   assert.ok(!reducedDraws.some(src => src.includes('idle/idle-01')))
@@ -156,7 +157,7 @@ try {
   await missing.clock.runFor(16000)
   assert.match(await missing.locator('#log').innerText(), /block.*oracle.prompt/)
   assert.match(await missing.locator('#log').innerText(), /HIT.*oracle.prompt/)
-  assert.match(await missing.locator('#asset-status').innerText(), /48\/49 sprites ready; 1 failed — box fallback/)
+  assert.match(await missing.locator('#asset-status').innerText(), /56\/57 sprites ready; 1 failed — box fallback/)
   assert.match(await missing.locator('#readout').innerText(), /Exchange complete/)
   report('reload leaves review mode; a missing Sam jab uses box fallback without blocking the counterattack')
   assert.deepEqual(errors, [])

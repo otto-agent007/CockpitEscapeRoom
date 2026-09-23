@@ -16,7 +16,18 @@ const boosterInhale = `${boosterRoot}/idle/idle-01.png`
 const jab = `${boosterRoot}/jab/jab-00.png`
 const anticipation = `${boosterRoot}/anticipation/anticipation-00.png`
 const recovery = `${boosterRoot}/recovery/recovery-00.png`
-const walking = [`${boosterRoot}/walk/walk-00.png`, `${boosterRoot}/walk/walk-01.png`] as const
+/**
+ * Booster's walk: a boxer's step-and-drag, four drawings each way, drawn in place and
+ * held to the stance (forward) or block (backward) torso line. Replaced 2026-09-23 the
+ * two-drawing lunge/near-stance flip that also played backwards.
+ */
+const boosterWalkRoot = '/art-source/arcade/booster/normalised-walk-ready'
+const boosterWalk = (clip: 'walk-forward' | 'walk-back') =>
+  [0, 1, 2, 3].map(index => `${boosterWalkRoot}/${clip}/${clip}-0${index}.png`)
+const boosterWalkForward = boosterWalk('walk-forward')
+const boosterWalkBack = boosterWalk('walk-back')
+/** Engine frames each walk drawing is held: a 24-frame step cycle. */
+const BOOSTER_WALK_HOLD = 6
 const oracleRoot = '/art-source/arcade/oracle/normalised-exchange-ready'
 const guard = `${oracleRoot}/block/block-00.png`
 const recoil = `${oracleRoot}/recoil/recoil-00.png`
@@ -35,6 +46,12 @@ const boosterRecoil = `${boosterRoot}/recoil/recoil-00.png`
 const boosterHitRoot = '/art-source/arcade/booster/normalised-hit-reaction-ready'
 const boosterHitStagger = `${boosterHitRoot}/stagger/stagger-00.png`
 const boosterHitRecover = `${boosterHitRoot}/recover/recover-00.png`
+const boosterBlockRoot = '/art-source/arcade/booster/normalised-heavy-block-ready'
+/** Blocked-heavy beats per fighter: brace and guard reuse the approved block drawing. */
+const heavyBlockFrames = {
+  booster: { guard: boosterGuard, compress: `${boosterBlockRoot}/compress/compress-00.png`, settle: `${boosterBlockRoot}/settle/settle-00.png` },
+  oracle: { guard, compress: oracleBlockCompress, settle: oracleBlockSettle },
+}
 const hitReactionFrames = {
   booster: { impact: boosterRecoil, stagger: boosterHitStagger, recover: boosterHitRecover },
   oracle: { impact: recoil, stagger: recoil, recover: oracleHitRecover },
@@ -81,12 +98,13 @@ const outcomeRoot = '/art-source/arcade/booster/normalised-outcomes-ready'
 const victory = [0, 1, 2].map(index => `${outcomeRoot}/win/win-0${index}.png`)
 const knockout = [boosterRecoil, `${outcomeRoot}/ko/ko-01.png`, `${outcomeRoot}/ko/ko-02.png`]
 export const ARCADE_SPRITE_SOURCES = [
-  ...Object.values(anchors), boosterInhale, jab, anticipation, recovery, ...walking,
+  ...Object.values(anchors), boosterInhale, jab, anticipation, recovery, ...boosterWalkForward, ...boosterWalkBack,
   guard, recoil, oracleHitRecover, oracleBlockCompress, oracleBlockSettle, ...oracleBackward, oracleAnticipation, oracleJab, oracleRecovery,
   boosterGuard, boosterRecoil, boosterHitStagger, boosterHitRecover, ...oracleForward, ...airborne.booster, ...airborne.oracle,
   ...Object.values(heavy.booster), boosterHeavySwing, boosterHeavyDrive, boosterHeavyRetract, boosterHeavySettle, ...Object.values(heavy.oracle),
   ...victory, ...knockout.slice(1),
   spaceLaser.callItIn, spaceLaser.watch, spaceLaser.pocket,
+  heavyBlockFrames.booster.compress, heavyBlockFrames.booster.settle,
 ]
 
 export function selectArcadeSprite(state: MarsArcadeState, side: MarsArcadeSide, reducedMotion: boolean, outcomeFrame = 0, heavyReaction: HeavyReaction | null = null) {
@@ -132,23 +150,23 @@ export function selectArcadeSprite(state: MarsArcadeState, side: MarsArcadeSide,
     }
     return { src: frames.impact, placeholder: false, label: 'hit recoil' }
   }
-  if (live && fighter.id === 'oracle') {
+  if (live && fighter.id !== 'captain') {
+    const beats = heavyBlockFrames[fighter.id]
     if (fighter.activity === 'blockstun' && heavyReaction?.kind === 'block' && fighter.stunFrames > 0) {
       const elapsed = Math.max(0, heavyReaction.duration - fighter.stunFrames)
       const phase = elapsed < Math.ceil(heavyReaction.duration * 0.35) ? 'compress' :
         elapsed < Math.ceil(heavyReaction.duration * 0.75) ? 'settle' : 'guard'
-      return {
-        src: phase === 'compress' ? oracleBlockCompress : phase === 'settle' ? oracleBlockSettle : guard,
-        placeholder: false, label: `heavy block — ${phase}`,
-      }
+      return { src: beats[phase], placeholder: false, label: `heavy block — ${phase}` }
     }
     const opponent = state.fighters[side === 0 ? 1 : 0]
     const threat = marsArcadeActiveMove(opponent)
     if (fighter.blocking && fighter.stunFrames === 0 && fighter.y === 0 &&
       threat?.move.button === 'heavy' && threat.phase === 'startup' &&
       Math.abs(opponent.x - fighter.x) <= threat.move.reach) {
-      return { src: guard, placeholder: false, label: 'heavy block — brace' }
+      return { src: beats.guard, placeholder: false, label: 'heavy block — brace' }
     }
+  }
+  if (live && fighter.id === 'oracle') {
     if (fighter.activity === 'walk' && fighter.blocking) {
       return {
         src: oracleBackward[Math.floor(state.frame / 6) % 2] ?? oracleBackward[0],
@@ -211,8 +229,9 @@ export function selectArcadeSprite(state: MarsArcadeState, side: MarsArcadeSide,
     return { src, placeholder: false, label: `jab ${move.phase}` }
   }
   if (live && fighter.id === 'booster' && fighter.activity === 'walk') {
+    const cycle = fighter.blocking ? boosterWalkBack : boosterWalkForward
     return {
-      src: walking[Math.floor(state.frame / 6) % 2] ?? walking[0],
+      src: cycle[Math.floor(state.frame / BOOSTER_WALK_HOLD) % cycle.length]!,
       placeholder: false,
       label: fighter.blocking ? 'backward shuffle' : 'forward shuffle',
     }
