@@ -1,0 +1,5 @@
+PASS real forward walk, both jumps and landing; mirrored=false, reduced=false
+PASS real forward walk, both jumps and landing; mirrored=true, reduced=false
+PASS real forward walk, both jumps and landing; mirrored=false, reduced=true
+PASS real forward walk, both jumps and landing; mirrored=true, reduced=true
+PASS missing apex sprites fall back and both jumps still land; no uncaught errors

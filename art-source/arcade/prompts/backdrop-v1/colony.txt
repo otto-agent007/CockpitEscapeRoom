@@ -1,0 +1,17 @@
+Flat 1990s arcade pixel-art game backdrop layer: a MARS SURFACE OUTPOST in hard silhouette, low on the horizon.
+
+COMPOSITION: one horizontal band of structures spanning the ENTIRE width, edge to edge with no gap. The band occupies the middle 35 percent of the image height. Everything above and below must be absolutely OPAQUE SOLID PURE MAGENTA RGB(255,0,255).
+
+CRITICAL — THIS IS AN OUTPOST, NOT A CITY. Do NOT draw tall rectangular office towers, skyscrapers, or a dense urban skyline. Most structures are LOW and WIDE and hug the ground. Draw: large pressurised geodesic DOMES of several sizes, long horizontal CYLINDRICAL HABITAT MODULES lying on their sides on short legs, connected by raised covered walkway TUBES, squat cylindrical fuel and water tanks, low bunkers half-buried in the ground, angled solar array fields on low frames, and a few wellhead-like pipe clusters.
+
+VERTICAL ACCENTS, only a handful so the profile is not flat: one tall lattice COMMS MAST with guy wires, one large white parabolic DISH ANTENNA on a low mount, and one slender rocket standing on a small pad with a simple open service tower. These are the ONLY tall things; everything else stays low.
+
+A LANDING APRON right of centre: a wide flat cleared pad edged with low marker posts,
+holding a squat cargo lander on four splayed legs, a wheeled surface rover with a small
+mast, and a stack of cargo containers. No aircraft of any kind.
+
+COLOUR, HIGH CONTRAST: structures are a NEAR-BLACK silhouette in exactly two flat tones only, very dark rust-brown RGB(43,28,26) and slightly lighter rust RGB(64,42,38). No other colour for the structures. Scatter LIT WINDOWS and portholes as tiny hard-edged shapes of flat warm cream RGB(255,213,138) — roughly 40 to 60, in irregular clusters, and use ROUND portholes on the cylindrical modules and domes rather than rectangular office windows. Add about 8 small red RGB(255,92,58) beacon lights on the mast, the dish and the rocket tower.
+
+STYLE: flat 1990s arcade pixel art. Hard-edged uniform blocks of solid colour. NO gradients, NO dithering, NO blur, NO glow, NO haze, NO shading, NO texture, NO outlines, NO anti-aliasing, NO people, NO text, NO labels, NO logos, NO flags.
+
+TILING: repeated side by side horizontally forever. Content at the extreme LEFT edge must continue the extreme RIGHT edge seamlessly, with no structure cut awkwardly at either edge.

@@ -1,0 +1,13 @@
+Flat 1990s arcade pixel-art game texture: MARTIAN REGOLITH — the dusty rocky ground a fighting-game stage is fought on, seen straight on.
+
+COMPOSITION: the ground fills the ENTIRE image, edge to edge, top to bottom. No magenta anywhere. This is a flat head-on view of a dusty surface, NOT a perspective view, with NO horizon and NO sky.
+
+SUBJECT: fine wind-blown Martian dust and broken rock. Include a brighter sunlit strip along the very TOP edge where the low sun catches the surface. Below it: shallow drifts and ripples of fine dust in long low horizontal waves, scattered small angular ROCKS and pebbles of several sizes, a few larger half-buried boulders, small patches of coarser gravel, and a couple of shallow depressions. Keep almost all structure HORIZONTAL and irregular. Use NO straight lines, NO panel seams, NO rivets, NO metal plating, NO planks, NO tiles, NO grid, and NO full-height vertical features — this is loose natural ground, not a floor or a deck.
+
+Scatter the rocks UNEVENLY with clear bare stretches between clusters, so the texture never looks like a regular pattern when it repeats.
+
+COLOUR: flat hard-edged blocks in exactly these five tones and no others: the sunlit top strip in pale dusty orange RGB(186,124,84), the main dust in mid rust RGB(140,88,60), shaded dust and depressions in darker rust RGB(104,64,46), rock shadows in deep brown RGB(74,45,34), and the lit tops of rocks in pale tan RGB(196,152,116).
+
+STYLE: flat 1990s arcade pixel art. Hard-edged uniform blocks of solid colour. NO gradients, NO dithering, NO blur, NO glow, NO shading ramps, NO photographic texture, NO noise, NO outlines, NO anti-aliasing, NO text, NO markings.
+
+TILING: repeated side by side horizontally forever. The ground at the extreme LEFT edge must continue the extreme RIGHT edge seamlessly, with the sunlit top strip lining up exactly across the join.

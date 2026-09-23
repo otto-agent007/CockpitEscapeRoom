@@ -4,7 +4,7 @@ import { mkdir } from 'node:fs/promises'
 import { chromium } from '@playwright/test'
 
 const base = process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html'
-const out = new URL('../../preview-renders/mars-arcade/outcomes-v1/regressions/', import.meta.url).pathname
+const out = process.env.ARCADE_EVIDENCE_DIR ? process.env.ARCADE_EVIDENCE_DIR.replace(/\/?$/, "/") : new URL('../../preview-renders/mars-arcade/outcomes-v1/regressions/', import.meta.url).pathname
 await mkdir(out, { recursive: true })
 const browser = await chromium.launch({ headless: true })
 const errors = []
@@ -23,7 +23,7 @@ try {
   })
   await page.clock.install()
   await page.goto(base)
-  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('38/38 sprites ready'))
+  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('46/46 sprites ready'))
   const read = () => page.locator('#readout').innerText()
   const frame = async () => Number((await read()).match(/frame (\d+)/)[1])
   const tick = ms => page.clock.runFor(ms)
@@ -156,7 +156,7 @@ try {
   await missing.clock.runFor(16000)
   assert.match(await missing.locator('#log').innerText(), /block.*oracle.prompt/)
   assert.match(await missing.locator('#log').innerText(), /HIT.*oracle.prompt/)
-  assert.match(await missing.locator('#asset-status').innerText(), /37\/38 sprites ready; 1 failed — box fallback/)
+  assert.match(await missing.locator('#asset-status').innerText(), /45\/46 sprites ready; 1 failed — box fallback/)
   assert.match(await missing.locator('#readout').innerText(), /Exchange complete/)
   report('reload leaves review mode; a missing Sam jab uses box fallback without blocking the counterattack')
   assert.deepEqual(errors, [])

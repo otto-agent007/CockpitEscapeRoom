@@ -1,5 +1,81 @@
 # Test report
 
+## 2026-09-22 — Booster received-heavy reaction
+
+- New stagger/recovery drawings complete three-beat hit reaction before ready stance.
+  Both pass fixed-scale asset gate;46runtime sources. Rules and original art unchanged.
+- Recovery required two targeted imagegen corrections for alpha holes; all attempts saved.
+- RED2fail/5pass → GREEN26focused tests. Fullcheck: lint/types,778tests/63files, build PASS.
+- Native Booster-hit7/Oracle-hit6/Oracle-block7/pilot12 groups PASS, including KO priority,
+  both facings, reduced motion, pause/step/reset/reload, missing art and375/768/1440layouts.
+- Normal/half-speed recordings and sidebar sheet saved. Full-diff self-review has no
+  critical/high finding. Final heavy hit/block/whiff/fallback regression:13PASS groups.
+- No deploy or full-journey proof; owner visual review remains open. Provenance/prompts:
+  `asset-reports/mars-arcade-booster-hit-2026-09-22.md`.
+
+## 2026-09-22 — Oracle blocked-heavy reaction
+
+- Added validated compression/settle poses with existing brace/guard;44runtime sources.
+  Blockstun14/chip3/guard damage16 unchanged; no game-rule edits.
+- Two initial imagegen sources pass unchanged fixed-scale gate without corrections.
+- RED2fail/2pass → GREEN23focused tests. Fullcheck passes lint/types,
+  775tests/63files and build. Final browser-script lint and diff check PASS.
+- Native block7/clean-hit6/heavy13/pilot12 browser groups PASS: both facings,
+  repeated guard crush, reduced motion, pause/step/reset/reload, missing art,
+  keyboard and375/768/1440widths. Normal/half-speed video and sidebar sheet saved.
+- Full-diff review has no critical/high finding. Owner visual review remains open;
+  no production deploy or full-journey proof. Art/prompts/evidence:
+  `asset-reports/mars-arcade-heavy-block-2026-09-22.md`.
+
+## 2026-09-22 — Oracle heavy-hit exchange
+
+- New recovering cell and event-driven presentation easing connect Oracle's recoil
+  to stance; both facings, reduced motion, reset and missing-art fallback covered.
+- Rules unchanged. Selected cell passes fixed-scale gate. Separate stagger source
+  remains rejected after bounded corrections; no failed art integrated.
+- RED3fail/1pass → GREEN19focused tests. Final fullcheck: lint/types,
+  771tests/62files and build PASS. Native heavy-hit6/heavy13/pilot12groups PASS.
+- Before/after normal and revised half-speed recordings, browser sheet and sidebar
+  saved. Full-diff review fixed shadow layering; final checks rerun. Diff check PASS.
+- No deploy/full-journey proof. Owner visual review and separate stagger art remain.
+- Details: `asset-reports/mars-arcade-heavy-hit-2026-09-22.md`.
+
+## 2026-09-22 — Booster heavy drive revision
+
+- Added drive and settle drawings; eight-pose heavy retains 11/4/18 timing and rules.
+- Both selected cells pass unchanged asset gate; original heavy art byte-identical.
+- Selector RED→GREEN (15 focused tests); `npm run check` passes lint/types,
+  767 tests / 61 files and build. Native browser heavy13, continuity2, exchange7,
+  pilot12 groups PASS; normal/half-speed motion recordings pass in both directions.
+- Responsive 375/768/1440, reduced motion, keyboard and missing-art checks pass.
+- Before/after video and sidebar sheet saved; full-diff self-review has no critical/high
+  finding. Owner visual review remains open. No deployment or full-journey proof.
+- Details: `asset-reports/mars-arcade-heavy-drive-2026-09-22.md`.
+
+## 2026-09-22 — Booster heavy recovery in-between
+
+- Added one built-in imagegen retraction cell for move frames15–18, bridging contact
+  and follow-through. All approved heavy sprites byte-identical;11/4/18 timing,
+  damage13,reach38, other fighters and game rules unchanged.39runtime sprites.
+- Unchanged source-alpha/bilinear normalizer at14.038461538461538 scale produces
+  128×128 cell with104px figure; full-colour gate1frame/0failures.
+- Selector boundary regression RED→GREEN. Final `npm run check`: lint/types,
+  745tests/60files, production build PASS. `git diff --check` PASS.
+- Native Chromium browser groups:continuity2,heavy13,exchange7,movement5,pilot12,
+  outcomes7 PASS. Covers hit/block/whiff,both facings,375/768/1440layouts,
+  reduced motion, missing art, keyboard,pause/step/speed,restart/reload and timeout.
+- Fixed pre-existing outcome probe that watched fillText although PR76 draws a pixel
+  font. It now observes actual glyph draws and checks presence/clearance. A browser-only
+  y34→134 banner mutation fails the same assertion(bottom175), preserving the gate.
+- Saved before/after normal-speed and revised half-speed recordings plus inspected
+  motion samples; actual-browser comparison remains in tmux pane%1.
+- Full-diff self-review found no critical/high issue. No new dependency, production
+  wiring, deploy, commit/push, full-journey e2e or3D asset-suite run. Owner visual
+  approval and broader animation polish remain open.
+- Evidence/provenance: `asset-reports/mars-arcade-heavy-recovery-2026-09-22.md` and
+  `preview-renders/mars-arcade/heavy-recovery-v1/`.
+
+
 ## 2026-09-22 Animation checkpoint PR preparation
 
 - Based on current main14eca18 (includes PR73 arcade foundation and PR74 build filter).

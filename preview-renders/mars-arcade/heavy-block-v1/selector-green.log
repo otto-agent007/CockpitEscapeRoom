@@ -1,0 +1,10 @@
+npm notice run cockpit-escape-room@0.1.0 npx
+npm notice run 'vitest' run src/dev/arcadeHarnessBlock.test.ts src/dev/arcadeHarnessReactions.test.ts src/dev/arcadeHarnessHeavy.test.ts src/dev/arcadeHarnessSprites.test.ts
+
+ RUN  v4.1.9 /mnt/2TBHDD/CockpitEscapeRoom.worktrees/mars-backdrop
+
+
+ Test Files  4 passed (4)
+      Tests  23 passed (23)
+   Start at  13:23:25
+   Duration  266ms (transform 219ms, setup 0ms, import 371ms, tests 84ms, environment 0ms)

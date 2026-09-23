@@ -26,7 +26,20 @@ export const MARS_ARCADE_TIMING = {
 } as const
 
 export const MARS_ARCADE_STAGE = {
-  halfWidth: 140,
+  /**
+   * Half the walkable stage, in stage pixels.
+   *
+   * The stage is 480 px wide and the screen is 320, so a fighter can be walked out
+   * of frame and the camera has to follow. The previous 140 fitted the whole stage
+   * inside one screen, which is why nothing ever scrolled. See
+   * `src/game/marsArcadeStage.ts` for the camera and the parallax that make the
+   * extra room legible; widening this constant alone would just add empty floor.
+   *
+   * Consequence for balance: the zoner has more room to keep the pressure fighter
+   * out. Walking wall to wall at THE ORACLE's 1.0 px/frame now takes 8.0 s of a
+   * 60 s round, up from 4.7 s.
+   */
+  halfWidth: 240,
   pushboxWidth: 24,
   startOffset: 56,
   gravity: 0.28,

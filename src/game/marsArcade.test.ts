@@ -440,7 +440,18 @@ describe('projectiles', () => {
         },
       ],
     }
-    const result = pump(state, 60, neutralPair())
+    // Derived, not a literal: this used to be a flat 60 frames, which was only
+    // ever enough because the stage was 140 px half-wide. Widening the stage made
+    // it pass the boundary later and the test failed for the right reason. Keep
+    // the count tied to the stage, and keep it under the projectile's 120-frame
+    // lifetime so this still proves the OFF-STAGE expiry and not the timeout.
+    const spawnX = -60
+    const speed = 3.4
+    const frames =
+      Math.ceil((MARS_ARCADE_STAGE.halfWidth + 40 + spawnX) / speed) + 1
+    expect(frames).toBeLessThan(120)
+
+    const result = pump(state, frames, neutralPair())
     expect(result.state.projectiles).toHaveLength(0)
     expect(eventTypes(result.events)).not.toContain('hit')
   })

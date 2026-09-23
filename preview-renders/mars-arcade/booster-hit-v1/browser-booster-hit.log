@@ -1,0 +1,7 @@
+PASS Booster KO takes priority over hit recovery and finishes the existing knockdown
+PASS p1-normal: impact → stagger → recover → stance; pause/step/reset/reload; damage11
+PASS p2-normal: impact → stagger → recover → stance; pause/step/reset/reload; damage11
+PASS p1-reduced: impact → stagger → recover → stance; pause/step/reset/reload; damage11
+PASS p2-reduced: impact → stagger → recover → stance; pause/step/reset/reload; damage11
+PASS p1-normal-missing: impact → stagger → recover → stance; pause/step/reset/reload; damage11
+PASS no uncaught browser errors

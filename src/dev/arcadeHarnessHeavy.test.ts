@@ -4,7 +4,7 @@ import { ARCADE_SPRITE_SOURCES, selectArcadeSprite } from './arcadeHarnessSprite
 
 describe('heavy attack artwork', () => {
   it.each([
-    ['booster', [[0, 'startup'], [6, 'startup'], [7, 'swing'], [10, 'swing'], [11, 'active'], [14, 'active'], [15, 'recovery'], [23, 'recovery'], [24, 'guard'], [32, 'guard']]],
+    ['booster', [[0, 'startup'], [4, 'startup'], [5, 'swing'], [7, 'swing'], [8, 'drive'], [10, 'drive'], [11, 'active'], [14, 'active'], [15, 'retract'], [18, 'retract'], [19, 'recovery'], [23, 'recovery'], [24, 'settle'], [28, 'settle'], [29, 'guard'], [32, 'guard']]],
     ['oracle', [[0, 'startup'], [12, 'startup'], [13, 'active'], [15, 'active'], [16, 'recovery'], [35, 'recovery']]],
   ] as const)('%s changes heavy poses at actual move boundaries without changing state', (id, cases) => {
     const state = createMarsArcadeRound(id, id)
@@ -16,7 +16,9 @@ describe('heavy attack artwork', () => {
         fighter.moveFrame = frame
         const before = structuredClone(state)
         const pose = selectArcadeSprite(state, side, reduced)
-        const folder = id === 'booster' ? 'normalised-heavy-continuity-ready' : 'normalised-heavy-ready'
+        const folder = phase === 'drive' || phase === 'settle' ? 'normalised-heavy-drive-ready' :
+          phase === 'retract' ? 'normalised-heavy-recovery-v1' :
+          id === 'booster' ? 'normalised-heavy-continuity-ready' : 'normalised-heavy-ready'
         const expected = phase === 'guard' ? '/booster/normalised-sleek-ready/block/block-00.png' :
           '/' + id + '/' + folder + '/heavy-' + phase + '/heavy-' + phase + '-00.png'
         expect(pose.src).toContain(expected)

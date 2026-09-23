@@ -1,0 +1,31 @@
+npm notice run cockpit-escape-room@0.1.0 npx
+npm notice run 'vitest' run src/dev/arcadeHarnessHeavy.test.ts
+
+ RUN  v4.1.9 /mnt/2TBHDD/CockpitEscapeRoom.worktrees/mars-backdrop
+
+ ❯ src/dev/arcadeHarnessHeavy.test.ts (4 tests | 1 failed) 14ms
+     × booster changes heavy poses at actual move boundaries without changing state 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/dev/arcadeHarnessHeavy.test.ts > heavy attack artwork > booster changes heavy poses at actual move boundaries without changing state
+AssertionError: expected '/art-source/arcade/booster/normalised…' to contain '/booster/normalised-heavy-continuity-…'
+
+Expected: "/booster/normalised-heavy-continuity-ready/heavy-swing/heavy-swing-00.png"
+Received: "/art-source/arcade/booster/normalised-heavy-continuity-ready/heavy-startup/heavy-startup-00.png"
+
+ ❯ src/dev/arcadeHarnessHeavy.test.ts:24:26
+     22|         const expected = phase === 'guard' ? '/booster/normalised-slee…
+     23|           '/' + id + '/' + folder + '/heavy-' + phase + '/heavy-' + ph…
+     24|         expect(pose.src).toContain(expected)
+       |                          ^
+     25|         expect(pose.placeholder).toBe(false)
+     26|         expect(ARCADE_SPRITE_SOURCES).toContain(pose.src)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  12:02:58
+   Duration  200ms (transform 55ms, setup 0ms, import 69ms, tests 14ms, environment 0ms)

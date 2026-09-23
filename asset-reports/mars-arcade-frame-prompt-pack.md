@@ -14,11 +14,10 @@
 > remains on hold. See `mars-arcade-wave-1-pilot-2026-09-20.md`. New transparent sources
 > require opt-in `--source-alpha` plus the existing bilinear filter and locked scale.
 
-> **2026-09-20 owner override:** Booster should resemble Elon Musk and Oracle should
-> resemble Sam Altman. The invented-only rule and generic identity briefs below are
-> superseded for these two fighters. Captain remains unchanged. Current likeness
-> prompts are `art-source/arcade/prompts/anchor-{booster,oracle}-likeness.txt`.
-> Identity review and all sprite geometry/quality gates remain open.
+> **2026-09-20 owner decision, now folded into the rules below:** Booster resembles Elon
+> Musk and Oracle resembles Sam Altman; Captain is unchanged. Current likeness prompts are
+> `art-source/arcade/prompts/anchor-{booster,oracle}-likeness.txt`. All sprite
+> geometry and quality gates remain open and unchanged.
 
 > **Later cleanup:** the owner accepted the likeness direction (“yes they are closer”).
 > All three `normalised-clean/anchor/anchor-00.png` candidates now pass the unchanged
@@ -31,9 +30,14 @@
 committed in `src/game/marsArcadeFighters.ts`; the plan is
 `plans/0044-mars-arcade-fight-loop.md`.
 
-The three fighters are **invented archetypes**. No real or public person may be named,
-caricatured or made recognisable — not in the artwork, and not in any prompt text sent to
-the generator. Owner decision, 2026-09-19.
+**Identity, settled 2026-09-20.** THE BOOSTER is a cartoon likeness of Elon Musk and
+THE ORACLE is a cartoon likeness of Sam Altman; THE CAPTAIN is Pop T. This supersedes the
+invented-archetypes-only rule of 2026-09-19. Likeness is a **requirement**, not a hazard: a
+frame that does not read as the intended person is a reject, and the names may be used in
+prompt text. Keep it affectionate caricature in the same register as the rest of the
+tribute — recognisable and good-humoured, never demeaning, and never implying endorsement
+of this private, non-commercial family project. Fighter ids, move ids and module names stay
+archetype-named, because the rules never depended on who a fighter looks like.
 
 ---
 
@@ -484,7 +488,64 @@ Authored outside the character cell and not gated by the character checker.
 | `fx.hitSpark` | 32×32 | 3 | A clean flat starburst, expanding then thinning. No photographic glow. |
 | `fx.guardSpark` | 32×32 | 2 | The same shape, visibly weaker and cooler than the hit spark — a player must tell them apart at a glance. |
 | `fx.textBubble` | 40×40 | 3 | The oracle's projectile: a flat speech-bubble shape with a solid cyan fill and a hard outline, gently pulsing across the 3 frames. About 36 px across, matching the 18 px collision radius. No text inside it. |
-| `fx.flyby` | 320×96 | 4 | A DC-9 in side profile crossing the full stage width, clean and flat, wings level. Not a warplane, no weapons, no smoke trail, no motion lines. It should read as *dignified*. |
+| `fx.flyby` | 320×96 | 4 | A DC-9 in side profile crossing the full stage width, clean and flat, wings level. Not a warplane, no weapons, no smoke trail, no motion lines. It should read as *dignified*. **Pale fuselage, not a dark silhouette** — see the note below this table. |
+
+
+**`fx.flyby` against the dust-storm sky (measured 2026-09-22).** The cell is anchored with
+its top at screen row 28, directly under the HUD, and the aircraft is drawn in the cell's
+**top 32 rows** (screen rows 28-60), roughly 110-130 px long. Below row 60 the dust banks
+turn to bright orange shelves, and no single flat colour survives them.
+
+- **Fuselage and wings pale**, a warm off-white around `#f4ead2`, with a 1 px outline in the
+  sky's darkest crimson `#160a12`. Against that lane the pale fill never drops below
+  **3.91:1** contrast. With the outline it stays above 4.1:1 anywhere in the cloud band,
+  so a drawing that dips lower still reads.
+- **Never a dark silhouette.** The original brief implied one, and against this sky it would
+  vanish: `#160a12` has a **1.18:1** median contrast in the lane.
+- One cheatline or window row in a mid tone is fine. It must stay a DC-9-32 in major
+  outline: T-tail, two rear-mounted engines, no underwing engines. Never an A320 shape.
+
+`check-arcade-stage.mjs` measures this lane on the live canvas at both camera clamps. It
+fails if the pale fill drops under 3:1, and also if the dark silhouette starts reading,
+which would mean the sky changed and this note needs revisiting. Moved to rows 60-124,
+the same check fails at 1.03:1.
+
+---
+
+## The stage backdrop — five layers, optional generation
+
+**Built in code on 2026-09-20 and playable now** (`src/game/marsArcadeStage.ts`), because
+nothing in contract v1 owned the world the fight happens in: all 137 drawings are characters
+and effects, so the finished set would still have been two fighters on an empty dark field.
+
+The stage is now **480 px wide behind a 320 px screen** and the camera follows the fighters,
+so the backdrop is not one picture. It is five layers that each scroll at their own rate and
+each **tile seamlessly** at their own span width. A single wide painting cannot be used: it
+does not tile, and the stage is longer than any one screen.
+
+To replace the code art with generated art, do it **one layer at a time**, keep the parallax
+factor and the span width exactly, and gate each one the same way a character frame is gated.
+
+| Layer | Parallax | Tile | Subject |
+| --- | --- | --- | --- |
+| `stars` | 0.06 | 320×84 | Mars night sky: sparse stars, Phobos and Deimos. Nothing above row 28 — the HUD is there. |
+| `ridge` | 0.20 | 320×48 | A far ridge line, flat silhouette, based on the horizon glow and never reaching the floor. |
+| `colony` | 0.42 | 320×56 | A LOW Mars outpost, never a city skyline: geodesic domes, horizontal cylindrical habitat modules with round portholes, connecting tubes, solar array fields, tanks, one comms mast, one dish, one rocket on a service tower, and a landing apron with a cargo lander and a rover. **No aircraft.** Owner decision 2026-09-22: the DC-9 was removed from the backdrop — the tribute has its own chapter, and `fx.flyby` still carries it inside the cabinet. |
+| `pad` | 0.74 | 160×12 | The near berm and its landing lights. |
+| `ground` | 1.00 | 160×36 | REGOLITH, not decking: dust drifts, ripples and scattered rock, with a sunlit top strip. A riveted metal floor is the one thing in frame that could not be Mars. At parallax 1 this is what tells the player the stage moved; the span widened from 64 to 160 because loose ground has no periodic features to hide a short repeat behind. |
+
+**Rules a generated layer must meet, on top of the usual ones**
+
+- **Seamless at its own span width.** Column 0 must join column `spanWidth - 1` with no seam.
+  This is the first thing to check and the commonest way a layer fails.
+- **Flat colour, no gradients, no dithering.** The bands behind these layers are flat steps
+  for a reason: anything interpolated crawls when the camera scrolls at whole pixels.
+- **The fighters must stay readable.** The backdrop exists to silhouette them. Mean luminance
+  must stay well above the retired `#14101a` void and every value behind a standing fighter
+  brighter still — held by `is not a void` in `src/game/marsArcadeStage.test.ts`.
+- **Nothing above row 28 in `stars`**, where the HUD sits.
+- Authored on the `#FF00FF` chroma field like every other asset here, then normalised and
+  checked; the same spoiler rule applies, so no ground-transport reward anywhere in the sky.
 
 ---
 
@@ -494,7 +555,9 @@ Reject and regenerate yourself if any of these is obviously wrong — it is chea
 validation round trip.
 
 - Not a strict side profile, or the figure faces left.
-- The face resembles a real or public person.
+- The face does not read as the intended person: Booster as Elon Musk, Oracle as Sam
+  Altman, Captain against the Pop T identity anchor. A generic face is a reject.
+- The caricature is unkind, political, or implies an endorsement.
 - Gradients, gloss, specular highlights, or a reflection on the oracle's glasses.
 - Motion blur, speed lines, impact stars, dust, an energy effect, or a ground shadow.
 - A projectile, aircraft, or spark drawn into the character cell.

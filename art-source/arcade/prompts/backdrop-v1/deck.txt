@@ -1,0 +1,11 @@
+Flat 1990s arcade pixel-art game backdrop tile: the METAL DECK PLATING a fighting-game stage is fought on, seen straight on from the side.
+
+COMPOSITION: the plating fills the ENTIRE image, edge to edge, top to bottom. No magenta anywhere. This is a flat head-on view of a floor surface, NOT a perspective view, NOT receding into the distance, with NO horizon and NO sky.
+
+SUBJECT: industrial Mars landing-pad decking. Include a bright warm lit strip along the very TOP edge, as if the low sun is catching the front lip of the deck. Below that, flat plating broken up by: long horizontal panel seams, a few short recessed grooves, small round rivets in rows, a patch of grating slats, and light irregular scuffing and wear. Keep almost all detail HORIZONTAL. Use NO full-height vertical lines and no vertical seams that cross the whole tile, because those make the floor read as a brick wall standing up behind the fighters.
+
+COLOUR: flat hard-edged blocks in exactly these five tones and no others: the lit top strip in warm tan RGB(180,121,90), the main plate in mid rust-brown RGB(122,74,58), recesses in darker brown RGB(94,56,46), the deepest grooves in RGB(88,48,41), and small scuff marks in RGB(147,96,74).
+
+STYLE: flat 1990s arcade pixel art. Hard-edged uniform blocks of solid colour. NO gradients, NO dithering, NO blur, NO glow, NO shading, NO photographic texture, NO reflections, NO outlines, NO anti-aliasing, NO rust staining, NO text, NO labels, NO arrows, NO markings.
+
+TILING: this image will be repeated side by side horizontally forever. The plating touching the extreme LEFT edge must continue the plating touching the extreme RIGHT edge seamlessly, with every horizontal seam and the lit top strip lining up exactly across the join.

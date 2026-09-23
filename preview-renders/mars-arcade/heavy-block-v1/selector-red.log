@@ -1,0 +1,36 @@
+npm notice run cockpit-escape-room@0.1.0 npx
+npm notice run 'vitest' run src/dev/arcadeHarnessBlock.test.ts
+
+ RUN  v4.1.9 /mnt/2TBHDD/CockpitEscapeRoom.worktrees/mars-backdrop
+
+ ❯ src/dev/arcadeHarnessBlock.test.ts (4 tests | 2 failed) 13ms
+     × braces then compresses and settles on side 0 within original blockstun 10ms
+     × braces then compresses and settles on side 1 within original blockstun 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/dev/arcadeHarnessBlock.test.ts > Oracle blocked-heavy presentation > braces then compresses and settles on side 0 within original blockstun
+ FAIL  src/dev/arcadeHarnessBlock.test.ts > Oracle blocked-heavy presentation > braces then compresses and settles on side 1 within original blockstun
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/dev/arcadeHarnessBlock.test.ts:34:45
+     32|     let { state, reactions, seen, health, guard } = block(side)
+     33|     const defender = side === 0 ? 1 : 0
+     34|     expect(seen.has('heavy block — brace')).toBe(true)
+       |                                             ^
+     35|     expect(health - state.fighters[defender].health).toBe(3)
+     36|     expect(guard - state.fighters[defender].guard).toBe(16)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  13:22:10
+   Duration  297ms (transform 108ms, setup 0ms, import 134ms, tests 13ms, environment 0ms)

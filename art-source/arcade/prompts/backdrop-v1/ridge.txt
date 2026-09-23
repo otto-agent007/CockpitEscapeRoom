@@ -1,0 +1,11 @@
+Flat 1990s arcade pixel-art game backdrop layer: a DISTANT MARTIAN CRATER RIM AND MESAS in flat silhouette.
+
+COMPOSITION: one horizontal band of terrain spanning the ENTIRE width, edge to edge. The band occupies the middle 35 percent of the image height. Everything above and below must be absolutely OPAQUE SOLID PURE MAGENTA RGB(255,0,255).
+
+SUBJECT: an unmistakably Martian horizon. Include broad FLAT-TOPPED MESAS with sheer vertical cliff faces, the long shallow arc of a large CRATER RIM, a deep narrow canyon notch, layered sedimentary terraces stepping down in flat shelves, and a low field of scattered boulders along the base. The profile must be wide, low and eroded — broad flat tops and long shallow slopes, NOT sharp alpine peaks and NOT jagged mountains.
+
+COLOUR: exactly TWO flat tones. The main silhouette in dark rust-brown RGB(74,48,42), and a slightly lighter rust RGB(96,64,54) used only for the nearer terrace shelves and the boulder field so the terrain reads as layered rather than as one flat cut-out. No lights, no highlights, no other colour.
+
+STYLE: flat 1990s arcade pixel art. Hard-edged solid silhouette with a crisp top edge. NO gradients, NO dithering, NO blur, NO glow, NO haze, NO shading, NO texture, NO outlines, NO anti-aliasing, NO text.
+
+TILING: repeated side by side horizontally forever. Terrain at the extreme LEFT edge must continue the extreme RIGHT edge seamlessly, at the same height, with no seam and no step.

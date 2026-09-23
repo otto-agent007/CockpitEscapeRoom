@@ -1,0 +1,21 @@
+ABSOLUTE REQUIREMENT, READ FIRST: THE BACKGROUND MUST BE SOLID PURE MAGENTA RGB(255,0,255).
+Every empty area and every gap between the banks must be FLAT, OPAQUE, UNIFORM MAGENTA —
+the exact colour #FF00FF. This is a chroma-key plate. Do NOT render a dark or coloured sky
+behind the banks. Do NOT add any glow, haze, gradient, vignette or atmosphere. A background
+that is not flat magenta makes this image unusable.
+
+Flat 1990s arcade pixel-art game backdrop layer: TOWERING MARTIAN DUST-STORM BANKS, for the upper sky of a fighting-game stage.
+
+COMPOSITION: heavy dust banks across the ENTIRE width, edge to edge, occupying the middle 65 percent of the image height. Leave real open sky between and around them — roughly 40 percent of the band stays empty magenta.
+
+THESE ARE DUST BANKS, NOT WATER CLOUDS. Give them GENUINE VERTICAL MASS — big, heavy, piled-up forms with real height, like a wall of blowing dust rolling in. But build them from STACKED HORIZONTAL LAYERS and long RAGGED SHELVES rather than round puffy lobes: each bank is a pile of flattened, wind-sheared strata with torn edges, wider than it is tall, thinning into long streamers at its left and right ends. NO cauliflower shapes, NO soft round bubbles, NO neat scalloped edges. The tops should look torn and wind-dragged, not rounded.
+
+Vary them strongly: two or three large dominant banks with real height, several medium ones, and thin trailing streamers low down. Overlap them so some sit in front of others.
+
+LIGHTING FROM BELOW: the sun is below the bottom edge, out of frame. Every bank is DARKEST along its TOP and BLAZING BRIGHTEST along its UNDERSIDE and lower shelves, as if lit from beneath by a low red sun.
+
+COLOUR: exactly four flat tones and no others. Bank tops and shadowed mass in dark maroon RGB(58,18,32). Bank bodies in deep brick red RGB(110,35,32). Lit undersides in hot burnt orange RGB(193,82,28). The brightest lower rim edges in blazing amber RGB(255,144,64), used sparingly as a hard 1-to-2 pixel edge along the very lowest edge of each shelf.
+
+STYLE: flat 1990s arcade pixel art. Every tone is a hard-edged solid block with crisp stepped edges. NO gradients, NO dithering, NO blur, NO soft edges, NO glow, NO feathering, NO anti-aliasing, NO transparency, NO photographic realism, NO text.
+
+TILING: repeated side by side horizontally forever. Content at the extreme LEFT edge must continue the extreme RIGHT edge seamlessly, with no bank cut awkwardly at either edge.

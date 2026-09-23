@@ -4,10 +4,17 @@
  * Content only: no Three.js, no rendering, no sprite paths. The cabinet is an
  * optional Easter-egg beat that lives behind the Mars phase, so nothing in this
  * module may name a real person, and nothing here may reference the protected
- * ground-transport reward. The fighters are unnamed archetypes.
+ * ground-transport reward.
  *
- * Positions and reaches are expressed in the 320x224 intro stage's pixel units
- * so the sprite pipeline and the fight rules share one coordinate space.
+ * Identity: THE BOOSTER and THE ORACLE are drawn as cartoon likenesses of Elon
+ * Musk and Sam Altman, and THE CAPTAIN is Pop T. Owner decision, 2026-09-20,
+ * superseding the invented-archetype-only rule of 2026-09-19. The ids and move
+ * names below stay archetype-named on purpose: the rules do not depend on who a
+ * fighter looks like, and the art direction can move again without touching them.
+ *
+ * Positions and reaches are expressed in the intro stage's pixel units so the
+ * sprite pipeline and the fight rules share one coordinate space. Note that the
+ * stage is now wider than the 320 px screen; see `marsArcadeStage.ts`.
  */
 
 export type MarsArcadeFighterId = 'booster' | 'oracle' | 'captain'
@@ -269,7 +276,11 @@ const captainMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
     damage: 30,
     chipDamage: 6,
     guardDamage: 40,
-    reach: 320,
+    // The whole stage, so the 26-frame telegraph stays the payoff it was written
+    // to be and cannot be answered by simply running to the far wall. Tracks
+    // MARS_ARCADE_STAGE.halfWidth * 2; `the flyby still covers the whole stage`
+    // fails if the stage is widened and this is left behind.
+    reach: 480,
     maxHeight: 90,
     hitstunFrames: 30,
     blockstunFrames: 20,

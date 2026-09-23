@@ -1,0 +1,23 @@
+ABSOLUTE REQUIREMENT, READ FIRST: THE BACKGROUND MUST BE SOLID PURE MAGENTA RGB(255,0,255).
+Every empty area, every gap between the barrier bars, and the whole region above and below
+the band must be FLAT, OPAQUE, UNIFORM MAGENTA — the exact colour #FF00FF, edge to edge.
+This is a chroma-key plate. Do NOT render a dark scene. Do NOT use a black, grey, brown or
+night-time background. Do NOT add any glow, haze, gradient, vignette, lighting falloff,
+shadow or atmosphere behind the objects. The magenta must be the same flat colour in every
+pixel that is not an object. A dark or glowing background makes this image unusable.
+
+Flat 1990s arcade pixel-art game backdrop layer: a COLONY PERIMETER BARRIER, PAD EQUIPMENT AND HUMANOID ROBOTS in hard silhouette — the mid-ground clutter of a fighting-game stage.
+
+COMPOSITION: one horizontal band spanning the ENTIRE width, edge to edge. The band occupies the middle 35 percent of the image height. Everything ABOVE and BELOW the band, and every gap and opening within the barrier, must be absolutely OPAQUE SOLID PURE MAGENTA RGB(255,0,255). Much of this layer is open magenta showing through, because the barrier is see-through.
+
+THE BARRIER, running the full width: a sturdy industrial safety barrier of THICK VERTICAL BARS evenly spaced with clear open magenta gaps between them, a solid HORIZONTAL TOP RAIL running unbroken across the whole width, and a second horizontal MID RAIL lower down. Add a heavier square support post every so often with a diagonal brace. Keep every bar and rail CHUNKY and clearly separated — heavy industrial steelwork, never fine wire mesh or netting.
+
+THE ROBOTS — the main new feature. Place FOUR sleek HUMANOID BIPEDAL ROBOTS standing on the ground among the equipment, spread unevenly across the width. Each is a slim upright two-legged figure of roughly human proportion: smooth rounded torso shell, clearly separated jointed arms hanging at its sides or one arm raised, straight jointed legs, and a small smooth featureless HEAD with no face — just a plain dark visor band across it. They must read unmistakably as walking humanoid machines, NOT as crates, barrels, mechs, tanks or vehicles. Vary their poses slightly: two standing square on, one turned with an arm raised, one mid-stride. They stand at about the height of the barrier top rail.
+
+EQUIPMENT filling the rest, spread unevenly with clear empty stretches: stacked shipping crates of several sizes, cylindrical fuel drums, a large cable reel, a boxy generator unit with cooling fins, a squat round vent turbine, a tall floodlight mast with a lamp head angled down, and a low pipe manifold. About 10 to 14 objects.
+
+COLOUR: exactly four flat tones and no others. Barrier and equipment silhouettes in near-black rust RGB(34,20,32). A slightly lighter rust RGB(56,33,52) for a few objects further back. The ROBOT BODIES in muted pale grey RGB(160,164,172) so they read as machines against the dark clutter without glaring. A hard-edged warm rim of orange RGB(255,138,60), one or two pixels thick, along the TOP edge only of the top rail, the crate tops, the drum tops, the floodlight head and the robots' shoulders and heads.
+
+STYLE: flat 1990s arcade pixel art on a FLAT MAGENTA #FF00FF PLATE. Hard-edged uniform blocks of solid colour, crisp vertical and horizontal edges. NO gradients, NO dithering, NO blur, NO glow, NO shading, NO texture, NO outlines, NO anti-aliasing, NO humans, NO text, NO labels, NO logos, NO brand marks, NO warning stripes.
+
+TILING: repeated side by side horizontally forever. The barrier and its rails at the extreme LEFT edge must line up exactly with the extreme RIGHT edge so the rails run unbroken across the join. Both extreme edges must fall in an OPEN GAP between bars, never on a bar, post, robot or object.

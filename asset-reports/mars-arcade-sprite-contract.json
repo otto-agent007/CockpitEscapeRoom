@@ -8,10 +8,12 @@
     "stage": {
       "width": 320,
       "height": 224,
-      "source": "src/game/marsArcade.ts MARS_ARCADE_STAGE",
-      "halfWidth": 140,
+      "source": "src/game/marsArcade.ts MARS_ARCADE_STAGE and src/game/marsArcadeStage.ts",
+      "halfWidth": 240,
       "pushboxWidth": 24,
-      "displayScale": "integer only, as the intro stage"
+      "displayScale": "integer only, as the intro stage",
+      "widerThanTheScreen": "As of 2026-09-20 the walkable stage is 480 px wide while the screen stays 320. The camera follows the midpoint between the fighters, clamped so it never looks more than 24 px past a wall, and it scrolls in whole stage pixels because the art is drawn at an integer scale. `width` and `height` above remain the SCREEN, which is what every sprite cell is authored against; only the walkable stage grew.",
+      "cameraSource": "src/game/marsArcadeStage.ts marsArcadeCameraTarget"
     },
     "characterOnStage": {
       "standingHeightStagePx": 104,
@@ -118,7 +120,7 @@
         "cell": [320, 96],
         "frames": 4,
         "loopMode": "once",
-        "spec": "The captain's DC-9, crossing the full stage. Full-width because the move's reach is the whole stage. The aircraft is an effect, never part of the character cell."
+        "spec": "The captain's DC-9, crossing the full SCREEN. The cell is screen-width; the move's reach is the whole 480 px stage, so the aircraft sweeps the visible view while the hit covers everywhere the opponent could have run to. The aircraft is an effect, never part of the character cell. Cell top sits at screen row 28; the aircraft occupies the cell's top 32 rows with a pale fuselage and a 1 px dark outline, never a dark silhouette against the dust-storm sky (see the prompt pack)."
       },
       { "id": "fx.hitSpark", "cell": [32, 32], "frames": 3, "loopMode": "once", "spec": "Clean hit." },
       { "id": "fx.guardSpark", "cell": [32, 32], "frames": 2, "loopMode": "once", "spec": "Blocked hit; visibly weaker than the clean-hit spark." }
@@ -170,10 +172,46 @@
     "identity": "Owner review. For THE CAPTAIN, against the existing Pop T identity anchor."
   },
   "toneConstraints": {
-    "noRealPeople": "The fighters are invented archetypes. No real or public person may be named, caricatured or made recognisable, in the artwork or in any prompt text. Owner decision, 2026-09-19.",
+    "likeness": "THE BOOSTER is drawn as a cartoon likeness of Elon Musk and THE ORACLE as a cartoon likeness of Sam Altman; THE CAPTAIN is Pop T. Owner decision, 2026-09-20, superseding the invented-archetypes-only rule of 2026-09-19. Likeness is now a REQUIREMENT, not a hazard: a frame that does not read as the intended person is a reject, and prompt text may name them. Keep it affectionate caricature in the same register as the rest of the tribute — recognisable and good-humoured, never demeaning, and never implying any endorsement of this private, non-commercial family project. Fighter ids, move ids and module names stay archetype-named: the rules never depended on who a fighter looks like, and the art direction can move again without touching them.",
     "familyFriendly": "Cartoon arcade contact only. No blood, no injury read, no cruelty. A knockout is comic and recoverable.",
     "captainDignity": "THE CAPTAIN is Pop T. He may be funny; he is never the butt of the joke, never clumsy, and never loses composure.",
     "spoilerProtection": "Nothing in this asset group may depict or reference the protected ground-transport reward. The cabinet sits behind the ending."
+  },
+  "backdrop": {
+    "status": "built in code, 2026-09-20; generated art optional and not yet budgeted",
+    "source": "src/game/marsArcadeStage.ts MARS_ARCADE_BANDS and MARS_ARCADE_BACKDROP",
+    "why": "The 137 drawings in frameTotals are all characters and effects. Nothing in contract v1 owned the world the fight happens in, so the finished set would still have been two fighters on an empty dark field. The backdrop is therefore authored as flat-shape DATA rather than as generated frames: it costs no generation round trips, it scrolls at whole pixels by construction, and the cabinet renderer reads the same module the dev harness does.",
+    "subject": "Mars at dusk, outside a small colony: a banded sky, a far ridge line, habitat domes with lit windows, a comms mast, and a DC-9 parked on the far pad. The aircraft is the tribute at rest and is the one deliberate piece of story in the backdrop.",
+    "bands": "Eleven flat horizontal bands covering all 224 rows, dark at the top and brightening to a horizon glow just above the floor line. Flat, never a gradient or a dither, because an interpolated sky crawls when the camera scrolls.",
+    "silhouetteRule": "The backdrop exists to make the fighters readable. Mean band luminance must stay well above the retired #14101a void, and every band the standing fighter is drawn against must be brighter still. Held by `is not a void` in src/game/marsArcadeStage.test.ts.",
+    "layers": [
+      { "id": "stars", "parallax": 0.06, "spanWidth": 320 },
+      { "id": "ridge", "parallax": 0.2, "spanWidth": 320 },
+      { "id": "colony", "parallax": 0.42, "spanWidth": 320 },
+      { "id": "pad", "parallax": 0.74, "spanWidth": 160 },
+      { "id": "deck", "parallax": 1, "spanWidth": 64 }
+    ],
+    "deckRule": "The nearest layer sits at parallax 1 with a short 64 px span, so its seams and rivets pass the screen as the fighters walk. This is what makes the wider stage legible; a single flat floor reads as standing still no matter how far the camera moved.",
+    "ifGeneratedLater": "Should the owner want painted art instead, replace layer by layer, keep the parallax factors and span widths, author each layer as a seamless tile of its span width on the #FF00FF chroma field, and keep the silhouette rule above. Do not author one wide painting: it cannot tile, and the stage is longer than any single screen."
+  },
+  "hud": {
+    "status": "built in code, 2026-09-20",
+    "source": "src/game/marsArcadeHud.ts, drawn by src/dev/arcadeHarness.ts with the 5x7 font in src/dev/arcadePixelFont.ts",
+    "reservedBand": "Screen rows 2 to 27 inclusive. Row 28 is where the backdrop's star layer begins; that boundary is an agreement between the two modules and both sides of it are held by tests.",
+    "elements": "Per side: a 22x24 portrait; health and guard sharing one frame whose inner end is cut on a 5 px slant so the pair leans into the centre; a name plate; and a super meter in five chunks. Centre: a framed clock. Across the middle of the screen: the round card, the call to fight, and the end-of-round card naming the winner.",
+    "fills": "Every bar fill is two tones plus a shadow line rather than one flat colour, and the health bar carries a lagging damage trail that holds for 24 frames then drains.",
+    "meterSegments": "Five chunks, because one chunk must equal the cheapest special's meter cost (20, the oracle's text bubble). Re-costing any special re-divides the meter, and the meter box width has to keep holding whole chunks with whole gaps; both are asserted.",
+    "portrait": {
+      "width": 22,
+      "height": 24,
+      "sourceY": 14,
+      "sourceYDerivation": "cell baseline 119 minus the 104 px standing height, less two rows of headroom",
+      "sourceX": { "booster": 54, "oracle": 49, "captain": 52 },
+      "sourceXNote": "Measured per fighter from each approved anchor, because the profiles are not the same width — the booster's headset runs well past the pivot column and a shared crop cut his face off. A new or re-cut anchor must be re-measured; `crops a portrait that is inside the sprite cell` only catches a crop that leaves the cell, not one that misses the head.",
+      "mirrored": "The right-hand portrait is flipped so both fighters face into the screen."
+    },
+    "typeface": "A 5x7 pixel font, drawn only at whole multiples. Browser fonts are not used anywhere on the stage: they antialias and do not land on the pixel grid. Every character the HUD can emit is asserted to exist, because a missing glyph draws nothing at all.",
+    "consequenceForArt": "The HUD reads the approved anchor frames directly. Re-cutting an anchor changes the portraits, so a new anchor wave must re-check them."
   },
   "promptPack": "asset-reports/mars-arcade-frame-prompt-pack.md",
   "plan": "plans/0044-mars-arcade-fight-loop.md",

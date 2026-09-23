@@ -1,8 +1,8 @@
-/** Native paused ticks prove five poses actually draw in both Booster facings. */
+/** Native paused ticks prove eight poses actually draw in both Booster facings. */
 import assert from 'node:assert/strict'
 import { mkdir } from 'node:fs/promises'
 import { chromium } from '@playwright/test'
-const out = new URL('../../preview-renders/mars-arcade/outcomes-v1/regressions/', import.meta.url).pathname
+const out = process.env.ARCADE_EVIDENCE_DIR ? process.env.ARCADE_EVIDENCE_DIR.replace(/\/?$/, "/") : new URL('../../preview-renders/mars-arcade/outcomes-v1/regressions/', import.meta.url).pathname
 await mkdir(out, { recursive: true })
 const browser = await chromium.launch({ headless: true })
 const errors = []
@@ -20,7 +20,7 @@ try {
     })
     await page.clock.install()
     await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
-    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('38/38 sprites ready'))
+    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('46/46 sprites ready'))
     const command = async name => {
       await page.locator('[data-command="' + name + '"]').click()
       await page.clock.runFor(20)
@@ -32,8 +32,11 @@ try {
     const poses = new Map([
       ['heavy startup', 'heavy-startup/heavy-startup-00.png'],
       ['heavy startup — swing', 'heavy-swing/heavy-swing-00.png'],
+      ['heavy startup — drive', 'heavy-drive/heavy-drive-00.png'],
       ['heavy active', 'heavy-active/heavy-active-00.png'],
+      ['heavy recovery — retract', 'heavy-retract/heavy-retract-00.png'],
       ['heavy recovery', 'heavy-recovery/heavy-recovery-00.png'],
+      ['heavy recovery — settle', 'heavy-settle/heavy-settle-00.png'],
       ['heavy recovery — guard', 'normalised-sleek-ready/block/block-00.png'],
     ])
     const captured = new Set()
@@ -46,15 +49,15 @@ try {
       if (poses.has(label) && !captured.has(label)) {
         const actualDraws = await page.evaluate(() => window.frameDraws)
         assert.ok(actualDraws.some(src => src.includes('/booster/') && src.endsWith(poses.get(label))), 'pose must draw in this exact paused tick')
-        const name = ['wind-up', 'swing', 'contact', 'follow-through', 'guard'][[...poses.keys()].indexOf(label)]
+        const name = ['wind-up', 'swing', 'drive', 'contact', 'retract', 'follow-through', 'settle', 'guard'][[...poses.keys()].indexOf(label)]
         await page.locator('canvas').screenshot({ path: out + 'booster-' + side + '-' + name + '.png' })
         assert.equal(await page.locator('#readout').innerText(), state, 'screenshot must not advance simulation')
         captured.add(label)
       }
     }
-    assert.equal(captured.size, 5)
+    assert.equal(captured.size, 8)
     assert.doesNotMatch(await page.locator('#readout').innerText(), /activity   attack/)
-    console.log('PASS P' + side + ' Booster: five distinct canvas draws in frozen native ticks; idle return')
+    console.log('PASS P' + side + ' Booster: eight distinct canvas draws in frozen native ticks; idle return')
     await page.close()
   }
   assert.deepEqual(errors, [])

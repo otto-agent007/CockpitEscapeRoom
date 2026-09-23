@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict'
 import { mkdir } from 'node:fs/promises'
 import { chromium } from '@playwright/test'
-const out = new URL('../../preview-renders/mars-arcade/outcomes-v1/regressions/', import.meta.url).pathname
+const out = process.env.ARCADE_EVIDENCE_DIR ? process.env.ARCADE_EVIDENCE_DIR.replace(/\/?$/, "/") : new URL('../../preview-renders/mars-arcade/outcomes-v1/regressions/', import.meta.url).pathname
 await mkdir(out, { recursive: true })
 const browser = await chromium.launch({ headless: true })
 const errors = []
@@ -21,7 +21,7 @@ try {
     await page.clock.install()
     await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
     assert.match(await page.title(), /Mars arcade/)
-    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('38/38 sprites ready'))
+    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('46/46 sprites ready'))
     const tick = ms => page.clock.runFor(ms)
     const command = async code => { await page.locator('[data-command="' + code + '"]').click(); await tick(20) }
     const read = () => page.locator('#readout').innerText()
@@ -34,8 +34,22 @@ try {
       await tick(700)
       await page.keyboard.up('KeyD'); await page.keyboard.up('ArrowLeft')
     } else if (outcome === 'blocked') {
-      await page.keyboard.down(away); await tick(1200); await page.keyboard.up(away)
-      await page.keyboard.down(approach); await tick(3000); await page.keyboard.up(approach)
+      // The defender has to be CORNERED before the attack. Blocking means holding
+      // away, and holding away means walking away, so anywhere else on the stage the
+      // defender simply retreats out of the attacker's reach: the oracle's heavy has
+      // reach 40 and 13 startup frames, and a booster walking back at 1.25 px/frame is
+      // 40.25 away by the first active frame. Against the wall the input still counts
+      // as blocking while x cannot move, which is what makes the block land.
+      //
+      // This precondition used to hold by accident, because on the old 280 px stage a
+      // 1200 ms retreat overshot the wall. The stage is 480 px now, so it is arranged
+      // and then checked rather than assumed.
+      await page.keyboard.down(away); await tick(3400); await page.keyboard.up(away)
+      const wall = Number((await read()).match(/walls (-?\d+)/)[1])
+      const cornered = [...(await read()).matchAll(/position   x (-?[\d.]+)/g)]
+        .map(m => Number(m[1]))[side === 0 ? 1 : 0]
+      assert.equal(cornered, side === 0 ? -wall : wall, 'defender never reached the corner')
+      await page.keyboard.down(approach); await tick(5200); await page.keyboard.up(approach)
     }
     if (outcome !== 'whiff') {
       const gap = Number((await read()).match(/separation ([\d.]+)px/)?.[1])
@@ -71,6 +85,8 @@ try {
     const folder = id === 'booster' ? 'normalised-heavy-continuity-ready' : 'normalised-heavy-ready'
     for (const phase of ['startup', 'active', 'recovery']) assert.ok(drawn.some(s => s.includes('/' + id + '/' + folder + '/heavy-' + phase + '/')))
     if (id === 'booster') {
+      for (const phase of ['drive', 'settle']) assert.ok(drawn.some(s => s.includes('/booster/normalised-heavy-drive-ready/heavy-' + phase + '/')))
+      assert.ok(drawn.some(s => s.includes('/booster/normalised-heavy-recovery-v1/heavy-retract/')))
       assert.ok(drawn.some(s => s.includes('/booster/' + folder + '/heavy-swing/')))
     }
     const events = await page.locator('#log').innerText()
@@ -81,11 +97,11 @@ try {
   }
   const page = await browser.newPage()
   page.on('pageerror', e => errors.push(e.message))
-  await page.route(/\/normalised-heavy(?:-continuity)?-ready\//, r => r.abort())
+  await page.route(/\/normalised-heavy(?:(?:-continuity|-drive)?-ready|-recovery-v1)\//, r => r.abort())
   await page.clock.install()
   await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
-  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('7 failed'))
-  assert.match(await page.locator('#asset-status').innerText(), /31\/38 sprites ready; 7 failed/)
+  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('10 failed'))
+  assert.match(await page.locator('#asset-status').innerText(), /36\/46 sprites ready; 10 failed/)
   await page.locator('[data-command="KeyT"]').click()
   await page.clock.runFor(1700)
   await page.getByRole('button', { name: 'P1 heavy', exact: true }).click()

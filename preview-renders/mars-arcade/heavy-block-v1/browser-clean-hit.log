@@ -1,0 +1,6 @@
+PASS p1-normal: impact → stagger → recover → stance; pause/step/reset/reload; damage13
+PASS p2-normal: impact → stagger → recover → stance; pause/step/reset/reload; damage13
+PASS p1-reduced: impact → stagger → recover → stance; pause/step/reset/reload; damage13
+PASS p2-reduced: impact → stagger → recover → stance; pause/step/reset/reload; damage13
+PASS p1-normal-missing: impact → stagger → recover → stance; pause/step/reset/reload; damage13
+PASS no uncaught browser errors
