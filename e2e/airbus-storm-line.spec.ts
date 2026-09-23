@@ -441,7 +441,7 @@ test('Storm Line reads a standard gamepad and safely retries an attitude departu
   await expect(page.getByRole('button', { name: 'Sound on' })).toBeVisible()
 })
 
-test('production Airbus GLB renders Storm Line displays, controls, and responsive approval views', async ({ page }) => {
+test('production Airbus GLB renders Storm Line displays, controls, and responsive approval views', { tag: '@heavy-storm' }, async ({ page }) => {
   // Wall-clock budget, not a correctness bound. This suite drives the real
   // 38 MiB GLB through a CPU rasteriser (SwiftShader) at roughly 1 fps, where
   // the simulator's fixed step advances 10x slower than wall time.

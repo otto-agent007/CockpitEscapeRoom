@@ -111,6 +111,15 @@ production switch needs a Vercel token and a Vercel setting that only the owner 
 - The v4 actions ran on Node 20, which is deprecated and force-run on Node 24. All are re-pinned
   to their current Node 24 majors by SHA, with breaking changes checked against our usage.
 
+- **Second run (#93, 6 count-based shards): 23 min wall-clock**, still unbalanced (21.0 / 14.6 /
+  6.4 / 6.1 / 1.8 / 0.7 min). Per-test durations (now logged by the `list` reporter) show 49.6 min
+  of tests in total. Two single tests take 11.2 min each (the DC-9 and Storm Line production GLBs),
+  five more take 2.4-4.6 min, and the other 92 take about 10.5 min. Sharding is now by weight:
+  `@heavy-dc9`, `@heavy-storm`, `@heavy-airbus`, `@heavy-scenes`, plus two light shards. The
+  expected wall is about the 11.2 min floor plus setup. A "shard plan" step in `quality` fails if
+  a `@heavy-*` tag has no runner, checked in both directions (99 = 7 + 92 passes; an orphan tag
+  fails).
+
 ## Decision log
 
 - 2026-09-23: keep `browser-smoke` as the name of a small aggregator job over the 4 shards,
