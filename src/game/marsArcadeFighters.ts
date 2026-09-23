@@ -51,23 +51,14 @@ export interface MarsArcadeMove {
   meterCost: number
   meterGainOnHit: number
   meterGainOnBlock: number
-  /** Pops a grounded defender into the air. */
-  launches: boolean
   projectile?: MarsArcadeProjectileSpec
   /**
-   * Return-to-pad landing. Pressing the same button again inside the window
-   * shortens recovery; letting the window close tips the fighter over and
-   * hands the opponent a long punish. Frames are counted from the first
-   * recovery frame, so an early press is always better than a late one.
+   * Strikes the opponent wherever they are. Facing, `reach` and `maxHeight` are
+   * not consulted: there is nowhere on the stage to go.
    */
-  landingWindow?: {
-    openFrame: number
-    closeFrame: number
-    /** Recovery frames remaining, counted from the moment of the press. */
-    stuckRecoveryFrames: number
-    /** Total recovery frames once the window closes unanswered. */
-    tippedRecoveryFrames: number
-  }
+  lockOn?: boolean
+  /** Cannot be blocked. Lands full damage and never touches the guard meter. */
+  unblockable?: boolean
 }
 
 export interface MarsArcadeFighter {
@@ -106,7 +97,6 @@ const boosterMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
     meterCost: 0,
     meterGainOnHit: 6,
     meterGainOnBlock: 3,
-    launches: false,
   },
   heavy: {
     id: 'booster.staticFire',
@@ -126,33 +116,34 @@ const boosterMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
     meterCost: 0,
     meterGainOnHit: 12,
     meterGainOnBlock: 5,
-    launches: false,
   },
   special: {
-    id: 'booster.orbitalInsertion',
-    label: 'ORBITAL INSERTION',
+    // A Starlink laser from orbit. Owner direction, 2026-09-22: no telegraph and
+    // no escape. It lands the frame the button goes down, anywhere on the stage,
+    // through any guard. What keeps it fair is the price: two meter chunks for a
+    // hit smaller, per meter, than the captain's flyby, and a long recovery with
+    // the arm still raised to the sky.
+    id: 'booster.spaceLaser',
+    label: 'SPACE LASER',
     button: 'special',
-    startupFrames: 6,
-    activeFrames: 6,
-    recoveryFrames: 30,
-    damage: 16,
-    chipDamage: 4,
-    guardDamage: 22,
-    reach: 26,
-    maxHeight: 70,
-    hitstunFrames: 26,
-    blockstunFrames: 16,
-    knockback: 4,
-    meterCost: 25,
-    meterGainOnHit: 4,
-    meterGainOnBlock: 2,
-    launches: true,
-    landingWindow: {
-      openFrame: 8,
-      closeFrame: 18,
-      stuckRecoveryFrames: 12,
-      tippedRecoveryFrames: 46,
-    },
+    startupFrames: 0,
+    activeFrames: 1,
+    recoveryFrames: 28,
+    damage: 15,
+    chipDamage: 0,
+    guardDamage: 0,
+    // The whole stage, as the flyby. Not consulted by the rules (lockOn), but
+    // the harness and any reader of the frame data see an honest number.
+    reach: 480,
+    maxHeight: 999,
+    hitstunFrames: 24,
+    blockstunFrames: 0,
+    knockback: 0,
+    meterCost: 40,
+    meterGainOnHit: 0,
+    meterGainOnBlock: 0,
+    lockOn: true,
+    unblockable: true,
   },
 }
 
@@ -175,7 +166,6 @@ const oracleMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
     meterCost: 0,
     meterGainOnHit: 6,
     meterGainOnBlock: 3,
-    launches: false,
   },
   heavy: {
     id: 'oracle.hardCutoff',
@@ -195,7 +185,6 @@ const oracleMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
     meterCost: 0,
     meterGainOnHit: 11,
     meterGainOnBlock: 5,
-    launches: false,
   },
   special: {
     id: 'oracle.textBubble',
@@ -215,7 +204,6 @@ const oracleMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
     meterCost: 20,
     meterGainOnHit: 4,
     meterGainOnBlock: 2,
-    launches: false,
     projectile: {
       speed: 3.4,
       lifetimeFrames: 120,
@@ -244,7 +232,6 @@ const captainMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
     meterCost: 0,
     meterGainOnHit: 0,
     meterGainOnBlock: 0,
-    launches: false,
   },
   heavy: {
     id: 'captain.runTheChecklist',
@@ -264,7 +251,6 @@ const captainMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
     meterCost: 0,
     meterGainOnHit: 9,
     meterGainOnBlock: 4,
-    launches: false,
   },
   special: {
     id: 'captain.flyby',
@@ -288,7 +274,6 @@ const captainMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
     meterCost: 70,
     meterGainOnHit: 0,
     meterGainOnBlock: 0,
-    launches: false,
   },
 }
 

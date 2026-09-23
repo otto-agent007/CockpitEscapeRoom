@@ -67,6 +67,16 @@ const boosterHeavySwing = '/art-source/arcade/booster/normalised-heavy-continuit
 const boosterHeavyRetract = '/art-source/arcade/booster/normalised-heavy-recovery-v1/heavy-retract/heavy-retract-00.png'
 const boosterHeavyDrive = '/art-source/arcade/booster/normalised-heavy-drive-ready/heavy-drive/heavy-drive-00.png'
 const boosterHeavySettle = '/art-source/arcade/booster/normalised-heavy-drive-ready/heavy-settle/heavy-settle-00.png'
+const spaceLaserRoot = '/art-source/arcade/booster/normalised-space-laser-ready'
+const spaceLaser = {
+  callItIn: `${spaceLaserRoot}/call-it-in/call-it-in-00.png`,
+  watch: `${spaceLaserRoot}/watch/watch-00.png`,
+  pocket: `${spaceLaserRoot}/pocket/pocket-00.png`,
+}
+/** Recovery frames the call-in pose is held past the one-frame hit, so it reads. */
+const SPACE_LASER_CALL_HOLD = 10
+/** Recovery frame the phone starts going back into the pocket. */
+const SPACE_LASER_POCKET_FROM = 20
 const outcomeRoot = '/art-source/arcade/booster/normalised-outcomes-ready'
 const victory = [0, 1, 2].map(index => `${outcomeRoot}/win/win-0${index}.png`)
 const knockout = [boosterRecoil, `${outcomeRoot}/ko/ko-01.png`, `${outcomeRoot}/ko/ko-02.png`]
@@ -76,6 +86,7 @@ export const ARCADE_SPRITE_SOURCES = [
   boosterGuard, boosterRecoil, boosterHitStagger, boosterHitRecover, ...oracleForward, ...airborne.booster, ...airborne.oracle,
   ...Object.values(heavy.booster), boosterHeavySwing, boosterHeavyDrive, boosterHeavyRetract, boosterHeavySettle, ...Object.values(heavy.oracle),
   ...victory, ...knockout.slice(1),
+  spaceLaser.callItIn, spaceLaser.watch, spaceLaser.pocket,
 ]
 
 export function selectArcadeSprite(state: MarsArcadeState, side: MarsArcadeSide, reducedMotion: boolean, outcomeFrame = 0, heavyReaction: HeavyReaction | null = null) {
@@ -184,6 +195,14 @@ export function selectArcadeSprite(state: MarsArcadeState, side: MarsArcadeSide,
       }
     }
     return { src: heavy[fighter.id][move.phase], placeholder: false, label: `heavy ${move.phase}` }
+  }
+  if (live && fighter.id === 'booster' && move?.move.id === 'booster.spaceLaser') {
+    // The hit is a single frame, so the call-in pose carries on into recovery.
+    // All three are essential poses and stay under reduced motion.
+    const recoveryElapsed = move.frame - move.move.startupFrames - move.move.activeFrames
+    const beat = recoveryElapsed < SPACE_LASER_CALL_HOLD ? 'callItIn'
+      : recoveryElapsed < SPACE_LASER_POCKET_FROM ? 'watch' : 'pocket'
+    return { src: spaceLaser[beat], placeholder: false, label: `space laser — ${beat}` }
   }
   if (live && fighter.id === 'booster' && move?.move.id === 'booster.padJab') {
     const recoveryElapsed = move.frame - move.move.startupFrames - move.move.activeFrames

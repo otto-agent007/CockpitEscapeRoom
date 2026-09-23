@@ -21,7 +21,7 @@ try {
     await page.clock.install()
     await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
     assert.match(await page.title(), /Mars arcade/)
-    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('46/46 sprites ready'))
+    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('49/49 sprites ready'))
     const tick = ms => page.clock.runFor(ms)
     const command = async code => { await page.locator('[data-command="' + code + '"]').click(); await tick(20) }
     const read = () => page.locator('#readout').innerText()
@@ -101,7 +101,7 @@ try {
   await page.clock.install()
   await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
   await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('10 failed'))
-  assert.match(await page.locator('#asset-status').innerText(), /36\/46 sprites ready; 10 failed/)
+  assert.match(await page.locator('#asset-status').innerText(), /39\/49 sprites ready; 10 failed/)
   await page.locator('[data-command="KeyT"]').click()
   await page.clock.runFor(1700)
   await page.getByRole('button', { name: 'P1 heavy', exact: true }).click()

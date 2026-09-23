@@ -146,20 +146,5 @@ export function advanceMarsArcadeOpponent(
       break
   }
 
-  // Answer the booster's landing window rather than tipping over every time.
-  if (self.activity === 'attack' && self.activeButton === 'special' && !self.landingResolved) {
-    const move = marsArcadeFighter(self.id).moves.special
-    const window = move.landingWindow
-    if (window) {
-      const recoveryElapsed = self.moveFrame - (move.startupFrames + move.activeFrames)
-      const roll = mulberry32(next.seed)
-      next.seed = roll.seed
-      const answers = roll.value < (opponent.difficulty === 'veteran' ? 0.85 : 0.4)
-      if (answers && recoveryElapsed >= window.openFrame && recoveryElapsed <= window.closeFrame) {
-        input.special = true
-      }
-    }
-  }
-
   return { opponent: next, input }
 }

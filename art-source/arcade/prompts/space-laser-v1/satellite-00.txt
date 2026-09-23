@@ -1,0 +1,8 @@
+Use your built-in image generation tool (image_gen). Do NOT use scripts/image_gen.py or any API key. Generate ONE image at the largest size the tool produces natively; do not resize, upscale or post-process it. Save it exactly to art-source/arcade/generated/fx-space-laser-v1/satellite-00.png and report its native pixel size. Do not modify any other file.
+
+Image brief:
+A single Starlink-style internet satellite drawn in strict SIDE PROFILE for a 2D arcade fighting game, flying left to right. Flat cel-shaded cartoon illustration matching a bold-outline arcade character style: thick dark outline, at most three flat shades per material, no gradients, no gloss, no texture, no photographic detail.
+Shape: a flat, thin rectangular chassis (dark graphite grey with a few small silver panel lines) with ONE long rectangular solar array extending out behind it to the left, deep navy-blue cells in a clear grid with thin silver dividers. A small bright cyan lens on the underside of the chassis, pointed straight DOWN, which is where its laser fires from.
+Composition: the satellite fills the width of a WIDE landscape canvas, centered, horizontal, level; generous transparent margin all around. Nothing else in frame.
+Genuine transparent RGBA background. No stars, no planet, no beam, no glow halo, no motion lines, no text, no logos, no flags.
+It will be reduced to about 56 pixels wide in game, so keep the silhouette bold and simple and the outline thick.

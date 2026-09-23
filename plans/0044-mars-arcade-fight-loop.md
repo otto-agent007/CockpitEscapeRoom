@@ -1354,3 +1354,62 @@ other with a punch.
 
 **Still open:** no owner review; nothing pushed. Hit stop, screen shake and hit flash are
 still the cheapest remaining wins. Only four animations carry bounds so far.
+
+### Booster's special becomes SPACE LASER — 2026-09-22
+
+**Owner direction.** From a brainstorm of Booster specials the owner chose a Starlink
+space laser that "comes across the sky and zaps the opponent", then asked for it to hit
+**without delay or escapability**. I had proposed a telegraphed, dodgeable spot so it would
+not overlap the captain's flyby; the owner overruled that, and the design follows the owner.
+
+**Rules** (`booster.spaceLaser`, `0/1/28`): the hit resolves on the frame the button goes
+down. Two new move flags carry it. `lockOn` skips the facing, reach and height tests, and
+`unblockable` bypasses the guard entirely. It deals 15 damage for 40 meter. What keeps it
+fair is price and recovery, and a test holds it below the flyby in damage and in damage
+per meter, so Dad's move stays the biggest hit in the cabinet.
+
+**Removed with ORBITAL INSERTION:** the landing window (`landingWindow`, `stuckLanding` /
+`tippedOver` events, `recoveryOverrideFrames`, the CPU's window answering) and the
+launcher (`launches`, `launchVelocity`). Nothing else used either; git history keeps them if
+the tip-over gag is wanted on another move. No drawings were lost, since none had been made.
+
+**Art budget:** a move with no startup frames now gets no startup drawing. The rule stays at
+one drawing minimum for active and recovery, because the captain's coffee has zero active
+frames and its cup-down pose is the point of the move. The contract goes from 137 to 134 drawings:
+Booster's special is 3 poses, and the 5 landing outcome drawings are gone.
+`fx.spaceLaser` (4 frames, 32×224) is new, briefed pale-with-dark-outline per the flyby-lane
+measurement.
+
+**Harness:** `arcadeHarnessLaser.ts` records the strike from the real `hit` event at the
+defender's x and ages it on the fight clock (pause and step hold it). The beam runs from the
+HUD's bottom row to the floor with a scorch mark after, and keeps one width under reduced
+motion. With hitboxes on, a lock-on move outlines the struck column, not a 480 px forward
+region. That region had washed the beam red and made the first browser check fail.
+
+**Discovered:** nothing caps how far apart the fighters can walk. On the 480 px stage they
+can stand 480 apart on a 320 px screen, both partly off screen. That is a gap in the
+wide-stage work, not in the laser. It is not fixed here because the fix is a movement rule
+(a separation cap), and it changes how the flyby and the laser read at range.
+
+**Validation:** see TEST_REPORT.md 2026-09-22 — `npm run check` 785/64 green;
+`check-arcade-space-laser.mjs` 4 cases PASS; stage 9 and pilot 12 PASS.
+
+**Open:** owner review of the feel; the three Booster poses and `fx.spaceLaser` art; the
+separation cap.
+
+### SPACE LASER gets real art — 2026-09-23
+
+Owner, after seeing the code-drawn beam: *"The special is too generic, we need to create some
+new assets for it."* The special now has three generated Booster poses (call it in, watch
+it land, pocket the phone), a Starlink satellite that parks under the HUD and flies on,
+a generated beam at three widths, and a four-frame regolith impact. The effects live in
+their own loader so the character "N/N sprites ready" contract only moved by the three
+poses (46 to 49). The hit rules did not change; the call-in pose is held past the
+one-frame hit so it can be seen. Full provenance, normalisation and validation are in
+`asset-reports/mars-arcade-space-laser-2026-09-23.md`.
+
+**Discovered:** `check-arcade-hud.mjs` had been failing on #76 since `5e26066` changed three
+HUD colours. It now asserts the current colours with unchanged thresholds.
+
+**Open:** owner review; gym entries for the three poses once `ARCADE_GYM_ANIMATIONS` is
+committed; satellite array contrast against the darkest sky rows.

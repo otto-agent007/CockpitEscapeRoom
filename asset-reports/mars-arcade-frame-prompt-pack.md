@@ -227,7 +227,7 @@ pixels forward of the pivot column, within 3 px.
 | --- | --- | --- | --- |
 | `booster.padJab` | 41 px | mid (34) | Extended straight jab, fist at chest height; owner-approved reach increase |
 | `booster.staticFire` | 38 px | mid (30) | Big committed overhand swing, fully extended |
-| `booster.orbitalInsertion` | 26 px | **high (70)** | Rising uppercut that finishes above his own head |
+| `booster.spaceLaser` | whole stage, lock-on | any | One arm thrown straight up at the sky, calling it in. The beam is `fx.spaceLaser`, drawn at the opponent |
 | `oracle.prompt` | 40 px | mid (34) | Owner-approved straight fist jab, arm nearly locked |
 | `oracle.hardCutoff` | 40 px | **low (24)** | Low sweep at shin height |
 | `oracle.textBubble` | projectile | (26) | Release gesture only; the bubble is `fx.textBubble`, spawning 20 px forward at 24 px height |
@@ -244,13 +244,13 @@ airborne opponents it legitimately hit.
 
 ## Waves
 
-Generate in this order. **137 drawings total**, against 56 for the approved Pop T set, so do
+Generate in this order. **138 drawings total**, against 56 for the approved Pop T set, so do
 not commit to the whole thing before Wave 1 proves the loop end to end.
 
 | Wave | Contents | Drawings | What it buys |
 | --- | --- | --- | --- |
 | 0 | Three anchors | 3 | Owner review of all three identities before any motion work |
-| 1 | THE BOOSTER complete, plus `fx.hitSpark` and `fx.guardSpark` | 48 | A playable **mirror match**: a complete vertical slice on one fighter's art |
+| 1 | THE BOOSTER complete, plus the three `fx.spaceLaser` parts, `fx.hitSpark` and `fx.guardSpark` | 49 | A playable **mirror match**: a complete vertical slice on one fighter's art |
 | 2 | THE ORACLE complete, plus `fx.textBubble` | 42 | The real matchup, and the zoner/rushdown read |
 | 3 | THE CAPTAIN complete, plus `fx.flyby` | 44 | The unlock and the payoff |
 
@@ -353,12 +353,12 @@ Comic and recoverable. He is fine.
 
 ---
 
-## Move clips — 42 drawings
+## Move clips — 40 drawings
 
 Allocation comes from `src/game/marsArcadeSpriteBudget.ts` and is enforced against the
 committed frame data. `s/a/r` is startup / active / recovery in engine frames at 60 Hz.
 
-### THE BOOSTER — 13 drawings
+### THE BOOSTER — 11 drawings
 
 **`booster.padJab`** — 3 drawings, `4/3/7`
 
@@ -378,34 +378,21 @@ committed frame data. `s/a/r` is startup / active / recovery in engine frames at
 | `staticFire-03` | Recovery: arm carried past the target by its own weight, balance going. |
 | `staticFire-04` | Recovery: hauling himself back upright into the guard. |
 
-**`booster.orbitalInsertion`** — 5 drawings, `6/6/30`
+**`booster.spaceLaser`** — 3 drawings, `0/1/28`
 
-The signature move: he launches. The long recovery is the price.
-
-| Frame | Pose |
-| --- | --- |
-| `orbitalInsertion-00` | Startup: deep crouch, both fists at the hips, coiled to go. |
-| `orbitalInsertion-01` | **Active:** launching — lead fist driving up, 26 px forward, finishing above his own head, feet leaving the floor. |
-| `orbitalInsertion-02` | **Active:** at full extension, body stretched vertical, arm locked overhead. |
-| `orbitalInsertion-03` | Recovery: falling back down, arms wheeling for balance. |
-| `orbitalInsertion-04` | Recovery: feet about to touch, knees coming up to absorb. |
-
-**`booster.landing-stuck`** — 2 drawings, replaces recovery when the landing window is answered
+The signature move, and the one with no warning at all (owner direction, 2026-09-22).
+**All three poses done 2026-09-23** (`booster/normalised-space-laser-ready/`, prompts in
+`art-source/arcade/prompts/space-laser-v1/`; the call-in pose is held 10 recovery frames
+because the hit itself lasts one). A
+Starlink laser comes straight down onto the opponent the instant the button is pressed,
+anywhere on the stage, through any guard. There is **no startup drawing**: the move opens
+on its active frame. The long recovery with the arm still raised is its only cost.
 
 | Frame | Pose |
 | --- | --- |
-| `landing-stuck-00` | Landing clean: knees absorbing, arms out, perfectly balanced. |
-| `landing-stuck-01` | Straightening smoothly back into the guard, grin wide. **Hold.** |
-
-**`booster.landing-tipped`** — 3 drawings, the long punish window
-
-Helpless and funny, never injured.
-
-| Frame | Pose |
-| --- | --- |
-| `landing-tipped-00` | Landing badly: one foot skids out, arms windmilling. |
-| `landing-tipped-01` | Going over backwards, boots leaving the floor. |
-| `landing-tipped-02` | Flat on his back, one boot still in the air, entirely fine about it. **Hold.** |
+| `spaceLaser-00` | **Active:** one arm thrown straight up, finger pointing at the sky, the other hand holding a phone low at the hip as if he just hit send. Chin up, grin. Draw NO beam; that is `fx.spaceLaser`. |
+| `spaceLaser-01` | Recovery: arm still up, now looking across at where the beam landed, satisfied. |
+| `spaceLaser-02` | Recovery: arm coming down, phone going back into a pocket, settling to the guard. |
 
 ### THE ORACLE — 14 drawings
 
@@ -479,7 +466,7 @@ The longest telegraph in the game, and the payoff of the whole cabinet.
 
 ---
 
-## Effects — 12 drawings
+## Effects — 20 drawings
 
 Authored outside the character cell and not gated by the character checker.
 
@@ -487,6 +474,9 @@ Authored outside the character cell and not gated by the character checker.
 | --- | --- | --- | --- |
 | `fx.hitSpark` | 32×32 | 3 | A clean flat starburst, expanding then thinning. No photographic glow. |
 | `fx.guardSpark` | 32×32 | 2 | The same shape, visibly weaker and cooler than the hit spark — a player must tell them apart at a glance. |
+| `fx.spaceLaser.satellite` | 80×10 | 1 | **Done 2026-09-23.** Starlink satellite in side profile, parked under the HUD over the defender, lens down. Prompt: `art-source/arcade/prompts/space-laser-v1/satellite-00.txt`. |
+| `fx.spaceLaser.beam` | 14/10/6×148 | 3 | **Done 2026-09-23.** One generated vertical beam, pre-rendered at three widths (slam, hold, thin). Near-white core, cyan and blue bands, dark outline. Never aimed at or near an aircraft. |
+| `fx.spaceLaser.impact` | 64×28 | 4 | **Done 2026-09-23.** Flash, burst, dust, scorch on regolith, one shared ground line. Generated as one strip, cut by `tools/assets/normalise-arcade-effect.py strip`. |
 | `fx.textBubble` | 40×40 | 3 | The oracle's projectile: a flat speech-bubble shape with a solid cyan fill and a hard outline, gently pulsing across the 3 frames. About 36 px across, matching the 18 px collision radius. No text inside it. |
 | `fx.flyby` | 320×96 | 4 | A DC-9 in side profile crossing the full stage width, clean and flat, wings level. Not a warplane, no weapons, no smoke trail, no motion lines. It should read as *dignified*. **Pale fuselage, not a dark silhouette** — see the note below this table. |
 
@@ -515,7 +505,7 @@ the same check fails at 1.03:1.
 ## The stage backdrop — five layers, optional generation
 
 **Built in code on 2026-09-20 and playable now** (`src/game/marsArcadeStage.ts`), because
-nothing in contract v1 owned the world the fight happens in: all 137 drawings are characters
+nothing in contract v1 owned the world the fight happens in: all 138 drawings are characters
 and effects, so the finished set would still have been two fighters on an empty dark field.
 
 The stage is now **480 px wide behind a 320 px screen** and the camera follows the fighters,

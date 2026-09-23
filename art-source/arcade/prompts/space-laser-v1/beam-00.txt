@@ -1,0 +1,6 @@
+Use your built-in image generation tool (image_gen). Do NOT use scripts/image_gen.py or any API key. Generate ONE image at the largest size the tool produces natively; do not resize, upscale or post-process it. Save it exactly to art-source/arcade/generated/fx-space-laser-v1/beam-00.png and report its native pixel size. Do not modify any other file.
+
+Image brief:
+A single VERTICAL orbital laser beam for a 2D arcade fighting game, running perfectly straight from the very top edge of a tall portrait canvas to the very bottom edge, centered, occupying roughly the middle fifth of the canvas width. Flat cel-shaded arcade effect art: a blazing near-white core, a band of electric cyan either side of it, a thin outer band of deep blue, and a crisp dark near-black outline on both outer edges. At most three flat shades per band, no gradients, no soft glow, no bloom.
+Along its length: a few sharp small cyan energy sparks and short horizontal ripple notches on the outer bands, spaced irregularly, so the beam reads as powerful energy rather than a plain stripe. The core stays unbroken top to bottom. The beam must be the SAME width at the top and the bottom, and its left and right edges perfectly vertical.
+Genuine transparent RGBA background outside the beam. No satellite, no ground, no impact flash, no characters, no text.

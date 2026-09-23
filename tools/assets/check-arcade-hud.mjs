@@ -12,7 +12,7 @@ import { mkdir } from 'node:fs/promises'
 import { chromium } from '@playwright/test'
 
 const base = process.env.ARCADE_HUD_URL ?? 'http://127.0.0.1:5319/dev/arcade.html'
-const out = new URL('../../preview-renders/mars-arcade/', import.meta.url).pathname
+const out = process.env.ARCADE_EVIDENCE_DIR ? process.env.ARCADE_EVIDENCE_DIR.replace(/\/?$/, '/') : new URL('../../preview-renders/mars-arcade/', import.meta.url).pathname
 await mkdir(out, { recursive: true })
 const browser = await chromium.launch({ headless: true })
 const report = message => console.log(`PASS ${message}`)
@@ -99,9 +99,9 @@ try {
 
   // --- the segmented meter and the name plate -----------------------------
   const meterBand = await census(page, 102, 19, 36, 9)
-  assert.ok(countOf(meterBand, '#4a3242') > 200, 'the meter is not segmented — no empty chunks')
+  assert.ok(countOf(meterBand, '#241f42') > 200, 'the meter is not segmented — no empty chunks')
   const plate = await census(page, 28, 19, 72, 9)
-  assert.ok(countOf(plate, '#31202c') > 400, 'the name is not sitting on a plate')
+  assert.ok(countOf(plate, '#181530') > 400, 'the name is not sitting on a plate')
   assert.ok(countOf(plate, '#f4e6d2') > 80, 'the name did not render on the plate')
   report('the meter reads as chunks and the name sits on a plate')
 
@@ -110,8 +110,8 @@ try {
   // full width along the top rows and short by the 5 px skew along the bottom ones.
   const topCorner = await census(page, 135, 2, 3, 2)
   const bottomCorner = await census(page, 135, 15, 3, 2)
-  assert.ok(countOf(topCorner, '#1a1016') > 0, 'the bar does not reach its inner end at the top')
-  assert.equal(countOf(bottomCorner, '#1a1016'), 0, 'the inner end was not cut on a slant')
+  assert.ok(countOf(topCorner, '#10101c') > 0, 'the bar does not reach its inner end at the top')
+  assert.equal(countOf(bottomCorner, '#10101c'), 0, 'the inner end was not cut on a slant')
   report('the vitals bar is square at the top and cut on a slant at the bottom')
 
   // --- the end-of-round card ----------------------------------------------

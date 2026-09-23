@@ -30,6 +30,26 @@ describe('dev-only arcade sprite pilot', () => {
     }
   })
 
+  it('plays the space laser as call it in, watch it land, pocket the phone', () => {
+    const state = createMarsArcadeRound('booster', 'oracle')
+    state.phase = 'fight'
+    const pose = (moveFrame: number, reduced = false) => {
+      Object.assign(state.fighters[0], { activity: 'attack', activeButton: 'special', moveFrame })
+      return selectArcadeSprite(state, 0, reduced)
+    }
+    const beats = Array.from({ length: 29 }, (_, frame) => pose(frame).src)
+    // The hit frame is one frame long; the call-in pose must outlive it to be seen.
+    expect(beats[0]).toContain('/call-it-in/')
+    expect(beats.filter((src) => src.includes('/call-it-in/')).length).toBeGreaterThanOrEqual(8)
+    expect(beats.findIndex((src) => src.includes('/watch/'))).toBeGreaterThan(0)
+    expect(beats[28]).toContain('/pocket/')
+    const order = [...new Set(beats.map((src) => src.split('/').at(-2)))]
+    expect(order).toEqual(['call-it-in', 'watch', 'pocket'])
+    for (const src of beats) expect(ARCADE_SPRITE_SOURCES).toContain(src)
+    for (let frame = 0; frame < 29; frame += 1) expect(pose(frame, true).src).toBe(beats[frame])
+    expect(pose(0).placeholder).toBe(false)
+  })
+
   it('selects idle art from simulation frames, without changing the rules state', () => {
     const state = createMarsArcadeRound('booster', 'oracle')
     const before = structuredClone(state)
