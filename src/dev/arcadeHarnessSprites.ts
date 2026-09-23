@@ -35,6 +35,12 @@ const boosterRecoil = `${boosterRoot}/recoil/recoil-00.png`
 const boosterHitRoot = '/art-source/arcade/booster/normalised-hit-reaction-ready'
 const boosterHitStagger = `${boosterHitRoot}/stagger/stagger-00.png`
 const boosterHitRecover = `${boosterHitRoot}/recover/recover-00.png`
+const boosterBlockRoot = '/art-source/arcade/booster/normalised-heavy-block-ready'
+/** Blocked-heavy beats per fighter: brace and guard reuse the approved block drawing. */
+const heavyBlockFrames = {
+  booster: { guard: boosterGuard, compress: `${boosterBlockRoot}/compress/compress-00.png`, settle: `${boosterBlockRoot}/settle/settle-00.png` },
+  oracle: { guard, compress: oracleBlockCompress, settle: oracleBlockSettle },
+}
 const hitReactionFrames = {
   booster: { impact: boosterRecoil, stagger: boosterHitStagger, recover: boosterHitRecover },
   oracle: { impact: recoil, stagger: recoil, recover: oracleHitRecover },
@@ -87,6 +93,7 @@ export const ARCADE_SPRITE_SOURCES = [
   ...Object.values(heavy.booster), boosterHeavySwing, boosterHeavyDrive, boosterHeavyRetract, boosterHeavySettle, ...Object.values(heavy.oracle),
   ...victory, ...knockout.slice(1),
   spaceLaser.callItIn, spaceLaser.watch, spaceLaser.pocket,
+  heavyBlockFrames.booster.compress, heavyBlockFrames.booster.settle,
 ]
 
 export function selectArcadeSprite(state: MarsArcadeState, side: MarsArcadeSide, reducedMotion: boolean, outcomeFrame = 0, heavyReaction: HeavyReaction | null = null) {
@@ -132,23 +139,23 @@ export function selectArcadeSprite(state: MarsArcadeState, side: MarsArcadeSide,
     }
     return { src: frames.impact, placeholder: false, label: 'hit recoil' }
   }
-  if (live && fighter.id === 'oracle') {
+  if (live && fighter.id !== 'captain') {
+    const beats = heavyBlockFrames[fighter.id]
     if (fighter.activity === 'blockstun' && heavyReaction?.kind === 'block' && fighter.stunFrames > 0) {
       const elapsed = Math.max(0, heavyReaction.duration - fighter.stunFrames)
       const phase = elapsed < Math.ceil(heavyReaction.duration * 0.35) ? 'compress' :
         elapsed < Math.ceil(heavyReaction.duration * 0.75) ? 'settle' : 'guard'
-      return {
-        src: phase === 'compress' ? oracleBlockCompress : phase === 'settle' ? oracleBlockSettle : guard,
-        placeholder: false, label: `heavy block — ${phase}`,
-      }
+      return { src: beats[phase], placeholder: false, label: `heavy block — ${phase}` }
     }
     const opponent = state.fighters[side === 0 ? 1 : 0]
     const threat = marsArcadeActiveMove(opponent)
     if (fighter.blocking && fighter.stunFrames === 0 && fighter.y === 0 &&
       threat?.move.button === 'heavy' && threat.phase === 'startup' &&
       Math.abs(opponent.x - fighter.x) <= threat.move.reach) {
-      return { src: guard, placeholder: false, label: 'heavy block — brace' }
+      return { src: beats.guard, placeholder: false, label: 'heavy block — brace' }
     }
+  }
+  if (live && fighter.id === 'oracle') {
     if (fighter.activity === 'walk' && fighter.blocking) {
       return {
         src: oracleBackward[Math.floor(state.frame / 6) % 2] ?? oracleBackward[0],

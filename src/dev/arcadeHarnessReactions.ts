@@ -29,7 +29,7 @@ export function updateHeavyReactions(
     const move = marsArcadeFighter(after.fighters[event.attacker].id).moves.heavy
     const kind = event.type === 'blocked' ? 'block' : 'hit'
     const activity = kind === 'block' ? 'blockstun' : 'hitstun'
-    const authored = target.id === 'oracle' || (kind === 'hit' && target.id === 'booster')
+    const authored = target.id === 'oracle' || target.id === 'booster'
     if (!authored || target.activity !== activity || target.y !== 0 || event.moveId !== move.id) continue
     if (kind === 'block') {
       next[defender] = { kind, duration: move.blockstunFrames, offsetX: 0 }

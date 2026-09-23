@@ -1,5 +1,14 @@
 # Test report
 
+## 2026-09-23 — Booster blocked-heavy reaction
+
+- New compress and settle drawings (settle needed 2 corrections for a trapped slit). Gate:
+  2 frames / 0 failures. Report: `asset-reports/mars-arcade-booster-heavy-block-2026-09-23.md`.
+- 3 RED → GREEN. `npm run check`: 791 tests / 64 files, build PASS.
+- `check-arcade-heavy-block.mjs`: with Booster defending 6 PASS, with Oracle defending 7 PASS.
+  All other arcade suites PASS at 51 sprites.
+- Open: owner review; gym entries; the walk cycle is next.
+
 ## 2026-09-23 — SPACE LASER art: Booster poses, satellite, beam, impact
 
 - Owner: "too generic". Generated 3 Booster poses (1 correction), a Starlink satellite, a beam
