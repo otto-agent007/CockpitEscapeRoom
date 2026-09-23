@@ -1,0 +1,14 @@
+{
+  "note": "Size limits for the production build, in bytes. Set 2026-09-23 at the measured size plus about 10% headroom. Raising a limit is a reviewed change: the PR comment shows every value against its limit. A model not listed here gets defaultModelBytes, so a big new model needs its own line.",
+  "totalBytes": 190000000,
+  "initialDownloadBytes": 600000,
+  "largestScriptBytes": 850000,
+  "defaultModelBytes": 5000000,
+  "models": {
+    "models/locker-room.glb": 48800000,
+    "models/airbus-captain.glb": 43900000,
+    "models/dc9-cockpit.glb": 39700000,
+    "models/model-y-reward.glb": 25200000,
+    "models/dc9-memphis-legacy-departure.glb": 2100000
+  }
+}
