@@ -13,7 +13,9 @@ export default defineConfig({
   workers: 1,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
-  reporter: process.env.CI ? 'github' : 'list',
+  // In CI, `list` as well as `github`: per-test durations in the log are what
+  // shard balancing is measured from.
+  reporter: process.env.CI ? [['github'], ['list']] : 'list',
   use: {
     baseURL: `http://127.0.0.1:${previewPort}`,
     trace: 'on-first-retry',
