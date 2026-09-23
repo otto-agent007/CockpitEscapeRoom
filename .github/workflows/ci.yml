@@ -1,44 +1,300 @@
 name: CI
 
+# Design notes live in plans/0045-pro-ci-cd.md. In short:
+# - `quality` (about 2 min) runs on every push: lint, types, unit tests, build, asset
+#   checks, the Python tool tests, and the spoiler/privacy/budget guards.
+# - The browser suite (40+ min on one worker) is split across 4 shards. It runs only
+#   on non-draft PRs that can affect the game or its tests, on main, and nightly.
+# - `browser-smoke` aggregates the shards, so branch protection needs one stable name.
+# - A newer push cancels the superseded run of the same PR.
+
 on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   push:
     branches: [main]
-  pull_request:
+  merge_group:
+  schedule:
+    - cron: '0 9 * * *' # nightly, 02:00 US Pacific
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  # Cancel superseded PR runs; never cancel a run on main.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      e2e: ${{ steps.decide.outputs.e2e }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+          lfs: false
+      - id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          case "$EVENT" in
+            pull_request)
+              node tools/ci/changes.mjs "$BASE" "$HEAD" ;;
+            schedule)
+              # Nightly runs only when main moved since the last successful nightly.
+              last=$(gh api "repos/${{ github.repository }}/actions/workflows/ci.yml/runs?event=schedule&status=success&per_page=1" --jq '.workflow_runs[0].head_sha // ""')
+              if [ "$last" = "${{ github.sha }}" ]; then
+                echo "[changes] main unchanged since the last good nightly ($last); skipping."
+                echo "e2e=false" >> "$GITHUB_OUTPUT"
+              else
+                echo "e2e=true" >> "$GITHUB_OUTPUT"
+              fi ;;
+            *)
+              echo "e2e=true" >> "$GITHUB_OUTPUT" ;;
+          esac
+
   quality:
+    name: quality
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           lfs: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24
           cache: npm
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
       - run: npm ci
       - run: npm run check
       - run: npm run assets:check
+      - name: Python tool tests
+        run: |
+          python -m pip install --quiet numpy pillow
+          for test in tools/assets/*.test.py; do echo "== $test"; python "$test"; done
+          python -m unittest discover -s tools/blender/cockpit_pipeline/tests -t .
+      - name: Spoiler guard (no Model Y in the initial download)
+        run: node tools/ci/spoiler-guard.mjs dist
+      - name: Privacy guard (no tracking, no remote calls)
+        run: node tools/ci/privacy-guard.mjs .
+      - name: Asset budgets
+        run: node tools/ci/asset-budget.mjs dist --report budget-report.md
+      - name: Publish the budget report
+        if: always()
+        run: |
+          if [ -f budget-report.md ]; then cat budget-report.md >> "$GITHUB_STEP_SUMMARY"; fi
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: budget-report
+          path: budget-report.md
+          if-no-files-found: ignore
+          retention-days: 14
 
-  browser-smoke:
+  dependency-review:
+    name: dependency-review
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0
+        with:
+          fail-on-severity: high
+
+  e2e:
+    name: e2e (${{ matrix.shard }}/4)
+    needs: changes
+    if: >-
+      needs.changes.outputs.e2e == 'true' &&
+      (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           lfs: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
-      - uses: actions/upload-artifact@v4
+      - id: playwright
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        id: browsers
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+      - if: steps.browsers.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+      - if: steps.browsers.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+      - run: npx playwright test --shard=${{ matrix.shard }}/4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: failure()
         with:
-          name: playwright-report
-          path: playwright-report/
+          name: playwright-report-${{ matrix.shard }}
+          path: |
+            playwright-report/
+            test-results/
           retention-days: 7
+
+  browser-smoke:
+    # The one name branch protection requires. It passes when every shard passed,
+    # or when the suite was not needed (a draft, or nothing that affects the game).
+    name: browser-smoke
+    needs: [changes, e2e]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          CHANGES: ${{ needs.changes.result }}
+          E2E: ${{ needs.e2e.result }}
+          NEEDED: ${{ needs.changes.outputs.e2e }}
+        run: |
+          echo "changes=$CHANGES e2e=$E2E needed=$NEEDED"
+          if [ "$CHANGES" != "success" ]; then echo "change detection did not succeed"; exit 1; fi
+          case "$E2E" in
+            success) echo "all shards passed" ;;
+            skipped) echo "browser suite not needed for this change (a draft, or nothing that affects the game)" ;;
+            *) echo "browser suite $E2E"; exit 1 ;;
+          esac
+
+  review-evidence:
+    # Owner review material: gate screenshots at 375/768/1440, visual regression
+    # (report-only until baselines are approved), and Lighthouse, as one PR comment.
+    name: review-evidence
+    needs: changes
+    if: >-
+      needs.changes.outputs.e2e == 'true' &&
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' ||
+       (github.event_name == 'pull_request' && github.event.pull_request.draft == false))
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          lfs: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - id: playwright
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        id: browsers
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+      - if: steps.browsers.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+      - if: steps.browsers.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+      - name: Gate screenshots
+        env:
+          REVIEW_EVIDENCE_DIR: review-evidence/gate-screenshots
+        run: npx playwright test e2e/review-evidence.spec.ts --grep "gate screenshots"
+      - name: Visual regression (report-only)
+        id: visual
+        continue-on-error: true
+        env:
+          VISUAL_REGRESSION: '1'
+        run: npx playwright test e2e/review-evidence.spec.ts --grep "visual regression" --update-snapshots=missing
+      - name: Lighthouse (report-only)
+        id: lighthouse
+        continue-on-error: true
+        uses: treosh/lighthouse-ci-action@3e7e23fb74242897f95c0ba9cabad3d0227b9b18 # v12
+        with:
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true
+          temporaryPublicStorage: false
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        id: evidence
+        if: always()
+        with:
+          name: review-evidence
+          path: |
+            review-evidence/
+            e2e/review-evidence.spec.ts-snapshots/
+            test-results/
+          retention-days: 30
+      - name: Comment on the PR
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        env:
+          EVIDENCE_URL: ${{ steps.evidence.outputs.artifact-url }}
+          VISUAL: ${{ steps.visual.outcome }}
+          LIGHTHOUSE: ${{ steps.lighthouse.outcome }}
+        with:
+          script: |
+            const marker = '<!-- review-evidence -->'
+            const visual = {
+              success: '✅ matches the approved baselines',
+              failure: '⚠️ differs from the baselines, or no baseline is approved yet (report-only). New or changed images are in the artifact.',
+            }[process.env.VISUAL] ?? `⚪ ${process.env.VISUAL}`
+            const lighthouse = process.env.LIGHTHOUSE === 'success'
+              ? '✅ report in the `lighthouse-results` artifact of this run'
+              : `⚪ ${process.env.LIGHTHOUSE}`
+            const body = [
+              marker,
+              '### Review evidence',
+              '',
+              `- **Gate screenshots**, every chapter at 375 / 768 / 1440 px: [download](${process.env.EVIDENCE_URL})`,
+              `- **Visual regression:** ${visual}`,
+              `- **Lighthouse:** ${lighthouse}`,
+              '- **Live preview:** see the Vercel comment on this PR.',
+              '',
+              `_Commit ${context.payload.pull_request.head.sha.slice(0, 7)}; refreshed on every push to a ready PR._`,
+            ].join('\n')
+            const { owner, repo } = context.repo
+            const issue_number = context.payload.pull_request.number
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number })
+            const mine = comments.find((c) => c.body?.includes(marker))
+            if (mine) await github.rest.issues.updateComment({ owner, repo, comment_id: mine.id, body })
+            else await github.rest.issues.createComment({ owner, repo, issue_number, body })
+
+  budget-comment:
+    # Posts the build-size report on the PR, next to the review evidence.
+    name: budget-comment
+    needs: quality
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        continue-on-error: true
+        with:
+          name: budget-report
+      - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          script: |
+            const fs = require('node:fs')
+            if (!fs.existsSync('budget-report.md')) return
+            const body = fs.readFileSync('budget-report.md', 'utf8')
+            const marker = '<!-- asset-budget-report -->'
+            const { owner, repo } = context.repo
+            const issue_number = context.payload.pull_request.number
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number })
+            const mine = comments.find((c) => c.body?.includes(marker))
+            if (mine) await github.rest.issues.updateComment({ owner, repo, comment_id: mine.id, body })
+            else await github.rest.issues.createComment({ owner, repo, issue_number, body })

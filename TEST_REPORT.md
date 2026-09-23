@@ -1,5 +1,16 @@
 # Test report
 
+## 2026-09-23 — Professional CI/CD (plans/0045-pro-ci-cd.md)
+
+- actionlint + shellcheck: 4 workflows, 0 findings. `npm run check`: 797 tests / 68 files, build PASS.
+- Guard tests (19) prove each guard rejects a planted violation: spoiler (entry, static
+  import, index.html, preload; allowlist only covers reviewed text), privacy (SDKs, network
+  APIs, remote URLs, tracking packages), new production dependency (label approval), budgets
+  (each measure, an unlisted model). All pass against the real build.
+- Accessibility (axe, WCAG 2.1 A/AA, serious and critical): 5 chapter screens PASS, and a
+  planted-violation test proves the sweep can fail. Gate screenshots: 15/15 captured locally.
+- Not yet run: the sharded suite and the review-evidence job in real CI.
+
 ## 2026-09-22 — Booster received-heavy reaction
 
 - New stagger/recovery drawings complete three-beat hit reaction before ready stance.

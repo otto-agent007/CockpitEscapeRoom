@@ -1,0 +1,31 @@
+# Weekly dependency updates, grouped so a week is one or two PRs, not twenty.
+# Majors are kept separate because they can change behaviour; everything else is
+# grouped. Each PR runs the normal CI, and new production dependencies still need
+# the `dependency-approved` label (tools/ci/new-deps-guard.mjs).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    labels: [dependencies]
+    commit-message:
+      prefix: chore
+      include: scope
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 2
+    groups:
+      actions:
+        patterns: ['*']
+    labels: [dependencies]
+    commit-message:
+      prefix: ci

@@ -1,0 +1,66 @@
+name: Release
+
+# release-please reads the conventional commits already used here (feat:, fix:,
+# docs:) and keeps one "release" PR open with the next version and changelog.
+# Merging that PR tags the release and publishes GitHub release notes, one per
+# milestone.
+#
+# The `production` job is the owner's sign-off gate. It runs in the `production`
+# environment, which needs the owner's approval. Vercel still deploys main by
+# itself today, so the job deploys only once the owner has moved production
+# deploys behind this gate (see plans/0045-pro-ci-cd.md, Handoff): the repository
+# variable GATED_PRODUCTION=true plus a VERCEL_TOKEN secret. Until then it records
+# the approval and says so.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      released: ${{ steps.release.outputs.release_created }}
+      tag: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  production:
+    needs: release-please
+    if: needs.release-please.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ vars.PRODUCTION_URL }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: ${{ needs.release-please.outputs.tag }}
+          lfs: false
+      - name: Deploy the approved release to production
+        env:
+          GATED: ${{ vars.GATED_PRODUCTION }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          TAG: ${{ needs.release-please.outputs.tag }}
+        run: |
+          if [ "$GATED" != "true" ] || [ -z "$VERCEL_TOKEN" ]; then
+            echo "::notice::Release $TAG approved. Production is still deployed by Vercel from main; set GATED_PRODUCTION=true and the VERCEL_TOKEN secret to deploy from this gate instead."
+            exit 0
+          fi
+          npx --yes vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
+          npx --yes vercel@latest build --prod --token="$VERCEL_TOKEN"
+          npx --yes vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN"

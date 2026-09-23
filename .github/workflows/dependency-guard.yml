@@ -1,0 +1,32 @@
+name: Dependency guard
+
+# CLAUDE.md: never add a production dependency without explaining it and requesting
+# review. A new entry under "dependencies" fails this check until the owner adds the
+# `dependency-approved` label, which is the recorded review. It lives in its own
+# workflow so that adding the label re-runs only this check, not the 40-minute suite.
+# No paths filter: it is a required check, and a path-skipped required check blocks
+# the merge forever. It takes about 20 seconds.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-guard-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  new-production-dependencies:
+    name: new-production-dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+          lfs: false
+      - env:
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: node tools/ci/new-deps-guard.mjs "${{ github.event.pull_request.base.sha }}"
