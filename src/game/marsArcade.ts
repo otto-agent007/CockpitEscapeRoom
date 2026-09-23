@@ -41,6 +41,13 @@ export const MARS_ARCADE_STAGE = {
    */
   halfWidth: 240,
   pushboxWidth: 24,
+  /**
+   * Furthest the fighters may stand apart: the 320 px screen less a 24 px margin
+   * each side, the same margin the camera keeps past a wall. The stage is 480 wide,
+   * so without this two fighters backing off to opposite walls both end up partly
+   * off screen. With the camera clamped at +/-104 it keeps both whole everywhere.
+   */
+  maxSeparation: 272,
   startOffset: 56,
   gravity: 0.28,
   projectileSpawnHeight: 24,
@@ -454,7 +461,10 @@ function applyPhysics(fighter: MarsArcadeFighterState): void {
   }
 }
 
-function separate(fighters: [MarsArcadeFighterState, MarsArcadeFighterState]): void {
+function separate(
+  fighters: [MarsArcadeFighterState, MarsArcadeFighterState],
+  previousX: readonly [number, number],
+): void {
   const [a, b] = fighters
   const separation = b.x - a.x
   const overlap = MARS_ARCADE_STAGE.pushboxWidth - Math.abs(separation)
@@ -465,6 +475,20 @@ function separate(fighters: [MarsArcadeFighterState, MarsArcadeFighterState]): v
   }
   for (const fighter of fighters) {
     fighter.x = clamp(fighter.x, -MARS_ARCADE_STAGE.halfWidth, MARS_ARCADE_STAGE.halfWidth)
+  }
+
+  // Keep both on screen. The excess comes off whoever moved outward this frame, in
+  // proportion, so a fighter backing off simply stops and never drags the other.
+  const [left, right] = a.x <= b.x ? [a, b] : [b, a]
+  const excess = right.x - left.x - MARS_ARCADE_STAGE.maxSeparation
+  if (excess > 0) {
+    const [leftBefore, rightBefore] = a.x <= b.x ? previousX : [previousX[1], previousX[0]]
+    const leftOut = Math.max(0, leftBefore - left.x)
+    const rightOut = Math.max(0, right.x - rightBefore)
+    const outward = leftOut + rightOut
+    const leftShare = outward > 0 ? leftOut / outward : 0.5
+    left.x += excess * leftShare
+    right.x -= excess * (1 - leftShare)
   }
 }
 
@@ -529,7 +553,7 @@ function stepFrame(
   advanceProjectiles(state, events)
 
   for (const fighter of state.fighters) applyPhysics(fighter)
-  separate(state.fighters)
+  separate(state.fighters, [previous.fighters[0].x, previous.fighters[1].x])
 
   for (const side of [0, 1] as const) {
     const fighter = state.fighters[side]

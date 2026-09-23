@@ -28,24 +28,57 @@ import {
 } from '../game/marsArcadeBounds'
 import rawBounds from '../game/marsArcadeBounds.json'
 import { marsArcadeFighter, type MarsArcadeFighterId } from '../game/marsArcadeFighters'
+import { ARCADE_GYM_ANIMATIONS, type ArcadeGymFrame } from './arcadeHarnessSprites'
 
 const SCALE = 4
 const PHASES: MarsArcadeFramePhase[] = ['startup', 'active', 'recovery', 'neutral']
 
-/** Where each authored animation's frames actually live on disk. */
-const FRAME_SOURCES: Record<string, string[]> = {
-  'booster:jab': [
-    '/art-source/arcade/booster/normalised-sleek-ready/anticipation/anticipation-00.png',
-    '/art-source/arcade/booster/normalised-sleek-ready/jab/jab-00.png',
-    '/art-source/arcade/booster/normalised-sleek-ready/recovery/recovery-00.png',
-  ],
-  'oracle:heavy': [
-    '/art-source/arcade/oracle/normalised-heavy-ready/heavy-startup/heavy-startup-00.png',
-    '/art-source/arcade/oracle/normalised-heavy-ready/heavy-active/heavy-active-00.png',
-    '/art-source/arcade/oracle/normalised-heavy-ready/heavy-recovery/heavy-recovery-00.png',
-  ],
-  'booster:block': ['/art-source/arcade/booster/normalised-sleek-ready/block/block-00.png'],
-  'oracle:block': ['/art-source/arcade/oracle/normalised-exchange-ready/block/block-00.png'],
+/**
+ * Where each animation's frames live on disk, and what each pose is called.
+ *
+ * Comes from the harness's own sprite table, so every pose the fight plays is here
+ * without a second list to keep in step. The gym once kept its own list, and booster
+ * heavy — added after the gym — never appeared in it.
+ */
+const FRAME_SOURCES: Record<string, ArcadeGymFrame[]> = Object.fromEntries(
+  ARCADE_GYM_ANIMATIONS.map((entry) => [marsArcadeBoundsKey(entry.fighter, entry.animation), entry.frames]),
+)
+
+/**
+ * The bounds file, extended with every harness animation it does not cover yet.
+ *
+ * A new animation starts with each frame's phase from the harness and the fighter's
+ * first authored body and hurt boxes as a starting point; attack boxes are never
+ * guessed. An animation that gained poses gets the extra frames appended. Nothing
+ * reaches disk until Save, so opening the gym does not change the file.
+ */
+function withHarnessAnimations(animations: MarsArcadeAnimationBounds[]): { animations: MarsArcadeAnimationBounds[]; added: string[] } {
+  const byKey = marsArcadeBoundsIndex({ version: MARS_ARCADE_BOUNDS_VERSION, animations })
+  const added: string[] = []
+  const result = [...animations]
+  for (const harness of ARCADE_GYM_ANIMATIONS) {
+    const key = marsArcadeBoundsKey(harness.fighter, harness.animation)
+    const template = animations.find((entry) => entry.fighter === harness.fighter)?.frames[0]
+    const seed = (phase: MarsArcadeFramePhase): MarsArcadeFrameBounds => ({
+      phase,
+      ...(template?.collision ? { collision: { ...template.collision } } : {}),
+      ...(template?.hit ? { hit: { ...template.hit } } : {}),
+    })
+    const existing = byKey.get(key)
+    if (!existing) {
+      result.push({
+        fighter: harness.fighter,
+        animation: harness.animation,
+        ...(harness.moveId ? { moveId: harness.moveId } : {}),
+        frames: harness.frames.map((frame) => seed(frame.phase)),
+      })
+      added.push(key)
+    } else if (existing.frames.length < harness.frames.length) {
+      added.push(`${key} (+${harness.frames.length - existing.frames.length} frames)`)
+      for (const frame of harness.frames.slice(existing.frames.length)) existing.frames.push(seed(frame.phase))
+    }
+  }
+  return { animations: result, added }
 }
 
 const KIND_COLOURS: Record<MarsArcadeBoundKind, string> = {
@@ -150,7 +183,7 @@ function render(state: GymState, canvas: HTMLCanvasElement): void {
   }
 
   const sources = FRAME_SOURCES[state.key] ?? []
-  const src = sources[Math.min(state.frame, sources.length - 1)]
+  const src = sources[Math.min(state.frame, sources.length - 1)]?.src
   if (src) {
     const image = loadImage(src)
     if (image.complete && image.naturalWidth > 0) {
@@ -191,6 +224,8 @@ function summary(state: GymState): string {
   const lines = [
     `${entry.fighter} · ${entry.animation}  frame ${state.frame + 1}/${entry.frames.length}  phase ${frame.phase}`,
   ]
+  const pose = FRAME_SOURCES[state.key]?.[state.frame]
+  lines.push(pose ? `pose ${pose.pose}` : 'no drawing for this frame')
   if (entry.moveId) {
     const content = marsArcadeFighter(entry.fighter)
     const move = (['light', 'heavy', 'special'] as const)
@@ -215,8 +250,9 @@ function summary(state: GymState): string {
 
 export function startArcadeGym(root: HTMLElement): void {
   const parsed = parseMarsArcadeBounds(rawBounds)
+  const { animations, added } = withHarnessAnimations(parsed.animations)
   const state: GymState = {
-    file: { version: parsed.version, animations: parsed.animations },
+    file: { version: parsed.version, animations },
     key: marsArcadeBoundsKey('booster' as MarsArcadeFighterId, 'jab'),
     frame: 0,
     kind: 'attack',
@@ -281,6 +317,8 @@ export function startArcadeGym(root: HTMLElement): void {
       const button = document.createElement('button')
       button.type = 'button'
       button.textContent = String(index + 1)
+      const pose = FRAME_SOURCES[state.key]?.[index]
+      if (pose) button.title = pose.pose
       button.setAttribute('aria-pressed', String(index === state.frame))
       if (frame.attack) button.dataset.hitbox = 'true'
       button.addEventListener('click', () => {
@@ -292,7 +330,8 @@ export function startArcadeGym(root: HTMLElement): void {
     syncFields()
     render(state, canvas!)
     info!.textContent = summary(state)
-    status!.textContent = state.dirty ? 'unsaved changes' : 'saved'
+    status!.textContent = state.dirty ? 'unsaved changes' :
+      added.length ? `new since last save, starter boxes only: ${added.join(', ')}` : 'saved'
   }
 
   animSelect.addEventListener('change', () => {
@@ -414,6 +453,7 @@ export function startArcadeGym(root: HTMLElement): void {
       })
       if (response.ok) {
         state.dirty = false
+        added.length = 0
         status.textContent = 'saved to src/game/marsArcadeBounds.json'
       } else {
         status.textContent = `save failed: ${await response.text()}`

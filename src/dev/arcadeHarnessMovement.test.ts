@@ -9,7 +9,7 @@ describe('movement artwork', () => {
     for (const side of [0, 1] as const) for (const reduced of [false, true]) {
       const fighter = state.fighters[side]
       Object.assign(fighter, { activity: 'walk', blocking: false })
-      for (const [frame, suffix] of [[0, '00'], [6, '01'], [12, '00']] as const) {
+      for (const [frame, suffix] of [[0, '00'], [6, '01'], [12, '02'], [18, '03'], [24, '00']] as const) {
         state.frame = frame
         const pose = selectArcadeSprite(state, side, reduced)
         expect(pose.src).toContain(`/walk-forward/walk-forward-${suffix}.png`)
@@ -23,8 +23,8 @@ describe('movement artwork', () => {
     }
   })
 
-  it('cycles Booster through four forward and four backward drawings, each in its own set', () => {
-    const state = createMarsArcadeRound('booster', 'booster')
+  it.each(['booster', 'oracle'] as const)('cycles %s through four forward and four backward drawings, each in its own set', id => {
+    const state = createMarsArcadeRound(id, id)
     state.phase = 'fight'
     for (const side of [0, 1] as const) for (const reduced of [false, true]) {
       const fighter = state.fighters[side]
@@ -34,7 +34,7 @@ describe('movement artwork', () => {
         for (let frame = 0; frame < 30; frame += 1) {
           state.frame = frame
           const pose = selectArcadeSprite(state, side, reduced)
-          expect(pose.src).toContain(`/booster/normalised-walk-ready/${clip}/`)
+          expect(pose.src).toContain(`/${id}/normalised-walk-ready/${clip}/`)
           expect(pose.placeholder).toBe(false)
           expect(ARCADE_SPRITE_SOURCES).toContain(pose.src)
           cycle.push(pose.src)

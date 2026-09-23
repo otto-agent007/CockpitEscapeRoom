@@ -29,7 +29,7 @@ try {
     })
     await page.clock.install()
     await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5349/dev/arcade.html')
-    await page.waitForFunction(text => document.querySelector('#asset-status').textContent.includes(text), missing ? (defender === 'oracle' ? '56/57 sprites ready; 1 failed' : '55/57 sprites ready; 2 failed') : '57/57 sprites ready')
+    await page.waitForFunction(text => document.querySelector('#asset-status').textContent.includes(text), missing ? (defender === 'oracle' ? '60/61 sprites ready; 1 failed' : '59/61 sprites ready; 2 failed') : '61/61 sprites ready')
     const read = () => page.locator('#readout').innerText()
     const command = async key => { await page.locator('[data-command="' + key + '"]').click(); await page.clock.runFor(20) }
     await command('KeyT'); await command('KeyH')
