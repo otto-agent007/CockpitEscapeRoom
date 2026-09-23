@@ -43,7 +43,6 @@ export const MARS_ARCADE_STAGE = {
   pushboxWidth: 24,
   startOffset: 56,
   gravity: 0.28,
-  launchVelocity: 3.2,
   projectileSpawnHeight: 24,
   projectileRadius: 18,
 } as const
@@ -83,9 +82,6 @@ export interface MarsArcadeFighterState {
   activity: MarsArcadeActivity
   activeButton: MarsArcadeButton | null
   moveFrame: number
-  /** Resolved recovery length once a landing window has been answered. */
-  recoveryOverrideFrames: number | null
-  landingResolved: boolean
   stunFrames: number
   hasHitThisMove: boolean
   blocking: boolean
@@ -126,8 +122,6 @@ export type MarsArcadeEvent =
   | { type: 'blocked'; attacker: MarsArcadeSide; moveId: string; chipDamage: number }
   | { type: 'guardCrush'; defender: MarsArcadeSide }
   | { type: 'projectileFired'; attacker: MarsArcadeSide; moveId: string }
-  | { type: 'stuckLanding'; fighter: MarsArcadeSide }
-  | { type: 'tippedOver'; fighter: MarsArcadeSide }
   | { type: 'composure'; fighter: MarsArcadeSide }
   | { type: 'ko'; winner: MarsArcadeSide }
   | { type: 'timeOver'; winner: MarsArcadeSide | null }
@@ -149,7 +143,7 @@ interface PendingHit {
     | 'hitstunFrames'
     | 'blockstunFrames'
     | 'knockback'
-    | 'launches'
+    | 'unblockable'
     | 'meterGainOnHit'
     | 'meterGainOnBlock'
   >
@@ -174,8 +168,6 @@ function createFighterState(id: MarsArcadeFighterId, x: number, facing: 1 | -1):
     activity: 'idle',
     activeButton: null,
     moveFrame: 0,
-    recoveryOverrideFrames: null,
-    landingResolved: false,
     stunFrames: 0,
     hasHitThisMove: false,
     blocking: false,
@@ -205,9 +197,8 @@ function cloneFighter(fighter: MarsArcadeFighterState): MarsArcadeFighterState {
   return { ...fighter, previousButtons: { ...fighter.previousButtons } }
 }
 
-function moveTotalFrames(move: MarsArcadeMove, recoveryOverrideFrames: number | null): number {
-  const recovery = recoveryOverrideFrames ?? move.recoveryFrames
-  return move.startupFrames + move.activeFrames + recovery
+function moveTotalFrames(move: MarsArcadeMove): number {
+  return move.startupFrames + move.activeFrames + move.recoveryFrames
 }
 
 function activeMoveOf(fighter: MarsArcadeFighterState): MarsArcadeMove | null {
@@ -243,8 +234,6 @@ function startMove(
   fighter.activity = 'attack'
   fighter.activeButton = button
   fighter.moveFrame = 0
-  fighter.recoveryOverrideFrames = null
-  fighter.landingResolved = move.landingWindow === undefined
   fighter.hasHitThisMove = false
   fighter.blocking = false
   if (move.id === 'captain.setDownTheCoffee') {
@@ -296,41 +285,15 @@ function applyInput(
   }
 }
 
-function advanceMoveFrame(
-  fighter: MarsArcadeFighterState,
-  input: MarsArcadeInput,
-  side: MarsArcadeSide,
-  events: MarsArcadeEvent[],
-): void {
+function advanceMoveFrame(fighter: MarsArcadeFighterState): void {
   const move = activeMoveOf(fighter)
   if (!move) return
 
-  const recoveryStart = move.startupFrames + move.activeFrames
-  const window = move.landingWindow
-  if (window && !fighter.landingResolved && fighter.moveFrame >= recoveryStart) {
-    const recoveryElapsed = fighter.moveFrame - recoveryStart
-    if (
-      recoveryElapsed >= window.openFrame &&
-      recoveryElapsed <= window.closeFrame &&
-      pressedButton(fighter, input, move.button)
-    ) {
-      fighter.recoveryOverrideFrames = recoveryElapsed + window.stuckRecoveryFrames
-      fighter.landingResolved = true
-      events.push({ type: 'stuckLanding', fighter: side })
-    } else if (recoveryElapsed > window.closeFrame) {
-      fighter.recoveryOverrideFrames = window.tippedRecoveryFrames
-      fighter.landingResolved = true
-      events.push({ type: 'tippedOver', fighter: side })
-    }
-  }
-
   fighter.moveFrame += 1
-  if (fighter.moveFrame >= moveTotalFrames(move, fighter.recoveryOverrideFrames)) {
+  if (fighter.moveFrame >= moveTotalFrames(move)) {
     fighter.activity = 'idle'
     fighter.activeButton = null
     fighter.moveFrame = 0
-    fighter.recoveryOverrideFrames = null
-    fighter.landingResolved = false
     fighter.hasHitThisMove = false
   }
 }
@@ -376,10 +339,12 @@ function collectMeleeHits(fighters: [MarsArcadeFighterState, MarsArcadeFighterSt
     const move = activeMoveOf(attacker)
     if (!move || attacker.hasHitThisMove || !isInActiveWindow(attacker, move)) continue
     if (move.activeFrames === 0 || move.damage === 0 || move.projectile) continue
-    const separation = Math.abs(defender.x - attacker.x)
-    const facingDefender = Math.sign(defender.x - attacker.x) === attacker.facing
-    if (!facingDefender || separation > move.reach) continue
-    if (defender.y > move.maxHeight) continue
+    if (!move.lockOn) {
+      const separation = Math.abs(defender.x - attacker.x)
+      const facingDefender = Math.sign(defender.x - attacker.x) === attacker.facing
+      if (!facingDefender || separation > move.reach) continue
+      if (defender.y > move.maxHeight) continue
+    }
     hits.push({ attacker: side, defender: side === 0 ? 1 : 0, move })
   }
   return hits
@@ -394,6 +359,7 @@ function applyHit(
   const defender = state.fighters[hit.defender]
   const defenderFighter = marsArcadeFighter(defender.id)
   const blocking =
+    !hit.move.unblockable &&
     defender.blocking &&
     isGrounded(defender) &&
     (defender.stunFrames === 0 || defender.activity === 'blockstun')
@@ -425,9 +391,6 @@ function applyHit(
   defender.moveFrame = 0
   defender.blocking = false
   defender.x += Math.sign(defender.x - attacker.x || 1) * hit.move.knockback
-  if (hit.move.launches && isGrounded(defender)) {
-    defender.velocityY = MARS_ARCADE_STAGE.launchVelocity
-  }
   defender.meter = Math.min(
     MARS_ARCADE_METER_MAX,
     defender.meter + hit.move.damage * METER_GAIN_PER_DAMAGE_TAKEN,
@@ -463,7 +426,6 @@ function advanceProjectiles(state: MarsArcadeState, events: MarsArcadeEvent[]): 
             hitstunFrames: moved.hitstunFrames,
             blockstunFrames: moved.blockstunFrames,
             knockback: moved.knockback,
-            launches: false,
             meterGainOnHit: moved.meterGainOnHit,
             meterGainOnBlock: moved.meterGainOnBlock,
           },
@@ -539,7 +501,7 @@ function stepFrame(
     const fighter = state.fighters[side]
     const opponent = state.fighters[side === 0 ? 1 : 0]
     if (fighter.activity === 'attack') {
-      advanceMoveFrame(fighter, inputs[side], side, events)
+      advanceMoveFrame(fighter)
     } else {
       applyInput(fighter, opponent, inputs[side], side, events)
     }
@@ -640,7 +602,7 @@ export function marsArcadeActiveMove(
 ): MarsArcadeActiveMove | null {
   const move = activeMoveOf(fighter)
   if (!move) return null
-  const totalFrames = moveTotalFrames(move, fighter.recoveryOverrideFrames)
+  const totalFrames = moveTotalFrames(move)
   const phase: MarsArcadeMovePhase =
     fighter.moveFrame < move.startupFrames
       ? 'startup'

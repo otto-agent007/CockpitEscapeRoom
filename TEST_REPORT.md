@@ -10,6 +10,60 @@
 - Accessibility (axe, WCAG 2.1 A/AA, serious and critical): 5 chapter screens PASS, and a
   planted-violation test proves the sweep can fail. Gate screenshots: 15/15 captured locally.
 - Not yet run: the sharded suite and the review-evidence job in real CI.
+## 2026-09-23 — Booster walk cycle
+
+- 4 forward and 4 backward step-and-drag drawings replace the two-drawing lunge flip. New
+  opt-in torso alignment in the normaliser and in-place gating in the gate, each with
+  tests in both directions. Gate: 8 frames / 0 failures. Report:
+  `asset-reports/mars-arcade-booster-walk-2026-09-23.md`.
+- `npm run check`: 792 tests / 64 files, build PASS. All arcade browser suites PASS at 57
+  sprites. The exchange check was updated from the retired walk files.
+- Open: owner review; gym entries.
+
+## 2026-09-23 — Booster blocked-heavy reaction
+
+- New compress and settle drawings (settle needed 2 corrections for a trapped slit). Gate:
+  2 frames / 0 failures. Report: `asset-reports/mars-arcade-booster-heavy-block-2026-09-23.md`.
+- 3 RED → GREEN. `npm run check`: 791 tests / 64 files, build PASS.
+- `check-arcade-heavy-block.mjs`: with Booster defending 6 PASS, with Oracle defending 7 PASS.
+  All other arcade suites PASS at 51 sprites.
+- Open: owner review; gym entries; the walk cycle is next.
+
+## 2026-09-23 — SPACE LASER art: Booster poses, satellite, beam, impact
+
+- Owner: "too generic". Generated 3 Booster poses (1 correction), a Starlink satellite, a beam
+  and a 4-frame impact via Codex built-in image_gen. Pose gate 3 frames / 0 failures. The
+  new `normalise-arcade-effect.py` handles effects. Report:
+  `asset-reports/mars-arcade-space-laser-2026-09-23.md`.
+- `npm run check`: 788 tests / 64 files, build PASS; the selection test was RED first.
+- `check-arcade-space-laser.mjs`: 11 PASS across guard, airborne/keyboard, reduced motion
+  at 768, 375, and blocked effect art (drawn fallback). The actual drawn images are asserted.
+- The arcade suites pass with the sprite count at 49: pilot 12, stage 9, HUD 10, movement 5,
+  exchange 7, heavy 13, heavy-hit 6+7, heavy-block 7, continuity 2, outcomes 7.
+- HUD check fixed: stale colours since `5e26066` on #76, thresholds unchanged; it now
+  honours `ARCADE_EVIDENCE_DIR`.
+- Open: owner review; gym entries once the gym manifest lands; satellite array contrast.
+
+## 2026-09-22 — Booster SPACE LASER replaces ORBITAL INSERTION
+
+- Owner direction: Booster's signature special is a Starlink laser that hits with no delay
+  and no escape. Rules: 0 startup, strikes on the press frame; lock-on ignores facing,
+  reach and height; unblockable, guard untouched; 15 damage for 40 meter, a smaller hit per
+  meter than the captain's flyby (asserted). The landing window and launcher went with the
+  old move; the contract drops their 5 outcome drawings and budgets 3 poses + `fx.spaceLaser`.
+- RED: 7 engine tests failed before the move existed. GREEN: `npm run check` lint, types,
+  785 tests / 64 files, build PASS.
+- `check-arcade-space-laser.mjs` (real controls, meter earned by landing heavies): 4 cases,
+  guarding/1440 by button, airborne/1440 by keyboard, reduced motion/768, standing/375.
+  Each: about 173 px apart, -15 on the first stepped frame, no block event, beam pixels
+  over the defender for 14 frames and never over the booster; reduced motion keeps one width.
+  The check failed twice for real reasons while it was being written (below). Evidence:
+  `preview-renders/mars-arcade/space-laser-v1/`.
+- `check-arcade-stage.mjs` 9 PASS and `check-arcade-pilot.mjs` 12 PASS on this branch.
+- Found, not fixed: fighters can walk further apart than the 320 px screen (480 px stage,
+  no separation cap), leaving both partly off screen. That is how the first run failed.
+- Placeholder: Booster has no special pose art yet; the harness shows his idle frames.
+  No owner visual review, no deploy, no full-journey run.
 
 ## 2026-09-22 — Booster received-heavy reaction
 

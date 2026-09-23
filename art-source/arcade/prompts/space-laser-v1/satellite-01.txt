@@ -1,0 +1,7 @@
+Use your built-in image generation tool (image_gen). Do NOT use scripts/image_gen.py or any API key. Generate ONE image at the largest size the tool produces natively; do not resize, upscale or post-process it. Save it exactly to art-source/arcade/generated/fx-space-laser-v1/satellite-01.png and report its native pixel size. Do not modify any other file.
+
+Image brief:
+Use case: precise-object-edit. Recolour ONLY the long solar array of this supplied satellite sprite. Keep the exact same satellite: same silhouette, proportions, strict side profile, chassis, hinge, cyan lens, thick dark outline, canvas framing and flat cel-shaded style.
+The solar array becomes much LIGHTER so it stands out against a very dark crimson night sky: pale sky-blue cells (roughly #9fd4ff) with a lighter highlight row near the top edge (roughly #d8f0ff), separated by crisp white grid dividers, inside the same thick dark outline. At most three flat shades, no gradients, no gloss, no glow, no texture.
+Leave the chassis graphite grey with its silver panel lines, and keep the cyan lens on the underside pointing straight down.
+Genuine transparent RGBA background. No stars, planet, beam, halo, glow, motion lines, text, logos or flags.

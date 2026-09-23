@@ -1,0 +1,6 @@
+PASS booster-blocks-p1-normal: brace/compress/settle/guard; pause/step/reset/reload; chip2 guard14
+PASS booster-blocks-p2-normal: brace/compress/settle/guard; pause/step/reset/reload; chip2 guard14
+PASS booster-blocks-p1-reduced: brace/compress/settle/guard; pause/step/reset/reload; chip2 guard14
+PASS booster-blocks-p2-reduced: brace/compress/settle/guard; pause/step/reset/reload; chip2 guard14
+PASS booster-blocks-p1-normal-missing: brace/compress/settle/guard; pause/step/reset/reload; chip2 guard14
+PASS no uncaught browser errors

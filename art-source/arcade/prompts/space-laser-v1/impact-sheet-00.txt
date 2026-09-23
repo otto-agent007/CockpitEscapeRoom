@@ -1,0 +1,10 @@
+Use your built-in image generation tool (image_gen). Do NOT use scripts/image_gen.py or any API key. Generate ONE image at the largest size the tool produces natively; do not resize, upscale or post-process it. Save it exactly to art-source/arcade/generated/fx-space-laser-v1/impact-sheet-00.png and report its native pixel size. Do not modify any other file.
+
+Image brief:
+A horizontal sprite strip of exactly FOUR animation frames, evenly spaced left to right in four equal square cells, for a 2D arcade fighting game: the ground impact of a vertical orbital laser hitting red Martian regolith. Flat cel-shaded cartoon effect art with a thick dark outline, at most three flat shades per colour, no gradients, no photographic glow, no dithering.
+Frame 1: the moment of impact - a tight, intensely bright white-and-cyan starburst flash at ground level, flat-bottomed where it meets the floor, with a few sharp rays.
+Frame 2: the flash widening into a flat crown of hot white and cyan light, with chunky rust-red and ochre dust clods and small dark rocks flung up and outward on both sides.
+Frame 3: the light gone; a rolling cloud of rust-orange Martian dust spreading low to both sides, a few rocks falling.
+Frame 4: the dust thinning to wisps, leaving a small dark scorched crater mark on the ground line, glowing orange at its rim.
+Every frame shares the SAME ground line near the bottom of its cell, and the SAME horizontal centre. Each effect is symmetric left-right, wider than it is tall.
+Genuine transparent RGBA background. No beam column, no characters, no scenery, no text, no frame borders or dividers.

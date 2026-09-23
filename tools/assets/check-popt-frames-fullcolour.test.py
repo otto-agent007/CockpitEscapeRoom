@@ -71,9 +71,18 @@ def cases(src: np.ndarray) -> dict:
     }
 
 
-def run_checker(frames_dir: Path) -> int:
-    return subprocess.run([sys.executable, str(CHECKER), str(frames_dir)],
+def run_checker(frames_dir: Path, *extra: str) -> int:
+    return subprocess.run([sys.executable, str(CHECKER), str(frames_dir), *extra],
                           capture_output=True, text=True).returncode
+
+
+def legs_stepped(src: np.ndarray, shift: int = 8) -> np.ndarray:
+    """The same figure with only its lower legs moved sideways, as a walk frame is."""
+    fig = src[:, :, 3] > 8
+    lowest = np.where(fig.any(axis=1))[0].max()
+    a = src.copy()
+    a[lowest - 35:lowest + 1] = np.roll(src[lowest - 35:lowest + 1], shift, axis=1)
+    return a
 
 
 def main() -> int:
@@ -104,6 +113,21 @@ def main() -> int:
             code = run_checker(tmp / name)
             ok = code == 3
             print(f"{'PASS' if ok else 'FAIL'}  {name:<22} -> exit {code} (expected 3)")
+            bad += 0 if ok else 1
+        # In-place cycles: the body is held by the torso back line, not by the feet.
+        reference = tmp / "good" / "anchor" / "anchor-00.png"
+        in_place = ("--in-place-clip", "walk", "--torso-reference", str(reference))
+        for name, frame, extra, expected in (
+            ("walk legs moved, torso held", legs_stepped(src), in_place, 0),
+            ("same frame as a standing clip", legs_stepped(src), (), 3),
+            ("walk whole body drifted", np.roll(src.copy(), 3, axis=1), in_place, 3),
+        ):
+            d = tmp / name.replace(" ", "-").replace(",", "") / "walk"
+            d.mkdir(parents=True)
+            Image.fromarray(frame, "RGBA").save(d / "walk-00.png")
+            code = run_checker(d.parent, *extra)
+            ok = code == expected
+            print(f"{'PASS' if ok else 'FAIL'}  {name:<30} -> exit {code} (expected {expected})")
             bad += 0 if ok else 1
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

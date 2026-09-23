@@ -4,6 +4,14 @@ import { mkdir } from 'node:fs/promises'
 import { chromium } from '@playwright/test'
 const out = process.env.ARCADE_EVIDENCE_DIR ?? 'preview-renders/mars-arcade/heavy-block-v1/browser'
 await mkdir(out, { recursive: true })
+// ARCADE_HEAVY_ATTACKER=oracle proves Booster's own blocked-heavy reaction; the
+// default keeps this script's original meaning, Oracle blocking Booster.
+const attacker = process.env.ARCADE_HEAVY_ATTACKER ?? 'booster'
+assert.ok(['booster', 'oracle'].includes(attacker))
+const defender = attacker === 'booster' ? 'oracle' : 'booster'
+// Chip and guard damage of the attacker's heavy, from src/game/marsArcadeFighters.ts.
+const HEAVY = { booster: { chip: 3, guard: 16 }, oracle: { chip: 2, guard: 14 } }[attacker]
+const guardDrawing = defender === 'oracle' ? '/normalised-exchange-ready/block/block-00.png' : '/normalised-sleek-ready/block/block-00.png'
 const browser = await chromium.launch({ headless: true })
 const errors = []
 try {
@@ -15,7 +23,7 @@ try {
     const { side, reduced, missing } = scenario
     const page = await browser.newPage({ viewport: { width: 1100, height: 1400 }, reducedMotion: reduced ? 'reduce' : 'no-preference' })
     page.on('pageerror', error => errors.push(error.message))
-    if (missing) await page.route('**/normalised-heavy-block-ready/**', route => route.abort())
+    if (missing) await page.route(`**/${defender}/normalised-heavy-block-ready/**`, route => route.abort())
     await page.addInitScript(() => {
       window.frameDraws = []
       const draw = CanvasRenderingContext2D.prototype.drawImage
@@ -26,12 +34,12 @@ try {
     })
     await page.clock.install()
     await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5349/dev/arcade.html')
-    await page.waitForFunction(text => document.querySelector('#asset-status').textContent.includes(text), missing ? '44/46 sprites ready; 2 failed' : '46/46 sprites ready')
+    await page.waitForFunction(text => document.querySelector('#asset-status').textContent.includes(text), missing ? '55/57 sprites ready; 2 failed' : '57/57 sprites ready')
     const read = () => page.locator('#readout').innerText()
     const command = async key => { await page.locator('[data-command="' + key + '"]').click(); await page.clock.runFor(20) }
     await command('KeyT'); await command('KeyH')
-    await page.locator('[data-fighter="0"]').selectOption(side === 0 ? 'booster' : 'oracle')
-    await page.locator('[data-fighter="1"]').selectOption(side === 0 ? 'oracle' : 'booster')
+    await page.locator('[data-fighter="0"]').selectOption(side === 0 ? attacker : defender)
+    await page.locator('[data-fighter="1"]').selectOption(side === 0 ? defender : attacker)
     await page.locator('canvas').click()
     await page.clock.runFor(1700)
     const away = side === 0 ? 'ArrowRight' : 'KeyA'
@@ -41,13 +49,13 @@ try {
     await command('Space')
     const health = [...(await read()).matchAll(/health     (\d+)/g)].map(m => Number(m[1]))
     const guard = [...(await read()).matchAll(/guard      (\d+)/g)].map(m => Number(m[1]))
-    const tag = `p${side + 1}-${reduced ? 'reduced' : 'normal'}${missing ? '-missing' : ''}`
+    const tag = `${defender}-blocks-p${side + 1}-${reduced ? 'reduced' : 'normal'}${missing ? '-missing' : ''}`
     const seen = new Set()
     const suffixes = {
-      brace: '/normalised-exchange-ready/block/block-00.png',
+      brace: guardDrawing,
       compress: '/normalised-heavy-block-ready/compress/compress-00.png',
       settle: '/normalised-heavy-block-ready/settle/settle-00.png',
-      guard: '/normalised-exchange-ready/block/block-00.png',
+      guard: guardDrawing,
     }
     await page.getByRole('button', { name: 'P' + (side + 1) + ' heavy', exact: true }).click()
     for (let i = 0; i < 42; i++) {
@@ -58,7 +66,7 @@ try {
       assert.doesNotMatch(state, /heavy hit —/, 'blocked hit must not use clean-hit reaction')
       if (phase && !seen.has(phase)) {
         const draws = await page.evaluate(() => window.frameDraws)
-        assert.equal(draws.some(src => src.includes('/oracle/') && src.endsWith(suffixes[phase])), !(missing && ['compress', 'settle'].includes(phase)))
+        assert.equal(draws.some(src => src.includes('/' + defender + '/') && src.endsWith(suffixes[phase])), !(missing && ['compress', 'settle'].includes(phase)))
         await page.locator('canvas').screenshot({ path: `${out}/${tag}-${phase}.png` })
         await page.clock.runFor(300)
         assert.equal(await read(), state, 'paused block reaction advanced with wall time')
@@ -69,9 +77,9 @@ try {
     assert.doesNotMatch(await read(), /activity   (attack|blockstun|hitstun)/)
     const healthAfter = [...(await read()).matchAll(/health     (\d+)/g)].map(m => Number(m[1]))
     const guardAfter = [...(await read()).matchAll(/guard      (\d+)/g)].map(m => Number(m[1]))
-    assert.equal(health[1 - side] - healthAfter[1 - side], 3)
-    assert.equal(guard[1 - side] - guardAfter[1 - side], 16)
-    if (side === 0 && !reduced && !missing) {
+    assert.equal(health[1 - side] - healthAfter[1 - side], HEAVY.chip)
+    assert.equal(guard[1 - side] - guardAfter[1 - side], HEAVY.guard)
+    if (attacker === 'booster' && side === 0 && !reduced && !missing) {
       let crushSeen = false
       for (let cycle = 0; cycle < 3; cycle++) {
         await page.getByRole('button', { name: 'P1 heavy', exact: true }).click()
@@ -96,7 +104,7 @@ try {
     await page.reload()
     await page.waitForFunction(() => document.querySelector('#readout').textContent.includes('phase intro'))
     assert.doesNotMatch(await read(), /heavy block —/)
-    console.log(`PASS ${tag}: brace/compress/settle/guard; pause/step/reset/reload; chip3 guard16`)
+    console.log(`PASS ${tag}: brace/compress/settle/guard; pause/step/reset/reload; chip${HEAVY.chip} guard${HEAVY.guard}`)
     await page.close()
   }
   assert.deepEqual(errors, [])

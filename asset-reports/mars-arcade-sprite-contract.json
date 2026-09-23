@@ -73,11 +73,11 @@
   "sharedClipFrameTotal": 25,
   "moveClips": {
     "derivedBy": "src/game/marsArcadeSpriteBudget.ts drawingBudget()",
-    "rule": "One startup drawing per 6 frames (max 3), one active drawing per 4 frames (max 2), one recovery drawing per 10 frames (max 2), each at least 1. Bound to the committed frame data by src/game/marsArcadeSpriteContract.test.ts, so re-tuning a move restates its art budget instead of silently leaving the sheet a frame short.",
+    "rule": "One startup drawing per 6 frames (max 3), one active drawing per 4 frames (max 2), one recovery drawing per 10 frames (max 2), each at least 1, except that a move with no startup frames gets no startup drawing. Bound to the committed frame data by src/game/marsArcadeSpriteContract.test.ts, so re-tuning a move restates its art budget instead of silently leaving the sheet a frame short.",
     "booster": {
       "booster.padJab": { "drawings": 3, "startup": 1, "active": 1, "recovery": 1 },
       "booster.staticFire": { "drawings": 5, "startup": 2, "active": 1, "recovery": 2 },
-      "booster.orbitalInsertion": { "drawings": 5, "startup": 1, "active": 2, "recovery": 2 }
+      "booster.spaceLaser": { "drawings": 3, "startup": 0, "active": 1, "recovery": 2 }
     },
     "oracle": {
       "oracle.prompt": { "drawings": 3, "startup": 1, "active": 1, "recovery": 1 },
@@ -89,22 +89,10 @@
       "captain.runTheChecklist": { "drawings": 5, "startup": 2, "active": 1, "recovery": 2 },
       "captain.flyby": { "drawings": 7, "startup": 3, "active": 2, "recovery": 2 }
     },
-    "moveDrawingTotal": 42
+    "moveDrawingTotal": 40
   },
-  "outcomeClips": [
-    {
-      "id": "booster.landing-stuck",
-      "frames": 2,
-      "loopMode": "hold-last",
-      "engineState": "the 'stuckLanding' event; replaces the orbitalInsertion recovery drawings when the landing window is answered"
-    },
-    {
-      "id": "booster.landing-tipped",
-      "frames": 3,
-      "loopMode": "hold-last",
-      "engineState": "the 'tippedOver' event; the long punish window, so it must read as helpless and funny, never injured"
-    }
-  ],
+  "outcomeClips": [],
+  "outcomeClipsNote": "Empty since 2026-09-22. The two Booster landing clips belonged to ORBITAL INSERTION, which the owner replaced with SPACE LASER; the landing window went with it.",
   "effects": {
     "note": "Effect sprites are authored outside the character cell and are not gated by the character checker.",
     "sprites": [
@@ -122,19 +110,40 @@
         "loopMode": "once",
         "spec": "The captain's DC-9, crossing the full SCREEN. The cell is screen-width; the move's reach is the whole 480 px stage, so the aircraft sweeps the visible view while the hit covers everywhere the opponent could have run to. The aircraft is an effect, never part of the character cell. Cell top sits at screen row 28; the aircraft occupies the cell's top 32 rows with a pale fuselage and a 1 px dark outline, never a dark silhouette against the dust-storm sky (see the prompt pack)."
       },
+      {
+        "id": "fx.spaceLaser.satellite",
+        "cell": [80, 10],
+        "frames": 1,
+        "loopMode": "hold",
+        "spec": "THE BOOSTER's Starlink satellite in side profile, drawn with its top on screen row 30 (directly under the HUD) and its lens (column 65.5) over the defender. It holds there while the beam is up, then flies on to the right. Authored 2026-09-23, art-source/arcade/generated/fx-space-laser-v1/."
+      },
+      {
+        "id": "fx.spaceLaser.beam",
+        "cell": [14, 148],
+        "frames": 3,
+        "loopMode": "once",
+        "spec": "One generated beam pre-rendered at 14, 10 and 6 px wide (slam, hold, thin), each 148 px tall from under the satellite lens (row 40) to the floor (row 188). Near-white core, cyan and deep-blue bands, dark outline, so it cuts through the crimson dust-storm sky. A laser from orbit, never aimed at or near an aircraft."
+      },
+      {
+        "id": "fx.spaceLaser.impact",
+        "cell": [64, 28],
+        "frames": 4,
+        "loopMode": "hold-last",
+        "spec": "The strike landing on regolith at the defender's x: flash, burst, dust, scorch. All four share one ground line and centre; the scorch lingers."
+      },
       { "id": "fx.hitSpark", "cell": [32, 32], "frames": 3, "loopMode": "once", "spec": "Clean hit." },
       { "id": "fx.guardSpark", "cell": [32, 32], "frames": 2, "loopMode": "once", "spec": "Blocked hit; visibly weaker than the clean-hit spark." }
     ],
-    "effectFrameTotal": 12
+    "effectFrameTotal": 20
   },
   "frameTotals": {
     "anchors": 3,
     "sharedPerFighter": 25,
     "sharedAllFighters": 75,
-    "moves": 42,
-    "outcomes": 5,
-    "effects": 12,
-    "grandTotal": 137,
+    "moves": 40,
+    "outcomes": 0,
+    "effects": 20,
+    "grandTotal": 138,
     "note": "For comparison, the approved Pop T v3 set is 56 frames. Generate one fighter end to end before committing to the rest; a mirror match is a complete playable slice on one fighter's art."
   },
   "generation": {
@@ -180,7 +189,7 @@
   "backdrop": {
     "status": "built in code, 2026-09-20; generated art optional and not yet budgeted",
     "source": "src/game/marsArcadeStage.ts MARS_ARCADE_BANDS and MARS_ARCADE_BACKDROP",
-    "why": "The 137 drawings in frameTotals are all characters and effects. Nothing in contract v1 owned the world the fight happens in, so the finished set would still have been two fighters on an empty dark field. The backdrop is therefore authored as flat-shape DATA rather than as generated frames: it costs no generation round trips, it scrolls at whole pixels by construction, and the cabinet renderer reads the same module the dev harness does.",
+    "why": "The drawings in frameTotals are all characters and effects. Nothing in contract v1 owned the world the fight happens in, so the finished set would still have been two fighters on an empty dark field. The backdrop is therefore authored as flat-shape DATA rather than as generated frames: it costs no generation round trips, it scrolls at whole pixels by construction, and the cabinet renderer reads the same module the dev harness does.",
     "subject": "Mars at dusk, outside a small colony: a banded sky, a far ridge line, habitat domes with lit windows, a comms mast, and a DC-9 parked on the far pad. The aircraft is the tribute at rest and is the one deliberate piece of story in the backdrop.",
     "bands": "Eleven flat horizontal bands covering all 224 rows, dark at the top and brightening to a horizon glow just above the floor line. Flat, never a gradient or a dither, because an interpolated sky crawls when the camera scrolls.",
     "silhouetteRule": "The backdrop exists to make the fighters readable. Mean band luminance must stay well above the retired #14101a void, and every band the standing fighter is drawn against must be brighter still. Held by `is not a void` in src/game/marsArcadeStage.test.ts.",

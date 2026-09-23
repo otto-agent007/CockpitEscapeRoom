@@ -43,6 +43,8 @@ import {
 } from './arcadeHarnessInput'
 import { ARCADE_ANCHOR_SOURCES, loadArcadeSprites, selectArcadeSprite } from './arcadeHarnessSprites'
 import { updateHeavyReactions, type HeavyReactions } from './arcadeHarnessReactions'
+import { laserStrikeLook, updateLaserStrikes, type LaserStrike } from './arcadeHarnessLaser'
+import { LASER_EFFECT_LAYOUT, loadArcadeEffects, type ArcadeEffectImages } from './arcadeHarnessEffects'
 import { loadArcadeBackdrop, type ArcadeBackdropImages } from './arcadeHarnessBackdrop'
 import { advanceExchange, EXCHANGE_END_FRAME } from './arcadeHarnessExchange'
 import {
@@ -64,6 +66,7 @@ import {
   marsArcadeMeterSegments,
   type MarsArcadeChipBar,
   type MarsArcadeFill,
+  MARS_ARCADE_HUD_BAND,
 } from '../game/marsArcadeHud'
 import {
   MARS_ARCADE_BACKDROP,
@@ -119,6 +122,8 @@ interface Harness {
   reducedMotion: boolean
   outcomeFrames: number
   heavyReactions: HeavyReactions
+  /** Space-laser beams and scorch marks still on screen — presentation only. */
+  laserStrikes: LaserStrike[]
   exchange: boolean
   /** Camera centre in stage pixels. Whole numbers only; see drawBackdrop. */
   cameraX: number
@@ -140,6 +145,7 @@ const pending = new Set<string>()
 function newRound(harness: Harness): void {
   harness.outcomeFrames = 0
   harness.heavyReactions = [null, null]
+  harness.laserStrikes = []
   harness.exchange = false
   harness.stepRequested = false
   held.clear()
@@ -217,6 +223,7 @@ function drawFighter(
 function drawMoveRegion(
   ctx: CanvasRenderingContext2D,
   fighter: MarsArcadeFighterState,
+  opponent: MarsArcadeFighterState,
   showHitboxes: boolean,
   camera: number,
 ): void {
@@ -224,6 +231,18 @@ function drawMoveRegion(
   const active = marsArcadeActiveMove(fighter)
   if (!active || active.move.reach <= 0 || active.move.damage <= 0) return
   if (active.phase === 'recovery') return
+
+  // A lock-on move has no region in front of the attacker: it strikes the
+  // opponent wherever they stand. Outline that column, unfilled, so the beam
+  // drawn inside it keeps its true colour.
+  if (active.move.lockOn) {
+    const half = (MARS_ARCADE_STAGE.pushboxWidth / 2) * SCALE
+    const centre = stageX(opponent.x, camera)
+    ctx.strokeStyle = '#ff3b30'
+    ctx.lineWidth = 2
+    ctx.strokeRect(centre - half, MARS_ARCADE_HUD_BAND.bottomRow * SCALE, half * 2, stageY(0) - MARS_ARCADE_HUD_BAND.bottomRow * SCALE)
+    return
+  }
 
   // The engine hits when the opponent is within `reach` horizontally and its feet
   // sit at or below `maxHeight`. Draw exactly that region, nothing prettier.
@@ -699,11 +718,63 @@ function drawHud(
   }
 }
 
+/**
+ * The booster's space laser: a Starlink satellite parked under the HUD over where
+ * the defender stood, a beam from its lens to the floor, and the impact on the
+ * regolith, finishing on a scorch mark. Drawn over the fighters so the hit reads
+ * as coming from the sky. Any image that failed to load falls back to a flat
+ * drawn beam, the same way a missing sprite falls back to its box.
+ */
+function drawLaserStrikes(
+  ctx: CanvasRenderingContext2D,
+  harness: Harness,
+  effects: ArcadeEffectImages,
+  camera: number,
+): void {
+  const { satellite, lensColumn, beam, impact } = LASER_EFFECT_LAYOUT
+  const floorRow = FLOOR_ROW
+  ctx.save()
+  ctx.imageSmoothingEnabled = false
+  for (const strike of harness.laserStrikes) {
+    const look = laserStrikeLook(harness.state.frame - strike.frame, harness.reducedMotion)
+    if (!look) continue
+    // Whole stage pixels, so the art stays on the pixel grid while the camera scrolls.
+    const centre = Math.round(marsArcadeScreenX(strike.x, camera))
+
+    const impactArt = effects.get(`impact-${look.impactFrame}`)
+    if (impactArt) {
+      ctx.drawImage(impactArt, (centre - impact.width / 2) * SCALE, (floorRow - impact.height) * SCALE, impact.width * SCALE, impact.height * SCALE)
+    }
+
+    if (look.beamWidth > 0) {
+      const beamArt = effects.get(`beam-${look.beamWidth as 14 | 10 | 6}`)
+      const left = (centre - look.beamWidth / 2) * SCALE
+      if (beamArt) {
+        ctx.drawImage(beamArt, left, beam.topRow * SCALE, look.beamWidth * SCALE, beam.height * SCALE)
+      } else {
+        const top = MARS_ARCADE_HUD_BAND.bottomRow * SCALE
+        ctx.fillStyle = '#160a12'
+        ctx.fillRect(left - SCALE, top, (look.beamWidth + 2) * SCALE, floorRow * SCALE - top)
+        ctx.fillStyle = '#f4fbff'
+        ctx.fillRect(left, top, look.beamWidth * SCALE, floorRow * SCALE - top)
+      }
+    }
+
+    const satelliteArt = effects.get('satellite')
+    if (satelliteArt && look.satelliteOffset !== null) {
+      const x = Math.round(centre - lensColumn) + look.satelliteOffset
+      ctx.drawImage(satelliteArt, x * SCALE, satellite.topRow * SCALE, satellite.width * SCALE, satellite.height * SCALE)
+    }
+  }
+  ctx.restore()
+}
+
 function draw(
   ctx: CanvasRenderingContext2D,
   harness: Harness,
   sprites: ReturnType<typeof loadArcadeSprites>,
   backdrop: ArcadeBackdropImages,
+  effects: ArcadeEffectImages,
 ): void {
   const width = STAGE_WIDTH * SCALE
   const camera = harness.cameraX
@@ -757,8 +828,9 @@ function draw(
       drawFighter(ctx, fighter, fighter.id, camera)
     }
   }
+  drawLaserStrikes(ctx, harness, effects, camera)
   for (const side of [0, 1] as const) {
-    drawMoveRegion(ctx, harness.state.fighters[side], harness.showHitboxes, camera)
+    drawMoveRegion(ctx, harness.state.fighters[side], harness.state.fighters[side === 0 ? 1 : 0], harness.showHitboxes, camera)
     if (harness.showHitboxes) drawCentreLine(ctx, harness.state.fighters[side], camera)
   }
   drawHud(ctx, harness, sprites)
@@ -823,10 +895,6 @@ function formatEvent(event: MarsArcadeEvent, frame: number): string | null {
       return `${stamp}  block    ${event.moveId}  -${event.chipDamage}`
     case 'guardCrush':
       return `${stamp}  GUARD CRUSH on P${event.defender + 1}`
-    case 'stuckLanding':
-      return `${stamp}  P${event.fighter + 1} stuck the landing`
-    case 'tippedOver':
-      return `${stamp}  P${event.fighter + 1} tipped over`
     case 'projectileFired':
       return `${stamp}  P${event.attacker + 1} fired`
     case 'composure':
@@ -848,6 +916,7 @@ function mount(): void {
   if (!canvas || !readout || !logPanel || !assetStatus) throw new Error('harness markup missing')
   const sprites = loadArcadeSprites()
   const backdrop = loadArcadeBackdrop()
+  const effects = loadArcadeEffects()
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
 
   canvas.width = STAGE_WIDTH * SCALE
@@ -878,6 +947,7 @@ function mount(): void {
     reducedMotion: motion.matches,
     outcomeFrames: 0,
     heavyReactions: [null, null],
+    laserStrikes: [],
     exchange: false,
     log: [],
     seed: 1,
@@ -1045,6 +1115,7 @@ function mount(): void {
         ? Math.min(24, harness.outcomeFrames + Math.min(elapsed, MARS_ARCADE_TIMING.maxFrameDeltaSeconds) / MARS_ARCADE_TIMING.frameSeconds)
         : 0
       harness.heavyReactions = updateHeavyReactions(harness.heavyReactions, source, transition.state, transition.events)
+      harness.laserStrikes = updateLaserStrikes(harness.laserStrikes, transition.state, transition.events)
       harness.state = transition.state
       if (harness.exchange && harness.state.frame >= EXCHANGE_END_FRAME) harness.paused = true
 
@@ -1071,9 +1142,9 @@ function mount(): void {
       if (harness.log.length > 14) harness.log = harness.log.slice(-14)
     }
 
-    draw(ctx, harness, sprites, backdrop)
+    draw(ctx, harness, sprites, backdrop, effects)
     readout.textContent = describe(harness)
-    const status = sprites.status() + (harness.reducedMotion ? '; reduced motion: static idle' : '')
+    const status = sprites.status() + (harness.reducedMotion ? '; reduced motion: static idle' : '') + ` · ${effects.status()}`
     if (assetStatus.textContent !== status) assetStatus.textContent = status
     const events = harness.log.join('\n') || '(no events yet)'
     if (logPanel.textContent !== events) logPanel.textContent = events

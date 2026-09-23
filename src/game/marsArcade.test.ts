@@ -313,45 +313,71 @@ describe('super meter', () => {
   })
 })
 
-describe('the booster landing window', () => {
-  const cost = MARS_ARCADE_FIGHTERS.booster.moves.special.meterCost
+describe('the booster space laser', () => {
+  const laser = MARS_ARCADE_FIGHTERS.booster.moves.special
+  const fire: InputPair = [hold('special'), neutral()]
 
-  function runSpecial(answerWindow: boolean) {
-    const state = placedAtWall(startedRound(), 90, cost)
-    return pumpWith(state, 120, (frame) => {
-      if (frame === 1) return [hold('special'), neutral()]
-      if (answerWindow && frame === 22) return [hold('special'), neutral()]
-      return neutralPair()
-    })
-  }
-
-  function framesUntilIdle(answerWindow: boolean): number {
-    const state = placedAtWall(startedRound(), 90, cost)
-    let current = state
-    for (let frame = 1; frame <= 200; frame += 1) {
-      const inputs: InputPair =
-        frame === 1 || (answerWindow && frame === 22) ? [hold('special'), neutral()] : neutralPair()
-      current = advanceMarsArcade(current, inputs, MARS_ARCADE_TIMING.frameSeconds).state
-      if (frame > 1 && current.fighters[0].activeButton === null) return frame
+  /** Booster on the left with the meter to fire, and the defender wherever the case needs. */
+  function funded(defender: Partial<MarsArcadeState['fighters'][1]>, attackerFacing: 1 | -1 = 1) {
+    const base = startedRound()
+    const state: MarsArcadeState = {
+      ...base,
+      fighters: [
+        { ...base.fighters[0], x: 0, facing: attackerFacing, meter: laser.meterCost },
+        { ...base.fighters[1], ...defender },
+      ],
     }
-    return Number.POSITIVE_INFINITY
+    return state
   }
 
-  it('sticks the landing when the window is answered', () => {
-    expect(eventTypes(runSpecial(true).events)).toContain('stuckLanding')
-    expect(eventTypes(runSpecial(true).events)).not.toContain('tippedOver')
+  function damageTaken(result: { state: MarsArcadeState }): number {
+    return MARS_ARCADE_FIGHTERS.oracle.health - result.state.fighters[1].health
+  }
+
+  it('strikes on the very frame the button is pressed', () => {
+    const result = pump(funded({ x: 60 }), 1, fire)
+    expect(result.events).toContainEqual({
+      type: 'hit',
+      attacker: 0,
+      moveId: 'booster.spaceLaser',
+      damage: laser.damage,
+    })
+    expect(damageTaken(result)).toBe(laser.damage)
   })
 
-  it('tips over when the window closes unanswered', () => {
-    expect(eventTypes(runSpecial(false).events)).toContain('tippedOver')
-    expect(eventTypes(runSpecial(false).events)).not.toContain('stuckLanding')
+  it('reaches the far wall of the whole stage', () => {
+    const wall = MARS_ARCADE_STAGE.halfWidth
+    const state = funded({ x: wall })
+    state.fighters[0].x = -wall
+    expect(damageTaken(pump(state, 1, fire))).toBe(laser.damage)
   })
 
-  it('recovers meaningfully sooner after a stuck landing', () => {
-    const stuck = framesUntilIdle(true)
-    const tipped = framesUntilIdle(false)
-    expect(stuck).toBeLessThan(tipped)
-    expect(tipped - stuck).toBeGreaterThanOrEqual(20)
+  it('finds a defender behind the booster', () => {
+    expect(damageTaken(pump(funded({ x: 60 }, -1), 1, fire))).toBe(laser.damage)
+  })
+
+  it('finds a defender at any height', () => {
+    const high = funded({ x: 60, y: 90, velocityY: 1, activity: 'airborne' })
+    expect(damageTaken(pump(high, 1, fire))).toBe(laser.damage)
+  })
+
+  it('cannot be blocked, and leaves the guard meter alone', () => {
+    const guarding = funded({ x: 60, blocking: true })
+    const result = pump(guarding, 1, [hold('special'), { ...neutral(), move: 1 }])
+    expect(eventTypes(result.events)).not.toContain('blocked')
+    expect(damageTaken(result)).toBe(laser.damage)
+    expect(result.state.fighters[1].guard).toBe(MARS_ARCADE_FIGHTERS.oracle.guardMax)
+  })
+
+  it('strikes once per firing', () => {
+    const result = pump(funded({ x: 60 }), 60, fire)
+    expect(eventTypes(result.events).filter((type) => type === 'hit')).toHaveLength(1)
+  })
+
+  it('stays a smaller hit, per meter spent, than the captain flyby', () => {
+    const flyby = MARS_ARCADE_FIGHTERS.captain.moves.special
+    expect(laser.damage / laser.meterCost).toBeLessThan(flyby.damage / flyby.meterCost)
+    expect(laser.damage).toBeLessThan(flyby.damage)
   })
 })
 
@@ -457,34 +483,6 @@ describe('projectiles', () => {
   })
 })
 
-describe('anti-air', () => {
-  function airborneDefender(state: MarsArcadeState, distance: number, meter: number): MarsArcadeState {
-    return {
-      ...state,
-      fighters: [
-        { ...state.fighters[0], x: -distance / 2, facing: 1, meter },
-        {
-          ...state.fighters[1],
-          x: distance / 2,
-          facing: -1,
-          y: 40,
-          velocityY: 2,
-          activity: 'airborne',
-        },
-      ],
-    }
-  }
-
-  it('lets the launcher reach a rising opponent that a ground heavy cannot', () => {
-    const cost = MARS_ARCADE_FIGHTERS.booster.moves.special.meterCost
-    const heavy = pump(airborneDefender(startedRound(), 26, 0), 40, [hold('heavy'), neutral()])
-    expect(eventTypes(heavy.events)).not.toContain('hit')
-
-    const special = pump(airborneDefender(startedRound(), 26, cost), 40, [hold('special'), neutral()])
-    expect(eventTypes(special.events)).toContain('hit')
-  })
-})
-
 describe('the captain', () => {
   it('banks composure instead of damage when the cup goes down', () => {
     const base = startedRound('captain', 'oracle')
@@ -578,18 +576,6 @@ describe('marsArcadeActiveMove', () => {
     const active = marsArcadeActiveMove(started.state.fighters[0])
     expect(active).not.toBeNull()
     expect(active?.framesRemaining).toBe((active?.totalFrames ?? 0) - (active?.frame ?? 0))
-  })
-
-  it('follows the landing window when it lengthens recovery', () => {
-    const cost = MARS_ARCADE_FIGHTERS.booster.moves.special.meterCost
-    const state = placedAtWall(startedRound(), 90, cost)
-    const tipped = pumpWith(state, 40, (frame) =>
-      frame === 1 ? [hold('special'), neutral()] : neutralPair(),
-    )
-    const active = marsArcadeActiveMove(tipped.state.fighters[0])
-    const move = MARS_ARCADE_FIGHTERS.booster.moves.special
-    const baseTotal = move.startupFrames + move.activeFrames + move.recoveryFrames
-    expect(active?.totalFrames).toBeGreaterThan(baseTotal)
   })
 })
 
