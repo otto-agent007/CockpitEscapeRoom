@@ -1436,3 +1436,15 @@ See `asset-reports/mars-arcade-booster-walk-2026-09-23.md`.
 **Next candidates:** Oracle's walk has the same two-drawing feet-aligned construction and would
 benefit from the same treatment. After that come jab and Oracle heavy polish, the remaining
 specials, and gym entries once the gym manifest lands.
+
+### Open items closed — 2026-09-23
+
+- **Separation cap** (my call, since the owner delegated it): `maxSeparation` 272, the screen
+  less the camera's 24 px wall margin each side. The fighter moving outward stops; the other is
+  never dragged.
+- **Gym:** the peer session's `ARCADE_GYM_ANIMATIONS` work was ported, and it now covers every
+  new pose.
+- **Oracle walk:** rebuilt like Booster's.
+- **PR #78 stranding:** #78 merged into an already-merged base. #79 now targets
+  `feat/mars-arcade-stage-hud` and carries the block commit.
+

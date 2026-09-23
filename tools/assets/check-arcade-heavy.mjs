@@ -21,7 +21,7 @@ try {
     await page.clock.install()
     await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
     assert.match(await page.title(), /Mars arcade/)
-    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('57/57 sprites ready'))
+    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('61/61 sprites ready'))
     const tick = ms => page.clock.runFor(ms)
     const command = async code => { await page.locator('[data-command="' + code + '"]').click(); await tick(20) }
     const read = () => page.locator('#readout').innerText()
@@ -43,8 +43,11 @@ try {
       //
       // This precondition used to hold by accident, because on the old 280 px stage a
       // 1200 ms retreat overshot the wall. The stage is 480 px now, so it is arranged
-      // and then checked rather than assumed.
-      await page.keyboard.down(away); await tick(3400); await page.keyboard.up(away)
+      // and then checked rather than assumed. Since MARS_ARCADE_STAGE.maxSeparation
+      // (272) the attacker has to follow, or the retreat stops short of the wall.
+      await page.keyboard.down(away); await page.keyboard.down(approach)
+      await tick(3400)
+      await page.keyboard.up(away); await page.keyboard.up(approach)
       const wall = Number((await read()).match(/walls (-?\d+)/)[1])
       const cornered = [...(await read()).matchAll(/position   x (-?[\d.]+)/g)]
         .map(m => Number(m[1]))[side === 0 ? 1 : 0]
@@ -101,7 +104,7 @@ try {
   await page.clock.install()
   await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
   await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('10 failed'))
-  assert.match(await page.locator('#asset-status').innerText(), /47\/57 sprites ready; 10 failed/)
+  assert.match(await page.locator('#asset-status').innerText(), /51\/61 sprites ready; 10 failed/)
   await page.locator('[data-command="KeyT"]').click()
   await page.clock.runFor(1700)
   await page.getByRole('button', { name: 'P1 heavy', exact: true }).click()

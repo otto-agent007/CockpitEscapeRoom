@@ -21,13 +21,15 @@ const recovery = `${boosterRoot}/recovery/recovery-00.png`
  * held to the stance (forward) or block (backward) torso line. Replaced 2026-09-23 the
  * two-drawing lunge/near-stance flip that also played backwards.
  */
-const boosterWalkRoot = '/art-source/arcade/booster/normalised-walk-ready'
-const boosterWalk = (clip: 'walk-forward' | 'walk-back') =>
-  [0, 1, 2, 3].map(index => `${boosterWalkRoot}/${clip}/${clip}-0${index}.png`)
-const boosterWalkForward = boosterWalk('walk-forward')
-const boosterWalkBack = boosterWalk('walk-back')
+const walkCycle = (id: 'booster' | 'oracle', clip: 'walk-forward' | 'walk-back') =>
+  [0, 1, 2, 3].map(index => `/art-source/arcade/${id}/normalised-walk-ready/${clip}/${clip}-0${index}.png`)
+const boosterWalkForward = walkCycle('booster', 'walk-forward')
+const boosterWalkBack = walkCycle('booster', 'walk-back')
+/** Oracle's walk, rebuilt the same way on 2026-09-23 (it had the same two-drawing flip). */
+const oracleForward = walkCycle('oracle', 'walk-forward')
+const oracleBackward = walkCycle('oracle', 'walk-back')
 /** Engine frames each walk drawing is held: a 24-frame step cycle. */
-const BOOSTER_WALK_HOLD = 6
+const WALK_HOLD = 6
 const oracleRoot = '/art-source/arcade/oracle/normalised-exchange-ready'
 const guard = `${oracleRoot}/block/block-00.png`
 const recoil = `${oracleRoot}/recoil/recoil-00.png`
@@ -35,8 +37,6 @@ const oracleHitRecover = '/art-source/arcade/oracle/normalised-heavy-hit-ready/r
 const oracleBlockRoot = '/art-source/arcade/oracle/normalised-heavy-block-ready'
 const oracleBlockCompress = `${oracleBlockRoot}/compress/compress-00.png`
 const oracleBlockSettle = `${oracleBlockRoot}/settle/settle-00.png`
-const oracleFootworkRoot = '/art-source/arcade/oracle/normalised-footwork-ready/walk-back'
-const oracleBackward = [`${oracleFootworkRoot}/walk-back-00.png`, `${oracleFootworkRoot}/walk-back-01.png`] as const
 const oracleAttackRoot = '/art-source/arcade/oracle/normalised-counterattack-ready'
 const oracleAnticipation = `${oracleAttackRoot}/anticipation/anticipation-00.png`
 const oracleJab = `${oracleAttackRoot}/jab/jab-00.png`
@@ -57,10 +57,6 @@ const hitReactionFrames = {
   oracle: { impact: recoil, stagger: recoil, recover: oracleHitRecover },
 }
 const movementRoot = (id: 'booster' | 'oracle') => `/art-source/arcade/${id}/normalised-movement-ready`
-const oracleForward = [
-  `${movementRoot('oracle')}/walk-forward/walk-forward-00.png`,
-  `${movementRoot('oracle')}/walk-forward/walk-forward-01.png`,
-] as const
 const jumpFrames = (id: 'booster' | 'oracle') => [
   `${movementRoot(id)}/airborne/airborne-00.png`,
   `${movementRoot(id)}/airborne/airborne-01.png`,
@@ -170,8 +166,8 @@ export const ARCADE_GYM_ANIMATIONS: ArcadeGymAnimation[] = [
   { fighter: 'booster', animation: 'victory', frames: victory.map((src, index) => pose(src, `win ${index}`)) },
   { fighter: 'booster', animation: 'knockout', frames: knockout.map((src, index) => pose(src, `ko ${index}`)) },
   { fighter: 'oracle', animation: 'idle', frames: [pose(anchors.oracle, 'anchor')] },
-  { fighter: 'oracle', animation: 'walk-forward', frames: oracleForward.map((src, index) => pose(src, `walk ${index}`)) },
-  { fighter: 'oracle', animation: 'walk-back', frames: oracleBackward.map((src, index) => pose(src, `walk back ${index}`)) },
+  { fighter: 'oracle', animation: 'walk-forward', frames: oracleForward.map((src, index) => pose(src, ['step', 'drag', 'gather', 'load'][index]!)) },
+  { fighter: 'oracle', animation: 'walk-back', frames: oracleBackward.map((src, index) => pose(src, ['step back', 'drag back', 'gather', 'load'][index]!)) },
   {
     fighter: 'oracle', animation: 'jab', moveId: 'oracle.prompt',
     frames: [pose(oracleAnticipation, 'anticipation', 'startup'), pose(oracleJab, 'jab', 'active'), pose(oracleRecovery, 'recovery', 'recovery')],
@@ -256,7 +252,7 @@ export function selectArcadeSprite(state: MarsArcadeState, side: MarsArcadeSide,
   if (live && fighter.id === 'oracle') {
     if (fighter.activity === 'walk' && fighter.blocking) {
       return {
-        src: oracleBackward[Math.floor(state.frame / 6) % 2] ?? oracleBackward[0],
+        src: oracleBackward[Math.floor(state.frame / WALK_HOLD) % oracleBackward.length]!,
         placeholder: false,
         label: 'guarded backward shuffle',
       }
@@ -265,7 +261,7 @@ export function selectArcadeSprite(state: MarsArcadeState, side: MarsArcadeSide,
       return { src: guard, placeholder: false, label: 'raised guard' }
     }
     if (fighter.activity === 'walk') {
-      return { src: oracleForward[Math.floor(state.frame / 6) % 2] ?? oracleForward[0], placeholder: false, label: 'forward shuffle' }
+      return { src: oracleForward[Math.floor(state.frame / WALK_HOLD) % oracleForward.length]!, placeholder: false, label: 'forward shuffle' }
     }
     if (move?.move.id === 'oracle.prompt') {
       const src = move.phase === 'active' ? oracleJab :
@@ -318,7 +314,7 @@ export function selectArcadeSprite(state: MarsArcadeState, side: MarsArcadeSide,
   if (live && fighter.id === 'booster' && fighter.activity === 'walk') {
     const cycle = fighter.blocking ? boosterWalkBack : boosterWalkForward
     return {
-      src: cycle[Math.floor(state.frame / BOOSTER_WALK_HOLD) % cycle.length]!,
+      src: cycle[Math.floor(state.frame / WALK_HOLD) % cycle.length]!,
       placeholder: false,
       label: fighter.blocking ? 'backward shuffle' : 'forward shuffle',
     }
