@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   COCKPIT_ORIENTATION_DURATION_SECONDS,
+  MAX_ORIENTATION_FRAME_SECONDS,
+  orientationFrameDelta,
   sampleCockpitOrientation,
   type CockpitOrientationOffset,
 } from './cockpitOrientation'
@@ -64,5 +66,27 @@ describe('first-entry cockpit orientation timelines', () => {
         expect(Math.abs(value - after[index]!)).toBeLessThan(0.001)
       })
     }
+  })
+})
+
+describe('orientation frame time', () => {
+  it('passes normal and slow frames through unchanged, down to 2 fps', () => {
+    for (const fps of [60, 30, 10, 4, 2]) expect(orientationFrameDelta(1 / fps)).toBeCloseTo(1 / fps, 10)
+  })
+
+  it('caps a frame that arrives after a long stall, so the tour pauses instead of skipping', () => {
+    // A 3 s stall (a model decoding under a software renderer, or a background tab)
+    // used to add 3 s to a 4.5 s tour in one frame.
+    expect(orientationFrameDelta(3)).toBe(MAX_ORIENTATION_FRAME_SECONDS)
+    let elapsed = 0
+    for (const delta of [1 / 60, 3, 1 / 60]) elapsed += orientationFrameDelta(delta)
+    expect(sampleCockpitOrientation('dc9', elapsed).complete).toBe(false)
+    // However stalled the renderer, finishing a tour takes at least 9 frames.
+    expect(COCKPIT_ORIENTATION_DURATION_SECONDS / MAX_ORIENTATION_FRAME_SECONDS).toBeGreaterThanOrEqual(9)
+  })
+
+  it('ignores nonsense frame times', () => {
+    expect(orientationFrameDelta(-1)).toBe(0)
+    expect(orientationFrameDelta(Number.NaN)).toBe(0)
   })
 })

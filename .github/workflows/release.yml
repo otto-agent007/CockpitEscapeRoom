@@ -39,6 +39,36 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
+  approve-release-pr-checks:
+    # release-please opens its PR with the built-in token, so GitHub treats
+    # github-actions[bot] as a first-time contributor and holds that PR's CI runs at
+    # "approval required" after every update. This job runs on the owner's own push
+    # to main, and approves only runs on the release-please branch that the bot
+    # started: its only change is the generated changelog and version bump.
+    needs: release-please
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          branch='release-please--branches--main--components--cockpit-escape-room'
+          # The runs appear a few seconds after release-please pushes; give them 3 minutes.
+          for _ in $(seq 18); do
+            ids=$(gh api "repos/$REPO/actions/runs?branch=$branch&status=action_required&per_page=20" \
+              --jq '.workflow_runs[] | select(.actor.login == "github-actions[bot]") | .id')
+            if [ -n "$ids" ]; then
+              for id in $ids; do
+                gh api -X POST "repos/$REPO/actions/runs/$id/approve" --silent && echo "approved run $id"
+              done
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "no release PR runs waiting for approval"
+
   production:
     needs: release-please
     if: needs.release-please.outputs.released == 'true'

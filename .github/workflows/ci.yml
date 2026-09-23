@@ -89,7 +89,9 @@ jobs:
           python -m unittest discover -s tools/blender/cockpit_pipeline/tests -t .
       - name: Shard plan covers every browser test exactly once
         run: |
-          count() { npx playwright test --list "$@" 2>/dev/null | tail -1 | grep -oE '^Total: [0-9]+' | grep -oE '[0-9]+' || echo 0; }
+          # Match the "Total:" line wherever it is: under CI, Playwright 1.63 prints a
+          # "::notice ... Run Summary" line after it, which `tail -1` once read as 0 tests.
+          count() { npx playwright test --list "$@" 2>/dev/null | grep -oE '^Total: [0-9]+' | tail -1 | grep -oE '[0-9]+' || echo 0; }
           all=$(count --grep-invert "gate screenshots|visual regression")
           sum=0
           for group in heavy-dc9 heavy-storm heavy-airbus heavy-scenes; do sum=$((sum + $(count --grep "@$group"))); done
