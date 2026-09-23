@@ -1,13 +1,21 @@
-Flat 1990s arcade pixel-art game backdrop layer: THIN HIGH MARTIAN DUST AND ICE CLOUDS, for the upper sky of a fighting-game stage.
+ABSOLUTE REQUIREMENT, READ FIRST: THE BACKGROUND MUST BE SOLID PURE MAGENTA RGB(255,0,255).
+Every empty area and every gap between the banks must be FLAT, OPAQUE, UNIFORM MAGENTA —
+the exact colour #FF00FF. This is a chroma-key plate. Do NOT render a dark or coloured sky
+behind the banks. Do NOT add any glow, haze, gradient, vignette or atmosphere. A background
+that is not flat magenta makes this image unusable.
 
-COMPOSITION: wispy cloud bands spread across the ENTIRE width of the image, edge to edge. They occupy the middle 60 percent of the image height. Leave a LOT of open sky: roughly two thirds of the band must be empty. All empty sky and every gap must be absolutely OPAQUE SOLID PURE MAGENTA RGB(255,0,255). The clouds themselves must NOT be magenta.
+Flat 1990s arcade pixel-art game backdrop layer: TOWERING MARTIAN DUST-STORM BANKS, for the upper sky of a fighting-game stage.
 
-CRITICAL — THESE ARE NOT EARTH CLOUDS. Mars has a thin dry atmosphere. Draw LONG, THIN, FLAT, HORIZONTALLY STRETCHED streaks and veils, like high cirrus or blowing dust. They must be many times wider than they are tall. Absolutely NO billowing cumulus, NO puffy rounded lobes, NO towering vertical cloud masses, NO cauliflower shapes. Vary the streaks: a few long thin ones spanning most of the width, several shorter broken wisps, and some very faint dust haze bands near the bottom.
+COMPOSITION: heavy dust banks across the ENTIRE width, edge to edge, occupying the middle 65 percent of the image height. Leave real open sky between and around them — roughly 40 percent of the band stays empty magenta.
 
-LIGHTING: the sun is below the bottom edge, out of frame. Each streak is slightly darker along its top and catches a pale cool light along its underside.
+THESE ARE DUST BANKS, NOT WATER CLOUDS. Give them GENUINE VERTICAL MASS — big, heavy, piled-up forms with real height, like a wall of blowing dust rolling in. But build them from STACKED HORIZONTAL LAYERS and long RAGGED SHELVES rather than round puffy lobes: each bank is a pile of flattened, wind-sheared strata with torn edges, wider than it is tall, thinning into long streamers at its left and right ends. NO cauliflower shapes, NO soft round bubbles, NO neat scalloped edges. The tops should look torn and wind-dragged, not rounded.
 
-COLOUR: exactly four flat tones and no others. Highest, faintest streaks in dusty mauve RGB(86,62,74). Mid streaks in dull rose-brown RGB(124,84,74). Lower, denser dust bands in warm tan RGB(168,124,88). The lit underside edges in pale cool grey RGB(198,186,178). Use the pale grey sparingly, as a hard 1-pixel edge only.
+Vary them strongly: two or three large dominant banks with real height, several medium ones, and thin trailing streamers low down. Overlap them so some sit in front of others.
+
+LIGHTING FROM BELOW: the sun is below the bottom edge, out of frame. Every bank is DARKEST along its TOP and BLAZING BRIGHTEST along its UNDERSIDE and lower shelves, as if lit from beneath by a low red sun.
+
+COLOUR: exactly four flat tones and no others. Bank tops and shadowed mass in dark maroon RGB(58,18,32). Bank bodies in deep brick red RGB(110,35,32). Lit undersides in hot burnt orange RGB(193,82,28). The brightest lower rim edges in blazing amber RGB(255,144,64), used sparingly as a hard 1-to-2 pixel edge along the very lowest edge of each shelf.
 
 STYLE: flat 1990s arcade pixel art. Every tone is a hard-edged solid block with crisp stepped edges. NO gradients, NO dithering, NO blur, NO soft edges, NO glow, NO feathering, NO anti-aliasing, NO transparency, NO photographic realism, NO text.
 
-TILING: repeated side by side horizontally forever. Content at the extreme LEFT edge must continue the content at the extreme RIGHT edge seamlessly, with no seam and no streak cut awkwardly at either edge.
+TILING: repeated side by side horizontally forever. Content at the extreme LEFT edge must continue the extreme RIGHT edge seamlessly, with no bank cut awkwardly at either edge.

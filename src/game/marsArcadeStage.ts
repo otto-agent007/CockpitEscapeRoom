@@ -142,9 +142,9 @@ export interface MarsArcadeBand {
  * visible banding, because the cabinet should still look drawn rather than shaded.
  */
 const SKY_ANCHORS: ReadonlyArray<readonly [number, string]> = [
-  [0, '#221319'], [30, '#3a2220'], [58, '#5e3622'], [84, '#8a5228'],
-  [108, '#c07f40'], [128, '#cf9a64'], [146, '#9fa0a6'], [162, '#6e8ba0'],
-  [175, '#52728e'], [188, '#3e5f7e'],
+  [0, '#160a12'], [30, '#2a0f1c'], [58, '#4a1522'], [84, '#752024'],
+  [114, '#a83320'], [142, '#d4521c'], [166, '#f57d22'], [176, '#ff9e3c'],
+  [188, '#ffbe63'],
 ]
 const SKY_STEP = 2
 
@@ -211,9 +211,9 @@ export const MARS_ARCADE_BANDS: MarsArcadeBand[] = [...skyRamp(), ...FLOOR_BANDS
 const BACKDROP_ROOT = '/art-source/arcade/generated/backdrop-v1'
 
 export const MARS_ARCADE_BACKDROP: MarsArcadeBackdropLayer[] = [
-  { id: 'clouds', src: `${BACKDROP_ROOT}/clouds-mars-320x96.png`, parallax: 0.1, spanWidth: 320, width: 320, height: 96, bottomRow: 132 },
-  { id: 'ridge', src: `${BACKDROP_ROOT}/ridge-mars-320x56.png`, parallax: 0.2, spanWidth: 320, width: 320, height: 56, bottomRow: 172 },
-  { id: 'colony', src: `${BACKDROP_ROOT}/colony-mars-320x56.png`, parallax: 0.42, spanWidth: 320, width: 320, height: 56, bottomRow: 181 },
+  { id: 'clouds', src: `${BACKDROP_ROOT}/clouds-dust-320x96.png`, parallax: 0.1, spanWidth: 320, width: 320, height: 96, bottomRow: 132 },
+  { id: 'ridge', src: `${BACKDROP_ROOT}/ridge-mars-dark-320x56.png`, parallax: 0.2, spanWidth: 320, width: 320, height: 56, bottomRow: 172 },
+  { id: 'colony', src: `${BACKDROP_ROOT}/colony-mars-dark-320x56.png`, parallax: 0.42, spanWidth: 320, width: 320, height: 56, bottomRow: 181 },
   { id: 'apron', src: `${BACKDROP_ROOT}/apron-mars-320x44.png`, parallax: 0.74, spanWidth: 320, width: 320, height: 44, bottomRow: 189 },
   { id: 'ground', src: `${BACKDROP_ROOT}/ground-160x36.png`, parallax: 1, spanWidth: 160, width: 160, height: 36, bottomRow: 224 },
 ]

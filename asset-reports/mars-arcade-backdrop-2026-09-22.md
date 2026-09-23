@@ -214,3 +214,45 @@ grit; on the apron plane it stands about 28 px and reads as a machine.
 
 **The DC-9 is gone from the backdrop only.** `fx.flyby` — THE CAPTAIN's special — still
 carries it, and was deliberately left alone because it is a move, not scenery.
+
+## The dust-storm pass — 2026-09-22 (late)
+
+Owner on the clear-day Mars palette: *"too muted, might as well just give it the earth
+blazing sky."*
+
+**The muted look was my mistake, not a constraint of the planet.** I had said the sky was
+already near the top of what Mars can plausibly do, and that was wrong — I had picked a
+CLEAR-DAY palette. Mars dust storms produce genuinely blazing red skies, so the drama was
+available the whole time without giving up the setting.
+
+Three candidates were rendered live and compared side by side rather than argued about:
+
+| | sky | clouds | verdict |
+| --- | --- | --- | --- |
+| A | clear-day butterscotch, blue horizon | thin wisps | rejected — muted, and the mesas dissolved into it |
+| C | the Earth ramp restored | big cumulus | the drama target, but reads as Earth |
+| **B+** | **dust storm, deep crimson, no blue** | **heavy dust banks** | **chosen** |
+
+**The gap between B and C was never the sky colour — it was the cloud SHAPES.** Thin
+wisps are the meteorologically correct call for a calm Martian day, and they were costing
+all the drama. Regenerating them as dust-storm banks with real vertical mass closed it:
+the banks are built from torn, wind-sheared horizontal shelves rather than cauliflower
+lobes, which is what keeps them reading as dust rather than water vapour while hitting as
+hard as cumulus.
+
+The silhouettes were darkened at the same time so the mesas read as landforms instead of
+dissolving into the haze. **That darkening could not be done by handing the normaliser a
+darker palette** — modal voting maps each source pixel to its NEAREST entry, so two
+uniformly darker entries both lost to whichever was closer and the ridge collapsed to a
+single tone. The tool reported `1/2 entries used`, which is precisely what that check is
+for. Darkening has to happen AFTER the vote, as a colour swap on the finished tile.
+
+Flatness now measures **21.6%** for the two commonest colours, up slightly from the muted
+version's 16.9%. That is expected and fine: a dramatic sky concentrates more pixels into
+its dominant reds. It is a spread metric, not a quality one — what it exists to catch is a
+two-tone void, and the retired stage sat at 88.5%.
+
+**Carried forward:** `fx.flyby` is still specified against the old palette. THE CAPTAIN's
+DC-9 was briefed as a flat silhouette that should read as *dignified*, and against this
+crimson sky it will need checking when that effect is drawn — probably a lighter treatment
+so it does not vanish into the dust banks.
