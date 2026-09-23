@@ -49,6 +49,21 @@ function roundAt(leftX: number, rightX: number) {
 }
 
 describe('mars arcade camera', () => {
+  it('keeps both fighters whole on screen at any separation the rules allow', () => {
+    // 24 px of screen outside each fighter's centre-line, at every legal position pair.
+    const wall = MARS_ARCADE_STAGE.halfWidth
+    let tightest = Number.POSITIVE_INFINITY
+    for (let left = -wall; left <= wall; left += 2) {
+      for (let gap = MARS_ARCADE_STAGE.pushboxWidth; gap <= MARS_ARCADE_STAGE.maxSeparation; gap += 2) {
+        const right = left + gap
+        if (right > wall) break
+        const camera = marsArcadeCameraTarget(roundAt(left, right))
+        for (const x of [left, right]) tightest = Math.min(tightest, 160 - Math.abs(x - camera))
+      }
+    }
+    expect(tightest).toBeGreaterThanOrEqual(24)
+  })
+
   it('centres between the fighters', () => {
     expect(marsArcadeCameraTarget(roundAt(-40, 80))).toBe(20)
     expect(marsArcadeCameraTarget(roundAt(-100, 20))).toBe(-40)
