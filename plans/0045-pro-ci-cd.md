@@ -86,6 +86,31 @@ production switch needs a Vercel token and a Vercel setting that only the owner 
   organisation-owned repositories, so the merge queue is recorded as unavailable (to be confirmed
   against the API when settings are applied).
 
+- **First real CI run (f0c86ad, 2026-09-23): all green in 31 min wall-clock, down from 40-55.**
+  quality 1m18s; CodeQL x3 about 1-2 min; dependency-review 7 s, once the dependency graph was
+  enabled (the first run failed until then). The shards were badly unbalanced: 25.6 / 4.0 / 1.8 /
+  14.2 min of tests. Playwright shards by test COUNT, and the 30 review-evidence tests (skipped in
+  the suite) took slots, so two shards ran only 14 real tests while shard 1 ran 30, including the
+  slow Airbus specs (about 51 s each under SwiftShader). Fix: `--grep-invert` removes them before
+  sharding (129 to 99 tests), 6 shards split the Airbus specs across two runners, and the `list`
+  reporter now logs per-test durations for future balancing.
+- A conflicted PR runs no workflows. #80 merged into main mid-work and #82 conflicted on
+  `TEST_REPORT.md`; it was resolved by merging main, and the combined tree was re-validated before
+  pushing.
+- CI gate screenshots were wrong in two ways on the first run. The locker was captured as a
+  blank panel before its 44 MB model was drawn, and the intro was caught mid-animation ("TMBi").
+  Now each screen declares the model it must show. The capture waits for that download, for no
+  model in flight, and for byte-identical consecutive frames, all under reduced motion. The locker
+  also intermittently throws "Unable to capture screenshot" during its opening transition; the
+  capture goes through CDP (as the orientation-captures spec already did) and retries that error
+  only. Locally 15/15 pass, and every image was inspected.
+- Visual regression on `?skip3d=1` still rendered WebGL cockpits. Canvases are now masked, so it
+  compares only the HTML interface. Locally, creating baselines and then comparing a second run
+  matched 15/15. Baselines are to be approved from a CI artifact (Linux fonts), not committed
+  from this machine.
+- The v4 actions ran on Node 20, which is deprecated and force-run on Node 24. All are re-pinned
+  to their current Node 24 majors by SHA, with breaking changes checked against our usage.
+
 ## Decision log
 
 - 2026-09-23: keep `browser-smoke` as the name of a small aggregator job over the 4 shards,
