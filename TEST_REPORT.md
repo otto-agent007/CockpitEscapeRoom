@@ -1,5 +1,26 @@
 # Test report
 
+## 2026-09-22 — Booster SPACE LASER replaces ORBITAL INSERTION
+
+- Owner direction: Booster's signature special is a Starlink laser that hits with no delay
+  and no escape. Rules: 0 startup, strikes on the press frame; lock-on ignores facing,
+  reach and height; unblockable, guard untouched; 15 damage for 40 meter, a smaller hit per
+  meter than the captain's flyby (asserted). The landing window and launcher went with the
+  old move; the contract drops their 5 outcome drawings and budgets 3 poses + `fx.spaceLaser`.
+- RED: 7 engine tests failed before the move existed. GREEN: `npm run check` lint, types,
+  785 tests / 64 files, build PASS.
+- `check-arcade-space-laser.mjs` (real controls, meter earned by landing heavies): 4 cases,
+  guarding/1440 by button, airborne/1440 by keyboard, reduced motion/768, standing/375.
+  Each: about 173 px apart, -15 on the first stepped frame, no block event, beam pixels
+  over the defender for 14 frames and never over the booster; reduced motion keeps one width.
+  The check failed twice for real reasons while it was being written (below). Evidence:
+  `preview-renders/mars-arcade/space-laser-v1/`.
+- `check-arcade-stage.mjs` 9 PASS and `check-arcade-pilot.mjs` 12 PASS on this branch.
+- Found, not fixed: fighters can walk further apart than the 320 px screen (480 px stage,
+  no separation cap), leaving both partly off screen. That is how the first run failed.
+- Placeholder: Booster has no special pose art yet; the harness shows his idle frames.
+  No owner visual review, no deploy, no full-journey run.
+
 ## 2026-09-22 — Booster received-heavy reaction
 
 - New stagger/recovery drawings complete three-beat hit reaction before ready stance.

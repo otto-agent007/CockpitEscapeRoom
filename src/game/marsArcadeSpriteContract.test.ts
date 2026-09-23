@@ -70,6 +70,17 @@ describe('mars arcade sprite contract', () => {
     }
   })
 
+  it('spends no drawing on a startup the move does not have', () => {
+    const laser = MARS_ARCADE_FIGHTERS.booster.moves.special
+    expect(laser.startupFrames).toBe(0)
+    expect(drawingBudget(laser).startup).toBe(0)
+    expect(drawingBudget({ ...laser, startupFrames: 1 }).startup).toBe(1)
+    // Active keeps its floor: the coffee has no active frames but needs the pose.
+    const coffee = MARS_ARCADE_FIGHTERS.captain.moves.light
+    expect(coffee.activeFrames).toBe(0)
+    expect(drawingBudget(coffee).active).toBe(1)
+  })
+
   it('has an identity reference for every fighter', () => {
     for (const id of Object.keys(MARS_ARCADE_FIGHTERS)) {
       expect(contract.generation.identityReference[id], `no reference noted for ${id}`).toBeTruthy()
