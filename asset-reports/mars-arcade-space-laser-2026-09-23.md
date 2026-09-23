@@ -31,6 +31,7 @@ The art came from Codex CLI's built-in `image_gen` on the ChatGPT plan, with
 | `watch-00` | `call-it-in-00` | 1 | 1024×1536 |
 | `pocket-00-c1` | `pocket-00` | 1 + 1 correction | 1024×1536 |
 | `satellite-00` | none | 1 | 2172×724 |
+| `satellite-01` (runtime) | `satellite-00` | 1 recolour | 2172×724 |
 | `impact-sheet-00` | none | 1 | 2172×724 |
 | `beam-00` | none | 1 | 941×1672 |
 
@@ -109,6 +110,14 @@ The first satellite pass at 56 px wide was 7 px tall and lost its lens, so it wa
 - **Character gym:** owner rule, every completed animation belongs in the gym. The gym's
   animation list only exists as uncommitted work in the `mars-backdrop` worktree, so these
   three poses must be added to `ARCADE_GYM_ANIMATIONS` when that lands.
-- The satellite's navy solar array is low-contrast against the darkest sky rows under the HUD.
-  It still reads through the grey chassis and the beam; a lighter array or a thin light outline
-  would help.
+
+## Lighter solar array — 2026-09-23 (owner request)
+
+`satellite-00` had a navy array with a 1.30:1 median contrast against the sky it parks in
+(screen rows 30-40, the darkest crimson under the HUD). `satellite-01` is a recolour edit of it
+(prompt `satellite-01.txt`): pale sky-blue cells with a light top row and white dividers.
+It has the same silhouette, size (80×10 after `fit --width 80`) and lens position.
+Measured against the composited sky and clouds of rows 30-40, the panel's median contrast went
+**1.30 to 9.22:1**, and the worst case went **1.22 to 5.81:1**. The runtime now loads `satellite-01.png`.
+The old normalised cell is removed; its raw source stays, because it is the edit's reference.
+Space laser browser check: 11 PASS, asserting `satellite-01.png` is the image drawn.

@@ -28,7 +28,7 @@ type EffectId = 'satellite' | `beam-${Exclude<LaserBeamWidth, 0>}` | `impact-${0
 
 const { satellite, beam, impact } = LASER_EFFECT_LAYOUT
 export const LASER_EFFECT_ART: Record<EffectId, { src: string; width: number; height: number }> = {
-  satellite: { src: `${ROOT}/satellite-00.png`, width: satellite.width, height: satellite.height },
+  satellite: { src: `${ROOT}/satellite-01.png`, width: satellite.width, height: satellite.height },
   'beam-14': { src: `${ROOT}/beam-w14.png`, width: 14, height: beam.height },
   'beam-10': { src: `${ROOT}/beam-w10.png`, width: 10, height: beam.height },
   'beam-6': { src: `${ROOT}/beam-w6.png`, width: 6, height: beam.height },

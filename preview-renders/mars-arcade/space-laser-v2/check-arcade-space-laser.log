@@ -1,11 +1,11 @@
-PASS guarding-1440: 175 px away, guard, fired by button: -15 on the first frame, guard untouched
+PASS guarding-1440: 172 px away, guard, fired by button: -15 on the first frame, guard untouched
 PASS guarding-1440: beam over the defender for 14 frames, never over the booster; widths 12,12,12,6,6,6,6,6,6,6,6,6,6,6,0
 PASS airborne-1440: 173 px away, jump, fired by keyboard: -15 on the first frame, guard untouched
 PASS airborne-1440: beam over the defender for 14 frames, never over the booster; widths 12,12,12,6,6,6,6,6,6,6,6,6,6,6,0
 PASS reduced-768: 175 px away, guard, fired by button: -15 on the first frame, guard untouched
 PASS reduced-768: beam over the defender for 14 frames, never over the booster; widths 6,6,6,6,6,6,6,6,6,6,6,6,6,6,0
-PASS narrow-375: 173 px away, stand, fired by button: -15 on the first frame, guard untouched
+PASS narrow-375: 175 px away, stand, fired by button: -15 on the first frame, guard untouched
 PASS narrow-375: beam over the defender for 14 frames, never over the booster; widths 12,12,12,6,6,6,6,6,6,6,6,6,6,6,0
-PASS missing-art-1440: 170 px away, stand, fired by button: -15 on the first frame, guard untouched
+PASS missing-art-1440: 173 px away, stand, fired by button: -15 on the first frame, guard untouched
 PASS missing-art-1440: beam over the defender for 14 frames, never over the booster; widths 42,42,42,30,30,30,30,30,30,18,18,18,18,18,0
 PASS no uncaught browser errors

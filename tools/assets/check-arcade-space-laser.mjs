@@ -108,7 +108,7 @@ try {
     if (scenario.missing) {
       assert.ok(!has('/fx-space-laser-v1/'), `${scenario.tag}: effect art drawn although it was blocked`)
     } else {
-      assert.ok(has('/satellite-00.png'), `${scenario.tag}: no satellite drawn`)
+      assert.ok(has('/satellite-01.png'), `${scenario.tag}: no satellite drawn`)
       assert.ok(has(scenario.reduced ? '/beam-w10.png' : '/beam-w14.png'), `${scenario.tag}: wrong or no beam art`)
       assert.ok(has(scenario.reduced ? '/impact-03.png' : '/impact-00.png'), `${scenario.tag}: wrong or no impact art`)
     }
