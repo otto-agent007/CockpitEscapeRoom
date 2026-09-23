@@ -5,8 +5,8 @@ name: Release
 # Merging that PR tags the release and publishes GitHub release notes, one per
 # milestone.
 #
-# The `production` job is the owner's sign-off gate. It runs in the `production`
-# environment, which needs the owner's approval. Vercel still deploys main by
+# The `production` job is the owner's sign-off gate. It runs in the
+# `release-approval` environment, which needs the owner's approval. Vercel still deploys main by
 # itself today, so the job deploys only once the owner has moved production
 # deploys behind this gate (see plans/0045-pro-ci-cd.md, Handoff): the repository
 # variable GATED_PRODUCTION=true plus a VERCEL_TOKEN secret. Until then it records
@@ -43,8 +43,10 @@ jobs:
     needs: release-please
     if: needs.release-please.outputs.released == 'true'
     runs-on: ubuntu-latest
+    # Deliberately NOT named "Production": that environment belongs to Vercel's GitHub
+    # integration, which records its own production deployments there.
     environment:
-      name: production
+      name: release-approval
       url: ${{ vars.PRODUCTION_URL }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

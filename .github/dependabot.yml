@@ -1,6 +1,7 @@
 # Weekly dependency updates, grouped so a week is one or two PRs, not twenty.
-# Majors are kept separate because they can change behaviour; everything else is
-# grouped. Each PR runs the normal CI, and new production dependencies still need
+# Majors are kept separate because they can change behaviour and are never
+# auto-merged (dependabot-auto-merge.yml); everything else is grouped and merges
+# itself once CI is green. Each PR runs the normal CI, and new production dependencies still need
 # the `dependency-approved` label (tools/ci/new-deps-guard.mjs).
 version: 2
 updates:
@@ -11,6 +12,11 @@ updates:
       day: monday
     open-pull-requests-limit: 3
     groups:
+      # Security fixes arrive as ONE PR, not one per advisory (the first run
+      # opened ten), because each PR runs the full browser suite.
+      security:
+        applies-to: security-updates
+        patterns: ['*']
       minor-and-patch:
         update-types: [minor, patch]
     labels: [dependencies]

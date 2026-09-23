@@ -43,9 +43,11 @@ gh api -X PUT "repos/$repo/branches/main/protection" --input - <<'JSON' --jq '"r
 }
 JSON
 
-echo "== production environment, approved by the owner"
+echo "== release-approval environment, approved by the owner"
+# Not "production": GitHub environment names are case-insensitive, and "Production"
+# belongs to Vercel's GitHub integration. Putting a reviewer on it is wrong.
 owner_id=$(gh api "users/$owner" --jq .id)
-gh api -X PUT "repos/$repo/environments/production" --input - --jq '"environment \(.name): reviewers=\([.protection_rules[]? | select(.type=="required_reviewers") | .reviewers[].reviewer.login] | join(","))"' <<JSON
+gh api -X PUT "repos/$repo/environments/release-approval" --input - --jq '"environment \(.name): reviewers=\([.protection_rules[]? | select(.type=="required_reviewers") | .reviewers[].reviewer.login] | join(","))"' <<JSON
 { "reviewers": [{ "type": "User", "id": $owner_id }], "deployment_branch_policy": null }
 JSON
 
@@ -53,6 +55,7 @@ echo "== labels used by the workflows"
 gh label create dependency-approved -R "$repo" --force --color 0e8a16 \
   --description "Owner approved a new production dependency (tools/ci/new-deps-guard.mjs)"
 gh label create dependencies -R "$repo" --force --color 0366d6 --description "Dependabot updates"
+gh label create major-update -R "$repo" --force --color d93f0b --description "Major dependency update: not auto-merged, needs owner review"
 
 echo "== merge queue"
 echo "   Not available: GitHub offers merge queues only for organisation-owned repositories."

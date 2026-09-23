@@ -142,8 +142,14 @@ production switch needs a Vercel token and a Vercel setting that only the owner 
   `new-production-dependencies`. Not strict; no review requirement; admins may bypass.
 - Auto-merge allowed. Actions may open PRs (release-please).
 - Dependabot alerts and security-fix PRs. Labels `dependency-approved` and `dependencies`.
-- `production` environment with the owner as the required reviewer.
+- `release-approval` environment with the owner as the required reviewer. It is not called
+  "Production", which is Vercel's environment; applying a reviewer to it by mistake was caught and
+  reverted on 2026-09-23.
 - Merge queue: unavailable for personally-owned repositories.
+
+**Dependabot:** patch, minor and security updates auto-merge once CI is green
+(`dependabot-auto-merge.yml`). Majors get the `major-update` label and wait for the owner.
+Security fixes arrive grouped as one PR.
 
 **Everyday flow for maintainers:**
 - One branch and one draft PR per milestone. Drafts run only `quality` (about 2 min).
