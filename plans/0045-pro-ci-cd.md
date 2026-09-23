@@ -111,6 +111,15 @@ production switch needs a Vercel token and a Vercel setting that only the owner 
 - The v4 actions ran on Node 20, which is deprecated and force-run on Node 24. All are re-pinned
   to their current Node 24 majors by SHA, with breaking changes checked against our usage.
 
+- **Second run (#93, 6 count-based shards): 23 min wall-clock**, still unbalanced (21.0 / 14.6 /
+  6.4 / 6.1 / 1.8 / 0.7 min). Per-test durations (now logged by the `list` reporter) show 49.6 min
+  of tests in total. Two single tests take 11.2 min each (the DC-9 and Storm Line production GLBs),
+  five more take 2.4-4.6 min, and the other 92 take about 10.5 min. Sharding is now by weight:
+  `@heavy-dc9`, `@heavy-storm`, `@heavy-airbus`, `@heavy-scenes`, plus two light shards. The
+  expected wall is about the 11.2 min floor plus setup. A "shard plan" step in `quality` fails if
+  a `@heavy-*` tag has no runner, checked in both directions (99 = 7 + 92 passes; an orphan tag
+  fails).
+
 ## Decision log
 
 - 2026-09-23: keep `browser-smoke` as the name of a small aggregator job over the 4 shards,
@@ -127,11 +136,12 @@ production switch needs a Vercel token and a Vercel setting that only the owner 
 
 **Owner actions.** Only the owner can do these:
 
-1. **Approve the first visual-regression baselines.** Download the `review-evidence` artifact from a
-   CI run, check the images under `e2e/review-evidence.spec.ts-snapshots/`, and commit them (or ask
-   me to). Until then the check is report-only and says "no baseline yet".
-2. **The Model Y reward line** in the entry bundle: keep it allow-listed, or move it into the lazy
-   reward chunk (a small product change).
+1. **Visual-regression baselines:** committed 2026-09-23 from the Linux CI run of #94 (15 images;
+   on `?skip3d=1` the cockpits are static fallback images and only the intro canvas is masked).
+   Merging that PR is the owner's approval. The check stays report-only; make it blocking once a
+   few runs confirm it stays green.
+2. **The Model Y reward line:** fixed 2026-09-23. It moved to `src/game/rewardCopy.ts`, imported
+   only by the lazy reward chunk, and its spoiler-allowlist entry was removed.
 3. **Make the production gate real** (optional). Add a `VERCEL_TOKEN` secret, set the repository
    variable `GATED_PRODUCTION=true`, then turn off Vercel's automatic production deploys from `main`.
    Until then Vercel deploys as before, and the `production` environment only records approvals of

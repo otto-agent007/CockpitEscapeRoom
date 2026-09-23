@@ -1,5 +1,20 @@
 # Test report
 
+## 2026-09-23 — Open items: separation cap, gym, Oracle walk
+
+- Fighters can no longer walk off screen: `maxSeparation` 272. Tests prove the retreating
+  fighter stops without dragging the opponent, that a ranged knockback can't pass the limit,
+  and that both fighters stay whole at every legal position; the last one fails if the limit
+  is set to 400.
+- Gym: the peer session's finished manifest was ported and extended with Booster's walk,
+  heavy-block and special. The 7 manifest tests pass, and a headless probe loads all 22
+  animations clean.
+- Oracle walk: 4 + 4 drawings with torso alignment, gate 8 / 0 failures. Report:
+  `asset-reports/mars-arcade-oracle-walk-2026-09-23.md`.
+- `npm run check`: 804 tests / 65 files, build PASS. All arcade browser suites PASS at 61.
+- PR #78 had merged into an already-merged base, so its block commit was missing from #80.
+  #79, which carries it, was retargeted onto `feat/mars-arcade-stage-hud`.
+
 ## 2026-09-23 — Professional CI/CD (plans/0045-pro-ci-cd.md)
 
 - actionlint + shellcheck: 4 workflows, 0 findings. `npm run check`: 797 tests / 68 files, build PASS.

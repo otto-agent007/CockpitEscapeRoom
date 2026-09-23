@@ -285,7 +285,7 @@ test('reduced motion, replay, and Escape skip keep the accessible path usable', 
   await expect(page.locator('.scene--locker-accessible')).toBeVisible()
 })
 
-test('locker GLB loads into the real canvas and the directed camera settles on the watch', async ({ page }) => {
+test('locker GLB loads into the real canvas and the directed camera settles on the watch', { tag: '@heavy-scenes' }, async ({ page }) => {
   // SwiftShader must decode the 42 MiB locker twice, then load the 38 MiB Airbus
   // before this full persistence boundary can finish on the CI-class workstation.
   test.setTimeout(420_000)

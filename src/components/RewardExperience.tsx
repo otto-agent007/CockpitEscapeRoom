@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { gameCopy } from '../game/config'
+import { rewardCopy } from '../game/rewardCopy'
 import { REWARD_CLIP_DURATION_MS, rewardFrameAt } from '../game/rewardSequence'
 import { RewardScene, type RewardLoadState } from '../scenes/RewardScene'
 
@@ -102,7 +103,7 @@ export function RewardExperience({
         {frame.stage === 'complete' && (
           <div className="reward-release-summary">
             <strong>{gameCopy.rewardTitle}</strong>
-            <span>{gameCopy.rewardVehicleLine}</span>
+            <span>{rewardCopy.vehicleLine}</span>
           </div>
         )}
 

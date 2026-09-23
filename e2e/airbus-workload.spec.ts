@@ -166,7 +166,7 @@ test('native Engine-Out tasks acknowledge training and choose the forgiving SAFE
   expect(completed.selectedSafeReturnSide).toBe('right')
 })
 
-test('production ND and ECAM surfaces dispatch real mesh clicks but ignore camera drags', async ({ page }) => {
+test('production ND and ECAM surfaces dispatch real mesh clicks but ignore camera drags', { tag: '@heavy-airbus' }, async ({ page }) => {
   test.setTimeout(360_000)
   const evidenceDirectory = process.env.AIRBUS_WORKLOAD_EVIDENCE_DIR
   await page.setViewportSize({ width: 1440, height: 900 })
