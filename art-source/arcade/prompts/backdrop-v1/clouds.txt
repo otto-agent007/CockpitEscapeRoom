@@ -1,13 +1,13 @@
-Flat 1990s arcade pixel-art game backdrop layer: BIG DRAMATIC SUNSET CLOUD BANKS lit from below, for the upper sky of a fighting-game stage.
+Flat 1990s arcade pixel-art game backdrop layer: THIN HIGH MARTIAN DUST AND ICE CLOUDS, for the upper sky of a fighting-game stage.
 
-COMPOSITION: large cloud masses spread across the ENTIRE width of the image, edge to edge. The clouds occupy the middle 60 percent of the image height. Leave generous open sky BETWEEN and AROUND the cloud masses: roughly half the band should be empty. All empty sky, and every gap between clouds, must be absolutely OPAQUE SOLID PURE MAGENTA RGB(255,0,255). The clouds themselves must NOT be magenta.
+COMPOSITION: wispy cloud bands spread across the ENTIRE width of the image, edge to edge. They occupy the middle 60 percent of the image height. Leave a LOT of open sky: roughly two thirds of the band must be empty. All empty sky and every gap must be absolutely OPAQUE SOLID PURE MAGENTA RGB(255,0,255). The clouds themselves must NOT be magenta.
 
-THE CLOUDS ARE THE MAIN EVENT. Make them BIG and BILLOWING, with heavy rounded lobes and soft stacked shapes, like towering sunset cumulus. Vary them strongly: two or three large dominant banks, several medium ones, and a few long thin streaks low down. They must NOT be thin horizontal lines and must NOT be a uniform even row. Overlap them so some clouds sit in front of others.
+CRITICAL — THESE ARE NOT EARTH CLOUDS. Mars has a thin dry atmosphere. Draw LONG, THIN, FLAT, HORIZONTALLY STRETCHED streaks and veils, like high cirrus or blowing dust. They must be many times wider than they are tall. Absolutely NO billowing cumulus, NO puffy rounded lobes, NO towering vertical cloud masses, NO cauliflower shapes. Vary the streaks: a few long thin ones spanning most of the width, several shorter broken wisps, and some very faint dust haze bands near the bottom.
 
-LIGHTING FROM BELOW, THIS IS THE KEY: the sun is below the bottom edge of the image and out of frame. Every cloud must be DARKEST along its TOP and BLAZING BRIGHTEST along its UNDERSIDE and its lower edges, as if backlit and underlit by a sunset. The lower clouds are hotter and brighter than the higher ones.
+LIGHTING: the sun is below the bottom edge, out of frame. Each streak is slightly darker along its top and catches a pale cool light along its underside.
 
-COLOUR: exactly four flat tones and no others. Cloud tops and shadowed masses in dark plum RGB(58,28,58). Cloud mid-bodies in deep rose RGB(107,42,68). Lit undersides in hot burnt orange RGB(194,84,47). The brightest bottom rim edges in blazing amber RGB(255,154,74). Use the amber sparingly, only as a hard-edged rim along the very lowest edge of each cloud.
+COLOUR: exactly four flat tones and no others. Highest, faintest streaks in dusty mauve RGB(86,62,74). Mid streaks in dull rose-brown RGB(124,84,74). Lower, denser dust bands in warm tan RGB(168,124,88). The lit underside edges in pale cool grey RGB(198,186,178). Use the pale grey sparingly, as a hard 1-pixel edge only.
 
-STYLE: flat 1990s arcade pixel art. Every tone is a hard-edged solid block of uniform colour with crisp stepped edges, like a hand-drawn Super Nintendo sky. NO gradients, NO dithering, NO blur, NO soft edges, NO glow, NO haze, NO feathering, NO anti-aliasing, NO transparency, NO texture, NO photographic realism, NO text.
+STYLE: flat 1990s arcade pixel art. Every tone is a hard-edged solid block with crisp stepped edges. NO gradients, NO dithering, NO blur, NO soft edges, NO glow, NO feathering, NO anti-aliasing, NO transparency, NO photographic realism, NO text.
 
-TILING: this image will be repeated side by side horizontally forever. The clouds at the extreme LEFT edge must continue the clouds at the extreme RIGHT edge seamlessly, with no seam, no gap and no cloud awkwardly cut in half at either edge.
+TILING: repeated side by side horizontally forever. Content at the extreme LEFT edge must continue the content at the extreme RIGHT edge seamlessly, with no seam and no streak cut awkwardly at either edge.

@@ -110,15 +110,31 @@ export interface MarsArcadeBand {
 }
 
 /**
- * The sky, as a fine ramp between eight anchor colours.
+ * The sky, as a fine ramp between ten anchor colours.
  *
  * These bands are the reason the fighters read at all: the retired stage was
  * near-black above and below the floor line, so a dark sprite sat on a dark field
  * and the silhouette — the one thing a fighting game cannot compromise on —
  * disappeared. `the stage is not a void` in the tests holds that.
  *
+ * **The ramp goes butterscotch at altitude and COOL BLUE at the horizon, which is
+ * the point — and the cool band has to start high enough to actually be seen.**
+ * The outpost, the mesas and the barrier own everything from row 146 down, so a blue
+ * that only began near the floor was drawn over before it reached the screen. It now
+ * starts at 146, in the gap between the cloud bases and the horizon clutter.
+ *
+ * The rust band above it is also deliberately BRIGHT. Mars is monochrome by nature,
+ * and a stage where sky, terrain, outpost and ground are all the same rust value
+ * turns to mud — the first attempt did exactly that. The silhouettes are dark by
+ * design, so the sky behind them carries the contrast. It ran orange-at-the-bottom before, and that is an Earth sunset — it
+ * is what made the stage read as a terrestrial city at dusk however Martian the
+ * structures in front of it were. Mars inverts it: fine suspended dust scatters red
+ * light forward, so the sky is butterscotch overall while the region around the
+ * setting sun goes grey-blue. It is the single most recognisable thing about the
+ * place, and it costs nothing but the anchor list.
+ *
  * The anchors used to be held for 24 to 30 rows each, which made the sky read as
- * eight stripes rather than as dusk. They are now interpolated in two-row steps.
+ * stripes rather than as dusk. They are now interpolated in two-row steps.
  * That is safe because **these bands are screen-space and never scroll** — the
  * harness fills them at x = 0 across the full width with no camera offset — so the
  * prompt pack's "no gradients, they crawl at integer scroll" rule binds the
@@ -126,9 +142,9 @@ export interface MarsArcadeBand {
  * visible banding, because the cabinet should still look drawn rather than shaded.
  */
 const SKY_ANCHORS: ReadonlyArray<readonly [number, string]> = [
-  [0, '#0d0816'], [30, '#180e22'], [58, '#281534'], [84, '#47203f'],
-  [114, '#7a2a3c'], [142, '#ad3b31'], [166, '#db652b'], [176, '#f2913c'],
-  [188, '#ffb457'],
+  [0, '#221319'], [30, '#3a2220'], [58, '#5e3622'], [84, '#8a5228'],
+  [108, '#c07f40'], [128, '#cf9a64'], [146, '#9fa0a6'], [162, '#6e8ba0'],
+  [175, '#52728e'], [188, '#3e5f7e'],
 ]
 const SKY_STEP = 2
 
@@ -162,11 +178,17 @@ function skyRamp(): MarsArcadeBand[] {
   return bands
 }
 
-/** Below the floor line: the lit front lip first, then falling away. */
+/**
+ * Below the floor line: the sunlit lip first, then falling away into shadow.
+ *
+ * Regolith tones rather than deck tones. These sit UNDER the ground tile and are
+ * only seen if it fails to load, so they are chosen to degrade into bare dusty
+ * ground rather than into a brown floor that would read as missing art.
+ */
 const FLOOR_BANDS: MarsArcadeBand[] = [
-  { y: 188, height: 4, colour: '#c47a4e' },
-  { y: 192, height: 14, colour: '#7a4a3a' },
-  { y: 206, height: 18, colour: '#4e2d26' },
+  { y: 188, height: 4, colour: '#ba7c54' },
+  { y: 192, height: 14, colour: '#8c583c' },
+  { y: 206, height: 18, colour: '#5f3b2a' },
 ]
 
 export const MARS_ARCADE_BANDS: MarsArcadeBand[] = [...skyRamp(), ...FLOOR_BANDS]
@@ -180,17 +202,20 @@ export const MARS_ARCADE_BANDS: MarsArcadeBand[] = [...skyRamp(), ...FLOOR_BANDS
  * barrier splits the near ground from the distance. Raising the colony to fill that
  * gap was tried and merged the two dark masses into one.
  *
- * Span widths stay at the tile widths. The deck is parallax 1 with a 64 px span: it
- * is what actually tells the player the stage moved.
+ * The nearest layer is parallax 1, which is what actually tells the player the stage
+ * moved. It is REGOLITH, not decking: dust drifts and scattered rock, because a
+ * riveted metal floor is the one thing in the frame that could not be Mars. Its span
+ * widened from 64 to 160 at the same time — loose ground has no periodic features to
+ * hide a short repeat behind, the way panel seams did.
  */
 const BACKDROP_ROOT = '/art-source/arcade/generated/backdrop-v1'
 
 export const MARS_ARCADE_BACKDROP: MarsArcadeBackdropLayer[] = [
-  { id: 'clouds', src: `${BACKDROP_ROOT}/clouds-320x104.png`, parallax: 0.1, spanWidth: 320, width: 320, height: 104, bottomRow: 132 },
-  { id: 'ridge', src: `${BACKDROP_ROOT}/ridge-320x40.png`, parallax: 0.2, spanWidth: 320, width: 320, height: 40, bottomRow: 174 },
-  { id: 'colony', src: `${BACKDROP_ROOT}/colony-320x62.png`, parallax: 0.42, spanWidth: 320, width: 320, height: 62, bottomRow: 181 },
-  { id: 'apron', src: `${BACKDROP_ROOT}/apron-320x40.png`, parallax: 0.74, spanWidth: 320, width: 320, height: 40, bottomRow: 189 },
-  { id: 'deck', src: `${BACKDROP_ROOT}/deck-64x36.png`, parallax: 1, spanWidth: 64, width: 64, height: 36, bottomRow: 224 },
+  { id: 'clouds', src: `${BACKDROP_ROOT}/clouds-mars-320x96.png`, parallax: 0.1, spanWidth: 320, width: 320, height: 96, bottomRow: 132 },
+  { id: 'ridge', src: `${BACKDROP_ROOT}/ridge-mars-320x56.png`, parallax: 0.2, spanWidth: 320, width: 320, height: 56, bottomRow: 172 },
+  { id: 'colony', src: `${BACKDROP_ROOT}/colony-mars-320x56.png`, parallax: 0.42, spanWidth: 320, width: 320, height: 56, bottomRow: 181 },
+  { id: 'apron', src: `${BACKDROP_ROOT}/apron-mars-320x44.png`, parallax: 0.74, spanWidth: 320, width: 320, height: 44, bottomRow: 189 },
+  { id: 'ground', src: `${BACKDROP_ROOT}/ground-160x36.png`, parallax: 1, spanWidth: 160, width: 160, height: 36, bottomRow: 224 },
 ]
 
 /**

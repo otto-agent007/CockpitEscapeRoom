@@ -157,11 +157,11 @@ describe('mars arcade backdrop', () => {
     }
   })
 
-  it('locks the deck to stage space, so walking reads as movement', () => {
-    const deck = MARS_ARCADE_BACKDROP.find((layer) => layer.id === 'deck')
+  it('locks the ground to stage space, so walking reads as movement', () => {
+    const deck = MARS_ARCADE_BACKDROP.find((layer) => layer.id === 'ground')
     expect(deck?.parallax).toBe(1)
     if (!deck) return
-    // A deck feature and a fighter standing on it must move together: both are
+    // A ground feature and a fighter standing on it must move together: both are
     // stage-space, so the layer shift is exactly the fighter's screen displacement.
     for (const camera of [-80, 0, 37, 104]) {
       const featureX = marsArcadeLayerShift(deck, camera) + MARS_ARCADE_VIEW.width / 2

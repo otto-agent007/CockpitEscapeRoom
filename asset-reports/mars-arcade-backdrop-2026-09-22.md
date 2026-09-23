@@ -46,10 +46,12 @@ column-to-column differences — see the correction below, because the first ver
 this measurement was wrong and manufactured two defects that did not exist. All five use
 every palette entry they were given, so nothing collapsed to a single tone.
 
-The colony carries **the DC-9 parked on the pad** — the one piece of story in the
-backdrop — and it reads correctly: T-tail, two rear-fuselage engines, clean low wings,
-lit cabin windows. The committed code shape it replaces reads as a park bench. v2 also
-adds a colossal launch gantry and rocket as the skyline's hero structure.
+The colony originally carried a DC-9 parked on the pad, which read correctly — T-tail,
+two rear-fuselage engines, clean low wings, lit cabin windows — against a code shape that
+had read as a park bench. **Removed on the owner's instruction, 2026-09-22**, along with
+the whole Earth-sunset treatment; see the Mars pass below. `fx.flyby` still carries the
+aircraft inside the cabinet, so the tribute is not lost, and it was deliberately left
+alone because it is THE CAPTAIN's special rather than scenery.
 
 ## New tool
 
@@ -162,3 +164,53 @@ also wrong and are recorded here so they are not retried: a single-step bevel re
 UI, and over-correcting to a five-ring timer and mid-steel frame bodies blew the value
 structure out — the trough must stay clearly lighter than the scene behind it or every bar
 reads as a wireframe.
+
+## The Mars pass — 2026-09-22 (evening)
+
+Owner: *"Let's get our backdrop to look more like Mars. I also think we need a different
+look for the ground they are walking on."* Then: *"I don't want the DC-9 in there, maybe
+have some Optimus robots."*
+
+**Why the first version read as Earth.** Not the structures — the light. It had an orange
+sunset at the horizon, billowing water-vapour cumulus, a dense skyline of tall rectangular
+towers with rectangular lit windows, and a riveted metal floor. Every one of those is a
+terrestrial cue, and together they overrode anything Martian in front of them.
+
+| Layer | Was | Now |
+| --- | --- | --- |
+| sky ramp | orange at the horizon | butterscotch above, **cool blue at the horizon** |
+| clouds | billowing cumulus, warm rims | long thin dust and ice wisps, pale cool undersides |
+| colony | dense city skyline, launch gantry, DC-9 | low outpost: domes, cylindrical habitats with round portholes, solar fields, dish, cargo lander, rover |
+| ridge | angular cliffs | broad flat-topped mesas and a crater rim |
+| apron | crates and equipment | the same, plus **four humanoid robots** |
+| ground | riveted metal decking, 64 px span | **regolith** — dust drifts and scattered rock, 160 px span |
+
+**The blue horizon is the load-bearing change.** Mars inverts Earth's sunset: fine
+suspended dust forward-scatters red light, so the sky is butterscotch overall while the
+region around the setting sun goes grey-blue. It is the single most recognisable thing
+about the place and it cost nothing but the anchor list.
+
+**Three things went wrong and are worth not repeating.**
+
+1. **The cool band was invisible at first.** It was anchored near the floor, but the
+   outpost, mesas and barrier own everything from row 146 down, so it was drawn over
+   before it reached the screen. It has to start in the gap between the cloud bases and
+   the horizon clutter.
+2. **Then the whole stage went monochrome brown.** Mars is genuinely low-chroma, and with
+   sky, terrain, outpost and ground all in the same rust value the image turned to mud and
+   the fighters stopped separating from it. The silhouettes are dark by design, so the
+   sky above them has to carry the contrast — the rust band is now deliberately bright.
+   Measured: `check-arcade-stage.mjs` reports two commonest colours covering **16.9%**,
+   down from 23.3% and from 88.5% for the retired void.
+3. **The robot apron came back with a BLACK background instead of the magenta plate**,
+   with glow and gradient, which would have keyed as solid and blocked the sky entirely.
+   The chroma requirement had been buried in the middle of a long prompt. Moving it to the
+   top as an explicit "this is a chroma-key plate, a dark background makes this unusable"
+   block fixed it on the next attempt: **82.6% flat magenta**.
+
+**Scale note on the robots.** They are in the `apron` layer at parallax 0.74, not in the
+colony. At outpost distance a human-scale robot is three or four pixels tall and reads as
+grit; on the apron plane it stands about 28 px and reads as a machine.
+
+**The DC-9 is gone from the backdrop only.** `fx.flyby` — THE CAPTAIN's special — still
+carries it, and was deliberately left alone because it is a move, not scenery.

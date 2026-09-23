@@ -510,9 +510,9 @@ factor and the span width exactly, and gate each one the same way a character fr
 | --- | --- | --- | --- |
 | `stars` | 0.06 | 320×84 | Mars night sky: sparse stars, Phobos and Deimos. Nothing above row 28 — the HUD is there. |
 | `ridge` | 0.20 | 320×48 | A far ridge line, flat silhouette, based on the horizon glow and never reaching the floor. |
-| `colony` | 0.42 | 320×40 | Habitat domes with lit windows, a comms mast, and **a DC-9 parked on the far pad** — the tribute aircraft at rest, and the one piece of story in the backdrop. T-tail, rear-fuselage engines, lit cabin windows; it must read as a DC-9 and not as a generic airliner. |
+| `colony` | 0.42 | 320×56 | A LOW Mars outpost, never a city skyline: geodesic domes, horizontal cylindrical habitat modules with round portholes, connecting tubes, solar array fields, tanks, one comms mast, one dish, one rocket on a service tower, and a landing apron with a cargo lander and a rover. **No aircraft.** Owner decision 2026-09-22: the DC-9 was removed from the backdrop — the tribute has its own chapter, and `fx.flyby` still carries it inside the cabinet. |
 | `pad` | 0.74 | 160×12 | The near berm and its landing lights. |
-| `deck` | 1.00 | 64×36 | The deck the fighters stand on: seams, rivets, scuffs. At parallax 1 with a short span, this is what actually tells the player the stage moved. |
+| `ground` | 1.00 | 160×36 | REGOLITH, not decking: dust drifts, ripples and scattered rock, with a sunlit top strip. A riveted metal floor is the one thing in frame that could not be Mars. At parallax 1 this is what tells the player the stage moved; the span widened from 64 to 160 because loose ground has no periodic features to hide a short repeat behind. |
 
 **Rules a generated layer must meet, on top of the usual ones**
 
