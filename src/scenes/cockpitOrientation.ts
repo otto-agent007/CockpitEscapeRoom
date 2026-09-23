@@ -2,6 +2,24 @@ import type { CockpitOrientationId } from '../game/state'
 
 export const COCKPIT_ORIENTATION_DURATION_SECONDS = 4.5
 
+/**
+ * The most tour time a single frame may add. A frame that arrives after a long
+ * stall (a big model decoding under a software renderer, or a tab coming back
+ * from the background) would otherwise add the whole stall at once and skip most
+ * of a 4.5 s tour; CI saw one frame jump the DC-9 tour from 38% to done
+ * (three 0.186 / @react-three/fiber 9.8, 2026-09-23). Capped, a stall pauses the
+ * tour instead. The cap is 0.5 s (at least 9 frames per tour), not a frame's worth:
+ * headless and low-end renderers draw these cockpits at a few fps. Measured locally
+ * against no cap: 1/15 s turned the tour into slow motion and timed the Airbus test
+ * out; 0.25 s still slowed it (DC-9 test 37.6 s vs 20.8 s uncapped).
+ */
+export const MAX_ORIENTATION_FRAME_SECONDS = 0.5
+
+export function orientationFrameDelta(delta: number): number {
+  if (!Number.isFinite(delta) || delta <= 0) return 0
+  return Math.min(delta, MAX_ORIENTATION_FRAME_SECONDS)
+}
+
 export interface CockpitOrientationOffset {
   yawRadians: number
   pitchRadians: number
