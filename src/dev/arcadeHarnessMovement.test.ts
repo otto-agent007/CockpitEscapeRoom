@@ -23,6 +23,29 @@ describe('movement artwork', () => {
     }
   })
 
+  it('cycles Booster through four forward and four backward drawings, each in its own set', () => {
+    const state = createMarsArcadeRound('booster', 'booster')
+    state.phase = 'fight'
+    for (const side of [0, 1] as const) for (const reduced of [false, true]) {
+      const fighter = state.fighters[side]
+      for (const [blocking, clip] of [[false, 'walk-forward'], [true, 'walk-back']] as const) {
+        Object.assign(fighter, { activity: 'walk', blocking })
+        const cycle: string[] = []
+        for (let frame = 0; frame < 30; frame += 1) {
+          state.frame = frame
+          const pose = selectArcadeSprite(state, side, reduced)
+          expect(pose.src).toContain(`/booster/normalised-walk-ready/${clip}/`)
+          expect(pose.placeholder).toBe(false)
+          expect(ARCADE_SPRITE_SOURCES).toContain(pose.src)
+          cycle.push(pose.src)
+        }
+        // Four drawings, in order, looping: 00 01 02 03 00 ...
+        const order = cycle.filter((src, i) => i === 0 || src !== cycle[i - 1]).map(src => src.slice(-6, -4))
+        expect(order.slice(0, 5)).toEqual(['00', '01', '02', '03', '00'])
+      }
+    }
+  })
+
   it.each(['booster', 'oracle'] as const)('%s selects jump phases from velocity, preserving reactions and landing', id => {
     const state = createMarsArcadeRound(id, id)
     state.phase = 'fight'

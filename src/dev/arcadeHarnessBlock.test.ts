@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { advanceMarsArcade, createMarsArcadeRound, NEUTRAL_MARS_ARCADE_INPUT as neutral, type MarsArcadeSide } from '../game/marsArcade'
 import { updateHeavyReactions, type HeavyReactions } from './arcadeHarnessReactions'
 import { selectArcadeSprite, ARCADE_SPRITE_SOURCES } from './arcadeHarnessSprites'
+import { MARS_ARCADE_FIGHTERS } from '../game/marsArcadeFighters'
 
-function block(side: MarsArcadeSide, button: 'heavy' | 'light' = 'heavy', crush = false) {
-  let state = createMarsArcadeRound(side === 0 ? 'booster' : 'oracle', side === 0 ? 'oracle' : 'booster')
+function block(side: MarsArcadeSide, button: 'heavy' | 'light' = 'heavy', crush = false, attackerId: 'booster' | 'oracle' = 'booster') {
+  const defenderId = attackerId === 'booster' ? 'oracle' : 'booster'
+  let state = createMarsArcadeRound(side === 0 ? attackerId : defenderId, side === 0 ? defenderId : attackerId)
   state.phase = 'fight'
   const defender = side === 0 ? 1 : 0
   state.fighters[0].x = side === 0 ? 216 : -240
@@ -74,5 +76,52 @@ describe('Oracle blocked-heavy presentation', () => {
     expect(selectArcadeSprite(state, 1, false).label).toBe('raised guard')
     const blocked = block(0)
     expect(updateHeavyReactions(blocked.reactions, blocked.state, createMarsArcadeRound('booster', 'oracle'), [])).toEqual([null, null])
+  })
+})
+
+describe('Booster blocked-heavy presentation', () => {
+  const heavy = MARS_ARCADE_FIGHTERS.oracle.moves.heavy
+
+  it.each([0, 1] as const)('compresses and settles against an Oracle heavy on side %i within original blockstun', side => {
+    const fixture = block(side, 'heavy', false, 'oracle')
+    const { seen, health, guard } = fixture
+    let { state, reactions } = fixture
+    const defender = side === 0 ? 1 : 0
+    expect(state.fighters[defender].id).toBe('booster')
+    expect(health - state.fighters[defender].health).toBe(heavy.chipDamage)
+    expect(guard - state.fighters[defender].guard).toBe(heavy.guardDamage)
+    expect(state.fighters[defender].stunFrames).toBe(heavy.blockstunFrames)
+    expect(reactions[defender]).toEqual({ kind: 'block', duration: heavy.blockstunFrames, offsetX: 0 })
+    const sources = new Set<string>()
+    const labels: string[] = []
+    for (let frame = 0; frame < heavy.blockstunFrames; frame++) {
+      const before = structuredClone(state)
+      const pose = selectArcadeSprite(state, defender, false, 0, reactions[defender])
+      expect(state).toEqual(before)
+      expect(pose.placeholder).toBe(false)
+      expect(ARCADE_SPRITE_SOURCES).toContain(pose.src)
+      // Essential poses: reduced motion shows the same drawing.
+      expect(selectArcadeSprite(state, defender, true, 0, reactions[defender]).src).toBe(pose.src)
+      sources.add(pose.src)
+      labels.push(pose.label)
+      const transition = advanceMarsArcade(state, [neutral, neutral], 1 / 60)
+      reactions = updateHeavyReactions(reactions, state, transition.state, transition.events)
+      state = transition.state
+    }
+    expect([...new Set(labels)]).toEqual(['heavy block — compress', 'heavy block — settle', 'heavy block — guard'])
+    expect([...sources].some(src => src.includes('/booster/normalised-heavy-block-ready/compress/'))).toBe(true)
+    expect([...sources].some(src => src.includes('/booster/normalised-heavy-block-ready/settle/'))).toBe(true)
+    expect(seen.has('heavy block — brace')).toBe(true)
+    expect(state.fighters[defender].activity).toBe('idle')
+    expect(reactions[defender]).toBeNull()
+  })
+
+  it('keeps Booster light blocks static and his guard crush on the clean-hit path', () => {
+    const light = block(0, 'light', false, 'oracle')
+    expect(light.reactions).toEqual([null, null])
+    expect(selectArcadeSprite(light.state, 1, false, 0, light.reactions[1]).label).toBe('raised guard')
+    const crush = block(0, 'heavy', true, 'oracle')
+    expect(crush.health - crush.state.fighters[1].health).toBe(heavy.damage)
+    expect(selectArcadeSprite(crush.state, 1, false, 0, crush.reactions[1]).label).toBe('heavy hit — impact')
   })
 })

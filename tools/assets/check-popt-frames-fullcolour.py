@@ -4,6 +4,7 @@
 Usage:
     python3 tools/assets/check-popt-frames-fullcolour.py <frames-dir> [--contract PATH]
                                                          [--standing-clip NAME ...]
+                                                         [--in-place-clip NAME ... --torso-reference CELL]
 
 <frames-dir> holds one subdirectory per clip, each containing <clip>-NN.png frames - the layout
 the runtime already uses under public/images/intro/tmb2/popt.
@@ -120,7 +121,19 @@ def interior_holes(mask: np.ndarray, max_damage_px: int) -> tuple[int, int]:
     return damage, legit
 
 
-def check(path: Path, contract: dict, standing: bool) -> list[str]:
+def torso_back_line(fig: np.ndarray) -> float:
+    """Median rearmost opaque column over rows 30-50% down the figure.
+
+    The same measure normalise-popt-frame.py --align torso places by. Frames are
+    authored facing right, so the rear of the torso is its leftmost edge.
+    """
+    rows = np.where(fig.any(axis=1))[0]
+    top, height = rows.min(), rows.max() - rows.min() + 1
+    band = range(top + int(height * 0.30), top + int(height * 0.50))
+    return float(np.median([np.where(fig[r])[0].min() for r in band if fig[r].any()]))
+
+
+def check(path: Path, contract: dict, standing: bool, torso_target: float | None = None) -> list[str]:
     cell_w, cell_h = contract["cell"]["canonical"]
     baseline = contract["cell"]["baseline"]
     pivot_x = contract["cell"]["pivot"]["x"]
@@ -151,11 +164,20 @@ def check(path: Path, contract: dict, standing: bool) -> list[str]:
         fails.append(f"leaves the pose envelope: x {xs.min()}..{xs.max()} (allowed {ex0}..{ex1}), "
                      f"y {highest}..{lowest} (allowed {ey0}..{ey1})")
 
-    foot = xs[ys >= lowest - 1]
-    mid = (foot.min() + foot.max()) / 2
-    if abs(mid - pivot_x) > MAX_PIVOT_DRIFT:
-        fails.append(f"foot midpoint is column {mid:.1f}, pivot column is {pivot_x} "
-                     f"(drift over {MAX_PIVOT_DRIFT}px changes where he stands on stage)")
+    if torso_target is not None:
+        # An in-place cycle (a walk) plants a different foot on each drawing, so its
+        # feet are never centred. The body is what must not move: hold its torso to
+        # the reference cell with the same tolerance the feet get elsewhere.
+        back = torso_back_line(fig)
+        if abs(back - torso_target) > MAX_PIVOT_DRIFT:
+            fails.append(f"torso back line is column {back:.1f}, reference is {torso_target:.1f} "
+                         f"(drift over {MAX_PIVOT_DRIFT}px makes an in-place cycle swim)")
+    else:
+        foot = xs[ys >= lowest - 1]
+        mid = (foot.min() + foot.max()) / 2
+        if abs(mid - pivot_x) > MAX_PIVOT_DRIFT:
+            fails.append(f"foot midpoint is column {mid:.1f}, pivot column is {pivot_x} "
+                         f"(drift over {MAX_PIVOT_DRIFT}px changes where he stands on stage)")
 
     if standing:
         h = lowest - highest + 1
@@ -191,7 +213,18 @@ def main() -> int:
     ap.add_argument("--contract", type=Path, default=DEFAULT_CONTRACT)
     ap.add_argument("--standing-clip", action="append", default=["anchor", "idle"],
                     help="clips whose frames must match the contract standing height")
+    ap.add_argument("--in-place-clip", action="append", default=[],
+                    help="cycles drawn in place (walks): hold the torso to --torso-reference "
+                         "instead of centring the feet on the pivot")
+    ap.add_argument("--torso-reference", type=Path, default=None,
+                    help="normalised cell whose torso back line in-place clips must match")
     args = ap.parse_args()
+    if args.in_place_clip and args.torso_reference is None:
+        ap.error("--in-place-clip needs --torso-reference")
+    torso_target = None
+    if args.torso_reference is not None:
+        ref = np.asarray(Image.open(args.torso_reference).convert("RGBA"))[:, :, 3] > ALPHA_ON
+        torso_target = torso_back_line(ref)
 
     if not args.frames_dir.is_dir():
         print(f"error: {args.frames_dir} is not a directory", file=sys.stderr)
@@ -206,7 +239,8 @@ def main() -> int:
     failures = 0
     for f in frames:
         rel = f"{f.parent.name}/{f.name}"
-        fails = check(f, contract, standing=f.parent.name in args.standing_clip)
+        fails = check(f, contract, standing=f.parent.name in args.standing_clip,
+                      torso_target=torso_target if f.parent.name in args.in_place_clip else None)
         if fails:
             failures += 1
             print(f"FAIL {rel}")

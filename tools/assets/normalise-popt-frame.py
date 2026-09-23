@@ -73,13 +73,20 @@ def main() -> int:
                     help="source pixels per contract cell pixel; constant across the whole set")
     ap.add_argument("--derive-scale", action="store_true",
                     help="derive the scale from this frame's standing height and print it")
-    ap.add_argument("--align", choices=("feet", "bbox"), default="feet",
-                    help="feet: baseline row and horizontal midpoint of the foot span (default)")
+    ap.add_argument("--align", choices=("feet", "bbox", "torso"), default="feet",
+                    help="feet: baseline row and horizontal midpoint of the foot span (default); "
+                         "torso: back line of the torso matched to --torso-reference, for cycles "
+                         "drawn in place where the planted foot changes (walks)")
+    ap.add_argument("--torso-reference", type=Path, default=None,
+                    help="an already normalised cell whose torso back line --align torso matches")
     ap.add_argument("--resample", choices=("lanczos", "bilinear"), default="lanczos",
                     help="downsampling filter; bilinear avoids ringing in narrow sprite gaps")
     ap.add_argument("--source-alpha", action="store_true",
                     help="use existing transparency instead of the magenta key")
     args = ap.parse_args()
+
+    if args.align == "torso" and args.torso_reference is None:
+        ap.error("--align torso needs --torso-reference, the normalised cell to hold the body against")
 
     contract = json.loads(args.contract.read_text())
     cell_w, cell_h = contract["cell"]["canonical"]
@@ -148,7 +155,21 @@ def main() -> int:
     # placement
     op = sprite[:, :, 3] > 8
     sy, sx = np.where(op)
-    if args.align == "feet":
+    if args.align == "torso":
+        # The back line of the torso: the median of the rearmost opaque column over the
+        # rows 30-50% down the figure. Leg-only edits keep it fixed, the fists do not
+        # reach it, and feet placement cannot move it. Rear is the left, since every
+        # frame is authored facing right.
+        def back_line(mask: np.ndarray) -> float:
+            rows = np.where(mask.any(axis=1))[0]
+            top, height = rows.min(), rows.max() - rows.min() + 1
+            band = range(top + int(height * 0.30), top + int(height * 0.50))
+            return float(np.median([np.where(mask[r])[0].min() for r in band if mask[r].any()]))
+        reference = np.asarray(Image.open(args.torso_reference).convert("RGBA"))[:, :, 3] > 8
+        target_back = back_line(reference)
+        anchor_x = int(round(back_line(op) + pivot_x - target_back))
+        anchor_y = int(sy.max())
+    elif args.align == "feet":
         foot_rows = sy.max()
         foot_span = sx[sy >= foot_rows - 1]
         anchor_x = int(round((foot_span.min() + foot_span.max()) / 2))
