@@ -125,4 +125,30 @@ production switch needs a Vercel token and a Vercel setting that only the owner 
 
 ## Handoff
 
-Filled in when the PR is ready.
+**Owner actions.** Only the owner can do these:
+
+1. **Approve the first visual-regression baselines.** Download the `review-evidence` artifact from a
+   CI run, check the images under `e2e/review-evidence.spec.ts-snapshots/`, and commit them (or ask
+   me to). Until then the check is report-only and says "no baseline yet".
+2. **The Model Y reward line** in the entry bundle: keep it allow-listed, or move it into the lazy
+   reward chunk (a small product change).
+3. **Make the production gate real** (optional). Add a `VERCEL_TOKEN` secret, set the repository
+   variable `GATED_PRODUCTION=true`, then turn off Vercel's automatic production deploys from `main`.
+   Until then Vercel deploys as before, and the `production` environment only records approvals of
+   releases.
+
+**Applied by `tools/ci/repo-settings.sh` after merge** (idempotent; re-run it to restore):
+- Branch protection on `main`, requiring `quality`, `browser-smoke` and
+  `new-production-dependencies`. Not strict; no review requirement; admins may bypass.
+- Auto-merge allowed. Actions may open PRs (release-please).
+- Dependabot alerts and security-fix PRs. Labels `dependency-approved` and `dependencies`.
+- `production` environment with the owner as the required reviewer.
+- Merge queue: unavailable for personally-owned repositories.
+
+**Everyday flow for maintainers:**
+- One branch and one draft PR per milestone. Drafts run only `quality` (about 2 min).
+- Mark the PR ready once; the full suite, review evidence and comments follow.
+- Enable auto-merge on it and it lands itself when green.
+- A new production dependency needs the `dependency-approved` label.
+- A size budget raise is an edit to `tools/ci/budgets.json`.
+- A new spoiler-term occurrence is an owner-reviewed entry in `tools/ci/spoiler-allowlist.json`.
