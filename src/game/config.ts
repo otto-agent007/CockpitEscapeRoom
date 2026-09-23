@@ -301,7 +301,6 @@ export const gameCopy = {
   premise:
     'The game is a personalized tribute. Begin in the DC-9 right seat, discover the locker story, then earn the Airbus A320 left-seat command view.',
   rewardTitle: 'Ground Transport Upgrade Authorized',
-  rewardVehicleLine: 'The red Tesla Model Y is unlocked.',
   finalMessage:
     'Happy Father’s Day, Pop T. From the baseball field to the captain’s seat, from the DC-9 to the Airbus, you showed us how preparation, calm judgment, teamwork, and leadership can carry a family anywhere. This game was built from the lessons you gave us. Your crew loves you.',
   captainReward: 'Legacy hangar release authorized.',
