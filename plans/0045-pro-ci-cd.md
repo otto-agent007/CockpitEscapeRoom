@@ -127,11 +127,12 @@ production switch needs a Vercel token and a Vercel setting that only the owner 
 
 **Owner actions.** Only the owner can do these:
 
-1. **Approve the first visual-regression baselines.** Download the `review-evidence` artifact from a
-   CI run, check the images under `e2e/review-evidence.spec.ts-snapshots/`, and commit them (or ask
-   me to). Until then the check is report-only and says "no baseline yet".
-2. **The Model Y reward line** in the entry bundle: keep it allow-listed, or move it into the lazy
-   reward chunk (a small product change).
+1. **Visual-regression baselines:** committed 2026-09-23 from the Linux CI run of #94 (15 images;
+   on `?skip3d=1` the cockpits are static fallback images and only the intro canvas is masked).
+   Merging that PR is the owner's approval. The check stays report-only; make it blocking once a
+   few runs confirm it stays green.
+2. **The Model Y reward line:** fixed 2026-09-23. It moved to `src/game/rewardCopy.ts`, imported
+   only by the lazy reward chunk, and its spoiler-allowlist entry was removed.
 3. **Make the production gate real** (optional). Add a `VERCEL_TOKEN` secret, set the repository
    variable `GATED_PRODUCTION=true`, then turn off Vercel's automatic production deploys from `main`.
    Until then Vercel deploys as before, and the `production` environment only records approvals of
