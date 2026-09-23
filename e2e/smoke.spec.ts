@@ -1045,7 +1045,7 @@ test("The Captain's Key card keeps every control reachable by keyboard", async (
   expect(await focused()).toBe('Sound on')
 })
 
-test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
+test('Airbus production cockpit loads the A320 GLB', { tag: '@heavy-airbus' }, async ({ page }) => {
   // SwiftShader can take longer to tear down the real 38 MiB cockpit page after
   // the final WebGL assertion; keep the boundary bounded without weakening checks.
   test.setTimeout(180_000)
@@ -1104,7 +1104,7 @@ test('Airbus production cockpit loads the A320 GLB', async ({ page }) => {
   expect(consoleErrors).toEqual([])
 })
 
-test('DC-9 production cockpit stages the Final Flight Log with the existing registry', async ({ page }) => {
+test('DC-9 production cockpit stages the Final Flight Log with the existing registry', { tag: '@heavy-dc9' }, async ({ page }) => {
   // The complete real-GLB path can cross four minutes after neighbouring asset
   // decodes; retain every assertion while allowing bounded full-suite contention.
   // Raised again after CI blew the 300s budget on the instrument scan while the

@@ -167,7 +167,7 @@ test('the first DC-9 entry orients the right seat once before enabling the contr
   await expect(orientation).toHaveCount(0)
 })
 
-test('the first Airbus entry orients the left seat once before enabling label placement', async ({ page }) => {
+test('the first Airbus entry orients the left seat once before enabling label placement', { tag: '@heavy-scenes' }, async ({ page }) => {
   test.setTimeout(180_000)
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   const orientation = await openWithInitialState(

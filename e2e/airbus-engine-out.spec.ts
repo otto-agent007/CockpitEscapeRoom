@@ -261,7 +261,7 @@ test('Captain Challenges and Engine-Out controls remain usable at tablet and pho
   expect(tabletGuidance.y + tabletGuidance.height).toBeLessThanOrEqual(tabletDeck.y)
 })
 
-test('production Airbus cockpit renders live Engine-Out displays and control response', async ({ page }) => {
+test('production Airbus cockpit renders live Engine-Out displays and control response', { tag: '@heavy-airbus' }, async ({ page }) => {
   // Wall-clock budget, not a correctness bound — the same one the Storm Line
   // production test carries. This drives the real 38 MiB GLB through a CPU
   // rasteriser at roughly 1 fps, where the simulator's fixed step advances ~10x

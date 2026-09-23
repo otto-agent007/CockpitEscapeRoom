@@ -3,7 +3,9 @@ name: CI
 # Design notes live in plans/0045-pro-ci-cd.md. In short:
 # - `quality` (about 2 min) runs on every push: lint, types, unit tests, build, asset
 #   checks, the Python tool tests, and the spoiler/privacy/budget guards.
-# - The browser suite (40+ min on one worker) is split across 6 shards. It runs only
+# - The browser suite (about 50 min of tests) runs on 6 runners split by WEIGHT: the few
+#   real-GLB tests that take 2-11 min each are tagged into @heavy-* groups, and the rest is
+#   split in two. It runs only
 #   on non-draft PRs that can affect the game or its tests, on main, and nightly.
 # - `browser-smoke` aggregates the shards, so branch protection needs one stable name.
 # - A newer push cancels the superseded run of the same PR.
@@ -85,6 +87,18 @@ jobs:
           python -m pip install --quiet numpy pillow
           for test in tools/assets/*.test.py; do echo "== $test"; python "$test"; done
           python -m unittest discover -s tools/blender/cockpit_pipeline/tests -t .
+      - name: Shard plan covers every browser test exactly once
+        run: |
+          count() { npx playwright test --list "$@" 2>/dev/null | tail -1 | grep -oE '^Total: [0-9]+' | grep -oE '[0-9]+' || echo 0; }
+          all=$(count --grep-invert "gate screenshots|visual regression")
+          sum=0
+          for group in heavy-dc9 heavy-storm heavy-airbus heavy-scenes; do sum=$((sum + $(count --grep "@$group"))); done
+          light=$(count --grep-invert "@heavy|gate screenshots|visual regression")
+          echo "suite=$all heavy=$sum light=$light"
+          if [ "$all" -eq 0 ] || [ $((sum + light)) -ne "$all" ]; then
+            echo "::error::The e2e shard plan does not cover the suite exactly once (a new @heavy-* tag with no matrix group?)"
+            exit 1
+          fi
       - name: Spoiler guard (no Model Y in the initial download)
         run: node tools/ci/spoiler-guard.mjs dist
       - name: Privacy guard (no tracking, no remote calls)
@@ -113,7 +127,7 @@ jobs:
           fail-on-severity: high
 
   e2e:
-    name: e2e (${{ matrix.shard }}/6)
+    name: e2e (${{ matrix.group }})
     needs: changes
     if: >-
       needs.changes.outputs.e2e == 'true' &&
@@ -123,7 +137,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6]
+        # Measured 2026-09-23 under CI's software renderer: two single tests take 11.2 min
+        # (the DC-9 and Storm Line production GLBs), five more take 2.4-4.6 min, and the
+        # remaining 92 tests about 10.5 min together. Playwright shards by test COUNT, so the
+        # heavy ones are grouped by tag instead; no group exceeds the 11.2 min floor.
+        # A tag with no group here fails the "shard plan" step in `quality`.
+        include:
+          - { group: heavy-dc9, args: '--grep @heavy-dc9' }
+          - { group: heavy-storm, args: '--grep @heavy-storm' }
+          - { group: heavy-airbus, args: '--grep @heavy-airbus' }
+          - { group: heavy-scenes, args: '--grep @heavy-scenes' }
+          - { group: light-1, args: '--grep-invert "@heavy|gate screenshots|visual regression" --shard=1/2' }
+          - { group: light-2, args: '--grep-invert "@heavy|gate screenshots|visual regression" --shard=2/2' }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -144,15 +169,13 @@ jobs:
         run: npx playwright install --with-deps chromium
       - if: steps.browsers.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
-      # The review-evidence tests only run in their own job. Filtering them out
-      # BEFORE sharding matters: Playwright shards by test count, so 30 skipped
-      # tests took real slots and left two shards with 14 tests and one with 30
-      # (25.6 min vs 1.8 min on the first run).
-      - run: npx playwright test --shard=${{ matrix.shard }}/6 --grep-invert "gate screenshots|visual regression"
+      # The review-evidence tests (gate screenshots, visual regression) run only in their
+      # own job, so the light shards filter them out before sharding.
+      - run: npx playwright test ${{ matrix.args }} --pass-with-no-tests
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
         with:
-          name: playwright-report-${{ matrix.shard }}
+          name: playwright-report-${{ matrix.group }}
           path: |
             playwright-report/
             test-results/
