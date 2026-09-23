@@ -64,7 +64,7 @@ import {
   type Dc9ActiveSelfTest,
   type Dc9JointHandle,
 } from './dc9FlightDeckVisuals'
-import { sampleCockpitOrientation } from './cockpitOrientation'
+import { orientationFrameDelta, sampleCockpitOrientation } from './cockpitOrientation'
 
 const AIRBUS_GAME_CAMERA = 'CAM_AIRBUS_CAPTAIN_GAME_VIEW'
 const AIRBUS_STORM_FLIGHT_CAMERA = 'CAM_AIRBUS_CAPTAIN_STORM_FLIGHT'
@@ -592,7 +592,7 @@ function AirbusCameraDirector({
     let pose = interactionPose
     let look = recenterAirbusLook()
     if (orientationActive) {
-      orientationElapsedRef.current += delta
+      orientationElapsedRef.current += orientationFrameDelta(delta)
       const orientation = sampleCockpitOrientation('airbus', orientationElapsedRef.current)
       pose = {
         ...interactionPose,
@@ -815,7 +815,7 @@ function Dc9SeatLookControls({
     let leanMeters = 0
     let fov = widthRef.current < 900 ? narrowFovRef.current : fovRef.current
     if (orientationActive) {
-      orientationElapsedRef.current += delta
+      orientationElapsedRef.current += orientationFrameDelta(delta)
       const orientation = sampleCockpitOrientation('dc9', orientationElapsedRef.current)
       yaw = initialYaw + orientation.yawRadians
       pitch = initialPitch + orientation.pitchRadians
