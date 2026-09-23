@@ -1,4 +1,4 @@
-import { mkdirSync } from 'node:fs'
+import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 import type { GameState } from '../src/game/state'
@@ -26,15 +26,83 @@ interface Screen {
   slug: string
   state: GameState | null
   heading: string | null
+  /** The model this screen must show; the capture waits for it to finish downloading. */
+  model: string
 }
 
 const SCREENS: Screen[] = [
-  { slug: '1-intro', state: null, heading: null },
-  { slug: '2-dc9', state: createDc9State(), heading: 'DC-9 Final Flight Log' },
-  { slug: '3-locker', state: createLockerState(), heading: "Before the captain's seat" },
-  { slug: '4-airbus', state: createAirbusState(), heading: 'Airbus cockpit label placement' },
-  { slug: '5-airbus-complete', state: createCompletedAirbusState(), heading: 'POP T CAPTAIN MODE COMPLETE' },
+  // The intro preloads the DC-9 during the cinematic (CLAUDE.md).
+  { slug: '1-intro', state: null, heading: null, model: 'dc9-cockpit.glb' },
+  { slug: '2-dc9', state: createDc9State(), heading: 'DC-9 Final Flight Log', model: 'dc9-cockpit.glb' },
+  { slug: '3-locker', state: createLockerState(), heading: "Before the captain's seat", model: 'locker-room.glb' },
+  { slug: '4-airbus', state: createAirbusState(), heading: 'Airbus cockpit label placement', model: 'airbus-captain.glb' },
+  { slug: '5-airbus-complete', state: createCompletedAirbusState(), heading: 'POP T CAPTAIN MODE COMPLETE', model: 'airbus-captain.glb' },
 ]
+
+/**
+ * Wait until the scene is finished, not merely loaded. Scenes signal readiness
+ * differently (the DC-9 canvas has a model state, the locker exposes none), so
+ * this uses two generic rules: every GLB the page requested has finished
+ * downloading, and then consecutive screenshots are byte-identical, i.e. the
+ * model has been decoded and drawn and nothing is still changing. The first CI
+ * run captured the locker as a blank panel before its 44 MB model was drawn.
+ */
+interface ModelTracker {
+  inFlight(): number
+  finished(name: string): boolean
+}
+
+function trackModels(page: Page): ModelTracker {
+  let inFlight = 0
+  const finished = new Set<string>()
+  const modelName = (url: string) => url.match(/\/models\/([^/?]+\.glb)/)?.[1] ?? null
+  page.on('request', (request) => { if (modelName(request.url())) inFlight += 1 })
+  page.on('requestfinished', (request) => {
+    const name = modelName(request.url())
+    if (!name) return
+    inFlight -= 1
+    finished.add(name)
+  })
+  page.on('requestfailed', (request) => { if (modelName(request.url())) inFlight -= 1 })
+  return { inFlight: () => inFlight, finished: (name) => finished.has(name) }
+}
+
+/**
+ * A frame via the DevTools protocol directly. Playwright's own screenshot fails
+ * intermittently on the locker scene with "Unable to capture screenshot"; the
+ * cockpit-orientation capture spec hit the same thing and captures this way.
+ */
+async function capture(page: Page): Promise<Buffer> {
+  // The locker's opening transition briefly refuses captures; retry that error only.
+  for (let attempt = 1; ; attempt += 1) {
+    const session = await page.context().newCDPSession(page)
+    try {
+      const { data } = await session.send('Page.captureScreenshot', { format: 'png' })
+      return Buffer.from(data, 'base64')
+    } catch (error) {
+      if (attempt >= 20 || !String(error).includes('Unable to capture screenshot')) throw error
+      await page.waitForTimeout(500)
+    } finally {
+      await session.detach().catch(() => undefined)
+    }
+  }
+}
+
+async function settle(page: Page, screen: Screen, models: ModelTracker) {
+  await expect.poll(() => models.finished(screen.model), { timeout: 240_000, intervals: [1_000] }).toBe(true)
+  await expect.poll(() => models.inFlight(), { timeout: 240_000, intervals: [1_000] }).toBe(0)
+  const dc9 = page.locator('canvas[data-dc9-model-state]')
+  if (await dc9.count()) await expect(dc9).toHaveAttribute('data-dc9-model-state', /ready|fallback/, { timeout: 240_000 })
+  await expect(page.getByText(/MB downloaded/)).toHaveCount(0, { timeout: 240_000 })
+  let previous = await capture(page)
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    await page.waitForTimeout(2_000)
+    const current = await capture(page)
+    if (current.equals(previous)) return
+    previous = current
+  }
+  throw new Error('the scene never stopped changing in 120 s')
+}
 
 async function open(page: Page, screen: Screen, skip3d: boolean) {
   if (screen.state) {
@@ -58,18 +126,15 @@ test.describe('gate screenshots', () => {
   for (const screen of SCREENS) {
     for (const width of WIDTHS) {
       test(`${screen.slug} at ${width}px`, async ({ page }) => {
-        test.setTimeout(180_000)
+        test.setTimeout(480_000)
         await page.setViewportSize({ width, height: HEIGHT_FOR[width] })
+        // Reduced motion for consistent evidence: no intro logo caught mid-animation.
+        await page.emulateMedia({ reducedMotion: 'reduce' })
+        const models = trackModels(page)
         await open(page, screen, false)
-        // Capture the finished scene, not its loading overlay: the DC-9 canvas
-        // reports its model state, and every scene shows an "… MB downloaded"
-        // progress line while a model streams.
-        const dc9 = page.locator('canvas[data-dc9-model-state]')
-        if (await dc9.count()) await expect(dc9).toHaveAttribute('data-dc9-model-state', /ready|fallback/, { timeout: 150_000 })
-        await expect(page.getByText(/MB downloaded/)).toHaveCount(0, { timeout: 150_000 })
-        await page.waitForTimeout(1_000)
+        await settle(page, screen, models)
         mkdirSync(evidenceDir!, { recursive: true })
-        await page.screenshot({ path: join(evidenceDir!, `${screen.slug}-${width}.png`) })
+        writeFileSync(join(evidenceDir!, `${screen.slug}-${width}.png`), await capture(page))
       })
     }
   }
@@ -84,7 +149,13 @@ test.describe('visual regression', () => {
         await page.setViewportSize({ width, height: HEIGHT_FOR[width] })
         await page.emulateMedia({ reducedMotion: 'reduce' })
         await open(page, screen, true)
-        await expect(page).toHaveScreenshot(`${screen.slug}-${width}.png`, { animations: 'disabled', maxDiffPixelRatio: 0.01 })
+        // Canvases are masked: WebGL under CI's software renderer is not pixel-stable,
+        // so the comparison covers the HTML interface, which is.
+        await expect(page).toHaveScreenshot(`${screen.slug}-${width}.png`, {
+          animations: 'disabled',
+          mask: [page.locator('canvas')],
+          maxDiffPixelRatio: 0.01,
+        })
       })
     }
   }
