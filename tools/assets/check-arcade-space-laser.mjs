@@ -74,8 +74,8 @@ try {
     assert.ok(meter >= 40, `${scenario.tag}: only earned ${meter} meter`)
 
     // Separate them: the booster backs off, the defender retreats (which is guarding).
-    // Not to the walls: nothing yet stops the fighters walking further apart than
-    // the 320 px screen, and a beam on an off-screen defender proves nothing.
+    // Well inside MARS_ARCADE_STAGE.maxSeparation (272), so both stay in frame
+    // and the beam lands on a defender the camera is actually showing.
     await page.keyboard.down('KeyA'); await page.keyboard.down('ArrowRight')
     await page.clock.runFor(1100)
     await page.keyboard.up('KeyA')
