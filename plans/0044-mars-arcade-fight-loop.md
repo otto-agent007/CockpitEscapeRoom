@@ -1425,3 +1425,14 @@ logic through a per-fighter pose table, and the rules are unchanged. See
 drawings (a wide lunge and a near-stance) that flip every 6 frames with no passing pose,
 and the same pair plays when he walks backwards. The contract budgets 4 frames for walking
 forward and 4 for walking back.
+
+### Booster walk cycle — 2026-09-23
+
+This answers the owner's "walk poses need some more work". Booster now has four-drawing
+forward and backward step-and-drag cycles, drawn in place. That needed a new alignment mode
+(`--align torso`) and matching in-place gating, because feet alignment made every walk swim.
+See `asset-reports/mars-arcade-booster-walk-2026-09-23.md`.
+
+**Next candidates:** Oracle's walk has the same two-drawing feet-aligned construction and would
+benefit from the same treatment. After that come jab and Oracle heavy polish, the remaining
+specials, and gym entries once the gym manifest lands.

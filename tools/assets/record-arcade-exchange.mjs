@@ -14,7 +14,7 @@ try {
     })
     const page = await context.newPage()
     await page.goto(base)
-    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('51/51 sprites ready'))
+    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('57/57 sprites ready'))
     await page.locator('[data-command="exchange"]').click()
     if (mode === 'normal') {
       await page.locator('[data-command="KeyS"]').click()

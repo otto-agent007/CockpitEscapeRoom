@@ -1,5 +1,15 @@
 # Test report
 
+## 2026-09-23 — Booster walk cycle
+
+- 4 forward and 4 backward step-and-drag drawings replace the two-drawing lunge flip. New
+  opt-in torso alignment in the normaliser and in-place gating in the gate, each with
+  tests in both directions. Gate: 8 frames / 0 failures. Report:
+  `asset-reports/mars-arcade-booster-walk-2026-09-23.md`.
+- `npm run check`: 792 tests / 64 files, build PASS. All arcade browser suites PASS at 57
+  sprites. The exchange check was updated from the retired walk files.
+- Open: owner review; gym entries.
+
 ## 2026-09-23 — Booster blocked-heavy reaction
 
 - New compress and settle drawings (settle needed 2 corrections for a trapped slit). Gate:
