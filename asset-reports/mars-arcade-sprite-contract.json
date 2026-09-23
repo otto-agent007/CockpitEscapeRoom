@@ -120,7 +120,7 @@
         "cell": [320, 96],
         "frames": 4,
         "loopMode": "once",
-        "spec": "The captain's DC-9, crossing the full SCREEN. The cell is screen-width; the move's reach is the whole 480 px stage, so the aircraft sweeps the visible view while the hit covers everywhere the opponent could have run to. The aircraft is an effect, never part of the character cell."
+        "spec": "The captain's DC-9, crossing the full SCREEN. The cell is screen-width; the move's reach is the whole 480 px stage, so the aircraft sweeps the visible view while the hit covers everywhere the opponent could have run to. The aircraft is an effect, never part of the character cell. Cell top sits at screen row 28; the aircraft occupies the cell's top 32 rows with a pale fuselage and a 1 px dark outline, never a dark silhouette against the dust-storm sky (see the prompt pack)."
       },
       { "id": "fx.hitSpark", "cell": [32, 32], "frames": 3, "loopMode": "once", "spec": "Clean hit." },
       { "id": "fx.guardSpark", "cell": [32, 32], "frames": 2, "loopMode": "once", "spec": "Blocked hit; visibly weaker than the clean-hit spark." }

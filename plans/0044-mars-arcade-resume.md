@@ -8,7 +8,7 @@ Use the branch checkout (currently `/mnt/2TBHDD/CockpitEscapeRoom.worktrees/mars
 
 Completed: wider scrolling stage and generated backdrop, rebuilt HUD, per-frame bounds schema and character gym; eight-pose Booster heavy; Oracle received-heavy recovery and three-beat heavy block; Booster impact/stagger/recovery. The harness loads 46 sprite sources. The combat animation changes preserve attack timing, damage, reach, hitstun and blockstun. Earlier stage changes widen the arena and extend the captain flyby reach.
 
-Next bounded animation candidate: Booster heavy-block compression and return to guard. Then consider jab motion and Oracle heavy attack polish. Oracle received-heavy still reuses its original recoil for the stagger phase: its deeper stagger candidates failed the alpha gate. Specials, remaining fighters, cabinet integration, impact effects and complete-game proof remain unfinished. Do not treat this checkpoint as final art approval.
+Next bounded animation candidate: Booster heavy-block compression and return to guard. Then consider jab motion and Oracle heavy attack polish. Oracle received-heavy still reuses its original recoil for the stagger phase: its deeper stagger candidates failed the alpha gate. Specials, remaining fighters, cabinet integration, impact effects and complete-game proof remain unfinished. `fx.flyby` is re-specified for the dust-storm sky but not yet drawn: pale fuselage with a 1 px dark outline in screen rows 28-60, asserted by `check-arcade-stage.mjs` (see the prompt pack). Do not treat this checkpoint as final art approval.
 
 ## Validation at checkpoint
 

@@ -252,7 +252,9 @@ version's 16.9%. That is expected and fine: a dramatic sky concentrates more pix
 its dominant reds. It is a spread metric, not a quality one — what it exists to catch is a
 two-tone void, and the retired stage sat at 88.5%.
 
-**Carried forward:** `fx.flyby` is still specified against the old palette. THE CAPTAIN's
-DC-9 was briefed as a flat silhouette that should read as *dignified*, and against this
-crimson sky it will need checking when that effect is drawn — probably a lighter treatment
-so it does not vanish into the dust banks.
+**Resolved in the brief (2026-09-22):** `fx.flyby` had been specified against the old
+palette. It is now re-specified against this sky, though not yet drawn. Measured on the live canvas, a
+dark silhouette has a 1.18:1 median contrast in the upper lane and would vanish. A pale
+fuselage holds at least 3.91:1 in screen rows 28-60. The prompt pack now puts the aircraft in
+that lane with a pale fill and a 1 px dark outline, and `check-arcade-stage.mjs` asserts the
+lane at both camera clamps.

@@ -11,7 +11,7 @@ import { mkdir } from 'node:fs/promises'
 import { chromium } from '@playwright/test'
 
 const base = process.env.ARCADE_STAGE_URL ?? 'http://127.0.0.1:5319/dev/arcade.html'
-const out = new URL('../../preview-renders/mars-arcade/', import.meta.url).pathname
+const out = process.env.ARCADE_EVIDENCE_DIR ? process.env.ARCADE_EVIDENCE_DIR.replace(/\/?$/, '/') : new URL('../../preview-renders/mars-arcade/', import.meta.url).pathname
 await mkdir(out, { recursive: true })
 const browser = await chromium.launch({ headless: true })
 const report = message => console.log(`PASS ${message}`)
@@ -34,6 +34,40 @@ async function flatness(page) {
       topTwoShare: ((top[0] ?? 0) + (top[1] ?? 0)) / pixels,
     }
   })
+}
+
+/**
+ * How well a flat aircraft of one colour would stand out in the lane `fx.flyby`
+ * crosses. Screen rows 28-60: the first row under the HUD down to where the bright
+ * dust shelves start. Returns WCAG contrast ratios, worst and median, per candidate.
+ */
+async function flybyLane(page, candidates) {
+  return page.evaluate(({ candidates, rows }) => {
+    const linear = v => (v /= 255) <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4
+    const luminance = ([r, g, b]) => 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b)
+    const canvas = document.querySelector('canvas')
+    const scale = canvas.width / 320
+    const ctx = canvas.getContext('2d')
+    const { data } = ctx.getImageData(0, rows[0] * scale, canvas.width, (rows[1] - rows[0]) * scale)
+    const sky = []
+    for (let i = 0; i < data.length; i += 4 * scale) sky.push(luminance([data[i], data[i + 1], data[i + 2]]))
+    const result = {}
+    for (const [name, rgb] of Object.entries(candidates)) {
+      const own = luminance(rgb)
+      const ratios = sky.map(l => (Math.max(own, l) + 0.05) / (Math.min(own, l) + 0.05)).sort((a, b) => a - b)
+      result[name] = { worst: ratios[0], median: ratios[ratios.length >> 1] }
+    }
+    return result
+  }, { candidates, rows: [28, 60] })
+}
+
+/** The DC-9's brief: a pale fuselage; the old brief was a dark flat silhouette. */
+const FLYBY_CANDIDATES = { paleFuselage: [0xf4, 0xea, 0xd2], darkSilhouette: [0x16, 0x0a, 0x12] }
+
+function assertFlybyLane(lane, where) {
+  assert.ok(lane.paleFuselage.worst >= 3, `pale fuselage drops to ${lane.paleFuselage.worst.toFixed(2)}:1 in the flyby lane at the ${where}`)
+  assert.ok(lane.darkSilhouette.median < 1.5, `dark silhouette unexpectedly reads (${lane.darkSilhouette.median.toFixed(2)}:1) at the ${where}; the sky changed, re-check the brief`)
+  report(`flyby lane at the ${where}: pale fuselage worst ${lane.paleFuselage.worst.toFixed(2)}:1, dark silhouette median ${lane.darkSilhouette.median.toFixed(2)}:1`)
 }
 
 try {
@@ -69,6 +103,7 @@ try {
   await tick(9000)
   const leftCamera = await camera()
   const leftPositions = await positions()
+  const leftLane = await flybyLane(page, FLYBY_CANDIDATES)
   await stage.screenshot({ path: `${out}stage-corner-left.png` })
   await page.keyboard.up('KeyA')
   await page.keyboard.up('ArrowLeft')
@@ -82,6 +117,7 @@ try {
   await tick(16000)
   const rightCamera = await camera()
   const rightPositions = await positions()
+  const rightLane = await flybyLane(page, FLYBY_CANDIDATES)
   await stage.screenshot({ path: `${out}stage-corner-right.png` })
   await page.keyboard.up('KeyD')
   await page.keyboard.up('ArrowRight')
@@ -92,6 +128,11 @@ try {
   assert.ok(leftCamera !== rightCamera, 'the camera never moved')
   assert.equal(rightCamera - leftCamera, 208, 'camera travel is not the full stage')
   report('total camera travel is 208 px — the stage genuinely scrolls')
+
+  // Sampled at both clamps, after the round card has gone. The cloud tile is
+  // exactly screen-wide, so every column of it is in the lane at either clamp.
+  assertFlybyLane(leftLane, 'left clamp')
+  assertFlybyLane(rightLane, 'right clamp')
 
   // The cornered fighter must be fully inside the canvas, not clipped by the edge.
   const edge = await page.evaluate(() => {

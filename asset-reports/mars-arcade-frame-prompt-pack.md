@@ -488,7 +488,27 @@ Authored outside the character cell and not gated by the character checker.
 | `fx.hitSpark` | 32×32 | 3 | A clean flat starburst, expanding then thinning. No photographic glow. |
 | `fx.guardSpark` | 32×32 | 2 | The same shape, visibly weaker and cooler than the hit spark — a player must tell them apart at a glance. |
 | `fx.textBubble` | 40×40 | 3 | The oracle's projectile: a flat speech-bubble shape with a solid cyan fill and a hard outline, gently pulsing across the 3 frames. About 36 px across, matching the 18 px collision radius. No text inside it. |
-| `fx.flyby` | 320×96 | 4 | A DC-9 in side profile crossing the full stage width, clean and flat, wings level. Not a warplane, no weapons, no smoke trail, no motion lines. It should read as *dignified*. |
+| `fx.flyby` | 320×96 | 4 | A DC-9 in side profile crossing the full stage width, clean and flat, wings level. Not a warplane, no weapons, no smoke trail, no motion lines. It should read as *dignified*. **Pale fuselage, not a dark silhouette** — see the note below this table. |
+
+
+**`fx.flyby` against the dust-storm sky (measured 2026-09-22).** The cell is anchored with
+its top at screen row 28, directly under the HUD, and the aircraft is drawn in the cell's
+**top 32 rows** (screen rows 28-60), roughly 110-130 px long. Below row 60 the dust banks
+turn to bright orange shelves, and no single flat colour survives them.
+
+- **Fuselage and wings pale**, a warm off-white around `#f4ead2`, with a 1 px outline in the
+  sky's darkest crimson `#160a12`. Against that lane the pale fill never drops below
+  **3.91:1** contrast. With the outline it stays above 4.1:1 anywhere in the cloud band,
+  so a drawing that dips lower still reads.
+- **Never a dark silhouette.** The original brief implied one, and against this sky it would
+  vanish: `#160a12` has a **1.18:1** median contrast in the lane.
+- One cheatline or window row in a mid tone is fine. It must stay a DC-9-32 in major
+  outline: T-tail, two rear-mounted engines, no underwing engines. Never an A320 shape.
+
+`check-arcade-stage.mjs` measures this lane on the live canvas at both camera clamps. It
+fails if the pale fill drops under 3:1, and also if the dark silhouette starts reading,
+which would mean the sky changed and this note needs revisiting. Moved to rows 60-124,
+the same check fails at 1.03:1.
 
 ---
 
