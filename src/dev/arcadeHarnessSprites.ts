@@ -107,6 +107,93 @@ export const ARCADE_SPRITE_SOURCES = [
   heavyBlockFrames.booster.compress, heavyBlockFrames.booster.settle,
 ]
 
+export interface ArcadeGymFrame {
+  src: string
+  /** The pose's name, shown in the gym beside the frame number. */
+  pose: string
+  phase: 'startup' | 'active' | 'recovery' | 'neutral'
+}
+
+export interface ArcadeGymAnimation {
+  fighter: MarsArcadeFighterId
+  animation: string
+  moveId?: string
+  frames: ArcadeGymFrame[]
+}
+
+const pose = (src: string, name: string, phase: ArcadeGymFrame['phase'] = 'neutral'): ArcadeGymFrame =>
+  ({ src, pose: name, phase })
+
+/**
+ * Every animation the harness plays, in playback order, for the character gym.
+ *
+ * Built from the same constants `selectArcadeSprite` draws, so wiring a new pose into
+ * the harness is what puts it in the gym. The sprite test fails if a source in
+ * ARCADE_SPRITE_SOURCES appears in no animation here — booster heavy went missing
+ * from the gym for exactly that reason when the gym kept its own frame list.
+ */
+export const ARCADE_GYM_ANIMATIONS: ArcadeGymAnimation[] = [
+  { fighter: 'booster', animation: 'idle', frames: [pose(anchors.booster, 'anchor'), pose(boosterInhale, 'inhale')] },
+  { fighter: 'booster', animation: 'walk-forward', frames: boosterWalkForward.map((src, index) => pose(src, ['step', 'drag', 'gather', 'load'][index]!)) },
+  { fighter: 'booster', animation: 'walk-back', frames: boosterWalkBack.map((src, index) => pose(src, ['step back', 'drag back', 'gather', 'load'][index]!)) },
+  {
+    fighter: 'booster', animation: 'jab', moveId: 'booster.padJab',
+    frames: [pose(anticipation, 'anticipation', 'startup'), pose(jab, 'jab', 'active'), pose(recovery, 'recovery', 'recovery')],
+  },
+  {
+    fighter: 'booster', animation: 'heavy', moveId: 'booster.staticFire',
+    frames: [
+      pose(heavy.booster.startup, 'startup', 'startup'),
+      pose(boosterHeavySwing, 'swing', 'startup'),
+      pose(boosterHeavyDrive, 'drive', 'startup'),
+      pose(heavy.booster.active, 'contact', 'active'),
+      pose(boosterHeavyRetract, 'retract', 'recovery'),
+      pose(heavy.booster.recovery, 'follow-through', 'recovery'),
+      pose(boosterHeavySettle, 'settle', 'recovery'),
+      pose(boosterGuard, 'guard', 'recovery'),
+    ],
+  },
+  { fighter: 'booster', animation: 'block', frames: [pose(boosterGuard, 'guard')] },
+  {
+    fighter: 'booster', animation: 'heavy-block',
+    frames: [pose(heavyBlockFrames.booster.compress, 'compress'), pose(heavyBlockFrames.booster.settle, 'settle'), pose(boosterGuard, 'guard')],
+  },
+  {
+    fighter: 'booster', animation: 'special', moveId: 'booster.spaceLaser',
+    frames: [pose(spaceLaser.callItIn, 'call it in', 'active'), pose(spaceLaser.watch, 'watch it land', 'recovery'), pose(spaceLaser.pocket, 'pocket the phone', 'recovery')],
+  },
+  {
+    fighter: 'booster', animation: 'hit',
+    frames: [pose(boosterRecoil, 'impact'), pose(boosterHitStagger, 'stagger'), pose(boosterHitRecover, 'recover')],
+  },
+  { fighter: 'booster', animation: 'jump', frames: airborne.booster.map((src, index) => pose(src, ['rising', 'apex', 'falling'][index]!)) },
+  { fighter: 'booster', animation: 'victory', frames: victory.map((src, index) => pose(src, `win ${index}`)) },
+  { fighter: 'booster', animation: 'knockout', frames: knockout.map((src, index) => pose(src, `ko ${index}`)) },
+  { fighter: 'oracle', animation: 'idle', frames: [pose(anchors.oracle, 'anchor')] },
+  { fighter: 'oracle', animation: 'walk-forward', frames: oracleForward.map((src, index) => pose(src, `walk ${index}`)) },
+  { fighter: 'oracle', animation: 'walk-back', frames: oracleBackward.map((src, index) => pose(src, `walk back ${index}`)) },
+  {
+    fighter: 'oracle', animation: 'jab', moveId: 'oracle.prompt',
+    frames: [pose(oracleAnticipation, 'anticipation', 'startup'), pose(oracleJab, 'jab', 'active'), pose(oracleRecovery, 'recovery', 'recovery')],
+  },
+  {
+    fighter: 'oracle', animation: 'heavy', moveId: 'oracle.hardCutoff',
+    frames: [
+      pose(heavy.oracle.startup, 'startup', 'startup'),
+      pose(heavy.oracle.active, 'contact', 'active'),
+      pose(heavy.oracle.recovery, 'recovery', 'recovery'),
+    ],
+  },
+  { fighter: 'oracle', animation: 'block', frames: [pose(guard, 'guard')] },
+  {
+    fighter: 'oracle', animation: 'heavy-block',
+    frames: [pose(oracleBlockCompress, 'compress'), pose(oracleBlockSettle, 'settle'), pose(guard, 'guard')],
+  },
+  { fighter: 'oracle', animation: 'hit', frames: [pose(recoil, 'impact'), pose(oracleHitRecover, 'recover')] },
+  { fighter: 'oracle', animation: 'jump', frames: airborne.oracle.map((src, index) => pose(src, ['rising', 'apex', 'falling'][index]!)) },
+  { fighter: 'captain', animation: 'idle', frames: [pose(anchors.captain, 'anchor')] },
+]
+
 export function selectArcadeSprite(state: MarsArcadeState, side: MarsArcadeSide, reducedMotion: boolean, outcomeFrame = 0, heavyReaction: HeavyReaction | null = null) {
   const fighter = state.fighters[side]
   const live = state.phase === 'intro' || state.phase === 'fight'
