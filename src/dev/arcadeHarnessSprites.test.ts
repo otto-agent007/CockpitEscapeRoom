@@ -164,7 +164,10 @@ describe('dev-only arcade sprite pilot', () => {
         expect(second.src).toContain('/walk-back/walk-back-01.png')
         expect(second.src).not.toBe(first.src)
         expect(ARCADE_SPRITE_SOURCES).toContain(second.src)
+        // Four drawings since 2026-09-23: 02 at frame 12, 03 at 18, back to 00 at 24.
         state.frame = 12
+        expect(selectArcadeSprite(state, side, reduced).src).toContain('/walk-back/walk-back-02.png')
+        state.frame = 24
         expect(selectArcadeSprite(state, side, reduced).src).toBe(first.src)
         fighter.activity = 'blockstun'
         expect(selectArcadeSprite(state, side, reduced).src).toContain('/block/')

@@ -113,6 +113,55 @@ describe('movement', () => {
     expect(long.state.fighters[1].x).toBeLessThanOrEqual(MARS_ARCADE_STAGE.halfWidth)
   })
 
+  it('stops two fighters walking apart before either leaves the screen', () => {
+    const apart: InputPair = [{ ...neutral(), move: -1 }, { ...neutral(), move: 1 }]
+    const result = pump(startedRound(), 600, apart)
+    const [left, right] = result.state.fighters
+    expect(right.x - left.x).toBeCloseTo(MARS_ARCADE_STAGE.maxSeparation, 5)
+    expect(MARS_ARCADE_STAGE.maxSeparation).toBeLessThan(MARS_ARCADE_STAGE.halfWidth * 2)
+  })
+
+  it('stops a retreating fighter at the limit without dragging the opponent', () => {
+    const base = startedRound()
+    const state: MarsArcadeState = {
+      ...base,
+      fighters: [
+        { ...base.fighters[0], x: -100 },
+        { ...base.fighters[1], x: -100 + MARS_ARCADE_STAGE.maxSeparation - 2 },
+      ],
+    }
+    const retreat: InputPair = [neutral(), { ...neutral(), move: 1 }]
+    const result = pump(state, 60, retreat)
+    expect(result.state.fighters[0].x).toBe(-100)
+    expect(result.state.fighters[1].x - result.state.fighters[0].x).toBeCloseTo(MARS_ARCADE_STAGE.maxSeparation, 5)
+    // Still holding back, so still guarding at the limit.
+    expect(result.state.fighters[1].blocking).toBe(true)
+  })
+
+  it('does not let a ranged hit knock the defender past the limit', () => {
+    // Melee reach is ~40 px, so only the projectile can land a knockback near the limit.
+    const base = startedRound('oracle', 'booster')
+    const bubble = MARS_ARCADE_FIGHTERS.oracle.moves.special
+    expect(bubble.knockback).toBeGreaterThan(0)
+    const state: MarsArcadeState = {
+      ...base,
+      fighters: [
+        { ...base.fighters[0], x: -130, facing: 1, meter: bubble.meterCost },
+        { ...base.fighters[1], x: -130 + MARS_ARCADE_STAGE.maxSeparation - 4 },
+      ],
+    }
+    let current = state
+    let hit = false
+    for (let frame = 1; frame <= 180 && !hit; frame += 1) {
+      const transition = advanceMarsArcade(current, [frame === 1 ? hold('special') : neutral(), neutral()], MARS_ARCADE_TIMING.frameSeconds)
+      current = transition.state
+      hit = transition.events.some((event) => event.type === 'hit')
+      const [left, right] = current.fighters
+      expect(right.x - left.x).toBeLessThanOrEqual(MARS_ARCADE_STAGE.maxSeparation + 1e-6)
+    }
+    expect(hit).toBe(true)
+  })
+
   it('never lets the pushboxes overlap', () => {
     const state = startedRound()
     const converge: InputPair = [{ ...neutral(), move: 1 }, { ...neutral(), move: -1 }]

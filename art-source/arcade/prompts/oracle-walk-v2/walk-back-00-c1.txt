@@ -1,0 +1,6 @@
+Use your built-in image generation tool (image_gen). Do NOT use scripts/image_gen.py or any API key. Generate ONE image at the largest size the tool produces natively; do not resize, upscale or post-process it. Save it exactly to art-source/arcade/oracle/generated/walk-v2/walk-back-00-c1.png and report its native pixel size. Do not modify any other file.
+
+Image brief:
+Precise alpha-silhouette repair of this supplied arcade sprite. Preserve all anatomy, face, pose, legs, clothes, lanyard, sneakers, source scale and the 1024x1536 canvas exactly.
+Just below the lips, around source coordinate x607,y300, a small notch of background sits between the chin and the top knuckles of the near raised fist, and it pinches to a pinhole at game resolution. Close ONLY that notch: bring the top of the near fist up so its knuckles rest against the underside of the chin and overlap it solidly, with a continuous dark outline and no background visible between chin and fist.
+Do not add body parts or change anything else. Genuine transparent background outside the character; no halo, glow, shadow, text, motion trails or other changes.

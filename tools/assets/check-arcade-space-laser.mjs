@@ -47,7 +47,7 @@ try {
     })
     await page.clock.install()
     await page.goto(base)
-    await page.waitForFunction(() => /57\/57 sprites ready/.test(document.querySelector('#asset-status').textContent))
+    await page.waitForFunction(() => /61\/61 sprites ready/.test(document.querySelector('#asset-status').textContent))
     await page.waitForFunction(missing => document.querySelector('#asset-status').textContent.includes(
       missing ? '0/8 laser effects' : '8/8 laser effects ready'), Boolean(scenario.missing))
     const read = () => page.locator('#readout').innerText()
@@ -74,8 +74,8 @@ try {
     assert.ok(meter >= 40, `${scenario.tag}: only earned ${meter} meter`)
 
     // Separate them: the booster backs off, the defender retreats (which is guarding).
-    // Not to the walls: nothing yet stops the fighters walking further apart than
-    // the 320 px screen, and a beam on an off-screen defender proves nothing.
+    // Well inside MARS_ARCADE_STAGE.maxSeparation (272), so both stay in frame
+    // and the beam lands on a defender the camera is actually showing.
     await page.keyboard.down('KeyA'); await page.keyboard.down('ArrowRight')
     await page.clock.runFor(1100)
     await page.keyboard.up('KeyA')
