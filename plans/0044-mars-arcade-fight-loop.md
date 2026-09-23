@@ -1396,3 +1396,20 @@ wide-stage work, not in the laser. It is not fixed here because the fix is a mov
 
 **Open:** owner review of the feel; the three Booster poses and `fx.spaceLaser` art; the
 separation cap.
+
+### SPACE LASER gets real art — 2026-09-23
+
+Owner, after seeing the code-drawn beam: *"The special is too generic, we need to create some
+new assets for it."* The special now has three generated Booster poses (call it in, watch
+it land, pocket the phone), a Starlink satellite that parks under the HUD and flies on,
+a generated beam at three widths, and a four-frame regolith impact. The effects live in
+their own loader so the character "N/N sprites ready" contract only moved by the three
+poses (46 to 49). The hit rules did not change; the call-in pose is held past the
+one-frame hit so it can be seen. Full provenance, normalisation and validation are in
+`asset-reports/mars-arcade-space-laser-2026-09-23.md`.
+
+**Discovered:** `check-arcade-hud.mjs` had been failing on #76 since `5e26066` changed three
+HUD colours. It now asserts the current colours with unchanged thresholds.
+
+**Open:** owner review; gym entries for the three poses once `ARCADE_GYM_ANIMATIONS` is
+committed; satellite array contrast against the darkest sky rows.

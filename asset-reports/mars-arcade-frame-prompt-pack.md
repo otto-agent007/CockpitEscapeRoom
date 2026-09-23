@@ -244,13 +244,13 @@ airborne opponents it legitimately hit.
 
 ## Waves
 
-Generate in this order. **134 drawings total**, against 56 for the approved Pop T set, so do
+Generate in this order. **138 drawings total**, against 56 for the approved Pop T set, so do
 not commit to the whole thing before Wave 1 proves the loop end to end.
 
 | Wave | Contents | Drawings | What it buys |
 | --- | --- | --- | --- |
 | 0 | Three anchors | 3 | Owner review of all three identities before any motion work |
-| 1 | THE BOOSTER complete, plus `fx.spaceLaser`, `fx.hitSpark` and `fx.guardSpark` | 45 | A playable **mirror match**: a complete vertical slice on one fighter's art |
+| 1 | THE BOOSTER complete, plus the three `fx.spaceLaser` parts, `fx.hitSpark` and `fx.guardSpark` | 49 | A playable **mirror match**: a complete vertical slice on one fighter's art |
 | 2 | THE ORACLE complete, plus `fx.textBubble` | 42 | The real matchup, and the zoner/rushdown read |
 | 3 | THE CAPTAIN complete, plus `fx.flyby` | 44 | The unlock and the payoff |
 
@@ -380,7 +380,10 @@ committed frame data. `s/a/r` is startup / active / recovery in engine frames at
 
 **`booster.spaceLaser`** — 3 drawings, `0/1/28`
 
-The signature move, and the one with no warning at all (owner direction, 2026-09-22). A
+The signature move, and the one with no warning at all (owner direction, 2026-09-22).
+**All three poses done 2026-09-23** (`booster/normalised-space-laser-ready/`, prompts in
+`art-source/arcade/prompts/space-laser-v1/`; the call-in pose is held 10 recovery frames
+because the hit itself lasts one). A
 Starlink laser comes straight down onto the opponent the instant the button is pressed,
 anywhere on the stage, through any guard. There is **no startup drawing**: the move opens
 on its active frame. The long recovery with the arm still raised is its only cost.
@@ -463,7 +466,7 @@ The longest telegraph in the game, and the payoff of the whole cabinet.
 
 ---
 
-## Effects — 16 drawings
+## Effects — 20 drawings
 
 Authored outside the character cell and not gated by the character checker.
 
@@ -471,7 +474,9 @@ Authored outside the character cell and not gated by the character checker.
 | --- | --- | --- | --- |
 | `fx.hitSpark` | 32×32 | 3 | A clean flat starburst, expanding then thinning. No photographic glow. |
 | `fx.guardSpark` | 32×32 | 2 | The same shape, visibly weaker and cooler than the hit spark — a player must tell them apart at a glance. |
-| `fx.spaceLaser` | 32×224 | 4 | A vertical beam from the top of the screen straight down onto the opponent. Four frames: slam in at full width, hold, thin to a thread, and a scorch mark left on the regolith. Near-white core, thin cyan edge, 1 px dark outline so it cuts through the crimson sky. Drawn at the **defender's** x. A laser from orbit only — never aimed at or near an aircraft. |
+| `fx.spaceLaser.satellite` | 80×10 | 1 | **Done 2026-09-23.** Starlink satellite in side profile, parked under the HUD over the defender, lens down. Prompt: `art-source/arcade/prompts/space-laser-v1/satellite-00.txt`. |
+| `fx.spaceLaser.beam` | 14/10/6×148 | 3 | **Done 2026-09-23.** One generated vertical beam, pre-rendered at three widths (slam, hold, thin). Near-white core, cyan and blue bands, dark outline. Never aimed at or near an aircraft. |
+| `fx.spaceLaser.impact` | 64×28 | 4 | **Done 2026-09-23.** Flash, burst, dust, scorch on regolith, one shared ground line. Generated as one strip, cut by `tools/assets/normalise-arcade-effect.py strip`. |
 | `fx.textBubble` | 40×40 | 3 | The oracle's projectile: a flat speech-bubble shape with a solid cyan fill and a hard outline, gently pulsing across the 3 frames. About 36 px across, matching the 18 px collision radius. No text inside it. |
 | `fx.flyby` | 320×96 | 4 | A DC-9 in side profile crossing the full stage width, clean and flat, wings level. Not a warplane, no weapons, no smoke trail, no motion lines. It should read as *dignified*. **Pale fuselage, not a dark silhouette** — see the note below this table. |
 
@@ -500,7 +505,7 @@ the same check fails at 1.03:1.
 ## The stage backdrop — five layers, optional generation
 
 **Built in code on 2026-09-20 and playable now** (`src/game/marsArcadeStage.ts`), because
-nothing in contract v1 owned the world the fight happens in: all 134 drawings are characters
+nothing in contract v1 owned the world the fight happens in: all 138 drawings are characters
 and effects, so the finished set would still have been two fighters on an empty dark field.
 
 The stage is now **480 px wide behind a 320 px screen** and the camera follows the fighters,

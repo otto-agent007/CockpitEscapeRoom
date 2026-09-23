@@ -11,7 +11,7 @@ import { MARS_ARCADE_FIGHTERS } from '../game/marsArcadeFighters'
 import {
   LASER_BEAM_FRAMES,
   LASER_SCORCH_FRAMES,
-  laserBeamShape,
+  laserStrikeLook,
   updateLaserStrikes,
 } from './arcadeHarnessLaser'
 
@@ -66,21 +66,33 @@ describe('space laser presentation', () => {
   })
 
   it('slams in wide, thins out, then leaves only the scorch', () => {
-    const phases = Array.from({ length: LASER_BEAM_FRAMES + 1 }, (_, age) => laserBeamShape(age, false)?.phase)
-    expect(phases[0]).toBe('slam')
-    expect(phases).toContain('hold')
-    expect(phases).toContain('thin')
-    expect(phases[LASER_BEAM_FRAMES]).toBe('scorch')
-    expect(laserBeamShape(0, false)?.width).toBeGreaterThan(laserBeamShape(LASER_BEAM_FRAMES - 1, false)?.width ?? 0)
-    expect(laserBeamShape(LASER_BEAM_FRAMES + LASER_SCORCH_FRAMES, false)).toBeNull()
+    const looks = Array.from({ length: LASER_BEAM_FRAMES + 1 }, (_, age) => laserStrikeLook(age, false))
+    expect(looks[0]?.beamWidth).toBe(14)
+    expect(looks.map((look) => look?.beamWidth)).toContain(10)
+    expect(looks[LASER_BEAM_FRAMES - 1]?.beamWidth).toBe(6)
+    expect(looks[LASER_BEAM_FRAMES]?.beamWidth).toBe(0)
+    expect(laserStrikeLook(LASER_BEAM_FRAMES + LASER_SCORCH_FRAMES, false)).toBeNull()
   })
 
-  it('holds one steady width under reduced motion, but still shows the beam', () => {
-    const widths = new Set(
-      Array.from({ length: LASER_BEAM_FRAMES }, (_, age) => laserBeamShape(age, true)?.width),
-    )
-    expect(widths.size).toBe(1)
-    expect([...widths][0]).toBeGreaterThan(0)
-    expect(laserBeamShape(LASER_BEAM_FRAMES, true)?.phase).toBe('scorch')
+  it('plays the impact flash, burst and dust once, then leaves the scorch', () => {
+    const frames = Array.from({ length: LASER_BEAM_FRAMES + LASER_SCORCH_FRAMES }, (_, age) => laserStrikeLook(age, false)?.impactFrame)
+    expect(frames[0]).toBe(0)
+    expect([...new Set(frames)]).toEqual([0, 1, 2, 3])
+    expect(frames[frames.length - 1]).toBe(3)
+  })
+
+  it('holds the satellite over the target while it fires, then flies it on', () => {
+    expect(laserStrikeLook(0, false)?.satelliteOffset).toBe(0)
+    expect(laserStrikeLook(LASER_BEAM_FRAMES - 1, false)?.satelliteOffset).toBe(0)
+    const leaving = laserStrikeLook(LASER_BEAM_FRAMES + 5, false)?.satelliteOffset ?? 0
+    expect(leaving).toBeGreaterThan(laserStrikeLook(LASER_BEAM_FRAMES, false)?.satelliteOffset ?? 0)
+  })
+
+  it('keeps the beam and scorch under reduced motion, without flash, pulse or drift', () => {
+    const looks = Array.from({ length: LASER_BEAM_FRAMES }, (_, age) => laserStrikeLook(age, true))
+    expect(new Set(looks.map((look) => look?.beamWidth))).toEqual(new Set([10]))
+    expect(new Set(looks.map((look) => look?.impactFrame))).toEqual(new Set([3]))
+    expect(new Set(looks.map((look) => look?.satelliteOffset))).toEqual(new Set([0]))
+    expect(laserStrikeLook(LASER_BEAM_FRAMES, true)).toEqual({ beamWidth: 0, impactFrame: 3, satelliteOffset: null })
   })
 })

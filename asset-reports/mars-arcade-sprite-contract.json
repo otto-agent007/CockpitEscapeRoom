@@ -111,16 +111,30 @@
         "spec": "The captain's DC-9, crossing the full SCREEN. The cell is screen-width; the move's reach is the whole 480 px stage, so the aircraft sweeps the visible view while the hit covers everywhere the opponent could have run to. The aircraft is an effect, never part of the character cell. Cell top sits at screen row 28; the aircraft occupies the cell's top 32 rows with a pale fuselage and a 1 px dark outline, never a dark silhouette against the dust-storm sky (see the prompt pack)."
       },
       {
-        "id": "fx.spaceLaser",
-        "cell": [32, 224],
-        "frames": 4,
+        "id": "fx.spaceLaser.satellite",
+        "cell": [80, 10],
+        "frames": 1,
+        "loopMode": "hold",
+        "spec": "THE BOOSTER's Starlink satellite in side profile, drawn with its top on screen row 30 (directly under the HUD) and its lens (column 65.5) over the defender. It holds there while the beam is up, then flies on to the right. Authored 2026-09-23, art-source/arcade/generated/fx-space-laser-v1/."
+      },
+      {
+        "id": "fx.spaceLaser.beam",
+        "cell": [14, 148],
+        "frames": 3,
         "loopMode": "once",
-        "spec": "THE BOOSTER's Starlink strike: a vertical beam from the top of the screen straight down onto the opponent, wherever they stand. It lands the instant the special is pressed, so there is no warm-up frame: slam at full width, hold, thin, then a scorch mark on the regolith. Near-white core with a thin cyan edge and a 1 px dark outline so it cuts through the crimson dust-storm sky. Screen-tall and drawn at the DEFENDER's x, not the attacker's. A laser from orbit, never aimed at or near an aircraft."
+        "spec": "One generated beam pre-rendered at 14, 10 and 6 px wide (slam, hold, thin), each 148 px tall from under the satellite lens (row 40) to the floor (row 188). Near-white core, cyan and deep-blue bands, dark outline, so it cuts through the crimson dust-storm sky. A laser from orbit, never aimed at or near an aircraft."
+      },
+      {
+        "id": "fx.spaceLaser.impact",
+        "cell": [64, 28],
+        "frames": 4,
+        "loopMode": "hold-last",
+        "spec": "The strike landing on regolith at the defender's x: flash, burst, dust, scorch. All four share one ground line and centre; the scorch lingers."
       },
       { "id": "fx.hitSpark", "cell": [32, 32], "frames": 3, "loopMode": "once", "spec": "Clean hit." },
       { "id": "fx.guardSpark", "cell": [32, 32], "frames": 2, "loopMode": "once", "spec": "Blocked hit; visibly weaker than the clean-hit spark." }
     ],
-    "effectFrameTotal": 16
+    "effectFrameTotal": 20
   },
   "frameTotals": {
     "anchors": 3,
@@ -128,8 +142,8 @@
     "sharedAllFighters": 75,
     "moves": 40,
     "outcomes": 0,
-    "effects": 16,
-    "grandTotal": 134,
+    "effects": 20,
+    "grandTotal": 138,
     "note": "For comparison, the approved Pop T v3 set is 56 frames. Generate one fighter end to end before committing to the rest; a mirror match is a complete playable slice on one fighter's art."
   },
   "generation": {

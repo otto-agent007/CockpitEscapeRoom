@@ -13,7 +13,7 @@ import { mkdir } from 'node:fs/promises'
 import { chromium } from '@playwright/test'
 
 const base = process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5349/dev/arcade.html'
-const out = process.env.ARCADE_EVIDENCE_DIR ?? 'preview-renders/mars-arcade/space-laser-v1'
+const out = process.env.ARCADE_EVIDENCE_DIR ?? 'preview-renders/mars-arcade/space-laser-v2'
 await mkdir(out, { recursive: true })
 const report = message => console.log(`PASS ${message}`)
 
@@ -22,6 +22,7 @@ const CASES = [
   { tag: 'airborne-1440', width: 1440, defender: 'jump', fire: 'keyboard' },
   { tag: 'reduced-768', width: 768, defender: 'guard', fire: 'button', reduced: true },
   { tag: 'narrow-375', width: 375, defender: 'stand', fire: 'button' },
+  { tag: 'missing-art-1440', width: 1440, defender: 'stand', fire: 'button', missing: true },
 ]
 
 const browser = await chromium.launch({ headless: true })
@@ -33,9 +34,22 @@ try {
       reducedMotion: scenario.reduced ? 'reduce' : 'no-preference',
     })
     page.on('pageerror', error => errors.push(`${scenario.tag}: ${error.message}`))
+    if (scenario.missing) await page.route('**/fx-space-laser-v1/**', route => route.abort())
+    // Record which images each frame actually draws, so the proof is about the art
+    // on screen and not just about files that loaded.
+    await page.addInitScript(() => {
+      window.frameDraws = []
+      const draw = CanvasRenderingContext2D.prototype.drawImage
+      CanvasRenderingContext2D.prototype.drawImage = function (image, ...args) {
+        if (image instanceof HTMLImageElement) window.frameDraws.push(image.src)
+        return draw.call(this, image, ...args)
+      }
+    })
     await page.clock.install()
     await page.goto(base)
-    await page.waitForFunction(() => /sprites ready/.test(document.querySelector('#asset-status').textContent))
+    await page.waitForFunction(() => /49\/49 sprites ready/.test(document.querySelector('#asset-status').textContent))
+    await page.waitForFunction(missing => document.querySelector('#asset-status').textContent.includes(
+      missing ? '0/8 laser effects' : '8/8 laser effects ready'), Boolean(scenario.missing))
     const read = () => page.locator('#readout').innerText()
     const numbers = async pattern => [...(await read()).matchAll(pattern)].map(m => Number(m[1]))
     const command = async key => { await page.locator(`[data-command="${key}"]`).click(); await page.clock.runFor(20) }
@@ -86,7 +100,18 @@ try {
     } else {
       await page.getByRole('button', { name: 'P1 special', exact: true }).click()
     }
+    await page.evaluate(() => { window.frameDraws = [] })
     await step()
+    const drawn = await page.evaluate(() => window.frameDraws.map(src => new URL(src).pathname))
+    const has = part => drawn.some(src => src.includes(part))
+    assert.ok(has('/normalised-space-laser-ready/call-it-in/'), `${scenario.tag}: booster not in the call-in pose`)
+    if (scenario.missing) {
+      assert.ok(!has('/fx-space-laser-v1/'), `${scenario.tag}: effect art drawn although it was blocked`)
+    } else {
+      assert.ok(has('/satellite-00.png'), `${scenario.tag}: no satellite drawn`)
+      assert.ok(has(scenario.reduced ? '/beam-w10.png' : '/beam-w14.png'), `${scenario.tag}: wrong or no beam art`)
+      assert.ok(has(scenario.reduced ? '/impact-03.png' : '/impact-00.png'), `${scenario.tag}: wrong or no impact art`)
+    }
     const [, healthAfter] = await numbers(/health +(\d+)/g)
     const [, guardAfter] = await numbers(/guard +(\d+)/g)
     assert.equal(healthBefore - healthAfter, 15, `${scenario.tag}: took ${healthBefore - healthAfter}`)
@@ -134,6 +159,10 @@ try {
     } else {
       assert.ok(widths[0] > widths[12], `${scenario.tag}: beam did not thin: ${widths}`)
     }
+    await page.evaluate(() => { window.frameDraws = [] })
+    await step()
+    const late = await page.evaluate(() => window.frameDraws.map(src => new URL(src).pathname))
+    assert.ok(late.some(src => src.includes('/normalised-space-laser-ready/')), `${scenario.tag}: booster left the special early`)
     report(`${scenario.tag}: beam over the defender for 14 frames, never over the booster; widths ${widths.slice(0, 15).join(',')}`)
     await page.close()
   }

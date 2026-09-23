@@ -22,14 +22,6 @@ export const LASER_BEAM_FRAMES = 14
 /** Frames the scorch mark stays on the regolith after the beam has gone. */
 export const LASER_SCORCH_FRAMES = 40
 
-export type LaserBeamPhase = 'slam' | 'hold' | 'thin' | 'scorch'
-
-export interface LaserBeamShape {
-  phase: LaserBeamPhase
-  /** Beam core width in stage pixels. Zero once only the scorch is left. */
-  width: number
-}
-
 export function updateLaserStrikes(
   previous: LaserStrike[],
   after: MarsArcadeState,
@@ -47,17 +39,36 @@ export function updateLaserStrikes(
   return next
 }
 
+/** Beam art is pre-rendered at these widths (stage px); 0 means the beam has gone. */
+export type LaserBeamWidth = 14 | 10 | 6 | 0
+
+export interface LaserStrikeLook {
+  beamWidth: LaserBeamWidth
+  /** Which of the four impact drawings: flash, burst, dust, scorch. */
+  impactFrame: 0 | 1 | 2 | 3
+  /** How far the satellite has flown on past the strike, or null once it is gone. */
+  satelliteOffset: number | null
+}
+
+/** Stage px per frame the satellite flies on once it has fired. */
+export const LASER_SATELLITE_EXIT_SPEED = 4
+
 /**
- * The beam at a given age, in frames since the strike.
+ * The strike at a given age, in frames since the hit.
  *
- * Reduced motion keeps the beam and the scorch, which are the only cue that a
- * hit came from the sky, but drops the width changes: one steady beam, then gone.
+ * The satellite holds over the target while the beam is up, then flies on. The
+ * impact runs flash, burst, dust, and its last drawing, the scorch, lingers.
+ * Reduced motion keeps the beam and the scorch, which are the only cue that the
+ * hit came from the sky, and drops the flash, the width changes and the drift.
  */
-export function laserBeamShape(age: number, reducedMotion: boolean): LaserBeamShape | null {
+export function laserStrikeLook(age: number, reducedMotion: boolean): LaserStrikeLook | null {
   if (age < 0 || age >= LASER_BEAM_FRAMES + LASER_SCORCH_FRAMES) return null
-  if (age >= LASER_BEAM_FRAMES) return { phase: 'scorch', width: 0 }
-  if (reducedMotion) return { phase: 'hold', width: 6 }
-  if (age < 3) return { phase: 'slam', width: 10 }
-  if (age < 9) return { phase: 'hold', width: 6 }
-  return { phase: 'thin', width: 2 }
+  const beamUp = age < LASER_BEAM_FRAMES
+  if (reducedMotion) {
+    return { beamWidth: beamUp ? 10 : 0, impactFrame: 3, satelliteOffset: beamUp ? 0 : null }
+  }
+  const beamWidth: LaserBeamWidth = age < 3 ? 14 : age < 9 ? 10 : beamUp ? 6 : 0
+  const impactFrame = age < 3 ? 0 : age < 8 ? 1 : age < 16 ? 2 : 3
+  const satelliteOffset = beamUp ? 0 : (age - LASER_BEAM_FRAMES + 1) * LASER_SATELLITE_EXIT_SPEED
+  return { beamWidth, impactFrame, satelliteOffset }
 }

@@ -43,7 +43,8 @@ import {
 } from './arcadeHarnessInput'
 import { ARCADE_ANCHOR_SOURCES, loadArcadeSprites, selectArcadeSprite } from './arcadeHarnessSprites'
 import { updateHeavyReactions, type HeavyReactions } from './arcadeHarnessReactions'
-import { laserBeamShape, updateLaserStrikes, type LaserStrike } from './arcadeHarnessLaser'
+import { laserStrikeLook, updateLaserStrikes, type LaserStrike } from './arcadeHarnessLaser'
+import { LASER_EFFECT_LAYOUT, loadArcadeEffects, type ArcadeEffectImages } from './arcadeHarnessEffects'
 import { loadArcadeBackdrop, type ArcadeBackdropImages } from './arcadeHarnessBackdrop'
 import { advanceExchange, EXCHANGE_END_FRAME } from './arcadeHarnessExchange'
 import {
@@ -718,32 +719,54 @@ function drawHud(
 }
 
 /**
- * The booster's space laser: a beam from under the HUD straight down onto where
- * the defender stood, then a scorch on the ground. Drawn over the fighters so
- * the hit reads as coming from the sky. Pale core, cyan edge and a dark outline,
- * because the flyby-lane measurement showed only a pale mark with a dark edge
- * holds contrast against the whole dust-storm sky.
+ * The booster's space laser: a Starlink satellite parked under the HUD over where
+ * the defender stood, a beam from its lens to the floor, and the impact on the
+ * regolith, finishing on a scorch mark. Drawn over the fighters so the hit reads
+ * as coming from the sky. Any image that failed to load falls back to a flat
+ * drawn beam, the same way a missing sprite falls back to its box.
  */
-function drawLaserStrikes(ctx: CanvasRenderingContext2D, harness: Harness, camera: number): void {
-  const top = MARS_ARCADE_HUD_BAND.bottomRow * SCALE
-  const floor = stageY(0)
+function drawLaserStrikes(
+  ctx: CanvasRenderingContext2D,
+  harness: Harness,
+  effects: ArcadeEffectImages,
+  camera: number,
+): void {
+  const { satellite, lensColumn, beam, impact } = LASER_EFFECT_LAYOUT
+  const floorRow = FLOOR_ROW
+  ctx.save()
+  ctx.imageSmoothingEnabled = false
   for (const strike of harness.laserStrikes) {
-    const shape = laserBeamShape(harness.state.frame - strike.frame, harness.reducedMotion)
-    if (!shape) continue
-    const centre = stageX(strike.x, camera)
-    ctx.fillStyle = '#2a0f1c'
-    ctx.fillRect(centre - 7 * SCALE, floor - SCALE, 14 * SCALE, 2 * SCALE)
-    ctx.fillStyle = '#160a12'
-    ctx.fillRect(centre - 5 * SCALE, floor - SCALE, 10 * SCALE, 2 * SCALE)
-    if (shape.width === 0) continue
-    const core = shape.width * SCALE
-    ctx.fillStyle = '#160a12'
-    ctx.fillRect(centre - core / 2 - 2 * SCALE, top, core + 4 * SCALE, floor - top)
-    ctx.fillStyle = '#5ee6ff'
-    ctx.fillRect(centre - core / 2 - SCALE, top, core + 2 * SCALE, floor - top)
-    ctx.fillStyle = '#f4fbff'
-    ctx.fillRect(centre - core / 2, top, core, floor - top)
+    const look = laserStrikeLook(harness.state.frame - strike.frame, harness.reducedMotion)
+    if (!look) continue
+    // Whole stage pixels, so the art stays on the pixel grid while the camera scrolls.
+    const centre = Math.round(marsArcadeScreenX(strike.x, camera))
+
+    const impactArt = effects.get(`impact-${look.impactFrame}`)
+    if (impactArt) {
+      ctx.drawImage(impactArt, (centre - impact.width / 2) * SCALE, (floorRow - impact.height) * SCALE, impact.width * SCALE, impact.height * SCALE)
+    }
+
+    if (look.beamWidth > 0) {
+      const beamArt = effects.get(`beam-${look.beamWidth as 14 | 10 | 6}`)
+      const left = (centre - look.beamWidth / 2) * SCALE
+      if (beamArt) {
+        ctx.drawImage(beamArt, left, beam.topRow * SCALE, look.beamWidth * SCALE, beam.height * SCALE)
+      } else {
+        const top = MARS_ARCADE_HUD_BAND.bottomRow * SCALE
+        ctx.fillStyle = '#160a12'
+        ctx.fillRect(left - SCALE, top, (look.beamWidth + 2) * SCALE, floorRow * SCALE - top)
+        ctx.fillStyle = '#f4fbff'
+        ctx.fillRect(left, top, look.beamWidth * SCALE, floorRow * SCALE - top)
+      }
+    }
+
+    const satelliteArt = effects.get('satellite')
+    if (satelliteArt && look.satelliteOffset !== null) {
+      const x = Math.round(centre - lensColumn) + look.satelliteOffset
+      ctx.drawImage(satelliteArt, x * SCALE, satellite.topRow * SCALE, satellite.width * SCALE, satellite.height * SCALE)
+    }
   }
+  ctx.restore()
 }
 
 function draw(
@@ -751,6 +774,7 @@ function draw(
   harness: Harness,
   sprites: ReturnType<typeof loadArcadeSprites>,
   backdrop: ArcadeBackdropImages,
+  effects: ArcadeEffectImages,
 ): void {
   const width = STAGE_WIDTH * SCALE
   const camera = harness.cameraX
@@ -804,7 +828,7 @@ function draw(
       drawFighter(ctx, fighter, fighter.id, camera)
     }
   }
-  drawLaserStrikes(ctx, harness, camera)
+  drawLaserStrikes(ctx, harness, effects, camera)
   for (const side of [0, 1] as const) {
     drawMoveRegion(ctx, harness.state.fighters[side], harness.state.fighters[side === 0 ? 1 : 0], harness.showHitboxes, camera)
     if (harness.showHitboxes) drawCentreLine(ctx, harness.state.fighters[side], camera)
@@ -892,6 +916,7 @@ function mount(): void {
   if (!canvas || !readout || !logPanel || !assetStatus) throw new Error('harness markup missing')
   const sprites = loadArcadeSprites()
   const backdrop = loadArcadeBackdrop()
+  const effects = loadArcadeEffects()
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
 
   canvas.width = STAGE_WIDTH * SCALE
@@ -1117,9 +1142,9 @@ function mount(): void {
       if (harness.log.length > 14) harness.log = harness.log.slice(-14)
     }
 
-    draw(ctx, harness, sprites, backdrop)
+    draw(ctx, harness, sprites, backdrop, effects)
     readout.textContent = describe(harness)
-    const status = sprites.status() + (harness.reducedMotion ? '; reduced motion: static idle' : '')
+    const status = sprites.status() + (harness.reducedMotion ? '; reduced motion: static idle' : '') + ` · ${effects.status()}`
     if (assetStatus.textContent !== status) assetStatus.textContent = status
     const events = harness.log.join('\n') || '(no events yet)'
     if (logPanel.textContent !== events) logPanel.textContent = events

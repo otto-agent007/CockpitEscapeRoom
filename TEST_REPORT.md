@@ -1,5 +1,20 @@
 # Test report
 
+## 2026-09-23 — SPACE LASER art: Booster poses, satellite, beam, impact
+
+- Owner: "too generic". Generated 3 Booster poses (1 correction), a Starlink satellite, a beam
+  and a 4-frame impact via Codex built-in image_gen. Pose gate 3 frames / 0 failures. The
+  new `normalise-arcade-effect.py` handles effects. Report:
+  `asset-reports/mars-arcade-space-laser-2026-09-23.md`.
+- `npm run check`: 788 tests / 64 files, build PASS; the selection test was RED first.
+- `check-arcade-space-laser.mjs`: 11 PASS across guard, airborne/keyboard, reduced motion
+  at 768, 375, and blocked effect art (drawn fallback). The actual drawn images are asserted.
+- The arcade suites pass with the sprite count at 49: pilot 12, stage 9, HUD 10, movement 5,
+  exchange 7, heavy 13, heavy-hit 6+7, heavy-block 7, continuity 2, outcomes 7.
+- HUD check fixed: stale colours since `5e26066` on #76, thresholds unchanged; it now
+  honours `ARCADE_EVIDENCE_DIR`.
+- Open: owner review; gym entries once the gym manifest lands; satellite array contrast.
+
 ## 2026-09-22 — Booster SPACE LASER replaces ORBITAL INSERTION
 
 - Owner direction: Booster's signature special is a Starlink laser that hits with no delay
