@@ -1447,4 +1447,3 @@ specials, and gym entries once the gym manifest lands.
 - **Oracle walk:** rebuilt like Booster's.
 - **PR #78 stranding:** #78 merged into an already-merged base. #79 now targets
   `feat/mars-arcade-stage-hud` and carries the block commit.
-
