@@ -40,10 +40,14 @@ Nothing about a clip lives anywhere else — not in the sprite selector, not in 
    `preserve-canvas` (frames from one video). The report beside the cells records what moved.
 4. **Gate each cell**: `python3 tools/assets/check-popt-frames-fullcolour.py <set-dir>
    --contract asset-reports/mars-arcade-sprite-contract.json` (add `--in-place-clip` for walks).
-5. **Wire the clip** into the table: add or extend the entry in `marsArcadeAnimations.json` with
-   `src`, `pose`, `phase`, `hold` per drawing (holds per phase must sum to the move's frame data),
-   `loop`, `moveId`, `reviewed: false`. The gym's Frame panel can do this too (pose, phase, hold,
-   drawing path, duplicate / delete / reorder).
+5. **Wire the clip** into the table the moment it is normalised — a normalised clip that is
+   not in the table is not in the gym, and the owner's rule is that every clip is:
+   `node tools/assets/arcade-anim.mjs wire <fighter> <animation> <cells-dir> [--loop once|loop|…]
+   [--hold N] [--move <moveId>] [--phase startup,active,recovery,…]`. It seeds body and hurt
+   boxes from each drawing's silhouette, sets `reviewed: false`, validates, and writes the
+   table. For a move clip pass `--move` and `--phase` so the holds are checked against the
+   frame data; add the attack box in the gym. The gym's Frame panel can edit any of it later
+   (pose, phase, hold, drawing path, duplicate / delete / reorder).
 6. **Audit the sequence**: `python3 tools/assets/audit-arcade-clip.py <fighter>:<clip>`. Read
    `preview-renders/mars-arcade/clips/<fighter>-<clip>/review.md`: pop between drawings,
    feet off the baseline, height or torso drift on a cycle. Fix the drawing or the alignment,
