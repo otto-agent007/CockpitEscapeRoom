@@ -28,9 +28,46 @@ import type { HeavyReaction } from './arcadeHarnessReactions'
 export const ARCADE_ANIMATIONS: MarsArcadeAnimationsFile = parseMarsArcadeAnimations(rawAnimations)
 const index = marsArcadeAnimationsIndex(ARCADE_ANIMATIONS)
 
-/** The clip for a fighter and animation name, or null when it has not been drawn. */
+/**
+ * Candidate overrides: play a candidate clip in place of the shipped one.
+ *
+ * A candidate is a clip named `<shipped>-<suffix>` (`walk-forward-video`) that no fighter
+ * state maps to. The playground can point a shipped name at a candidate so the owner sees
+ * it in the fight before deciding whether it ships; nothing here touches the table.
+ */
+const overrides = new Map<string, string>()
+/** A clip named `<shipped><suffix>` is a candidate for `<shipped>`. */
+const CANDIDATE_SUFFIXES = ['-video', '-candidate', '-alt']
+
+export function setArcadeClipOverride(fighter: MarsArcadeFighterId, animation: string, candidate: string | null): void {
+  const key = marsArcadeAnimationKey(fighter, animation)
+  if (candidate) overrides.set(key, candidate)
+  else overrides.delete(key)
+}
+
+/** Every candidate clip, with the shipped clip it stands in for. */
+export function arcadeCandidateClips(): { fighter: MarsArcadeFighterId; animation: string; candidate: string }[] {
+  const out: { fighter: MarsArcadeFighterId; animation: string; candidate: string }[] = []
+  for (const clip of ARCADE_ANIMATIONS.animations) {
+    const suffix = CANDIDATE_SUFFIXES.find((candidate) => clip.animation.endsWith(candidate))
+    if (!suffix) continue
+    const base = clip.animation.slice(0, -suffix.length)
+    if (index.has(marsArcadeAnimationKey(clip.fighter, base))) {
+      out.push({ fighter: clip.fighter, animation: base, candidate: clip.animation })
+    }
+  }
+  return out
+}
+
+/** The clip for a fighter and animation name (or its candidate override), or null when it has not been drawn. */
 export function arcadeClip(fighter: MarsArcadeFighterId, animation: string): MarsArcadeAnimation | null {
-  return index.get(marsArcadeAnimationKey(fighter, animation)) ?? null
+  const key = marsArcadeAnimationKey(fighter, animation)
+  const override = overrides.get(key)
+  if (override) {
+    const candidate = index.get(marsArcadeAnimationKey(fighter, override))
+    if (candidate) return candidate
+  }
+  return index.get(key) ?? null
 }
 
 function requireClip(fighter: MarsArcadeFighterId, animation: string): MarsArcadeAnimation {
