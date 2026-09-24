@@ -325,6 +325,9 @@ test('locker GLB loads into the real canvas and the directed camera settles on t
   }))
   const canvasBounds = await canvas.boundingBox()
   expect(canvasBounds).not.toBeNull()
+  // The skipped cinematic must be gone before the watch is clickable; otherwise the
+  // click lands on the overlay and the failure reads as a missing dialog.
+  await expect(page.locator('.locker-transition')).toHaveCount(0, { timeout: 30_000 })
   await page.mouse.click(canvasBounds!.x + watchPoint.x, canvasBounds!.y + watchPoint.y)
   await expect(page.getByRole('dialog', { name: 'Rolex GMT-Master' })).toBeVisible()
   await page.getByRole('button', { name: 'Jet lag' }).click()
@@ -346,12 +349,13 @@ test('locker GLB loads into the real canvas and the directed camera settles on t
   await page.evaluate(() => {
     const main = document.querySelector('main')
     if (!main) throw new Error('Game shell is unavailable')
-    const windowWithStages = window as Window & { __lockerHatStages?: Array<{ stage: string | null; time: number }> }
+    const windowWithStages = window as Window & { __lockerHatStages?: Array<{ stage: string | null; time: number; celebration: boolean }> }
     windowWithStages.__lockerHatStages = []
     new MutationObserver(() => {
       windowWithStages.__lockerHatStages?.push({
         stage: main.getAttribute('data-locker-hat-finale-stage'),
         time: performance.now(),
+        celebration: document.querySelector('[data-celebration-ready]') !== null,
       })
     }).observe(main, { attributes: true, attributeFilter: ['data-locker-hat-finale-stage'] })
   })
@@ -360,17 +364,19 @@ test('locker GLB loads into the real canvas and the directed camera settles on t
   await expect(canvas).toHaveAttribute('data-locker-camera-cue', 'hat-focus')
   await expect(canvas).toHaveAttribute('data-locker-camera-state', 'settled')
   await expect(canvas).toHaveAttribute('data-locker-camera-target', '0.42,1.02,-0.14')
-  await expect(page.locator('main')).toHaveAttribute('data-locker-hat-finale-stage', 'holding')
-  await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })).toHaveCount(0)
+  // The two-second hold is a transient the observer above records; asserting it live
+  // raced the three camera checks before it, which can outlast the hold on CI.
+  await expect(page.locator('main')).toHaveAttribute('data-locker-hat-finale-stage', /^(holding|ready)$/)
   await expect(page.locator('main')).toHaveAttribute('data-locker-hat-finale-stage', 'ready', { timeout: 10_000 })
-  const holdDuration = await page.evaluate(() => {
-    const stages = (window as Window & { __lockerHatStages?: Array<{ stage: string | null; time: number }> }).__lockerHatStages ?? []
+  const hold = await page.evaluate(() => {
+    const stages = (window as Window & { __lockerHatStages?: Array<{ stage: string | null; time: number; celebration: boolean }> }).__lockerHatStages ?? []
     const holding = stages.find((entry) => entry.stage === 'holding')
     const ready = stages.find((entry) => entry.stage === 'ready')
     if (!holding || !ready) throw new Error(`Missing finale stages: ${JSON.stringify(stages)}`)
-    return ready.time - holding.time
+    return { duration: ready.time - holding.time, celebrationDuringHold: holding.celebration }
   })
-  expect(holdDuration).toBeGreaterThanOrEqual(1_950)
+  expect(hold.duration).toBeGreaterThanOrEqual(1_950)
+  expect(hold.celebrationDuringHold).toBe(false)
   await expect(page.getByRole('dialog', { name: 'POP T CAPTAIN MODE UNLOCKED' })).toBeVisible()
   await expect(page.locator('.qualification-confetti')).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Enter Pop T Captain Mode' })).toBeFocused()
