@@ -37,5 +37,7 @@ The hands open and close between frames, and the last ~10 frames smear the feet.
 
 ## Status
 
-Candidate only. Not in the animation table, not reviewed by the owner, the shipped Oracle walk
-is unchanged. The raw clip, picks, cells and provenance are committed as evidence.
+Candidate, in the gym as `oracle:walk-forward-video` (wired with `arcade-anim.mjs wire`, boxes
+seeded, `reviewed: false`) so it can be reviewed with onion skin next to the shipped walk. The
+harness never plays it — no fighter state maps to it — and the shipped Oracle walk is unchanged.
+The raw clip, picks, cells and provenance are committed as evidence.
