@@ -51,6 +51,8 @@ import {
 import { type MarsArcadeFighterId } from '../game/marsArcadeFighters'
 
 const SCALE = 4
+/** Where the sprite cell sits inside the canvas: a margin all round, like a stage. */
+const ORIGIN = { x: 64, y: 16 }
 const PHASES: MarsArcadeFramePhase[] = ['startup', 'active', 'recovery', 'neutral']
 const LOOPS = ['once', 'loop', 'hold-last', 'by-velocity', 'by-stun'] as const
 const MAX_UNDO = 100
@@ -214,11 +216,26 @@ function setBox(state: GymState, box: MarsArcadeBox | undefined): void {
   })
 }
 
-function drawBox(ctx: CanvasRenderingContext2D, box: MarsArcadeBox, colour: string, alpha: number, width: number): void {
+function drawBox(ctx: CanvasRenderingContext2D, box: MarsArcadeBox, colour: string, alpha: number, width: number, selected = false): void {
   ctx.globalAlpha = alpha
   ctx.lineWidth = width
   ctx.strokeStyle = colour
+  if (selected) {
+    ctx.globalAlpha = 0.16
+    ctx.fillStyle = colour
+    ctx.fillRect(box.x * SCALE, box.y * SCALE, box.width * SCALE, box.height * SCALE)
+    ctx.globalAlpha = alpha
+  }
   ctx.strokeRect(box.x * SCALE + 0.5, box.y * SCALE + 0.5, box.width * SCALE - 1, box.height * SCALE - 1)
+  if (selected) {
+    // A centre mark, so a 1 px nudge is visible even on a box the size of the body.
+    const cx = (box.x + box.width / 2) * SCALE
+    const cy = (box.y + box.height / 2) * SCALE
+    ctx.beginPath()
+    ctx.moveTo(cx - 6, cy); ctx.lineTo(cx + 6, cy)
+    ctx.moveTo(cx, cy - 6); ctx.lineTo(cx, cy + 6)
+    ctx.stroke()
+  }
   ctx.globalAlpha = 1
 }
 
@@ -244,19 +261,29 @@ function render(state: GymState, canvas: HTMLCanvasElement): void {
   if (!ctx) return
   const size = MARS_ARCADE_CELL.size * SCALE
   const opponentWidth = state.opponent.enabled ? state.opponent.separation * SCALE : 0
-  canvas.width = size + opponentWidth
-  canvas.height = size
+  canvas.width = size + ORIGIN.x * 2 + opponentWidth
+  canvas.height = size + ORIGIN.y * 2
   ctx.imageSmoothingEnabled = false
-  // A mid-grey checkerboard, not the stage's near-black: the booster wears a black
-  // leather jacket and vanished against a dark field while the boxes floated over
-  // apparently empty space. The checkerboard also shows where the cell is transparent.
-  const tile = 8 * SCALE
-  for (let y = 0; y < canvas.height; y += tile) {
-    for (let x = 0; x < canvas.width; x += tile) {
-      ctx.fillStyle = ((x / tile) + (y / tile)) % 2 === 0 ? '#5d5d68' : '#4a4a55'
-      ctx.fillRect(x, y, tile, tile)
-    }
+  // A dark stage with a faint 8 px grid, not a checkerboard: the booster's black
+  // jacket still reads against navy, the grid shows where the cell is transparent,
+  // and it looks like the game the sprite is going into.
+  ctx.fillStyle = '#0a0c17'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.fillStyle = '#161a2c'
+  ctx.fillRect(ORIGIN.x, ORIGIN.y, size + opponentWidth, size)
+  ctx.strokeStyle = '#1f2440'
+  ctx.lineWidth = 1
+  const grid = 8 * SCALE
+  for (let x = ORIGIN.x; x <= ORIGIN.x + size + opponentWidth; x += grid) {
+    ctx.beginPath(); ctx.moveTo(x + 0.5, ORIGIN.y); ctx.lineTo(x + 0.5, ORIGIN.y + size); ctx.stroke()
   }
+  for (let y = ORIGIN.y; y <= ORIGIN.y + size; y += grid) {
+    ctx.beginPath(); ctx.moveTo(ORIGIN.x, y + 0.5); ctx.lineTo(ORIGIN.x + size + opponentWidth, y + 0.5); ctx.stroke()
+  }
+  ctx.strokeStyle = '#2c3357'
+  ctx.strokeRect(ORIGIN.x - 0.5, ORIGIN.y - 0.5, size + opponentWidth + 1, size + 1)
+  ctx.save()
+  ctx.translate(ORIGIN.x, ORIGIN.y)
 
   const entry = entryOf(state)
   const index = frameIndexOf(state)
@@ -288,7 +315,7 @@ function render(state: GymState, canvas: HTMLCanvasElement): void {
     if (!state.visible[kind]) continue
     boxesOf(frame, kind).forEach((box, which) => {
       const selected = kind === state.kind && which === state.boxIndex
-      drawBox(ctx, box, KIND_COLOURS[kind], selected ? 1 : 0.45, selected ? 2 : 1)
+      drawBox(ctx, box, KIND_COLOURS[kind], selected ? 1 : 0.55, selected ? 2 : 1, selected)
     })
   }
   ctx.restore()
@@ -308,6 +335,7 @@ function render(state: GymState, canvas: HTMLCanvasElement): void {
       ctx.restore()
     }
   }
+  ctx.restore()
 }
 
 /** Whether the frame's live hitboxes overlap the opponent's idle hurt boxes at the chosen separation. */
@@ -469,27 +497,39 @@ export function startArcadeGym(root: HTMLElement): void {
     timeline!.value = String(state.tick)
   }
 
+  /**
+   * Paint the canvas and the read-outs. Cheap enough to run on every pointer move and
+   * every playback tick; the frame buttons are rebuilt separately, because replacing a
+   * row of DOM buttons sixty times a second is what made dragging and playback stutter.
+   */
+  function paint(): void {
+    const current = frameIndexOf(state)
+    frameBar!.querySelectorAll('button').forEach((button, index) => {
+      button.setAttribute('aria-pressed', String(index === current))
+    })
+    syncFields()
+    render(state, canvas!)
+    info!.textContent = summary(state)
+  }
+
+  /** Rebuild the controls that depend on the clip's shape, then paint. */
   function refresh(): void {
     const entry = entryOf(state)
     state.boxIndex = Math.min(state.boxIndex, Math.max(0, boxesOf(frameOf(state), state.kind).length - 1))
     frameBar!.replaceChildren()
-    const current = frameIndexOf(state)
     entry.frames.forEach((frame, index) => {
       const button = document.createElement('button')
       button.type = 'button'
       button.textContent = String(index + 1)
       button.title = `${frame.pose} — ${frame.phase}, ${frame.hold} frames`
-      button.setAttribute('aria-pressed', String(index === current))
       if (frame.attack) button.dataset.hitbox = 'true'
       button.addEventListener('click', () => {
         state.tick = tickOfFrame(entry, index)
-        refresh()
+        paint()
       })
       frameBar!.append(button)
     })
-    syncFields()
-    render(state, canvas!)
-    info!.textContent = summary(state)
+    paint()
     findings!.textContent = findingsFor(state)
     if (!state.dirty) status!.textContent = 'saved'
     else if (status!.textContent === 'saved') status!.textContent = 'unsaved changes'
@@ -499,7 +539,7 @@ export function startArcadeGym(root: HTMLElement): void {
     const entry = entryOf(state)
     const index = (frameIndexOf(state) + delta + entry.frames.length) % entry.frames.length
     state.tick = tickOfFrame(entry, index)
-    refresh()
+    paint()
   }
 
   animSelect.addEventListener('change', () => {
@@ -573,7 +613,7 @@ export function startArcadeGym(root: HTMLElement): void {
   })
   timeline.addEventListener('input', () => {
     state.tick = Number(timeline.value)
-    refresh()
+    paint()
   })
 
   for (const [key, input] of Object.entries(fields)) {
@@ -711,17 +751,27 @@ export function startArcadeGym(root: HTMLElement): void {
   // Drag to move, shift-drag to resize from the bottom-right. Mirrored preview flips
   // the horizontal sense so the box follows the pointer.
   let drag: { startX: number; startY: number; box: MarsArcadeBox; resize: boolean } | null = null
+  /** Pointer position in canvas pixels, whatever size CSS is showing the canvas at. */
+  const canvasPoint = (event: PointerEvent): { x: number; y: number } => {
+    const rect = canvas.getBoundingClientRect()
+    return {
+      x: (event.clientX - rect.left) * (canvas.width / rect.width),
+      y: (event.clientY - rect.top) * (canvas.height / rect.height),
+    }
+  }
   canvas.addEventListener('pointerdown', (event) => {
     canvas.focus()
     const box = boxOf(state)
     if (!box) return
     canvas.setPointerCapture(event.pointerId)
-    drag = { startX: event.offsetX, startY: event.offsetY, box: { ...box }, resize: event.shiftKey }
+    const point = canvasPoint(event)
+    drag = { startX: point.x, startY: point.y, box: { ...box }, resize: event.shiftKey }
   })
   canvas.addEventListener('pointermove', (event) => {
     if (!drag) return
-    const dx = Math.round((event.offsetX - drag.startX) / SCALE) * (state.mirrored ? -1 : 1)
-    const dy = Math.round((event.offsetY - drag.startY) / SCALE)
+    const point = canvasPoint(event)
+    const dx = Math.round((point.x - drag.startX) / SCALE) * (state.mirrored ? -1 : 1)
+    const dy = Math.round((point.y - drag.startY) / SCALE)
     const next = clampBox(
       drag.resize
         ? { ...drag.box, width: drag.box.width + dx, height: drag.box.height + dy }
@@ -733,10 +783,14 @@ export function startArcadeGym(root: HTMLElement): void {
     boxes[state.boxIndex] = next
     setBoxes(frame, state.kind, boxes)
     state.dirty = true
-    refresh()
+    if (status.textContent === 'saved') status.textContent = 'unsaved changes'
+    paint()
   })
   const endDrag = (): void => {
-    if (drag) revalidate()
+    if (drag) {
+      revalidate()
+      findings.textContent = findingsFor(state)
+    }
     drag = null
   }
   // The undo point for a drag is taken once, before the first move.
@@ -840,7 +894,7 @@ export function startArcadeGym(root: HTMLElement): void {
           // next press, which is how the reference gym reads too.
           state.playing = false
         }
-        refresh()
+        paint()
       }
     }
     window.requestAnimationFrame(tickPlayback)

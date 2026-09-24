@@ -3,126 +3,112 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mars arcade — likeness pilot</title>
+    <title>Mars arcade — fighter playground</title>
+    <link rel="stylesheet" href="./arcade-shell.css" />
     <style>
-      :root { color-scheme: dark; }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        padding: 16px;
-        background: #0c0c11;
-        color: #e9e9f2;
-        font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
-        display: flex;
-        gap: 24px;
-        flex-wrap: wrap;
-        align-items: flex-start;
-      }
-      h1 { font-size: 16px; margin: 0 0 4px; letter-spacing: 0.08em; }
-      .sub { color: #8b8b9c; margin: 0 0 16px; font-size: 12px; }
-      .stage-column { width: min(960px, 100%); flex: 0 0 auto; }
-      canvas { display: block; background: #14101a; image-rendering: pixelated; max-width: 100%; height: auto; }
-      .panels { display: flex; flex-direction: column; gap: 16px; flex: 1 1 320px; min-width: min(100%, 320px); max-width: 460px; }
-      .controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
-      button, select { min-height: 44px; background: #262633; color: #e9e9f2; border: 1px solid #77778e; border-radius: 4px; padding: 8px 12px; font: inherit; }
-      button { cursor: pointer; touch-action: none; }
-      button:active { background: #514d6a; }
-      :focus-visible { outline: 3px solid #ffd23f; outline-offset: 3px; }
-      .combat { margin: 12px 0; border: 1px solid #3a3a49; }
-      .panel { background: #15151d; border: 1px solid #2a2a36; padding: 12px 14px; }
-      .panel h2 {
-        font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
-        color: #8b8b9c; margin: 0 0 8px;
-      }
-      pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; }
-      kbd {
-        background: #262633; border: 1px solid #3a3a49; border-bottom-width: 2px;
-        border-radius: 3px; padding: 0 5px; font: inherit; font-size: 12px;
-      }
-      .keys { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 12px; }
-      .keys span:nth-child(odd) { color: #b9b9c8; white-space: nowrap; }
-      .note { color: #8b8b9c; font-size: 12px; margin-top: 12px; }
+      .stage-panel .viewport canvas { width: min(960px, 100%); }
     </style>
   </head>
   <body>
-    <div class="stage-column">
-      <h1>MARS ARCADE — EXCHANGE STUDY</h1>
-      <p class="sub">
-        Both fighters’ jabs and reactions now follow the real fight loop. Play the exchange at half speed:
-        Elon approaches and punches, then Sam answers; each shows a block, hit, recoil and recovery. Other unauthored poses
-        still use labeled anchor placeholders. This is a work-in-progress animation study.
-      </p>
-      <canvas id="stage" role="img" aria-label="Arcade fight preview. Native controls and live state follow below."></canvas>
-      <p id="asset-status" role="status">Loading sprite pilot…</p>
-      <div class="controls" aria-label="Round controls">
-        <button data-command="exchange">Play exchange</button>
-        <button data-command="freeplay">Free play</button>
-        <button data-command="Space">Pause</button>
-        <button data-command="KeyN">Step one frame</button>
-        <button data-command="KeyR">Restart round</button>
-        <button data-command="KeyT">Toggle CPU / human P2</button>
-        <button data-command="KeyH">Toggle hitboxes</button>
-        <button data-command="KeyV">Toggle sprites / boxes</button>
-        <button data-command="KeyS">Cycle speed</button>
-        <button data-command="KeyG">Cycle difficulty</button>
-        <button data-command="mirror">Booster mirror match</button>
+    <header class="shell-header">
+      <div class="shell-brand">
+        <span class="eyebrow">Mars arcade · Vite · TypeScript</span>
+        <h1>Fighter playground</h1>
+        <p class="sub">The real fight loop with live state, hitboxes and native controls. A work-in-progress animation study.</p>
       </div>
-      <div class="controls">
-        <label>P1 fighter <select data-fighter="0"><option value="booster">Booster · Elon</option><option value="oracle">Oracle · Sam</option><option value="captain">Captain · Pop T</option></select></label>
-        <label>P2 fighter <select data-fighter="1"><option value="booster">Booster · Elon</option><option value="oracle" selected>Oracle · Sam</option><option value="captain">Captain · Pop T</option></select></label>
-      </div>
-      <fieldset class="combat"><legend>P1 — hold to move, move away to guard</legend><div class="controls">
-        <button data-combat="KeyA" aria-label="P1 left">←</button><button data-combat="KeyD" aria-label="P1 right">→</button>
-        <button data-combat="KeyW">P1 jump</button><button data-combat="KeyJ">P1 light</button><button data-combat="KeyK">P1 heavy</button><button data-combat="KeyL">P1 special</button>
-      </div></fieldset>
-      <fieldset class="combat"><legend>P2 — controls when human P2 is selected</legend><div class="controls">
-        <button data-combat="ArrowLeft" aria-label="P2 left">←</button><button data-combat="ArrowRight" aria-label="P2 right">→</button>
-        <button data-combat="ArrowUp">P2 jump</button><button data-combat="Comma">P2 light</button><button data-combat="Period">P2 heavy</button><button data-combat="Slash">P2 special</button>
-      </div></fieldset>
-      <p class="note">
-        Solid red = hitbox live this frame. Dashed amber = startup, the telegraph.
-        Blue outline = blocking. Faint dashed box = the 44&nbsp;px sprite silhouette around the
-        24&nbsp;px pushbox. Edge lines = the stage walls.
-        <br /><strong>The stage is wider than the screen:</strong> 480&nbsp;px of stage behind a
-        320&nbsp;px view. The camera follows the midpoint between the fighters and stops 24&nbsp;px
-        past each wall, so a cornered fighter is still drawn whole. Walk one fighter away and the
-        backdrop parallax shows the stage moving; the deck seams at the fighters' feet move
-        one-for-one with the stage.
-        <br /><strong>Reach is centre-to-centre:</strong> a move connects when the opponent's
-        dashed centre line is inside the solid end-cap, not when the boxes overlap.
-      </p>
-    </div>
+      <nav class="shell-tabs" aria-label="Arcade tools">
+        <a href="./gym.html">Character gym</a>
+        <a href="./arcade.html" aria-current="page">Fighter playground</a>
+      </nav>
+    </header>
 
-    <div class="panels">
-      <div class="panel">
-        <h2>Controls</h2>
-        <div class="keys">
-          <span>P1 move / jump</span><span><kbd>A</kbd> <kbd>D</kbd> <kbd>W</kbd></span>
-          <span>P1 light / heavy / special</span><span><kbd>J</kbd> <kbd>K</kbd> <kbd>L</kbd></span>
-          <span>P2 move / jump</span><span><kbd>&larr;</kbd> <kbd>&rarr;</kbd> <kbd>&uarr;</kbd></span>
-          <span>P2 light / heavy / special</span><span><kbd>,</kbd> <kbd>.</kbd> <kbd>/</kbd></span>
-          <span>pause / step one frame</span><span><kbd>Space</kbd> <kbd>N</kbd></span>
-          <span>speed 1x / 0.5x / 0.25x</span><span><kbd>S</kbd></span>
-          <span>restart round</span><span><kbd>R</kbd></span>
-          <span>P2 human or CPU</span><span><kbd>T</kbd></span>
-          <span>CPU difficulty</span><span><kbd>G</kbd></span>
-          <span>hitbox overlay</span><span><kbd>H</kbd></span>
-          <span>sprites / boxes</span><span><kbd>V</kbd></span>
-          <span>pick P1 / P2 fighter</span><span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> / <kbd>Shift</kbd>+</span>
+    <div class="shell-main">
+      <section class="stage-panel" aria-label="Fight stage">
+        <div class="titlebar"><span>Mars arcade · exchange study</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+        <div class="viewport">
+          <canvas id="stage" role="img" aria-label="Arcade fight preview. Native controls and live state follow below."></canvas>
         </div>
-      </div>
+        <p id="asset-status" class="status" role="status">Loading sprite pilot…</p>
+        <div class="controls" aria-label="Round controls">
+          <button class="btn-primary" data-command="exchange">Play exchange</button>
+          <button data-command="freeplay">Free play</button>
+          <button data-command="Space">Pause</button>
+          <button data-command="KeyN">Step one frame</button>
+          <button data-command="KeyR">Restart round</button>
+          <button data-command="KeyT">Toggle CPU / human P2</button>
+          <button data-command="KeyH">Toggle hitboxes</button>
+          <button data-command="KeyV">Toggle sprites / boxes</button>
+          <button data-command="KeyS">Cycle speed</button>
+          <button data-command="KeyG">Cycle difficulty</button>
+          <button data-command="mirror">Booster mirror match</button>
+        </div>
+        <div class="controls">
+          <label>P1 fighter <select data-fighter="0" style="width: auto"><option value="booster">Booster · Elon</option><option value="oracle">Oracle · Sam</option><option value="captain">Captain · Pop T</option></select></label>
+          <label>P2 fighter <select data-fighter="1" style="width: auto"><option value="booster">Booster · Elon</option><option value="oracle" selected>Oracle · Sam</option><option value="captain">Captain · Pop T</option></select></label>
+        </div>
+        <fieldset><legend>P1 — hold to move, move away to guard</legend><div class="controls">
+          <button data-combat="KeyA" aria-label="P1 left">←</button><button data-combat="KeyD" aria-label="P1 right">→</button>
+          <button data-combat="KeyW">P1 jump</button><button data-combat="KeyJ">P1 light</button><button data-combat="KeyK">P1 heavy</button><button data-combat="KeyL">P1 special</button>
+        </div></fieldset>
+        <fieldset><legend>P2 — controls when human P2 is selected</legend><div class="controls">
+          <button data-combat="ArrowLeft" aria-label="P2 left">←</button><button data-combat="ArrowRight" aria-label="P2 right">→</button>
+          <button data-combat="ArrowUp">P2 jump</button><button data-combat="Comma">P2 light</button><button data-combat="Period">P2 heavy</button><button data-combat="Slash">P2 special</button>
+        </div></fieldset>
+        <p class="note">
+          Solid red = hitbox live this frame. Dashed amber = startup, the telegraph.
+          Blue outline = blocking. Faint dashed box = the 44&nbsp;px sprite silhouette around the
+          24&nbsp;px pushbox. Edge lines = the stage walls.
+          <br /><strong>The stage is wider than the screen:</strong> 480&nbsp;px of stage behind a
+          320&nbsp;px view. The camera follows the midpoint between the fighters and stops 24&nbsp;px
+          past each wall, so a cornered fighter is still drawn whole.
+          <br /><strong>Reach is centre-to-centre:</strong> a move connects when the opponent's
+          dashed centre line is inside the solid end-cap, not when the boxes overlap.
+        </p>
+      </section>
 
-      <div class="panel">
-        <h2>Live state</h2>
-        <pre id="readout"></pre>
-      </div>
+      <aside class="console" id="arcade-console" aria-label="Debug console">
+        <div class="console-head"><span>Debug console</span><button type="button" id="arcade-collapse" aria-expanded="true">Collapse</button></div>
 
-      <div class="panel">
-        <h2>Events</h2>
-        <pre id="log" aria-live="polite"></pre>
-      </div>
+        <section class="section">
+          <h2>Controls</h2>
+          <div class="keys">
+            <span>P1 move / jump</span><span><kbd>A</kbd> <kbd>D</kbd> <kbd>W</kbd></span>
+            <span>P1 light / heavy / special</span><span><kbd>J</kbd> <kbd>K</kbd> <kbd>L</kbd></span>
+            <span>P2 move / jump</span><span><kbd>&larr;</kbd> <kbd>&rarr;</kbd> <kbd>&uarr;</kbd></span>
+            <span>P2 light / heavy / special</span><span><kbd>,</kbd> <kbd>.</kbd> <kbd>/</kbd></span>
+            <span>pause / step one frame</span><span><kbd>Space</kbd> <kbd>N</kbd></span>
+            <span>speed 1x / 0.5x / 0.25x</span><span><kbd>S</kbd></span>
+            <span>restart round</span><span><kbd>R</kbd></span>
+            <span>P2 human or CPU</span><span><kbd>T</kbd></span>
+            <span>CPU difficulty</span><span><kbd>G</kbd></span>
+            <span>hitbox overlay</span><span><kbd>H</kbd></span>
+            <span>sprites / boxes</span><span><kbd>V</kbd></span>
+            <span>pick P1 / P2 fighter</span><span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> / <kbd>Shift</kbd>+</span>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>Live state</h2>
+          <pre id="readout"></pre>
+        </section>
+
+        <section class="section">
+          <h2>Events</h2>
+          <pre class="dim" id="log" aria-live="polite"></pre>
+        </section>
+      </aside>
     </div>
 
     <script type="module" src="/src/dev/arcadeHarness.ts"></script>
+    <script type="module">
+      const console_ = document.querySelector('#arcade-console')
+      const collapse = document.querySelector('#arcade-collapse')
+      collapse?.addEventListener('click', () => {
+        const collapsed = console_.dataset.collapsed !== 'true'
+        console_.dataset.collapsed = String(collapsed)
+        collapse.textContent = collapsed ? 'Expand' : 'Collapse'
+        collapse.setAttribute('aria-expanded', String(!collapsed))
+      })
+    </script>
   </body>
 </html>
