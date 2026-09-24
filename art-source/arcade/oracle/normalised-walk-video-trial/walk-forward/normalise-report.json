@@ -23,42 +23,42 @@
       "source": "art-source/arcade/oracle/generated/walk-video-trial-v1/pick-01.png",
       "out": "art-source/arcade/oracle/normalised-walk-video-trial/walk-forward/walk-forward-01.png",
       "anchor": [
-        24,
-        102
+        19,
+        103
       ],
       "offset": [
-        40,
-        17
+        45,
+        16
       ],
-      "despilled": 6762,
+      "despilled": 5313,
       "clipped": 0
     },
     {
       "source": "art-source/arcade/oracle/generated/walk-video-trial-v1/pick-02.png",
       "out": "art-source/arcade/oracle/normalised-walk-video-trial/walk-forward/walk-forward-02.png",
       "anchor": [
-        22,
-        105
+        34,
+        101
       ],
       "offset": [
-        42,
-        14
+        30,
+        18
       ],
-      "despilled": 3900,
+      "despilled": 5431,
       "clipped": 0
     },
     {
       "source": "art-source/arcade/oracle/generated/walk-video-trial-v1/pick-03.png",
       "out": "art-source/arcade/oracle/normalised-walk-video-trial/walk-forward/walk-forward-03.png",
       "anchor": [
-        35,
-        101
+        24,
+        105
       ],
       "offset": [
-        29,
-        18
+        40,
+        14
       ],
-      "despilled": 5072,
+      "despilled": 5526,
       "clipped": 0
     }
   ],
