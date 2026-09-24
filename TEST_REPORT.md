@@ -1,5 +1,27 @@
 # Test report
 
+## 2026-09-24 — Arcade animation workflow v2 (table, gym v2, clip pipeline)
+
+- Unit: `marsArcadeAnimations.test.ts` 21 tests (shipped table has 0 errors; hold sums equal
+  the frame data for every move clip; v1 boxes pinned; parser rejects escaping/NaN/fractional
+  boxes, attack on inactive, hold 0, foreign src, bad loop, old version; validator mutation
+  tests for hold-sum, active-without-attack, reach ± exception, collision-baseline,
+  attack-without-move / -reach, block-without-guard, move-loop, foreign-move, unknown-move,
+  missing-boxes as warning). `arcadeGymManifest.test.ts` rewritten: preload == table sources,
+  every move clip plays in table order on table holds. All prior harness tests unchanged and
+  green on the table-driven selector.
+- `npm run check`: lint, types, 845 tests / 71 files, build — see the entry's own line below.
+- Python: `audit-arcade-clip.test.py` 4/4, `normalise-arcade-clip.test.py` 14/14,
+  `pick-arcade-frames.test.py` 8/8 (ffmpeg present); existing `check-popt-frames-fullcolour.test.py`
+  and `normalise-popt-frame.test.py` unchanged.
+- CLI: `npm run arcade:validate` 0 errors / 22 warnings; `audit-arcade-clip.py --all` 0 failing.
+- Parity: clip normaliser `feet` mode reproduces the shipped Oracle jab cells, 0 px differ.
+- Browser (dev server on 5360, Chromium 1228 via the main checkout's Playwright):
+  `check-arcade-gym.mjs` 13 ok at 1440 and 768; booster continuity 2 PASS; Oracle heavy
+  continuity 2 PASS. Not run: the other twelve arcade check scripts, full-journey e2e,
+  3D asset suite, 375 px (dev tool).
+- Report: `asset-reports/mars-arcade-animation-workflow-2026-09-24.md`.
+
 ## 2026-09-23 — Oracle heavy motion (sweep + settle)
 
 - Selector: RED 2 fail / 2 pass against the previous selector, GREEN after (frame boundaries,

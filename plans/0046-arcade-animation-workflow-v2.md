@@ -1,7 +1,8 @@
 # Mars arcade — animation workflow v2
 
-Status: **PROPOSAL, drafted 2026-09-23, not owner-reviewed.** Nothing in the runtime has
-changed. This plan is the answer to the owner's ask: "We need to improve our animation
+Status: **M1, M2, M4, M5 BUILT 2026-09-24 on `feat/arcade-animation-workflow-v2`; M3 pending
+its own PR.** Owner decisions 2026-09-23: milestones 1–5 approved; A "try it, with a cheap or
+free model"; B property; C yes; D port. This plan is the answer to the owner's ask: "We need to improve our animation
 workflow a lot. I've noticed a lot of inconsistencies in the current one. There's one called
 Spriterific that a guy made, we could probably learn from it … We definitely need to improve
 our bounds, attack bounds, hit boxes, guard, visual, etc."
@@ -286,9 +287,10 @@ end to end; docs no longer contradict the tools.
 
 ## Implementation order and estimate
 
-M1 → M2 → M4 can proceed without any owner decision and are the bulk of the value (the
-inconsistencies 2–7, 9–12 all die in M1/M2/M4). M3 waits on B and C. M5 lands with whichever
-milestone finishes last. One PR per milestone, each targeting `main` (PR batching rule).
+M1 → M2 → M4 → M5 landed together as one PR (the workflow), because M2 and M4 both depend on
+M1's table and shipping them separately would have meant three PRs stacked on each other,
+which the PR-batching rule forbids. M3 is a balance change and goes in its own PR after this
+one merges, so its reach retune table is reviewable on its own.
 
 ## Validation plan
 
@@ -323,7 +325,23 @@ first audited clip.
 
 - [x] 2026-09-23 — Research: codebase map, Spriterrific source read (v0.20.4), Framesmith
   schema and MCP, fighting-game box conventions; this plan drafted.
-- [ ] Owner review of decisions A–D.
+- [x] 2026-09-23 — Owner approved milestones 1–5 and decided A–D.
+- [x] 2026-09-24 — M1: `marsArcadeAnimations.json` v2 + `marsArcadeAnimations.ts` (parse,
+  validate with severities, `marsArcadeFrameAt`, `marsArcadeDrawingAt`); harness derives its
+  sprite list and plays moves, walks, idles, outcomes from the table; v1 migrated and pinned;
+  `tools/assets/arcade-anim.mjs validate | frame-data | count | list`; 15 check/record
+  scripts no longer hard-code the sprite count.
+- [x] 2026-09-24 — M2: gym v2 (`src/dev/arcadeGym.ts`, `dev/gym.html`), Save validated in the
+  page and in the Vite endpoint, `tools/assets/check-arcade-gym.mjs` proof at 1440 / 768.
+- [x] 2026-09-24 — M4: `normalise-arcade-clip.py` (five alignment modes, parity with the
+  per-frame tool), `audit-arcade-clip.py` (sequence audit, contact sheet, GIF, review.md),
+  `pick-arcade-frames.py` (video picks), each with a self-proving test.
+- [x] 2026-09-24 — M5: `.agents/skills/arcade-animation/SKILL.md`; README scales and intro,
+  contract pipeline notes, resume doc, TEST_REPORT, asset report.
+- [ ] M3 — rules read the boxes behind `useBounds`, guard height as a move property, pushbox
+  from data, hit stop + flash events, playground JSON. Own PR after this one merges.
+- [ ] Owner: review seeded boxes in the gym (20 clips flagged `reviewed: false`).
+- [ ] Decision A follow-through: a provider key for one paid trial (see Discoveries).
 
 ## Discoveries
 
@@ -334,17 +352,49 @@ first audited clip.
   spaces picks at ~3 dense frames per drawing for walks; both are empirical constants for
   specific models and would need re-measuring for ours.
 - Its `preserve-canvas` layout is exactly the opposite of our per-drawing feet alignment: one
-  `scale`, one `paste` for the whole clip, recorded in metadata.
+  `scale`, one `paste` for the whole clip, recorded in metadata. Ported as `--align preserve-canvas`.
+- **Decision A, cheap or free video:** the machine cannot run a video model locally (GeForce
+  GTX 1050 Ti, 4 GB). Hosted, the cheapest workable image-to-video are the small open models
+  (LTX-Video / LTX-2, Wan 2.2 5B) at 480p: a few cents per 3–5 s clip on fal.ai, which also
+  gives new accounts $10 of free credit — enough for the whole trial (one walk = ~12 clips
+  worth of attempts) without paying. Seedance-class models are cheaper per second on some
+  resellers but not needed for a 44 px sprite. The owner has to create the account and set
+  `FAL_KEY` locally; nothing in the repo may call a paid API. `pick-arcade-frames.py` and
+  `normalise-arcade-clip.py --align preserve-canvas` are ready for the first clip.
+- The sequence audit's head-width proxy is not a ruler at cell resolution: a fist beside the
+  face or a raised arm across the top rows moves it 20–90 %. It is reported, never judged;
+  scale is measured on the source at the locked scale (memory: never one ruler).
+- The audit's first pass over the shipped clips found two hurt boxes on `oracle:heavy` that
+  leave the drawing (sweep, settle): boxes migrated by position in PR #98 landed on poses
+  they were not drawn for. Left as warnings for the owner's gym pass; not silently moved.
+- The clip normaliser only matches the per-frame tool bit for bit once it drops alpha ≤ 8 at
+  placement, as that tool does; the gate treats those pixels as non-figure anyway.
+- Node's own type stripping cannot resolve extensionless TS imports, so the CLI loads the
+  schema through Vite's `ssrLoadModule` rather than keeping a second copy of the rules.
 
 ## Decision log
 
 - 2026-09-23 — Propose porting ideas rather than adopting the package: our cell/scale contract
   is settled and its GUIs are Tk desktop apps, while our authoring surface is the browser gym.
+  Owner confirmed (D).
+- 2026-09-24 — Hurt and attack boxes are lists per frame; body and guard are one per frame.
+  Guard height will be a move property (B), so the guard box stays a gym visual for blocks.
+- 2026-09-24 — Seeded boxes ship flagged `reviewed: false` rather than not at all: the fight
+  loop does not read boxes yet, the validator needs body + hurt on every frame to mean
+  anything, and an honest warning beats an empty frame.
+- 2026-09-24 — The gym renders at 4x (authoring), the harness at 3x; boxes are cell pixels so
+  the difference is cosmetic, and the parity item from the proposal is dropped.
+- 2026-09-24 — Sprite labels are uniform `<clip> <phase> — <pose>`; the two continuity proofs
+  were updated to match rather than special-casing the base drawings.
 
 ## Evidence
 
-Research only so far. Sources: Spriterrific PyPI 0.20.4 package contents (`skills/spriterrific/
-SKILL.md`, `media.py`, `post_selection.py`, `size_contract.py`, `frame_aligner.py`, `chroma.py`,
-`presets.py`, `manifest.py`); spriterrific.com fighting-game page; phaser.io 2026-06 "Vibe Code a
-Street Fighter Clone"; github.com/RobDavenport/framesmith docs (data-formats, rules-spec,
+Research sources: Spriterrific PyPI 0.20.4 package contents (`skills/spriterrific/SKILL.md`,
+`media.py`, `post_selection.py`, `size_contract.py`, `frame_aligner.py`, `chroma.py`,
+`presets.py`, `manifest.py`); spriterrific.com fighting-game page; phaser.io 2026-06 "Vibe Code
+a Street Fighter Clone"; github.com/RobDavenport/framesmith docs (data-formats, rules-spec,
 mcp-server); Explore-agent map of `origin/main` a2c8d8e and PR #98.
+
+Build evidence (2026-09-24), all actually run: `TEST_REPORT.md` entry of that date and
+`asset-reports/mars-arcade-animation-workflow-2026-09-24.md`. Screenshots in
+`preview-renders/mars-arcade/gym-v2/`, clip reviews in `preview-renders/mars-arcade/clips/`.
