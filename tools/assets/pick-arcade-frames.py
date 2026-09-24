@@ -12,8 +12,10 @@ become the drawings. This is Spriterrific's frame-picker discipline, ported:
 
   1. extract every frame with ffmpeg (or take a folder of frame-*.png already extracted);
   2. skip the settle at the start (--start-fraction: the model eases into the motion);
-  3. for a `cycle` (walk, idle) take N frames evenly spaced over N-1 times --span-factor
-     dense frames, which is roughly one stride; for an `action` (an attack, a reaction)
+  3. for a `cycle` (walk, idle) MEASURE the cycle period (where the clip best matches itself
+     again) and spread N frames over exactly one cycle, so the picks are in phase order —
+     a guessed spacing lands them out of phase and the walk plays as a moonwalk;
+     --span-factor overrides the measurement; for an `action` (an attack, a reaction)
      spread N frames over the whole remaining clip; for `hold` (a block) take the frames
      where the pose has settled;
   4. reject near-duplicates: a pick that differs from the previous one by less than
@@ -93,14 +95,51 @@ def spread_distinct(start: int, end: int, last: int, count: int, sigs: list[np.n
     return picks
 
 
-def choose(frames: list[Path], count: int, policy: str, start_fraction: float, span_factor: float, threshold: float | None) -> tuple[list[int], dict]:
+def cycle_period(sigs: list[np.ndarray], start: int) -> int | None:
+    """Dense frames per full cycle, from where the clip best matches itself again.
+
+    Mean absolute difference between each frame and the frame `k` later, for every `k`;
+    the first clear dip after the curve has risen is the period. Measured, not guessed:
+    a walk cycle picked at a guessed spacing lands its samples out of phase and plays as a
+    moonwalk. Returns None when no dip is found (a one-shot, or too short a clip).
+    """
+    pool = sigs[start:]
+    n = len(pool)
+    if n < 8:
+        return None
+    curve = []
+    for k in range(1, n // 2 + 1):
+        curve.append(float(np.mean([np.abs(pool[i] - pool[i + k]).mean() for i in range(n - k)])))
+    rise = max(curve[: max(2, len(curve) // 3)])
+    dips = [k + 1 for k in range(2, len(curve) - 1)
+            if curve[k] <= curve[k - 1] and curve[k] <= curve[k + 1] and curve[k] < 0.6 * rise]
+    if not dips:
+        return None
+    # A walk matches itself after ONE step too (the other leg, nearly the same
+    # silhouette), and that shallower dip comes first. The full cycle is the deepest
+    # match; when two dips are within a tenth of each other, the later one is the cycle.
+    best = min(dips, key=lambda lag: curve[lag - 1])
+    for lag in dips:
+        if lag > best and curve[lag - 1] <= curve[best - 1] * 1.1:
+            best = lag
+    return best
+
+
+def choose(frames: list[Path], count: int, policy: str, start_fraction: float, span_factor: float | None, threshold: float | None) -> tuple[list[int], dict]:
     total = len(frames)
     if total < count:
         raise ValueError(f"need at least {count} frames, found {total}")
     sigs = [signature(p) for p in frames]
     resolved = threshold if threshold is not None else auto_threshold(sigs)
     start = int(round((total - 1) * start_fraction))
+    period = None
     if policy == "cycle":
+        if span_factor is None:
+            period = cycle_period(sigs, start)
+            if period is None:
+                raise ValueError("could not measure a cycle period; pass --span-factor explicitly")
+            # N drawings spread over ONE period, the last one a step short of the wrap.
+            span_factor = period / count
         end = min(total - 1, start + round((count - 1) * span_factor))
     elif policy == "action":
         end = total - 1
@@ -111,7 +150,10 @@ def choose(frames: list[Path], count: int, policy: str, start_fraction: float, s
     if end - start + 1 < count:
         start, end = max(0, total - count), total - 1
     picks = spread_distinct(start, end, total - 1, count, sigs, resolved)
-    return picks, {"window": [start, end], "mode": policy, "duplicateThreshold": resolved}
+    meta = {"window": [start, end], "mode": policy, "duplicateThreshold": resolved, "spanFactor": span_factor}
+    if period is not None:
+        meta["cyclePeriod"] = period
+    return picks, meta
 
 
 def contact_sheet(paths: list[Path], out: Path, labels: list[str]) -> None:
@@ -135,7 +177,7 @@ def main() -> int:
     ap.add_argument("--frames", type=int, required=True, help="how many drawings to pick")
     ap.add_argument("--policy", choices=("cycle", "action", "hold"), default="action")
     ap.add_argument("--start-fraction", type=float, default=None, help="share of the clip to skip as settle (default: 0.08 for cycle, 0 otherwise)")
-    ap.add_argument("--span-factor", type=float, default=3.0, help="cycle only: dense frames per pick")
+    ap.add_argument("--span-factor", type=float, default=None, help="cycle only: dense frames per pick; default measures the cycle period and spreads the picks over one cycle")
     ap.add_argument("--fps", type=int, default=None, help="extraction rate; default keeps every source frame")
     ap.add_argument("--duplicate-threshold", type=float, default=None,
                     help="mean grey difference (0-255) below which two picks are the same drawing; default: half the clip's typical frame-to-frame change")
@@ -174,10 +216,11 @@ def main() -> int:
     contact_sheet(outputs, args.out_dir / "picks-contact-sheet.png", [f"{i} <- dense {index}" for i, index in enumerate(picks)])
     (args.out_dir / "selection.json").write_text(json.dumps({
         "source": str(args.source), "denseFrames": len(dense), "policy": args.policy,
-        "startFraction": start_fraction, "spanFactor": args.span_factor,
+        "startFraction": start_fraction,
         **meta, "picks": [{"out": str(o), "dense": int(i), "denseFile": str(dense[i])} for o, i in zip(outputs, picks)],
     }, indent=2) + "\n", encoding="utf-8")
-    print(f"{len(dense)} dense frames; window {meta['window'][0]}..{meta['window'][1]}; picked {picks}")
+    print(f"{len(dense)} dense frames; window {meta['window'][0]}..{meta['window'][1]}"
+          + (f"; measured cycle {meta['cyclePeriod']} frames" if meta.get('cyclePeriod') else "") + f"; picked {picks}")
     print(f"wrote {len(outputs)} picks and picks-contact-sheet.png to {args.out_dir}")
     return 0
 

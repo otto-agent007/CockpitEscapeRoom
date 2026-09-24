@@ -9,7 +9,7 @@ or free model". This is the first clip, end to end, with nothing paid.
 | --- | --- | --- |
 | Generate | `tools/assets/generate-arcade-video.py … --space ltx` on `Lightricks/ltx-video-distilled` (free ZeroGPU, no token) | 2.5 s, 512×768, 30 fps, 73 frames, **295 s in the queue**, seed 7. Prompt and provenance: `art-source/arcade/oracle/generated/walk-video-trial-v1/generation.json` |
 | Generate (Wan 2.2 first-last-frame, anchor as both ends) | same tool, `--space wan-flf` | **Refused: anonymous ZeroGPU quota is 60 s and the job asks for 180 s.** Needs `HF_TOKEN` (a free Hugging Face account). Not retried. |
-| Pick | `pick-arcade-frames.py --frames 4 --policy cycle --span-factor 10` | dense 6, 16, 26, 36 — one stride cycle after the settle |
+| Pick | `pick-arcade-frames.py --frames 4 --policy cycle` | first pass guessed a spacing of 10 and the owner saw him walk backwards: the samples were out of phase. The picker now MEASURES the cycle (28 dense frames; the one-step dip at 14 is rejected in favour of the deeper full-cycle match) and spreads the picks over exactly one cycle: dense 6, 13, 20, 27 |
 | Normalise | `normalise-arcade-clip.py --align torso --torso-reference <shipped walk-forward-00> --chroma #FF00FF` at 6.8029 (the locked 13.6058 halved, the clip being half the anchor's size) | 4 cells, `art-source/arcade/oracle/normalised-walk-video-trial/walk-forward/` |
 | Gate | `check-popt-frames-fullcolour.py --in-place-clip walk-forward` | 3 of 4 pass; `walk-forward-00` has one ≤2 px transparent speck |
 | Audit | `audit-arcade-clip.py` (as a loop clip) | **FAIL**: upper body pops −3,0 / +4,+3 / −1,−4 px between drawings (ceiling 2) |
