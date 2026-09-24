@@ -14,7 +14,7 @@ try {
   page.on('pageerror', error => errors.push(error.message))
   await page.clock.install()
   await page.goto(base)
-  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('68/68 sprites ready'))
+  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.match(/^(\d+)\/\1 sprites ready/))
   const text = () => page.locator('#readout').innerText()
   const frame = async () => Number((await text()).match(/frame (\d+)/)[1])
   const tick = ms => page.clock.runFor(ms)

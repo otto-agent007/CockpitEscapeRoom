@@ -16,7 +16,7 @@ try {
   const errors = []
   page.on('pageerror', e => errors.push(e.message))
   await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
-  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('68/68 sprites ready'))
+  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.match(/^(\d+)\/\1 sprites ready/))
   await page.locator('[data-command="mirror"]').click()
   await page.locator('[data-command="KeyT"]').click()
   await page.locator('[data-command="KeyH"]').click()

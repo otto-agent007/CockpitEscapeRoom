@@ -10,7 +10,7 @@
  * test notices. Four box types per drawn frame fix that:
  *
  * - `collision` — the body box, what stands on the floor and what pushes.
- * - `hit` — the hurtbox: where this fighter can be struck.
+ * - `hurt` — the hurtbox: where this fighter can be struck.
  * - `attack` — the hitbox, **live only on the frames where it says so**. An attack
  *   must not register before the limb is out or while it is being withdrawn.
  * - `guard` — what a block actually covers. The fight loop currently treats blocking
@@ -22,12 +22,11 @@
  * are stored unmirrored, facing right, and mirrored at read time — storing both
  * facings is the bug that hit the flying-car work five times over.
  *
- * **Nothing here is wired into hit detection yet.** Doing that silently would change
- * every matchup's spacing. This module ships the contract, the authoring format and
- * the consistency checks first; the engine switchover is a separate, reviewable step.
+ * The file that carries the boxes — every clip, every drawing, every hold — is
+ * `marsArcadeAnimations.json`, parsed and validated by `marsArcadeAnimations.ts`.
+ * This module is the geometry only: the cell, the box kinds, and how a cell-space box
+ * becomes a stage-space one.
  */
-
-import type { MarsArcadeFighterId } from './marsArcadeFighters'
 
 /**
  * The sprite cell every box is measured against.
@@ -41,11 +40,11 @@ export const MARS_ARCADE_CELL = {
   centreColumn: 64,
 } as const
 
-export type MarsArcadeBoundKind = 'collision' | 'hit' | 'attack' | 'guard'
+export type MarsArcadeBoundKind = 'collision' | 'hurt' | 'attack' | 'guard'
 
 export const MARS_ARCADE_BOUND_KINDS: readonly MarsArcadeBoundKind[] = [
   'collision',
-  'hit',
+  'hurt',
   'attack',
   'guard',
 ]
@@ -68,31 +67,6 @@ export interface MarsArcadeBox {
  * wrong the moment either side is retimed.
  */
 export type MarsArcadeFramePhase = 'startup' | 'active' | 'recovery' | 'neutral'
-
-export interface MarsArcadeFrameBounds {
-  phase: MarsArcadeFramePhase
-  collision?: MarsArcadeBox
-  hit?: MarsArcadeBox
-  guard?: MarsArcadeBox
-  /** Present only on frames where the hitbox exists at all. */
-  attack?: MarsArcadeBox
-}
-
-export interface MarsArcadeAnimationBounds {
-  fighter: MarsArcadeFighterId
-  animation: string
-  /** Move id this animation illustrates, when it illustrates one. */
-  moveId?: string
-  frames: MarsArcadeFrameBounds[]
-}
-
-export interface MarsArcadeBoundsFile {
-  version: number
-  animations: MarsArcadeAnimationBounds[]
-}
-
-/** Bumped when the on-disk shape changes in a way old files cannot satisfy. */
-export const MARS_ARCADE_BOUNDS_VERSION = 1
 
 /** A box resolved into the fight loop's own space. */
 export interface MarsArcadeStageBox {
@@ -144,112 +118,4 @@ export function marsArcadeGuardCovers(
   guard: MarsArcadeStageBox,
 ): boolean {
   return attack.minY < guard.maxY && guard.minY < attack.maxY
-}
-
-/** The hitbox for a frame, or null when the frame has none live. */
-export function marsArcadeAttackBox(frame: MarsArcadeFrameBounds): MarsArcadeBox | null {
-  return frame.phase === 'active' && frame.attack ? frame.attack : null
-}
-
-export function marsArcadeBoundsKey(fighter: MarsArcadeFighterId, animation: string): string {
-  return `${fighter}:${animation}`
-}
-
-function isBox(value: unknown): value is MarsArcadeBox {
-  if (typeof value !== 'object' || value === null) return false
-  const box = value as Record<string, unknown>
-  return (['x', 'y', 'width', 'height'] as const).every(
-    (key) => typeof box[key] === 'number' && Number.isFinite(box[key]),
-  )
-}
-
-function boxInsideCell(box: MarsArcadeBox): boolean {
-  return (
-    box.width > 0 &&
-    box.height > 0 &&
-    box.x >= 0 &&
-    box.y >= 0 &&
-    box.x + box.width <= MARS_ARCADE_CELL.size &&
-    box.y + box.height <= MARS_ARCADE_CELL.size
-  )
-}
-
-const PHASES: readonly MarsArcadeFramePhase[] = ['startup', 'active', 'recovery', 'neutral']
-
-/**
- * Parse and validate a bounds file.
- *
- * The gym writes this file from a browser, so it is untrusted input to everything
- * downstream and a malformed box must fail loudly here rather than silently produce
- * a hitbox at NaN — which overlaps nothing, meaning the move would simply stop
- * connecting and look like a balance bug.
- */
-export function parseMarsArcadeBounds(input: unknown): MarsArcadeBoundsFile {
-  if (typeof input !== 'object' || input === null) throw new Error('bounds: not an object')
-  const file = input as Record<string, unknown>
-  if (file.version !== MARS_ARCADE_BOUNDS_VERSION) {
-    throw new Error(`bounds: version ${String(file.version)}, expected ${MARS_ARCADE_BOUNDS_VERSION}`)
-  }
-  if (!Array.isArray(file.animations)) throw new Error('bounds: animations is not an array')
-
-  const seen = new Set<string>()
-  const animations = file.animations.map((raw, index) => {
-    if (typeof raw !== 'object' || raw === null) throw new Error(`bounds: animation ${index} is not an object`)
-    const entry = raw as Record<string, unknown>
-    const fighter = entry.fighter
-    const animation = entry.animation
-    if (typeof fighter !== 'string' || typeof animation !== 'string') {
-      throw new Error(`bounds: animation ${index} is missing fighter or animation`)
-    }
-    const key = marsArcadeBoundsKey(fighter as MarsArcadeFighterId, animation)
-    if (seen.has(key)) throw new Error(`bounds: duplicate entry ${key}`)
-    seen.add(key)
-
-    if (!Array.isArray(entry.frames) || entry.frames.length === 0) {
-      throw new Error(`bounds: ${key} has no frames`)
-    }
-    const frames = entry.frames.map((frameRaw, frameIndex) => {
-      if (typeof frameRaw !== 'object' || frameRaw === null) {
-        throw new Error(`bounds: ${key} frame ${frameIndex} is not an object`)
-      }
-      const frame = frameRaw as Record<string, unknown>
-      const phase = frame.phase
-      if (typeof phase !== 'string' || !PHASES.includes(phase as MarsArcadeFramePhase)) {
-        throw new Error(`bounds: ${key} frame ${frameIndex} has phase ${String(phase)}`)
-      }
-      const parsed: MarsArcadeFrameBounds = { phase: phase as MarsArcadeFramePhase }
-      for (const kind of MARS_ARCADE_BOUND_KINDS) {
-        const value = frame[kind]
-        if (value === undefined || value === null) continue
-        if (!isBox(value) || !boxInsideCell(value)) {
-          throw new Error(`bounds: ${key} frame ${frameIndex} has an invalid ${kind} box`)
-        }
-        parsed[kind] = value
-      }
-      if (parsed.attack && phase !== 'active') {
-        throw new Error(
-          `bounds: ${key} frame ${frameIndex} carries an attack box on a ${phase} frame`,
-        )
-      }
-      return parsed
-    })
-
-    const result: MarsArcadeAnimationBounds = {
-      fighter: fighter as MarsArcadeFighterId,
-      animation,
-      frames,
-    }
-    if (typeof entry.moveId === 'string') result.moveId = entry.moveId
-    return result
-  })
-
-  return { version: MARS_ARCADE_BOUNDS_VERSION, animations }
-}
-
-export function marsArcadeBoundsIndex(
-  file: MarsArcadeBoundsFile,
-): Map<string, MarsArcadeAnimationBounds> {
-  return new Map(
-    file.animations.map((entry) => [marsArcadeBoundsKey(entry.fighter, entry.animation), entry]),
-  )
 }
