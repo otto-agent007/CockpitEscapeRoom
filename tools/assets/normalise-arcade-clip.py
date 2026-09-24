@@ -89,6 +89,28 @@ def despill(sub: np.ndarray, figure: np.ndarray, clean: np.ndarray) -> int:
     return len(ys)
 
 
+def despill_clamp(rgb: np.ndarray, figure: np.ndarray, chroma: tuple[int, int, int]) -> int:
+    """Clamp the key colour's dominant channels on figure pixels the neighbour rebuild missed.
+
+    Video codecs ring the key colour several pixels into the figure, wider than the
+    edge band `despill` rebuilds. Spriterrific's answer, ported: on any figure pixel
+    still leaning toward the key, pull the key's dominant channels down to the
+    suppressed one plus the spill ceiling. For magenta that is r, b <= g + 15. It
+    changes only pixels that were key-tinted, and never geometry or alpha.
+    """
+    dominant = [i for i, v in enumerate(chroma) if v >= 128]
+    suppressed = [i for i, v in enumerate(chroma) if v < 128]
+    key = keyness(rgb, chroma)
+    tinted = figure & (key > KEY_SPILL)
+    if not tinted.any():
+        return 0
+    sup = np.max(np.stack([rgb[:, :, i] for i in suppressed], axis=2), axis=2)
+    for i in dominant:
+        channel = rgb[:, :, i]
+        channel[tinted] = np.minimum(channel[tinted], sup[tinted] + KEY_SPILL)
+    return int(tinted.sum())
+
+
 def load_source(path: Path, source_alpha: bool, chroma: tuple[int, int, int]) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """RGB float, figure mask, and clean (uncontaminated) mask for a whole source canvas."""
     source = Image.open(path).convert("RGBA")
@@ -225,7 +247,7 @@ def main() -> int:
         for rgb, alpha, clean in loaded:
             sub = rgb[y0:y1 + 1, x0:x1 + 1].copy()
             fig = alpha[y0:y1 + 1, x0:x1 + 1] > 0
-            spilled = 0 if args.source_alpha else despill(sub, fig, clean[y0:y1 + 1, x0:x1 + 1])
+            spilled = 0 if args.source_alpha else despill(sub, fig, clean[y0:y1 + 1, x0:x1 + 1]) + despill_clamp(sub, fig, chroma)
             sprites.append((downsample(sub, alpha[y0:y1 + 1, x0:x1 + 1], scale, args.resample), spilled))
         first = sprites[0][0][:, :, 3] > 8
         anchor_x, anchor_y, _ = anchor_for("feet", first, args.planted)
@@ -244,7 +266,7 @@ def main() -> int:
             y0, y1, x0, x1 = ys.min(), ys.max(), xs.min(), xs.max()
             sub = rgb[y0:y1 + 1, x0:x1 + 1].copy()
             fig = fig_full[y0:y1 + 1, x0:x1 + 1]
-            spilled = 0 if args.source_alpha else despill(sub, fig, clean[y0:y1 + 1, x0:x1 + 1])
+            spilled = 0 if args.source_alpha else despill(sub, fig, clean[y0:y1 + 1, x0:x1 + 1]) + despill_clamp(sub, fig, chroma)
             sprite = downsample(sub, alpha[y0:y1 + 1, x0:x1 + 1], scale, args.resample)
             mask = sprite[:, :, 3] > 8
             if args.align == "torso":
