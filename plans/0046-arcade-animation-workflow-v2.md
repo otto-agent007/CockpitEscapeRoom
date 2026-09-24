@@ -345,8 +345,29 @@ first audited clip.
   first Oracle walk clip generated, picked, normalised, gated and audited; see
   `asset-reports/mars-arcade-walk-video-trial-2026-09-24.md`. Audit fails on the model's 3–4 px
   body sway; per-drawing nudge or a stricter prompt is the next step.
+- [x] 2026-09-24 — `arcade-anim.mjs wire` puts a normalised clip in the table (and so the gym) in
+  one step; the playground's Candidates section previews any `<shipped>-video|-candidate|-alt`
+  clip in the fight without touching the table; the picker measures a cycle's period instead
+  of guessing (the first Oracle video walk played backwards from a guessed spacing).
+- [x] 2026-09-24 — CI fix for PRs #98/#99 (locker settle-before-stage race; two sub-frame
+  transients asserted on per-frame canvas attributes). Same commit on both branches.
 - [ ] M3 remainder — rules read the boxes behind `useBounds`, guard height as a move property,
   pushbox from data, hit stop + flash events. Own PR after this one merges.
+
+## Where to resume (written 2026-09-24, end of session)
+
+- Branch `feat/arcade-animation-workflow-v2` = **PR #99 → main**, worktree
+  `.worktrees/animation-workflow`, dev port 5360 (`npx vite --port 5360 --strictPort`). PR #98
+  merged on 2026-09-24 with the shared CI fix, so #99's diff is only this work.
+- Pages: `/dev/gym.html` (character gym) and `/dev/arcade.html` (fighter playground), one shell.
+- Owner queue: a gym pass over the 20 seeded clips (tick "boxes reviewed"); decide whether the
+  video walk (`oracle:walk-forward-video`, candidate) replaces the shipped one; a free Hugging Face
+  token in `HF_TOKEN` unlocks the Wan first-last-frame route (anonymous quota refuses it).
+- Next engineering: (1) per-drawing nudge in `normalise-arcade-clip.py` (the video walk sways
+  3–4 px; Spriterrific's aligner is the manual version); (2) M3 in its own PR; (3) tidy the
+  playground's Combat rows (they wrap); (4) the Vite config warning about extensionless imports.
+- Evidence: `TEST_REPORT.md` 2026-09-24, `asset-reports/mars-arcade-animation-workflow-2026-09-24.md`,
+  `asset-reports/mars-arcade-walk-video-trial-2026-09-24.md`, `preview-renders/mars-arcade/{gym-v2,clips,playground-v1}`.
 - [ ] Owner: review seeded boxes in the gym (20 clips flagged `reviewed: false`).
 - [ ] Decision A follow-through: a provider key for one paid trial (see Discoveries).
 

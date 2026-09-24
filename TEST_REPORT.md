@@ -41,6 +41,12 @@
   queue); picker, torso-aligned normalise, gate 3/4 (one 2 px speck), audit FAIL on 3–4 px body
   sway — the real remaining defect. Wan 2.2 refused anonymously (ZeroGPU quota). Report:
   `asset-reports/mars-arcade-walk-video-trial-2026-09-24.md`.
+- Candidate switch + wire: `check-arcade-playground.mjs` now 7 ok, including "a ticked
+  candidate clip plays in the fight in place of the shipped one" (the video walk draws only
+  once ticked). Picker: the first picks played backwards (guessed spacing 10 on a measured
+  28-frame cycle); `pick-arcade-frames.py` measures the period now, picks 6/13/20/27;
+  `pick-arcade-frames.test.py` 8/8. `arcade-anim.mjs wire` added; table 25 clips / 79 frames /
+  72 drawings, 0 errors; manifest + table + sprite tests 42/42.
 
 ## 2026-09-23 — Oracle heavy motion (sweep + settle)
 
