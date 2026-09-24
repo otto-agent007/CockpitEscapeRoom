@@ -31,6 +31,11 @@ export const ARCADE_ANIMATIONS: MarsArcadeAnimationsFile = MARS_ARCADE_ANIMATION
 
 /** The clip for a fighter and animation name, or null when it has not been drawn. */
 export const arcadeClip = marsArcadeClip
+/** Candidate previews live beside the lookup so the rules read the same drawing the harness shows. */
+export {
+  marsArcadeCandidateClips as arcadeCandidateClips,
+  setMarsArcadeClipOverride as setArcadeClipOverride,
+} from '../game/marsArcadePose'
 
 function requireClip(fighter: MarsArcadeFighterId, animation: string): MarsArcadeAnimation {
   const clip = arcadeClip(fighter, animation)
