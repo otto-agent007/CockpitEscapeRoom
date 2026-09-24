@@ -92,6 +92,16 @@
 - Dev shell restyle: gym and playground share `dev/arcade-shell.css` after the reference's
   layout; the gym repaints per tick without rebuilding controls. `check-arcade-gym.mjs` 13 ok at
   1440 and 768 after the restyle; both pages load with no console errors.
+- Fighter playground + tuning: `marsArcadeTuning.test.ts` 6 tests (shipped file == baked
+  content; overrides reach the fight loop: a tuned walk of 3 px/frame moves 3 px; parser
+  rejects negative speed, NaN damage, a missing move, an old version). `npm run check`: lint,
+  types, 851 tests / 72 files, build PASS. Browser `check-arcade-playground.mjs` 6 ok: shipped
+  tuning loaded, walk-speed edit felt (37.5 px at 1.25 → 75.0 px at 2.5 over 30 frames), reset,
+  authored boxes drawn on sprites, console collapse, no console errors.
+- Video route trial (free): LTX-Video space produced a consistent in-place Oracle walk (295 s
+  queue); picker, torso-aligned normalise, gate 3/4 (one 2 px speck), audit FAIL on 3–4 px body
+  sway — the real remaining defect. Wan 2.2 refused anonymously (ZeroGPU quota). Report:
+  `asset-reports/mars-arcade-walk-video-trial-2026-09-24.md`.
 
 ## 2026-09-23 — Oracle heavy motion (sweep + settle)
 

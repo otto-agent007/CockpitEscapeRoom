@@ -338,6 +338,13 @@ first audited clip.
   `pick-arcade-frames.py` (video picks), each with a self-proving test.
 - [x] 2026-09-24 — M5: `.agents/skills/arcade-animation/SKILL.md`; README scales and intro,
   contract pipeline notes, resume doc, TEST_REPORT, asset report.
+- [x] 2026-09-24 — Playground JSON (part of M3, pulled forward at the owner's ask to match the
+  reference's fighter playground): `marsArcadeTuning.json` + `arcadePlayground.ts`, live tuning
+  with Save, authored-box overlay on the sprites, dev shell shared with the gym.
+- [x] 2026-09-24 — Decision A executed: `generate-arcade-video.py` (free Hugging Face Spaces),
+  first Oracle walk clip generated, picked, normalised, gated and audited; see
+  `asset-reports/mars-arcade-walk-video-trial-2026-09-24.md`. Audit fails on the model's 3–4 px
+  body sway; per-drawing nudge or a stricter prompt is the next step.
 - [x] M3 — rules read the boxes behind `useBounds`, guard height as a move property, pushbox
   from data, hit stop + flash events, playground JSON. Built 2026-09-24 in its own PR; plan,
   connect table and evidence in `plans/0047-mars-arcade-bounds-rules.md`. Both switches ship
