@@ -489,7 +489,12 @@ test('production Airbus GLB renders Storm Line displays, controls, and responsiv
   await expect(canvas).toBeVisible()
   await page.getByRole('button', { name: 'Open Storm Line' }).click()
   await page.getByRole('button', { name: 'Begin Storm Line' }).click()
-  await expect(canvas).toHaveAttribute('data-airbus-camera-phase', 'transitioning')
+  // Begin moves the camera phase qualified -> transitioning -> storm. The reducer
+  // refuses START_AIRBUS_STORM_LINE unless the phase is already `transitioning`, so
+  // reaching `storm` proves the transition ran; the transitional value itself lasts
+  // 1.25 s at most, and 0 ms under reduced motion, which no poll can promise to see.
+  // The shell attribute is state-rendered; the canvas one is written per drawn frame.
+  await expect(page.locator('main')).toHaveAttribute('data-airbus-camera-phase', /^(transitioning|storm)$/)
   await expect(canvas).toHaveAttribute('data-airbus-camera-phase', 'storm', { timeout: 15_000 })
   await expect(page.getByText(/Storm Line · Storm core/)).toBeVisible({ timeout: 30_000 })
   await expect(canvas).toHaveAttribute(

@@ -45,6 +45,19 @@ describe('character gym animation manifest', () => {
     }
   })
 
+  // The gym pairs saved boxes with poses by position, so inserting a pose into an
+  // animation shifts every later box onto the wrong drawing — an attack box on a
+  // startup pose. Phases differ between those poses, which is what makes it visible.
+  it('keeps every saved frame on a pose with the same phase', () => {
+    const bounds = parseMarsArcadeBounds(rawBounds)
+    for (const entry of bounds.animations) {
+      const gym = ARCADE_GYM_ANIMATIONS.find((candidate) => candidate.fighter === entry.fighter && candidate.animation === entry.animation)
+      const key = marsArcadeBoundsKey(entry.fighter, entry.animation)
+      expect(entry.frames.length, key).toBeLessThanOrEqual(gym!.frames.length)
+      expect(entry.frames.map((frame) => frame.phase), key).toEqual(gym!.frames.slice(0, entry.frames.length).map((frame) => frame.phase))
+    }
+  })
+
   it('names only moves the fighter actually has', () => {
     for (const entry of ARCADE_GYM_ANIMATIONS) {
       if (!entry.moveId) continue

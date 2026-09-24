@@ -1,0 +1,13 @@
+PASS native KO, all outcome beats, displayed combat frozen, pause/step/resume/restart/reload; mirror winnerP1 (booster over booster), reduced=false, missing=false
+PASS native KO, all outcome beats, displayed combat frozen, pause/step/resume/restart/reload; mirror winnerP1 (booster over booster), reduced=true, missing=false
+PASS native KO, all outcome beats, displayed combat frozen, pause/step/resume/restart/reload; mirror winnerP2 (booster over booster), reduced=false, missing=false
+PASS native KO, all outcome beats, displayed combat frozen, pause/step/resume/restart/reload; mirror winnerP2 (booster over booster), reduced=true, missing=false
+PASS native KO, all outcome beats, displayed combat frozen, pause/step/resume/restart/reload; versus winnerP1 (booster over oracle), reduced=false, missing=false
+PASS native KO, all outcome beats, displayed combat frozen, pause/step/resume/restart/reload; versus winnerP1 (booster over oracle), reduced=true, missing=false
+PASS native KO, all outcome beats, displayed combat frozen, pause/step/resume/restart/reload; versus winnerP2 (oracle over booster), reduced=false, missing=false
+PASS native KO, all outcome beats, displayed combat frozen, pause/step/resume/restart/reload; versus winnerP2 (oracle over booster), reduced=true, missing=false
+PASS real timer outcome: draw; healthy loser/draw not knocked out
+PASS real timer outcome: time-win; healthy loser/draw not knocked out
+PASS real timer outcome: time-win-versus; healthy loser/draw not knocked out
+PASS real timer outcome: missing; healthy loser/draw not knocked out
+exit 0

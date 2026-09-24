@@ -1,0 +1,2 @@
+PASS native KO, all outcome beats, displayed combat frozen, pause/step/resume/restart/reload; mirror winnerP1 (booster over booster), reduced=false, missing=true
+exit 0

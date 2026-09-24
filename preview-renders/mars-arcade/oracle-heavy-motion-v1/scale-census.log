@@ -1,0 +1,10 @@
+# SUPERSEDED: planted-sneaker width is NOT a scale ruler (it foreshortens with the pose).
+# It wrongly read the approved contact as ~15% small. Use scale-census-head.log.
+anchor                       sneaker 17px  height 104  reach  20
+heavy-startup (approved)     sneaker 19px  height  92  reach  22
+sweep v2 (selected)          sneaker 18px  height  80  reach  47
+heavy-active (approved)      sneaker 15px  height  73  reach  42
+retract v2 (rejected)        sneaker 22px  height  89  reach  33
+retract v3 (rejected)        sneaker 21px  height  90  reach  34
+heavy-recovery (approved)    sneaker 18px  height 103  reach  21
+settle (selected)            sneaker 17px  height 104  reach  21

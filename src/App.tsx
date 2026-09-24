@@ -228,6 +228,19 @@ export default function App() {
   )
   const [lockerIntroSkipRequested, setLockerIntroSkipRequested] = useState(false)
   const lockerIntroSkipRequestedRef = useRef(false)
+  /**
+   * The cue the locker camera last reported settled at; it only counts while the camera
+   * is still on that cue (`lockerCameraSettledAt` below).
+   *
+   * The camera reports "settled" once per cue, on the frame it arrives. The intro and
+   * the hat finale used to act on that report only if their own stage had already
+   * advanced — so when the frame that settled the camera came BEFORE the stage did
+   * (a skip requested while the locker GLB was still decoding, on a machine drawing
+   * one frame a second), the report was ignored and nothing ever completed the intro:
+   * the cinematic overlay stayed up over a camera that was already on the watch.
+   * Remembering the settled cue lets the stage machines complete from either order.
+   */
+  const [settledLockerCue, setSettledLockerCue] = useState<LockerCameraCue | null>(null)
   const airbusSceneReady = airbusLoadState.status === 'ready' || airbusLoadState.status === 'accessible-fallback'
   const lockerIntroActive = lockerIntroStage !== 'idle'
   const lockerHatFinaleActive = state.phase === 'locker' && state.lockerHatRevealed && lockerHatFinaleStage !== 'ready'
@@ -422,6 +435,27 @@ export default function App() {
     const timeout = window.setTimeout(() => setLockerHatFinaleStage('ready'), LOCKER_HAT_HOLD_MS)
     return () => window.clearTimeout(timeout)
   }, [lockerHatFinaleStage])
+
+  // A settle report only counts for the cue the camera is currently on.
+  const lockerCameraSettledAt = settledLockerCue === lockerCameraCue ? settledLockerCue : null
+
+  // The stage machines complete whichever arrives second: the stage or the settle.
+  useEffect(() => {
+    if (lockerIntroStage !== 'focus-watch' || lockerCameraSettledAt !== 'watch-focus') return
+    const timeout = window.setTimeout(() => {
+      if (!state.lockerIntroCompleted) dispatch({ type: 'COMPLETE_LOCKER_INTRO' })
+      setLockerIntroStage('idle')
+      setLockerIntroSkipRequested(false)
+      lockerIntroSkipRequestedRef.current = false
+    }, 0)
+    return () => window.clearTimeout(timeout)
+  }, [dispatch, lockerCameraSettledAt, lockerIntroStage, state.lockerIntroCompleted])
+
+  useEffect(() => {
+    if (lockerHatFinaleStage !== 'moving' || lockerCameraSettledAt !== 'hat-focus') return
+    const timeout = window.setTimeout(() => setLockerHatFinaleStage('holding'), 0)
+    return () => window.clearTimeout(timeout)
+  }, [lockerCameraSettledAt, lockerHatFinaleStage])
 
   useEffect(() => {
     loaderStartedAtRef.current = performance.now()
@@ -685,6 +719,7 @@ export default function App() {
   }, [cockpitOrientationActive, dispatch])
 
   const handleLockerCameraSettled = useCallback((cue: LockerCameraCue) => {
+    setSettledLockerCue(cue)
     if (cue === 'watch-focus' && lockerIntroStage === 'focus-watch') {
       if (!state.lockerIntroCompleted) dispatch({ type: 'COMPLETE_LOCKER_INTRO' })
       setLockerIntroStage('idle')
@@ -710,6 +745,7 @@ export default function App() {
     setLockerIntroStage,
     setPendingLockerMemoryFocus,
     setSelectedLockerMemory,
+    setSettledLockerCue,
     state.lockerIntroCompleted,
   ])
 
@@ -795,6 +831,7 @@ export default function App() {
     <main
       ref={shellRef}
       data-locker-hat-finale-stage={state.phase === 'locker' ? lockerHatFinaleStage : undefined}
+      data-airbus-camera-phase={state.phase === 'airbus' ? state.airbusSimulator.cameraPhase : undefined}
       className={`game-shell${state.phase === 'airbus' ? ' airbus-shell' : ''}${activeAirbusScenario ? ' airbus-simulator-active' : ''}${state.phase === 'locker' ? ' locker-shell' : ''}${state.phase === 'dc9' ? ' captain-shell' : ''}`}
     >
       {skipPrototypeScene || (state.phase === 'airbus' && airbusLoadState.status === 'accessible-fallback') || (state.phase === 'locker' && lockerLoadState.status === 'accessible-fallback') || (state.phase === 'dc9' && dc9LoadState.status === 'accessible-fallback') ? (

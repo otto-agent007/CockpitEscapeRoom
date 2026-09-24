@@ -21,7 +21,7 @@ try {
     await page.clock.install()
     await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
     assert.match(await page.title(), /Mars arcade/)
-    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('61/61 sprites ready'))
+    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('68/68 sprites ready'))
     const tick = ms => page.clock.runFor(ms)
     const command = async code => { await page.locator('[data-command="' + code + '"]').click(); await tick(20) }
     const read = () => page.locator('#readout').innerText()
@@ -91,6 +91,8 @@ try {
       for (const phase of ['drive', 'settle']) assert.ok(drawn.some(s => s.includes('/booster/normalised-heavy-drive-ready/heavy-' + phase + '/')))
       assert.ok(drawn.some(s => s.includes('/booster/normalised-heavy-recovery-v1/heavy-retract/')))
       assert.ok(drawn.some(s => s.includes('/booster/' + folder + '/heavy-swing/')))
+    } else {
+      for (const beat of ['sweep', 'settle']) assert.ok(drawn.some(s => s.includes('/oracle/normalised-heavy-motion-ready/heavy-' + beat + '/')))
     }
     const events = await page.locator('#log').innerText()
     if (outcome === 'whiff') assert.doesNotMatch(events, / HIT | block /)
@@ -100,11 +102,11 @@ try {
   }
   const page = await browser.newPage()
   page.on('pageerror', e => errors.push(e.message))
-  await page.route(/\/normalised-heavy(?:(?:-continuity|-drive)?-ready|-recovery-v1)\//, r => r.abort())
+  await page.route(/\/normalised-heavy(?:(?:-continuity|-drive|-motion)?-ready|-recovery-v1)\//, r => r.abort())
   await page.clock.install()
   await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
-  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('10 failed'))
-  assert.match(await page.locator('#asset-status').innerText(), /51\/61 sprites ready; 10 failed/)
+  await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('12 failed'))
+  assert.match(await page.locator('#asset-status').innerText(), /56\/68 sprites ready; 12 failed/)
   await page.locator('[data-command="KeyT"]').click()
   await page.clock.runFor(1700)
   await page.getByRole('button', { name: 'P1 heavy', exact: true }).click()

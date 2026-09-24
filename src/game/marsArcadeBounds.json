@@ -79,6 +79,21 @@
           }
         },
         {
+          "phase": "startup",
+          "collision": {
+            "x": 45,
+            "y": 28,
+            "width": 32,
+            "height": 91
+          },
+          "hit": {
+            "x": 42,
+            "y": 28,
+            "width": 45,
+            "height": 91
+          }
+        },
+        {
           "phase": "active",
           "collision": {
             "x": 52,
@@ -97,6 +112,21 @@
             "y": 96,
             "width": 20,
             "height": 13
+          }
+        },
+        {
+          "phase": "recovery",
+          "collision": {
+            "x": 47,
+            "y": 17,
+            "width": 28,
+            "height": 102
+          },
+          "hit": {
+            "x": 42,
+            "y": 17,
+            "width": 44,
+            "height": 102
           }
         },
         {
