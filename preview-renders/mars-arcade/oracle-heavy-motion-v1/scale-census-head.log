@@ -1,0 +1,13 @@
+# Head width on full-resolution sources, max silhouette width in the 180 rows below the crown.
+wind-up (approved)                  315 px
+sweep v1 (rejected)                 312 px
+sweep v1 pose-edit (rejected)       378 px
+sweep v2 (SELECTED)                 320 px
+contact (approved, kept)            305 px
+contact redraw (reverted)           350 px
+retract v1 (rejected)               320 px
+retract v1 pose-edit (rejected)     363 px
+retract v3 (rejected)               346 px
+retract v4 (rejected)               329 px
+rise (approved)                     298 px
+settle (SELECTED)                   281 px

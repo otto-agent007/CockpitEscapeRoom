@@ -7,8 +7,16 @@ await mkdir(out, { recursive: true })
 const browser = await chromium.launch({ headless: true })
 const errors = []
 const missing = process.env.ARCADE_MISSING_OUTCOMES === '1'
+// The harness opens on Booster vs Oracle; `mirror` swaps P2 for a second Booster.
+const matchups = { mirror: ['booster', 'booster'], versus: ['booster', 'oracle'] }
+const recoils = {
+  booster: '/booster/normalised-sleek-ready/recoil/recoil-00.png',
+  oracle: '/oracle/normalised-exchange-ready/recoil/recoil-00.png',
+}
 try {
-  for (const winner of missing ? [1] : [1, 2]) for (const reduced of missing ? [false] : [false, true]) {
+  for (const matchup of missing ? ['mirror'] : ['mirror', 'versus']) for (const winner of missing ? [1] : [1, 2]) for (const reduced of missing ? [false] : [false, true]) {
+    const winnerId = matchups[matchup][winner - 1]
+    const loserId = matchups[matchup][2 - winner]
     const page = await browser.newPage({ viewport: { width: 1100, height: 1400 }, reducedMotion: reduced ? 'reduce' : 'no-preference' })
     page.on('pageerror', e => errors.push(e.message))
     if (missing) await page.route('**/normalised-outcomes-ready/**', route => route.abort())
@@ -34,11 +42,12 @@ try {
     await page.clock.install()
     await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
     assert.match(await page.title(), /Mars arcade/)
-    const ready = missing ? '56/61 sprites ready; 5 failed' : '61/61 sprites ready'
+    const ready = missing ? '58/68 sprites ready; 10 failed' : '68/68 sprites ready'
     await page.waitForFunction(text => document.querySelector('#asset-status').textContent.includes(text), ready)
     const read = () => page.locator('#readout').innerText()
     const command = async code => { await page.locator('[data-command="' + code + '"]').click(); await page.clock.runFor(20) }
-    await command('mirror'); await command('KeyT'); await command('KeyH')
+    if (matchup === 'mirror') await command('mirror')
+    await command('KeyT'); await command('KeyH')
     await page.clock.runFor(1700)
     await command('Space')
     await page.keyboard.down('KeyD'); await page.keyboard.down('ArrowLeft')
@@ -76,12 +85,13 @@ try {
         assert.ok(!drawn.some(src => src.includes('/normalised-outcomes-ready/')), 'unavailable outcome art must use the box renderer')
         assert.match(await page.locator('#asset-status').innerText(), /box fallback/)
       } else {
-        assert.ok(drawn.some(src => src.endsWith('/win/win-0' + expected + '.png')))
-        assert.ok(drawn.some(src => src.endsWith(expected === 0 ? '/recoil/recoil-00.png' : '/ko/ko-0' + expected + '.png')))
+        const outcomeRoot = id => '/' + id + '/normalised-outcomes-ready/'
+        assert.ok(drawn.some(src => src.endsWith(outcomeRoot(winnerId) + 'win/win-0' + expected + '.png')), winnerId + ' victory ' + expected + ' must be drawn')
+        assert.ok(drawn.some(src => src.endsWith(expected === 0 ? recoils[loserId] : outcomeRoot(loserId) + 'ko/ko-0' + expected + '.png')), loserId + ' knockout ' + expected + ' must be drawn')
       }
       assert.equal(await read(), state, 'paused outcome must stay frozen through capture')
-      await page.locator('canvas').screenshot({ path: out + (missing ? 'missing-' : '') + 'winner-' + winner + '-beat-' + index + '-reduced-' + reduced + '.png' })
-      if (winner === 1 && !reduced && !missing && index === 0) {
+      await page.locator('canvas').screenshot({ path: out + (missing ? 'missing-' : '') + (matchup === 'versus' ? 'versus-' : '') + 'winner-' + winner + '-beat-' + index + '-reduced-' + reduced + '.png' })
+      if (matchup === 'mirror' && winner === 1 && !reduced && !missing && index === 0) {
         await command('KeyS') // Half-speed applies to the presentation clock, too.
         await command('Space'); await page.clock.runFor(200); await command('Space')
         const elapsed = Number((await read()).match(/outcome frame (\d+)/)?.[1])
@@ -94,7 +104,7 @@ try {
     await command('Space'); await page.clock.runFor(1000); await command('Space')
     assert.equal(frozenCombat(await read()), frozen)
     assert.match(await read(), /artwork    victory 2/)
-    if (winner === 1 && !reduced && !missing) for (const width of [375, 768, 1440]) {
+    if (matchup === 'mirror' && winner === 1 && !reduced && !missing) for (const width of [375, 768, 1440]) {
       await page.setViewportSize({ width, height: 1200 })
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
       await page.screenshot({ path: out + 'outcome-' + width + '.png', fullPage: true })
@@ -106,19 +116,20 @@ try {
     await page.reload()
     await page.waitForFunction(text => document.querySelector('#asset-status').textContent.includes(text), ready)
     assert.doesNotMatch(await read(), /artwork    (victory|knockout)/)
-    console.log('PASS native KO, all outcome beats, displayed combat frozen, pause/step/resume/restart/reload; winnerP' + winner + ', reduced=' + reduced + ', missing=' + missing)
+    console.log('PASS native KO, all outcome beats, displayed combat frozen, pause/step/resume/restart/reload; ' + matchup + ' winnerP' + winner + ' (' + winnerId + ' over ' + loserId + '), reduced=' + reduced + ', missing=' + missing)
     await page.close()
   }
-  for (const scenario of missing ? [] : ['draw', 'time-win', 'missing']) {
+  for (const scenario of missing ? [] : ['draw', 'time-win', 'time-win-versus', 'missing']) {
     const page = await browser.newPage({ viewport: { width: 768, height: 1200 } })
     page.on('pageerror', error => errors.push(error.message))
     if (scenario === 'missing') await page.route('**/normalised-outcomes-ready/**', route => route.abort())
     await page.clock.install()
     await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
-    const ready = scenario === 'missing' ? '56/61 sprites ready; 5 failed' : '61/61 sprites ready'
+    const ready = scenario === 'missing' ? '58/68 sprites ready; 10 failed' : '68/68 sprites ready'
     await page.waitForFunction(text => document.querySelector('#asset-status').textContent.includes(text), ready)
     const command = async code => { await page.locator('[data-command="' + code + '"]').click(); await page.clock.runFor(20) }
-    await command('mirror'); await command('KeyT'); await command('KeyH')
+    if (scenario !== 'time-win-versus') await command('mirror')
+    await command('KeyT'); await command('KeyH')
     await page.clock.runFor(1700)
     if (scenario !== 'draw') {
       await page.keyboard.down('KeyD'); await page.keyboard.down('ArrowLeft')

@@ -1,5 +1,43 @@
 # Test report
 
+## 2026-09-23 — Oracle heavy motion (sweep + settle)
+
+- Selector: RED 2 fail / 2 pass against the previous selector, GREEN after (frame boundaries,
+  both facings, both motion preferences, unchanged state, real simulated attack draws all
+  five poses then idles).
+- Art gate: 2 new cells, 0 failures. Chamber and retract rejected after bounded attempts
+  (retract on source head width). A contact redraw and a reach change to 52 were made and
+  then reverted the same day, after a head census showed my sneaker-based "contact is 15%
+  small" reading was wrong. Rules match origin/main.
+- Hitbox bug: the new poses had shifted `oracle:heavy`'s saved boxes (contact attack box on
+  the sweep). Bounds migrated; new guard test RED on the shifted file, GREEN on both the
+  old and the migrated layout.
+- `npm run check`: 831 tests / 70 files, lint, types and build PASS.
+- Browser at 68 sources: new Oracle heavy continuity 2 PASS; heavy 13 (now also requires the
+  Oracle sweep/settle draws and blocks them in its missing-art run); booster continuity 2;
+  outcomes 12 + missing; pilot 12; movement 5; exchange 7; heavy-block 7; space-laser 11;
+  heavy-hit 6 + 7; HUD 10; stage 9. Gym: `oracle:heavy` 5 frames, no page errors.
+- Same Playwright 1.61 / Chromium 1228 caveat as the outcomes entry. Not run: full-journey
+  e2e, 3D asset suite, real-time recording.
+- Report: `asset-reports/mars-arcade-oracle-heavy-motion-2026-09-23.md`.
+
+## 2026-09-23 — Oracle round outcomes (win + KO)
+
+- Selector: RED 4 fail / 6 pass against the Booster-only selector, GREEN after. Covers
+  Booster/Oracle on both sides, every beat boundary, reduced motion, timeout resting on the
+  fighter's own anchor, preload membership and an unchanged frozen state.
+- Art gate (unchanged fixed-scale full-colour checker): 5 Oracle cells, 0 failures.
+- `npm run check`: 831 tests / 70 files, lint, types and build PASS.
+- Native-input browser (`check-arcade-outcomes.mjs`, now with the Booster-vs-Oracle
+  matchup): 12 groups PASS, missing-outcome-art fallback PASS. Adjacent arcade suites PASS at
+  66 sources: pilot 12, heavy 13, movement 5, exchange 7, heavy-block 7, space-laser 11,
+  continuity 2, heavy-hit 6 (Oracle defends) + 7 (Booster defends), HUD 10, stage 9. Gym
+  probe lists `oracle:victory` and `oracle:knockout` with no page errors.
+- Browsers ran on Playwright 1.61 / Chromium 1228 from the main checkout: main's newer
+  Playwright wants Chromium 1243, whose download timed out in the sandbox. Not rerun:
+  full-journey e2e, 3D asset suite, a real-time recording.
+- Report: `asset-reports/mars-arcade-oracle-outcomes-2026-09-23.md`.
+
 ## 2026-09-23 — Open items: separation cap, gym, Oracle walk
 
 - Fighters can no longer walk off screen: `maxSeparation` 272. Tests prove the retreating

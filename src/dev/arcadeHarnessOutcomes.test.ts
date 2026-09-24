@@ -1,10 +1,20 @@
 import { describe, expect, it } from 'vitest'
 import { createMarsArcadeRound } from '../game/marsArcade'
-import { ARCADE_SPRITE_SOURCES, selectArcadeSprite } from './arcadeHarnessSprites'
+import { ARCADE_ANCHOR_SOURCES, ARCADE_SPRITE_SOURCES, selectArcadeSprite } from './arcadeHarnessSprites'
 
-describe('Booster round outcome presentation', () => {
-  it.each([0, 1] as const)('plays all winner/loser beats on side %i without changing the frozen game', side => {
-    const state = createMarsArcadeRound('booster', 'booster')
+const recoils = {
+  booster: '/booster/normalised-sleek-ready/recoil/recoil-00.png',
+  oracle: '/oracle/normalised-exchange-ready/recoil/recoil-00.png',
+} as const
+
+describe('Booster and Oracle round outcome presentation', () => {
+  it.each([
+    ['booster', 'booster', 0], ['booster', 'booster', 1],
+    ['booster', 'oracle', 0], ['booster', 'oracle', 1],
+    ['oracle', 'booster', 0], ['oracle', 'oracle', 1],
+  ] as const)('%s vs %s plays all winner/loser beats on side %i without changing the frozen game', (left, right, side) => {
+    const state = createMarsArcadeRound(left, right)
+    const id = state.fighters[side].id as keyof typeof recoils
     state.phase = 'ko'
     for (const winner of [0, 1] as const) {
       state.winner = winner
@@ -14,8 +24,8 @@ describe('Booster round outcome presentation', () => {
         const before = structuredClone(state)
         const pose = selectArcadeSprite(state, side, false, frame)
         const clip = side === winner ? 'win' : 'ko'
-        const expected = clip === 'ko' && index === '00' ? '/normalised-sleek-ready/recoil/recoil-00.png' :
-          '/normalised-outcomes-ready/' + clip + '/' + clip + '-' + index + '.png'
+        const expected = clip === 'ko' && index === '00' ? recoils[id] :
+          '/' + id + '/normalised-outcomes-ready/' + clip + '/' + clip + '-' + index + '.png'
         expect(pose.src).toContain(expected)
         expect(pose.placeholder).toBe(false)
         expect(ARCADE_SPRITE_SOURCES).toContain(pose.src)
@@ -24,27 +34,26 @@ describe('Booster round outcome presentation', () => {
     }
   })
 
-  it('settles immediately with reduced motion and does not invent a knockout on timeout', () => {
-    const state = createMarsArcadeRound('booster', 'booster')
+  it.each(['booster', 'oracle'] as const)('%s settles immediately with reduced motion and does not invent a knockout on timeout', id => {
+    const state = createMarsArcadeRound(id, id)
     state.phase = 'timeOver'
     state.winner = 0
-    expect(selectArcadeSprite(state, 0, true, 0).src).toContain('/win/win-02.png')
-    expect(selectArcadeSprite(state, 1, false, 100).src).toContain('/anchor/')
+    expect(selectArcadeSprite(state, 0, true, 0).src).toContain('/' + id + '/normalised-outcomes-ready/win/win-02.png')
+    expect(selectArcadeSprite(state, 1, false, 100).src).toBe(ARCADE_ANCHOR_SOURCES[id])
     state.winner = null
     for (const side of [0, 1] as const) expect(selectArcadeSprite(state, side, true, 100).src).toContain('/anchor/')
     state.phase = 'ko'
     for (const side of [0, 1] as const) {
       state.fighters[side].health = 0
-      expect(selectArcadeSprite(state, side, true, 0).src).toContain('/ko/ko-02.png')
+      expect(selectArcadeSprite(state, side, true, 0).src).toContain('/' + id + '/normalised-outcomes-ready/ko/ko-02.png')
     }
   })
 
   it('never reuses terminal poses in combat or for unauthored fighters', () => {
     const state = createMarsArcadeRound('booster', 'oracle')
     state.phase = 'fight'
-    expect(selectArcadeSprite(state, 0, false, 100).src).not.toContain('/normalised-outcomes-ready/')
+    for (const side of [0, 1] as const) expect(selectArcadeSprite(state, side, false, 100).src).not.toContain('/normalised-outcomes-ready/')
     state.phase = 'ko'; state.winner = 1
-    expect(selectArcadeSprite(state, 1, false, 100).placeholder).toBe(true)
     state.fighters[1].id = 'captain'
     expect(selectArcadeSprite(state, 1, false, 100).placeholder).toBe(true)
   })

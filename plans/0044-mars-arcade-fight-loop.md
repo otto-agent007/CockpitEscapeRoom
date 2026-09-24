@@ -1,5 +1,85 @@
 # Mars arcade cabinet — fight loop prototype
 
+## 2026-09-23 — Oracle heavy motion (same batch as Oracle outcomes)
+
+Owner: "work on the next animation needs". Taken from the plan's own next item, Oracle heavy
+polish; the TEXT BUBBLE special needs owner direction first. HARD CUTOFF is a low sweep kick
+with three drawings: a 13-frame held squat, a snap to full extension, and a jump from
+half-risen to idle. Goal: Booster-style in-betweens (chamber, sweep, retract, settle) within
+the unchanged 13/3/20 frame data, fixed scale, unchanged gate, initial plus two corrections
+per source, no pixel repair, no rule changes.
+
+Result: five poses shipped — wind-up 0–9, **sweep** 10–12, contact, rise 0–11, **settle**
+12–19. Chamber and retract were rejected: chamber after three sources (the elbow-to-raised-
+thigh wedge kept a speck through every correction, and the redesign reached as far as the
+contact); retract after three sources, all drawn 15–20% large, which pulses against the
+contact frame. 15 generations. Sources 66 → 68. Selector RED 2/2 then GREEN;
+`npm run check` 831 / 70 PASS; new `check-arcade-oracle-heavy-continuity.mjs` 2 PASS; every
+arcade suite PASS at 68; gym clean.
+
+Discoveries: (1) pose-changing edit corrections come back 13–21% oversized by source head
+width, while speck-only corrections keep scale, so a wrong pose needs a fresh source;
+(2) measure drawing scale on the head in the full-resolution source. The planted sneaker
+foreshortens with the pose and is NOT a ruler.
+
+Correction, same day: I first reported (from the sneaker) that the approved contact was ~15%
+small. The owner said "fix it", then chose to raise HARD CUTOFF's reach to 52 to fit a
+"full-size" redraw that reached 54. The head census then showed the redraw was the oversized
+one (350 px against 277–320) and the original contact was in range. Reach change and contact
+swap were reverted (rules match origin/main), and the owner was told. The "shrinks on impact"
+look is the deeper crouch, not scale.
+
+Hitbox bug fixed in the same pass: the gym pairs saved boxes with poses by position, so the
+new poses had shifted `oracle:heavy`'s contact attack box onto the sweep. Bounds migrated to
+the five-pose order; the new test `keeps every saved frame on a pose with the same phase`
+went RED on the shifted file and passes on both the old and the migrated layout.
+
+Remaining delta: owner review; whether the sweep's slight arc past the contact toe (reach
+47 vs 42) is acceptable; retract is still open (v1 was at scale but did not retract; every
+later source draws the head 3–19% large). Report: `asset-reports/mars-arcade-oracle-heavy-motion-2026-09-23.md`.
+
+## 2026-09-23 — Oracle round outcomes
+
+Owner asked for the next animation work and chose Oracle's win + KO (over Oracle heavy
+polish, the TEXT BUBBLE special and a deeper stagger). Gap: `selectArcadeSprite` only had
+round-end art for Booster, so every round Oracle won or lost ended on a combat fallback.
+Goal: Booster's exact outcome pattern for Oracle — three victory beats, knockdown beat 0
+reusing Oracle's recoil, two new knockdown drawings, 12 presentation frames per beat,
+final pose held, reduced motion jumps to the final pose, timeout loser rests on its own
+anchor. Victory is a friendly wave rather than Booster's fist V. Fixed Oracle scale
+13.60576923076923, unchanged normaliser, contract and gate; initial plus two corrections
+per source; no pixel repair; no combat-rule edits. Branch
+`feat/mars-arcade-oracle-outcomes` off `origin/main` in `.worktrees/oracle-outcomes`,
+dev server port 5352.
+
+Progress: selector generalised per fighter (`outcomes[id]`), Oracle entries added to
+`ARCADE_SPRITE_SOURCES` (61 → 66) and `ARCADE_GYM_ANIMATIONS`. Unit tests extended to
+Booster/Oracle matchups on both sides: RED 4 fail / 6 pass against the old selector,
+GREEN after. Arcade browser scripts updated for 66 sources; `check-arcade-outcomes.mjs`
+now also runs the default Booster-vs-Oracle matchup (both winners, both motion
+preferences) and a Booster-wins-on-time case with Oracle resting. First-pass gate:
+win-01 and ko-02 pass; win-00 (1 speck, throat notch) and win-02 (2 specks, hanging hand
+against trouser leg) failed and went to one targeted correction each.
+
+Result: all five selected cells pass the unchanged gate (5 / 0). win-02 passed on one
+correction, ko-01 on two. win-00 v1 kept its throat speck through both corrections and
+was rejected; a fresh v2 source with an explicit clean-throat brief passed on one
+correction. 11 generations total. `npm run check` 831 tests / 70 files PASS. Browser:
+outcomes 12 groups + missing-art PASS; every adjacent arcade suite PASS at 66 sources; gym
+lists the two new Oracle animations. Browsers ran on Playwright 1.61 / Chromium 1228 from
+the main checkout, because main's Chromium 1243 download timed out in the sandbox.
+
+Discovery: map a gate hole back to source through the fixed scale from the figure's
+bottom-left, not by bounding-box ratio. The ratio put ko-01's first correction on the
+wrong joint (thigh instead of forearm-over-knee).
+
+Remaining delta: owner visual review. Flagged, not changed: ko-01 is a front-loaded fall
+(68 rows vs Booster's 90), the seated beats slide sideways because alignment includes the
+bracing hand (as Booster does), and jab-range KOs overlap the loser with the winner.
+Not rerun: full-journey e2e, 3D asset suite, real-time recording. Next animation
+candidates: Oracle heavy polish, Oracle TEXT BUBBLE special, Oracle deeper stagger.
+Report: `asset-reports/mars-arcade-oracle-outcomes-2026-09-23.md`.
+
 ## 2026-09-22 — Booster received-heavy reaction
 
 Owner asked to continue next animation needs; next bounded slice is Booster receiving

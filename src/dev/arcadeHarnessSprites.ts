@@ -80,6 +80,10 @@ const boosterHeavySwing = '/art-source/arcade/booster/normalised-heavy-continuit
 const boosterHeavyRetract = '/art-source/arcade/booster/normalised-heavy-recovery-v1/heavy-retract/heavy-retract-00.png'
 const boosterHeavyDrive = '/art-source/arcade/booster/normalised-heavy-drive-ready/heavy-drive/heavy-drive-00.png'
 const boosterHeavySettle = '/art-source/arcade/booster/normalised-heavy-drive-ready/heavy-settle/heavy-settle-00.png'
+/** Oracle's low sweep in-betweens: the sweep before contact, the settle after the rise. */
+const oracleHeavyMotion = Object.fromEntries((['sweep', 'settle'] as const).map(beat =>
+  [beat, `/art-source/arcade/oracle/normalised-heavy-motion-ready/heavy-${beat}/heavy-${beat}-00.png`])) as
+  Record<'sweep' | 'settle', string>
 const spaceLaserRoot = '/art-source/arcade/booster/normalised-space-laser-ready'
 const spaceLaser = {
   callItIn: `${spaceLaserRoot}/call-it-in/call-it-in-00.png`,
@@ -90,17 +94,25 @@ const spaceLaser = {
 const SPACE_LASER_CALL_HOLD = 10
 /** Recovery frame the phone starts going back into the pocket. */
 const SPACE_LASER_POCKET_FROM = 20
-const outcomeRoot = '/art-source/arcade/booster/normalised-outcomes-ready'
-const victory = [0, 1, 2].map(index => `${outcomeRoot}/win/win-0${index}.png`)
-const knockout = [boosterRecoil, `${outcomeRoot}/ko/ko-01.png`, `${outcomeRoot}/ko/ko-02.png`]
+/** Round-end beats per fighter; the first knockdown beat reuses that fighter's recoil. */
+const outcomeFrames = (id: 'booster' | 'oracle', impact: string) => {
+  const root = `/art-source/arcade/${id}/normalised-outcomes-ready`
+  return {
+    victory: [0, 1, 2].map(index => `${root}/win/win-0${index}.png`),
+    knockout: [impact, `${root}/ko/ko-01.png`, `${root}/ko/ko-02.png`],
+  }
+}
+const outcomes = { booster: outcomeFrames('booster', boosterRecoil), oracle: outcomeFrames('oracle', recoil) }
 export const ARCADE_SPRITE_SOURCES = [
   ...Object.values(anchors), boosterInhale, jab, anticipation, recovery, ...boosterWalkForward, ...boosterWalkBack,
   guard, recoil, oracleHitRecover, oracleBlockCompress, oracleBlockSettle, ...oracleBackward, oracleAnticipation, oracleJab, oracleRecovery,
   boosterGuard, boosterRecoil, boosterHitStagger, boosterHitRecover, ...oracleForward, ...airborne.booster, ...airborne.oracle,
   ...Object.values(heavy.booster), boosterHeavySwing, boosterHeavyDrive, boosterHeavyRetract, boosterHeavySettle, ...Object.values(heavy.oracle),
-  ...victory, ...knockout.slice(1),
+  ...outcomes.booster.victory, ...outcomes.booster.knockout.slice(1),
   spaceLaser.callItIn, spaceLaser.watch, spaceLaser.pocket,
   heavyBlockFrames.booster.compress, heavyBlockFrames.booster.settle,
+  ...outcomes.oracle.victory, ...outcomes.oracle.knockout.slice(1),
+  ...Object.values(oracleHeavyMotion),
 ]
 
 export interface ArcadeGymFrame {
@@ -163,8 +175,8 @@ export const ARCADE_GYM_ANIMATIONS: ArcadeGymAnimation[] = [
     frames: [pose(boosterRecoil, 'impact'), pose(boosterHitStagger, 'stagger'), pose(boosterHitRecover, 'recover')],
   },
   { fighter: 'booster', animation: 'jump', frames: airborne.booster.map((src, index) => pose(src, ['rising', 'apex', 'falling'][index]!)) },
-  { fighter: 'booster', animation: 'victory', frames: victory.map((src, index) => pose(src, `win ${index}`)) },
-  { fighter: 'booster', animation: 'knockout', frames: knockout.map((src, index) => pose(src, `ko ${index}`)) },
+  { fighter: 'booster', animation: 'victory', frames: outcomes.booster.victory.map((src, index) => pose(src, `win ${index}`)) },
+  { fighter: 'booster', animation: 'knockout', frames: outcomes.booster.knockout.map((src, index) => pose(src, `ko ${index}`)) },
   { fighter: 'oracle', animation: 'idle', frames: [pose(anchors.oracle, 'anchor')] },
   { fighter: 'oracle', animation: 'walk-forward', frames: oracleForward.map((src, index) => pose(src, ['step', 'drag', 'gather', 'load'][index]!)) },
   { fighter: 'oracle', animation: 'walk-back', frames: oracleBackward.map((src, index) => pose(src, ['step back', 'drag back', 'gather', 'load'][index]!)) },
@@ -175,9 +187,11 @@ export const ARCADE_GYM_ANIMATIONS: ArcadeGymAnimation[] = [
   {
     fighter: 'oracle', animation: 'heavy', moveId: 'oracle.hardCutoff',
     frames: [
-      pose(heavy.oracle.startup, 'startup', 'startup'),
+      pose(heavy.oracle.startup, 'wind-up', 'startup'),
+      pose(oracleHeavyMotion.sweep, 'sweep', 'startup'),
       pose(heavy.oracle.active, 'contact', 'active'),
-      pose(heavy.oracle.recovery, 'recovery', 'recovery'),
+      pose(heavy.oracle.recovery, 'rise', 'recovery'),
+      pose(oracleHeavyMotion.settle, 'settle', 'recovery'),
     ],
   },
   { fighter: 'oracle', animation: 'block', frames: [pose(guard, 'guard')] },
@@ -187,26 +201,28 @@ export const ARCADE_GYM_ANIMATIONS: ArcadeGymAnimation[] = [
   },
   { fighter: 'oracle', animation: 'hit', frames: [pose(recoil, 'impact'), pose(oracleHitRecover, 'recover')] },
   { fighter: 'oracle', animation: 'jump', frames: airborne.oracle.map((src, index) => pose(src, ['rising', 'apex', 'falling'][index]!)) },
+  { fighter: 'oracle', animation: 'victory', frames: outcomes.oracle.victory.map((src, index) => pose(src, `win ${index}`)) },
+  { fighter: 'oracle', animation: 'knockout', frames: outcomes.oracle.knockout.map((src, index) => pose(src, `ko ${index}`)) },
   { fighter: 'captain', animation: 'idle', frames: [pose(anchors.captain, 'anchor')] },
 ]
 
 export function selectArcadeSprite(state: MarsArcadeState, side: MarsArcadeSide, reducedMotion: boolean, outcomeFrame = 0, heavyReaction: HeavyReaction | null = null) {
   const fighter = state.fighters[side]
   const live = state.phase === 'intro' || state.phase === 'fight'
-  if (!live && fighter.id === 'booster') {
+  if (!live && fighter.id !== 'captain') {
     const index = reducedMotion ? 2 : Math.min(2, Math.floor(Math.max(0, outcomeFrame) / 12))
     const won = state.winner === side
     const knockedOut = state.phase === 'ko' && fighter.health <= 0
     if (won || knockedOut) {
       return {
-        src: (won ? victory : knockout)[index]!, placeholder: false,
+        src: (won ? outcomes[fighter.id].victory : outcomes[fighter.id].knockout)[index]!, placeholder: false,
         label: `${won ? 'victory' : 'knockout'} ${index}`,
         // A terminal airborne fighter settles visually; frozen rules coordinates stay intact.
         renderY: fighter.y * (1 - index / 2),
       }
     }
     if (state.phase === 'timeOver') {
-      return { src: anchors.booster, placeholder: false, label: 'round over — resting', renderY: 0 }
+      return { src: anchors[fighter.id], placeholder: false, label: 'round over — resting', renderY: 0 }
     }
   }
   const move = marsArcadeActiveMove(fighter)
@@ -294,6 +310,13 @@ export function selectArcadeSprite(state: MarsArcadeState, side: MarsArcadeSide,
       if (move.phase === 'recovery' && recoveryElapsed >= 14) {
         return { src: boosterGuard, placeholder: false, label: 'heavy recovery — guard' }
       }
+    }
+    if (fighter.id === 'oracle') {
+      // Swing the sweeping leg in before contact, then settle back toward idle.
+      const recoveryElapsed = move.frame - move.move.startupFrames - move.move.activeFrames
+      const beat = move.phase === 'startup' && move.frame >= 10 ? 'sweep'
+        : move.phase === 'recovery' && recoveryElapsed >= 12 ? 'settle' : null
+      if (beat) return { src: oracleHeavyMotion[beat], placeholder: false, label: `heavy ${move.phase} — ${beat}` }
     }
     return { src: heavy[fighter.id][move.phase], placeholder: false, label: `heavy ${move.phase}` }
   }
