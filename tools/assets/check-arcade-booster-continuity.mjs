@@ -20,7 +20,7 @@ try {
     })
     await page.clock.install()
     await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
-    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('68/68 sprites ready'))
+    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.match(/^(\d+)\/\1 sprites ready/))
     const command = async name => {
       await page.locator('[data-command="' + name + '"]').click()
       await page.clock.runFor(20)
@@ -30,12 +30,12 @@ try {
     await command('Space')
     await page.getByRole('button', { name: 'P' + side + ' heavy', exact: true }).click()
     const poses = new Map([
-      ['heavy startup', 'heavy-startup/heavy-startup-00.png'],
+      ['heavy startup — startup', 'heavy-startup/heavy-startup-00.png'],
       ['heavy startup — swing', 'heavy-swing/heavy-swing-00.png'],
       ['heavy startup — drive', 'heavy-drive/heavy-drive-00.png'],
-      ['heavy active', 'heavy-active/heavy-active-00.png'],
+      ['heavy active — contact', 'heavy-active/heavy-active-00.png'],
       ['heavy recovery — retract', 'heavy-retract/heavy-retract-00.png'],
-      ['heavy recovery', 'heavy-recovery/heavy-recovery-00.png'],
+      ['heavy recovery — follow-through', 'heavy-recovery/heavy-recovery-00.png'],
       ['heavy recovery — settle', 'heavy-settle/heavy-settle-00.png'],
       ['heavy recovery — guard', 'normalised-sleek-ready/block/block-00.png'],
     ])

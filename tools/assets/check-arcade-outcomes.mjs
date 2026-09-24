@@ -42,7 +42,7 @@ try {
     await page.clock.install()
     await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
     assert.match(await page.title(), /Mars arcade/)
-    const ready = missing ? '58/68 sprites ready; 10 failed' : '68/68 sprites ready'
+    const ready = missing ? '10 failed' : 'sprites ready'
     await page.waitForFunction(text => document.querySelector('#asset-status').textContent.includes(text), ready)
     const read = () => page.locator('#readout').innerText()
     const command = async code => { await page.locator('[data-command="' + code + '"]').click(); await page.clock.runFor(20) }
@@ -125,7 +125,7 @@ try {
     if (scenario === 'missing') await page.route('**/normalised-outcomes-ready/**', route => route.abort())
     await page.clock.install()
     await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
-    const ready = scenario === 'missing' ? '58/68 sprites ready; 10 failed' : '68/68 sprites ready'
+    const ready = scenario === 'missing' ? '10 failed' : 'sprites ready'
     await page.waitForFunction(text => document.querySelector('#asset-status').textContent.includes(text), ready)
     const command = async code => { await page.locator('[data-command="' + code + '"]').click(); await page.clock.runFor(20) }
     if (scenario !== 'time-win-versus') await command('mirror')

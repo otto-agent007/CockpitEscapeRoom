@@ -160,11 +160,13 @@
   "render": {
     "route": "full-colour",
     "sourceArt": "Flat cel-shaded illustration on a solid #FF00FF chroma field.",
-    "normaliser": "tools/assets/normalise-popt-frame.py --contract asset-reports/mars-arcade-sprite-contract.json",
-    "gate": "tools/assets/check-popt-frames-fullcolour.py --contract asset-reports/mars-arcade-sprite-contract.json",
-    "sourcePxPerCellPx": "derive once per fighter from that fighter's Wave 0 anchor with --derive-scale, then reuse it unchanged for every frame of that fighter",
-    "alignment": "feet",
-    "airborneNote": "Airborne and knocked-down poses have no foot span on the baseline. Align those with --align bbox and record the offset once per clip."
+    "normaliser": "tools/assets/normalise-arcade-clip.py (whole clip, one alignment) or tools/assets/normalise-popt-frame.py --contract asset-reports/mars-arcade-sprite-contract.json (one drawing)",
+    "gate": "tools/assets/check-popt-frames-fullcolour.py --contract asset-reports/mars-arcade-sprite-contract.json, then tools/assets/audit-arcade-clip.py <fighter:clip> for the sequence",
+    "sourcePxPerCellPx": "derive once per fighter from that fighter's anchor with --derive-scale, then reuse it unchanged for every frame of that fighter (locked values: art-source/arcade/README.md)",
+    "alignment": "one rule per clip: feet (stances, one-shots), planted-foot (steps, lunges, sweeps: the stance foot holds the pivot), torso (in-place walks, against a reference cell), bbox (airborne, downed), preserve-canvas (frames from one video clip: one crop, scale and offset for all)",
+    "sequenceAudit": "audit-arcade-clip.py fails a grounded drawing more than 1 px off the baseline, a looping clip whose height drifts over 4% or whose torso back line wanders over 2 px, and neighbouring drawings of a cycle whose upper bodies need more than a 2 px shift to line up",
+    "reachChecker": "src/game/marsArcadeAnimations.ts validateMarsArcadeAnimations: the live hitbox's forward edge must land on the move's reach within tolerancePx, or the clip records a reachException; run by the tests, the gym's Save and npm run arcade:validate",
+    "airborneNote": "Airborne and knocked-down poses have no foot span on the baseline. Align those with --align bbox."
   },
   "palette": {
     "binding": false,

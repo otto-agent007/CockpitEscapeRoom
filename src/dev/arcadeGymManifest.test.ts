@@ -1,73 +1,74 @@
 import { describe, expect, it } from 'vitest'
 import { createMarsArcadeRound, marsArcadeActiveMove } from '../game/marsArcade'
-import { marsArcadeBoundsKey, parseMarsArcadeBounds } from '../game/marsArcadeBounds'
-import rawBounds from '../game/marsArcadeBounds.json'
-import { marsArcadeFighter } from '../game/marsArcadeFighters'
-import { ARCADE_GYM_ANIMATIONS, ARCADE_SPRITE_SOURCES, selectArcadeSprite } from './arcadeHarnessSprites'
+import { marsArcadeAnimationKey, marsArcadeMoveById } from '../game/marsArcadeAnimations'
+import { marsArcadeFighter, type MarsArcadeButton } from '../game/marsArcadeFighters'
+import { ARCADE_ANIMATIONS, ARCADE_SPRITE_SOURCES, arcadeClip, selectArcadeSprite } from './arcadeHarnessSprites'
 
-const gymSources = new Set(ARCADE_GYM_ANIMATIONS.flatMap((entry) => entry.frames.map((frame) => frame.src)))
-const gymKeys = ARCADE_GYM_ANIMATIONS.map((entry) => marsArcadeBoundsKey(entry.fighter, entry.animation))
-
-/** What the harness actually draws across one heavy, with consecutive repeats collapsed. */
-function playedHeavy(fighter: 'booster' | 'oracle') {
+/** What the harness actually draws across one move, with consecutive repeats collapsed. */
+function played(fighter: 'booster' | 'oracle', button: MarsArcadeButton) {
   const state = createMarsArcadeRound(fighter, fighter === 'booster' ? 'oracle' : 'booster')
   state.phase = 'fight'
-  const move = marsArcadeFighter(fighter).moves.heavy
+  const move = marsArcadeFighter(fighter).moves[button]
   const total = move.startupFrames + move.activeFrames + move.recoveryFrames
-  const played: { src: string; phase: string }[] = []
+  const result: { src: string; phase: string }[] = []
   for (let moveFrame = 0; moveFrame < total; moveFrame += 1) {
-    Object.assign(state.fighters[0], { activity: 'attack', activeButton: 'heavy', moveFrame })
+    Object.assign(state.fighters[0], { activity: 'attack', activeButton: button, moveFrame })
     const src = selectArcadeSprite(state, 0, false).src
     const phase = marsArcadeActiveMove(state.fighters[0])!.phase
-    if (played.at(-1)?.src !== src) played.push({ src, phase })
+    if (result.at(-1)?.src !== src) result.push({ src, phase })
   }
-  return played
+  return result
 }
 
-describe('character gym animation manifest', () => {
-  it('shows every sprite the harness can draw, so a newly wired pose cannot skip the gym', () => {
-    const missing = ARCADE_SPRITE_SOURCES.filter((src) => !gymSources.has(src))
-    expect(missing).toEqual([])
+describe('the animation table is what the harness plays', () => {
+  it('preloads exactly the drawings the table references, once each', () => {
+    const referenced = new Set(ARCADE_ANIMATIONS.animations.flatMap((entry) => entry.frames.map((frame) => frame.src)))
+    expect(new Set(ARCADE_SPRITE_SOURCES)).toEqual(referenced)
+    expect(new Set(ARCADE_SPRITE_SOURCES).size).toBe(ARCADE_SPRITE_SOURCES.length)
   })
 
-  it('shows only sprites the harness preloads', () => {
-    expect([...gymSources].filter((src) => !ARCADE_SPRITE_SOURCES.includes(src))).toEqual([])
-  })
-
-  it('has one entry per fighter and animation', () => {
-    expect(new Set(gymKeys).size).toBe(gymKeys.length)
-  })
-
-  it('carries every animation already in the bounds file', () => {
-    const bounds = parseMarsArcadeBounds(rawBounds)
-    for (const entry of bounds.animations) {
-      expect(gymKeys).toContain(marsArcadeBoundsKey(entry.fighter, entry.animation))
-    }
-  })
-
-  // The gym pairs saved boxes with poses by position, so inserting a pose into an
-  // animation shifts every later box onto the wrong drawing — an attack box on a
-  // startup pose. Phases differ between those poses, which is what makes it visible.
-  it('keeps every saved frame on a pose with the same phase', () => {
-    const bounds = parseMarsArcadeBounds(rawBounds)
-    for (const entry of bounds.animations) {
-      const gym = ARCADE_GYM_ANIMATIONS.find((candidate) => candidate.fighter === entry.fighter && candidate.animation === entry.animation)
-      const key = marsArcadeBoundsKey(entry.fighter, entry.animation)
-      expect(entry.frames.length, key).toBeLessThanOrEqual(gym!.frames.length)
-      expect(entry.frames.map((frame) => frame.phase), key).toEqual(gym!.frames.slice(0, entry.frames.length).map((frame) => frame.phase))
-    }
+  it('has one clip per fighter and animation', () => {
+    const keys = ARCADE_ANIMATIONS.animations.map((entry) => marsArcadeAnimationKey(entry.fighter, entry.animation))
+    expect(new Set(keys).size).toBe(keys.length)
   })
 
   it('names only moves the fighter actually has', () => {
-    for (const entry of ARCADE_GYM_ANIMATIONS) {
+    for (const entry of ARCADE_ANIMATIONS.animations) {
       if (!entry.moveId) continue
       const moves = Object.values(marsArcadeFighter(entry.fighter).moves).map((move) => move.id)
-      expect(moves).toContain(entry.moveId)
+      expect(moves, marsArcadeAnimationKey(entry.fighter, entry.animation)).toContain(entry.moveId)
     }
   })
 
-  it.each(['booster', 'oracle'] as const)('lists %s heavy in the order and phases the harness plays it', (fighter) => {
-    const entry = ARCADE_GYM_ANIMATIONS.find((candidate) => candidate.fighter === fighter && candidate.animation === 'heavy')
-    expect(entry?.frames.map(({ src, phase }) => ({ src, phase }))).toEqual(playedHeavy(fighter))
+  it.each([
+    ['booster', 'light'], ['booster', 'heavy'], ['booster', 'special'],
+    ['oracle', 'light'], ['oracle', 'heavy'],
+  ] as const)('plays %s %s in the table order, on the table holds', (fighter, button) => {
+    const move = marsArcadeFighter(fighter).moves[button]
+    const clip = ARCADE_ANIMATIONS.animations.find((entry) => entry.fighter === fighter && entry.moveId === move.id)
+    expect(clip, `${fighter} has no clip for ${move.id}`).toBeDefined()
+    // Consecutive frames that reuse a drawing collapse in what is played, so the
+    // expectation collapses the same way.
+    const expected: { src: string; phase: string }[] = []
+    for (const frame of clip!.frames) {
+      if (expected.at(-1)?.src !== frame.src) expected.push({ src: frame.src, phase: frame.phase })
+    }
+    expect(played(fighter, button)).toEqual(expected)
+  })
+
+  it('plays the held drawing for exactly its hold', () => {
+    const state = createMarsArcadeRound('booster', 'oracle')
+    state.phase = 'fight'
+    const heavy = arcadeClip('booster', 'heavy')!
+    const move = marsArcadeMoveById(heavy.moveId!)!
+    let moveFrame = 0
+    for (const frame of heavy.frames) {
+      for (let held = 0; held < frame.hold; held += 1) {
+        Object.assign(state.fighters[0], { activity: 'attack', activeButton: 'heavy', moveFrame })
+        expect(selectArcadeSprite(state, 0, false).src, `move frame ${moveFrame}`).toBe(frame.src)
+        moveFrame += 1
+      }
+    }
+    expect(moveFrame).toBe(move.startupFrames + move.activeFrames + move.recoveryFrames)
   })
 })

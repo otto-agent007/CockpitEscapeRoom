@@ -16,6 +16,7 @@ import {
   type MarsArcadeButton,
   type MarsArcadeFighterId,
   type MarsArcadeMove,
+  marsArcadeGravity,
 } from './marsArcadeFighters'
 
 export const MARS_ARCADE_TIMING = {
@@ -49,6 +50,7 @@ export const MARS_ARCADE_STAGE = {
    */
   maxSeparation: 272,
   startOffset: 56,
+  /** The default; the rules read `marsArcadeGravity()`, which the playground can tune. */
   gravity: 0.28,
   projectileSpawnHeight: 24,
   projectileRadius: 18,
@@ -450,7 +452,7 @@ function advanceProjectiles(state: MarsArcadeState, events: MarsArcadeEvent[]): 
 function applyPhysics(fighter: MarsArcadeFighterState): void {
   if (fighter.y > 0 || fighter.velocityY > 0) {
     fighter.y += fighter.velocityY
-    fighter.velocityY -= MARS_ARCADE_STAGE.gravity
+    fighter.velocityY -= marsArcadeGravity()
     if (fighter.y <= 0) {
       fighter.y = 0
       fighter.velocityY = 0

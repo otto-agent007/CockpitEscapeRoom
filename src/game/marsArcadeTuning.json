@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "stage": {
+    "gravity": 0.28
+  },
+  "fighters": {
+    "booster": {
+      "health": 100,
+      "walkSpeed": 1.25,
+      "jumpVelocity": 4.6,
+      "guardMax": 90,
+      "guardRegenPerFrame": 0.22,
+      "moves": {
+        "light": {
+          "damage": 5,
+          "chipDamage": 1,
+          "guardDamage": 6,
+          "knockback": 2,
+          "hitstunFrames": 14,
+          "blockstunFrames": 10
+        },
+        "heavy": {
+          "damage": 13,
+          "chipDamage": 3,
+          "guardDamage": 16,
+          "knockback": 7,
+          "hitstunFrames": 22,
+          "blockstunFrames": 14
+        },
+        "special": {
+          "damage": 15,
+          "chipDamage": 0,
+          "guardDamage": 0,
+          "knockback": 0,
+          "hitstunFrames": 24,
+          "blockstunFrames": 0
+        }
+      }
+    },
+    "oracle": {
+      "health": 100,
+      "walkSpeed": 1,
+      "jumpVelocity": 4.4,
+      "guardMax": 60,
+      "guardRegenPerFrame": 0.14,
+      "moves": {
+        "light": {
+          "damage": 4,
+          "chipDamage": 1,
+          "guardDamage": 5,
+          "knockback": 2,
+          "hitstunFrames": 13,
+          "blockstunFrames": 10
+        },
+        "heavy": {
+          "damage": 11,
+          "chipDamage": 2,
+          "guardDamage": 14,
+          "knockback": 9,
+          "hitstunFrames": 20,
+          "blockstunFrames": 13
+        },
+        "special": {
+          "damage": 10,
+          "chipDamage": 3,
+          "guardDamage": 12,
+          "knockback": 5,
+          "hitstunFrames": 18,
+          "blockstunFrames": 12
+        }
+      }
+    },
+    "captain": {
+      "health": 100,
+      "walkSpeed": 0.95,
+      "jumpVelocity": 4.2,
+      "guardMax": 110,
+      "guardRegenPerFrame": 0.3,
+      "moves": {
+        "light": {
+          "damage": 0,
+          "chipDamage": 0,
+          "guardDamage": 0,
+          "knockback": 0,
+          "hitstunFrames": 0,
+          "blockstunFrames": 0
+        },
+        "heavy": {
+          "damage": 9,
+          "chipDamage": 2,
+          "guardDamage": 12,
+          "knockback": 5,
+          "hitstunFrames": 18,
+          "blockstunFrames": 12
+        },
+        "special": {
+          "damage": 30,
+          "chipDamage": 6,
+          "guardDamage": 40,
+          "knockback": 12,
+          "hitstunFrames": 30,
+          "blockstunFrames": 20
+        }
+      }
+    }
+  }
+}

@@ -14,7 +14,7 @@ try {
     })
     const page = await context.newPage()
     await page.goto(base)
-    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('68/68 sprites ready'))
+    await page.waitForFunction(() => document.querySelector('#asset-status').textContent.match(/^(\d+)\/\1 sprites ready/))
     await page.locator('[data-command="exchange"]').click()
     if (mode === 'normal') {
       await page.locator('[data-command="KeyS"]').click()

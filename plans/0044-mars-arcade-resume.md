@@ -1,5 +1,9 @@
 # Mars arcade checkpoint — 2026-09-22
 
+> Superseded on the animation side by `plans/0046-arcade-animation-workflow-v2.md` (2026-09-24):
+> clips, holds and boxes live in `src/game/marsArcadeAnimations.json`; the sprite count below is
+> historical and is now `node tools/assets/arcade-anim.mjs count`.
+
 Draft PR #76, branch `feat/mars-arcade-stage-hud`. PR #75 is merged; this checkpoint targets main. Owner visual approval remains open.
 
 ## Resume here

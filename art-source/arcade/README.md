@@ -1,5 +1,24 @@
 # Mars arcade cabinet — sprite source
 
+## 2026-09-24 — Animation table, gym v2 and the clip pipeline
+
+Every clip is described once, in `src/game/marsArcadeAnimations.json`: each drawing's path,
+pose name, phase, hold in engine frames, and the body / hurt / attack / guard boxes authored
+on it. The harness plays from it, `/dev/gym.html` edits it, and `npm run arcade:validate`
+checks it (rules, and boxes against each drawing's silhouette). The v1 bounds file is gone:
+frames are keyed by drawing, not by position. The procedure is `.agents/skills/arcade-animation/SKILL.md`.
+
+Clip tools, alongside the per-frame ones below:
+
+- `tools/assets/normalise-arcade-clip.py` — normalise a clip's sources together with one
+  alignment (`feet`, `planted-foot`, `torso`, `bbox`, `preserve-canvas`); byte-identical to
+  `normalise-popt-frame.py` in `feet` mode for the same inputs (checked on the Oracle jab).
+- `tools/assets/audit-arcade-clip.py` — measure a clip as a sequence: pop between drawings,
+  feet off the baseline, height and torso drift on cycles; writes a contact sheet, a GIF at
+  the table's holds and `review.md` under `preview-renders/mars-arcade/clips/`.
+- `tools/assets/pick-arcade-frames.py` — choose N drawings out of an image-to-video clip
+  (settle skip, even spread, duplicate rejection), for the video route once a provider exists.
+
 ## 2026-09-22 — Booster received-hit reaction
 
 Booster's stagger/recovery cells live in `booster/normalised-hit-reaction-ready/`;
@@ -246,11 +265,13 @@ Airborne and knocked-down poses have no foot span on the baseline — normalise 
 
 | Fighter | source px per cell px | Derived from |
 | --- | --- | --- |
-| booster | 13.9519 (1451 / 104) | `booster/generated/anchor-00.png` |
-| oracle | 13.5000 (1404 / 104) | `oracle/generated/anchor-00.png` |
+| booster | 14.0385 (1460 / 104) | `booster/generated/wardrobe-sleek/anchor-00.png` (likeness anchor, 2026-09-20) |
+| oracle | 13.6058 (1415 / 104) | `oracle/generated/anchor-likeness-00.png` (likeness anchor, 2026-09-20) |
 | captain | 13.9904 (1455 / 104) | `captain/generated/anchor-00.png` |
 
-These scales bind the 2026-09-20 review candidates only; identity approval remains open.
+Every runtime cell of a fighter is normalised at that fighter's value; never re-derive it per
+frame or per clip. The earlier 13.9519 / 13.5000 values belonged to the pre-likeness Wave 0
+candidates and are retired (`asset-reports/mars-arcade-wave-0-2026-09-20.md` keeps them).
 Each fighter has its original and first correction under `generated/anchor-attempt-00.png`
 and `anchor-attempt-01.png`; `anchor-00.png` is the final, second correction. The Oracle
 passes the objective gate. The Booster fails on two transparent specks and the Captain on

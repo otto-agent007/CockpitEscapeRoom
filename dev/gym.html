@@ -4,116 +4,143 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mars arcade — character gym</title>
-    <style>
-      :root { color-scheme: dark; }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0; padding: 16px; background: #0c0c11; color: #e9e9f2;
-        font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
-        display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start;
-      }
-      h1 { font-size: 16px; margin: 0 0 4px; letter-spacing: 0.08em; }
-      .sub { color: #8b8b9c; margin: 0 0 16px; font-size: 12px; max-width: 62ch; }
-      canvas { display: block; background: #14101a; image-rendering: pixelated; touch-action: none; cursor: grab; }
-      canvas:active { cursor: grabbing; }
-      .panels { display: flex; flex-direction: column; gap: 16px; flex: 1 1 320px; min-width: min(100%, 320px); max-width: 420px; }
-      .panel { background: #15151d; border: 1px solid #2a2a36; padding: 12px 14px; }
-      .panel h2 { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #8b8b9c; margin: 0 0 8px; }
-      .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
-      label { font-size: 12px; color: #a8a8bb; }
-      button, select, input[type="number"] {
-        min-height: 40px; background: #262633; color: #e9e9f2;
-        border: 1px solid #77778e; border-radius: 4px; padding: 6px 10px; font: inherit;
-      }
-      button { cursor: pointer; }
-      button:active { background: #514d6a; }
-      button[aria-pressed="true"] { background: #3d6b33; border-color: #7fd06a; }
-      button[data-hitbox="true"] { border-color: #e83232; }
-      input[type="number"] { width: 80px; }
-      :focus-visible { outline: 3px solid #ffd23f; outline-offset: 3px; }
-      #gym-frames { display: flex; flex-wrap: wrap; gap: 6px; }
-      #gym-frames button { min-width: 40px; }
-      pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; }
-      .key { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; }
-      .key span::before { content: '■ '; }
-      .collision { color: #4ac4ff; } .hit { color: #56d63e; }
-      .attack { color: #e83232; } .guard { color: #ffb238; }
-      #gym-status { font-size: 12px; color: #ffd23f; }
-    </style>
+    <link rel="stylesheet" href="./arcade-shell.css" />
   </head>
   <body>
-    <div>
-      <h1>Mars arcade — character gym</h1>
-      <p class="sub">
-        Author per-frame bounds against the drawing. Drag a box to move it, hold
-        <kbd>Shift</kbd> and drag to resize from the bottom-right. The purple lines are
-        the contract baseline (row 119) and the pivot column (64). An attack box is
-        drawn dashed on any frame that is not <em>active</em>, because a hitbox that is
-        live during startup or recovery is the bug this tool exists to catch.
-      </p>
-      <canvas id="gym-canvas" width="512" height="512" aria-label="sprite frame with bounds overlay"></canvas>
-      <p class="key">
-        <span class="collision">collision</span><span class="hit">hit</span>
-        <span class="attack">attack</span><span class="guard">guard</span>
-      </p>
-    </div>
+    <header class="shell-header">
+      <div class="shell-brand">
+        <span class="eyebrow">Mars arcade · Vite · TypeScript</span>
+        <h1>Character gym</h1>
+        <p class="sub">Author every clip against its drawings: pose, phase, hold and boxes.</p>
+      </div>
+      <nav class="shell-tabs" aria-label="Arcade tools">
+        <a href="./gym.html" aria-current="page">Character gym</a>
+        <a href="./arcade.html">Fighter playground</a>
+      </nav>
+    </header>
 
-    <div class="panels">
-      <section class="panel">
-        <h2>Animation</h2>
-        <div class="row">
-          <label for="gym-animation">Clip</label>
-          <select id="gym-animation"></select>
+    <div class="shell-main">
+      <section class="stage-panel" aria-label="Gym stage">
+        <div class="titlebar"><span>Character gym · frame</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+        <div class="viewport">
+          <canvas id="gym-canvas" width="640" height="544" tabindex="0" aria-label="sprite frame with bounds overlay"></canvas>
         </div>
-        <div class="row">
-          <label for="gym-phase">Phase</label>
-          <select id="gym-phase"></select>
+        <div class="legend">
+          <label class="chip collision"><input type="checkbox" id="gym-show-collision" checked /> collision</label>
+          <label class="chip hurt"><input type="checkbox" id="gym-show-hurt" checked /> hurt</label>
+          <label class="chip attack"><input type="checkbox" id="gym-show-attack" checked /> attack</label>
+          <label class="chip guard"><input type="checkbox" id="gym-show-guard" checked /> guard</label>
+          <label><input type="checkbox" id="gym-onion" /> onion skin</label>
+          <label><input type="checkbox" id="gym-mirror" /> mirrored</label>
+          <label><input type="checkbox" id="gym-opponent" /> opponent at</label>
+          <input type="number" id="gym-separation" value="40" min="0" max="200" style="width: 72px" aria-label="opponent separation in pixels" />
         </div>
-        <div class="row" id="gym-frames"></div>
-        <div class="row">
-          <button type="button" id="gym-prev">Prev</button>
-          <button type="button" id="gym-play">Play</button>
-          <button type="button" id="gym-next">Next</button>
-          <button type="button" id="gym-speed-05">0.5x</button>
-          <button type="button" id="gym-speed-1">1x</button>
-          <button type="button" id="gym-speed-2">2x</button>
-        </div>
+        <p class="keys">
+          Drag a box to move it, <kbd>Shift</kbd>-drag to resize. Arrows nudge 1 px (<kbd>Shift</kbd> 5).
+          <kbd>[</kbd> <kbd>]</kbd> step frames, <kbd>space</kbd> plays at the table's holds, <kbd>O</kbd> onion,
+          <kbd>M</kbd> mirror, <kbd>C</kbd> copies the selected kind from the previous frame, <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes.
+          The purple lines are the contract baseline (row 119) and the pivot column (64).
+        </p>
       </section>
 
-      <section class="panel">
-        <h2>Bounds</h2>
-        <div class="row">
-          <label for="gym-kind">Box</label>
-          <select id="gym-kind"></select>
-          <label><input type="checkbox" id="gym-showall" checked /> show all</label>
-        </div>
-        <div class="row">
-          <label><input type="checkbox" id="gym-active" /> box on this frame</label>
-        </div>
-        <div class="row">
-          <label for="gym-x">X</label><input type="number" id="gym-x" />
-          <label for="gym-y">Y</label><input type="number" id="gym-y" />
-        </div>
-        <div class="row">
-          <label for="gym-w">W</label><input type="number" id="gym-w" />
-          <label for="gym-h">H</label><input type="number" id="gym-h" />
-        </div>
-        <div class="row">
-          <button type="button" id="gym-apply-all">Apply to all frames</button>
-          <button type="button" id="gym-save">Save</button>
-        </div>
-        <p id="gym-status">saved</p>
-      </section>
+      <aside class="console" id="gym-console" aria-label="Debug console">
+        <div class="console-head"><span>Debug console</span><button type="button" id="gym-collapse" aria-expanded="true">Collapse</button></div>
 
-      <section class="panel">
-        <h2>Frame</h2>
-        <pre id="gym-info"></pre>
-      </section>
+        <section class="section">
+          <h2>Clip</h2>
+          <div class="row">
+            <div class="field"><label for="gym-animation">Clip</label><select id="gym-animation"></select></div>
+            <div class="field narrow"><label for="gym-loop">plays</label><select id="gym-loop"></select></div>
+          </div>
+          <div class="row"><label><input type="checkbox" id="gym-reviewed" /> boxes reviewed</label></div>
+          <div class="row frame-grid" id="gym-frames"></div>
+          <div class="row">
+            <div class="field wide"><label for="gym-timeline">tick</label><input type="range" id="gym-timeline" min="0" max="0" value="0" /></div>
+          </div>
+          <div class="row">
+            <button type="button" id="gym-prev">Prev</button>
+            <button type="button" id="gym-play">Play</button>
+            <button type="button" id="gym-next">Next</button>
+            <span class="segmented" role="group" aria-label="playback speed">
+              <button type="button" id="gym-speed-05">0.5x</button>
+              <button type="button" id="gym-speed-1" aria-pressed="true">1x</button>
+              <button type="button" id="gym-speed-2">2x</button>
+            </span>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>Frame</h2>
+          <div class="row">
+            <div class="field"><label for="gym-pose">pose</label><input type="text" id="gym-pose" /></div>
+            <div class="field narrow"><label for="gym-phase">phase</label><select id="gym-phase"></select></div>
+            <div class="field narrow"><label for="gym-hold">hold</label><input type="number" id="gym-hold" min="1" /></div>
+          </div>
+          <div class="row"><div class="field wide"><label for="gym-src">drawing</label><input type="text" id="gym-src" spellcheck="false" /></div></div>
+          <div class="row">
+            <button type="button" id="gym-frame-duplicate">Duplicate</button>
+            <button type="button" id="gym-frame-delete">Delete</button>
+            <button type="button" id="gym-frame-earlier">Earlier</button>
+            <button type="button" id="gym-frame-later">Later</button>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>Bounds</h2>
+          <div class="row">
+            <div class="field"><label for="gym-kind">box</label><select id="gym-kind"></select></div>
+            <div class="field narrow"><label for="gym-box">which</label><select id="gym-box" aria-label="which box of this kind"></select></div>
+            <button type="button" id="gym-box-add">+ box</button>
+            <button type="button" id="gym-box-remove">− box</button>
+          </div>
+          <div class="row">
+            <div class="field narrow"><label for="gym-x">x</label><input type="number" id="gym-x" /></div>
+            <div class="field narrow"><label for="gym-y">y</label><input type="number" id="gym-y" /></div>
+            <div class="field narrow"><label for="gym-w">width</label><input type="number" id="gym-w" /></div>
+            <div class="field narrow"><label for="gym-h">height</label><input type="number" id="gym-h" /></div>
+          </div>
+          <div class="row">
+            <button type="button" id="gym-copy-prev">Copy prev</button>
+            <button type="button" id="gym-copy-prev-all">Copy all prev</button>
+            <button type="button" id="gym-apply-all">Apply all</button>
+          </div>
+          <div class="row">
+            <button type="button" id="gym-fit-hurt">Fit hurt</button>
+            <button type="button" id="gym-fit-body">Fit body</button>
+            <button type="button" id="gym-undo">Undo</button>
+            <button type="button" class="btn-primary" id="gym-save">Save</button>
+          </div>
+          <p class="status-line" id="gym-status">saved</p>
+        </section>
+
+        <section class="section">
+          <h2>Frame data</h2>
+          <pre id="gym-info"></pre>
+        </section>
+
+        <section class="section">
+          <h2>Findings</h2>
+          <pre class="dim" id="gym-findings"></pre>
+        </section>
+      </aside>
     </div>
 
     <script type="module">
       import { startArcadeGym } from '../src/dev/arcadeGym.ts'
       startArcadeGym(document.body)
+      const console_ = document.querySelector('#gym-console')
+      const collapse = document.querySelector('#gym-collapse')
+      collapse?.addEventListener('click', () => {
+        const collapsed = console_.dataset.collapsed !== 'true'
+        console_.dataset.collapsed = String(collapsed)
+        collapse.textContent = collapsed ? 'Expand' : 'Collapse'
+        collapse.setAttribute('aria-expanded', String(!collapsed))
+      })
+      for (const speed of ['05', '1', '2']) {
+        document.querySelector(`#gym-speed-${speed}`)?.addEventListener('click', () => {
+          for (const other of ['05', '1', '2']) document.querySelector(`#gym-speed-${other}`)?.setAttribute('aria-pressed', String(other === speed))
+        })
+      }
     </script>
   </body>
 </html>
