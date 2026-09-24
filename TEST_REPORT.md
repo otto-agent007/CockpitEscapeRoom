@@ -21,6 +21,16 @@
   continuity 2 PASS. Not run: the other twelve arcade check scripts, full-journey e2e,
   3D asset suite, 375 px (dev tool).
 - Report: `asset-reports/mars-arcade-animation-workflow-2026-09-24.md`.
+- CI fix (PRs #98/#99, same commit on both): heavy-scenes and heavy-storm failed on locker,
+  storm and orientation specs the arcade never touched — one real locker race (camera settled
+  before the intro stage; the skipped cinematic never left) and two sub-frame transients
+  asserted on per-frame canvas attributes at CI's ~1 fps. Locally, with Chromium 1228 via
+  `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`: locker 288 PASS, orientation 170 PASS, storm 444 runs to
+  its final console-error assertion and fails only on two `/favicon.ico` 404s the full local
+  Chromium requests (CI's headless shell does not).
+- Dev shell restyle: gym and playground share `dev/arcade-shell.css` after the reference's
+  layout; the gym repaints per tick without rebuilding controls. `check-arcade-gym.mjs` 13 ok at
+  1440 and 768 after the restyle; both pages load with no console errors.
 
 ## 2026-09-23 — Oracle heavy motion (sweep + settle)
 
