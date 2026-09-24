@@ -345,12 +345,36 @@ first audited clip.
   first Oracle walk clip generated, picked, normalised, gated and audited; see
   `asset-reports/mars-arcade-walk-video-trial-2026-09-24.md`. Audit fails on the model's 3–4 px
   body sway; per-drawing nudge or a stricter prompt is the next step.
+- [x] 2026-09-24 — `arcade-anim.mjs wire` puts a normalised clip in the table (and so the gym) in
+  one step; the playground's Candidates section previews any `<shipped>-video|-candidate|-alt`
+  clip in the fight without touching the table; the picker measures a cycle's period instead
+  of guessing (the first Oracle video walk played backwards from a guessed spacing).
+- [x] 2026-09-24 — CI fix for PRs #98/#99 (locker settle-before-stage race; two sub-frame
+  transients asserted on per-frame canvas attributes). Same commit on both branches.
 - [x] M3 — rules read the boxes behind `useBounds`, guard height as a move property, pushbox
   from data, hit stop + flash events, playground JSON. Built 2026-09-24 in its own PR; plan,
   connect table and evidence in `plans/0047-mars-arcade-bounds-rules.md`. Both switches ship
   off pending the owner.
 - [ ] Owner: review seeded boxes in the gym (20 clips flagged `reviewed: false`).
 - [ ] Decision A follow-through: a provider key for one paid trial (see Discoveries).
+
+## Where to resume (updated 2026-09-25)
+
+- PR #99 merged at `1bf19c8`, before its last five commits (video trial, `wire`, picker period
+  fix, candidate switch, these notes) were pushed; they were stranded on
+  `feat/arcade-animation-workflow-v2` and are carried onto `main` by PR #102
+  (`fix/stale-arcade-checks`, worktree `.worktrees/arcade-checks`, dev port 5381). M3 merged
+  separately as PR #101. The candidate override now lives in `marsArcadePose.ts` so the rules
+  read a candidate's boxes while its drawings are on screen.
+- Pages: `/dev/gym.html` (character gym) and `/dev/arcade.html` (fighter playground), one shell.
+- Owner queue: a gym pass over the 20 seeded clips (tick "boxes reviewed"); decide whether the
+  video walk (`oracle:walk-forward-video`, candidate) replaces the shipped one; a free Hugging Face
+  token in `HF_TOKEN` unlocks the Wan first-last-frame route (anonymous quota refuses it).
+- Next engineering: (1) per-drawing nudge in `normalise-arcade-clip.py` (the video walk sways
+  3–4 px; Spriterrific's aligner is the manual version); (2) tidy the playground's Combat rows
+  (they wrap); (3) the Vite config warning about extensionless imports.
+- Evidence: `TEST_REPORT.md` 2026-09-24, `asset-reports/mars-arcade-animation-workflow-2026-09-24.md`,
+  `asset-reports/mars-arcade-walk-video-trial-2026-09-24.md`, `preview-renders/mars-arcade/{gym-v2,clips,playground-v1}`.
 
 ## Discoveries
 
