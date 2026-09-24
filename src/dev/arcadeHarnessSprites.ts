@@ -17,6 +17,7 @@ import {
   marsArcadeFrameAt,
   parseMarsArcadeAnimations,
   type MarsArcadeAnimation,
+  type MarsArcadeAnimationFrame,
   type MarsArcadeAnimationsFile,
 } from '../game/marsArcadeAnimations'
 import rawAnimations from '../game/marsArcadeAnimations.json'
@@ -62,16 +63,27 @@ export interface ArcadeSpriteSelection {
   /** True when the pose has not been drawn and the anchor stands in for it. */
   placeholder: boolean
   label: string
+  /** The table frame the drawing came from, when it came from the table: its boxes. */
+  frame?: MarsArcadeAnimationFrame
   renderX?: number
   renderY?: number
 }
 
 /** A reaction clip's beats by name; the engine's stun decides how long each lasts. */
-function reactionBeat(clip: MarsArcadeAnimation, beat: 'impact' | 'stagger' | 'recover'): string {
+function reactionBeat(clip: MarsArcadeAnimation, beat: 'impact' | 'stagger' | 'recover'): MarsArcadeAnimationFrame {
   const frames = clip.frames
-  if (beat === 'impact') return frames[0]!.src
-  if (beat === 'recover') return frames.at(-1)!.src
-  return (frames.length >= 3 ? frames[1] : frames[0])!.src
+  if (beat === 'impact') return frames[0]!
+  if (beat === 'recover') return frames.at(-1)!
+  return (frames.length >= 3 ? frames[1] : frames[0])!
+}
+
+/** The first table frame that uses a drawing, for poses picked by drawing. */
+function frameFor(src: string): MarsArcadeAnimationFrame | undefined {
+  for (const clip of ARCADE_ANIMATIONS.animations) {
+    const found = clip.frames.find((frame) => frame.src === src)
+    if (found) return found
+  }
+  return undefined
 }
 
 export function selectArcadeSprite(
@@ -92,7 +104,7 @@ export function selectArcadeSprite(
         ? { frame: clip.frames.at(-1)!, index: clip.frames.length - 1 }
         : marsArcadeFrameAt(clip, Math.max(0, outcomeFrame))
       return {
-        src: frame.src, placeholder: false,
+        src: frame.src, placeholder: false, frame,
         label: `${won ? 'victory' : 'knockout'} ${index}`,
         // A terminal airborne fighter settles visually; frozen rules coordinates stay intact.
         renderY: fighter.y * (1 - index / Math.max(1, clip.frames.length - 1)),
@@ -107,7 +119,7 @@ export function selectArcadeSprite(
     const clip = requireClip(fighter.id, 'jump')
     const index = fighter.velocityY > 0.6 ? 0 : fighter.velocityY < -0.6 ? 2 : 1
     const frame = clip.frames[Math.min(index, clip.frames.length - 1)]!
-    return { src: frame.src, placeholder: false, label: `jump ${frame.pose}` }
+    return { src: frame.src, placeholder: false, frame, label: `jump ${frame.pose}` }
   }
   if (live && fighter.id !== 'captain' && fighter.activity === 'hitstun') {
     const clip = requireClip(fighter.id, 'hit')
@@ -118,9 +130,11 @@ export function selectArcadeSprite(
       // Ease the existing knockback into view; never move the rules position.
       const remaining = Math.max(0, 1 - elapsed / 8)
       const offset = reducedMotion ? 0 : Math.round(heavyReaction.offsetX * remaining * remaining)
-      return { src: reactionBeat(clip, beat), placeholder: false, label: `heavy hit — ${beat}`, renderX: fighter.x + offset }
+      const frame = reactionBeat(clip, beat)
+      return { src: frame.src, placeholder: false, frame, label: `heavy hit — ${beat}`, renderX: fighter.x + offset }
     }
-    return { src: reactionBeat(clip, 'impact'), placeholder: false, label: 'hit recoil' }
+    const impact = reactionBeat(clip, 'impact')
+    return { src: impact.src, placeholder: false, frame: impact, label: 'hit recoil' }
   }
   if (live && fighter.id !== 'captain') {
     const guard = requireClip(fighter.id, 'block').frames[0]!.src
@@ -130,24 +144,22 @@ export function selectArcadeSprite(
       const beat = elapsed < Math.ceil(heavyReaction.duration * 0.35) ? 'compress' :
         elapsed < Math.ceil(heavyReaction.duration * 0.75) ? 'settle' : 'guard'
       const src = beat === 'compress' ? clip.frames[0]!.src : beat === 'settle' ? clip.frames[1]!.src : guard
-      return { src, placeholder: false, label: `heavy block — ${beat}` }
+      return { src, placeholder: false, frame: frameFor(src), label: `heavy block — ${beat}` }
     }
     const opponent = state.fighters[side === 0 ? 1 : 0]
     const threat = marsArcadeActiveMove(opponent)
     if (fighter.blocking && fighter.stunFrames === 0 && fighter.y === 0 &&
       threat?.move.button === 'heavy' && threat.phase === 'startup' &&
       Math.abs(opponent.x - fighter.x) <= threat.move.reach) {
-      return { src: guard, placeholder: false, label: 'heavy block — brace' }
+      return { src: guard, placeholder: false, frame: frameFor(guard), label: 'heavy block — brace' }
     }
     if (fighter.activity === 'walk') {
       const clip = requireClip(fighter.id, fighter.blocking ? 'walk-back' : 'walk-forward')
-      return {
-        src: marsArcadeFrameAt(clip, state.frame).frame.src, placeholder: false,
-        label: fighter.blocking ? 'backward shuffle' : 'forward shuffle',
-      }
+      const { frame } = marsArcadeFrameAt(clip, state.frame)
+      return { src: frame.src, placeholder: false, frame, label: fighter.blocking ? 'backward shuffle' : 'forward shuffle' }
     }
     if (fighter.activity === 'blockstun' || fighter.blocking) {
-      return { src: guard, placeholder: false, label: 'raised guard' }
+      return { src: guard, placeholder: false, frame: frameFor(guard), label: 'raised guard' }
     }
     if (fighter.activity === 'attack' && move) {
       const clip = moveClip(fighter.id, move.move.id)
@@ -157,7 +169,7 @@ export function selectArcadeSprite(
             move.frame - move.move.startupFrames - move.move.activeFrames
         const drawing = marsArcadeDrawingAt(clip, move.phase, frameInPhase)
         if (drawing) {
-          return { src: drawing.frame.src, placeholder: false, label: `${clip.animation} ${move.phase} — ${drawing.frame.pose}` }
+          return { src: drawing.frame.src, placeholder: false, frame: drawing.frame, label: `${clip.animation} ${move.phase} — ${drawing.frame.pose}` }
         }
       }
     }
@@ -166,7 +178,7 @@ export function selectArcadeSprite(
   if (resting) {
     const clip = requireClip(fighter.id, 'idle')
     const frame = reducedMotion ? clip.frames[0]! : marsArcadeFrameAt(clip, state.frame).frame
-    return { src: frame.src, placeholder: false, label: 'idle pilot' }
+    return { src: frame.src, placeholder: false, frame, label: 'idle pilot' }
   }
   return { src: anchors[fighter.id], placeholder: true, label: 'anchor placeholder — pose not authored' }
 }

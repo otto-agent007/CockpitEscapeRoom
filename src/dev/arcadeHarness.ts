@@ -41,7 +41,9 @@ import {
   PLAYER_TWO_BINDINGS,
   inputFromKeys,
 } from './arcadeHarnessInput'
-import { ARCADE_ANCHOR_SOURCES, loadArcadeSprites, selectArcadeSprite } from './arcadeHarnessSprites'
+import { ARCADE_ANCHOR_SOURCES, loadArcadeSprites, selectArcadeSprite, type ArcadeSpriteSelection } from './arcadeHarnessSprites'
+import { startArcadePlayground, type ArcadePlayground, type PlaygroundBoxToggles } from './arcadePlayground'
+import { MARS_ARCADE_BOUND_KINDS, marsArcadeBoxToStage, type MarsArcadeBoundKind, type MarsArcadeBox } from '../game/marsArcadeBounds'
 import { updateHeavyReactions, type HeavyReactions } from './arcadeHarnessReactions'
 import { laserStrikeLook, updateLaserStrikes, type LaserStrike } from './arcadeHarnessLaser'
 import { LASER_EFFECT_LAYOUT, loadArcadeEffects, type ArcadeEffectImages } from './arcadeHarnessEffects'
@@ -133,6 +135,8 @@ interface Harness {
   seed: number
 }
 
+let playground: ArcadePlayground | null = null
+
 const held = new Set<string>()
 /**
  * Buttons pressed while paused, delivered on the next stepped frame.
@@ -218,6 +222,54 @@ function drawFighter(
   const nubWidth = 5 * SCALE
   const nubX = fighter.facing === 1 ? left + half * 2 : left - nubWidth
   ctx.fillRect(nubX, feet - height * 0.72, nubWidth, 6 * SCALE)
+}
+
+const BOX_COLOURS: Record<MarsArcadeBoundKind, string> = {
+  collision: '#4ac4ff',
+  hurt: '#56d63e',
+  attack: '#e83232',
+  guard: '#ffb238',
+}
+
+/**
+ * The boxes authored in the gym, on the drawing the fight is showing.
+ *
+ * Faint for the passive kinds, solid for a live hitbox — the reference's rule. These
+ * are the table's boxes, not the engine's reach region (`drawMoveRegion`); until the
+ * rules read the boxes the two can disagree, and seeing both is the point.
+ */
+function drawAuthoredBoxes(
+  ctx: CanvasRenderingContext2D,
+  fighter: MarsArcadeFighterState,
+  selection: ArcadeSpriteSelection,
+  toggles: PlaygroundBoxToggles,
+  camera: number,
+): void {
+  const frame = selection.frame
+  if (!frame) return
+  const x = selection.renderX ?? fighter.x
+  const y = selection.renderY ?? fighter.y
+  const draw = (kind: MarsArcadeBoundKind, box: MarsArcadeBox): void => {
+    const stage = marsArcadeBoxToStage(box, x, fighter.facing, y)
+    const left = stageX(stage.minX, camera)
+    const top = stageY(stage.maxY)
+    const width = (stage.maxX - stage.minX) * SCALE
+    const height = (stage.maxY - stage.minY) * SCALE
+    const live = kind === 'attack'
+    ctx.fillStyle = BOX_COLOURS[kind]
+    ctx.globalAlpha = live ? 0.35 : 0.12
+    ctx.fillRect(left, top, width, height)
+    ctx.globalAlpha = live ? 1 : 0.6
+    ctx.strokeStyle = BOX_COLOURS[kind]
+    ctx.lineWidth = live ? 2 : 1
+    ctx.strokeRect(left + 0.5, top + 0.5, width - 1, height - 1)
+    ctx.globalAlpha = 1
+  }
+  for (const kind of MARS_ARCADE_BOUND_KINDS) {
+    if (!toggles[kind]) continue
+    if (kind === 'hurt' || kind === 'attack') for (const box of frame[kind] ?? []) draw(kind, box)
+    else if (frame[kind]) draw(kind, frame[kind]!)
+  }
 }
 
 function drawMoveRegion(
@@ -828,6 +880,14 @@ function draw(
       drawFighter(ctx, fighter, fighter.id, camera)
     }
   }
+  if (playground) {
+    for (const side of [0, 1] as const) {
+      const fighter = harness.state.fighters[side]
+      if (!harness.showSprites) continue
+      const selection = selectArcadeSprite(harness.state, side, harness.reducedMotion, harness.outcomeFrames, harness.heavyReactions[side])
+      drawAuthoredBoxes(ctx, fighter, selection, playground.boxes, camera)
+    }
+  }
   drawLaserStrikes(ctx, harness, effects, camera)
   for (const side of [0, 1] as const) {
     drawMoveRegion(ctx, harness.state.fighters[side], harness.state.fighters[side === 0 ? 1 : 0], harness.showHitboxes, camera)
@@ -954,6 +1014,10 @@ function mount(): void {
   }
 
   motion.addEventListener('change', event => { harness.reducedMotion = event.matches })
+  // The shipped tuning goes in force before the first round is played, and the
+  // console edits it live from here on.
+  playground = startArcadePlayground(document, () => harness.state)
+  newRound(harness)
 
   function command(code: string): boolean {
     switch (code) {
@@ -1144,6 +1208,11 @@ function mount(): void {
 
     draw(ctx, harness, sprites, backdrop, effects)
     readout.textContent = describe(harness)
+    const title = document.querySelector<HTMLElement>('#stage-title')
+    if (title) {
+      const versus = `${marsArcadeFighter(harness.leftId).label} vs ${marsArcadeFighter(harness.rightId).label}${harness.humanRight ? '' : ' (CPU)'}`
+      if (title.textContent !== versus) title.textContent = versus
+    }
     const status = sprites.status() + (harness.reducedMotion ? '; reduced motion: static idle' : '') + ` · ${effects.status()}`
     if (assetStatus.textContent !== status) assetStatus.textContent = status
     const events = harness.log.join('\n') || '(no events yet)'

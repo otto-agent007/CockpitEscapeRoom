@@ -319,6 +319,122 @@ export const MARS_ARCADE_FIGHTERS: Record<MarsArcadeFighterId, MarsArcadeFighter
 /** Meter the captain banks for setting the cup down instead of swinging. */
 export const CAPTAIN_COMPOSURE_METER_GAIN = 14
 
+/**
+ * Playground tuning: the numbers the fighter playground edits and saves.
+ *
+ * The baked content above is the default. `marsArcadeTuning.json` is the file the
+ * playground writes and the game loads on top of it, so a tuning session survives a
+ * reload and ships. Reach and maxHeight are deliberately NOT tunable here: they are
+ * bound to the drawings by the animation table's reach rule.
+ */
+export interface MarsArcadeMoveTuning {
+  damage: number
+  chipDamage: number
+  guardDamage: number
+  knockback: number
+  hitstunFrames: number
+  blockstunFrames: number
+}
+
+export interface MarsArcadeFighterTuning {
+  health: number
+  walkSpeed: number
+  jumpVelocity: number
+  guardMax: number
+  guardRegenPerFrame: number
+  moves: Record<MarsArcadeButton, MarsArcadeMoveTuning>
+}
+
+export interface MarsArcadeTuning {
+  version: number
+  stage: { gravity: number }
+  fighters: Record<MarsArcadeFighterId, MarsArcadeFighterTuning>
+}
+
+export const MARS_ARCADE_TUNING_VERSION = 1
+
+/** Gravity as the content defines it; `marsArcadeGravity()` is what the rules read. */
+export const MARS_ARCADE_DEFAULT_GRAVITY = 0.28
+
+let tuned: Record<MarsArcadeFighterId, MarsArcadeFighter> = MARS_ARCADE_FIGHTERS
+let gravity = MARS_ARCADE_DEFAULT_GRAVITY
+
+function mergeFighter(base: MarsArcadeFighter, tuning: MarsArcadeFighterTuning): MarsArcadeFighter {
+  const moves = { ...base.moves }
+  for (const button of ['light', 'heavy', 'special'] as MarsArcadeButton[]) {
+    moves[button] = { ...base.moves[button], ...tuning.moves[button] }
+  }
+  return {
+    ...base,
+    health: tuning.health,
+    walkSpeed: tuning.walkSpeed,
+    jumpVelocity: tuning.jumpVelocity,
+    guardMax: tuning.guardMax,
+    guardRegenPerFrame: tuning.guardRegenPerFrame,
+    moves,
+  }
+}
+
+/** Apply a tuning on top of the baked content. Pass null to return to the defaults. */
+export function setMarsArcadeTuning(tuning: MarsArcadeTuning | null): void {
+  if (!tuning) {
+    tuned = MARS_ARCADE_FIGHTERS
+    gravity = MARS_ARCADE_DEFAULT_GRAVITY
+    return
+  }
+  tuned = {
+    booster: mergeFighter(MARS_ARCADE_FIGHTERS.booster, tuning.fighters.booster),
+    oracle: mergeFighter(MARS_ARCADE_FIGHTERS.oracle, tuning.fighters.oracle),
+    captain: mergeFighter(MARS_ARCADE_FIGHTERS.captain, tuning.fighters.captain),
+  }
+  gravity = tuning.stage.gravity
+}
+
+export function marsArcadeGravity(): number {
+  return gravity
+}
+
+/** The tuning currently in force, as the playground shows and saves it. */
+export function marsArcadeTuningInForce(): MarsArcadeTuning {
+  const pick = (fighter: MarsArcadeFighter): MarsArcadeFighterTuning => ({
+    health: fighter.health,
+    walkSpeed: fighter.walkSpeed,
+    jumpVelocity: fighter.jumpVelocity,
+    guardMax: fighter.guardMax,
+    guardRegenPerFrame: fighter.guardRegenPerFrame,
+    moves: {
+      light: pickMove(fighter.moves.light),
+      heavy: pickMove(fighter.moves.heavy),
+      special: pickMove(fighter.moves.special),
+    },
+  })
+  const pickMove = (move: MarsArcadeMove): MarsArcadeMoveTuning => ({
+    damage: move.damage,
+    chipDamage: move.chipDamage,
+    guardDamage: move.guardDamage,
+    knockback: move.knockback,
+    hitstunFrames: move.hitstunFrames,
+    blockstunFrames: move.blockstunFrames,
+  })
+  return {
+    version: MARS_ARCADE_TUNING_VERSION,
+    stage: { gravity },
+    fighters: { booster: pick(tuned.booster), oracle: pick(tuned.oracle), captain: pick(tuned.captain) },
+  }
+}
+
+/** The baked defaults as a tuning, for the playground's reset. */
+export function marsArcadeDefaultTuning(): MarsArcadeTuning {
+  const current = tuned
+  const currentGravity = gravity
+  tuned = MARS_ARCADE_FIGHTERS
+  gravity = MARS_ARCADE_DEFAULT_GRAVITY
+  const defaults = marsArcadeTuningInForce()
+  tuned = current
+  gravity = currentGravity
+  return defaults
+}
+
 export function marsArcadeFighter(id: MarsArcadeFighterId): MarsArcadeFighter {
-  return MARS_ARCADE_FIGHTERS[id]
+  return tuned[id]
 }

@@ -24,10 +24,14 @@
 
     <div class="shell-main">
       <section class="stage-panel" aria-label="Fight stage">
-        <div class="titlebar"><span>Mars arcade · exchange study</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+        <div class="titlebar"><span id="stage-title">Mars arcade · fighter playground</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
         <div class="viewport">
           <canvas id="stage" role="img" aria-label="Arcade fight preview. Native controls and live state follow below."></canvas>
         </div>
+        <p class="keys" aria-label="Key hints">
+          <kbd>A</kbd><kbd>D</kbd> move · <kbd>W</kbd> jump · <kbd>J</kbd> light · <kbd>K</kbd> heavy · <kbd>L</kbd> special ·
+          <kbd>Space</kbd> pause · <kbd>N</kbd> step · <kbd>R</kbd> reset · <kbd>H</kbd> boxes · <kbd>T</kbd> human P2
+        </p>
         <p id="asset-status" class="status" role="status">Loading sprite pilot…</p>
         <div class="controls" aria-label="Round controls">
           <button class="btn-primary" data-command="exchange">Play exchange</button>
@@ -68,6 +72,34 @@
 
       <aside class="console" id="arcade-console" aria-label="Debug console">
         <div class="console-head"><span>Debug console</span><button type="button" id="arcade-collapse" aria-expanded="true">Collapse</button></div>
+
+        <section class="section">
+          <h2>Fighter playground</h2>
+          <div class="row">
+            <div class="field"><label for="pg-fighter">fighter</label><select id="pg-fighter"></select></div>
+            <div class="field narrow"><label for="pg-gravity">gravity</label><input type="number" id="pg-gravity" step="0.01" /></div>
+          </div>
+          <div class="row" id="pg-fields"></div>
+          <h2>Combat</h2>
+          <div id="pg-moves"></div>
+          <div class="row">
+            <button type="button" id="pg-fill-meter">Fill special bar</button>
+            <button type="button" id="pg-reset">Reset fighter</button>
+            <button type="button" class="btn-primary" id="pg-save">Save tuning</button>
+          </div>
+          <p class="status-line" id="pg-status">shipped tuning in force</p>
+        </section>
+
+        <section class="section">
+          <h2>Bounds</h2>
+          <div class="row">
+            <label class="chip collision"><input type="checkbox" id="pg-show-collision" /> collision</label>
+            <label class="chip hurt"><input type="checkbox" id="pg-show-hurt" checked /> hurt</label>
+            <label class="chip attack"><input type="checkbox" id="pg-show-attack" checked /> attack</label>
+            <label class="chip guard"><input type="checkbox" id="pg-show-guard" /> guard</label>
+          </div>
+          <p class="dim" style="margin:0;font-size:11px;color:var(--ink-dim)">Authored boxes from the animation table, drawn on the sprite: faint while the kind is inactive, solid when a hitbox is live. <kbd>H</kbd> toggles the engine's reach region as before.</p>
+        </section>
 
         <section class="section">
           <h2>Controls</h2>

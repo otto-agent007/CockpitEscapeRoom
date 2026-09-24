@@ -10,6 +10,7 @@ import {
   parseMarsArcadeAnimations,
   validateMarsArcadeAnimations,
 } from './src/game/marsArcadeAnimations'
+import { parseMarsArcadeTuning } from './src/game/marsArcadeTuning'
 
 /**
  * Dev-only endpoint the character gym posts the animation table to.
@@ -25,10 +26,34 @@ import {
  */
 function arcadeGymSave(): Plugin {
   const target = resolve(__dirname, 'src/game/marsArcadeAnimations.json')
+  const tuningTarget = resolve(__dirname, 'src/game/marsArcadeTuning.json')
   return {
     name: 'arcade-gym-save',
     apply: 'serve',
     configureServer(server) {
+      // The playground's tuning file: same shape of endpoint, parsed before writing.
+      server.middlewares.use('/__gym/tuning', (request, response) => {
+        if (request.method !== 'POST') {
+          response.statusCode = 405
+          response.end('POST only')
+          return
+        }
+        const chunks: Buffer[] = []
+        request.on('data', (chunk: Buffer) => chunks.push(chunk))
+        request.on('end', () => {
+          void (async () => {
+            try {
+              const tuning = parseMarsArcadeTuning(JSON.parse(Buffer.concat(chunks).toString('utf8')))
+              await writeFile(tuningTarget, `${JSON.stringify(tuning, null, 2)}\n`, 'utf8')
+              response.statusCode = 200
+              response.end(`written ${tuningTarget}`)
+            } catch (error) {
+              response.statusCode = 400
+              response.end(String(error))
+            }
+          })()
+        })
+      })
       server.middlewares.use('/__gym/animations', (request, response) => {
         if (request.method !== 'POST') {
           response.statusCode = 405

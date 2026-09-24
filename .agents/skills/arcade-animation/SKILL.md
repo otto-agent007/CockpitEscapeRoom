@@ -21,8 +21,14 @@ Nothing about a clip lives anywhere else — not in the sprite selector, not in 
 ## The loop
 
 1. **Generate** the source drawings with Codex `image_gen` against the fighter's anchor, or
-   as one image-to-video clip when a video provider is configured (walks, sweeps, reactions
-   are where a single clip beats separate poses). Save every raw output under
+   as one image-to-video clip (walks, sweeps, reactions are where a single clip beats
+   separate poses). The video route is free: `tools/assets/generate-arcade-video.py` drives a
+   Hugging Face Space from the tooling venv (`uv venv .cache/arcade-video-venv && uv pip install
+   --python .cache/arcade-video-venv/bin/python gradio_client pillow`):
+   `.cache/arcade-video-venv/bin/python tools/assets/generate-arcade-video.py <anchor.png> <out>
+   --space ltx|wan-flf --prompt "<start pose, the verb, end pose; in place; flat colours>"`.
+   `wan-flf` takes the anchor as first AND last frame, which is what a cycle wants. Expect a
+   queue; `HF_TOKEN` lifts the quota. Save every raw output and `generation.json` under
    `art-source/arcade/<fighter>/generated/<wave>/`.
 2. **Pick**, for a video: `python3 tools/assets/pick-arcade-frames.py <clip.mp4> <out> --frames N
    --policy cycle|action|hold`. Review `picks-contact-sheet.png`. A pick is a candidate, not a drawing.
@@ -49,8 +55,12 @@ Nothing about a clip lives anywhere else — not in the sprite selector, not in 
    Tick **boxes reviewed** and Save. Save is refused while the validator reports errors.
 8. **Validate and test**: `npm run arcade:validate` (rules + silhouette checks), `npm run test`.
 9. **Prove in the harness**: the relevant `tools/assets/check-arcade-*.mjs` against a dev server
-   on your own port, plus `tools/assets/check-arcade-gym.mjs`. Evidence goes under
-   `ARCADE_EVIDENCE_DIR`; restore any committed PNGs outside your own prefix before committing.
+   on your own port, plus `tools/assets/check-arcade-gym.mjs` and `check-arcade-playground.mjs`.
+   Evidence goes under `ARCADE_EVIDENCE_DIR`; restore any committed PNGs outside your own prefix
+   before committing. In `/dev/arcade.html` the Bounds toggles overlay the table's boxes on the
+   sprites; the Fighter playground section edits `src/game/marsArcadeTuning.json` live (walk,
+   jump, gravity, HP, guard, per-move damage / knockback / stun) and Save writes it — the
+   cabinet loads the same file, so a tuning change is a balance change and is reviewed as one.
 10. **Report**: `asset-reports/mars-arcade-<clip>-<date>.md` with prompts, sources, the
     normalise report, the audit table, the gym screenshot and the harness proof. Update
     `TEST_REPORT.md`.
