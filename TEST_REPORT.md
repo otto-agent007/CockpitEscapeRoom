@@ -1,5 +1,42 @@
 # Test report
 
+## 2026-09-24 — Arcade rules read the boxes (plans/0047, plan 0046 M3)
+
+- Both new rule switches ship **off**; the whole prior suite passed unchanged with them off
+  (arcade vitest 19 files / 217 tests before and after, no expectation edited). The only
+  test-file edit to existing specs is two projectile fixtures gaining the new required
+  `guardHeight` / `hitstopFrames` fields.
+- New unit tests: `marsArcadeBoundsRules.test.ts` 20 (switches ship off; jab lands at 59 and
+  misses at 60 by boxes, 41/42 by reach; boxes read are the drawings in play; jumping clears
+  the sweep by boxes, not maxHeight; captain falls back to reach; low sweep passes a standing
+  guard, mid is blocked, off blocks both; pushbox from content; hit stop freezes fighters,
+  frame and timer for exactly N frames on hit and block, buttons not consumed, trade freezes
+  both, cleared when the blow ends the round; tuning v1 migration, inherited-key fighter,
+  bad switch, hit stop out of range). `marsArcadeConnect.test.ts` 3 (off column == reach for
+  every row; pinned "on" table; rules restored). Rules-frame parity with the harness sprite
+  for 100+ states, and the captain's undrawn move is null. Hit-flash helper 1.
+- Mutation checks, each run and each failing named tests: overlap forced true (5 fail) and
+  false (5), guard stops everything (1), no hit stop (4), constant pushbox (1), static idle in
+  the rules pose (1), freeze advancing the frame (1), no clear on KO (1), unguarded v1
+  fighter lookup (1).
+- `npm run check`: lint, types, 877 tests / 74 files, build — exit 0. Production bundle
+  contains no arcade code (`grep` for `hardCutoff` / `hitstopFrames` in `dist/`: 0 files).
+- CLI: `npm run arcade:validate` 0 errors / 22 warnings (unchanged); `node
+  tools/assets/arcade-anim.mjs connect` prints the table in plans/0047.
+- Browser (dev server on 5371, Chromium 1228 via the main checkout's Playwright):
+  `check-arcade-bounds-rules.mjs` 6 ok — switches load off; jab at 49.5 px whiffs off, lands
+  on with `stop 2f`, `FROZEN 2/2f` then `1/2f` with the frame counter held; flash 20,371 vs
+  4,778 bright px; cornered guarding booster blocks Hard Cutoff off and is hit through the
+  guard on; reduced motion freezes without flashing (4,778 vs 4,778); no console errors.
+  Screenshots at 1440 and 768 in `preview-renders/mars-arcade/bounds-rules-v1/`.
+- Regression, existing arcade browser checks against this build (evidence written to scratch,
+  not over committed proof): playground, heavy, heavy-block, space-laser, outcomes, movement
+  all PASS. `check-arcade-exchange.mjs` (expects the old label "guarded backward shuffle") and
+  `check-arcade-pilot.mjs` (TimeoutError after its first PASS) fail identically on a clean
+  `origin/main` 1034432 worktree, so they are pre-existing and not caused by this change.
+- Not run: full-journey e2e (the arcade is dev-only), 375 px (dev tool), the remaining
+  arcade check/record scripts.
+
 ## 2026-09-24 — Arcade animation workflow v2 (table, gym v2, clip pipeline)
 
 - Unit: `marsArcadeAnimations.test.ts` 21 tests (shipped table has 0 errors; hold sums equal

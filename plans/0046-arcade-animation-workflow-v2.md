@@ -1,7 +1,7 @@
 # Mars arcade — animation workflow v2
 
-Status: **M1, M2, M4, M5 BUILT 2026-09-24 on `feat/arcade-animation-workflow-v2`; M3 pending
-its own PR.** Owner decisions 2026-09-23: milestones 1–5 approved; A "try it, with a cheap or
+Status: **M1, M2, M4, M5 BUILT 2026-09-24 (PR #99, merged); M3 BUILT 2026-09-24 in its own
+PR, see `plans/0047-mars-arcade-bounds-rules.md`.** Owner decisions 2026-09-23: milestones 1–5 approved; A "try it, with a cheap or
 free model"; B property; C yes; D port. This plan is the answer to the owner's ask: "We need to improve our animation
 workflow a lot. I've noticed a lot of inconsistencies in the current one. There's one called
 Spriterific that a guy made, we could probably learn from it … We definitely need to improve
@@ -338,8 +338,10 @@ first audited clip.
   `pick-arcade-frames.py` (video picks), each with a self-proving test.
 - [x] 2026-09-24 — M5: `.agents/skills/arcade-animation/SKILL.md`; README scales and intro,
   contract pipeline notes, resume doc, TEST_REPORT, asset report.
-- [ ] M3 — rules read the boxes behind `useBounds`, guard height as a move property, pushbox
-  from data, hit stop + flash events, playground JSON. Own PR after this one merges.
+- [x] M3 — rules read the boxes behind `useBounds`, guard height as a move property, pushbox
+  from data, hit stop + flash events, playground JSON. Built 2026-09-24 in its own PR; plan,
+  connect table and evidence in `plans/0047-mars-arcade-bounds-rules.md`. Both switches ship
+  off pending the owner.
 - [ ] Owner: review seeded boxes in the gym (20 clips flagged `reviewed: false`).
 - [ ] Decision A follow-through: a provider key for one paid trial (see Discoveries).
 

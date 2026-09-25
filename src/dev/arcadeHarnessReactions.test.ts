@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { advanceMarsArcade, createMarsArcadeRound, NEUTRAL_MARS_ARCADE_INPUT as neutral, type MarsArcadeSide } from '../game/marsArcade'
-import { updateHeavyReactions, type HeavyReactions } from './arcadeHarnessReactions'
+import { hitFlash, updateHeavyReactions, type HeavyReactions } from './arcadeHarnessReactions'
 import { selectArcadeSprite, ARCADE_SPRITE_SOURCES } from './arcadeHarnessSprites'
 
 function hit(side: MarsArcadeSide, button: 'heavy' | 'light' = 'heavy', corner = false, attackerId: 'booster' | 'oracle' = 'booster', startingHealth = 100) {
@@ -99,5 +99,18 @@ describe('heavy hit presentation', () => {
     const guarded = structuredClone(state)
     guarded.fighters[1].activity = 'blockstun'
     expect(updateHeavyReactions(reactions, state, guarded, [{ type: 'blocked', attacker: 0, moveId: 'booster.staticFire', chipDamage: 3 }])).toEqual([null, { kind: 'block', duration: 14, offsetX: 0 }])
+  })
+})
+
+describe('hit flash', () => {
+  it('whitens the struck fighter for the first two frames of the freeze, never under reduced motion', () => {
+    const state = createMarsArcadeRound('booster', 'oracle')
+    expect(hitFlash(state, 1, false)).toBe(false)
+    state.hitstop = { frames: 4, framesRemaining: 4, defenders: [1] }
+    expect([hitFlash(state, 1, false), hitFlash(state, 0, false), hitFlash(state, 1, true)]).toEqual([true, false, false])
+    state.hitstop = { frames: 4, framesRemaining: 3, defenders: [1] }
+    expect(hitFlash(state, 1, false)).toBe(true)
+    state.hitstop = { frames: 4, framesRemaining: 2, defenders: [1] }
+    expect(hitFlash(state, 1, false)).toBe(false)
   })
 })

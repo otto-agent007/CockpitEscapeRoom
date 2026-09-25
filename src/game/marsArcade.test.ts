@@ -473,6 +473,8 @@ describe('projectiles', () => {
       maxHeight: ceiling,
       meterGainOnHit: 4,
       meterGainOnBlock: 2,
+      guardHeight: 'mid',
+      hitstopFrames: 6,
     }
     const state: MarsArcadeState = {
       ...base,
@@ -512,6 +514,8 @@ describe('projectiles', () => {
           maxHeight: 26,
           meterGainOnHit: 4,
           meterGainOnBlock: 2,
+          guardHeight: 'mid',
+          hitstopFrames: 6,
         },
       ],
     }
