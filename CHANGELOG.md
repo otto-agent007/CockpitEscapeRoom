@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.3.0](https://github.com/otto-agent007/CockpitEscapeRoom/compare/cockpit-escape-room-v0.2.0...cockpit-escape-room-v0.3.0) (2026-09-25)
+
+
+### Features
+
+* **arcade:** clip-level sprite pipeline, sequence audit, video picker and the skill ([aa0f601](https://github.com/otto-agent007/CockpitEscapeRoom/commit/aa0f601df8ab9285bcb6853d2ebf20ee2f932bc8))
+* **arcade:** fighter playground with persisted tuning, authored-box overlay, and a free video generator ([1bf19c8](https://github.com/otto-agent007/CockpitEscapeRoom/commit/1bf19c8eedff571f8de6871d2b901d6065ae31fa))
+* **arcade:** give Oracle round outcomes and a five-pose heavy sweep ([92bd64d](https://github.com/otto-agent007/CockpitEscapeRoom/commit/92bd64d44672b014049d5106d314580af7c0e11e))
+* **arcade:** one animation table, keyed by drawing, and a gym that plays it ([a4d43e3](https://github.com/otto-agent007/CockpitEscapeRoom/commit/a4d43e3489e3da25de70b7e70f1a92c8cfc5fc2c))
+* **arcade:** the rules read the boxes, guards have a height, hits stop (plan 0046 M3) ([daae44b](https://github.com/otto-agent007/CockpitEscapeRoom/commit/daae44b0678cab88e0ed9afafbb4fd6edef75047))
+
+
+### Fixes
+
+* **locker:** complete the intro and hat finale whichever arrives second, and stop asserting sub-frame transients ([c99fa04](https://github.com/otto-agent007/CockpitEscapeRoom/commit/c99fa04be045aeaf6fabb3d6248bd7e3f8654b3d))
+
 ## [0.2.0](https://github.com/otto-agent007/CockpitEscapeRoom/compare/cockpit-escape-room-v0.1.0...cockpit-escape-room-v0.2.0) (2026-09-23)
 
 
