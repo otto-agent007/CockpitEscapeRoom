@@ -6,6 +6,7 @@
  *   node tools/assets/arcade-anim.mjs frame-data   one row per move clip: holds, reach, boxes
  *   node tools/assets/arcade-anim.mjs count        number of distinct drawings the harness preloads
  *   node tools/assets/arcade-anim.mjs list         every clip with its drawings and holds
+ *   node tools/assets/arcade-anim.mjs connect      connect distance per move, bounds rule off and on (markdown)
  *
  * The rules validation is the same `validateMarsArcadeAnimations` the tests and the
  * gym's save endpoint run. On top of it this tool reads the PNGs, which the browser
@@ -42,8 +43,10 @@ async function loadTable() {
   })
   try {
     const mod = await server.ssrLoadModule('/src/game/marsArcadeAnimations.ts')
+    const connect = await server.ssrLoadModule('/src/game/marsArcadeConnect.ts')
+    const tuning = await server.ssrLoadModule('/src/game/marsArcadeTuning.ts')
     const raw = JSON.parse(readFileSync(resolve(root, 'src/game/marsArcadeAnimations.json'), 'utf8'))
-    return { mod, file: mod.parseMarsArcadeAnimations(raw) }
+    return { mod, connect, tuning, file: mod.parseMarsArcadeAnimations(raw) }
   } finally {
     await server.close()
   }
@@ -108,7 +111,7 @@ function print(findings, format) {
 }
 
 const command = process.argv[2] ?? 'validate'
-const { mod, file } = await loadTable()
+const { mod, connect, tuning, file } = await loadTable()
 
 if (command === 'count') {
   console.log(mod.marsArcadeAnimationSources(file).length)
@@ -139,7 +142,11 @@ if (command === 'count') {
   print(all, (finding) => mod.formatMarsArcadeFinding(finding))
   console.log(`\n${file.animations.length} clips, ${file.animations.reduce((sum, entry) => sum + entry.frames.length, 0)} frames, ${mod.marsArcadeAnimationSources(file).length} drawings: ${errors.length} errors, ${warnings.length} warnings`)
   process.exitCode = errors.length > 0 ? 1 : 0
+} else if (command === 'connect') {
+  // Measured with the shipped tuning in force, the way the cabinet plays it.
+  tuning.applyShippedMarsArcadeTuning()
+  console.log(connect.formatMarsArcadeConnectTable(connect.marsArcadeConnectTable()))
 } else {
-  console.error(`unknown command ${command}; use validate | frame-data | count | list`)
+  console.error(`unknown command ${command}; use validate | frame-data | count | list | connect`)
   process.exitCode = 2
 }

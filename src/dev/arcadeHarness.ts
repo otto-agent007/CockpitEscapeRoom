@@ -19,17 +19,21 @@ import {
   advanceMarsArcade,
   createMarsArcadeRound,
   marsArcadeActiveMove,
+  marsArcadeMeleeBoxes,
   marsArcadeTimerSeconds,
   type MarsArcadeEvent,
   type MarsArcadeFighterState,
   type MarsArcadeInput,
+  type MarsArcadeSide,
   type MarsArcadeState,
 } from '../game/marsArcade'
 import {
   MARS_ARCADE_METER_MAX,
   marsArcadeFighter,
+  marsArcadeRules,
   type MarsArcadeFighterId,
 } from '../game/marsArcadeFighters'
+import { marsArcadeRulesFrame } from '../game/marsArcadePose'
 import {
   advanceMarsArcadeOpponent,
   createMarsArcadeOpponent,
@@ -44,7 +48,7 @@ import {
 import { ARCADE_ANCHOR_SOURCES, loadArcadeSprites, selectArcadeSprite, type ArcadeSpriteSelection } from './arcadeHarnessSprites'
 import { startArcadePlayground, type ArcadePlayground, type PlaygroundBoxToggles } from './arcadePlayground'
 import { MARS_ARCADE_BOUND_KINDS, marsArcadeBoxToStage, type MarsArcadeBoundKind, type MarsArcadeBox } from '../game/marsArcadeBounds'
-import { updateHeavyReactions, type HeavyReactions } from './arcadeHarnessReactions'
+import { hitFlash, updateHeavyReactions, type HeavyReactions } from './arcadeHarnessReactions'
 import { laserStrikeLook, updateLaserStrikes, type LaserStrike } from './arcadeHarnessLaser'
 import { LASER_EFFECT_LAYOUT, loadArcadeEffects, type ArcadeEffectImages } from './arcadeHarnessEffects'
 import { loadArcadeBackdrop, type ArcadeBackdropImages } from './arcadeHarnessBackdrop'
@@ -187,7 +191,7 @@ function drawFighter(
   id: MarsArcadeFighterId,
   camera: number,
 ): void {
-  const half = (MARS_ARCADE_STAGE.pushboxWidth / 2) * SCALE
+  const half = (marsArcadeFighter(id).pushboxWidth / 2) * SCALE
   const left = stageX(fighter.x, camera) - half
   const feet = stageY(fighter.y)
   const height = FIGHTER_HEIGHT * SCALE
@@ -234,21 +238,26 @@ const BOX_COLOURS: Record<MarsArcadeBoundKind, string> = {
 /**
  * The boxes authored in the gym, on the drawing the fight is showing.
  *
- * Faint for the passive kinds, solid for a live hitbox — the reference's rule. These
- * are the table's boxes, not the engine's reach region (`drawMoveRegion`); until the
- * rules read the boxes the two can disagree, and seeing both is the point.
+ * Faint for the passive kinds, solid for a live hitbox — the reference's rule. With
+ * the `useBounds` rule off these are the table's boxes on the drawing shown, beside
+ * the engine's reach region (`drawMoveRegion`), and the two can disagree. With it on
+ * they are the boxes the rules actually read, at the rules position, so what is drawn
+ * is what decides; a cosmetic beat (a heavy reaction, the brace) does not move them.
  */
 function drawAuthoredBoxes(
   ctx: CanvasRenderingContext2D,
-  fighter: MarsArcadeFighterState,
+  state: MarsArcadeState,
+  side: MarsArcadeSide,
   selection: ArcadeSpriteSelection,
   toggles: PlaygroundBoxToggles,
   camera: number,
 ): void {
-  const frame = selection.frame
+  const fighter = state.fighters[side]
+  const byRules = marsArcadeRules().useBounds
+  const frame = byRules ? marsArcadeRulesFrame(state, side) : selection.frame
   if (!frame) return
-  const x = selection.renderX ?? fighter.x
-  const y = selection.renderY ?? fighter.y
+  const x = byRules ? fighter.x : selection.renderX ?? fighter.x
+  const y = byRules ? fighter.y : selection.renderY ?? fighter.y
   const draw = (kind: MarsArcadeBoundKind, box: MarsArcadeBox): void => {
     const stage = marsArcadeBoxToStage(box, x, fighter.facing, y)
     const left = stageX(stage.minX, camera)
@@ -272,17 +281,42 @@ function drawAuthoredBoxes(
   }
 }
 
+const silhouettes = new WeakMap<HTMLImageElement, HTMLCanvasElement>()
+
+/** The drawing as a flat white shape, for the hit flash. Built once per drawing. */
+function whiteSilhouette(image: HTMLImageElement): HTMLCanvasElement {
+  const cached = silhouettes.get(image)
+  if (cached) return cached
+  const canvas = document.createElement('canvas')
+  canvas.width = image.naturalWidth
+  canvas.height = image.naturalHeight
+  const context = canvas.getContext('2d')
+  if (context) {
+    context.drawImage(image, 0, 0)
+    context.globalCompositeOperation = 'source-in'
+    context.fillStyle = '#ffffff'
+    context.fillRect(0, 0, canvas.width, canvas.height)
+  }
+  silhouettes.set(image, canvas)
+  return canvas
+}
+
 function drawMoveRegion(
   ctx: CanvasRenderingContext2D,
-  fighter: MarsArcadeFighterState,
-  opponent: MarsArcadeFighterState,
+  state: MarsArcadeState,
+  side: MarsArcadeSide,
   showHitboxes: boolean,
   camera: number,
 ): void {
   if (!showHitboxes) return
+  const fighter = state.fighters[side]
+  const opponent = state.fighters[side === 0 ? 1 : 0]
   const active = marsArcadeActiveMove(fighter)
   if (!active || active.move.reach <= 0 || active.move.damage <= 0) return
   if (active.phase === 'recovery') return
+  // With the bounds rule deciding this exchange the reach region is not what hits;
+  // the attack box in the authored overlay is.
+  if (!active.move.lockOn && marsArcadeRules().useBounds && active.phase === 'active' && marsArcadeMeleeBoxes(state, side)) return
 
   // A lock-on move has no region in front of the attacker: it strikes the
   // opponent wherever they stand. Outline that column, unfilled, so the beam
@@ -871,7 +905,7 @@ function draw(
       ctx.imageSmoothingEnabled = false
       ctx.translate(stageX(renderX, camera), stageY(renderY))
       ctx.scale(fighter.facing * SCALE, SCALE)
-      ctx.drawImage(image, -64, -120, 128, 128)
+      ctx.drawImage(hitFlash(harness.state, side, harness.reducedMotion) ? whiteSilhouette(image) : image, -64, -120, 128, 128)
       ctx.restore()
       // Color/state feedback remains diagnostic while combat pose art is incomplete.
       ctx.fillStyle = fighter.blocking ? '#8ab4ff' : STATE_TINT[fighter.activity] ?? COLOURS[fighter.id]
@@ -882,15 +916,14 @@ function draw(
   }
   if (playground) {
     for (const side of [0, 1] as const) {
-      const fighter = harness.state.fighters[side]
       if (!harness.showSprites) continue
       const selection = selectArcadeSprite(harness.state, side, harness.reducedMotion, harness.outcomeFrames, harness.heavyReactions[side])
-      drawAuthoredBoxes(ctx, fighter, selection, playground.boxes, camera)
+      drawAuthoredBoxes(ctx, harness.state, side, selection, playground.boxes, camera)
     }
   }
   drawLaserStrikes(ctx, harness, effects, camera)
   for (const side of [0, 1] as const) {
-    drawMoveRegion(ctx, harness.state.fighters[side], harness.state.fighters[side === 0 ? 1 : 0], harness.showHitboxes, camera)
+    drawMoveRegion(ctx, harness.state, side, harness.showHitboxes, camera)
     if (harness.showHitboxes) drawCentreLine(ctx, harness.state.fighters[side], camera)
   }
   drawHud(ctx, harness, sprites)
@@ -930,6 +963,8 @@ function describe(harness: Harness): string {
       `speed ${speed}x${harness.paused ? '   PAUSED' : ''}`,
     `P2 ${harness.humanRight ? 'human' : `CPU (${harness.difficulty})`}   ` +
       `hitboxes ${harness.showHitboxes ? 'on' : 'off'}`,
+    `rules  hits by ${marsArcadeRules().useBounds ? 'boxes' : 'reach'}   hit stop ${marsArcadeRules().hitstop ? 'on' : 'off'}` +
+      (state.hitstop ? `   FROZEN ${state.hitstop.framesRemaining}/${state.hitstop.frames}f` : ''),
     `outcome frame ${Math.floor(harness.outcomeFrames)}`,
     `camera x ${harness.cameraX}   view ${STAGE_WIDTH}px of a ` +
       `${MARS_ARCADE_STAGE.halfWidth * 2}px stage   ` +
@@ -950,9 +985,9 @@ function formatEvent(event: MarsArcadeEvent, frame: number): string | null {
   const stamp = String(frame).padStart(5)
   switch (event.type) {
     case 'hit':
-      return `${stamp}  HIT      ${event.moveId}  -${event.damage}`
+      return `${stamp}  HIT      ${event.moveId}  -${event.damage}${event.hitstopFrames ? `  stop ${event.hitstopFrames}f` : ''}`
     case 'blocked':
-      return `${stamp}  block    ${event.moveId}  -${event.chipDamage}`
+      return `${stamp}  block    ${event.moveId}  -${event.chipDamage}${event.hitstopFrames ? `  stop ${event.hitstopFrames}f` : ''}`
     case 'guardCrush':
       return `${stamp}  GUARD CRUSH on P${event.defender + 1}`
     case 'projectileFired':

@@ -8,7 +8,8 @@
  * the shipping game loads the same JSON.
  *
  * Also owns the bounds toggles the harness reads when it overlays the authored boxes
- * from the animation table on the sprites.
+ * from the animation table on the sprites, and the two rule switches (`useBounds`,
+ * `hitstop`), which are part of the tuning and save with it.
  */
 import { MARS_ARCADE_METER_MAX, marsArcadeDefaultTuning, marsArcadeTuningInForce, setMarsArcadeTuning, type MarsArcadeButton, type MarsArcadeFighterId, type MarsArcadeTuning } from '../game/marsArcadeFighters'
 import { MARS_ARCADE_FIGHTER_TUNING_FIELDS, MARS_ARCADE_MOVE_TUNING_FIELDS, applyShippedMarsArcadeTuning, parseMarsArcadeTuning } from '../game/marsArcadeTuning'
@@ -32,12 +33,14 @@ const FIGHTER_LABELS: Record<MarsArcadeFighterId, string> = { booster: 'Booster 
 const FIELD_LABELS: Record<string, string> = {
   health: 'max hp', walkSpeed: 'walk speed', jumpVelocity: 'jump power', guardMax: 'guard max', guardRegenPerFrame: 'guard regen',
   damage: 'dmg', chipDamage: 'chip', guardDamage: 'guard dmg', knockback: 'kb', hitstunFrames: 'hitstun', blockstunFrames: 'blockstun',
+  hitstopFrames: 'hitstop',
 }
 const STEP: Record<string, string> = { walkSpeed: '0.05', jumpVelocity: '0.1', guardRegenPerFrame: '0.01', gravity: '0.01' }
 
 /**
  * Wire the console. `root` holds `#pg-fighter`, `#pg-gravity`, `#pg-fields`, `#pg-moves`,
- * `#pg-reset`, `#pg-save`, `#pg-fill-meter`, `#pg-status` and the `#pg-show-<kind>` toggles.
+ * `#pg-reset`, `#pg-save`, `#pg-fill-meter`, `#pg-status`, the `#pg-show-<kind>` toggles
+ * and the `#pg-rule-<switch>` switches.
  */
 export function startArcadePlayground(root: ParentNode, getState: () => MarsArcadeState): ArcadePlayground {
   const tuning: MarsArcadeTuning = structuredClone(applyShippedMarsArcadeTuning())
@@ -105,6 +108,7 @@ export function startArcadePlayground(root: ParentNode, getState: () => MarsArca
     const current = marsArcadeTuningInForce()
     Object.assign(tuning, structuredClone(current))
     if (gravityField) gravityField.value = String(tuning.stage.gravity)
+    for (const { rule, toggle } of ruleToggles) if (toggle) toggle.checked = tuning.rules[rule]
     if (fields) {
       fields.replaceChildren()
       for (const key of MARS_ARCADE_FIGHTER_TUNING_FIELDS) {
@@ -131,6 +135,15 @@ export function startArcadePlayground(root: ParentNode, getState: () => MarsArca
       }
     }
   }
+
+  const ruleToggles = (['useBounds', 'hitstop'] as const).map((rule) => {
+    const toggle = root.querySelector<HTMLInputElement>(`#pg-rule-${rule}`)
+    toggle?.addEventListener('change', () => {
+      tuning.rules[rule] = toggle.checked
+      apply()
+    })
+    return { rule, toggle }
+  })
 
   gravityField?.addEventListener('change', () => {
     const next = Number(gravityField.value)

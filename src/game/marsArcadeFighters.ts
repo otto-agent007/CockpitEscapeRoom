@@ -20,6 +20,14 @@
 export type MarsArcadeFighterId = 'booster' | 'oracle' | 'captain'
 export type MarsArcadeButton = 'light' | 'heavy' | 'special'
 
+/**
+ * Where an attack arrives, which decides what a guard can stop.
+ *
+ * A standing guard stops `high` and `mid`. Nobody can crouch yet, so `low` passes
+ * every guard. Read only when `useBounds` is on; see `MarsArcadeRules`.
+ */
+export type MarsArcadeGuardHeight = 'high' | 'mid' | 'low'
+
 export interface MarsArcadeProjectileSpec {
   speed: number
   lifetimeFrames: number
@@ -59,6 +67,13 @@ export interface MarsArcadeMove {
   lockOn?: boolean
   /** Cannot be blocked. Lands full damage and never touches the guard meter. */
   unblockable?: boolean
+  /** Where the attack arrives. Only a guard at that height stops it. */
+  guardHeight: MarsArcadeGuardHeight
+  /**
+   * Frames both fighters and the clock freeze when this move connects, hit or block.
+   * Read only when the `hitstop` rule is on.
+   */
+  hitstopFrames: number
 }
 
 export interface MarsArcadeFighter {
@@ -72,6 +87,12 @@ export interface MarsArcadeFighter {
   guardMax: number
   /** Guard meter recovered per frame while neither blocking nor stunned. */
   guardRegenPerFrame: number
+  /**
+   * Width of the body that pushes the other fighter away. One number per fighter and
+   * never per drawing, the fighting-game convention: a pushbox that changed with the
+   * pose would shove the opponent every time an arm moved.
+   */
+  pushboxWidth: number
   unlockedByDefault: boolean
   moves: Record<MarsArcadeButton, MarsArcadeMove>
 }
@@ -97,6 +118,8 @@ const boosterMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
     meterCost: 0,
     meterGainOnHit: 6,
     meterGainOnBlock: 3,
+    guardHeight: 'mid',
+    hitstopFrames: 2,
   },
   heavy: {
     id: 'booster.staticFire',
@@ -116,6 +139,8 @@ const boosterMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
     meterCost: 0,
     meterGainOnHit: 12,
     meterGainOnBlock: 5,
+    guardHeight: 'mid',
+    hitstopFrames: 4,
   },
   special: {
     // A Starlink laser from orbit. Owner direction, 2026-09-22: no telegraph and
@@ -142,6 +167,8 @@ const boosterMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
     meterCost: 40,
     meterGainOnHit: 0,
     meterGainOnBlock: 0,
+    guardHeight: 'mid',
+    hitstopFrames: 6,
     lockOn: true,
     unblockable: true,
   },
@@ -166,6 +193,8 @@ const oracleMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
     meterCost: 0,
     meterGainOnHit: 6,
     meterGainOnBlock: 3,
+    guardHeight: 'mid',
+    hitstopFrames: 2,
   },
   heavy: {
     id: 'oracle.hardCutoff',
@@ -185,6 +214,10 @@ const oracleMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
     meterCost: 0,
     meterGainOnHit: 11,
     meterGainOnBlock: 5,
+    // The sweep: its attack box sits at the ankles (cell rows 96-109), so a guard
+    // held at the head does not stop it. Only read with `useBounds` on.
+    guardHeight: 'low',
+    hitstopFrames: 4,
   },
   special: {
     id: 'oracle.textBubble',
@@ -204,6 +237,8 @@ const oracleMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
     meterCost: 20,
     meterGainOnHit: 4,
     meterGainOnBlock: 2,
+    guardHeight: 'mid',
+    hitstopFrames: 6,
     projectile: {
       speed: 3.4,
       lifetimeFrames: 120,
@@ -232,6 +267,8 @@ const captainMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
     meterCost: 0,
     meterGainOnHit: 0,
     meterGainOnBlock: 0,
+    guardHeight: 'mid',
+    hitstopFrames: 2,
   },
   heavy: {
     id: 'captain.runTheChecklist',
@@ -251,6 +288,8 @@ const captainMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
     meterCost: 0,
     meterGainOnHit: 9,
     meterGainOnBlock: 4,
+    guardHeight: 'mid',
+    hitstopFrames: 4,
   },
   special: {
     id: 'captain.flyby',
@@ -274,6 +313,8 @@ const captainMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
     meterCost: 70,
     meterGainOnHit: 0,
     meterGainOnBlock: 0,
+    guardHeight: 'mid',
+    hitstopFrames: 6,
   },
 }
 
@@ -287,6 +328,7 @@ export const MARS_ARCADE_FIGHTERS: Record<MarsArcadeFighterId, MarsArcadeFighter
     jumpVelocity: 4.6,
     guardMax: 90,
     guardRegenPerFrame: 0.22,
+    pushboxWidth: 24,
     unlockedByDefault: true,
     moves: boosterMoves,
   },
@@ -299,6 +341,7 @@ export const MARS_ARCADE_FIGHTERS: Record<MarsArcadeFighterId, MarsArcadeFighter
     jumpVelocity: 4.4,
     guardMax: 60,
     guardRegenPerFrame: 0.14,
+    pushboxWidth: 24,
     unlockedByDefault: true,
     moves: oracleMoves,
   },
@@ -311,6 +354,7 @@ export const MARS_ARCADE_FIGHTERS: Record<MarsArcadeFighterId, MarsArcadeFighter
     jumpVelocity: 4.2,
     guardMax: 110,
     guardRegenPerFrame: 0.3,
+    pushboxWidth: 24,
     unlockedByDefault: false,
     moves: captainMoves,
   },
@@ -334,7 +378,25 @@ export interface MarsArcadeMoveTuning {
   knockback: number
   hitstunFrames: number
   blockstunFrames: number
+  hitstopFrames: number
 }
+
+/**
+ * The rule switches the playground can flip. Both ship off, so the cabinet plays
+ * today's numbers until the owner decides otherwise (plan 0047).
+ *
+ * - `useBounds`: melee connects when an attack box drawn in the gym overlaps a hurt
+ *   box, instead of `|dx| <= reach`, and a guard only stops attacks at its height.
+ *   A pair with no boxes for the current drawings falls back to the reach check.
+ * - `hitstop`: every connect freezes both fighters and the clock for the move's
+ *   `hitstopFrames`.
+ */
+export interface MarsArcadeRules {
+  useBounds: boolean
+  hitstop: boolean
+}
+
+export const MARS_ARCADE_DEFAULT_RULES: Readonly<MarsArcadeRules> = { useBounds: false, hitstop: false }
 
 export interface MarsArcadeFighterTuning {
   health: number
@@ -348,16 +410,18 @@ export interface MarsArcadeFighterTuning {
 export interface MarsArcadeTuning {
   version: number
   stage: { gravity: number }
+  rules: MarsArcadeRules
   fighters: Record<MarsArcadeFighterId, MarsArcadeFighterTuning>
 }
 
-export const MARS_ARCADE_TUNING_VERSION = 1
+export const MARS_ARCADE_TUNING_VERSION = 2
 
 /** Gravity as the content defines it; `marsArcadeGravity()` is what the rules read. */
 export const MARS_ARCADE_DEFAULT_GRAVITY = 0.28
 
 let tuned: Record<MarsArcadeFighterId, MarsArcadeFighter> = MARS_ARCADE_FIGHTERS
 let gravity = MARS_ARCADE_DEFAULT_GRAVITY
+let rules: MarsArcadeRules = { ...MARS_ARCADE_DEFAULT_RULES }
 
 function mergeFighter(base: MarsArcadeFighter, tuning: MarsArcadeFighterTuning): MarsArcadeFighter {
   const moves = { ...base.moves }
@@ -380,6 +444,7 @@ export function setMarsArcadeTuning(tuning: MarsArcadeTuning | null): void {
   if (!tuning) {
     tuned = MARS_ARCADE_FIGHTERS
     gravity = MARS_ARCADE_DEFAULT_GRAVITY
+    rules = { ...MARS_ARCADE_DEFAULT_RULES }
     return
   }
   tuned = {
@@ -388,10 +453,16 @@ export function setMarsArcadeTuning(tuning: MarsArcadeTuning | null): void {
     captain: mergeFighter(MARS_ARCADE_FIGHTERS.captain, tuning.fighters.captain),
   }
   gravity = tuning.stage.gravity
+  rules = { ...tuning.rules }
 }
 
 export function marsArcadeGravity(): number {
   return gravity
+}
+
+/** The rule switches in force. */
+export function marsArcadeRules(): Readonly<MarsArcadeRules> {
+  return rules
 }
 
 /** The tuning currently in force, as the playground shows and saves it. */
@@ -415,10 +486,12 @@ export function marsArcadeTuningInForce(): MarsArcadeTuning {
     knockback: move.knockback,
     hitstunFrames: move.hitstunFrames,
     blockstunFrames: move.blockstunFrames,
+    hitstopFrames: move.hitstopFrames,
   })
   return {
     version: MARS_ARCADE_TUNING_VERSION,
     stage: { gravity },
+    rules: { ...rules },
     fighters: { booster: pick(tuned.booster), oracle: pick(tuned.oracle), captain: pick(tuned.captain) },
   }
 }
@@ -427,11 +500,14 @@ export function marsArcadeTuningInForce(): MarsArcadeTuning {
 export function marsArcadeDefaultTuning(): MarsArcadeTuning {
   const current = tuned
   const currentGravity = gravity
+  const currentRules = rules
   tuned = MARS_ARCADE_FIGHTERS
   gravity = MARS_ARCADE_DEFAULT_GRAVITY
+  rules = { ...MARS_ARCADE_DEFAULT_RULES }
   const defaults = marsArcadeTuningInForce()
   tuned = current
   gravity = currentGravity
+  rules = currentRules
   return defaults
 }
 

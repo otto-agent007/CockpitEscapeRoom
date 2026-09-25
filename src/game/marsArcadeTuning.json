@@ -1,7 +1,11 @@
 {
-  "version": 1,
+  "version": 2,
   "stage": {
     "gravity": 0.28
+  },
+  "rules": {
+    "useBounds": false,
+    "hitstop": false
   },
   "fighters": {
     "booster": {
@@ -17,7 +21,8 @@
           "guardDamage": 6,
           "knockback": 2,
           "hitstunFrames": 14,
-          "blockstunFrames": 10
+          "blockstunFrames": 10,
+          "hitstopFrames": 2
         },
         "heavy": {
           "damage": 13,
@@ -25,7 +30,8 @@
           "guardDamage": 16,
           "knockback": 7,
           "hitstunFrames": 22,
-          "blockstunFrames": 14
+          "blockstunFrames": 14,
+          "hitstopFrames": 4
         },
         "special": {
           "damage": 15,
@@ -33,7 +39,8 @@
           "guardDamage": 0,
           "knockback": 0,
           "hitstunFrames": 24,
-          "blockstunFrames": 0
+          "blockstunFrames": 0,
+          "hitstopFrames": 6
         }
       }
     },
@@ -50,7 +57,8 @@
           "guardDamage": 5,
           "knockback": 2,
           "hitstunFrames": 13,
-          "blockstunFrames": 10
+          "blockstunFrames": 10,
+          "hitstopFrames": 2
         },
         "heavy": {
           "damage": 11,
@@ -58,7 +66,8 @@
           "guardDamage": 14,
           "knockback": 9,
           "hitstunFrames": 20,
-          "blockstunFrames": 13
+          "blockstunFrames": 13,
+          "hitstopFrames": 4
         },
         "special": {
           "damage": 10,
@@ -66,7 +75,8 @@
           "guardDamage": 12,
           "knockback": 5,
           "hitstunFrames": 18,
-          "blockstunFrames": 12
+          "blockstunFrames": 12,
+          "hitstopFrames": 6
         }
       }
     },
@@ -83,7 +93,8 @@
           "guardDamage": 0,
           "knockback": 0,
           "hitstunFrames": 0,
-          "blockstunFrames": 0
+          "blockstunFrames": 0,
+          "hitstopFrames": 2
         },
         "heavy": {
           "damage": 9,
@@ -91,7 +102,8 @@
           "guardDamage": 12,
           "knockback": 5,
           "hitstunFrames": 18,
-          "blockstunFrames": 12
+          "blockstunFrames": 12,
+          "hitstopFrames": 4
         },
         "special": {
           "damage": 30,
@@ -99,7 +111,8 @@
           "guardDamage": 40,
           "knockback": 12,
           "hitstunFrames": 30,
-          "blockstunFrames": 20
+          "blockstunFrames": 20,
+          "hitstopFrames": 6
         }
       }
     }

@@ -10,28 +10,27 @@
  */
 import { marsArcadeActiveMove, type MarsArcadeSide, type MarsArcadeState } from '../game/marsArcade'
 import {
-  marsArcadeAnimationsIndex,
-  marsArcadeAnimationKey,
   marsArcadeAnimationSources,
   marsArcadeDrawingAt,
   marsArcadeFrameAt,
-  parseMarsArcadeAnimations,
   type MarsArcadeAnimation,
   type MarsArcadeAnimationFrame,
   type MarsArcadeAnimationsFile,
 } from '../game/marsArcadeAnimations'
-import rawAnimations from '../game/marsArcadeAnimations.json'
 import type { MarsArcadeFighterId } from '../game/marsArcadeFighters'
+import {
+  MARS_ARCADE_ANIMATIONS,
+  marsArcadeClip,
+  marsArcadeJumpIndex,
+  marsArcadeMoveClip,
+} from '../game/marsArcadePose'
 import type { HeavyReaction } from './arcadeHarnessReactions'
 
-/** The animation table as shipped. Parsed once; a malformed file fails at import. */
-export const ARCADE_ANIMATIONS: MarsArcadeAnimationsFile = parseMarsArcadeAnimations(rawAnimations)
-const index = marsArcadeAnimationsIndex(ARCADE_ANIMATIONS)
+/** The animation table as shipped: the same parsed copy the rules read boxes from. */
+export const ARCADE_ANIMATIONS: MarsArcadeAnimationsFile = MARS_ARCADE_ANIMATIONS
 
 /** The clip for a fighter and animation name, or null when it has not been drawn. */
-export function arcadeClip(fighter: MarsArcadeFighterId, animation: string): MarsArcadeAnimation | null {
-  return index.get(marsArcadeAnimationKey(fighter, animation)) ?? null
-}
+export const arcadeClip = marsArcadeClip
 
 function requireClip(fighter: MarsArcadeFighterId, animation: string): MarsArcadeAnimation {
   const clip = arcadeClip(fighter, animation)
@@ -39,13 +38,7 @@ function requireClip(fighter: MarsArcadeFighterId, animation: string): MarsArcad
   return clip
 }
 
-/** The clip that illustrates a move, found by move id rather than button. */
-function moveClip(fighter: MarsArcadeFighterId, moveId: string): MarsArcadeAnimation | null {
-  for (const clip of ARCADE_ANIMATIONS.animations) {
-    if (clip.fighter === fighter && clip.moveId === moveId) return clip
-  }
-  return null
-}
+const moveClip = marsArcadeMoveClip
 
 /** Every distinct drawing the table references; what the harness preloads. */
 export const ARCADE_SPRITE_SOURCES: string[] = marsArcadeAnimationSources(ARCADE_ANIMATIONS)
@@ -117,7 +110,7 @@ export function selectArcadeSprite(
   const move = marsArcadeActiveMove(fighter)
   if (live && fighter.activity === 'airborne' && fighter.id !== 'captain') {
     const clip = requireClip(fighter.id, 'jump')
-    const index = fighter.velocityY > 0.6 ? 0 : fighter.velocityY < -0.6 ? 2 : 1
+    const index = marsArcadeJumpIndex(fighter.velocityY)
     const frame = clip.frames[Math.min(index, clip.frames.length - 1)]!
     return { src: frame.src, placeholder: false, frame, label: `jump ${frame.pose}` }
   }

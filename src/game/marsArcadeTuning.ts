@@ -11,6 +11,8 @@
  */
 
 import {
+  MARS_ARCADE_DEFAULT_RULES,
+  MARS_ARCADE_FIGHTERS,
   MARS_ARCADE_TUNING_VERSION,
   setMarsArcadeTuning,
   type MarsArcadeButton,
@@ -23,7 +25,7 @@ import shipped from './marsArcadeTuning.json'
 
 const FIGHTERS: readonly MarsArcadeFighterId[] = ['booster', 'oracle', 'captain']
 const BUTTONS: readonly MarsArcadeButton[] = ['light', 'heavy', 'special']
-const MOVE_FIELDS: readonly (keyof MarsArcadeMoveTuning)[] = ['damage', 'chipDamage', 'guardDamage', 'knockback', 'hitstunFrames', 'blockstunFrames']
+const MOVE_FIELDS: readonly (keyof MarsArcadeMoveTuning)[] = ['damage', 'chipDamage', 'guardDamage', 'knockback', 'hitstunFrames', 'blockstunFrames', 'hitstopFrames']
 const FIGHTER_FIELDS: readonly Exclude<keyof MarsArcadeFighterTuning, 'moves'>[] = ['health', 'walkSpeed', 'jumpVelocity', 'guardMax', 'guardRegenPerFrame']
 
 function number(value: unknown, where: string, min: number, max: number): number {
@@ -32,15 +34,51 @@ function number(value: unknown, where: string, min: number, max: number): number
   return value
 }
 
+function flag(value: unknown, where: string): boolean {
+  if (typeof value !== 'boolean') throw new Error(`tuning: ${where} is not true or false`)
+  return value
+}
+
+/**
+ * A v1 file as v2: v1 had no rule switches and no hit stop. The switches come in
+ * off, which is what v1 played, and each move takes the content's hit stop, which
+ * only matters once the switch is on.
+ */
+function migrateV1(file: Record<string, unknown>): Record<string, unknown> {
+  const fighters = file.fighters
+  if (typeof fighters !== 'object' || fighters === null) return { ...file, version: 2 }
+  const migrated: Record<string, unknown> = {}
+  for (const [id, raw] of Object.entries(fighters as Record<string, unknown>)) {
+    const content = Object.hasOwn(MARS_ARCADE_FIGHTERS, id) ? MARS_ARCADE_FIGHTERS[id as MarsArcadeFighterId] : null
+    const moves = (raw as Record<string, unknown> | null)?.moves
+    if (!content || typeof moves !== 'object' || moves === null) {
+      migrated[id] = raw
+      continue
+    }
+    const nextMoves: Record<string, unknown> = {}
+    for (const [button, move] of Object.entries(moves as Record<string, unknown>)) {
+      const baked = Object.hasOwn(content.moves, button) ? content.moves[button as MarsArcadeButton] : null
+      nextMoves[button] = typeof move === 'object' && move !== null && baked
+        ? { hitstopFrames: baked.hitstopFrames, ...move }
+        : move
+    }
+    migrated[id] = { ...(raw as Record<string, unknown>), moves: nextMoves }
+  }
+  return { ...file, version: 2, rules: { ...MARS_ARCADE_DEFAULT_RULES }, fighters: migrated }
+}
+
 /**
  * Parse a tuning file. Ranges are generous sanity bounds, not balance: a negative
  * walk speed or a thousand-frame hitstun is a typo the playground must refuse, not a
- * setting the cabinet should ever load.
+ * setting the cabinet should ever load. A v1 file is migrated, not refused.
  */
 export function parseMarsArcadeTuning(input: unknown): MarsArcadeTuning {
   if (typeof input !== 'object' || input === null) throw new Error('tuning: not an object')
-  const file = input as Record<string, unknown>
+  let file = input as Record<string, unknown>
+  if (file.version === 1) file = migrateV1(file)
   if (file.version !== MARS_ARCADE_TUNING_VERSION) throw new Error(`tuning: version ${String(file.version)}, expected ${MARS_ARCADE_TUNING_VERSION}`)
+  const rules = file.rules as Record<string, unknown> | undefined
+  if (typeof rules !== 'object' || rules === null) throw new Error('tuning: rules is missing')
   const stage = file.stage as Record<string, unknown> | undefined
   if (typeof stage !== 'object' || stage === null) throw new Error('tuning: stage is missing')
   const fighters = file.fighters as Record<string, unknown> | undefined
@@ -48,6 +86,7 @@ export function parseMarsArcadeTuning(input: unknown): MarsArcadeTuning {
   const result: MarsArcadeTuning = {
     version: MARS_ARCADE_TUNING_VERSION,
     stage: { gravity: number(stage.gravity, 'stage.gravity', 0.01, 5) },
+    rules: { useBounds: flag(rules.useBounds, 'rules.useBounds'), hitstop: flag(rules.hitstop, 'rules.hitstop') },
     fighters: {} as MarsArcadeTuning['fighters'],
   }
   for (const id of FIGHTERS) {
@@ -73,6 +112,7 @@ export function parseMarsArcadeTuning(input: unknown): MarsArcadeTuning {
         knockback: number(move.knockback, `${id}.${button}.knockback`, 0, 999),
         hitstunFrames: number(move.hitstunFrames, `${id}.${button}.hitstunFrames`, 0, 600),
         blockstunFrames: number(move.blockstunFrames, `${id}.${button}.blockstunFrames`, 0, 600),
+        hitstopFrames: number(move.hitstopFrames, `${id}.${button}.hitstopFrames`, 0, 30),
       }
     }
     result.fighters[id] = fighter

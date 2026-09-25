@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createMarsArcadeRound } from '../game/marsArcade'
+import { MARS_ARCADE_FIGHTERS } from '../game/marsArcadeFighters'
+import { marsArcadeRulesFrame } from '../game/marsArcadePose'
 import { ARCADE_SPRITE_SOURCES, selectArcadeSprite } from './arcadeHarnessSprites'
 
 describe('dev-only arcade sprite pilot', () => {
@@ -230,6 +232,61 @@ describe('dev-only arcade sprite pilot', () => {
     }
     state.phase = 'ko'
     Object.assign(state.fighters[0], { activity: 'hitstun', blocking: false })
+    expect(selectArcadeSprite(state, 0, false).placeholder).toBe(true)
+  })
+})
+
+describe('the drawing the rules read boxes from', () => {
+  it('is the drawing the harness shows, for every state played by rules state alone', () => {
+    // The harness's cosmetic beats (heavy-reaction beats, the brace, reduced-motion
+    // idle) are presentation; everything else must be the same drawing, or the boxes
+    // the rules read would not be the boxes the overlay shows.
+    let checked = 0
+    for (const fighter of ['booster', 'oracle'] as const) {
+      const state = createMarsArcadeRound(fighter, 'captain')
+      state.phase = 'fight'
+      const self = state.fighters[0]
+      const expectSame = (label: string) => {
+        const rules = marsArcadeRulesFrame(state, 0)
+        expect(rules?.src, `${fighter} ${label}`).toBe(selectArcadeSprite(state, 0, false).src)
+        checked += 1
+      }
+      for (const frame of [0, 6, 12, 18, 30]) {
+        state.frame = frame
+        Object.assign(self, { activity: 'idle', blocking: false, activeButton: null, moveFrame: 0, y: 0, velocityY: 0 })
+        expectSame(`idle @${frame}`)
+        Object.assign(self, { activity: 'walk', blocking: false })
+        expectSame(`walk forward @${frame}`)
+        Object.assign(self, { activity: 'walk', blocking: true })
+        expectSame(`walk back @${frame}`)
+      }
+      state.frame = 0
+      for (const velocityY of [2, 0, -2]) {
+        Object.assign(self, { activity: 'airborne', blocking: false, y: 20, velocityY })
+        expectSame(`airborne ${velocityY}`)
+      }
+      Object.assign(self, { y: 0, velocityY: 0, activity: 'blockstun', blocking: true, stunFrames: 5 })
+      expectSame('blockstun')
+      Object.assign(self, { activity: 'hitstun', blocking: false, stunFrames: 5 })
+      expectSame('hitstun')
+      Object.assign(self, { stunFrames: 0 })
+      for (const button of ['light', 'heavy'] as const) {
+        const move = MARS_ARCADE_FIGHTERS[fighter].moves[button]
+        for (let moveFrame = 0; moveFrame < move.startupFrames + move.activeFrames + move.recoveryFrames; moveFrame += 1) {
+          Object.assign(self, { activity: 'attack', activeButton: button, moveFrame })
+          expectSame(`${button} @${moveFrame}`)
+        }
+      }
+    }
+    expect(checked).toBeGreaterThan(100)
+  })
+
+  it('is none for a state that has not been drawn, so the rules fall back to reach', () => {
+    const state = createMarsArcadeRound('captain', 'booster')
+    state.phase = 'fight'
+    expect(marsArcadeRulesFrame(state, 0)?.src).toBe(selectArcadeSprite(state, 0, false).src)
+    Object.assign(state.fighters[0], { activity: 'attack', activeButton: 'heavy', moveFrame: 10 })
+    expect(marsArcadeRulesFrame(state, 0)).toBeNull()
     expect(selectArcadeSprite(state, 0, false).placeholder).toBe(true)
   })
 })

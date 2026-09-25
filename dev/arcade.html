@@ -102,6 +102,15 @@
         </section>
 
         <section class="section">
+          <h2>Rules</h2>
+          <div class="row">
+            <label class="chip"><input type="checkbox" id="pg-rule-useBounds" /> hits by boxes</label>
+            <label class="chip"><input type="checkbox" id="pg-rule-hitstop" /> hit stop</label>
+          </div>
+          <p class="dim" style="margin:0;font-size:11px;color:var(--ink-dim)">Both ship off. <b>Hits by boxes</b>: a strike lands when its attack box overlaps a hurt box, instead of within <code>reach</code>, and a standing guard no longer stops a low attack. A pose with no boxes still uses reach. <b>Hit stop</b>: every connect freezes both fighters for the move's <code>hitstop</code> frames and flashes the defender. Save tuning keeps both.</p>
+        </section>
+
+        <section class="section">
           <h2>Controls</h2>
           <div class="keys">
             <span>P1 move / jump</span><span><kbd>A</kbd> <kbd>D</kbd> <kbd>W</kbd></span>

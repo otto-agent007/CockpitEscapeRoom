@@ -42,3 +42,16 @@ export function updateHeavyReactions(
   }
   return next
 }
+
+/** Frames at the start of a hit stop during which the struck fighter draws white. */
+export const HIT_FLASH_FRAMES = 2
+
+/**
+ * Whether a fighter draws as a white flash this frame: it was struck, the freeze is in
+ * its first `HIT_FLASH_FRAMES`, and the viewer has not asked for reduced motion. The
+ * freeze itself stays under reduced motion; only the flash goes.
+ */
+export function hitFlash(state: MarsArcadeState, side: 0 | 1, reducedMotion: boolean): boolean {
+  const stop = state.hitstop
+  return !reducedMotion && stop !== null && stop.defenders.includes(side) && stop.frames - stop.framesRemaining < HIT_FLASH_FRAMES
+}
