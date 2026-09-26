@@ -13,7 +13,8 @@ stance foot stays put, on a magenta field and as transparent PNGs — and assert
   - the magenta field is keyed with no spill left on the figure; a green field keys too;
   - every output is a 128x128 RGBA cell with the feet on the baseline;
   - --nudge moves exactly the named drawing by exactly its pixels, leaves the others
-    byte-identical, records the nudge and the combined offset, and refuses bad input.
+    byte-identical, records the nudge and the combined offset, and refuses bad input;
+  - the cell is clamped for key spill again after the resample, and only where needed.
 
 Exit 0 when every case behaves, 3 when one does not.
 """
@@ -148,6 +149,30 @@ def main() -> int:
             check(f"--nudge {bad} is a usage error", code == 1 or code == 2, out.strip().splitlines()[-1] if out else "")
         code, out = run(work / "twice", magenta, "--nudge", "1:1,0", "--nudge", "1:0,1")
         check("nudging one drawing twice is a usage error", code != 0 and "twice" in out)
+
+        # Key-ness is not linear: a red-leaning and a blue-leaning pixel, each under the
+        # ceiling, average over it. The cell is clamped again after the resample.
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("normaliser", TOOL)
+        tool = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(tool)
+        a, b = np.array([140.0, 100.0, 110.0]), np.array([110.0, 100.0, 140.0])
+        mix = (a + b) / 2
+        keyed = lambda px: min(px[0], px[2]) - px[1]  # noqa: E731
+        check("two in-ceiling pixels average over the ceiling", keyed(a) <= 15 and keyed(b) <= 15 and keyed(mix) > 15,
+              f"{keyed(a)}, {keyed(b)} -> {keyed(mix)}")
+        cell = np.zeros((4, 4, 4), np.uint8)
+        cell[1, 1] = (*mix.astype(np.uint8), 255)        # figure, tinted: clamped
+        cell[2, 2] = (200, 60, 200, 5)                   # not figure (alpha <= 8): untouched
+        cell[3, 3] = (90, 100, 90, 255)                  # figure, clean: untouched
+        before = cell.copy()
+        changed = tool.clamp_cell_spill(cell, (255, 0, 255))
+        check("the cell clamp pulls a re-tinted figure pixel under the ceiling", changed == 1 and keyed(cell[1, 1].astype(int)) <= 15,
+              f"{before[1, 1].tolist()} -> {cell[1, 1].tolist()}")
+        untouched = np.ones((4, 4), bool)
+        untouched[1, 1] = False
+        check("the cell clamp touches nothing else and never alpha",
+              np.array_equal(cell[untouched], before[untouched]) and np.array_equal(cell[:, :, 3], before[:, :, 3]))
 
     return 3 if failures else 0
 

@@ -119,6 +119,20 @@ def despill_clamp(rgb: np.ndarray, figure: np.ndarray, chroma: tuple[int, int, i
     return int(tinted.sum())
 
 
+def clamp_cell_spill(sprite: np.ndarray, chroma: tuple[int, int, int]) -> int:
+    """The same clamp, on the downsampled cell: averaging can re-tint what the source clamp fixed.
+
+    Key-ness min(R, B) - G is not linear: a red-leaning and a blue-leaning neighbour, each
+    within the ceiling, average to a pixel that is not. So the cell is clamped again after
+    the resample. Only figure pixels still over the ceiling change; alpha never does.
+    """
+    rgb = sprite[:, :, :3].astype(np.float64)
+    changed = despill_clamp(rgb, sprite[:, :, 3] > 8, chroma)
+    if changed:
+        sprite[:, :, :3] = np.rint(rgb).clip(0, 255).astype(np.uint8)
+    return changed
+
+
 def load_source(path: Path, source_alpha: bool, chroma: tuple[int, int, int]) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """RGB float, figure mask, and clean (uncontaminated) mask for a whole source canvas."""
     source = Image.open(path).convert("RGBA")
@@ -287,7 +301,10 @@ def main() -> int:
             sub = rgb[y0:y1 + 1, x0:x1 + 1].copy()
             fig = alpha[y0:y1 + 1, x0:x1 + 1] > 0
             spilled = 0 if args.source_alpha else despill(sub, fig, clean[y0:y1 + 1, x0:x1 + 1]) + despill_clamp(sub, fig, chroma)
-            sprites.append((downsample(sub, alpha[y0:y1 + 1, x0:x1 + 1], scale, args.resample), spilled))
+            cell_sprite = downsample(sub, alpha[y0:y1 + 1, x0:x1 + 1], scale, args.resample)
+            if not args.source_alpha:
+                spilled += clamp_cell_spill(cell_sprite, chroma)
+            sprites.append((cell_sprite, spilled))
         first = sprites[0][0][:, :, 3] > 8
         anchor_x, anchor_y, _ = anchor_for("feet", first, args.planted)
         for i, (sprite, spilled) in enumerate(sprites):
@@ -310,6 +327,8 @@ def main() -> int:
             fig = fig_full[y0:y1 + 1, x0:x1 + 1]
             spilled = 0 if args.source_alpha else despill(sub, fig, clean[y0:y1 + 1, x0:x1 + 1]) + despill_clamp(sub, fig, chroma)
             sprite = downsample(sub, alpha[y0:y1 + 1, x0:x1 + 1], scale, args.resample)
+            if not args.source_alpha:
+                spilled += clamp_cell_spill(sprite, chroma)
             mask = sprite[:, :, 3] > 8
             if args.align == "torso":
                 anchor_x = int(round(back_line(mask) + pivot_x - torso_target))
