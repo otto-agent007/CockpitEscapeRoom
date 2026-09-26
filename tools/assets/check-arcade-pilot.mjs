@@ -15,6 +15,9 @@ try {
   await page.clock.install()
   await page.goto(base)
   await page.waitForFunction(() => document.querySelector('#asset-status').textContent.match(/^(\d+)\/\1 sprites ready/))
+  // Every drawing the table lists; the missing-art page below must fail all of them.
+  const spriteTotal = Number((await page.locator('#asset-status').innerText()).match(/^(\d+)\//)[1])
+  assert.ok(spriteTotal > 0)
   const text = () => page.locator('#readout').innerText()
   const frame = async () => Number((await text()).match(/frame (\d+)/)[1])
   const tick = ms => page.clock.runFor(ms)
@@ -146,11 +149,11 @@ try {
   missing.on('pageerror', error => errors.push(error.message))
   await missing.route('**/art-source/arcade/**', route => route.abort())
   await missing.goto(base)
-  await missing.waitForFunction(() => document.querySelector('#asset-status').textContent.includes('68 failed'))
+  await missing.waitForFunction(total => document.querySelector('#asset-status').textContent.includes(`${total} failed`), spriteTotal)
   assert.match(await missing.locator('#asset-status').innerText(), /box fallback/)
   await missing.getByRole('button', { name: 'Pause', exact: true }).click()
   await missing.screenshot({ path: `${out}wave-1-pilot-missing-art.png`, fullPage: true })
-  report('all forty-six failed image requests use visible box fallback without crashing')
+  report(`all ${spriteTotal} failed image requests use visible box fallback without crashing`)
   assert.deepEqual(errors, [])
   report('no uncaught browser errors')
 } finally {
