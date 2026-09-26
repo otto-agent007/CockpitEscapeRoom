@@ -15,6 +15,7 @@ import { MARS_ARCADE_METER_MAX, marsArcadeDefaultTuning, marsArcadeTuningInForce
 import { MARS_ARCADE_FIGHTER_TUNING_FIELDS, MARS_ARCADE_MOVE_TUNING_FIELDS, applyShippedMarsArcadeTuning, parseMarsArcadeTuning } from '../game/marsArcadeTuning'
 import type { MarsArcadeBoundKind } from '../game/marsArcadeBounds'
 import type { MarsArcadeState } from '../game/marsArcade'
+import { arcadeCandidateClips, setArcadeClipOverride } from './arcadeHarnessSprites'
 
 export interface PlaygroundBoxToggles {
   collision: boolean
@@ -178,6 +179,28 @@ export function startArcadePlayground(root: ParentNode, getState: () => MarsArca
       }
     })()
   })
+
+  // Candidate clips: a checkbox per `<shipped>-<suffix>` clip plays it in the fight.
+  const candidates = root.querySelector<HTMLElement>('#pg-candidates')
+  if (candidates) {
+    const list = arcadeCandidateClips()
+    if (list.length === 0) candidates.textContent = 'no candidate clips in the table'
+    for (const entry of list) {
+      const label = document.createElement('label')
+      const toggle = document.createElement('input')
+      toggle.type = 'checkbox'
+      toggle.id = `pg-candidate-${entry.fighter}-${entry.candidate}`
+      toggle.addEventListener('change', () => {
+        setArcadeClipOverride(entry.fighter, entry.animation, toggle.checked ? entry.candidate : null)
+        say(toggle.checked ? `${entry.fighter} ${entry.animation} now plays ${entry.candidate} — a preview, not shipped` : `${entry.fighter} ${entry.animation} back to the shipped clip`)
+      })
+      label.append(toggle, ` ${entry.fighter} · ${entry.animation} → ${entry.candidate}`)
+      label.style.textTransform = 'none'
+      label.style.letterSpacing = '0'
+      label.style.fontSize = '12px'
+      candidates.append(label)
+    }
+  }
 
   sync()
   return { boxes, sync }

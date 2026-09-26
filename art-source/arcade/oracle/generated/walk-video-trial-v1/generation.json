@@ -1,0 +1,21 @@
+{
+  "space": "Lightricks/ltx-video-distilled",
+  "mode": "ltx",
+  "anchor": "art-source/arcade/oracle/generated/anchor-likeness-00.png",
+  "anchorSha256": "1726dc239d32dd858796c0cdbfa64f2f41410ca5bf8b230d12a64334c00b81ce",
+  "endAnchor": null,
+  "prompt": "A 2D fighting-game character sprite, strict side profile facing right, flat cel-shaded colours on a solid flat magenta background. The character performs a looping walk-forward cycle IN PLACE: guarded upper body, fists up, alternating left and right stride poses, arms counter-swinging, feet sliding only through pose timing, never travelling across the frame. The body stays centred at the same scale; the camera is fixed; identity, outfit and palette stay exactly as in the input image. No ground, no shadow, no floor line, no background detail.",
+  "negativePrompt": "worst quality, inconsistent motion, blurry, jittery, distorted, camera drift, zoom, duplicate body parts, extra limbs, palette drift, recolored costume, changed outfit, motion blur, smear frames, cinematic lighting, shadows on background, cast shadow, ground shadow, floor line, horizon, scenery, text, watermark",
+  "duration": 2.5,
+  "requestedSeed": 7,
+  "chroma": "#FF00FF",
+  "size": [
+    512,
+    768
+  ],
+  "guidance": 1.0,
+  "startedAt": "2026-09-24T08:05:18.189261+00:00",
+  "seed": 7,
+  "video": "/tmp/claude-1000/-mnt-2TBHDD-CockpitEscapeRoom/19e3865a-4ba3-4ae6-a352-96d0c2140f83/scratchpad/video-trial/ltx-walk/clip.mp4",
+  "seconds": 295.4
+}

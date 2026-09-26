@@ -39,7 +39,7 @@ try {
     assert.equal(await frame(), target)
   }
   await toFrame(163)
-  assert.match(await read(), /guarded backward shuffle/)
+  assert.match((await read()).split('THE ORACLE')[1], /artwork +backward shuffle/)
   await page.locator('canvas').screenshot({ path: `${out}sam-catch-up.png` })
   await toFrame(167)
   assert.match(await read(), /jab active/)
@@ -50,7 +50,7 @@ try {
   assert.match(await read(), /jab recovery/)
   await page.locator('canvas').screenshot({ path: `${out}exchange-recovery.png` })
   await toFrame(180)
-  assert.match(await read(), /guarded backward shuffle/)
+  assert.match((await read()).split('THE ORACLE')[1], /artwork +backward shuffle/)
   await page.locator('canvas').screenshot({ path: `${out}sam-rear-plant.png` })
   await toFrame(186)
   assert.match((await read()).split('THE ORACLE')[1], /idle pilot/)

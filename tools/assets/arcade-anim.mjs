@@ -7,6 +7,12 @@
  *   node tools/assets/arcade-anim.mjs count        number of distinct drawings the harness preloads
  *   node tools/assets/arcade-anim.mjs list         every clip with its drawings and holds
  *   node tools/assets/arcade-anim.mjs connect      connect distance per move, bounds rule off and on (markdown)
+ *   node tools/assets/arcade-anim.mjs wire <fighter> <animation> <cells-dir> [--loop loop|once|hold-last|by-velocity|by-stun]
+ *                                        [--hold N] [--move <moveId>] [--phase startup,active,recovery,...]
+ *       add (or replace) a clip in the table from a folder of normalised cells, with body and
+ *       hurt boxes seeded from each drawing's silhouette and `reviewed: false`, so the clip is
+ *       in the gym the moment it is normalised — the owner's rule: every completed animation
+ *       goes in the gym, and "completed" means "in the table".
  *
  * The rules validation is the same `validateMarsArcadeAnimations` the tests and the
  * gym's save endpoint run. On top of it this tool reads the PNGs, which the browser
@@ -133,6 +139,63 @@ if (command === 'count') {
     const rows = active.flatMap((frame) => (frame.attack ?? []).map((box) => `${box.y}-${box.y + box.height - 1}`)).join(',') || '-'
     console.log(`${entry.moveId.padEnd(26)}${entry.animation.padEnd(9)}${String(move.startupFrames).padStart(7)}${String(move.activeFrames).padStart(7)}${String(move.recoveryFrames).padStart(9)}${String(move.reach).padStart(7)}${String(reach < 0 ? '-' : reach).padStart(7)}  ${rows.padEnd(12)} ${entry.reviewed ? 'yes' : 'no'}${entry.reachException ? '  exception: ' + entry.reachException : ''}`)
   }
+} else if (command === 'wire') {
+  const [fighter, animation, cellsDir] = process.argv.slice(3)
+  if (!fighter || !animation || !cellsDir) {
+    console.error('usage: arcade-anim.mjs wire <fighter> <animation> <cells-dir> [--loop L] [--hold N] [--move id] [--phase a,b,c]')
+    process.exitCode = 2
+  } else {
+    const option = (name, fallback) => { const i = process.argv.indexOf(`--${name}`); return i > 0 ? process.argv[i + 1] : fallback }
+    const loop = option('loop', 'loop')
+    const hold = Number(option('hold', '6'))
+    const moveId = option('move', null)
+    const phases = option('phase', null)?.split(',') ?? null
+    const { readdirSync } = await import('node:fs')
+    const dir = resolve(root, cellsDir)
+    const files = readdirSync(dir).filter((name) => name.endsWith('.png')).sort()
+    if (files.length === 0) throw new Error(`no cells in ${cellsDir}`)
+    const rel = '/' + resolve(dir).slice(root.length + 1).split(/[\\/]/).join('/')
+    if (!rel.startsWith('/art-source/arcade/')) throw new Error(`cells must live under art-source/arcade/, not ${rel}`)
+    // Cells are named <clip>-NN.png; the pose is what is left after the clip's name. A plain
+    // prefix test, not a RegExp: the folder name comes from the command line.
+    const clipName = dir.split(/[\\/]/).pop()
+    const poseOf = (name, index) => {
+      const stem = name.replace(/\.png$/, '')
+      const rest = stem.startsWith(clipName) ? stem.slice(clipName.length).replace(/^-/, '') : stem
+      return rest || `frame ${index + 1}`
+    }
+    const frames = files.map((name, index) => {
+      const png = readPng(resolve(dir, name))
+      const body = alphaBounds(png, 128)
+      if (!body) throw new Error(`${name}: empty drawing`)
+      const inset = 2
+      const frame = {
+        src: `${rel}/${name}`,
+        pose: poseOf(name, index),
+        phase: phases?.[index] ?? 'neutral',
+        hold,
+        collision: { x: body.x, y: body.y, width: body.width, height: 119 - body.y },
+        hurt: [{ x: body.x + inset, y: body.y + inset, width: Math.max(1, body.width - inset * 2), height: Math.max(1, body.height - inset) }],
+      }
+      return frame
+    })
+    const entry = { fighter, animation, ...(moveId ? { moveId } : {}), loop, reviewed: false, frames }
+    const raw = JSON.parse(readFileSync(resolve(root, 'src/game/marsArcadeAnimations.json'), 'utf8'))
+    const existing = raw.animations.findIndex((clip) => clip.fighter === fighter && clip.animation === animation)
+    if (existing >= 0) raw.animations[existing] = entry
+    else raw.animations.push(entry)
+    const parsed = mod.parseMarsArcadeAnimations(raw)
+    const errors = mod.marsArcadeAnimationErrors(mod.validateMarsArcadeAnimations(parsed))
+    if (errors.length) {
+      console.error(errors.map(mod.formatMarsArcadeFinding).join('\n'))
+      console.error('not written: fix the entry (holds must match the move, active poses need a hitbox)')
+      process.exitCode = 1
+    } else {
+      const { writeFileSync } = await import('node:fs')
+      writeFileSync(resolve(root, 'src/game/marsArcadeAnimations.json'), `${JSON.stringify(parsed, null, 2)}\n`)
+      console.log(`${existing >= 0 ? 'replaced' : 'added'} ${fighter}:${animation} with ${frames.length} drawings (${loop}, hold ${hold}); boxes seeded, reviewed: false — it is in the gym now`)
+    }
+  }
 } else if (command === 'validate') {
   const rules = mod.validateMarsArcadeAnimations(file)
   const pixels = silhouetteFindings(file)
@@ -147,6 +210,6 @@ if (command === 'count') {
   tuning.applyShippedMarsArcadeTuning()
   console.log(connect.formatMarsArcadeConnectTable(connect.marsArcadeConnectTable()))
 } else {
-  console.error(`unknown command ${command}; use validate | frame-data | count | list | connect`)
+  console.error(`unknown command ${command}; use validate | frame-data | count | list | connect | wire`)
   process.exitCode = 2
 }

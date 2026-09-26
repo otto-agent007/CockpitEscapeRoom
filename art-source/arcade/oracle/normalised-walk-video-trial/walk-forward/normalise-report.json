@@ -1,0 +1,66 @@
+{
+  "clip": "walk-forward",
+  "align": "torso",
+  "sourcePxPerCellPx": 6.8029,
+  "chroma": "#FF00FF",
+  "resample": "bilinear",
+  "frames": [
+    {
+      "source": "art-source/arcade/oracle/generated/walk-video-trial-v1/pick-00.png",
+      "out": "art-source/arcade/oracle/normalised-walk-video-trial/walk-forward/walk-forward-00.png",
+      "anchor": [
+        38,
+        102
+      ],
+      "offset": [
+        26,
+        17
+      ],
+      "despilled": 4335,
+      "clipped": 0
+    },
+    {
+      "source": "art-source/arcade/oracle/generated/walk-video-trial-v1/pick-01.png",
+      "out": "art-source/arcade/oracle/normalised-walk-video-trial/walk-forward/walk-forward-01.png",
+      "anchor": [
+        19,
+        103
+      ],
+      "offset": [
+        45,
+        16
+      ],
+      "despilled": 5313,
+      "clipped": 0
+    },
+    {
+      "source": "art-source/arcade/oracle/generated/walk-video-trial-v1/pick-02.png",
+      "out": "art-source/arcade/oracle/normalised-walk-video-trial/walk-forward/walk-forward-02.png",
+      "anchor": [
+        34,
+        101
+      ],
+      "offset": [
+        30,
+        18
+      ],
+      "despilled": 5431,
+      "clipped": 0
+    },
+    {
+      "source": "art-source/arcade/oracle/generated/walk-video-trial-v1/pick-03.png",
+      "out": "art-source/arcade/oracle/normalised-walk-video-trial/walk-forward/walk-forward-03.png",
+      "anchor": [
+        24,
+        105
+      ],
+      "offset": [
+        40,
+        14
+      ],
+      "despilled": 5526,
+      "clipped": 0
+    }
+  ],
+  "clippedPixels": 0
+}

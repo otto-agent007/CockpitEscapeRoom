@@ -11,7 +11,8 @@ scale and camera in a way separately generated poses never are. This tool is the
 generation step; `pick-arcade-frames.py` chooses the drawings out of the clip and
 `normalise-arcade-clip.py --align preserve-canvas` puts them on the cell.
 
-Spaces (free, queued, no key; a HF token in `HF_TOKEN` lifts the ZeroGPU quota):
+Spaces (free, queued; a free Hugging Face token lifts the ZeroGPU quota — `HF_TOKEN`, else the
+standard `~/.cache/huggingface/token` that `huggingface-cli login` writes; never the repo):
   ltx      Lightricks/ltx-video-distilled  — image-to-video, prompt-steered motion
   wan-flf  multimodalart/wan-2-2-first-last-frame — start AND end image: give the anchor as both
            for a cycle that returns to the stance, or a start pose and an end pose for a move
@@ -74,6 +75,15 @@ def prepare_anchor(path: Path, size: tuple[int, int], chroma: tuple[int, int, in
     return out
 
 
+def hf_saved_token() -> str | None:
+    """The token `huggingface-cli login` saved outside the repo, if any."""
+    try:
+        from huggingface_hub import get_token
+    except ImportError:
+        return None
+    return get_token()
+
+
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -133,7 +143,8 @@ def main() -> int:
         # gradio_client renamed the token argument across versions; pass whichever exists.
         import inspect
         token_arg = "token" if "token" in inspect.signature(Client.__init__).parameters else "hf_token"
-        client = Client(space, verbose=False, **({token_arg: os.environ["HF_TOKEN"]} if os.environ.get("HF_TOKEN") else {}))
+        token = os.environ.get("HF_TOKEN") or hf_saved_token()
+        client = Client(space, verbose=False, **({token_arg: token} if token else {}))
         if args.space == "ltx":
             result = client.predict(
                 prompt=args.prompt, negative_prompt=args.negative_prompt,

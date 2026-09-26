@@ -1,0 +1,36 @@
+{
+  "source": "/tmp/claude-1000/-mnt-2TBHDD-CockpitEscapeRoom/19e3865a-4ba3-4ae6-a352-96d0c2140f83/scratchpad/video-trial/ltx-walk/picks/dense",
+  "denseFrames": 73,
+  "policy": "cycle",
+  "startFraction": 0.08,
+  "window": [
+    6,
+    27
+  ],
+  "mode": "cycle",
+  "duplicateThreshold": 1.13623046875,
+  "spanFactor": 7.0,
+  "cyclePeriod": 28,
+  "picks": [
+    {
+      "out": "/tmp/claude-1000/-mnt-2TBHDD-CockpitEscapeRoom/19e3865a-4ba3-4ae6-a352-96d0c2140f83/scratchpad/video-trial/ltx-walk/picks3/pick-00.png",
+      "dense": 6,
+      "denseFile": "/tmp/claude-1000/-mnt-2TBHDD-CockpitEscapeRoom/19e3865a-4ba3-4ae6-a352-96d0c2140f83/scratchpad/video-trial/ltx-walk/picks/dense/frame-0007.png"
+    },
+    {
+      "out": "/tmp/claude-1000/-mnt-2TBHDD-CockpitEscapeRoom/19e3865a-4ba3-4ae6-a352-96d0c2140f83/scratchpad/video-trial/ltx-walk/picks3/pick-01.png",
+      "dense": 13,
+      "denseFile": "/tmp/claude-1000/-mnt-2TBHDD-CockpitEscapeRoom/19e3865a-4ba3-4ae6-a352-96d0c2140f83/scratchpad/video-trial/ltx-walk/picks/dense/frame-0014.png"
+    },
+    {
+      "out": "/tmp/claude-1000/-mnt-2TBHDD-CockpitEscapeRoom/19e3865a-4ba3-4ae6-a352-96d0c2140f83/scratchpad/video-trial/ltx-walk/picks3/pick-02.png",
+      "dense": 20,
+      "denseFile": "/tmp/claude-1000/-mnt-2TBHDD-CockpitEscapeRoom/19e3865a-4ba3-4ae6-a352-96d0c2140f83/scratchpad/video-trial/ltx-walk/picks/dense/frame-0021.png"
+    },
+    {
+      "out": "/tmp/claude-1000/-mnt-2TBHDD-CockpitEscapeRoom/19e3865a-4ba3-4ae6-a352-96d0c2140f83/scratchpad/video-trial/ltx-walk/picks3/pick-03.png",
+      "dense": 27,
+      "denseFile": "/tmp/claude-1000/-mnt-2TBHDD-CockpitEscapeRoom/19e3865a-4ba3-4ae6-a352-96d0c2140f83/scratchpad/video-trial/ltx-walk/picks/dense/frame-0028.png"
+    }
+  ]
+}

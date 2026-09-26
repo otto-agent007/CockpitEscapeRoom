@@ -28,22 +28,41 @@ Nothing about a clip lives anywhere else — not in the sprite selector, not in 
    `.cache/arcade-video-venv/bin/python tools/assets/generate-arcade-video.py <anchor.png> <out>
    --space ltx|wan-flf --prompt "<start pose, the verb, end pose; in place; flat colours>"`.
    `wan-flf` takes the anchor as first AND last frame, which is what a cycle wants. Expect a
-   queue; `HF_TOKEN` lifts the quota. Save every raw output and `generation.json` under
+   queue. A free Hugging Face token lifts the quota (Wan refuses anonymous jobs): the tool reads
+   `HF_TOKEN`, else `~/.cache/huggingface/token` (the owner's is saved there; never in the repo).
+   A video clip is a candidate, never a replacement by default: the owner judges it against the
+   shipped drawings by eye (2026-09-26 the shipped walk won over two video walks that both passed). Save every raw output and `generation.json` under
    `art-source/arcade/<fighter>/generated/<wave>/`.
 2. **Pick**, for a video: `python3 tools/assets/pick-arcade-frames.py <clip.mp4> <out> --frames N
    --policy cycle|action|hold`. Review `picks-contact-sheet.png`. A pick is a candidate, not a drawing.
+   A `wan-flf` clip with the anchor at both ends is exactly one cycle, longer than the picker's
+   period search reaches: pass `--start-fraction 0 --span-factor <(frames-1)/N>` (33 frames, 4
+   drawings: 8). If one pick fails the gate on a resampling speck, try its neighbour frame and
+   record the swap in `selection.json`.
 3. **Normalise the clip together**, one alignment for the whole clip:
    `python3 tools/assets/normalise-arcade-clip.py art-source/arcade/<fighter>/normalised-<set>-ready
    <sources…> --clip <name> --source-px-per-cell-px <locked> --source-alpha --align <mode>`.
    Modes: `feet` (stances, one-shots), `planted-foot --planted rear|front` (steps, lunges,
    sweeps), `torso --torso-reference <cell>` (in-place walks), `bbox` (airborne, downed),
    `preserve-canvas` (frames from one video). The report beside the cells records what moved.
+   When one drawing still sits a pixel or two off its neighbours (the audit's "pops"), add
+   `--nudge INDEX:DX,DY` (0-based source order, +x right, +y down, repeatable); the report
+   records it beside the rule's offset. A nudge moves a drawing, never what is drawn: it cannot
+   remove a walk's up-and-down bob, and a vertical nudge lifts the feet off the baseline, which
+   the gate refuses. Always gate AND audit after nudging — the audit's tolerances (feet ±1 row,
+   torso 2 px) are looser than the gate's (feet exact, torso 1 px), so a nudge set chosen to
+   pass the audit can still break the contract.
 4. **Gate each cell**: `python3 tools/assets/check-popt-frames-fullcolour.py <set-dir>
-   --contract asset-reports/mars-arcade-sprite-contract.json` (add `--in-place-clip` for walks).
-5. **Wire the clip** into the table: add or extend the entry in `marsArcadeAnimations.json` with
-   `src`, `pose`, `phase`, `hold` per drawing (holds per phase must sum to the move's frame data),
-   `loop`, `moveId`, `reviewed: false`. The gym's Frame panel can do this too (pose, phase, hold,
-   drawing path, duplicate / delete / reorder).
+   --contract asset-reports/mars-arcade-sprite-contract.json` (add `--in-place-clip <clip>
+   --torso-reference <cell>` for walks; `<set-dir>` is the folder that holds `<clip>/`).
+5. **Wire the clip** into the table the moment it is normalised — a normalised clip that is
+   not in the table is not in the gym, and the owner's rule is that every clip is:
+   `node tools/assets/arcade-anim.mjs wire <fighter> <animation> <cells-dir> [--loop once|loop|…]
+   [--hold N] [--move <moveId>] [--phase startup,active,recovery,…]`. It seeds body and hurt
+   boxes from each drawing's silhouette, sets `reviewed: false`, validates, and writes the
+   table. For a move clip pass `--move` and `--phase` so the holds are checked against the
+   frame data; add the attack box in the gym. The gym's Frame panel can edit any of it later
+   (pose, phase, hold, drawing path, duplicate / delete / reorder).
 6. **Audit the sequence**: `python3 tools/assets/audit-arcade-clip.py <fighter>:<clip>`. Read
    `preview-renders/mars-arcade/clips/<fighter>-<clip>/review.md`: pop between drawings,
    feet off the baseline, height or torso drift on a cycle. Fix the drawing or the alignment,

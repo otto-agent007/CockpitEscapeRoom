@@ -228,7 +228,6 @@
     {
       "fighter": "booster",
       "animation": "jab",
-      "moveId": "booster.padJab",
       "loop": "once",
       "reviewed": true,
       "frames": [
@@ -320,15 +319,14 @@
             }
           ]
         }
-      ]
+      ],
+      "moveId": "booster.padJab"
     },
     {
       "fighter": "booster",
       "animation": "heavy",
-      "moveId": "booster.staticFire",
       "loop": "once",
       "reviewed": false,
-      "reachException": "owner-approved 2026-09-22: the drawn contact reaches 34 against reach 38 (heavy-contact-v4 report)",
       "frames": [
         {
           "src": "/art-source/arcade/booster/normalised-heavy-continuity-ready/heavy-startup/heavy-startup-00.png",
@@ -498,7 +496,9 @@
             }
           ]
         }
-      ]
+      ],
+      "moveId": "booster.staticFire",
+      "reachException": "owner-approved 2026-09-22: the drawn contact reaches 34 against reach 38 (heavy-contact-v4 report)"
     },
     {
       "fighter": "booster",
@@ -605,7 +605,6 @@
     {
       "fighter": "booster",
       "animation": "special",
-      "moveId": "booster.spaceLaser",
       "loop": "once",
       "reviewed": false,
       "frames": [
@@ -689,7 +688,8 @@
             }
           ]
         }
-      ]
+      ],
+      "moveId": "booster.spaceLaser"
     },
     {
       "fighter": "booster",
@@ -1170,7 +1170,6 @@
     {
       "fighter": "oracle",
       "animation": "jab",
-      "moveId": "oracle.prompt",
       "loop": "once",
       "reviewed": false,
       "frames": [
@@ -1242,12 +1241,12 @@
             }
           ]
         }
-      ]
+      ],
+      "moveId": "oracle.prompt"
     },
     {
       "fighter": "oracle",
       "animation": "heavy",
-      "moveId": "oracle.hardCutoff",
       "loop": "once",
       "reviewed": true,
       "frames": [
@@ -1359,7 +1358,8 @@
             }
           ]
         }
-      ]
+      ],
+      "moveId": "oracle.hardCutoff"
     },
     {
       "fighter": "oracle",
@@ -1738,6 +1738,94 @@
               "y": 18,
               "width": 29,
               "height": 102
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fighter": "oracle",
+      "animation": "walk-forward-video",
+      "loop": "loop",
+      "reviewed": false,
+      "frames": [
+        {
+          "src": "/art-source/arcade/oracle/normalised-walk-video-wan/walk-forward/walk-forward-00.png",
+          "pose": "00",
+          "phase": "neutral",
+          "hold": 6,
+          "collision": {
+            "x": 34,
+            "y": 16,
+            "width": 64,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 36,
+              "y": 18,
+              "width": 60,
+              "height": 102
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/oracle/normalised-walk-video-wan/walk-forward/walk-forward-01.png",
+          "pose": "01",
+          "phase": "neutral",
+          "hold": 6,
+          "collision": {
+            "x": 41,
+            "y": 15,
+            "width": 45,
+            "height": 104
+          },
+          "hurt": [
+            {
+              "x": 43,
+              "y": 17,
+              "width": 41,
+              "height": 103
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/oracle/normalised-walk-video-wan/walk-forward/walk-forward-02.png",
+          "pose": "02",
+          "phase": "neutral",
+          "hold": 6,
+          "collision": {
+            "x": 29,
+            "y": 16,
+            "width": 69,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 31,
+              "y": 18,
+              "width": 65,
+              "height": 102
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/oracle/normalised-walk-video-wan/walk-forward/walk-forward-03.png",
+          "pose": "03",
+          "phase": "neutral",
+          "hold": 6,
+          "collision": {
+            "x": 38,
+            "y": 15,
+            "width": 46,
+            "height": 104
+          },
+          "hurt": [
+            {
+              "x": 40,
+              "y": 17,
+              "width": 42,
+              "height": 103
             }
           ]
         }

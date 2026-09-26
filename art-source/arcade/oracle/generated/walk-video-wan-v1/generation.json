@@ -1,0 +1,21 @@
+{
+  "space": "multimodalart/wan-2-2-first-last-frame",
+  "mode": "wan-flf",
+  "anchor": "art-source/arcade/oracle/generated/walk-v2/walk-forward-00-c1.png",
+  "anchorSha256": "cd2f49b115c8f241cdc79bea33c0a9f00cb6e76bfaa1ecf2e308e50bfe706e39",
+  "endAnchor": null,
+  "prompt": "A 2D fighting-game character sprite, strict side profile facing right, flat cel-shaded colours on a solid flat magenta background. The character performs ONE looping walk-forward cycle IN PLACE and ends in exactly the starting pose: guarded upper body, fists up, alternating left and right stride poses, arms counter-swinging. The head and hips stay at the SAME HEIGHT throughout, no bobbing up and down; the torso stays upright and does not lean. The body stays centred at the same scale; the camera is fixed; identity, outfit and palette stay exactly as in the input image. No ground, no shadow, no floor line, no background detail.",
+  "negativePrompt": "worst quality, inconsistent motion, blurry, jittery, distorted, camera drift, zoom, duplicate body parts, extra limbs, palette drift, recolored costume, changed outfit, motion blur, smear frames, walking backwards, moonwalk, bobbing head, bouncing, leaning, cinematic lighting, shadows on background, cast shadow, ground shadow, floor line, horizon, scenery, text, watermark",
+  "duration": 2.1,
+  "requestedSeed": 7,
+  "chroma": "#FF00FF",
+  "size": [
+    512,
+    768
+  ],
+  "guidance": 1.0,
+  "startedAt": "2026-09-26T08:56:47.052650+00:00",
+  "seed": 7,
+  "video": "art-source/arcade/oracle/generated/walk-video-wan-v1/clip.mp4",
+  "seconds": 1111.3
+}

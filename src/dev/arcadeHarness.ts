@@ -1017,7 +1017,13 @@ function mount(): void {
   canvas.width = STAGE_WIDTH * SCALE
   canvas.height = STAGE_HEIGHT * SCALE
   const resize = () => {
-    const available = canvas.parentElement?.clientWidth ?? STAGE_WIDTH * SCALE
+    // clientWidth includes the viewport's padding; a scale chosen from it overflows and CSS
+    // max-width then squashes the stage to a non-integer size.
+    const parent = canvas.parentElement
+    const style = parent ? getComputedStyle(parent) : null
+    const available = parent && style
+      ? parent.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight)
+      : STAGE_WIDTH * SCALE
     canvas.style.width = `${STAGE_WIDTH * Math.max(1, Math.min(SCALE, Math.floor(available / STAGE_WIDTH)))}px`
   }
   resize()
