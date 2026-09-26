@@ -11,7 +11,9 @@ stance foot stays put, on a magenta field and as transparent PNGs — and assert
   - planted-foot mode holds the stance foot on the pivot on every drawing (the body stays);
   - preserve-canvas mode applies one offset to every frame and reports it;
   - the magenta field is keyed with no spill left on the figure; a green field keys too;
-  - every output is a 128x128 RGBA cell with the feet on the baseline.
+  - every output is a 128x128 RGBA cell with the feet on the baseline;
+  - --nudge moves exactly the named drawing by exactly its pixels, leaves the others
+    byte-identical, records the nudge and the combined offset, and refuses bad input.
 
 Exit 0 when every case behaves, 3 when one does not.
 """
@@ -122,6 +124,30 @@ def main() -> int:
 
         code, out = run(work / "torso-missing", magenta, "--align", "torso")
         check("torso mode without a reference is a usage error", code != 0)
+
+        for mode, extra in (("planted-foot", ()), ("preserve-canvas", ("--source-alpha",))):
+            sources = alpha if extra else magenta
+            code, _ = run(work / f"plain-{mode}", sources, "--align", mode, *extra)
+            code_n, out_n = run(work / f"nudged-{mode}", sources, "--align", mode, *extra, "--nudge", "1:-3,1")
+            check(f"{mode}: nudged run succeeds", code == 0 and code_n == 0, out_n.strip().splitlines()[-1] if out_n else "")
+            plain = [np.asarray(Image.open(c)) for c in sorted((work / f"plain-{mode}" / "clip").glob("clip-*.png"))]
+            nudged = [np.asarray(Image.open(c)) for c in sorted((work / f"nudged-{mode}" / "clip").glob("clip-*.png"))]
+            check(f"{mode}: un-nudged drawings are byte-identical", np.array_equal(plain[0], nudged[0]) and np.array_equal(plain[2], nudged[2]))
+            expected = np.zeros_like(plain[1])
+            expected[1:, :-3] = plain[1][:-1, 3:]   # three left, one down
+            check(f"{mode}: drawing 1 moved exactly -3,+1", np.array_equal(expected, nudged[1]))
+            before = json.loads((work / f"plain-{mode}" / "clip" / "normalise-report.json").read_text())["frames"][1]
+            after = json.loads((work / f"nudged-{mode}" / "clip" / "normalise-report.json").read_text())["frames"][1]
+            check(f"{mode}: report records the nudge and the combined offset",
+                  after["nudge"] == [-3, 1] and after["offset"] == [before["offset"][0] - 3, before["offset"][1] + 1]
+                  and after["anchor"] == before["anchor"], f"{before['offset']} -> {after['offset']}")
+            check(f"{mode}: a vertical nudge is announced", "feet moved 1 row down" in out_n)
+
+        for bad in ("3:1,0", "1:1", "x:1,0", "1:1.5,0"):
+            code, out = run(work / "bad", magenta, "--nudge", bad)
+            check(f"--nudge {bad} is a usage error", code == 1 or code == 2, out.strip().splitlines()[-1] if out else "")
+        code, out = run(work / "twice", magenta, "--nudge", "1:1,0", "--nudge", "1:0,1")
+        check("nudging one drawing twice is a usage error", code != 0 and "twice" in out)
 
     return 3 if failures else 0
 

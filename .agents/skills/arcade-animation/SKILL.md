@@ -38,8 +38,16 @@ Nothing about a clip lives anywhere else — not in the sprite selector, not in 
    Modes: `feet` (stances, one-shots), `planted-foot --planted rear|front` (steps, lunges,
    sweeps), `torso --torso-reference <cell>` (in-place walks), `bbox` (airborne, downed),
    `preserve-canvas` (frames from one video). The report beside the cells records what moved.
+   When one drawing still sits a pixel or two off its neighbours (the audit's "pops"), add
+   `--nudge INDEX:DX,DY` (0-based source order, +x right, +y down, repeatable); the report
+   records it beside the rule's offset. A nudge moves a drawing, never what is drawn: it cannot
+   remove a walk's up-and-down bob, and a vertical nudge lifts the feet off the baseline, which
+   the gate refuses. Always gate AND audit after nudging — the audit's tolerances (feet ±1 row,
+   torso 2 px) are looser than the gate's (feet exact, torso 1 px), so a nudge set chosen to
+   pass the audit can still break the contract.
 4. **Gate each cell**: `python3 tools/assets/check-popt-frames-fullcolour.py <set-dir>
-   --contract asset-reports/mars-arcade-sprite-contract.json` (add `--in-place-clip` for walks).
+   --contract asset-reports/mars-arcade-sprite-contract.json` (add `--in-place-clip <clip>
+   --torso-reference <cell>` for walks; `<set-dir>` is the folder that holds `<clip>/`).
 5. **Wire the clip** into the table the moment it is normalised — a normalised clip that is
    not in the table is not in the gym, and the owner's rule is that every clip is:
    `node tools/assets/arcade-anim.mjs wire <fighter> <animation> <cells-dir> [--loop once|loop|…]

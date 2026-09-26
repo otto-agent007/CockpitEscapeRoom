@@ -351,6 +351,10 @@ first audited clip.
   of guessing (the first Oracle video walk played backwards from a guessed spacing).
 - [x] 2026-09-24 — CI fix for PRs #98/#99 (locker settle-before-stage race; two sub-frame
   transients asserted on per-frame canvas attributes). Same commit on both branches.
+- [x] 2026-09-25 — Per-drawing nudge: `normalise-arcade-clip.py --nudge INDEX:DX,DY`, recorded
+  in the report, tested (moves exactly that drawing, others byte-identical, bad input refused)
+  and mutation-checked. It cannot rescue the video walk: no gate-legal nudge passes the audit,
+  because the pops are a 4 px vertical bob in the drawings; see the trial's asset report.
 - [x] M3 — rules read the boxes behind `useBounds`, guard height as a move property, pushbox
   from data, hit stop + flash events, playground JSON. Built 2026-09-24 in its own PR; plan,
   connect table and evidence in `plans/0047-mars-arcade-bounds-rules.md`. Both switches ship
@@ -370,13 +374,18 @@ first audited clip.
 - Owner queue: a gym pass over the 20 seeded clips (tick "boxes reviewed"); decide whether the
   video walk (`oracle:walk-forward-video`, candidate) replaces the shipped one; a free Hugging Face
   token in `HF_TOKEN` unlocks the Wan first-last-frame route (anonymous quota refuses it).
-- Next engineering: (1) per-drawing nudge in `normalise-arcade-clip.py` (the video walk sways
-  3–4 px; Spriterrific's aligner is the manual version); (2) tidy the playground's Combat rows
-  (they wrap); (3) the Vite config warning about extensionless imports.
+- Next engineering: (1) tidy the playground's Combat rows (they wrap); (2) the Vite config
+  warning about extensionless imports. The nudge is built (2026-09-25); the video walk needs new
+  drawings, not placement — re-generate with a steadier head height or Wan first-last-frame.
 - Evidence: `TEST_REPORT.md` 2026-09-24, `asset-reports/mars-arcade-animation-workflow-2026-09-24.md`,
   `asset-reports/mars-arcade-walk-video-trial-2026-09-24.md`, `preview-renders/mars-arcade/{gym-v2,clips,playground-v1}`.
 
 ## Discoveries
+
+- 2026-09-25: the sequence audit and the per-cell gate disagree on tolerance (feet ±1 row vs
+  exact; torso 2 px vs 1 px). A nudge set searched to pass the audit failed the gate on both
+  nudged drawings. Any automatic aligner must be scored against the gate too, never the audit
+  alone.
 
 - Spriterrific needs a video provider (FAL key) for motion; stills can come from Codex
   `image_gen`, which is what its own skill recommends when FAL is absent — the same route we

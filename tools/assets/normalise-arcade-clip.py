@@ -6,6 +6,7 @@ Usage:
         --clip NAME --source-px-per-cell-px SCALE
         [--align feet|bbox|torso|planted-foot|preserve-canvas] [--torso-reference CELL]
         [--source-alpha] [--chroma #FF00FF] [--resample bilinear|lanczos] [--contract JSON]
+        [--nudge INDEX:DX,DY ...]
 
 `normalise-popt-frame.py` places each drawing on its own: feet on the pivot, or the torso
 against a reference. Per-drawing placement is what makes a body pop between drawings — every
@@ -20,6 +21,13 @@ of one clip together and aligns them by one rule:
   preserve-canvas frames from ONE video clip with a fixed camera: nothing is recentred per
                   frame. One crop, one scale and one offset for the whole clip, chosen so the
                   first frame's feet sit on the pivot; every later frame keeps that offset.
+
+A rule can only be as good as the drawings: a video model's body sways a few pixels that no
+landmark explains. --nudge moves one drawing by whole pixels AFTER the rule has placed it
+(Spriterrific's frame aligner, as a recorded flag instead of arrow keys): `--nudge 2:-2,-1`
+moves drawing 2 (0-based, source order) two pixels left and one up. Every nudge lands in the
+report beside the rule's own offset, so the correction is reviewable and repeatable. A
+vertical nudge moves the feet by the same rows; the tool says so.
 
 Scale is never re-fitted: pass the fighter's locked --source-px-per-cell-px. The tool writes
 <out-dir>/<clip>/<clip>-NN.png and <out-dir>/<clip>/normalise-report.json recording the mode,
@@ -192,6 +200,31 @@ def place(sprite: np.ndarray, anchor_x: int, anchor_y: int, cell: tuple[int, int
     return out, int((~keep).sum())
 
 
+def nudge_note(dx: int, dy: int) -> str:
+    if not (dx or dy):
+        return ""
+    feet = f", feet moved {abs(dy)} row{'s' if abs(dy) > 1 else ''} {'down' if dy > 0 else 'up'}" if dy else ""
+    return f", nudged {dx:+d},{dy:+d}{feet}"
+
+
+def parse_nudges(values: list[str], count: int) -> dict[int, tuple[int, int]]:
+    """`INDEX:DX,DY` strings to {index: (dx, dy)}; +x is right, +y is down, whole pixels."""
+    nudges: dict[int, tuple[int, int]] = {}
+    for value in values:
+        try:
+            index_text, shift_text = value.split(":")
+            dx_text, dy_text = shift_text.split(",")
+            index, dx, dy = int(index_text), int(dx_text), int(dy_text)
+        except ValueError:
+            raise ValueError(f"--nudge wants INDEX:DX,DY in whole pixels, got {value!r}") from None
+        if not 0 <= index < count:
+            raise ValueError(f"--nudge {value}: drawing {index} is out of range (0..{count - 1})")
+        if index in nudges:
+            raise ValueError(f"--nudge {value}: drawing {index} is nudged twice")
+        nudges[index] = (dx, dy)
+    return nudges
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("out_dir", type=Path)
@@ -205,10 +238,16 @@ def main() -> int:
     ap.add_argument("--source-alpha", action="store_true", help="use the sources' own transparency instead of the chroma key")
     ap.add_argument("--chroma", default="#FF00FF", help="key colour when the sources are on a flat field")
     ap.add_argument("--resample", choices=("bilinear", "lanczos"), default="bilinear")
+    ap.add_argument("--nudge", action="append", default=[], metavar="INDEX:DX,DY",
+                    help="move one drawing by whole pixels after alignment (+x right, +y down); repeatable")
     args = ap.parse_args()
 
     if args.align == "torso" and args.torso_reference is None:
         ap.error("--align torso needs --torso-reference")
+    try:
+        nudges = parse_nudges(args.nudge, len(args.sources))
+    except ValueError as error:
+        ap.error(str(error))
     contract = json.loads(args.contract.read_text())
     cell = tuple(contract["cell"]["canonical"])
     baseline = contract["cell"]["baseline"]
@@ -252,13 +291,16 @@ def main() -> int:
         first = sprites[0][0][:, :, 3] > 8
         anchor_x, anchor_y, _ = anchor_for("feet", first, args.planted)
         for i, (sprite, spilled) in enumerate(sprites):
-            out, clipped = place(sprite, anchor_x, anchor_y, cell, pivot_x, baseline)
+            dx, dy = nudges.get(i, (0, 0))
+            out, clipped = place(sprite, anchor_x - dx, anchor_y - dy, cell, pivot_x, baseline)
             clipped_total += clipped
             dest = out_dir / f"{args.clip}-{i:02d}.png"
             Image.fromarray(out, "RGBA").save(dest)
             report["frames"].append({"source": str(args.sources[i]), "out": str(dest), "anchor": [anchor_x, anchor_y],
-                                     "offset": [pivot_x - anchor_x, baseline - anchor_y], "despilled": spilled, "clipped": clipped})
-            print(f"{dest.name}: shared offset {pivot_x - anchor_x:+d},{baseline - anchor_y:+d}" + (f"; WARNING {clipped} px clipped" if clipped else ""))
+                                     "nudge": [dx, dy], "offset": [pivot_x - anchor_x + dx, baseline - anchor_y + dy],
+                                     "despilled": spilled, "clipped": clipped})
+            print(f"{dest.name}: shared offset {pivot_x - anchor_x:+d},{baseline - anchor_y:+d}" + nudge_note(dx, dy)
+                  + (f"; WARNING {clipped} px clipped" if clipped else ""))
     else:
         for i, (rgb, alpha, clean) in enumerate(loaded):
             fig_full = alpha > 0
@@ -275,16 +317,18 @@ def main() -> int:
                 planted_x = None
             else:
                 anchor_x, anchor_y, planted_x = anchor_for(args.align, mask, args.planted)
-            out, clipped = place(sprite, anchor_x, anchor_y, cell, pivot_x, baseline)
+            dx, dy = nudges.get(i, (0, 0))
+            out, clipped = place(sprite, anchor_x - dx, anchor_y - dy, cell, pivot_x, baseline)
             clipped_total += clipped
             dest = out_dir / f"{args.clip}-{i:02d}.png"
             Image.fromarray(out, "RGBA").save(dest)
             frame_report = {"source": str(args.sources[i]), "out": str(dest), "anchor": [anchor_x, anchor_y],
-                            "offset": [pivot_x - anchor_x, baseline - anchor_y], "despilled": spilled, "clipped": clipped}
+                            "nudge": [dx, dy], "offset": [pivot_x - anchor_x + dx, baseline - anchor_y + dy],
+                            "despilled": spilled, "clipped": clipped}
             if planted_x is not None:
                 frame_report["plantedFootX"] = planted_x
             report["frames"].append(frame_report)
-            print(f"{dest.name}: offset {pivot_x - anchor_x:+d},{baseline - anchor_y:+d}"
+            print(f"{dest.name}: offset {pivot_x - anchor_x:+d},{baseline - anchor_y:+d}" + nudge_note(dx, dy)
                   + (f", planted foot at source column {planted_x:.0f}" if planted_x is not None else "")
                   + (f"; WARNING {clipped} px clipped" if clipped else ""))
 

@@ -1,5 +1,35 @@
 # Test report
 
+## 2026-09-25 — PR #99 rescue and the per-drawing nudge
+
+- **Rescue.** PR #99 merged at `1bf19c8`; its last five commits (video walk trial, `arcade-anim
+  wire`, picker period fix, playground candidate switch, resume notes) were pushed after and
+  never reached `main`. Cherry-picked onto this branch; conflicts only in the plan,
+  `arcade-anim.mjs` (both sides added a command) and `arcadeHarnessSprites.ts`, where M3 had
+  moved clip lookup into `src/game/marsArcadePose.ts`. The candidate override moved there with
+  it, so the rules read a candidate's boxes while its drawings are on screen. New tests: the
+  video walk is listed as a candidate; the rules frame follows the override on and off.
+  Mutation (lookup ignores the override): that test fails.
+- `check-arcade-pilot.mjs` hard-coded 68 failed drawings for its all-art-blocked page; the
+  rescued clip makes 72. It now reads the total from the page's own "N/N sprites ready" and
+  expects exactly that many failures ("all 72 failed image requests use visible box fallback").
+- **Nudge.** `normalise-arcade-clip.py --nudge INDEX:DX,DY` (repeatable, recorded as `nudge`
+  beside the rule's `anchor` with the combined `offset`, vertical moves announced). Tests: in
+  planted-foot and preserve-canvas, the nudged drawing moves exactly −3,+1, the others are
+  byte-identical, the report records it; malformed, out-of-range and doubled nudges are usage
+  errors. Mutation (nudge sign flipped): both "moved exactly" checks fail.
+- **Applied to the video walk, it cannot rescue it.** The committed cells reproduce byte for
+  byte from the picks. None of the 81 gate-legal nudge sets (no vertical move, torso within
+  1 px) passes the audit; the vertical pops (−3, +4) are a 4 px bob in the drawings. The
+  smallest audit-passing set found by exhaustive search (`2:-2,-1 3:2,1`) failed the gate on both
+  nudged drawings (feet rows 118/120, torso 47/51 vs 49) and was reverted. Cells unchanged;
+  details in `asset-reports/mars-arcade-walk-video-trial-2026-09-24.md`.
+- Python suites: normalise-arcade-clip, audit-arcade-clip, normalise-popt-frame,
+  check-popt-frames-fullcolour, pick-arcade-frames — all exit 0. `npm run arcade:validate`:
+  25 clips, 72 drawings, 0 errors, 23 warnings (the new one is the candidate's unreviewed boxes).
+- All 15 arcade browser checks exit 0 on this branch (Vite 5381, evidence to scratch), pilot
+  after the sprite-count fix. `npm run check`: 879 tests / 74 files, lint, types, build — exit 0.
+
 ## 2026-09-25 — Stale arcade browser checks (exchange, pilot)
 
 - `check-arcade-pilot.mjs` was not stale, it caught a real regression from the dev shell

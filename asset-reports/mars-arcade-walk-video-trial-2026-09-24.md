@@ -35,6 +35,29 @@ The hands open and close between frames, and the last ~10 frames smear the feet.
   the normaliser (Spriterrific's manual aligner, which this run argues for), or re-generating with
   a stricter "torso locked" prompt and picking picks closer in phase.
 
+## Per-drawing nudge (2026-09-25): tried, cannot rescue this clip
+
+`normalise-arcade-clip.py --nudge INDEX:DX,DY` now exists (recorded in the report, tested,
+mutation-checked). Applied to this clip it answers the question the trial left open:
+
+- The committed cells reproduce byte for byte from the picks with `--align torso
+  --torso-reference normalised-walk-ready/walk-forward/walk-forward-00.png`, so the search below
+  started from exactly what is in the gym.
+- The audit's pops are not sideways sway. The torso back line is already 49.0 on all four
+  drawings; what moves is the height: tops at rows 17 / 16 / 18 / 14 against a fixed baseline,
+  a 4 px bob between the stride and passing drawings, plus the head leaning with the stride.
+- Of the 81 nudge sets the per-cell gate allows (no vertical move, torso within 1 px), **none**
+  passes the audit: the vertical pops (−3 on the wrap, +4 from 02 to 03) remain in every one.
+- An exhaustive search that ignores the gate found 12 sets that pass the audit, the smallest
+  `2:-2,-1 3:2,1`. Written and gated, it FAILS the gate on both nudged drawings (feet on rows
+  118 and 120; torso at 47 and 51 against 49). It passes the audit only by spending the audit's
+  looser tolerances, so it was reverted; the committed cells are unchanged.
+
+What would fix it is in the drawings, not their placement: re-generate with a prompt that
+holds the head height (or with Wan first-last-frame once `HF_TOKEN` is set), or pick drawings
+closer in bob phase. Whether a 4 px bob is acceptable for Oracle's walk is an owner call; the
+audit's 2 px ceiling was not changed.
+
 ## Status
 
 Candidate, in the gym as `oracle:walk-forward-video` (wired with `arcade-anim.mjs wire`, boxes
