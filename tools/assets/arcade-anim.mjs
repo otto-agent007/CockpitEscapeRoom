@@ -156,6 +156,14 @@ if (command === 'count') {
     if (files.length === 0) throw new Error(`no cells in ${cellsDir}`)
     const rel = '/' + resolve(dir).slice(root.length + 1).split(/[\\/]/).join('/')
     if (!rel.startsWith('/art-source/arcade/')) throw new Error(`cells must live under art-source/arcade/, not ${rel}`)
+    // Cells are named <clip>-NN.png; the pose is what is left after the clip's name. A plain
+    // prefix test, not a RegExp: the folder name comes from the command line.
+    const clipName = dir.split(/[\\/]/).pop()
+    const poseOf = (name, index) => {
+      const stem = name.replace(/\.png$/, '')
+      const rest = stem.startsWith(clipName) ? stem.slice(clipName.length).replace(/^-/, '') : stem
+      return rest || `frame ${index + 1}`
+    }
     const frames = files.map((name, index) => {
       const png = readPng(resolve(dir, name))
       const body = alphaBounds(png, 128)
@@ -163,8 +171,7 @@ if (command === 'count') {
       const inset = 2
       const frame = {
         src: `${rel}/${name}`,
-        // Cells are named <clip>-NN.png; the pose is what is left after the clip's name.
-        pose: name.replace(/\.png$/, '').replace(new RegExp(`^${dir.split(/[\\/]/).pop()}-?`), '') || `frame ${index + 1}`,
+        pose: poseOf(name, index),
         phase: phases?.[index] ?? 'neutral',
         hold,
         collision: { x: body.x, y: body.y, width: body.width, height: 119 - body.y },

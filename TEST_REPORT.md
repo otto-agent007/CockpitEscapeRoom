@@ -25,6 +25,12 @@
   `generate-arcade-video.py` now falls back to it when `HF_TOKEN` is unset. Verified with
   `HF_TOKEN` unset: the tool's lookup finds it and Hugging Face `whoami` accepts it. No new
   generation was run.
+- CI's CodeQL check failed on one new high alert, `js/regex-injection` in `arcade-anim.mjs
+  wire` (rescued from #99): the pose name was stripped with a RegExp built from the cells
+  folder's name, a command-line argument. Replaced by a plain prefix test. Re-wiring the Wan
+  clip leaves the table byte-identical; old vs new on sample names agree for ordinary names and
+  differ only where the RegExp was wrong (`a.c` stripped `abc-` from `abc-00`; `walk(v2)` failed
+  to strip `walk(v2)-`). eslint exit 0.
 
 ## 2026-09-25 — PR #99 rescue and the per-drawing nudge
 
