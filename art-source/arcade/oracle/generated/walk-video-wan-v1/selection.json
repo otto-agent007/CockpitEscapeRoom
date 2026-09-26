@@ -1,0 +1,43 @@
+{
+  "source": "clip.mp4 (33 frames at 16 fps, extracted with ffmpeg to frame-NNNN.png, 1-based)",
+  "denseFrames": 33,
+  "policy": "cycle",
+  "startFraction": 0.0,
+  "window": [
+    0,
+    24
+  ],
+  "mode": "cycle",
+  "duplicateThreshold": 1.74072265625,
+  "spanFactor": 8.0,
+  "picks": [
+    {
+      "out": "pick-00.png",
+      "dense": 0,
+      "denseFile": "frame-0001.png"
+    },
+    {
+      "out": "pick-01.png",
+      "dense": 8,
+      "denseFile": "frame-0009.png"
+    },
+    {
+      "out": "pick-02.png",
+      "dense": 17,
+      "denseFile": "frame-0018.png"
+    },
+    {
+      "out": "pick-03.png",
+      "dense": 24,
+      "denseFile": "frame-0025.png"
+    }
+  ],
+  "cyclePeriod": 32,
+  "cyclePeriodNote": "measured by construction: first and last frame are the same drawing (Wan first-last-frame with the anchor at both ends), so the whole clip is one cycle; the picker only searches lags up to half the clip",
+  "manualOverride": {
+    "pick": 2,
+    "from": 16,
+    "to": 17,
+    "why": "dense 16 left a 1 px resampling hole where the fist nearly touches the chin (gate: speck); 15 and 17 both gate clean, 17 overlaps its neighbours best (IoU 0.84 vs 0.83)"
+  }
+}

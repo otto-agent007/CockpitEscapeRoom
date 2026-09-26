@@ -20,7 +20,7 @@ import {
   type MarsArcadeFighterId,
   type MarsArcadeRules,
 } from './marsArcadeFighters'
-import { marsArcadeRulesFrame } from './marsArcadePose'
+import { marsArcadeCandidateClips, marsArcadeRulesFrame, setMarsArcadeClipOverride } from './marsArcadePose'
 import { parseMarsArcadeTuning } from './marsArcadeTuning'
 import shipped from './marsArcadeTuning.json'
 
@@ -281,5 +281,27 @@ describe('tuning file v2', () => {
     const long = structuredClone(shipped)
     long.fighters.booster.moves.light.hitstopFrames = 90
     expect(() => parseMarsArcadeTuning(long)).toThrow(/hitstopFrames/)
+  })
+})
+
+describe('candidate clips', () => {
+  afterEach(() => setMarsArcadeClipOverride('oracle', 'walk-forward', null))
+
+  it('lists the video walk as a candidate for the shipped walk', () => {
+    expect(marsArcadeCandidateClips()).toContainEqual({ fighter: 'oracle', animation: 'walk-forward', candidate: 'walk-forward-video' })
+  })
+
+  it('points the rules at the candidate drawing while its preview is on, and back when it is off', () => {
+    const round = createMarsArcadeRound('booster', 'oracle')
+    const state: MarsArcadeState = {
+      ...round,
+      phase: 'fight',
+      fighters: [round.fighters[0], { ...round.fighters[1], activity: 'walk', blocking: false }],
+    }
+    expect(marsArcadeRulesFrame(state, 1)?.src).toMatch(/normalised-walk-ready\/walk-forward\//)
+    setMarsArcadeClipOverride('oracle', 'walk-forward', 'walk-forward-video')
+    expect(marsArcadeRulesFrame(state, 1)?.src).toMatch(/normalised-walk-video-wan\/walk-forward\//)
+    setMarsArcadeClipOverride('oracle', 'walk-forward', null)
+    expect(marsArcadeRulesFrame(state, 1)?.src).toMatch(/normalised-walk-ready\/walk-forward\//)
   })
 })

@@ -71,12 +71,39 @@ try {
   const withoutHurt = await pixels()
   assert.notEqual(withHurt, withoutHurt, 'hurt boxes must draw on the sprites')
   await page.locator('#pg-show-hurt').check()
-  await page.locator('[data-command="Space"]').click()
-  await page.keyboard.press('KeyJ'); await tick(90)
-  await page.locator('[data-command="Space"]').click()
+  // Step to the active frame instead of timing it: a fixed 90 ms landed a frame early or
+  // late about one run in four. A tap made while paused is delivered on the next step.
+  await page.locator('body').click({ position: { x: 5, y: 5 } }) // keys are ignored while a field has focus
+  await page.keyboard.press('KeyJ')
+  for (let step = 0; step < 12 && !/jab active/.test(await read()); step++) {
+    await page.locator('[data-command="KeyN"]').click()
+  }
   assert.match(await read(), /jab active/)
   await page.screenshot({ path: `${out}playground-jab-active.png` })
   report('authored boxes draw on the sprites; jab active frame captured with its hitbox')
+
+  // Candidate clips: ticking one plays it in the fight in place of the shipped clip.
+  const drawnVideo = () => page.evaluate(() => [...(window.__drawn ?? [])].some((src) => src.includes('walk-video-wan')))
+  await page.evaluate(() => {
+    window.__drawn = new Set()
+    const original = CanvasRenderingContext2D.prototype.drawImage
+    CanvasRenderingContext2D.prototype.drawImage = function (image, ...args) {
+      if (image instanceof HTMLImageElement) window.__drawn.add(image.src)
+      return original.call(this, image, ...args)
+    }
+  })
+  await page.locator('[data-command="Space"]').click() // resume
+  await page.locator('[data-command="KeyR"]').click(); await tick(1700)
+  await page.keyboard.down('ArrowLeft'); await tick(400); await page.keyboard.up('ArrowLeft')
+  assert.equal(await drawnVideo(), false, 'the shipped walk plays until a candidate is ticked')
+  const candidate = page.locator('#pg-candidates input').first()
+  await candidate.check()
+  await page.locator('body').click({ position: { x: 5, y: 5 } }) // keys are ignored while a field has focus
+  assert.match(await page.locator('#pg-status').innerText(), /a preview, not shipped/)
+  await page.keyboard.down('ArrowLeft'); await tick(400); await page.keyboard.up('ArrowLeft')
+  assert.equal(await drawnVideo(), true, 'the candidate walk must draw in the fight once ticked')
+  await candidate.uncheck()
+  report('a ticked candidate clip plays in the fight in place of the shipped one')
 
   await page.locator('#arcade-collapse').click()
   assert.equal(await page.locator('#arcade-console').getAttribute('data-collapsed'), 'true')

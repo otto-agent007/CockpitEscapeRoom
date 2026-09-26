@@ -1,5 +1,91 @@
 # Test report
 
+## 2026-09-26 — Wan first-last-frame Oracle walk (candidate)
+
+- Generated on `multimodalart/wan-2-2-first-last-frame` with the owner's Hugging Face token
+  (environment only; `generation.json` and `selection.json` checked for it: 0 matches), the
+  shipped walk's source drawing as first and last frame, seed 7, 2.1 s: 33 frames, 1111 s queued.
+- Picks dense 0, 8, 17, 24 (period 32 by construction; 16 swapped for 17 over a 1 px
+  resampling hole, recorded in `selection.json`). Normalised cells: gate 4/4 pass; audit pass
+  (tops 16/15/16/15, torso 49.0 on all four, largest pop 0,+1); the shipped walk also passes.
+  Wired as `oracle:walk-forward-video` (replacing the LTX cells, kept as evidence);
+  `npm run arcade:validate` 0 errors / 23 warnings.
+- Normaliser: the spill clamp now runs again on the downsampled cell. Before it, the Wan cells
+  failed the gate on 1-2 px at magenta-ness 16-17. New tests: two in-ceiling pixels average
+  over it; the cell clamp fixes that pixel and touches nothing else, alpha never.
+- `check-arcade-playground.mjs` jab step was flaky before this change: 1 of 4 runs failed on a
+  clean `main` worktree (daae44b) and 3 of 10 on this branch, always at the same assertion (a
+  fixed 90 ms wait landed a frame before or after the 3 active frames). It now steps the paused
+  fight a frame at a time to the active frame; 8 of 8 runs pass. The candidate step now looks
+  for the Wan folder.
+- `npm run check`: 879 tests / 74 files, lint, types, build — exit 0. All 15 arcade browser
+  checks exit 0 (Vite 5381, evidence to scratch). Python clip-tool suites exit 0.
+- Owner verdict after the side-by-side: the shipped walk stays; the Wan walk remains a candidate
+  only. The token is saved at `~/.cache/huggingface/token` (0600, outside the repo);
+  `generate-arcade-video.py` now falls back to it when `HF_TOKEN` is unset. Verified with
+  `HF_TOKEN` unset: the tool's lookup finds it and Hugging Face `whoami` accepts it. No new
+  generation was run.
+- CI's CodeQL check failed on one new high alert, `js/regex-injection` in `arcade-anim.mjs
+  wire` (rescued from #99): the pose name was stripped with a RegExp built from the cells
+  folder's name, a command-line argument. Replaced by a plain prefix test. Re-wiring the Wan
+  clip leaves the table byte-identical; old vs new on sample names agree for ordinary names and
+  differ only where the RegExp was wrong (`a.c` stripped `abc-` from `abc-00`; `walk(v2)` failed
+  to strip `walk(v2)-`). eslint exit 0.
+
+## 2026-09-25 — PR #99 rescue and the per-drawing nudge
+
+- **Rescue.** PR #99 merged at `1bf19c8`; its last five commits (video walk trial, `arcade-anim
+  wire`, picker period fix, playground candidate switch, resume notes) were pushed after and
+  never reached `main`. Cherry-picked onto this branch; conflicts only in the plan,
+  `arcade-anim.mjs` (both sides added a command) and `arcadeHarnessSprites.ts`, where M3 had
+  moved clip lookup into `src/game/marsArcadePose.ts`. The candidate override moved there with
+  it, so the rules read a candidate's boxes while its drawings are on screen. New tests: the
+  video walk is listed as a candidate; the rules frame follows the override on and off.
+  Mutation (lookup ignores the override): that test fails.
+- `check-arcade-pilot.mjs` hard-coded 68 failed drawings for its all-art-blocked page; the
+  rescued clip makes 72. It now reads the total from the page's own "N/N sprites ready" and
+  expects exactly that many failures ("all 72 failed image requests use visible box fallback").
+- **Nudge.** `normalise-arcade-clip.py --nudge INDEX:DX,DY` (repeatable, recorded as `nudge`
+  beside the rule's `anchor` with the combined `offset`, vertical moves announced). Tests: in
+  planted-foot and preserve-canvas, the nudged drawing moves exactly −3,+1, the others are
+  byte-identical, the report records it; malformed, out-of-range and doubled nudges are usage
+  errors. Mutation (nudge sign flipped): both "moved exactly" checks fail.
+- **Applied to the video walk, it cannot rescue it.** The committed cells reproduce byte for
+  byte from the picks. None of the 81 gate-legal nudge sets (no vertical move, torso within
+  1 px) passes the audit; the vertical pops (−3, +4) are a 4 px bob in the drawings. The
+  smallest audit-passing set found by exhaustive search (`2:-2,-1 3:2,1`) failed the gate on both
+  nudged drawings (feet rows 118/120, torso 47/51 vs 49) and was reverted. Cells unchanged;
+  details in `asset-reports/mars-arcade-walk-video-trial-2026-09-24.md`.
+- Python suites: normalise-arcade-clip, audit-arcade-clip, normalise-popt-frame,
+  check-popt-frames-fullcolour, pick-arcade-frames — all exit 0. `npm run arcade:validate`:
+  25 clips, 72 drawings, 0 errors, 23 warnings (the new one is the candidate's unreviewed boxes).
+- All 15 arcade browser checks exit 0 on this branch (Vite 5381, evidence to scratch), pilot
+  after the sprite-count fix. `npm run check`: 879 tests / 74 files, lint, types, build — exit 0.
+
+## 2026-09-25 — Stale arcade browser checks (exchange, pilot)
+
+- `check-arcade-pilot.mjs` was not stale, it caught a real regression from the dev shell
+  restyle (79bc339): the harness chose the stage's integer scale from the viewport's
+  `clientWidth`, which includes the 16 px padding the restyle added, so at 375 px the 320 px
+  stage was squashed by `max-width: 100%` to 301 px (0.94x). Fixed in the harness (scale from
+  the content box) and in `dev/arcade-shell.css` (no side padding on the stage viewport at
+  480 px and below). Measured after: 320 / 640 / 960 px at 375 / 768 / 1440, no overflow.
+  Boundary probe at 1012 px (viewport 970 wide, 938 usable): the old rule asked for 960 and
+  would be squashed to 938; the new rule renders 640. Gym at 375: no overflow, its free-scaling
+  canvas now 333 px wide (was 301).
+- `check-arcade-exchange.mjs` was stale: #99 renamed Oracle's "guarded backward shuffle" to
+  the shared walk-back clip's label "backward shuffle", which either fighter can now show.
+  Both assertions now match `artwork +backward shuffle` in Oracle's half of the readout only,
+  so they still pin the old label's fighter.
+- Before: pilot TimeoutError after its first PASS (canvas never 320 at 375), exchange
+  AssertionError at frame 163. After: pilot 12 PASS, exchange 7 PASS.
+- All 15 `tools/assets/check-arcade-*.mjs` against this build (Vite on 5381, Chromium 1243,
+  evidence to scratch): every script exit 0 — booster-continuity 2, bounds-rules 6 ok,
+  exchange 7, gym 13 ok, heavy-block 7, heavy-hit 6, heavy 13, hud 10, movement 5,
+  oracle-heavy-continuity 2, outcomes 12, pilot 12, playground 6 ok, space-laser 11, stage 9.
+- `npm run check`: lint, types, 877 tests / 74 files, build — exit 0.
+- Not run: full-journey e2e (the arcade is dev-only and not in the production bundle).
+
 ## 2026-09-24 — Arcade rules read the boxes (plans/0047, plan 0046 M3)
 
 - Both new rule switches ship **off**; the whole prior suite passed unchanged with them off
@@ -68,6 +154,22 @@
 - Dev shell restyle: gym and playground share `dev/arcade-shell.css` after the reference's
   layout; the gym repaints per tick without rebuilding controls. `check-arcade-gym.mjs` 13 ok at
   1440 and 768 after the restyle; both pages load with no console errors.
+- Fighter playground + tuning: `marsArcadeTuning.test.ts` 6 tests (shipped file == baked
+  content; overrides reach the fight loop: a tuned walk of 3 px/frame moves 3 px; parser
+  rejects negative speed, NaN damage, a missing move, an old version). `npm run check`: lint,
+  types, 851 tests / 72 files, build PASS. Browser `check-arcade-playground.mjs` 6 ok: shipped
+  tuning loaded, walk-speed edit felt (37.5 px at 1.25 → 75.0 px at 2.5 over 30 frames), reset,
+  authored boxes drawn on sprites, console collapse, no console errors.
+- Video route trial (free): LTX-Video space produced a consistent in-place Oracle walk (295 s
+  queue); picker, torso-aligned normalise, gate 3/4 (one 2 px speck), audit FAIL on 3–4 px body
+  sway — the real remaining defect. Wan 2.2 refused anonymously (ZeroGPU quota). Report:
+  `asset-reports/mars-arcade-walk-video-trial-2026-09-24.md`.
+- Candidate switch + wire: `check-arcade-playground.mjs` now 7 ok, including "a ticked
+  candidate clip plays in the fight in place of the shipped one" (the video walk draws only
+  once ticked). Picker: the first picks played backwards (guessed spacing 10 on a measured
+  28-frame cycle); `pick-arcade-frames.py` measures the period now, picks 6/13/20/27;
+  `pick-arcade-frames.test.py` 8/8. `arcade-anim.mjs wire` added; table 25 clips / 79 frames /
+  72 drawings, 0 errors; manifest + table + sprite tests 42/42.
 
 ## 2026-09-23 — Oracle heavy motion (sweep + settle)
 
