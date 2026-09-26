@@ -20,6 +20,11 @@
   for the Wan folder.
 - `npm run check`: 879 tests / 74 files, lint, types, build — exit 0. All 15 arcade browser
   checks exit 0 (Vite 5381, evidence to scratch). Python clip-tool suites exit 0.
+- Owner verdict after the side-by-side: the shipped walk stays; the Wan walk remains a candidate
+  only. The token is saved at `~/.cache/huggingface/token` (0600, outside the repo);
+  `generate-arcade-video.py` now falls back to it when `HF_TOKEN` is unset. Verified with
+  `HF_TOKEN` unset: the tool's lookup finds it and Hugging Face `whoami` accepts it. No new
+  generation was run.
 
 ## 2026-09-25 — PR #99 rescue and the per-drawing nudge
 

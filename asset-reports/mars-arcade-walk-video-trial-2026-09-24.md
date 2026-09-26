@@ -63,7 +63,7 @@ audit's 2 px ceiling was not changed.
 The owner preferred the shipped walk, so the second trial starts from it: the shipped walk's
 own full-resolution source `generated/walk-v2/walk-forward-00-c1.png` as BOTH the first and
 the last frame on `multimodalart/wan-2-2-first-last-frame` (free Hugging Face account token in
-`HF_TOKEN`, never written to disk in the repo), seed 7, 2.1 s. The prompt adds "head and hips
+saved outside the repo in `~/.cache/huggingface/token`), seed 7, 2.1 s. The prompt adds "head and hips
 stay at the same height, no bobbing; the torso stays upright"; the negative prompt adds
 "walking backwards, moonwalk, bobbing head, bouncing, leaning" (the space's own default
 negative carries "walking backwards" too). 1111 s in the queue; 33 frames at 16 fps, 512x768.
@@ -83,7 +83,10 @@ The shipped walk is unchanged; whether the candidate ships is the owner's call.
 
 ## Status
 
-Candidate, in the gym as `oracle:walk-forward-video` (wired with `arcade-anim.mjs wire`, boxes
-seeded, `reviewed: false`) so it can be reviewed with onion skin next to the shipped walk. The
-harness never plays it — no fighter state maps to it — and the shipped Oracle walk is unchanged.
-The raw clip, picks, cells and provenance are committed as evidence.
+**Owner decision (2026-09-26): the shipped walk stays.** Having seen both video walks beside it,
+the owner preferred the shipped walk to the LTX walk and to the Wan walk, even though the Wan
+walk passes every check. Measurements are not the verdict: both checks pass the shipped walk
+too, and the owner's eye picked it. The Wan walk remains wired as the
+`oracle:walk-forward-video` candidate (a preview the playground plays only when ticked; it also
+keeps the candidate switch exercised by `check-arcade-playground.mjs`). The raw clips, picks,
+cells and provenance are committed as evidence for the next video attempt.

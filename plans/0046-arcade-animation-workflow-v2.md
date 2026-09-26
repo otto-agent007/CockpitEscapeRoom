@@ -355,7 +355,7 @@ first audited clip.
   in the report, tested (moves exactly that drawing, others byte-identical, bad input refused)
   and mutation-checked. It cannot rescue the video walk: no gate-legal nudge passes the audit,
   because the pops are a 4 px vertical bob in the drawings; see the trial's asset report.
-- [x] 2026-09-26 — Wan first-last-frame walk from the shipped drawing (owner's `HF_TOKEN`):
+- [x] 2026-09-26 — Wan first-last-frame walk from the shipped drawing (owner's Hugging Face token):
   passes the gate 4/4 and the audit (1 px bob, like the shipped walk). Now the
   `oracle:walk-forward-video` candidate. The normaliser clamps spill again after resampling.
 - [x] M3 — rules read the boxes behind `useBounds`, guard height as a move property, pushbox
@@ -374,13 +374,14 @@ first audited clip.
   separately as PR #101. The candidate override now lives in `marsArcadePose.ts` so the rules
   read a candidate's boxes while its drawings are on screen.
 - Pages: `/dev/gym.html` (character gym) and `/dev/arcade.html` (fighter playground), one shell.
-- Owner queue: a gym pass over the 20 seeded clips (tick "boxes reviewed"); decide whether the
-  video walk (`oracle:walk-forward-video`, candidate) replaces the shipped one; a free Hugging Face
-  token in `HF_TOKEN` unlocks the Wan first-last-frame route (anonymous quota refuses it).
+- Owner queue: a gym pass over the 20 seeded clips (tick "boxes reviewed"). Decided 2026-09-26:
+  the shipped Oracle walk stays (the owner preferred it to both video walks). The owner's free
+  Hugging Face token is saved at `~/.cache/huggingface/token` (outside the repo) and
+  `generate-arcade-video.py` reads it when `HF_TOKEN` is unset, so the Wan route needs no setup.
 - Next engineering: (1) tidy the playground's Combat rows (they wrap); (2) the Vite config
   warning about extensionless imports; (3) teach the picker that a first-last-frame clip is one
-  cycle long (today: `--span-factor (frames-1)/N`). The Wan walk (2026-09-26) is the candidate;
-  the owner decides whether it replaces the shipped walk.
+  cycle long (today: `--span-factor (frames-1)/N`). The Wan walk (2026-09-26) stays a candidate
+  only; the owner kept the shipped walk.
 - Evidence: `TEST_REPORT.md` 2026-09-24, `asset-reports/mars-arcade-animation-workflow-2026-09-24.md`,
   `asset-reports/mars-arcade-walk-video-trial-2026-09-24.md`, `preview-renders/mars-arcade/{gym-v2,clips,playground-v1}`.
 

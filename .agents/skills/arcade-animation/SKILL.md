@@ -28,7 +28,10 @@ Nothing about a clip lives anywhere else — not in the sprite selector, not in 
    `.cache/arcade-video-venv/bin/python tools/assets/generate-arcade-video.py <anchor.png> <out>
    --space ltx|wan-flf --prompt "<start pose, the verb, end pose; in place; flat colours>"`.
    `wan-flf` takes the anchor as first AND last frame, which is what a cycle wants. Expect a
-   queue; `HF_TOKEN` lifts the quota. Save every raw output and `generation.json` under
+   queue. A free Hugging Face token lifts the quota (Wan refuses anonymous jobs): the tool reads
+   `HF_TOKEN`, else `~/.cache/huggingface/token` (the owner's is saved there; never in the repo).
+   A video clip is a candidate, never a replacement by default: the owner judges it against the
+   shipped drawings by eye (2026-09-26 the shipped walk won over two video walks that both passed). Save every raw output and `generation.json` under
    `art-source/arcade/<fighter>/generated/<wave>/`.
 2. **Pick**, for a video: `python3 tools/assets/pick-arcade-frames.py <clip.mp4> <out> --frames N
    --policy cycle|action|hold`. Review `picks-contact-sheet.png`. A pick is a candidate, not a drawing.
