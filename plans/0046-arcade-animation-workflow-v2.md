@@ -355,6 +355,9 @@ first audited clip.
   in the report, tested (moves exactly that drawing, others byte-identical, bad input refused)
   and mutation-checked. It cannot rescue the video walk: no gate-legal nudge passes the audit,
   because the pops are a 4 px vertical bob in the drawings; see the trial's asset report.
+- [x] 2026-09-26 — Wan first-last-frame walk from the shipped drawing (owner's `HF_TOKEN`):
+  passes the gate 4/4 and the audit (1 px bob, like the shipped walk). Now the
+  `oracle:walk-forward-video` candidate. The normaliser clamps spill again after resampling.
 - [x] M3 — rules read the boxes behind `useBounds`, guard height as a move property, pushbox
   from data, hit stop + flash events, playground JSON. Built 2026-09-24 in its own PR; plan,
   connect table and evidence in `plans/0047-mars-arcade-bounds-rules.md`. Both switches ship
@@ -375,8 +378,9 @@ first audited clip.
   video walk (`oracle:walk-forward-video`, candidate) replaces the shipped one; a free Hugging Face
   token in `HF_TOKEN` unlocks the Wan first-last-frame route (anonymous quota refuses it).
 - Next engineering: (1) tidy the playground's Combat rows (they wrap); (2) the Vite config
-  warning about extensionless imports. The nudge is built (2026-09-25); the video walk needs new
-  drawings, not placement — re-generate with a steadier head height or Wan first-last-frame.
+  warning about extensionless imports; (3) teach the picker that a first-last-frame clip is one
+  cycle long (today: `--span-factor (frames-1)/N`). The Wan walk (2026-09-26) is the candidate;
+  the owner decides whether it replaces the shipped walk.
 - Evidence: `TEST_REPORT.md` 2026-09-24, `asset-reports/mars-arcade-animation-workflow-2026-09-24.md`,
   `asset-reports/mars-arcade-walk-video-trial-2026-09-24.md`, `preview-renders/mars-arcade/{gym-v2,clips,playground-v1}`.
 

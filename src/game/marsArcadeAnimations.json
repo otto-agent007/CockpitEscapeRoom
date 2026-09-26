@@ -1750,82 +1750,82 @@
       "reviewed": false,
       "frames": [
         {
-          "src": "/art-source/arcade/oracle/normalised-walk-video-trial/walk-forward/walk-forward-00.png",
+          "src": "/art-source/arcade/oracle/normalised-walk-video-wan/walk-forward/walk-forward-00.png",
           "pose": "00",
           "phase": "neutral",
           "hold": 6,
           "collision": {
-            "x": 26,
-            "y": 17,
-            "width": 66,
-            "height": 102
-          },
-          "hurt": [
-            {
-              "x": 28,
-              "y": 19,
-              "width": 62,
-              "height": 101
-            }
-          ]
-        },
-        {
-          "src": "/art-source/arcade/oracle/normalised-walk-video-trial/walk-forward/walk-forward-01.png",
-          "pose": "01",
-          "phase": "neutral",
-          "hold": 6,
-          "collision": {
-            "x": 45,
+            "x": 34,
             "y": 16,
-            "width": 39,
+            "width": 64,
             "height": 103
           },
           "hurt": [
             {
-              "x": 47,
+              "x": 36,
               "y": 18,
-              "width": 35,
+              "width": 60,
               "height": 102
             }
           ]
         },
         {
-          "src": "/art-source/arcade/oracle/normalised-walk-video-trial/walk-forward/walk-forward-02.png",
-          "pose": "02",
+          "src": "/art-source/arcade/oracle/normalised-walk-video-wan/walk-forward/walk-forward-01.png",
+          "pose": "01",
           "phase": "neutral",
           "hold": 6,
           "collision": {
-            "x": 30,
-            "y": 18,
-            "width": 66,
-            "height": 101
+            "x": 41,
+            "y": 15,
+            "width": 45,
+            "height": 104
           },
           "hurt": [
             {
-              "x": 32,
-              "y": 20,
-              "width": 62,
-              "height": 100
+              "x": 43,
+              "y": 17,
+              "width": 41,
+              "height": 103
             }
           ]
         },
         {
-          "src": "/art-source/arcade/oracle/normalised-walk-video-trial/walk-forward/walk-forward-03.png",
+          "src": "/art-source/arcade/oracle/normalised-walk-video-wan/walk-forward/walk-forward-02.png",
+          "pose": "02",
+          "phase": "neutral",
+          "hold": 6,
+          "collision": {
+            "x": 29,
+            "y": 16,
+            "width": 69,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 31,
+              "y": 18,
+              "width": 65,
+              "height": 102
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/oracle/normalised-walk-video-wan/walk-forward/walk-forward-03.png",
           "pose": "03",
           "phase": "neutral",
           "hold": 6,
           "collision": {
-            "x": 40,
-            "y": 14,
-            "width": 36,
-            "height": 105
+            "x": 38,
+            "y": 15,
+            "width": 46,
+            "height": 104
           },
           "hurt": [
             {
-              "x": 42,
-              "y": 16,
-              "width": 32,
-              "height": 104
+              "x": 40,
+              "y": 17,
+              "width": 42,
+              "height": 103
             }
           ]
         }

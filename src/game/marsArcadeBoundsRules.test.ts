@@ -300,7 +300,7 @@ describe('candidate clips', () => {
     }
     expect(marsArcadeRulesFrame(state, 1)?.src).toMatch(/normalised-walk-ready\/walk-forward\//)
     setMarsArcadeClipOverride('oracle', 'walk-forward', 'walk-forward-video')
-    expect(marsArcadeRulesFrame(state, 1)?.src).toMatch(/normalised-walk-video-trial\/walk-forward\//)
+    expect(marsArcadeRulesFrame(state, 1)?.src).toMatch(/normalised-walk-video-wan\/walk-forward\//)
     setMarsArcadeClipOverride('oracle', 'walk-forward', null)
     expect(marsArcadeRulesFrame(state, 1)?.src).toMatch(/normalised-walk-ready\/walk-forward\//)
   })

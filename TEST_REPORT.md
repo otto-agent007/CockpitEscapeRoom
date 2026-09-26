@@ -1,5 +1,26 @@
 # Test report
 
+## 2026-09-26 — Wan first-last-frame Oracle walk (candidate)
+
+- Generated on `multimodalart/wan-2-2-first-last-frame` with the owner's Hugging Face token
+  (environment only; `generation.json` and `selection.json` checked for it: 0 matches), the
+  shipped walk's source drawing as first and last frame, seed 7, 2.1 s: 33 frames, 1111 s queued.
+- Picks dense 0, 8, 17, 24 (period 32 by construction; 16 swapped for 17 over a 1 px
+  resampling hole, recorded in `selection.json`). Normalised cells: gate 4/4 pass; audit pass
+  (tops 16/15/16/15, torso 49.0 on all four, largest pop 0,+1); the shipped walk also passes.
+  Wired as `oracle:walk-forward-video` (replacing the LTX cells, kept as evidence);
+  `npm run arcade:validate` 0 errors / 23 warnings.
+- Normaliser: the spill clamp now runs again on the downsampled cell. Before it, the Wan cells
+  failed the gate on 1-2 px at magenta-ness 16-17. New tests: two in-ceiling pixels average
+  over it; the cell clamp fixes that pixel and touches nothing else, alpha never.
+- `check-arcade-playground.mjs` jab step was flaky before this change: 1 of 4 runs failed on a
+  clean `main` worktree (daae44b) and 3 of 10 on this branch, always at the same assertion (a
+  fixed 90 ms wait landed a frame before or after the 3 active frames). It now steps the paused
+  fight a frame at a time to the active frame; 8 of 8 runs pass. The candidate step now looks
+  for the Wan folder.
+- `npm run check`: 879 tests / 74 files, lint, types, build — exit 0. All 15 arcade browser
+  checks exit 0 (Vite 5381, evidence to scratch). Python clip-tool suites exit 0.
+
 ## 2026-09-25 — PR #99 rescue and the per-drawing nudge
 
 - **Rescue.** PR #99 merged at `1bf19c8`; its last five commits (video walk trial, `arcade-anim

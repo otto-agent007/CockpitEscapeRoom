@@ -58,6 +58,29 @@ holds the head height (or with Wan first-last-frame once `HF_TOKEN` is set), or 
 closer in bob phase. Whether a 4 px bob is acceptable for Oracle's walk is an owner call; the
 audit's 2 px ceiling was not changed.
 
+## Wan first-last-frame from the shipped drawing (2026-09-26): passes both checks
+
+The owner preferred the shipped walk, so the second trial starts from it: the shipped walk's
+own full-resolution source `generated/walk-v2/walk-forward-00-c1.png` as BOTH the first and
+the last frame on `multimodalart/wan-2-2-first-last-frame` (free Hugging Face account token in
+`HF_TOKEN`, never written to disk in the repo), seed 7, 2.1 s. The prompt adds "head and hips
+stay at the same height, no bobbing; the torso stays upright"; the negative prompt adds
+"walking backwards, moonwalk, bobbing head, bouncing, leaning" (the space's own default
+negative carries "walking backwards" too). 1111 s in the queue; 33 frames at 16 fps, 512x768.
+Provenance: `generated/walk-video-wan-v1/generation.json`.
+
+| Step | Result |
+| --- | --- |
+| Clip | Identity, outfit and line style are the shipped drawing's; head level through the whole loop; stride, passing, stride, passing, back to the start pose at frame 32. Feet blur in the passing frames (8-13, 24-30) and the fists smear pink at times. |
+| Pick | The picker could not measure the period: it searches lags up to half the clip and this whole clip is ONE cycle by construction (same first and last drawing). Period 32, so `--span-factor 8 --start-fraction 0`: dense 0, 8, 16, 24. Dense 16 left a 1 px hole where the fist nearly meets the chin; 15 and 17 both gate clean, 17 overlaps its neighbours best, so pick 2 is dense 17 (recorded as `manualOverride` in `selection.json`). |
+| Normalise | `--align torso --torso-reference normalised-walk-ready/walk-forward/walk-forward-00.png` at 6.8029, to `normalised-walk-video-wan/walk-forward/`. The first pass left 1-2 px of magenta at 16-17 (ceiling 15): averaging during the downsample re-tints pixels the source clamp had fixed (key-ness is not linear), so the normaliser now clamps the cell again after resampling. |
+| Gate | 4 of 4 pass. |
+| Audit | **pass**: tops 16/15/16/15, height 104/105, torso 49.0 on every drawing, largest pop 0,+1. The shipped walk measures the same (tops 16/16/15/16). The LTX walk bobbed 4 px. |
+
+It is now the `oracle:walk-forward-video` candidate (re-wired with `arcade-anim.mjs wire`,
+boxes seeded, `reviewed: false`), replacing the LTX cells, which stay committed as evidence.
+The shipped walk is unchanged; whether the candidate ships is the owner's call.
+
 ## Status
 
 Candidate, in the gym as `oracle:walk-forward-video` (wired with `arcade-anim.mjs wire`, boxes
