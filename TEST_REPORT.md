@@ -1,5 +1,29 @@
 # Test report
 
+## 2026-09-25 — Stale arcade browser checks (exchange, pilot)
+
+- `check-arcade-pilot.mjs` was not stale, it caught a real regression from the dev shell
+  restyle (79bc339): the harness chose the stage's integer scale from the viewport's
+  `clientWidth`, which includes the 16 px padding the restyle added, so at 375 px the 320 px
+  stage was squashed by `max-width: 100%` to 301 px (0.94x). Fixed in the harness (scale from
+  the content box) and in `dev/arcade-shell.css` (no side padding on the stage viewport at
+  480 px and below). Measured after: 320 / 640 / 960 px at 375 / 768 / 1440, no overflow.
+  Boundary probe at 1012 px (viewport 970 wide, 938 usable): the old rule asked for 960 and
+  would be squashed to 938; the new rule renders 640. Gym at 375: no overflow, its free-scaling
+  canvas now 333 px wide (was 301).
+- `check-arcade-exchange.mjs` was stale: #99 renamed Oracle's "guarded backward shuffle" to
+  the shared walk-back clip's label "backward shuffle", which either fighter can now show.
+  Both assertions now match `artwork +backward shuffle` in Oracle's half of the readout only,
+  so they still pin the old label's fighter.
+- Before: pilot TimeoutError after its first PASS (canvas never 320 at 375), exchange
+  AssertionError at frame 163. After: pilot 12 PASS, exchange 7 PASS.
+- All 15 `tools/assets/check-arcade-*.mjs` against this build (Vite on 5381, Chromium 1243,
+  evidence to scratch): every script exit 0 — booster-continuity 2, bounds-rules 6 ok,
+  exchange 7, gym 13 ok, heavy-block 7, heavy-hit 6, heavy 13, hud 10, movement 5,
+  oracle-heavy-continuity 2, outcomes 12, pilot 12, playground 6 ok, space-laser 11, stage 9.
+- `npm run check`: lint, types, 877 tests / 74 files, build — exit 0.
+- Not run: full-journey e2e (the arcade is dev-only and not in the production bundle).
+
 ## 2026-09-24 — Arcade rules read the boxes (plans/0047, plan 0046 M3)
 
 - Both new rule switches ship **off**; the whole prior suite passed unchanged with them off
