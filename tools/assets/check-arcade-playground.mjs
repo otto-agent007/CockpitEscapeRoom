@@ -71,15 +71,19 @@ try {
   const withoutHurt = await pixels()
   assert.notEqual(withHurt, withoutHurt, 'hurt boxes must draw on the sprites')
   await page.locator('#pg-show-hurt').check()
-  await page.locator('[data-command="Space"]').click()
-  await page.keyboard.press('KeyJ'); await tick(90)
-  await page.locator('[data-command="Space"]').click()
+  // Step to the active frame instead of timing it: a fixed 90 ms landed a frame early or
+  // late about one run in four. A tap made while paused is delivered on the next step.
+  await page.locator('body').click({ position: { x: 5, y: 5 } }) // keys are ignored while a field has focus
+  await page.keyboard.press('KeyJ')
+  for (let step = 0; step < 12 && !/jab active/.test(await read()); step++) {
+    await page.locator('[data-command="KeyN"]').click()
+  }
   assert.match(await read(), /jab active/)
   await page.screenshot({ path: `${out}playground-jab-active.png` })
   report('authored boxes draw on the sprites; jab active frame captured with its hitbox')
 
   // Candidate clips: ticking one plays it in the fight in place of the shipped clip.
-  const drawnVideo = () => page.evaluate(() => [...(window.__drawn ?? [])].some((src) => src.includes('walk-video-trial')))
+  const drawnVideo = () => page.evaluate(() => [...(window.__drawn ?? [])].some((src) => src.includes('walk-video-wan')))
   await page.evaluate(() => {
     window.__drawn = new Set()
     const original = CanvasRenderingContext2D.prototype.drawImage
