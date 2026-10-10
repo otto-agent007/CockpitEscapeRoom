@@ -47,6 +47,7 @@ import {
   PLAYER_TWO_BINDINGS,
   inputFromKeys,
 } from './arcadeHarnessInput'
+import { padStatus, readPad, swapPadSides, updatePadSides, type ArcadePad, type ArcadeSide, type PadReading } from './arcadeHarnessGamepad'
 import { ARCADE_ANCHOR_SOURCES, loadArcadeSprites, selectArcadeSprite, type ArcadeSpriteSelection } from './arcadeHarnessSprites'
 import { startArcadePlayground, type ArcadePlayground, type PlaygroundBoxToggles } from './arcadePlayground'
 import { MARS_ARCADE_BOUND_KINDS, marsArcadeBoxToStage, type MarsArcadeBoundKind, type MarsArcadeBox } from '../game/marsArcadeBounds'
@@ -157,6 +158,8 @@ const held = new Set<string>()
  * before the next step samples the held set, so the move never starts.
  */
 const pending = new Set<string>()
+/** Keys the seated controllers hold this frame, recomputed on every poll. */
+const padHeld = new Set<string>()
 
 function newRound(harness: Harness): void {
   harness.outcomeFrames = 0
@@ -1152,7 +1155,7 @@ function mount(): void {
       case 'freeplay':
         newRound(harness)
         harness.paused = false
-        harness.humanRight = harness.pivotPractice
+        harness.humanRight = harness.pivotPractice || [...padSides.values()].includes(1)
         harness.speedIndex = 0
         canvas?.focus({ preventScroll: true })
         return true
@@ -1169,6 +1172,10 @@ function mount(): void {
         harness.difficulty = harness.difficulty === 'veteran' ? 'rookie' : 'veteran'
         newRound(harness)
         return true
+      case 'swapPads':
+        padSides = swapPadSides(padSides)
+        if ([...padSides.values()].includes(1)) harness.humanRight = true
+        return true
       case 'mirror':
         harness.leftId = 'booster'
         harness.rightId = 'booster'
@@ -1182,11 +1189,12 @@ function mount(): void {
   const combatKeys = new Set([...Object.values(PLAYER_ONE_BINDINGS), ...Object.values(PLAYER_TWO_BINDINGS)])
   function recordMotion(heavyCode?:string):void {
     if(!marsArcadePivotPreviewEnabled())return
+    const holding=new Set([...held,...padHeld])
     for(const side of [0,1] as const){
       const fighter=harness.state.fighters[side]
       if(fighter.id!=='oracle')continue
       const bindings=side===0?PLAYER_ONE_BINDINGS:PLAYER_TWO_BINDINGS
-      const next=advancePivotMotion(harness.pivotMotion[side],pivotDirection(held,bindings,fighter.facing),heavyCode===bindings.heavy,harness.state.frame,fighter.facing)
+      const next=advancePivotMotion(harness.pivotMotion[side],pivotDirection(holding,bindings,fighter.facing),heavyCode===bindings.heavy,harness.state.frame,fighter.facing)
       harness.pivotMotion[side]=next.history
       if(next.special&&fighter.meter>=marsArcadeFighter(fighter.id).moves.special.meterCost)pending.add(bindings.special)
     }
@@ -1231,6 +1239,45 @@ function mount(): void {
   window.addEventListener('blur', clearInput)
   document.addEventListener('visibilitychange', () => { if (document.hidden) clearInput() })
 
+  let padSides = new Map<number, ArcadeSide>()
+  let padPrevious = new Map<number, PadReading>()
+  const padStatusLine = document.querySelector<HTMLElement>('#pad-status')
+  /** Controllers have no events for buttons, so each frame diffs them against the last. */
+  function pollPads(): void {
+    const pads = (navigator.getGamepads?.() ?? []).filter((pad): pad is Gamepad => pad !== null && pad.connected)
+    padSides = updatePadSides(padSides, pads.map(pad => pad.index))
+    const readings = new Map<number, PadReading>()
+    const pressed: Array<{ code: string; side: ArcadeSide }> = []
+    const commands: string[] = []
+    let changed = false
+    padHeld.clear()
+    for (const [index, side] of padSides) {
+      const pad: ArcadePad | undefined = pads.find(candidate => candidate.index === index)
+      if (!pad) continue
+      const reading = readPad(pad, side === 0 ? PLAYER_ONE_BINDINGS : PLAYER_TWO_BINDINGS)
+      const before = padPrevious.get(index)
+      for (const code of reading.held) {
+        padHeld.add(code)
+        if (!before?.held.has(code)) pressed.push({ code, side })
+      }
+      for (const command of reading.commands) if (!before?.commands.has(command)) commands.push(command)
+      if (before && [...before.held].some(code => !reading.held.has(code))) changed = true
+      readings.set(index, reading)
+    }
+    padPrevious = readings
+    if (changed || pressed.length > 0) recordMotion()
+    for (const { code, side } of pressed) {
+      cancelExchange()
+      // Picking up the P2 controller and pressing a button takes P2 from the CPU.
+      if (side === 1) harness.humanRight = true
+      pending.add(code)
+      recordMotion(code)
+    }
+    for (const code of commands) command(code)
+    const status = padStatus(padSides, pads)
+    if (padStatusLine && padStatusLine.textContent !== status) padStatusLine.textContent = status
+  }
+
   document.querySelectorAll<HTMLButtonElement>('[data-command]').forEach(button => {
     button.addEventListener('click', () => command(button.dataset.command ?? ''))
   })
@@ -1268,12 +1315,13 @@ function mount(): void {
     const deltaSeconds = Math.max(0, (now - previous) / 1000)
     previous = now
 
+    pollPads()
     const stepping = harness.stepRequested
     harness.stepRequested = false
     if (!harness.paused || stepping) {
       // Sampled only when the world is about to move, so a long pause does not burn
       // the opponent's intent timer against a frozen fight.
-      const sampled = new Set([...held, ...pending])
+      const sampled = new Set([...held, ...padHeld, ...pending])
       const playerOne = inputFromKeys(sampled, PLAYER_ONE_BINDINGS)
       let playerTwo: MarsArcadeInput
       if (harness.humanRight || harness.exchange) {
