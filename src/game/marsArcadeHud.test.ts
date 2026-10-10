@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { alphaBoundsInRows, readPng } from '../../tools/assets/lib/png.mjs'
 import { MARS_ARCADE_TIMING, createMarsArcadeRound, type MarsArcadeState } from './marsArcade'
 import { MARS_ARCADE_FIGHTERS } from './marsArcadeFighters'
 import {
@@ -17,6 +18,7 @@ import {
   marsArcadeHealthColour,
   marsArcadeHudBoxes,
   marsArcadeMeterSegments,
+  marsArcadePortraitFit,
 } from './marsArcadeHud'
 import { MARS_ARCADE_VIEW } from './marsArcadeStage'
 
@@ -26,6 +28,31 @@ function phased(phase: MarsArcadeState['phase'], frame: number, winner: 0 | 1 | 
 }
 
 describe('mars arcade hud layout', () => {
+  it('includes every opaque Captain head pixel and fits the whole crop inside the portrait', () => {
+    const image = readPng(new URL('../../art-source/arcade/captain/normalised-clean/anchor/anchor-00.png', import.meta.url))
+    const head = alphaBoundsInRows(image, 14, 44, 192)!
+    const fit = marsArcadePortraitFit('captain')!
+    expect(fit.source.x).toBeLessThanOrEqual(head.x)
+    expect(fit.source.y).toBeLessThanOrEqual(head.y)
+    expect(fit.source.x + fit.source.width).toBeGreaterThanOrEqual(head.x + head.width)
+    expect(fit.source.y + fit.source.height).toBeGreaterThanOrEqual(head.y + head.height)
+    const { portrait, frame } = MARS_ARCADE_HUD
+    expect(fit.target.x).toBeGreaterThanOrEqual(0)
+    expect(fit.target.y).toBeGreaterThanOrEqual(0)
+    expect(fit.target.x + fit.target.width).toBeLessThanOrEqual(portrait.width - frame * 2)
+    expect(fit.target.y + fit.target.height).toBeLessThanOrEqual(portrait.height - frame * 2)
+    expect(fit.target.width / fit.source.width).toBeCloseTo(fit.target.height / fit.source.height)
+  })
+
+  it('preserves Booster and Oracle portrait source pixels and their original scale', () => {
+    const { portrait } = MARS_ARCADE_HUD
+    for (const id of ['booster', 'oracle']) {
+      const fit = marsArcadePortraitFit(id)!
+      expect(fit.source).toEqual({ x: portrait.sourceX[id], y: portrait.sourceY, width: portrait.sourceWidth, height: portrait.sourceHeight })
+      expect(fit.target).toEqual({ x: 0, y: 0, width: portrait.sourceWidth, height: portrait.sourceHeight })
+    }
+  })
+
   it('fits inside the band the backdrop reserves for it', () => {
     for (const box of marsArcadeHudBoxes()) {
       expect(box.y, `${box.id} starts above the band`).toBeGreaterThanOrEqual(
@@ -276,6 +303,14 @@ describe('mars arcade health colour', () => {
 })
 
 describe('mars arcade critical blink', () => {
+  it('uses a slow one-Hertz warning cycle and keeps reduced motion steadily lit',()=>{
+    expect(MARS_ARCADE_HUD_BLINK_FRAMES).toBe(30)
+    for(const frame of [0,29,30,59,60])expect(marsArcadeHealthBlink(0.2,frame,true)).toBe(true)
+    expect(marsArcadeHealthBlink(0.2,0)).toBe(true)
+    expect(marsArcadeHealthBlink(0.2,30)).toBe(false)
+    expect(marsArcadeHealthBlink(0.2,60)).toBe(true)
+    expect(marsArcadeHealthBlink(0,30)).toBe(true)
+  })
   it('never blinks above the critical threshold', () => {
     for (let frame = 0; frame < 64; frame += 1) {
       expect(marsArcadeHealthBlink(0.5, frame)).toBe(true)

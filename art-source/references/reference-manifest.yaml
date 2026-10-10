@@ -867,3 +867,31 @@ simulation_daily_dc9_release_presentation:
   local_file: dc9-51/presentation/simulation_daily_dc9_release_presentation.url
   download_status: not_applicable
   notes: Summarized separately in dc9-51/notes/presentation-benchmark.md.
+boeing_dc9_30_arcade_outline:
+  title: Boeing DC-9 Airplane Characteristics for Airport Planning, MDC J2904
+  source_page: https://www.boeing.com/content/dam/boeing/v2/airports/acaps/DC9.pdf
+  source_type: manufacturer_planning_manual
+  creator: Boeing / McDonnell Douglas
+  aircraft:
+    manufacturer: McDonnell Douglas
+    model: DC-9
+    variant: DC-9-30 family, including DC-9-32
+    operator: Not operator-specific
+    registration: Not applicable
+  era: Manufacturer archive, revision F listed by Boeing
+  viewpoint: General dimensions and side-elevation outline
+  classification: primary
+  confidence: high
+  target_compatibility: Manufacturer outline sanity check for the small arcade DC-9-32
+    flyby effect. The owner-cleared Roger2009 donor remains production 3D geometry authority.
+  intended_uses:
+  - DC-9-30 family exterior outline verification for arcade effect
+  - T-tail and rear-engine placement verification
+  limitations: Select only the DC-9-30 family drawing; the manual includes other
+    variants. No cockpit replacement, texture extraction or production 3D change.
+  local_file: dc9-32/primary/boeing-dc9-outline.url
+  download_status: not_applicable
+  notes: Read through the official Boeing planning-manual page on 2026-10-06.
+    DC-9-32 general dimensions visually inspected on PDF page15, printed2.2.
+    No manufacturer image downloaded or copied into runtime art. Original source
+    stays remote; generated art remains a candidate requiring owner review.

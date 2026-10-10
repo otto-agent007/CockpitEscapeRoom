@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-05",
+  "ownerResponse": "Looks consistent; keep this art candidate",
+  "reference": "/art-source/arcade/captain/normalised-clean/anchor/anchor-00.png",
+  "candidates": [
+    {
+      "original": "captain:jab-candidate",
+      "key": "captain:jab-candidate-art-4ddcbf2f",
+      "directory": "art-source/arcade/captain/gym-edits/4ddcbf2f-cbfd-4c05-b99a-48ba2ec0d175",
+      "reviewed": false,
+      "moveId": null
+    },
+    {
+      "original": "captain:heavy-candidate",
+      "key": "captain:heavy-candidate-art-e8899500",
+      "directory": "art-source/arcade/captain/gym-edits/e8899500-bf4d-4c22-9694-a1eacbedbda7",
+      "reviewed": false,
+      "moveId": null
+    }
+  ],
+  "acceptedScope": "Appearance of corrected jab and coffee-heavy copies shown in corrected-sequences.png",
+  "boxReviewed": false,
+  "combatAdopted": false,
+  "remainingDelta": "Active heavy retains one-pixel torso offset; jab frame data and boxes require separate review."
+}

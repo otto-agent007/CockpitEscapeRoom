@@ -11,7 +11,6 @@
  */
 
 import {
-  MARS_ARCADE_DEFAULT_RULES,
   MARS_ARCADE_FIGHTERS,
   MARS_ARCADE_TUNING_VERSION,
   setMarsArcadeTuning,
@@ -20,8 +19,8 @@ import {
   type MarsArcadeFighterTuning,
   type MarsArcadeMoveTuning,
   type MarsArcadeTuning,
-} from './marsArcadeFighters'
-import shipped from './marsArcadeTuning.json'
+} from './marsArcadeFighters.ts'
+import shipped from './marsArcadeTuning.json' with { type: 'json' }
 
 const FIGHTERS: readonly MarsArcadeFighterId[] = ['booster', 'oracle', 'captain']
 const BUTTONS: readonly MarsArcadeButton[] = ['light', 'heavy', 'special']
@@ -64,11 +63,12 @@ function migrateV1(file: Record<string, unknown>): Record<string, unknown> {
     }
     migrated[id] = { ...(raw as Record<string, unknown>), moves: nextMoves }
   }
-  return { ...file, version: 2, rules: { ...MARS_ARCADE_DEFAULT_RULES }, fighters: migrated }
+  return { ...file, version: 2, rules: { useBounds: false, hitstop: false }, fighters: migrated }
 }
 
 /**
- * Parse a tuning file. Ranges are generous sanity bounds, not balance: a negative
+ * Parse a tuning file. Versions 1/2 migrate to v3; only the old Captain light
+ * changes meaning from composure to the approved jab. Ranges are sanity bounds: a negative
  * walk speed or a thousand-frame hitstun is a typo the playground must refuse, not a
  * setting the cabinet should ever load. A v1 file is migrated, not refused.
  */
@@ -76,6 +76,8 @@ export function parseMarsArcadeTuning(input: unknown): MarsArcadeTuning {
   if (typeof input !== 'object' || input === null) throw new Error('tuning: not an object')
   let file = input as Record<string, unknown>
   if (file.version === 1) file = migrateV1(file)
+  const legacyComposure = file.version === 2
+  if (legacyComposure) file = { ...file, version: MARS_ARCADE_TUNING_VERSION }
   if (file.version !== MARS_ARCADE_TUNING_VERSION) throw new Error(`tuning: version ${String(file.version)}, expected ${MARS_ARCADE_TUNING_VERSION}`)
   const rules = file.rules as Record<string, unknown> | undefined
   if (typeof rules !== 'object' || rules === null) throw new Error('tuning: rules is missing')
@@ -116,6 +118,12 @@ export function parseMarsArcadeTuning(input: unknown): MarsArcadeTuning {
       }
     }
     result.fighters[id] = fighter
+  }
+  // Validate all legacy fields first, then replace only the action whose meaning changed.
+  // A v3 zero-damage jab is a deliberate edit and must not be reset.
+  if (legacyComposure) {
+    const jab = MARS_ARCADE_FIGHTERS.captain.moves.light
+    result.fighters.captain.moves.light = Object.fromEntries(MOVE_FIELDS.map(field => [field, jab[field]])) as unknown as MarsArcadeMoveTuning
   }
   return result
 }

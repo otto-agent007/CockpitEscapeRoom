@@ -32,11 +32,12 @@ describe('heavy hit presentation', () => {
     const health = state.fighters[defender].health
     expect(100 - health).toBe(attacker === 'oracle' ? 11 : 13)
     const duration = state.fighters[defender].stunFrames
+    const freezeFrames = state.hitstop?.framesRemaining ?? 0
     const sources = new Set<string>()
     const x = state.fighters[defender].x
     const seen = new Set<string>()
     let previousDistance = Infinity
-    for (let frame = 0; frame <= duration; frame++) {
+    for (let frame = 0; frame <= duration + freezeFrames; frame++) {
       const before = structuredClone(state)
       const pose = selectArcadeSprite(state, defender, false, 0, reactions[defender])
       expect(state).toEqual(before)
@@ -49,7 +50,8 @@ describe('heavy hit presentation', () => {
       seen.add(pose.label)
       if (state.fighters[defender].activity === 'hitstun') sources.add(pose.src)
       if (frame === 0) expect(distance).toBeGreaterThan(0)
-      if (frame >= 8) expect(distance).toBe(0)
+      if (frame <= freezeFrames) expect(distance).toBe(Math.abs(reactions[defender]!.offsetX))
+      if (frame >= 8 + freezeFrames) expect(distance).toBe(0)
       const reduced = selectArcadeSprite(state, defender, true, 0, reactions[defender])
       expect(reduced.renderX ?? x).toBe(x)
       if (state.fighters[defender].activity === 'hitstun') expect(reduced.src).toBe(pose.src)

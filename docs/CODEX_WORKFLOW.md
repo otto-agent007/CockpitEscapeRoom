@@ -25,6 +25,8 @@ Use Codex Plan mode for complex, ambiguous, or visually consequential work. Prod
 
 `AGENTS.md` is kept practical and repo-specific. Nested guidance may be added under asset or application directories if local rules become necessary. When Codex repeats the same mistake, conduct a short retrospective and update the smallest durable guidance file that prevents recurrence.
 
+Read the relevant entries in [the lesson log](LESSONS_LEARNED.md) before nontrivial changes and retries. Record meaningful feedback and confirmed causes as they occur, with evidence and a concrete prevention check; label unconfirmed causes as hypotheses. The active plan holds detailed attempts and current status. A retry must explain what changed based on the last result. Reusable lessons belong in guidance or a meaningful regression test, and should be revised when contrary evidence appears.
+
 ## Skills
 
 The repo-local Skill pack is organized by job:

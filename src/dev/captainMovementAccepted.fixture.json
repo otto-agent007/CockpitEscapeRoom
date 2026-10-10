@@ -1,0 +1,107 @@
+{
+  "ownerReply": "yes thats better, wheres the sam special?",
+  "approvedCandidates": [
+    {
+      "family": "idle",
+      "candidate": "idle-right-hand-cycle-candidate",
+      "sources": [
+        {
+          "path": "/art-source/arcade/captain/normalised-idle-right-hand-v2-lanczos/idle-right-hand-v2-candidate/idle-right-hand-v2-candidate-00.png",
+          "sha256": "75a4b3163b1161725fc610bd3eeac98ec59660b2bc1365b654bd0e40b803661f",
+          "pose": "right-hand-neutral",
+          "phase": "neutral",
+          "hold": 30
+        },
+        {
+          "path": "/art-source/arcade/captain/normalised-idle-right-hand-breath-v1-bilinear/idle-right-hand-breath-candidate/idle-right-hand-breath-candidate-00.png",
+          "sha256": "3bb5c991dd65fda809d3589fea78cd856f9111e98ab125f4bb7456199b9ffb30",
+          "pose": "right-hand-inhale",
+          "phase": "neutral",
+          "hold": 30
+        },
+        {
+          "path": "/art-source/arcade/captain/normalised-idle-right-hand-v2-lanczos/idle-right-hand-v2-candidate/idle-right-hand-v2-candidate-00.png",
+          "sha256": "75a4b3163b1161725fc610bd3eeac98ec59660b2bc1365b654bd0e40b803661f",
+          "pose": "right-hand-return",
+          "phase": "neutral",
+          "hold": 30
+        },
+        {
+          "path": "/art-source/arcade/captain/normalised-idle-right-hand-breath-v1-bilinear/idle-right-hand-breath-candidate/idle-right-hand-breath-candidate-01.png",
+          "sha256": "5b6cb31a57ea28c080a7715779b018a3296f11c9d62cffbc06e8591245e95084",
+          "pose": "right-hand-exhale",
+          "phase": "neutral",
+          "hold": 30
+        }
+      ]
+    },
+    {
+      "family": "walk-forward",
+      "candidate": "walk-forward-v2-candidate",
+      "sources": [
+        {
+          "path": "/art-source/arcade/captain/normalised-full-set-v2-forward-ready/walk-forward-v2-candidate/walk-forward-v2-candidate-00.png",
+          "sha256": "0941744f47bd2ef8eeff6ba8abc931e3a55d164addf88a1fd5cce195f5e8134d",
+          "pose": "00",
+          "phase": "neutral",
+          "hold": 8
+        },
+        {
+          "path": "/art-source/arcade/captain/normalised-full-set-v2-forward-ready/walk-forward-v2-candidate/walk-forward-v2-candidate-01.png",
+          "sha256": "d7d5cb78ee8465bbef545d82b4e67e7457646eaa493a99875c095aa8674aafc9",
+          "pose": "01",
+          "phase": "neutral",
+          "hold": 8
+        },
+        {
+          "path": "/art-source/arcade/captain/normalised-full-set-v2-forward-ready/walk-forward-v2-candidate/walk-forward-v2-candidate-02.png",
+          "sha256": "e8924efcca800e5a9c06089c3cd47e9ea899648dd3d019086b89dd1e1c0114c7",
+          "pose": "02",
+          "phase": "neutral",
+          "hold": 8
+        },
+        {
+          "path": "/art-source/arcade/captain/normalised-full-set-v2-forward-ready/walk-forward-v2-candidate/walk-forward-v2-candidate-03.png",
+          "sha256": "295048e193bcbfc7f97d5fde9e5f032cbb96b9845b511ff346e160c85800c246",
+          "pose": "03",
+          "phase": "neutral",
+          "hold": 8
+        }
+      ]
+    },
+    {
+      "family": "walk-back",
+      "candidate": "walk-back-v2-candidate",
+      "sources": [
+        {
+          "path": "/art-source/arcade/captain/normalised-full-set-v2-forward-ready/walk-forward-v2-candidate/walk-forward-v2-candidate-00.png",
+          "sha256": "0941744f47bd2ef8eeff6ba8abc931e3a55d164addf88a1fd5cce195f5e8134d",
+          "pose": "back-00",
+          "phase": "neutral",
+          "hold": 8
+        },
+        {
+          "path": "/art-source/arcade/captain/normalised-full-set-v2-forward-ready/walk-forward-v2-candidate/walk-forward-v2-candidate-03.png",
+          "sha256": "295048e193bcbfc7f97d5fde9e5f032cbb96b9845b511ff346e160c85800c246",
+          "pose": "back-03",
+          "phase": "neutral",
+          "hold": 8
+        },
+        {
+          "path": "/art-source/arcade/captain/normalised-full-set-v2-forward-ready/walk-forward-v2-candidate/walk-forward-v2-candidate-02.png",
+          "sha256": "e8924efcca800e5a9c06089c3cd47e9ea899648dd3d019086b89dd1e1c0114c7",
+          "pose": "back-02",
+          "phase": "neutral",
+          "hold": 8
+        },
+        {
+          "path": "/art-source/arcade/captain/normalised-full-set-v2-forward-ready/walk-forward-v2-candidate/walk-forward-v2-candidate-01.png",
+          "sha256": "d7d5cb78ee8465bbef545d82b4e67e7457646eaa493a99875c095aa8674aafc9",
+          "pose": "back-01",
+          "phase": "neutral",
+          "hold": 8
+        }
+      ]
+    }
+  ]
+}

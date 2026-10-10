@@ -4,7 +4,7 @@
 Usage:
     python3 tools/assets/pick-arcade-frames.py <video.mp4|frames-dir> <out-dir>
         --frames N [--policy cycle|action|hold] [--start-fraction F] [--span-factor S]
-        [--fps 12] [--duplicate-threshold 2.0]
+        [--single-cycle] [--fps 12] [--duplicate-threshold 2.0]
 
 A move generated as one image-to-video clip is consistent in identity, scale and camera in
 a way separately generated poses never are; what is left is choosing which of its frames
@@ -15,7 +15,10 @@ become the drawings. This is Spriterrific's frame-picker discipline, ported:
   3. for a `cycle` (walk, idle) MEASURE the cycle period (where the clip best matches itself
      again) and spread N frames over exactly one cycle, so the picks are in phase order —
      a guessed spacing lands them out of phase and the walk plays as a moonwalk;
-     --span-factor overrides the measurement; for an `action` (an attack, a reaction)
+     --span-factor overrides the measurement. For a first-last-frame video known to be
+     exactly one cycle, --single-cycle uses the entire clip, excluding the closing frame
+     that repeats the first pose (no settle skip or guessed spacing).
+     For an `action` (an attack, a reaction)
      spread N frames over the whole remaining clip; for `hold` (a block) take the frames
      where the pose has settled;
   4. reject near-duplicates: a pick that differs from the previous one by less than
@@ -125,16 +128,20 @@ def cycle_period(sigs: list[np.ndarray], start: int) -> int | None:
     return best
 
 
-def choose(frames: list[Path], count: int, policy: str, start_fraction: float, span_factor: float | None, threshold: float | None) -> tuple[list[int], dict]:
+def choose(frames: list[Path], count: int, policy: str, start_fraction: float, span_factor: float | None, threshold: float | None, single_cycle: bool = False) -> tuple[list[int], dict]:
     total = len(frames)
-    if total < count:
-        raise ValueError(f"need at least {count} frames, found {total}")
+    available = total - 1 if single_cycle else total
+    if available < count:
+        raise ValueError(f"need at least {count} frames, found {available}" + (" excluding the closing frame" if single_cycle else ""))
     sigs = [signature(p) for p in frames]
     resolved = threshold if threshold is not None else auto_threshold(sigs)
     start = int(round((total - 1) * start_fraction))
     period = None
     if policy == "cycle":
-        if span_factor is None:
+        if single_cycle:
+            period = total - 1
+            span_factor = period / count
+        elif span_factor is None:
             period = cycle_period(sigs, start)
             if period is None:
                 raise ValueError("could not measure a cycle period; pass --span-factor explicitly")
@@ -149,10 +156,13 @@ def choose(frames: list[Path], count: int, policy: str, start_fraction: float, s
         return list(range(best, best + count)), {"window": [best, best + count - 1], "mode": "hold", "duplicateThreshold": resolved}
     if end - start + 1 < count:
         start, end = max(0, total - count), total - 1
-    picks = spread_distinct(start, end, total - 1, count, sigs, resolved)
+    # Duplicate repair must not escape into the repeated closing pose of a single cycle.
+    picks = spread_distinct(start, end, available - 1, count, sigs, resolved)
     meta = {"window": [start, end], "mode": policy, "duplicateThreshold": resolved, "spanFactor": span_factor}
     if period is not None:
         meta["cyclePeriod"] = period
+    if single_cycle:
+        meta["cycleSource"] = "first-last-frame"
     return picks, meta
 
 
@@ -178,6 +188,7 @@ def main() -> int:
     ap.add_argument("--policy", choices=("cycle", "action", "hold"), default="action")
     ap.add_argument("--start-fraction", type=float, default=None, help="share of the clip to skip as settle (default: 0.08 for cycle, 0 otherwise)")
     ap.add_argument("--span-factor", type=float, default=None, help="cycle only: dense frames per pick; default measures the cycle period and spreads the picks over one cycle")
+    ap.add_argument("--single-cycle", action="store_true", help="cycle only: the entire video is one cycle with the first pose repeated at the end; omit that closing frame")
     ap.add_argument("--fps", type=int, default=None, help="extraction rate; default keeps every source frame")
     ap.add_argument("--duplicate-threshold", type=float, default=None,
                     help="mean grey difference (0-255) below which two picks are the same drawing; default: half the clip's typical frame-to-frame change")
@@ -185,7 +196,16 @@ def main() -> int:
 
     if args.frames < 1:
         ap.error("--frames must be at least 1")
-    start_fraction = args.start_fraction if args.start_fraction is not None else (0.08 if args.policy == "cycle" else 0.0)
+    if args.single_cycle:
+        if args.policy != "cycle":
+            ap.error("--single-cycle requires --policy cycle")
+        if args.span_factor is not None:
+            ap.error("--single-cycle cannot be combined with --span-factor")
+        if args.fps is not None:
+            ap.error("--single-cycle cannot be combined with --fps; resampling can remove the endpoint poses")
+        if args.start_fraction not in (None, 0):
+            ap.error("--single-cycle requires --start-fraction 0 (or omit it)")
+    start_fraction = args.start_fraction if args.start_fraction is not None else (0.08 if args.policy == "cycle" and not args.single_cycle else 0.0)
     if not 0 <= start_fraction < 1:
         ap.error("--start-fraction must be in [0, 1)")
 
@@ -201,7 +221,7 @@ def main() -> int:
             return 1
         dense = extract(args.source, args.out_dir / "dense", args.fps)
     try:
-        picks, meta = choose(dense, args.frames, args.policy, start_fraction, args.span_factor, args.duplicate_threshold)
+        picks, meta = choose(dense, args.frames, args.policy, start_fraction, args.span_factor, args.duplicate_threshold, args.single_cycle)
     except ValueError as error:
         print(f"error: {error}", file=sys.stderr)
         return 1
@@ -220,7 +240,7 @@ def main() -> int:
         **meta, "picks": [{"out": str(o), "dense": int(i), "denseFile": str(dense[i])} for o, i in zip(outputs, picks)],
     }, indent=2) + "\n", encoding="utf-8")
     print(f"{len(dense)} dense frames; window {meta['window'][0]}..{meta['window'][1]}"
-          + (f"; measured cycle {meta['cyclePeriod']} frames" if meta.get('cyclePeriod') else "") + f"; picked {picks}")
+          + (f"; {'first-last-frame' if args.single_cycle else 'measured'} cycle {meta['cyclePeriod']} frames" if meta.get('cyclePeriod') else "") + f"; picked {picks}")
     print(f"wrote {len(outputs)} picks and picks-contact-sheet.png to {args.out_dir}")
     return 0
 

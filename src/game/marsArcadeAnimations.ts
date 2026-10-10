@@ -24,8 +24,8 @@ import {
   marsArcadeBoxToStage,
   type MarsArcadeBox,
   type MarsArcadeFramePhase,
-} from './marsArcadeBounds'
-import { marsArcadeFighter, type MarsArcadeFighterId, type MarsArcadeMove } from './marsArcadeFighters'
+} from './marsArcadeBounds.ts'
+import { marsArcadeFighter, marsArcadeKnownMoves, type MarsArcadeFighterId, type MarsArcadeMove } from './marsArcadeFighters.ts'
 
 /** Bumped when the on-disk shape changes in a way old files cannot satisfy. */
 export const MARS_ARCADE_ANIMATIONS_VERSION = 2
@@ -290,6 +290,7 @@ export function marsArcadeMoveById(id: string): MarsArcadeMove | null {
     for (const move of Object.values(marsArcadeFighter(fighter).moves)) {
       if (move.id === id) return move
     }
+    for(const move of marsArcadeKnownMoves(fighter))if(move.id===id)return move
   }
   return null
 }
@@ -314,10 +315,10 @@ export function validateMarsArcadeAnimations(file: MarsArcadeAnimationsFile): Ma
     const key = marsArcadeAnimationKey(entry.fighter, entry.animation)
     const move = entry.moveId ? marsArcadeMoveById(entry.moveId) : null
     if (entry.moveId && !move) error(key, 'unknown-move', `${entry.moveId} is not a move any fighter has`)
-    if (entry.moveId && move && !Object.values(marsArcadeFighter(entry.fighter).moves).includes(move)) {
+    if (entry.moveId && move && !marsArcadeKnownMoves(entry.fighter).some(known=>known.id===move.id)) {
       error(key, 'foreign-move', `${entry.moveId} belongs to another fighter`)
     }
-    if (!entry.reviewed) warning(key, 'unreviewed', 'boxes are machine-seeded and have not been reviewed in the gym')
+    if (!entry.reviewed) warning(key, 'unreviewed', 'boxes await owner sign-off in the gym')
 
     if (move) {
       if (entry.loop !== 'once') error(key, 'move-loop', `a move clip plays once, not ${entry.loop}`)
@@ -331,7 +332,7 @@ export function validateMarsArcadeAnimations(file: MarsArcadeAnimationsFile): Ma
           error(key, 'hold-sum', `${phase} drawings are held ${held[phase]} frames; the move has ${expected[phase]}`)
         }
       }
-      const strikes = move.reach > 0 && !move.lockOn && !move.projectile && move.damage > 0
+      const strikes = move.reach > 0 && !move.lockOn && !move.projectile && !move.stageWide && move.damage > 0
       let bestReach: number | null = null
       entry.frames.forEach((frame, index) => {
         const reach = marsArcadeAttackReach(frame)
@@ -339,7 +340,7 @@ export function validateMarsArcadeAnimations(file: MarsArcadeAnimationsFile): Ma
           error(key, 'active-without-attack', `active pose "${frame.pose}" has no attack box`, index)
         }
         if (reach !== null && !strikes) {
-          error(key, 'attack-without-reach', `pose "${frame.pose}" carries an attack box but ${move.id} does not strike by reach`, index)
+          error(key, 'attack-without-reach', `pose "${frame.pose}" carries an attack box but ${move.id} does not use character strike boxes`, index)
         }
         if (reach !== null) bestReach = bestReach === null ? reach : Math.max(bestReach, reach)
       })

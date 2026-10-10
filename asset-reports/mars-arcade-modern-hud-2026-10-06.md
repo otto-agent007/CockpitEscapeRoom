@@ -1,0 +1,7 @@
+# Modern arcade HUD
+
+Modern local system-sans HUD and shared arcade/gym controls; monospace diagnostic text retained. Health: existing25% threshold, slower1Hz red pulse, LOW text, steady reduced-motion and KO, no percentage per owner. Cyan segmented special meter with readiness from actual move cost and notch;100meter stays gold. No dependencies or remote fonts. HUD rectangles and accepted sprite/move/tuning bytes unchanged.
+
+Verification: focused health RED(old8tick phase failed) to GREEN(36 focused tests), main npm run check961tests/86files, review974/88 plus lint/types/build. Native real two Sam attacks bring target22HP, both sides and both motion settings; sampled red frame changes only for normal motion, LOW without%, accessible warning clears on restart. Arcade/gym at375/768/1440 both5360/5362 no overflow/errors. Four Sam reading/pen browser cases pass:120stationaryreading ticks,60pen image ticks with57nonattackingrecovery, single36hit/theft; modern speech lines fit. Gym5362 server stopped at last step; restored listener and separate two-gym recheck passed. Original failed log retained. Tmux%1 updated with actual stage screenshot; no owner acceptance inferred.
+
+Fresh scoped review: no Critical/Important findings. Deferred minor: special-cost notch uses continuous width so some costs land one stage pixel into a segment gap; cosmetic. System font checked on current workstation; cross-platform metrics not verified. Browser plugin unavailable, regular Playwright fallback used.

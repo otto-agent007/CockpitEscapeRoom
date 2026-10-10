@@ -26,13 +26,15 @@
       <section class="stage-panel" aria-label="Fight stage">
         <div class="titlebar"><span id="stage-title">Mars arcade · fighter playground</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
         <div class="viewport">
-          <canvas id="stage" role="img" aria-label="Arcade fight preview. Native controls and live state follow below."></canvas>
+          <canvas id="stage" tabindex="0" role="img" aria-label="Fight arena. Click or Tab here for player controls; key hints and native controls follow below."></canvas>
         </div>
         <p class="keys" aria-label="Key hints">
+          Free play starts a round. Click the arena to control P1.<br />
           <kbd>A</kbd><kbd>D</kbd> move · <kbd>W</kbd> jump · <kbd>J</kbd> light · <kbd>K</kbd> heavy · <kbd>L</kbd> special ·
           <kbd>Space</kbd> pause · <kbd>N</kbd> step · <kbd>R</kbd> reset · <kbd>H</kbd> boxes · <kbd>T</kbd> human P2
         </p>
         <p id="asset-status" class="status" role="status">Loading sprite pilot…</p>
+        <p id="health-status" class="health-status" role="status" aria-live="polite"></p>
         <div class="controls" aria-label="Round controls">
           <button class="btn-primary" data-command="exchange">Play exchange</button>
           <button data-command="freeplay">Free play</button>
@@ -52,11 +54,11 @@
         </div>
         <fieldset><legend>P1 — hold to move, move away to guard</legend><div class="controls">
           <button data-combat="KeyA" aria-label="P1 left">←</button><button data-combat="KeyD" aria-label="P1 right">→</button>
-          <button data-combat="KeyW">P1 jump</button><button data-combat="KeyJ">P1 light</button><button data-combat="KeyK">P1 heavy</button><button data-combat="KeyL">P1 special</button>
+          <button data-combat="KeyW">P1 jump</button><button data-combat="KeyS" data-pivot-down="0" hidden>P1 down</button><button data-combat="KeyJ">P1 light</button><button data-combat="KeyK">P1 heavy</button><button data-combat="KeyL">P1 special</button>
         </div></fieldset>
         <fieldset><legend>P2 — controls when human P2 is selected</legend><div class="controls">
           <button data-combat="ArrowLeft" aria-label="P2 left">←</button><button data-combat="ArrowRight" aria-label="P2 right">→</button>
-          <button data-combat="ArrowUp">P2 jump</button><button data-combat="Comma">P2 light</button><button data-combat="Period">P2 heavy</button><button data-combat="Slash">P2 special</button>
+          <button data-combat="ArrowUp">P2 jump</button><button data-combat="ArrowDown" data-pivot-down="1" hidden>P2 down</button><button data-combat="Comma">P2 light</button><button data-combat="Period">P2 heavy</button><button data-combat="Slash">P2 special</button>
         </div></fieldset>
         <p class="note">
           Solid red = hitbox live this frame. Dashed amber = startup, the telegraph.
@@ -65,11 +67,12 @@
           <br /><strong>The stage is wider than the screen:</strong> 480&nbsp;px of stage behind a
           320&nbsp;px view. The camera follows the midpoint between the fighters and stops 24&nbsp;px
           past each wall, so a cornered fighter is still drawn whole.
-          <br /><strong>Reach is centre-to-centre:</strong> a move connects when the opponent's
-          dashed centre line is inside the solid end-cap, not when the boxes overlap.
+          <br /><strong>Hits use the drawn boxes:</strong> attack and hurt boxes must overlap.
+          The centre-to-centre reach guide applies when hits by boxes is off or a move has no boxes.
         </p>
+        <p id="pivot-preview-info" hidden>Sam’s Non-Profit Pivot ·60 meter ·capture within60px ·guard bypass ·steals half the opponent's meter. Sam: forward, down, down-forward +Heavy; L/Special also works. S is down for Sam; the speed button still works.</p>
+        <p id="pivot-status" role="status" aria-live="polite" hidden></p>
       </section>
-
       <aside class="console" id="arcade-console" aria-label="Debug console">
         <div class="console-head"><span>Debug console</span><button type="button" id="arcade-collapse" aria-expanded="true">Collapse</button></div>
 
@@ -113,7 +116,7 @@
             <label class="chip"><input type="checkbox" id="pg-rule-useBounds" /> hits by boxes</label>
             <label class="chip"><input type="checkbox" id="pg-rule-hitstop" /> hit stop</label>
           </div>
-          <p class="dim" style="margin:0;font-size:11px;color:var(--ink-dim)">Both ship off. <b>Hits by boxes</b>: a strike lands when its attack box overlaps a hurt box, instead of within <code>reach</code>, and a standing guard no longer stops a low attack. A pose with no boxes still uses reach. <b>Hit stop</b>: every connect freezes both fighters for the move's <code>hitstop</code> frames and flashes the defender. Save tuning keeps both.</p>
+          <p class="dim" style="margin:0;font-size:11px;color:var(--ink-dim)">Both ship on. <b>Hits by boxes</b>: a strike lands when its attack box overlaps a hurt box, instead of within <code>reach</code>, and a standing guard no longer stops a low attack. A pose with no boxes still uses reach. <b>Hit stop</b>: every connect freezes both fighters for the move's <code>hitstop</code> frames and flashes the defender. Save tuning keeps both.</p>
         </section>
 
         <section class="section">

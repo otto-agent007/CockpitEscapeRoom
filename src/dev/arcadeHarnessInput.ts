@@ -14,6 +14,8 @@ export interface ArcadeKeyBindings {
   light: string
   heavy: string
   special: string
+  /** Motion input only; this does not add a crouch to the fight rules. */
+  down?: string
 }
 
 export const PLAYER_ONE_BINDINGS: ArcadeKeyBindings = {
@@ -23,6 +25,7 @@ export const PLAYER_ONE_BINDINGS: ArcadeKeyBindings = {
   light: 'KeyJ',
   heavy: 'KeyK',
   special: 'KeyL',
+  down: 'KeyS',
 }
 
 export const PLAYER_TWO_BINDINGS: ArcadeKeyBindings = {
@@ -32,6 +35,7 @@ export const PLAYER_TWO_BINDINGS: ArcadeKeyBindings = {
   light: 'Comma',
   heavy: 'Period',
   special: 'Slash',
+  down: 'ArrowDown',
 }
 
 export function inputFromKeys(

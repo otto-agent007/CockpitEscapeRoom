@@ -41,6 +41,55 @@
           <kbd>M</kbd> mirror, <kbd>C</kbd> copies the selected kind from the previous frame, <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes.
           The purple lines are the contract baseline (row 119) and the pivot column (64).
         </p>
+        <section id="gym-art" class="art-editor" aria-labelledby="gym-art-title">
+          <div class="titlebar"><h2 id="gym-art-title">Art corrections</h2><span>Reversible drawing edits</span></div>
+          <div class="art-body">
+            <p>Use a fixed reference to match colors, height and body position. Preview one drawing or the whole clip, then save a corrected copy. Originals stay available.</p>
+            <div class="art-settings">
+              <div class="field"><label for="gym-art-reference">Fixed reference</label><select id="gym-art-reference"></select></div>
+              <div class="field"><label for="gym-art-scope">Apply to</label><select id="gym-art-scope"><option value="clip">Whole clip</option><option value="drawing">Current drawing (including reused poses)</option></select></div>
+            </div>
+            <div class="art-comparison">
+              <figure><figcaption>Current / corrected · sample source</figcaption><canvas id="gym-art-current" width="128" height="128" aria-label="Current drawing color sampler"></canvas></figure>
+              <figure><figcaption>Fixed reference · sample target</figcaption><canvas id="gym-art-reference-view" width="128" height="128" aria-label="Reference drawing color sampler"></canvas></figure>
+            </div>
+            <div class="art-options"><label><input type="checkbox" id="gym-art-original" /> Show original during playback</label><label><input type="checkbox" id="gym-art-overlay" /> Overlay reference on stage</label></div>
+            <pre id="gym-art-metrics" class="art-metrics"></pre>
+            <fieldset><legend>Colors in the selected area</legend>
+              <p class="art-help">The yellow rectangle limits color changes. Presets are starting areas; adjust the rectangle to protect skin, trim or accessories.</p>
+              <div class="art-settings">
+                <div class="field"><label for="gym-art-region">Area preset</label><select id="gym-art-region"><option value="shoes">Shoes</option><option value="hat">Hat</option><option value="trousers">Trousers</option><option value="whole">Whole sprite</option><option value="custom">Custom</option></select></div>
+                <div class="field"><label for="gym-art-tolerance">Color tolerance (0–128)</label><input type="number" id="gym-art-tolerance" value="45" min="0" max="128" /></div>
+              </div>
+              <div class="art-grid">
+                <div class="field"><label for="gym-art-area-x">Area x</label><input type="number" id="gym-art-area-x" value="0" min="0" max="127" /></div>
+                <div class="field"><label for="gym-art-area-y">Area y</label><input type="number" id="gym-art-area-y" value="109" min="0" max="127" /></div>
+                <div class="field"><label for="gym-art-area-w">Width</label><input type="number" id="gym-art-area-w" value="128" min="1" max="128" /></div>
+                <div class="field"><label for="gym-art-area-h">Height</label><input type="number" id="gym-art-area-h" value="11" min="1" max="128" /></div>
+              </div>
+              <div class="art-options"><button type="button" id="gym-art-palette" data-art-action>Match area palette to reference</button><label><input type="checkbox" id="gym-art-all-colors" /> Match all colors in selected area</label></div>
+              <p class="art-help">By default, only nearby colors match. Enable “Match all colors” when lighter gray or bright parts stay unchanged; it ignores tolerance for palette matching. Keep the yellow area around the part you want to recolor. Shading uses the reference palette and alpha stays unchanged.</p>
+              <div class="art-grid">
+                <div class="field"><label for="gym-art-from">Source color</label><input type="color" id="gym-art-from" value="#142846" /></div>
+                <div class="field"><label for="gym-art-to">Target color</label><input type="color" id="gym-art-to" value="#323c28" /></div>
+                <div class="field"><label for="gym-art-sample-x">Sample x</label><input type="number" id="gym-art-sample-x" value="58" min="0" max="127" /></div>
+                <div class="field"><label for="gym-art-sample-y">Sample y</label><input type="number" id="gym-art-sample-y" value="114" min="0" max="127" /></div>
+              </div>
+              <div class="art-options"><button type="button" id="gym-art-sample-from" data-art-action>Sample source</button><button type="button" id="gym-art-sample-to" data-art-action>Sample reference</button><label><input type="checkbox" id="gym-art-shading" checked /> Preserve shade differences</label></div>
+              <button type="button" id="gym-art-replace" data-art-action>Apply color replacement</button>
+            </fieldset>
+            <fieldset><legend>Size and alignment</legend>
+              <p class="art-help">Height uses nearest-pixel scaling with feet on row 119. Body alignment uses the torso, while keeping the foot center within 1px of pivot 64. Any remaining body difference is shown above; manual nudges let you compare alternatives.</p>
+              <div class="art-settings"><div class="field"><label for="gym-art-height">Standing height (px)</label><input type="number" id="gym-art-height" value="104" min="1" max="120" /></div><button type="button" id="gym-art-height-apply" data-art-action>Apply height</button><button type="button" id="gym-art-height-match" data-art-action>Match reference height</button></div>
+              <div class="art-settings"><div class="field"><label for="gym-art-shift-x">Nudge x (px)</label><input type="number" id="gym-art-shift-x" value="0" min="-128" max="128" /></div><div class="field"><label for="gym-art-shift-y">Nudge y (px)</label><input type="number" id="gym-art-shift-y" value="0" min="-128" max="128" /></div><button type="button" id="gym-art-shift" data-art-action>Apply nudge</button></div>
+              <button type="button" id="gym-art-align" data-art-action>Align body and feet to reference</button>
+            </fieldset>
+            <details><summary>Corrections on this drawing</summary><pre id="gym-art-operations"></pre></details>
+            <div class="art-options"><button type="button" id="gym-art-undo" data-art-action>Undo art</button><button type="button" id="gym-art-reset" data-art-action>Reset chosen scope</button><button type="button" id="gym-art-save" class="btn-primary" data-art-action>Save corrected copy</button></div>
+            <p class="art-help">Draft art survives reload in this tab. Save creates a new gym clip using saved frame timing; timing and box edits use the existing Save control. Corrected copies need pose and box review before combat use.</p>
+            <p id="gym-art-status" class="status-line" role="status" aria-live="polite">Original artwork · corrections stay local until saved</p>
+          </div>
+        </section>
       </section>
 
       <aside class="console" id="gym-console" aria-label="Debug console">

@@ -1,0 +1,19 @@
+{
+  "archiveSha256": "3e4e0ff6cca2f185f85a70aba14f274300a1e830b5d11d302d916f82fc35ec1f",
+  "proof": [
+    {
+      "mode": "main",
+      "sprites": 108,
+      "cleanReopen": true,
+      "regularSpecialAndGym": true,
+      "errors": []
+    },
+    {
+      "mode": "review",
+      "sprites": 156,
+      "cleanReopen": true,
+      "regularSpecialAndGym": true,
+      "errors": []
+    }
+  ]
+}

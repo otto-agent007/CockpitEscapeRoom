@@ -88,6 +88,7 @@ describe('movement artwork', () => {
     expect(state.fighters[0].y).toBe(0)
     expect(selectArcadeSprite(state, 0, false).src).not.toContain('/airborne/')
     state.fighters[1].activity = 'airborne'
-    expect(selectArcadeSprite(state, 1, false).placeholder).toBe(true)
+    expect(selectArcadeSprite(state, 1, false).placeholder).toBe(false)
+    expect(selectArcadeSprite(state, 1, false).src).toContain('/captain/')
   })
 })

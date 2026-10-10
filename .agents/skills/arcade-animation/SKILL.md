@@ -35,9 +35,11 @@ Nothing about a clip lives anywhere else — not in the sprite selector, not in 
    `art-source/arcade/<fighter>/generated/<wave>/`.
 2. **Pick**, for a video: `python3 tools/assets/pick-arcade-frames.py <clip.mp4> <out> --frames N
    --policy cycle|action|hold`. Review `picks-contact-sheet.png`. A pick is a candidate, not a drawing.
-   A `wan-flf` clip with the anchor at both ends is exactly one cycle, longer than the picker's
-   period search reaches: pass `--start-fraction 0 --span-factor <(frames-1)/N>` (33 frames, 4
-   drawings: 8). If one pick fails the gate on a resampling speck, try its neighbour frame and
+   A `wan-flf` clip with the anchor at both ends is exactly one cycle: use `--policy cycle
+   --single-cycle`. This starts at frame zero, spans the complete cycle, and excludes the
+   repeated closing frame (33 frames, 4 drawings: picks 0, 8, 16, 24). Keep the video's
+   source frame rate: `--fps` is refused because resampling can remove the endpoints. Do not use this flag
+   for videos containing multiple cycles. If one pick fails the gate on a resampling speck, try its neighbour frame and
    record the swap in `selection.json`.
 3. **Normalise the clip together**, one alignment for the whole clip:
    `python3 tools/assets/normalise-arcade-clip.py art-source/arcade/<fighter>/normalised-<set>-ready

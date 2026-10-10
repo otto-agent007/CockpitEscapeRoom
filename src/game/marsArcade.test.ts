@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
   MARS_ARCADE_STAGE,
   MARS_ARCADE_TIMING,
@@ -14,12 +14,18 @@ import {
   type MarsArcadeState,
 } from './marsArcade'
 import {
-  CAPTAIN_COMPOSURE_METER_GAIN,
   MARS_ARCADE_FIGHTERS,
+  marsArcadeDefaultTuning,
+  setMarsArcadeTuning,
   type MarsArcadeFighterId,
 } from './marsArcadeFighters'
 
 type InputPair = [MarsArcadeInput, MarsArcadeInput]
+
+// Retain the legacy reach/timing regressions. Default-on rules are exercised in
+// marsArcadeBoundsRules.test.ts and the harness presentation/exchange suites.
+beforeEach(() => setMarsArcadeTuning({ ...marsArcadeDefaultTuning(), rules: { useBounds: false, hitstop: false } }))
+afterEach(() => setMarsArcadeTuning(null))
 
 const neutral = (): MarsArcadeInput => ({ ...NEUTRAL_MARS_ARCADE_INPUT })
 const neutralPair = (): InputPair => [neutral(), neutral()]
@@ -537,15 +543,15 @@ describe('projectiles', () => {
 })
 
 describe('the captain', () => {
-  it('banks composure instead of damage when the cup goes down', () => {
+  it('uses the approved palm jab instead of banking free composure', () => {
     const base = startedRound('captain', 'oracle')
     const state = placedAtWall(base, 28)
     const result = pump(state, 20, [hold('light'), neutral()])
 
-    expect(eventTypes(result.events)).toContain('composure')
-    expect(eventTypes(result.events)).not.toContain('hit')
-    expect(result.state.fighters[0].meter).toBe(CAPTAIN_COMPOSURE_METER_GAIN)
-    expect(result.state.fighters[1].health).toBe(MARS_ARCADE_FIGHTERS.oracle.health)
+    expect(eventTypes(result.events)).not.toContain('composure')
+    expect(eventTypes(result.events)).toContain('hit')
+    expect(result.state.fighters[0].meter).toBe(6)
+    expect(result.state.fighters[1].health).toBe(MARS_ARCADE_FIGHTERS.oracle.health - 5)
   })
 
   it('is not selectable until it is unlocked', () => {

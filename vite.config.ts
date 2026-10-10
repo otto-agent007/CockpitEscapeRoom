@@ -1,5 +1,5 @@
 import { writeFile } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { relative, resolve } from 'node:path'
 
 import react from '@vitejs/plugin-react'
 import { defineConfig, type Plugin } from 'vite'
@@ -9,8 +9,9 @@ import {
   marsArcadeAnimationErrors,
   parseMarsArcadeAnimations,
   validateMarsArcadeAnimations,
-} from './src/game/marsArcadeAnimations'
-import { parseMarsArcadeTuning } from './src/game/marsArcadeTuning'
+} from './src/game/marsArcadeAnimations.ts'
+import { parseMarsArcadeTuning } from './src/game/marsArcadeTuning.ts'
+import { saveGymArt } from './tools/dev/arcadeArtSave.ts'
 
 /**
  * Dev-only endpoint the character gym posts the animation table to.
@@ -25,12 +26,34 @@ import { parseMarsArcadeTuning } from './src/game/marsArcadeTuning'
  * Warnings are allowed through; errors are refused with the findings in the body.
  */
 function arcadeGymSave(): Plugin {
-  const target = resolve(__dirname, 'src/game/marsArcadeAnimations.json')
-  const tuningTarget = resolve(__dirname, 'src/game/marsArcadeTuning.json')
+  const target = resolve(import.meta.dirname, 'src/game/marsArcadeAnimations.json')
+  const tuningTarget = resolve(import.meta.dirname, 'src/game/marsArcadeTuning.json')
   return {
     name: 'arcade-gym-save',
     apply: 'serve',
     configureServer(server) {
+      server.middlewares.use('/__gym/art', (request, response) => {
+        if (request.method !== 'POST') { response.statusCode = 405; response.end('POST only'); return }
+        const origin = request.headers.origin
+        if (origin && origin !== `http://${request.headers.host}` && origin !== `https://${request.headers.host}`) { response.statusCode = 403; response.end('Use the local gym to save art'); return }
+        const chunks: Buffer[] = []
+        let length = 0, oversized = false
+        request.on('data', (chunk: Buffer) => {
+          length += chunk.length
+          if (length > 1024 * 1024) { oversized = true; return }
+          if (!oversized) chunks.push(chunk)
+        })
+        request.on('end', () => {
+          if (oversized) { response.statusCode = 413; response.end('Correction request is too large'); return }
+          void (async () => {
+            try {
+              const result = await saveGymArt(import.meta.dirname, JSON.parse(Buffer.concat(chunks).toString('utf8')))
+              response.setHeader('content-type', 'application/json')
+              response.end(JSON.stringify(result))
+            } catch (error) { response.statusCode = 422; response.end(String(error)) }
+          })()
+        })
+      })
       // The playground's tuning file: same shape of endpoint, parsed before writing.
       server.middlewares.use('/__gym/tuning', (request, response) => {
         if (request.method !== 'POST') {
@@ -89,6 +112,16 @@ function arcadeGymSave(): Plugin {
 
 export default defineConfig({
   plugins: [react(), arcadeGymSave()],
+  server: {
+    watch: {
+      // Recovery copies and isolated review projects must not reload the live gym.
+      ignored: (path) => {
+        const local = relative(import.meta.dirname, path).replaceAll('\\', '/')
+        return local === 'preview-renders' || local.startsWith('preview-renders/') ||
+          local === '.cache' || local.startsWith('.cache/')
+      },
+    },
+  },
   build: {
     sourcemap: true,
     target: 'es2022',
