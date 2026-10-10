@@ -31,9 +31,12 @@
         <p class="keys" aria-label="Key hints">
           Free play starts a round. Click the arena to control P1.<br />
           <kbd>A</kbd><kbd>D</kbd> move · <kbd>W</kbd> jump · <kbd>J</kbd> light · <kbd>K</kbd> heavy · <kbd>L</kbd> special ·
-          <kbd>Space</kbd> pause · <kbd>N</kbd> step · <kbd>R</kbd> reset · <kbd>H</kbd> boxes · <kbd>T</kbd> human P2
+          <kbd>Space</kbd> pause · <kbd>N</kbd> step · <kbd>R</kbd> reset · <kbd>H</kbd> boxes · <kbd>T</kbd> human P2<br />
+          Controller: d-pad or stick move · <kbd>A</kbd> jump · <kbd>X</kbd> light · <kbd>Y</kbd> heavy · <kbd>B</kbd> special ·
+          <kbd>Start</kbd> pause · <kbd>Back</kbd> reset. PlayStation: <kbd>✕</kbd> <kbd>□</kbd> <kbd>△</kbd> <kbd>○</kbd> in the same places.
         </p>
         <p id="asset-status" class="status" role="status">Loading sprite pilot…</p>
+        <p id="pad-status" class="status" role="status" aria-live="polite">No controller yet. Plug one in by USB or pair it by Bluetooth, then press any button on it.</p>
         <p id="health-status" class="health-status" role="status" aria-live="polite"></p>
         <div class="controls" aria-label="Round controls">
           <button class="btn-primary" data-command="exchange">Play exchange</button>
@@ -42,6 +45,7 @@
           <button data-command="KeyN">Step one frame</button>
           <button data-command="KeyR">Restart round</button>
           <button data-command="KeyT">Toggle CPU / human P2</button>
+          <button data-command="swapPads">Swap controller sides</button>
           <button data-command="KeyH">Toggle hitboxes</button>
           <button data-command="KeyV">Toggle sprites / boxes</button>
           <button data-command="KeyS">Cycle speed</button>
@@ -134,6 +138,10 @@
             <span>hitbox overlay</span><span><kbd>H</kbd></span>
             <span>sprites / boxes</span><span><kbd>V</kbd></span>
             <span>pick P1 / P2 fighter</span><span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> / <kbd>Shift</kbd>+</span>
+            <span>controller move / jump</span><span>d-pad or stick · <kbd>A</kbd></span>
+            <span>controller light / heavy / special</span><span><kbd>X</kbd> <kbd>Y</kbd> <kbd>B</kbd></span>
+            <span>controller pause / restart</span><span><kbd>Start</kbd> <kbd>Back</kbd></span>
+            <span>controllers</span><span>1st → P1, 2nd → P2</span>
           </div>
         </section>
 

@@ -3667,3 +3667,24 @@ Checks run on the clean branch:
 - Native keyboard run of Sam's special: Sam is P1, Elon is a human-controlled P2. Pivot spends 60 meter, shows the announcement and distracts P2. It hits for 36 (100 → 64), moves 50 meter from P2 to Sam, and adds Lawsuit Pending damage over time.
 
 Caught during packaging: the first file list missed the four flyby frames. They load through a template path, so the status showed `0/4 flyby effects ... fallback`. Those frames were added and the check was re-run.
+
+### 2026-10-10 Arcade game controllers (plan 0059)
+
+`feat/mars-arcade-gamepad`, from `origin/main` fe96e8d. The dev arcade now reads up to two game controllers, USB or Bluetooth, alongside the existing two-player keyboard controls.
+
+Checks run:
+- `npm run check`: lint, types, 984 tests in 89 files (15 new controller tests), and the build pass.
+- `node tools/ci/spoiler-guard.mjs dist`, `node tools/ci/privacy-guard.mjs .` and `node tools/ci/asset-budget.mjs dist` all pass. `dist` contains no controller code.
+- `node tools/dev/arcadeControllerProof.cjs http://127.0.0.1:5395/dev/arcade.html`: 24/24 checks pass with fake controllers behind `navigator.getGamepads`. They cover:
+  - status and seating
+  - d-pad and stick movement
+  - Captain jab, heavy and flyby
+  - the P2 controller taking P2 from the CPU
+  - simultaneous movement
+  - Start pause and resume, and Back restart
+  - swapping sides, and a P1 disconnect
+  - keyboard P1 with controller P2
+  - Sam's Pivot from the stick motion: meter 100 → 40, the announcement shown, Elon 100 → 61, 50 meter stolen
+  - no overflow at 375, 768 and 1440 px, with 0 page or console errors
+
+Not run: a physical controller. None was connected, and this PC has no Bluetooth adapter (`bluetooth.service` skipped: no `/sys/class/bluetooth`).
