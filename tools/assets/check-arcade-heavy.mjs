@@ -1,4 +1,4 @@
-/** Real native-input heavy key-pose proof; no game-state injection. */
+/** Native-input heavy proof. Oracle standing-block cases explicitly use legacy reach. */
 import assert from 'node:assert/strict'
 import { mkdir } from 'node:fs/promises'
 import { chromium } from '@playwright/test'
@@ -22,6 +22,8 @@ try {
     await page.goto(process.env.ARCADE_PILOT_URL ?? 'http://127.0.0.1:5317/dev/arcade.html')
     assert.match(await page.title(), /Mars arcade/)
     await page.waitForFunction(() => document.querySelector('#asset-status').textContent.match(/^(\d+)\/\1 sprites ready/))
+    // Oracle's low sweep only blocks in the explicit legacy comparison.
+    if (side === 1 && outcome === 'blocked') await page.locator('#pg-rule-useBounds').uncheck()
     const tick = ms => page.clock.runFor(ms)
     const command = async code => { await page.locator('[data-command="' + code + '"]').click(); await tick(20) }
     const read = () => page.locator('#readout').innerText()
@@ -97,7 +99,8 @@ try {
     const events = await page.locator('#log').innerText()
     if (outcome === 'whiff') assert.doesNotMatch(events, / HIT | block /)
     else assert.match(events, outcome === 'hit' ? / HIT / : / block /)
-    console.log('PASS P' + (side + 1) + ' heavy ' + outcome + ', reduced=' + reduced + '; all phases and idle return')
+    console.log('PASS P' + (side + 1) + ' heavy ' + outcome + ', reduced=' + reduced +
+      (side === 1 && outcome === 'blocked' ? ' (explicit legacy reach)' : ' (default rules)') + '; all phases and idle return')
     await page.close()
   }
   const page = await browser.newPage()

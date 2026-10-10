@@ -75,10 +75,9 @@ describe('mars arcade sprite contract', () => {
     expect(laser.startupFrames).toBe(0)
     expect(drawingBudget(laser).startup).toBe(0)
     expect(drawingBudget({ ...laser, startupFrames: 1 }).startup).toBe(1)
-    // Active keeps its floor: the coffee has no active frames but needs the pose.
-    const coffee = MARS_ARCADE_FIGHTERS.captain.moves.light
-    expect(coffee.activeFrames).toBe(0)
-    expect(drawingBudget(coffee).active).toBe(1)
+    // The generic budget still reserves a pose for an action without live hit frames.
+    const nonStriking = { ...MARS_ARCADE_FIGHTERS.captain.moves.light, activeFrames: 0 }
+    expect(drawingBudget(nonStriking).active).toBe(1)
   })
 
   it('has an identity reference for every fighter', () => {

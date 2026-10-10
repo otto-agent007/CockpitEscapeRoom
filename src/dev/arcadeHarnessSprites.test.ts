@@ -281,12 +281,14 @@ describe('the drawing the rules read boxes from', () => {
     expect(checked).toBeGreaterThan(100)
   })
 
-  it('is none for a state that has not been drawn, so the rules fall back to reach', () => {
+  it('reads flyby body regions without inventing a local melee strike box', () => {
     const state = createMarsArcadeRound('captain', 'booster')
     state.phase = 'fight'
     expect(marsArcadeRulesFrame(state, 0)?.src).toBe(selectArcadeSprite(state, 0, false).src)
-    Object.assign(state.fighters[0], { activity: 'attack', activeButton: 'heavy', moveFrame: 10 })
-    expect(marsArcadeRulesFrame(state, 0)).toBeNull()
-    expect(selectArcadeSprite(state, 0, false).placeholder).toBe(true)
+    Object.assign(state.fighters[0], { activity: 'attack', activeButton: 'special', moveFrame: 27 })
+    expect(marsArcadeRulesFrame(state,0)).toEqual(selectArcadeSprite(state,0,false).frame)
+    expect(marsArcadeRulesFrame(state,0)?.hurt).toHaveLength(4)
+    expect(marsArcadeRulesFrame(state,0)?.attack).toBeUndefined()
+    expect(selectArcadeSprite(state,0,false).placeholder).toBe(false)
   })
 })

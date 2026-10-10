@@ -231,7 +231,7 @@ pixels forward of the pivot column, within 3 px.
 | `oracle.prompt` | 40 px | mid (34) | Owner-approved straight fist jab, arm nearly locked |
 | `oracle.hardCutoff` | 40 px | **low (24)** | Low sweep at shin height |
 | `oracle.textBubble` | projectile | (26) | Release gesture only; the bubble is `fx.textBubble`, spawning 20 px forward at 24 px height |
-| `captain.setDownTheCoffee` | no hitbox | — | He sets the cup down. Nothing is struck |
+| `captain.palmJab` | palm only | 34 px | Approved palm jab; replaces the retired composure action |
 | `captain.runTheChecklist` | 36 px | mid (32) | A flat, economical forearm strike |
 | `captain.flyby` | full stage | (90) | He points off-frame. The aircraft is `fx.flyby` |
 
@@ -427,28 +427,34 @@ The longest reach and the longest telegraph in the game.
 | `textBubble-03` | Recovery: arms still extended, beginning to lower. |
 | `textBubble-04` | Recovery: hands back to the guard, glasses adjusted with one finger. |
 
-### THE CAPTAIN — 15 drawings
+### THE CAPTAIN — 17 move drawings
 
-**`captain.setDownTheCoffee`** — 3 drawings, `6/0/10`
+2026-10-06 authority: owner accepted the corrected palm jab and coffee-heavy art,
+approved jab `6/3/10`, damage 5, chip 1, reach 34, and signed off both attacks' boxes.
+Use the canonical Captain anchor and accepted copies in plan 0055 as appearance
+references. Heavy has one visible cup-bearing near arm; the far arm is concealed.
+The old `setDownTheCoffee` composure action is retired. Preserve its historical
+source candidates; do not regenerate or bind that action for the current light button.
 
-No hitbox at all. This move exists to bank composure, and it must read as *deliberately
-taking his time*.
+**`captain.palmJab`** — 5 drawings, `6/3/10`, holds `3/3/3/4/6`
 
 | Frame | Pose |
 | --- | --- |
-| `setDownTheCoffee-00` | Startup: beginning to lower the cup, eyes still on the opponent. |
-| `setDownTheCoffee-01` | Setting the cup down on an unseen surface at hip height, perfectly level. |
-| `setDownTheCoffee-02` | Straightening, hand leaving the cup, cuff adjusted. The cup stays behind — from here on it is a small detached object in the frame, which the silhouette gate allows. |
+| `palmJab-00` | Startup: raise palm. |
+| `palmJab-01` | Startup: draw back. |
+| `palmJab-02` | **Active:** short palm strike, palm-only box, forward cell edge 98. |
+| `palmJab-03` | Recovery: retract to ready. |
+| `palmJab-04` | Recovery: settle to idle. |
 
 **`captain.runTheChecklist`** — 5 drawings, `9/3/11`
 
 | Frame | Pose |
 | --- | --- |
-| `runTheChecklist-00` | Startup: lead hand rising, palm flat, as if turning a page. |
-| `runTheChecklist-01` | Startup: forearm drawn back across the chest, shoulder turned in. |
-| `runTheChecklist-02` | **Active:** flat forearm strike, 36 px forward at chest height. Economical, no wind-up flourish. |
-| `runTheChecklist-03` | Recovery: arm returning across the body. |
-| `runTheChecklist-04` | Recovery: back to the stance, entirely unhurried. |
+| `runTheChecklist-00` | Startup: lift the upright coffee cup. |
+| `runTheChecklist-01` | Startup: draw the cup-bearing arm back. |
+| `runTheChecklist-02` | **Active:** coffee-cup strike; cup-only box x91/y51/w9/h12. Its 1px forward padding preserves reach 36. |
+| `runTheChecklist-03` | Recovery: retract the cup-bearing arm. |
+| `runTheChecklist-04` | Recovery: lower the cup to the calm ready stance. |
 
 **`captain.flyby`** — 7 drawings, `26/8/22`
 
@@ -568,3 +574,5 @@ Every frame is then validated against `asset-reports/mars-arcade-sprite-contract
 silhouette connectivity, chroma residue and alpha integrity. Reach accuracy has **no checker
 yet** — it is specified in the contract under `reachBinding` and is the obvious next tool to
 write once real frames exist.
+
+Captain coffee-hand authority (owner correction, 2026-10-06): anatomical RIGHT hand carries the mug. In source right-facing profile this is the near-side visible arm. Explicitly connect right shoulder/sleeve to elbow, forearm, grip and cup; left arm stays free. Screen mirroring must mirror the whole drawing, never swap cup ownership. Corrected neutral candidate pending owner review; do not reuse old wrong-hand neutral in new sequences.

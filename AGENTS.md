@@ -19,6 +19,8 @@ Read, in order:
 5. `docs/WORKSTREAM_OWNERSHIP.md`
 6. The closest applicable `AGENTS.md`, Skill, and active ExecPlan
 
+For nontrivial work and retries, read the relevant entries in [the lesson log](docs/LESSONS_LEARNED.md) with the active plan. Apply their prevention checks before changing the affected code or art.
+
 Inspect the existing tree and Git status before editing. Preserve unrelated work.
 
 ## Commands
@@ -81,6 +83,12 @@ Wrong answers may reset the current attempt but never erase completed puzzle pro
 Work until the active acceptance checks pass. Validate with focused tests, lint, types, and build, then test in the actual browser rather than only in source: exercise the success, failure, repeated-failure, hint, keyboard, reload, and reduced-motion paths relevant to the change, and inspect approximately 375, 768, and 1440 px widths. Review the complete diff for regressions, unsafe DOM insertion, duplicate logic, broken asset contracts, and unnecessary dependencies. Fix root causes, rerun the failed checks plus nearby regression checks, and record actual evidence in the ExecPlan and `TEST_REPORT.md`.
 
 Stop only when validation passes, a bounded maximum attempt count is reached, the remaining delta stops shrinking, or a genuine human visual/product decision is required. Never claim an unrun check passed.
+
+## Learning and recurrence prevention
+
+After meaningful owner feedback, a failed approach, or a confirmed root cause, update `docs/LESSONS_LEARNED.md` with the symptom, cause or explicitly unconfirmed hypothesis, evidence, and a concrete check for the next attempt. Keep detailed history in the active ExecPlan and reports; promote reusable lessons into the smallest relevant instruction or meaningful regression test.
+
+Before retrying, state what new evidence or changed mechanism makes the next attempt different. Do not repeat an ineffective correction because its previous execution reported success. Preserve the latest owner decisions and drafts, and record unresolved visual differences even when automated checks pass. Revisit a lesson when new evidence disproves it; do not turn a scoped observation into a universal rule.
 
 ## Architecture rules
 

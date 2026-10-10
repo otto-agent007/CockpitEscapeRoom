@@ -33,6 +33,14 @@ const rulesOf = (mutated: MarsArcadeAnimationsFile) =>
   marsArcadeAnimationErrors(validateMarsArcadeAnimations(mutated)).map((finding) => finding.rule)
 
 describe('the shipped animation table', () => {
+  it('treats the flyby as a stage-wide effect and refuses a local character strike box', () => {
+    const move=marsArcadeFighter('captain').moves.special
+    expect(move.stageWide).toBe(true)
+    expect(rulesOf(copy())).not.toContain('active-without-attack')
+    const mutated=copy(),flyby=mutated.animations.find(c=>c.fighter==='captain'&&c.animation==='special')!
+    flyby.frames.find(f=>f.phase==='active')!.attack=[{x:64,y:40,width:20,height:20}]
+    expect(rulesOf(mutated)).toContain('attack-without-reach')
+  })
   it('parses, has one entry per fighter and animation, and passes every rule', () => {
     expect(file.version).toBe(MARS_ARCADE_ANIMATIONS_VERSION)
     expect(index.size).toBe(file.animations.length)
@@ -67,7 +75,7 @@ describe('the shipped animation table', () => {
     for (const entry of file.animations) {
       if (!entry.moveId) continue
       const move = marsArcadeMoveById(entry.moveId)!
-      if (move.reach === 0 || move.lockOn || move.projectile) continue
+      if (move.reach === 0 || move.lockOn || move.projectile || move.stageWide) continue
       const reaches = entry.frames.map(marsArcadeAttackReach).filter((reach): reach is number => reach !== null)
       expect(reaches.length, `${entry.moveId} has no live hitbox`).toBeGreaterThan(0)
       const miss = Math.abs(Math.max(...reaches) - move.reach)

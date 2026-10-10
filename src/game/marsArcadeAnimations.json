@@ -5,7 +5,7 @@
       "fighter": "booster",
       "animation": "idle",
       "loop": "loop",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/booster/normalised-sleek-ready/anchor/anchor-00.png",
@@ -20,10 +20,22 @@
           },
           "hurt": [
             {
-              "x": 42,
+              "x": 48,
               "y": 18,
+              "width": 28,
+              "height": 22
+            },
+            {
+              "x": 45,
+              "y": 40,
+              "width": 39,
+              "height": 38
+            },
+            {
+              "x": 42,
+              "y": 78,
               "width": 44,
-              "height": 102
+              "height": 41
             }
           ]
         },
@@ -40,10 +52,22 @@
           },
           "hurt": [
             {
-              "x": 42,
+              "x": 48,
               "y": 17,
+              "width": 28,
+              "height": 23
+            },
+            {
+              "x": 45,
+              "y": 40,
+              "width": 39,
+              "height": 38
+            },
+            {
+              "x": 42,
+              "y": 78,
               "width": 44,
-              "height": 103
+              "height": 41
             }
           ]
         }
@@ -53,7 +77,7 @@
       "fighter": "booster",
       "animation": "walk-forward",
       "loop": "loop",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/booster/normalised-walk-ready/walk-forward/walk-forward-00.png",
@@ -68,10 +92,22 @@
           },
           "hurt": [
             {
-              "x": 37,
+              "x": 47,
               "y": 17,
+              "width": 29,
+              "height": 23
+            },
+            {
+              "x": 45,
+              "y": 40,
+              "width": 39,
+              "height": 38
+            },
+            {
+              "x": 37,
+              "y": 78,
               "width": 61,
-              "height": 103
+              "height": 41
             }
           ]
         },
@@ -88,10 +124,22 @@
           },
           "hurt": [
             {
-              "x": 43,
+              "x": 48,
               "y": 18,
+              "width": 28,
+              "height": 22
+            },
+            {
+              "x": 45,
+              "y": 40,
+              "width": 39,
+              "height": 38
+            },
+            {
+              "x": 43,
+              "y": 78,
               "width": 45,
-              "height": 102
+              "height": 41
             }
           ]
         },
@@ -108,10 +156,22 @@
           },
           "hurt": [
             {
-              "x": 46,
+              "x": 48,
               "y": 17,
-              "width": 39,
-              "height": 103
+              "width": 28,
+              "height": 23
+            },
+            {
+              "x": 46,
+              "y": 40,
+              "width": 38,
+              "height": 38
+            },
+            {
+              "x": 49,
+              "y": 78,
+              "width": 33,
+              "height": 41
             }
           ]
         },
@@ -128,10 +188,22 @@
           },
           "hurt": [
             {
-              "x": 42,
+              "x": 48,
               "y": 17,
+              "width": 28,
+              "height": 23
+            },
+            {
+              "x": 45,
+              "y": 40,
+              "width": 40,
+              "height": 38
+            },
+            {
+              "x": 42,
+              "y": 78,
               "width": 52,
-              "height": 103
+              "height": 41
             }
           ]
         }
@@ -141,7 +213,7 @@
       "fighter": "booster",
       "animation": "walk-back",
       "loop": "loop",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/booster/normalised-walk-ready/walk-back/walk-back-00.png",
@@ -156,10 +228,22 @@
           },
           "hurt": [
             {
-              "x": 29,
+              "x": 46,
               "y": 20,
+              "width": 27,
+              "height": 20
+            },
+            {
+              "x": 44,
+              "y": 40,
+              "width": 36,
+              "height": 38
+            },
+            {
+              "x": 29,
+              "y": 78,
               "width": 60,
-              "height": 100
+              "height": 41
             }
           ]
         },
@@ -176,10 +260,22 @@
           },
           "hurt": [
             {
-              "x": 43,
+              "x": 45,
               "y": 19,
-              "width": 37,
-              "height": 101
+              "width": 28,
+              "height": 21
+            },
+            {
+              "x": 44,
+              "y": 40,
+              "width": 36,
+              "height": 38
+            },
+            {
+              "x": 43,
+              "y": 78,
+              "width": 35,
+              "height": 41
             }
           ]
         },
@@ -196,10 +292,22 @@
           },
           "hurt": [
             {
-              "x": 45,
+              "x": 47,
               "y": 20,
+              "width": 27,
+              "height": 20
+            },
+            {
+              "x": 45,
+              "y": 40,
               "width": 36,
-              "height": 100
+              "height": 38
+            },
+            {
+              "x": 48,
+              "y": 78,
+              "width": 33,
+              "height": 41
             }
           ]
         },
@@ -216,10 +324,22 @@
           },
           "hurt": [
             {
-              "x": 34,
+              "x": 46,
               "y": 20,
+              "width": 27,
+              "height": 20
+            },
+            {
+              "x": 44,
+              "y": 40,
+              "width": 37,
+              "height": 38
+            },
+            {
+              "x": 34,
+              "y": 78,
               "width": 55,
-              "height": 100
+              "height": 41
             }
           ]
         }
@@ -326,7 +446,7 @@
       "fighter": "booster",
       "animation": "heavy",
       "loop": "once",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/booster/normalised-heavy-continuity-ready/heavy-startup/heavy-startup-00.png",
@@ -341,10 +461,28 @@
           },
           "hurt": [
             {
-              "x": 32,
+              "x": 53,
               "y": 19,
-              "width": 58,
-              "height": 101
+              "width": 22,
+              "height": 23
+            },
+            {
+              "x": 45,
+              "y": 42,
+              "width": 37,
+              "height": 36
+            },
+            {
+              "x": 38,
+              "y": 78,
+              "width": 52,
+              "height": 41
+            },
+            {
+              "x": 32,
+              "y": 25,
+              "width": 22,
+              "height": 25
             }
           ]
         },
@@ -361,10 +499,28 @@
           },
           "hurt": [
             {
-              "x": 39,
+              "x": 54,
               "y": 19,
+              "width": 22,
+              "height": 23
+            },
+            {
+              "x": 44,
+              "y": 42,
+              "width": 39,
+              "height": 36
+            },
+            {
+              "x": 39,
+              "y": 78,
               "width": 51,
-              "height": 101
+              "height": 41
+            },
+            {
+              "x": 46,
+              "y": 21,
+              "width": 16,
+              "height": 29
             }
           ]
         },
@@ -381,10 +537,28 @@
           },
           "hurt": [
             {
-              "x": 30,
+              "x": 55,
               "y": 18,
+              "width": 22,
+              "height": 22
+            },
+            {
+              "x": 46,
+              "y": 40,
+              "width": 36,
+              "height": 38
+            },
+            {
+              "x": 30,
+              "y": 78,
               "width": 66,
-              "height": 102
+              "height": 41
+            },
+            {
+              "x": 73,
+              "y": 35,
+              "width": 13,
+              "height": 11
             }
           ]
         },
@@ -401,10 +575,28 @@
           },
           "hurt": [
             {
-              "x": 31,
+              "x": 54,
               "y": 18,
+              "width": 22,
+              "height": 23
+            },
+            {
+              "x": 46,
+              "y": 41,
+              "width": 33,
+              "height": 37
+            },
+            {
+              "x": 31,
+              "y": 78,
               "width": 66,
-              "height": 102
+              "height": 41
+            },
+            {
+              "x": 77,
+              "y": 37,
+              "width": 20,
+              "height": 7
             }
           ],
           "attack": [
@@ -429,10 +621,28 @@
           },
           "hurt": [
             {
-              "x": 31,
+              "x": 51,
               "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 46,
+              "y": 40,
+              "width": 36,
+              "height": 38
+            },
+            {
+              "x": 31,
+              "y": 78,
               "width": 66,
-              "height": 102
+              "height": 41
+            },
+            {
+              "x": 72,
+              "y": 47,
+              "width": 18,
+              "height": 12
             }
           ]
         },
@@ -449,10 +659,22 @@
           },
           "hurt": [
             {
-              "x": 39,
+              "x": 47,
               "y": 19,
+              "width": 27,
+              "height": 21
+            },
+            {
+              "x": 45,
+              "y": 40,
+              "width": 36,
+              "height": 38
+            },
+            {
+              "x": 39,
+              "y": 78,
               "width": 51,
-              "height": 101
+              "height": 41
             }
           ]
         },
@@ -469,10 +691,22 @@
           },
           "hurt": [
             {
-              "x": 39,
+              "x": 46,
               "y": 19,
+              "width": 28,
+              "height": 21
+            },
+            {
+              "x": 44,
+              "y": 40,
+              "width": 37,
+              "height": 38
+            },
+            {
+              "x": 39,
+              "y": 78,
               "width": 51,
-              "height": 101
+              "height": 41
             }
           ]
         },
@@ -489,10 +723,22 @@
           },
           "hurt": [
             {
-              "x": 40,
+              "x": 46,
               "y": 20,
+              "width": 27,
+              "height": 20
+            },
+            {
+              "x": 44,
+              "y": 40,
+              "width": 37,
+              "height": 38
+            },
+            {
+              "x": 40,
+              "y": 78,
               "width": 49,
-              "height": 100
+              "height": 41
             }
           ]
         }
@@ -606,7 +852,7 @@
       "fighter": "booster",
       "animation": "special",
       "loop": "once",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/booster/normalised-space-laser-ready/call-it-in/call-it-in-00.png",
@@ -621,10 +867,28 @@
           },
           "hurt": [
             {
+              "x": 53,
+              "y": 25,
+              "width": 21,
+              "height": 21
+            },
+            {
+              "x": 45,
+              "y": 46,
+              "width": 31,
+              "height": 32
+            },
+            {
               "x": 42,
-              "y": 15,
-              "width": 45,
-              "height": 105
+              "y": 78,
+              "width": 44,
+              "height": 41
+            },
+            {
+              "x": 74,
+              "y": 18,
+              "width": 13,
+              "height": 34
             }
           ]
         },
@@ -641,10 +905,28 @@
           },
           "hurt": [
             {
+              "x": 53,
+              "y": 25,
+              "width": 21,
+              "height": 21
+            },
+            {
+              "x": 45,
+              "y": 46,
+              "width": 31,
+              "height": 32
+            },
+            {
               "x": 42,
-              "y": 15,
-              "width": 45,
-              "height": 105
+              "y": 78,
+              "width": 44,
+              "height": 41
+            },
+            {
+              "x": 74,
+              "y": 18,
+              "width": 13,
+              "height": 34
             }
           ]
         },
@@ -661,10 +943,28 @@
           },
           "hurt": [
             {
-              "x": 42,
+              "x": 55,
               "y": 25,
-              "width": 45,
-              "height": 95
+              "width": 20,
+              "height": 22
+            },
+            {
+              "x": 45,
+              "y": 47,
+              "width": 31,
+              "height": 31
+            },
+            {
+              "x": 42,
+              "y": 78,
+              "width": 44,
+              "height": 41
+            },
+            {
+              "x": 77,
+              "y": 25,
+              "width": 10,
+              "height": 29
             }
           ]
         },
@@ -681,10 +981,28 @@
           },
           "hurt": [
             {
-              "x": 40,
+              "x": 51,
               "y": 21,
-              "width": 48,
-              "height": 99
+              "width": 22,
+              "height": 22
+            },
+            {
+              "x": 47,
+              "y": 43,
+              "width": 32,
+              "height": 35
+            },
+            {
+              "x": 43,
+              "y": 78,
+              "width": 45,
+              "height": 41
+            },
+            {
+              "x": 40,
+              "y": 47,
+              "width": 16,
+              "height": 11
             }
           ]
         }
@@ -695,7 +1013,7 @@
       "fighter": "booster",
       "animation": "hit",
       "loop": "by-stun",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/booster/normalised-sleek-ready/recoil/recoil-00.png",
@@ -710,10 +1028,22 @@
           },
           "hurt": [
             {
-              "x": 41,
+              "x": 43,
               "y": 18,
+              "width": 28,
+              "height": 22
+            },
+            {
+              "x": 41,
+              "y": 40,
+              "width": 37,
+              "height": 38
+            },
+            {
+              "x": 41,
+              "y": 78,
               "width": 47,
-              "height": 102
+              "height": 41
             }
           ]
         },
@@ -732,8 +1062,20 @@
             {
               "x": 36,
               "y": 21,
-              "width": 52,
-              "height": 99
+              "width": 26,
+              "height": 23
+            },
+            {
+              "x": 38,
+              "y": 44,
+              "width": 39,
+              "height": 34
+            },
+            {
+              "x": 41,
+              "y": 78,
+              "width": 47,
+              "height": 41
             }
           ]
         },
@@ -750,10 +1092,22 @@
           },
           "hurt": [
             {
-              "x": 42,
+              "x": 50,
               "y": 21,
+              "width": 27,
+              "height": 22
+            },
+            {
+              "x": 47,
+              "y": 43,
+              "width": 35,
+              "height": 35
+            },
+            {
+              "x": 42,
+              "y": 78,
               "width": 44,
-              "height": 99
+              "height": 41
             }
           ]
         }
@@ -763,7 +1117,7 @@
       "fighter": "booster",
       "animation": "jump",
       "loop": "by-velocity",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/booster/normalised-movement-ready/airborne/airborne-00.png",
@@ -778,10 +1132,28 @@
           },
           "hurt": [
             {
-              "x": 44,
+              "x": 56,
               "y": 25,
-              "width": 44,
-              "height": 95
+              "width": 18,
+              "height": 21
+            },
+            {
+              "x": 45,
+              "y": 46,
+              "width": 40,
+              "height": 30
+            },
+            {
+              "x": 50,
+              "y": 76,
+              "width": 38,
+              "height": 26
+            },
+            {
+              "x": 44,
+              "y": 102,
+              "width": 34,
+              "height": 17
             }
           ]
         },
@@ -798,10 +1170,28 @@
           },
           "hurt": [
             {
-              "x": 48,
+              "x": 58,
               "y": 37,
+              "width": 16,
+              "height": 21
+            },
+            {
+              "x": 48,
+              "y": 58,
               "width": 38,
-              "height": 83
+              "height": 22
+            },
+            {
+              "x": 49,
+              "y": 80,
+              "width": 37,
+              "height": 25
+            },
+            {
+              "x": 51,
+              "y": 105,
+              "width": 29,
+              "height": 14
             }
           ]
         },
@@ -818,10 +1208,22 @@
           },
           "hurt": [
             {
-              "x": 42,
+              "x": 50,
               "y": 22,
+              "width": 21,
+              "height": 22
+            },
+            {
+              "x": 44,
+              "y": 44,
+              "width": 36,
+              "height": 34
+            },
+            {
+              "x": 42,
+              "y": 78,
               "width": 43,
-              "height": 98
+              "height": 41
             }
           ]
         }
@@ -967,7 +1369,7 @@
       "fighter": "oracle",
       "animation": "idle",
       "loop": "loop",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/oracle/normalised-clean/anchor/anchor-00.png",
@@ -982,10 +1384,22 @@
           },
           "hurt": [
             {
-              "x": 48,
+              "x": 51,
               "y": 18,
-              "width": 35,
-              "height": 102
+              "width": 20,
+              "height": 22
+            },
+            {
+              "x": 50,
+              "y": 40,
+              "width": 30,
+              "height": 38
+            },
+            {
+              "x": 48,
+              "y": 78,
+              "width": 34,
+              "height": 41
             }
           ]
         }
@@ -995,7 +1409,7 @@
       "fighter": "oracle",
       "animation": "walk-forward",
       "loop": "loop",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/oracle/normalised-walk-ready/walk-forward/walk-forward-00.png",
@@ -1010,10 +1424,22 @@
           },
           "hurt": [
             {
-              "x": 36,
+              "x": 52,
               "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 50,
+              "y": 40,
+              "width": 29,
+              "height": 38
+            },
+            {
+              "x": 36,
+              "y": 78,
               "width": 61,
-              "height": 102
+              "height": 41
             }
           ]
         },
@@ -1030,10 +1456,22 @@
           },
           "hurt": [
             {
-              "x": 43,
+              "x": 52,
               "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 50,
+              "y": 40,
+              "width": 29,
+              "height": 38
+            },
+            {
+              "x": 43,
+              "y": 78,
               "width": 42,
-              "height": 102
+              "height": 41
             }
           ]
         },
@@ -1050,10 +1488,22 @@
           },
           "hurt": [
             {
-              "x": 46,
+              "x": 52,
               "y": 17,
+              "width": 24,
+              "height": 23
+            },
+            {
+              "x": 50,
+              "y": 40,
+              "width": 29,
+              "height": 38
+            },
+            {
+              "x": 46,
+              "y": 78,
               "width": 36,
-              "height": 103
+              "height": 41
             }
           ]
         },
@@ -1070,10 +1520,22 @@
           },
           "hurt": [
             {
-              "x": 37,
+              "x": 52,
               "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 50,
+              "y": 40,
+              "width": 29,
+              "height": 38
+            },
+            {
+              "x": 37,
+              "y": 78,
               "width": 58,
-              "height": 102
+              "height": 41
             }
           ]
         }
@@ -1083,7 +1545,7 @@
       "fighter": "oracle",
       "animation": "walk-back",
       "loop": "loop",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/oracle/normalised-walk-ready/walk-back/walk-back-00.png",
@@ -1098,10 +1560,22 @@
           },
           "hurt": [
             {
-              "x": 34,
+              "x": 50,
               "y": 16,
+              "width": 23,
+              "height": 24
+            },
+            {
+              "x": 49,
+              "y": 40,
+              "width": 26,
+              "height": 38
+            },
+            {
+              "x": 34,
+              "y": 78,
               "width": 48,
-              "height": 104
+              "height": 41
             }
           ]
         },
@@ -1118,10 +1592,22 @@
           },
           "hurt": [
             {
-              "x": 47,
+              "x": 51,
               "y": 17,
+              "width": 23,
+              "height": 23
+            },
+            {
+              "x": 50,
+              "y": 40,
+              "width": 26,
+              "height": 38
+            },
+            {
+              "x": 47,
+              "y": 78,
               "width": 29,
-              "height": 103
+              "height": 41
             }
           ]
         },
@@ -1138,10 +1624,22 @@
           },
           "hurt": [
             {
-              "x": 47,
+              "x": 51,
               "y": 18,
+              "width": 22,
+              "height": 22
+            },
+            {
+              "x": 49,
+              "y": 40,
+              "width": 26,
+              "height": 38
+            },
+            {
+              "x": 47,
+              "y": 78,
               "width": 29,
-              "height": 102
+              "height": 41
             }
           ]
         },
@@ -1158,10 +1656,22 @@
           },
           "hurt": [
             {
-              "x": 34,
+              "x": 50,
               "y": 17,
+              "width": 23,
+              "height": 23
+            },
+            {
+              "x": 49,
+              "y": 40,
+              "width": 26,
+              "height": 38
+            },
+            {
+              "x": 34,
+              "y": 78,
               "width": 49,
-              "height": 103
+              "height": 41
             }
           ]
         }
@@ -1171,7 +1681,7 @@
       "fighter": "oracle",
       "animation": "jab",
       "loop": "once",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/oracle/normalised-counterattack-ready/anticipation/anticipation-00.png",
@@ -1186,10 +1696,28 @@
           },
           "hurt": [
             {
-              "x": 42,
+              "x": 50,
               "y": 17,
+              "width": 22,
+              "height": 23
+            },
+            {
+              "x": 49,
+              "y": 40,
+              "width": 30,
+              "height": 38
+            },
+            {
+              "x": 42,
+              "y": 78,
               "width": 46,
-              "height": 103
+              "height": 41
+            },
+            {
+              "x": 76,
+              "y": 30,
+              "width": 7,
+              "height": 18
             }
           ]
         },
@@ -1206,10 +1734,28 @@
           },
           "hurt": [
             {
-              "x": 42,
+              "x": 50,
               "y": 16,
-              "width": 61,
-              "height": 104
+              "width": 22,
+              "height": 24
+            },
+            {
+              "x": 50,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 42,
+              "y": 78,
+              "width": 45,
+              "height": 41
+            },
+            {
+              "x": 72,
+              "y": 35,
+              "width": 31,
+              "height": 7
             }
           ],
           "attack": [
@@ -1234,10 +1780,28 @@
           },
           "hurt": [
             {
-              "x": 46,
+              "x": 50,
               "y": 16,
+              "width": 20,
+              "height": 24
+            },
+            {
+              "x": 49,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 46,
+              "y": 78,
               "width": 36,
-              "height": 104
+              "height": 41
+            },
+            {
+              "x": 69,
+              "y": 37,
+              "width": 13,
+              "height": 13
             }
           ]
         }
@@ -1263,10 +1827,22 @@
           },
           "hurt": [
             {
-              "x": 42,
-              "y": 28,
-              "width": 45,
-              "height": 91
+              "x": 53,
+              "y": 30,
+              "width": 22,
+              "height": 24
+            },
+            {
+              "x": 45,
+              "y": 54,
+              "width": 32,
+              "height": 27
+            },
+            {
+              "x": 44,
+              "y": 81,
+              "width": 41,
+              "height": 38
             }
           ]
         },
@@ -1276,17 +1852,35 @@
           "phase": "startup",
           "hold": 3,
           "collision": {
-            "x": 45,
-            "y": 28,
-            "width": 32,
-            "height": 91
+            "x": 48,
+            "y": 40,
+            "width": 64,
+            "height": 79
           },
           "hurt": [
             {
-              "x": 42,
-              "y": 28,
-              "width": 45,
-              "height": 91
+              "x": 62,
+              "y": 42,
+              "width": 20,
+              "height": 24
+            },
+            {
+              "x": 52,
+              "y": 66,
+              "width": 27,
+              "height": 26
+            },
+            {
+              "x": 53,
+              "y": 92,
+              "width": 20,
+              "height": 27
+            },
+            {
+              "x": 73,
+              "y": 84,
+              "width": 37,
+              "height": 18
             }
           ]
         },
@@ -1303,10 +1897,28 @@
           },
           "hurt": [
             {
-              "x": 50,
-              "y": 47,
-              "width": 57,
-              "height": 72
+              "x": 63,
+              "y": 49,
+              "width": 19,
+              "height": 25
+            },
+            {
+              "x": 55,
+              "y": 74,
+              "width": 26,
+              "height": 20
+            },
+            {
+              "x": 53,
+              "y": 94,
+              "width": 19,
+              "height": 25
+            },
+            {
+              "x": 82,
+              "y": 98,
+              "width": 23,
+              "height": 11
             }
           ],
           "attack": [
@@ -1331,10 +1943,22 @@
           },
           "hurt": [
             {
-              "x": 42,
-              "y": 17,
-              "width": 44,
-              "height": 102
+              "x": 54,
+              "y": 19,
+              "width": 19,
+              "height": 21
+            },
+            {
+              "x": 49,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 44,
+              "y": 78,
+              "width": 40,
+              "height": 41
             }
           ]
         },
@@ -1344,17 +1968,29 @@
           "phase": "recovery",
           "hold": 8,
           "collision": {
-            "x": 47,
-            "y": 17,
-            "width": 28,
-            "height": 102
+            "x": 44,
+            "y": 16,
+            "width": 42,
+            "height": 103
           },
           "hurt": [
             {
-              "x": 42,
-              "y": 17,
-              "width": 44,
-              "height": 102
+              "x": 51,
+              "y": 18,
+              "width": 20,
+              "height": 22
+            },
+            {
+              "x": 48,
+              "y": 40,
+              "width": 33,
+              "height": 38
+            },
+            {
+              "x": 46,
+              "y": 78,
+              "width": 35,
+              "height": 41
             }
           ]
         }
@@ -1467,7 +2103,7 @@
       "fighter": "oracle",
       "animation": "hit",
       "loop": "by-stun",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/oracle/normalised-exchange-ready/recoil/recoil-00.png",
@@ -1484,8 +2120,26 @@
             {
               "x": 44,
               "y": 18,
-              "width": 38,
-              "height": 102
+              "width": 26,
+              "height": 22
+            },
+            {
+              "x": 50,
+              "y": 40,
+              "width": 24,
+              "height": 38
+            },
+            {
+              "x": 49,
+              "y": 78,
+              "width": 33,
+              "height": 41
+            },
+            {
+              "x": 73,
+              "y": 43,
+              "width": 9,
+              "height": 18
             }
           ]
         },
@@ -1502,10 +2156,28 @@
           },
           "hurt": [
             {
-              "x": 44,
+              "x": 54,
               "y": 19,
-              "width": 43,
-              "height": 101
+              "width": 20,
+              "height": 23
+            },
+            {
+              "x": 47,
+              "y": 42,
+              "width": 29,
+              "height": 36
+            },
+            {
+              "x": 44,
+              "y": 78,
+              "width": 40,
+              "height": 41
+            },
+            {
+              "x": 75,
+              "y": 50,
+              "width": 12,
+              "height": 13
             }
           ]
         }
@@ -1515,7 +2187,7 @@
       "fighter": "oracle",
       "animation": "jump",
       "loop": "by-velocity",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/oracle/normalised-movement-ready/airborne/airborne-00.png",
@@ -1530,10 +2202,28 @@
           },
           "hurt": [
             {
-              "x": 45,
+              "x": 53,
               "y": 37,
-              "width": 28,
-              "height": 83
+              "width": 17,
+              "height": 23
+            },
+            {
+              "x": 48,
+              "y": 60,
+              "width": 23,
+              "height": 26
+            },
+            {
+              "x": 48,
+              "y": 86,
+              "width": 25,
+              "height": 18
+            },
+            {
+              "x": 45,
+              "y": 104,
+              "width": 24,
+              "height": 15
             }
           ]
         },
@@ -1550,10 +2240,28 @@
           },
           "hurt": [
             {
-              "x": 50,
+              "x": 54,
               "y": 46,
+              "width": 20,
+              "height": 24
+            },
+            {
+              "x": 51,
+              "y": 70,
+              "width": 27,
+              "height": 23
+            },
+            {
+              "x": 50,
+              "y": 93,
               "width": 30,
-              "height": 74
+              "height": 13
+            },
+            {
+              "x": 52,
+              "y": 106,
+              "width": 24,
+              "height": 13
             }
           ]
         },
@@ -1570,10 +2278,22 @@
           },
           "hurt": [
             {
-              "x": 54,
+              "x": 59,
               "y": 19,
+              "width": 20,
+              "height": 24
+            },
+            {
+              "x": 55,
+              "y": 43,
+              "width": 26,
+              "height": 35
+            },
+            {
+              "x": 54,
+              "y": 78,
               "width": 32,
-              "height": 101
+              "height": 41
             }
           ]
         }
@@ -1719,13 +2439,13 @@
       "fighter": "captain",
       "animation": "idle",
       "loop": "loop",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
-          "src": "/art-source/arcade/captain/normalised-clean/anchor/anchor-00.png",
-          "pose": "anchor",
+          "src": "/art-source/arcade/captain/normalised-idle-right-hand-v2-lanczos/idle-right-hand-v2-candidate/idle-right-hand-v2-candidate-00.png",
+          "pose": "right-hand-neutral",
           "phase": "neutral",
-          "hold": 18,
+          "hold": 30,
           "collision": {
             "x": 48,
             "y": 16,
@@ -1736,8 +2456,116 @@
             {
               "x": 50,
               "y": 18,
-              "width": 29,
-              "height": 102
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 50,
+              "y": 78,
+              "width": 28,
+              "height": 41
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-idle-right-hand-breath-v1-bilinear/idle-right-hand-breath-candidate/idle-right-hand-breath-candidate-00.png",
+          "pose": "right-hand-inhale",
+          "phase": "neutral",
+          "hold": 30,
+          "collision": {
+            "x": 48,
+            "y": 16,
+            "width": 33,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 50,
+              "y": 78,
+              "width": 28,
+              "height": 41
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-idle-right-hand-v2-lanczos/idle-right-hand-v2-candidate/idle-right-hand-v2-candidate-00.png",
+          "pose": "right-hand-return",
+          "phase": "neutral",
+          "hold": 30,
+          "collision": {
+            "x": 48,
+            "y": 16,
+            "width": 33,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 50,
+              "y": 78,
+              "width": 28,
+              "height": 41
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-idle-right-hand-breath-v1-bilinear/idle-right-hand-breath-candidate/idle-right-hand-breath-candidate-01.png",
+          "pose": "right-hand-exhale",
+          "phase": "neutral",
+          "hold": 30,
+          "collision": {
+            "x": 48,
+            "y": 16,
+            "width": 33,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 50,
+              "y": 78,
+              "width": 28,
+              "height": 41
             }
           ]
         }
@@ -1826,6 +2654,2397 @@
               "y": 17,
               "width": 42,
               "height": 103
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fighter": "captain",
+      "animation": "jab-candidate",
+      "loop": "once",
+      "reviewed": false,
+      "frames": [
+        {
+          "src": "/art-source/arcade/captain/normalised-checklist-v1-candidate-ready/heavy-candidate/heavy-candidate-00.png",
+          "pose": "raise-palm",
+          "phase": "startup",
+          "hold": 5,
+          "collision": {
+            "x": 48,
+            "y": 15,
+            "width": 43,
+            "height": 104
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 17,
+              "width": 39,
+              "height": 103
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-checklist-v1-candidate-ready/heavy-candidate/heavy-candidate-01.png",
+          "pose": "draw-back",
+          "phase": "startup",
+          "hold": 4,
+          "collision": {
+            "x": 48,
+            "y": 15,
+            "width": 34,
+            "height": 104
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 17,
+              "width": 30,
+              "height": 103
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-checklist-v1-candidate-ready/heavy-candidate/heavy-candidate-02.png",
+          "pose": "forearm-strike",
+          "phase": "active",
+          "hold": 3,
+          "collision": {
+            "x": 48,
+            "y": 15,
+            "width": 51,
+            "height": 104
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 17,
+              "width": 47,
+              "height": 103
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-checklist-v1-candidate-ready/heavy-candidate/heavy-candidate-03.png",
+          "pose": "retract-to-ready",
+          "phase": "recovery",
+          "hold": 5,
+          "collision": {
+            "x": 48,
+            "y": 15,
+            "width": 43,
+            "height": 104
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 17,
+              "width": 39,
+              "height": 103
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-checklist-v1-candidate-ready/heavy-candidate/heavy-candidate-04.png",
+          "pose": "settle-to-idle",
+          "phase": "recovery",
+          "hold": 6,
+          "collision": {
+            "x": 48,
+            "y": 16,
+            "width": 33,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 29,
+              "height": 102
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fighter": "captain",
+      "animation": "heavy-candidate",
+      "loop": "once",
+      "reviewed": false,
+      "frames": [
+        {
+          "src": "/art-source/arcade/captain/normalised-consistency-v3-candidate-ready/heavy-candidate/heavy-candidate-00.png",
+          "pose": "lift-cup",
+          "phase": "startup",
+          "hold": 5,
+          "collision": {
+            "x": 47,
+            "y": 14,
+            "width": 36,
+            "height": 105
+          },
+          "hurt": [
+            {
+              "x": 49,
+              "y": 16,
+              "width": 32,
+              "height": 104
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-consistency-v3-candidate-ready/heavy-candidate/heavy-candidate-01.png",
+          "pose": "draw-cup-back",
+          "phase": "startup",
+          "hold": 4,
+          "collision": {
+            "x": 48,
+            "y": 14,
+            "width": 34,
+            "height": 105
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 16,
+              "width": 30,
+              "height": 104
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-consistency-v3-candidate-ready/heavy-candidate/heavy-candidate-02.png",
+          "pose": "cup-strike",
+          "phase": "active",
+          "hold": 3,
+          "collision": {
+            "x": 48,
+            "y": 15,
+            "width": 52,
+            "height": 104
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 17,
+              "width": 48,
+              "height": 103
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-consistency-v3-candidate-ready/heavy-candidate/heavy-candidate-03.png",
+          "pose": "retract-cup",
+          "phase": "recovery",
+          "hold": 5,
+          "collision": {
+            "x": 47,
+            "y": 14,
+            "width": 36,
+            "height": 105
+          },
+          "hurt": [
+            {
+              "x": 49,
+              "y": 16,
+              "width": 32,
+              "height": 104
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-consistency-v3-candidate-ready/heavy-candidate/heavy-candidate-04.png",
+          "pose": "lower-cup",
+          "phase": "recovery",
+          "hold": 6,
+          "collision": {
+            "x": 48,
+            "y": 14,
+            "width": 34,
+            "height": 105
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 16,
+              "width": 30,
+              "height": 104
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fighter": "booster",
+      "animation": "jab-art-baeea189",
+      "loop": "once",
+      "reviewed": false,
+      "frames": [
+        {
+          "src": "/art-source/arcade/booster/gym-edits/baeea189-0e44-4141-bde9-ba837e5b2444/frames/drawing-00.png",
+          "pose": "anticipation",
+          "phase": "startup",
+          "hold": 4,
+          "collision": {
+            "x": 40,
+            "y": 15,
+            "width": 48,
+            "height": 104
+          },
+          "hurt": [
+            {
+              "x": 42,
+              "y": 17,
+              "width": 44,
+              "height": 103
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/booster/gym-edits/baeea189-0e44-4141-bde9-ba837e5b2444/frames/drawing-01.png",
+          "pose": "jab",
+          "phase": "active",
+          "hold": 3,
+          "collision": {
+            "x": 38,
+            "y": 15,
+            "width": 68,
+            "height": 104
+          },
+          "hurt": [
+            {
+              "x": 40,
+              "y": 17,
+              "width": 64,
+              "height": 103
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/booster/gym-edits/baeea189-0e44-4141-bde9-ba837e5b2444/frames/drawing-02.png",
+          "pose": "recovery",
+          "phase": "recovery",
+          "hold": 3,
+          "collision": {
+            "x": 38,
+            "y": 16,
+            "width": 54,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 40,
+              "y": 18,
+              "width": 50,
+              "height": 102
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/booster/gym-edits/baeea189-0e44-4141-bde9-ba837e5b2444/frames/drawing-03.png",
+          "pose": "reset",
+          "phase": "recovery",
+          "hold": 4,
+          "collision": {
+            "x": 40,
+            "y": 16,
+            "width": 48,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 42,
+              "y": 18,
+              "width": 44,
+              "height": 102
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fighter": "captain",
+      "animation": "heavy",
+      "loop": "once",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/captain/gym-edits/e8899500-bf4d-4c22-9694-a1eacbedbda7/frames/drawing-00.png",
+          "pose": "lift-cup",
+          "phase": "startup",
+          "hold": 5,
+          "collision": {
+            "x": 47,
+            "y": 16,
+            "width": 36,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 49,
+              "y": 18,
+              "width": 27,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 43,
+              "width": 23,
+              "height": 34
+            },
+            {
+              "x": 48,
+              "y": 79,
+              "width": 32,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/gym-edits/e8899500-bf4d-4c22-9694-a1eacbedbda7/frames/drawing-01.png",
+          "pose": "draw-cup-back",
+          "phase": "startup",
+          "hold": 4,
+          "collision": {
+            "x": 47,
+            "y": 16,
+            "width": 34,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 49,
+              "y": 18,
+              "width": 27,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 43,
+              "width": 23,
+              "height": 34
+            },
+            {
+              "x": 48,
+              "y": 79,
+              "width": 32,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/gym-edits/e8899500-bf4d-4c22-9694-a1eacbedbda7/frames/drawing-02.png",
+          "pose": "cup-strike",
+          "phase": "active",
+          "hold": 3,
+          "collision": {
+            "x": 47,
+            "y": 16,
+            "width": 52,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 49,
+              "y": 18,
+              "width": 27,
+              "height": 22
+            },
+            {
+              "x": 53,
+              "y": 43,
+              "width": 22,
+              "height": 34
+            },
+            {
+              "x": 48,
+              "y": 79,
+              "width": 32,
+              "height": 40
+            },
+            {
+              "x": 74,
+              "y": 51,
+              "width": 19,
+              "height": 10
+            }
+          ],
+          "attack": [
+            {
+              "x": 91,
+              "y": 51,
+              "width": 9,
+              "height": 12
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/gym-edits/e8899500-bf4d-4c22-9694-a1eacbedbda7/frames/drawing-03.png",
+          "pose": "retract-cup",
+          "phase": "recovery",
+          "hold": 5,
+          "collision": {
+            "x": 47,
+            "y": 16,
+            "width": 36,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 49,
+              "y": 18,
+              "width": 27,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 43,
+              "width": 23,
+              "height": 34
+            },
+            {
+              "x": 48,
+              "y": 79,
+              "width": 32,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/gym-edits/e8899500-bf4d-4c22-9694-a1eacbedbda7/frames/drawing-04.png",
+          "pose": "lower-cup",
+          "phase": "recovery",
+          "hold": 6,
+          "collision": {
+            "x": 47,
+            "y": 16,
+            "width": 34,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 49,
+              "y": 18,
+              "width": 27,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 43,
+              "width": 23,
+              "height": 34
+            },
+            {
+              "x": 48,
+              "y": 79,
+              "width": 32,
+              "height": 40
+            }
+          ]
+        }
+      ],
+      "moveId": "captain.runTheChecklist"
+    },
+    {
+      "fighter": "captain",
+      "animation": "jab",
+      "loop": "once",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/captain/gym-edits/4ddcbf2f-cbfd-4c05-b99a-48ba2ec0d175/frames/drawing-00.png",
+          "pose": "raise-palm",
+          "phase": "startup",
+          "hold": 3,
+          "collision": {
+            "x": 47,
+            "y": 16,
+            "width": 43,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 49,
+              "y": 18,
+              "width": 26,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 43,
+              "width": 23,
+              "height": 34
+            },
+            {
+              "x": 48,
+              "y": 79,
+              "width": 31,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/gym-edits/4ddcbf2f-cbfd-4c05-b99a-48ba2ec0d175/frames/drawing-01.png",
+          "pose": "draw-back",
+          "phase": "startup",
+          "hold": 3,
+          "collision": {
+            "x": 47,
+            "y": 16,
+            "width": 34,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 49,
+              "y": 18,
+              "width": 26,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 43,
+              "width": 23,
+              "height": 34
+            },
+            {
+              "x": 48,
+              "y": 79,
+              "width": 31,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/gym-edits/4ddcbf2f-cbfd-4c05-b99a-48ba2ec0d175/frames/drawing-02.png",
+          "pose": "forearm-strike",
+          "phase": "active",
+          "hold": 3,
+          "collision": {
+            "x": 47,
+            "y": 16,
+            "width": 51,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 49,
+              "y": 18,
+              "width": 26,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 43,
+              "width": 23,
+              "height": 34
+            },
+            {
+              "x": 48,
+              "y": 79,
+              "width": 31,
+              "height": 40
+            },
+            {
+              "x": 69,
+              "y": 48,
+              "width": 22,
+              "height": 7
+            }
+          ],
+          "attack": [
+            {
+              "x": 89,
+              "y": 40,
+              "width": 9,
+              "height": 14
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/gym-edits/4ddcbf2f-cbfd-4c05-b99a-48ba2ec0d175/frames/drawing-03.png",
+          "pose": "retract-to-ready",
+          "phase": "recovery",
+          "hold": 4,
+          "collision": {
+            "x": 47,
+            "y": 16,
+            "width": 43,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 49,
+              "y": 18,
+              "width": 26,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 43,
+              "width": 23,
+              "height": 34
+            },
+            {
+              "x": 48,
+              "y": 79,
+              "width": 31,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-idle-right-hand-v2-lanczos/idle-right-hand-v2-candidate/idle-right-hand-v2-candidate-00.png",
+          "pose": "settle-to-idle",
+          "phase": "recovery",
+          "hold": 6,
+          "collision": {
+            "x": 48,
+            "y": 16,
+            "width": 33,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 25,
+              "height": 22
+            },
+            {
+              "x": 51,
+              "y": 43,
+              "width": 24,
+              "height": 34
+            },
+            {
+              "x": 50,
+              "y": 79,
+              "width": 28,
+              "height": 40
+            }
+          ]
+        }
+      ],
+      "moveId": "captain.palmJab"
+    },
+    {
+      "fighter": "captain",
+      "animation": "block",
+      "loop": "hold-last",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v1-guard-final-candidate/block-candidate/block-candidate-00.png",
+          "pose": "guard-ready",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 48,
+            "y": 16,
+            "width": 33,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 26,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 43,
+              "width": 23,
+              "height": 34
+            },
+            {
+              "x": 48,
+              "y": 79,
+              "width": 32,
+              "height": 40
+            }
+          ],
+          "guard": {
+            "x": 64,
+            "y": 40,
+            "width": 20,
+            "height": 45
+          }
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v1-guard-final-candidate/block-candidate/block-candidate-01.png",
+          "pose": "absorb-brace",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 48,
+            "y": 16,
+            "width": 33,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 26,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 43,
+              "width": 23,
+              "height": 34
+            },
+            {
+              "x": 48,
+              "y": 79,
+              "width": 32,
+              "height": 40
+            }
+          ],
+          "guard": {
+            "x": 64,
+            "y": 40,
+            "width": 20,
+            "height": 45
+          }
+        }
+      ]
+    },
+    {
+      "fighter": "oracle",
+      "animation": "special",
+      "loop": "once",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/oracle/normalised-nonprofit-pivot-ready/nonprofit-pivot-candidate/nonprofit-pivot-candidate-00.png",
+          "pose": "awe-point",
+          "phase": "startup",
+          "hold": 12,
+          "collision": {
+            "x": 46,
+            "y": 16,
+            "width": 40,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 48,
+              "y": 18,
+              "width": 28,
+              "height": 22
+            },
+            {
+              "x": 49,
+              "y": 42,
+              "width": 27,
+              "height": 35
+            },
+            {
+              "x": 47,
+              "y": 79,
+              "width": 35,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/oracle/normalised-nonprofit-pivot-ready/nonprofit-pivot-candidate/nonprofit-pivot-candidate-01.png",
+          "pose": "awe-extended",
+          "phase": "startup",
+          "hold": 132,
+          "collision": {
+            "x": 46,
+            "y": 16,
+            "width": 40,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 48,
+              "y": 18,
+              "width": 28,
+              "height": 22
+            },
+            {
+              "x": 49,
+              "y": 42,
+              "width": 27,
+              "height": 35
+            },
+            {
+              "x": 47,
+              "y": 79,
+              "width": 35,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/oracle/normalised-nonprofit-pivot-ready/nonprofit-pivot-candidate/nonprofit-pivot-candidate-02.png",
+          "pose": "slide-draw-pen",
+          "phase": "startup",
+          "hold": 18,
+          "collision": {
+            "x": 46,
+            "y": 16,
+            "width": 40,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 48,
+              "y": 18,
+              "width": 28,
+              "height": 22
+            },
+            {
+              "x": 49,
+              "y": 42,
+              "width": 27,
+              "height": 35
+            },
+            {
+              "x": 47,
+              "y": 79,
+              "width": 34,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/oracle/normalised-nonprofit-pivot-ready/nonprofit-pivot-candidate/nonprofit-pivot-candidate-03.png",
+          "pose": "pen-strike",
+          "phase": "active",
+          "hold": 3,
+          "collision": {
+            "x": 46,
+            "y": 16,
+            "width": 40,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 48,
+              "y": 18,
+              "width": 28,
+              "height": 22
+            },
+            {
+              "x": 49,
+              "y": 42,
+              "width": 27,
+              "height": 35
+            },
+            {
+              "x": 47,
+              "y": 79,
+              "width": 35,
+              "height": 40
+            },
+            {
+              "x": 75,
+              "y": 40,
+              "width": 30,
+              "height": 7
+            }
+          ],
+          "attack": [
+            {
+              "x": 105,
+              "y": 39,
+              "width": 8,
+              "height": 5
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/oracle/normalised-nonprofit-pivot-ready/nonprofit-pivot-candidate/nonprofit-pivot-candidate-03.png",
+          "pose": "pen-contact-hold",
+          "phase": "recovery",
+          "hold": 28,
+          "collision": {
+            "x": 46,
+            "y": 16,
+            "width": 40,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 48,
+              "y": 18,
+              "width": 28,
+              "height": 22
+            },
+            {
+              "x": 49,
+              "y": 42,
+              "width": 27,
+              "height": 35
+            },
+            {
+              "x": 47,
+              "y": 79,
+              "width": 35,
+              "height": 40
+            },
+            {
+              "x": 75,
+              "y": 40,
+              "width": 30,
+              "height": 7
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/oracle/normalised-nonprofit-pivot-ready/nonprofit-pivot-candidate/nonprofit-pivot-candidate-03.png",
+          "pose": "pen-follow-through",
+          "phase": "recovery",
+          "hold": 29,
+          "collision": {
+            "x": 46,
+            "y": 16,
+            "width": 40,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 48,
+              "y": 18,
+              "width": 28,
+              "height": 22
+            },
+            {
+              "x": 49,
+              "y": 42,
+              "width": 27,
+              "height": 35
+            },
+            {
+              "x": 47,
+              "y": 79,
+              "width": 35,
+              "height": 40
+            },
+            {
+              "x": 75,
+              "y": 40,
+              "width": 30,
+              "height": 7
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/oracle/normalised-nonprofit-pivot-ready/nonprofit-pivot-candidate/nonprofit-pivot-candidate-04.png",
+          "pose": "retract",
+          "phase": "recovery",
+          "hold": 5,
+          "collision": {
+            "x": 46,
+            "y": 16,
+            "width": 40,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 48,
+              "y": 18,
+              "width": 28,
+              "height": 22
+            },
+            {
+              "x": 49,
+              "y": 42,
+              "width": 27,
+              "height": 35
+            },
+            {
+              "x": 47,
+              "y": 79,
+              "width": 35,
+              "height": 40
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/oracle/normalised-nonprofit-pivot-ready/nonprofit-pivot-candidate/nonprofit-pivot-candidate-05.png",
+          "pose": "settle",
+          "phase": "recovery",
+          "hold": 10,
+          "collision": {
+            "x": 46,
+            "y": 16,
+            "width": 40,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 48,
+              "y": 18,
+              "width": 28,
+              "height": 22
+            },
+            {
+              "x": 49,
+              "y": 42,
+              "width": 27,
+              "height": 35
+            },
+            {
+              "x": 47,
+              "y": 79,
+              "width": 35,
+              "height": 40
+            }
+          ]
+        }
+      ],
+      "moveId": "oracle.nonProfitPivot"
+    },
+    {
+      "fighter": "booster",
+      "animation": "distracted",
+      "loop": "hold-last",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/booster/normalised-pivot-wardrobe-v2/distracted-wardrobe-candidate/distracted-wardrobe-candidate-00.png",
+          "pose": "look-up-current-wardrobe",
+          "phase": "neutral",
+          "hold": 18,
+          "collision": {
+            "x": 40,
+            "y": 16,
+            "width": 49,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 49,
+              "y": 17,
+              "width": 25,
+              "height": 24
+            },
+            {
+              "x": 45,
+              "y": 41,
+              "width": 39,
+              "height": 37
+            },
+            {
+              "x": 42,
+              "y": 78,
+              "width": 44,
+              "height": 41
+            }
+          ]
+        }
+      ],
+      "notes": "Owner approved corrected look-away art and shown body/hurt boxes: yes whats next? Current charcoal trousers/black shoes replace obsolete wardrobe. Neutral hold18 and no attack preserved; Sam move timing unchanged."
+    },
+    {
+      "fighter": "oracle",
+      "animation": "distracted",
+      "loop": "hold-last",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/oracle/normalised-pivot-distraction-v1/distracted-candidate/distracted-candidate-00.png",
+          "pose": "look-up",
+          "phase": "neutral",
+          "hold": 18,
+          "collision": {
+            "x": 46,
+            "y": 16,
+            "width": 39,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 51,
+              "y": 18,
+              "width": 20,
+              "height": 22
+            },
+            {
+              "x": 50,
+              "y": 40,
+              "width": 30,
+              "height": 38
+            },
+            {
+              "x": 48,
+              "y": 78,
+              "width": 34,
+              "height": 41
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fighter": "captain",
+      "animation": "distracted",
+      "loop": "hold-last",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/captain/normalised-pivot-distraction-v1/distracted-candidate/distracted-candidate-00.png",
+          "pose": "look-up",
+          "phase": "neutral",
+          "hold": 18,
+          "collision": {
+            "x": 48,
+            "y": 16,
+            "width": 33,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 50,
+              "y": 78,
+              "width": 28,
+              "height": 41
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fighter": "booster",
+      "animation": "distracted-candidate",
+      "loop": "hold-last",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/booster/normalised-pivot-wardrobe-v2/distracted-wardrobe-candidate/distracted-wardrobe-candidate-00.png",
+          "pose": "look-up-current-wardrobe",
+          "phase": "neutral",
+          "hold": 18,
+          "collision": {
+            "x": 40,
+            "y": 16,
+            "width": 49,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 49,
+              "y": 17,
+              "width": 25,
+              "height": 24
+            },
+            {
+              "x": 45,
+              "y": 41,
+              "width": 39,
+              "height": 37
+            },
+            {
+              "x": 42,
+              "y": 78,
+              "width": 44,
+              "height": 41
+            }
+          ]
+        }
+      ],
+      "notes": "Owner-approved correction retained as candidate copy; same art and boxes adopted as canonical distracted."
+    },
+    {
+      "fighter": "booster",
+      "animation": "distracted-legacy-wardrobe",
+      "loop": "hold-last",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/booster/normalised-pivot-distraction-v1/distracted-candidate/distracted-candidate-00.png",
+          "pose": "look-up",
+          "phase": "neutral",
+          "hold": 18,
+          "collision": {
+            "x": 40,
+            "y": 16,
+            "width": 48,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 48,
+              "y": 18,
+              "width": 28,
+              "height": 22
+            },
+            {
+              "x": 45,
+              "y": 40,
+              "width": 39,
+              "height": 38
+            },
+            {
+              "x": 42,
+              "y": 78,
+              "width": 44,
+              "height": 41
+            }
+          ]
+        }
+      ],
+      "notes": " Retained old wardrobe, disabled in normal play after owner-approved correction."
+    },
+    {
+      "fighter": "captain",
+      "animation": "walk-forward",
+      "loop": "loop",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v2-forward-ready/walk-forward-v2-candidate/walk-forward-v2-candidate-00.png",
+          "pose": "00",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 38,
+            "y": 17,
+            "width": 49,
+            "height": 102
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 40,
+              "y": 78,
+              "width": 46,
+              "height": 41
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v2-forward-ready/walk-forward-v2-candidate/walk-forward-v2-candidate-01.png",
+          "pose": "01",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 47,
+            "y": 16,
+            "width": 40,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 50,
+              "y": 78,
+              "width": 36,
+              "height": 41
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v2-forward-ready/walk-forward-v2-candidate/walk-forward-v2-candidate-02.png",
+          "pose": "02",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 38,
+            "y": 16,
+            "width": 46,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 40,
+              "y": 78,
+              "width": 43,
+              "height": 41
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v2-forward-ready/walk-forward-v2-candidate/walk-forward-v2-candidate-03.png",
+          "pose": "03",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 47,
+            "y": 16,
+            "width": 42,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 49,
+              "y": 78,
+              "width": 39,
+              "height": 41
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fighter": "captain",
+      "animation": "walk-back",
+      "loop": "loop",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v2-forward-ready/walk-forward-v2-candidate/walk-forward-v2-candidate-00.png",
+          "pose": "back-00",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 38,
+            "y": 17,
+            "width": 49,
+            "height": 102
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 40,
+              "y": 78,
+              "width": 46,
+              "height": 41
+            }
+          ],
+          "guard": {
+            "x": 64,
+            "y": 40,
+            "width": 20,
+            "height": 45
+          }
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v2-forward-ready/walk-forward-v2-candidate/walk-forward-v2-candidate-03.png",
+          "pose": "back-03",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 47,
+            "y": 16,
+            "width": 42,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 49,
+              "y": 78,
+              "width": 39,
+              "height": 41
+            }
+          ],
+          "guard": {
+            "x": 64,
+            "y": 40,
+            "width": 20,
+            "height": 45
+          }
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v2-forward-ready/walk-forward-v2-candidate/walk-forward-v2-candidate-02.png",
+          "pose": "back-02",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 38,
+            "y": 16,
+            "width": 46,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 40,
+              "y": 78,
+              "width": 43,
+              "height": 41
+            }
+          ],
+          "guard": {
+            "x": 64,
+            "y": 40,
+            "width": 20,
+            "height": 45
+          }
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v2-forward-ready/walk-forward-v2-candidate/walk-forward-v2-candidate-01.png",
+          "pose": "back-01",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 47,
+            "y": 16,
+            "width": 40,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 50,
+              "y": 78,
+              "width": 36,
+              "height": 41
+            }
+          ],
+          "guard": {
+            "x": 64,
+            "y": 40,
+            "width": 20,
+            "height": 45
+          }
+        }
+      ]
+    },
+    {
+      "fighter": "captain",
+      "animation": "idle-legacy-preapproval",
+      "loop": "loop",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/captain/normalised-clean/anchor/anchor-00.png",
+          "pose": "anchor",
+          "phase": "neutral",
+          "hold": 18,
+          "collision": {
+            "x": 48,
+            "y": 16,
+            "width": 33,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 50,
+              "y": 78,
+              "width": 28,
+              "height": 41
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fighter": "captain",
+      "animation": "heavy-block",
+      "loop": "by-stun",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v1-heavy-block-candidate/heavy-block-candidate/heavy-block-candidate-00.png",
+          "pose": "compress",
+          "phase": "neutral",
+          "hold": 5,
+          "collision": {
+            "x": 48,
+            "y": 20,
+            "width": 33,
+            "height": 99
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 22,
+              "width": 26,
+              "height": 24
+            },
+            {
+              "x": 55,
+              "y": 51,
+              "width": 22,
+              "height": 29
+            },
+            {
+              "x": 51,
+              "y": 85,
+              "width": 28,
+              "height": 33
+            }
+          ],
+          "guard": {
+            "x": 64,
+            "y": 44,
+            "width": 20,
+            "height": 45
+          }
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v1-heavy-block-candidate/heavy-block-candidate/heavy-block-candidate-01.png",
+          "pose": "settle",
+          "phase": "neutral",
+          "hold": 6,
+          "collision": {
+            "x": 48,
+            "y": 18,
+            "width": 32,
+            "height": 101
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 20,
+              "width": 26,
+              "height": 24
+            },
+            {
+              "x": 55,
+              "y": 49,
+              "width": 22,
+              "height": 29
+            },
+            {
+              "x": 51,
+              "y": 83,
+              "width": 27,
+              "height": 35
+            }
+          ],
+          "guard": {
+            "x": 64,
+            "y": 42,
+            "width": 20,
+            "height": 45
+          }
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v1-heavy-block-candidate/heavy-block-candidate/heavy-block-candidate-02.png",
+          "pose": "guard",
+          "phase": "neutral",
+          "hold": 3,
+          "collision": {
+            "x": 48,
+            "y": 16,
+            "width": 33,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 26,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 43,
+              "width": 23,
+              "height": 34
+            },
+            {
+              "x": 48,
+              "y": 79,
+              "width": 32,
+              "height": 40
+            }
+          ],
+          "guard": {
+            "x": 64,
+            "y": 40,
+            "width": 20,
+            "height": 45
+          }
+        }
+      ]
+    },
+    {
+      "fighter": "captain",
+      "animation": "hit",
+      "loop": "by-stun",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v1-hit-candidate/hit-candidate/hit-candidate-00.png",
+          "pose": "impact",
+          "phase": "neutral",
+          "hold": 3,
+          "collision": {
+            "x": 44,
+            "y": 15,
+            "width": 39,
+            "height": 104
+          },
+          "hurt": [
+            {
+              "x": 46,
+              "y": 17,
+              "width": 25,
+              "height": 24
+            },
+            {
+              "x": 54,
+              "y": 46,
+              "width": 27,
+              "height": 29
+            },
+            {
+              "x": 50,
+              "y": 80,
+              "width": 30,
+              "height": 38
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v1-hit-candidate/hit-candidate/hit-candidate-01.png",
+          "pose": "stagger",
+          "phase": "neutral",
+          "hold": 10,
+          "collision": {
+            "x": 45,
+            "y": 17,
+            "width": 36,
+            "height": 102
+          },
+          "hurt": [
+            {
+              "x": 47,
+              "y": 19,
+              "width": 26,
+              "height": 24
+            },
+            {
+              "x": 50,
+              "y": 48,
+              "width": 26,
+              "height": 29
+            },
+            {
+              "x": 51,
+              "y": 82,
+              "width": 28,
+              "height": 36
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-idle-right-hand-v2-lanczos/idle-right-hand-v2-candidate/idle-right-hand-v2-candidate-00.png",
+          "pose": "recover",
+          "phase": "neutral",
+          "hold": 9,
+          "collision": {
+            "x": 48,
+            "y": 16,
+            "width": 33,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 50,
+              "y": 78,
+              "width": 28,
+              "height": 41
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fighter": "captain",
+      "animation": "jump",
+      "loop": "hold-last",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v1-jump-repair01/jump-v2-candidate/jump-v2-candidate-00.png",
+          "pose": "rise",
+          "phase": "neutral",
+          "hold": 1,
+          "collision": {
+            "x": 47,
+            "y": 36,
+            "width": 32,
+            "height": 83
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 38,
+              "width": 24,
+              "height": 24
+            },
+            {
+              "x": 52,
+              "y": 67,
+              "width": 25,
+              "height": 25
+            },
+            {
+              "x": 49,
+              "y": 97,
+              "width": 24,
+              "height": 21
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v1-jump-repair01/jump-v2-candidate/jump-v2-candidate-01.png",
+          "pose": "apex",
+          "phase": "neutral",
+          "hold": 1,
+          "collision": {
+            "x": 48,
+            "y": 40,
+            "width": 32,
+            "height": 79
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 42,
+              "width": 26,
+              "height": 24
+            },
+            {
+              "x": 52,
+              "y": 71,
+              "width": 26,
+              "height": 21
+            },
+            {
+              "x": 54,
+              "y": 97,
+              "width": 22,
+              "height": 21
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v1-jump-repair01/jump-v2-candidate/jump-v2-candidate-02.png",
+          "pose": "fall",
+          "phase": "neutral",
+          "hold": 1,
+          "collision": {
+            "x": 46,
+            "y": 22,
+            "width": 31,
+            "height": 97
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 24,
+              "width": 24,
+              "height": 24
+            },
+            {
+              "x": 52,
+              "y": 53,
+              "width": 23,
+              "height": 29
+            },
+            {
+              "x": 48,
+              "y": 87,
+              "width": 25,
+              "height": 31
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fighter": "captain",
+      "animation": "special",
+      "loop": "once",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/captain/normalised-owner-microrepair-20261006/flyby-look-candidate/flyby-look-candidate-00.png",
+          "pose": "look-up",
+          "phase": "startup",
+          "hold": 8,
+          "collision": {
+            "x": 47,
+            "y": 15,
+            "width": 35,
+            "height": 104
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 50,
+              "y": 78,
+              "width": 28,
+              "height": 41
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-owner-microrepair-20261006/sight-candidate/sight-candidate-00.png",
+          "pose": "sight",
+          "phase": "startup",
+          "hold": 8,
+          "collision": {
+            "x": 47,
+            "y": 16,
+            "width": 39,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 50,
+              "y": 78,
+              "width": 28,
+              "height": 41
+            },
+            {
+              "x": 76,
+              "y": 30,
+              "width": 9,
+              "height": 18
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v1-flyby-startup/flyby-startup-candidate/flyby-startup-candidate-02.png",
+          "pose": "point",
+          "phase": "startup",
+          "hold": 10,
+          "collision": {
+            "x": 48,
+            "y": 16,
+            "width": 51,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 50,
+              "y": 78,
+              "width": 28,
+              "height": 41
+            },
+            {
+              "x": 76,
+              "y": 31,
+              "width": 22,
+              "height": 18
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v1-airflow-repair01/airflow-v2-candidate/airflow-v2-candidate-00.png",
+          "pose": "airflow",
+          "phase": "active",
+          "hold": 4,
+          "collision": {
+            "x": 47,
+            "y": 16,
+            "width": 51,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 50,
+              "y": 78,
+              "width": 28,
+              "height": 41
+            },
+            {
+              "x": 76,
+              "y": 31,
+              "width": 21,
+              "height": 16
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v1-flyby-active-recovery/flyby-active-recovery-candidate/flyby-active-recovery-candidate-01.png",
+          "pose": "full-airflow",
+          "phase": "active",
+          "hold": 4,
+          "collision": {
+            "x": 47,
+            "y": 16,
+            "width": 51,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 50,
+              "y": 78,
+              "width": 28,
+              "height": 41
+            },
+            {
+              "x": 76,
+              "y": 31,
+              "width": 21,
+              "height": 17
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v1-flyby-active-recovery/flyby-active-recovery-candidate/flyby-active-recovery-candidate-02.png",
+          "pose": "lower-arm",
+          "phase": "recovery",
+          "hold": 10,
+          "collision": {
+            "x": 48,
+            "y": 16,
+            "width": 43,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 50,
+              "y": 78,
+              "width": 28,
+              "height": 41
+            },
+            {
+              "x": 76,
+              "y": 49,
+              "width": 14,
+              "height": 10
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v1-victory-candidate/victory-candidate/victory-candidate-00.png",
+          "pose": "cap-acknowledgment",
+          "phase": "recovery",
+          "hold": 12,
+          "collision": {
+            "x": 48,
+            "y": 16,
+            "width": 37,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 50,
+              "y": 78,
+              "width": 28,
+              "height": 41
+            },
+            {
+              "x": 76,
+              "y": 27,
+              "width": 8,
+              "height": 25
+            }
+          ]
+        }
+      ],
+      "moveId": "captain.flyby"
+    },
+    {
+      "fighter": "captain",
+      "animation": "victory",
+      "loop": "hold-last",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/captain/normalised-idle-right-hand-v2-lanczos/idle-right-hand-v2-candidate/idle-right-hand-v2-candidate-00.png",
+          "pose": "prepare",
+          "phase": "neutral",
+          "hold": 10,
+          "collision": {
+            "x": 48,
+            "y": 16,
+            "width": 33,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 50,
+              "y": 78,
+              "width": 28,
+              "height": 41
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v1-victory-candidate/victory-candidate/victory-candidate-00.png",
+          "pose": "raise-hand",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 48,
+            "y": 16,
+            "width": 38,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 50,
+              "y": 78,
+              "width": 29,
+              "height": 41
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v1-victory-repair02/victory-v3-candidate/victory-v3-candidate-01.png",
+          "pose": "salute",
+          "phase": "neutral",
+          "hold": 12,
+          "collision": {
+            "x": 41,
+            "y": 16,
+            "width": 48,
+            "height": 103
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 18,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 52,
+              "y": 40,
+              "width": 25,
+              "height": 38
+            },
+            {
+              "x": 43,
+              "y": 78,
+              "width": 44,
+              "height": 41
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fighter": "captain",
+      "animation": "knockout",
+      "loop": "hold-last",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/captain/normalised-full-set-v1-hit-candidate/hit-candidate/hit-candidate-01.png",
+          "pose": "off-balance",
+          "phase": "neutral",
+          "hold": 12,
+          "collision": {
+            "x": 45,
+            "y": 17,
+            "width": 36,
+            "height": 102
+          },
+          "hurt": [
+            {
+              "x": 47,
+              "y": 19,
+              "width": 26,
+              "height": 24
+            },
+            {
+              "x": 50,
+              "y": 48,
+              "width": 26,
+              "height": 29
+            },
+            {
+              "x": 51,
+              "y": 82,
+              "width": 28,
+              "height": 36
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-owner-microrepair-20261006/knockout-right-hand-candidate/knockout-right-hand-candidate-00.png",
+          "pose": "sit-down",
+          "phase": "neutral",
+          "hold": 12,
+          "collision": {
+            "x": 45,
+            "y": 27,
+            "width": 36,
+            "height": 92
+          },
+          "hurt": [
+            {
+              "x": 48,
+              "y": 29,
+              "width": 25,
+              "height": 25
+            },
+            {
+              "x": 53,
+              "y": 58,
+              "width": 17,
+              "height": 22
+            },
+            {
+              "x": 49,
+              "y": 85,
+              "width": 30,
+              "height": 33
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/captain/normalised-owner-microrepair-20261006/knockout-right-hand-candidate/knockout-right-hand-candidate-01.png",
+          "pose": "seated",
+          "phase": "neutral",
+          "hold": 12,
+          "collision": {
+            "x": 32,
+            "y": 50,
+            "width": 65,
+            "height": 69
+          },
+          "hurt": [
+            {
+              "x": 42,
+              "y": 52,
+              "width": 25,
+              "height": 26
+            },
+            {
+              "x": 46,
+              "y": 82,
+              "width": 22,
+              "height": 19
+            },
+            {
+              "x": 49,
+              "y": 103,
+              "width": 46,
+              "height": 15
             }
           ]
         }

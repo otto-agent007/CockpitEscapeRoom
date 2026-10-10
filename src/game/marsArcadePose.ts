@@ -6,9 +6,9 @@
  * fighter in on this frame?
  *
  * The answer comes from rules state alone (`state.frame`, `moveFrame`, `velocityY`,
- * `activity`), so the same inputs still give the same round. It is the drawing the
+ * `activity` and incoming stun duration), so the same inputs still give the same round. It is the drawing the
  * harness shows for every clip that is played by state. The harness also has cosmetic
- * beats keyed on its own presentation state: the heavy-reaction beats, the
+ * beats for the other fighters keyed on its own presentation state: the heavy-reaction beats, the
  * heavy-block brace, the knockback easing and the static idle under reduced motion.
  * Those move the picture, never a hurt box.
  */
@@ -104,8 +104,27 @@ export function marsArcadeJumpIndex(velocityY: number): 0 | 1 | 2 {
   return velocityY > MARS_ARCADE_APEX_VELOCITY ? 0 : velocityY < -MARS_ARCADE_APEX_VELOCITY ? 2 : 1
 }
 
+/** Captain's reaction drawing and boxes share the actual, hit-stop-frozen stun clock. */
+export function marsArcadeCaptainReactionFrame(fighter: MarsArcadeFighterState): MarsArcadeAnimationFrame | null {
+  if (fighter.id !== 'captain') return null
+  const origin = fighter.stunOrigin
+  const name = fighter.activity === 'hitstun' ? 'hit' :
+    fighter.activity === 'blockstun' && origin?.button === 'heavy' ? 'heavy-block' : null
+  const clip = name ? marsArcadeClip('captain', name) : null
+  if (!clip) return null
+  // A zero-stun hit still freezes its impact activity during hit stop.
+  if (fighter.stunFrames <= 0) return fighter.activity === 'hitstun' ? clip.frames[0] ?? null : null
+  const duration = origin?.duration ?? fighter.stunFrames
+  const elapsed = Math.max(0, duration - fighter.stunFrames)
+  // Holds are nominal: scale the gym timeline over the original engine stun.
+  const ticks = clip.frames.reduce((sum, frame) => sum + frame.hold, 0)
+  return marsArcadeFrameAt(clip, Math.min(ticks - 1, Math.floor(elapsed * ticks / Math.max(1, duration)))).frame
+}
+
 function fighterFrame(fighter: MarsArcadeFighterState, frame: number): MarsArcadeAnimationFrame | null {
   const clip = (name: string) => marsArcadeClip(fighter.id, name)
+  const reaction = marsArcadeCaptainReactionFrame(fighter)
+  if (reaction) return reaction
 
   if (fighter.activity === 'attack' && fighter.activeButton) {
     const move = marsArcadeFighter(fighter.id).moves[fighter.activeButton]
@@ -119,11 +138,18 @@ function fighterFrame(fighter: MarsArcadeFighterState, frame: number): MarsArcad
     return jump ? jump.frames[Math.min(marsArcadeJumpIndex(fighter.velocityY), jump.frames.length - 1)]! : null
   }
   if (fighter.activity === 'hitstun') return clip('hit')?.frames[0] ?? null
+  if(fighter.activity==='distracted')return clip('distracted')?.frames[0]??clip('idle')?.frames[0]??null
   if (fighter.activity === 'walk') {
     const walk = clip(fighter.blocking ? 'walk-back' : 'walk-forward')
-    return walk ? marsArcadeFrameAt(walk, frame).frame : null
+    if (walk) return marsArcadeFrameAt(walk, frame).frame
+    // A reviewed Captain guard can back up before its walking art is ready.
+    return fighter.id === 'captain' && fighter.blocking ? clip('block')?.frames[0] ?? null : null
   }
-  if (fighter.activity === 'blockstun' || fighter.blocking) return clip('block')?.frames[0] ?? null
+  if (fighter.activity === 'blockstun' || fighter.blocking) {
+    const guard = clip('block')
+    return fighter.id === 'captain' && fighter.activity === 'blockstun'
+      ? guard?.frames.at(-1) ?? null : guard?.frames[0] ?? null
+  }
   if (fighter.activity === 'idle') {
     const idle = clip('idle')
     return idle ? marsArcadeFrameAt(idle, frame).frame : null
@@ -133,9 +159,11 @@ function fighterFrame(fighter: MarsArcadeFighterState, frame: number): MarsArcad
 
 /**
  * The drawing whose boxes the rules read for one fighter, or null when that state
- * has not been drawn (every captain move, for one). Null means "no boxes": the rules
+ * has not been drawn. Null means "no boxes": the rules
  * fall back to the reach check for that pair rather than treating it as unhittable.
  */
 export function marsArcadeRulesFrame(state: MarsArcadeState, side: MarsArcadeSide): MarsArcadeAnimationFrame | null {
+  // Terminal art is cosmetic; frozen finishing moves have no live combat boxes.
+  if (state.phase !== 'fight' && state.phase !== 'intro') return null
   return fighterFrame(state.fighters[side], state.frame)
 }

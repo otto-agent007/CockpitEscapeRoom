@@ -49,6 +49,7 @@ import {
   type MarsArcadeFramePhase,
 } from '../game/marsArcadeBounds'
 import { type MarsArcadeFighterId } from '../game/marsArcadeFighters'
+import { recoveredGymSelection, startGymArtEditor } from './arcadeArtEditor'
 
 const SCALE = 4
 /** Where the sprite cell sits inside the canvas: a margin all round, like a stage. */
@@ -84,6 +85,8 @@ interface GymState {
 }
 
 const images = new Map<string, HTMLImageElement>()
+let artPreviews = new Map<string, HTMLCanvasElement>()
+let artReference: HTMLCanvasElement | null = null
 /** Opaque bounding box per drawing, measured once from the decoded pixels. */
 const silhouettes = new Map<string, MarsArcadeBox | null>()
 
@@ -114,11 +117,11 @@ function ready(image: HTMLImageElement): boolean {
 /** The drawing's opaque bounding box, alpha 128 and up, like the CLI measures it. */
 function silhouetteOf(src: string): MarsArcadeBox | null {
   if (silhouettes.has(src)) return silhouettes.get(src) ?? null
-  const image = loadImage(src)
-  if (!ready(image)) return null
+  const image = artPreviews.get(src) ?? loadImage(src)
+  if (image instanceof HTMLImageElement && !ready(image)) return null
   const scratch = document.createElement('canvas')
-  scratch.width = image.naturalWidth
-  scratch.height = image.naturalHeight
+  scratch.width = image instanceof HTMLImageElement ? image.naturalWidth : image.width
+  scratch.height = image instanceof HTMLImageElement ? image.naturalHeight : image.height
   const ctx = scratch.getContext('2d')
   if (!ctx) return null
   ctx.drawImage(image, 0, 0)
@@ -240,8 +243,8 @@ function drawBox(ctx: CanvasRenderingContext2D, box: MarsArcadeBox, colour: stri
 }
 
 function drawSprite(ctx: CanvasRenderingContext2D, src: string, alpha: number): void {
-  const image = loadImage(src)
-  if (!ready(image)) return
+  const image = artPreviews.get(src) ?? loadImage(src)
+  if (image instanceof HTMLImageElement && !ready(image)) return
   ctx.globalAlpha = alpha
   ctx.drawImage(image, 0, 0, MARS_ARCADE_CELL.size * SCALE, MARS_ARCADE_CELL.size * SCALE)
   ctx.globalAlpha = 1
@@ -303,6 +306,11 @@ function render(state: GymState, canvas: HTMLCanvasElement): void {
     if (next && next !== frame && next !== previous) drawSprite(ctx, next.src, 0.18)
   }
   drawSprite(ctx, frame.src, 1)
+  if (artReference) {
+    ctx.globalAlpha = .3
+    ctx.drawImage(artReference, 0, 0, size, size)
+    ctx.globalAlpha = 1
+  }
 
   // The contract baseline and pivot, always drawn. A box authored against a sprite
   // whose feet are not on the baseline is wrong in a way that is invisible without
@@ -398,6 +406,7 @@ function findingsFor(state: GymState): string {
 
 export function startArcadeGym(root: HTMLElement): void {
   const parsed = parseMarsArcadeAnimations(rawAnimations)
+  let baseFile = structuredClone(parsed)
   const state: GymState = {
     file: parsed,
     key: marsArcadeAnimationKey('booster', 'jab'),
@@ -413,6 +422,19 @@ export function startArcadeGym(root: HTMLElement): void {
     dirty: false,
     undo: [],
     findings: validateMarsArcadeAnimations(parsed),
+  }
+  const recovered = recoveredGymSelection()
+  const recoveredEntry = recovered && parsed.animations.find(entry => marsArcadeAnimationKey(entry.fighter, entry.animation) === recovered.key)
+  if (recoveredEntry) {
+    state.key = recovered!.key
+    state.tick = tickOfFrame(recoveredEntry, Math.max(0, recoveredEntry.frames.findIndex(frame => frame.src === recovered!.src)))
+  }
+  if(new URLSearchParams(location.search).get('sam')==='pivot'){
+    const candidate=parsed.animations.find(entry=>entry.fighter==='oracle'&&entry.animation==='special'&&entry.moveId==='oracle.nonProfitPivot')??
+      parsed.animations.find(entry=>entry.fighter==='oracle'&&entry.animation==='nonprofit-pivot-candidate')
+    if(candidate){state.key=marsArcadeAnimationKey(candidate.fighter,candidate.animation);state.tick=0}
+    const arcade=root.querySelector<HTMLAnchorElement>('a[href="./arcade.html"]')
+    if(arcade)arcade.href='./arcade.html?sam=pivot'
   }
 
   const $ = <T extends Element>(selector: string): T | null => root.querySelector<T>(selector)
@@ -510,6 +532,7 @@ export function startArcadeGym(root: HTMLElement): void {
     syncFields()
     render(state, canvas!)
     info!.textContent = summary(state)
+    artEditor?.refresh()
   }
 
   /** Rebuild the controls that depend on the clip's shape, then paint. */
@@ -847,6 +870,10 @@ export function startArcadeGym(root: HTMLElement): void {
 
   $('#gym-save')?.addEventListener('click', () => {
     void (async () => {
+      if (artEditor?.hasDrafts()) {
+        status.textContent = 'Art corrections are preview drafts — use Save corrected copy in Art corrections first.'
+        return
+      }
       revalidate()
       const errors = marsArcadeAnimationErrors(state.findings)
       if (errors.length) {
@@ -868,12 +895,29 @@ export function startArcadeGym(root: HTMLElement): void {
       }
       if (response.ok) {
         state.dirty = false
+        baseFile = structuredClone(state.file)
         status.textContent = 'saved to src/game/marsArcadeAnimations.json'
       } else {
         status.textContent = `save refused (${response.status}): ${await response.text()}`
       }
     })()
   })
+
+  const artEditor = startGymArtEditor(root, {
+    selection: () => ({ entry: entryOf(state), frame: frameOf(state), file: state.file }),
+    baseFile: () => baseFile,
+    previews: (previews, reference) => { artPreviews = previews; artReference = reference; silhouettes.clear(); render(state, canvas); info.textContent = summary(state) },
+    saved: (file, key) => {
+      const added = file.animations.find(entry => marsArcadeAnimationKey(entry.fighter, entry.animation) === key)!
+      snapshot(state)
+      state.file = { ...state.file, animations: [...state.file.animations, added] }
+      baseFile = structuredClone(file)
+      state.key = key; state.tick = 0; state.playing = false
+      state.dirty = JSON.stringify(state.file) !== JSON.stringify(file)
+      revalidate(); rebuildAnimationList(); refresh()
+    },
+  })
+  artEditor.refresh()
 
   // Playback at the table's holds: 60 engine frames a second, scaled.
   let carry = 0

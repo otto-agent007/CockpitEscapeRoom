@@ -57,7 +57,8 @@ describe('heavy attack artwork', () => {
     expect(state.fighters[0].activity).toBe('idle')
     expect(state.fighters[1].health).toBe(100) // Out of range, despite visible attack.
     state.fighters[1].activity = 'attack'
-    state.fighters[1].activeButton = 'heavy'
-    expect(selectArcadeSprite(state, 1, false).placeholder).toBe(true)
+    state.fighters[1].activeButton = 'special'
+    expect(selectArcadeSprite(state, 1, false).placeholder).toBe(false)
+    expect(selectArcadeSprite(state, 1, false).frame?.attack).toBeUndefined()
   })
 })

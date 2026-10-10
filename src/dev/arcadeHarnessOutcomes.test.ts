@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createMarsArcadeRound } from '../game/marsArcade'
-import { ARCADE_ANCHOR_SOURCES, ARCADE_SPRITE_SOURCES, selectArcadeSprite } from './arcadeHarnessSprites'
+import { ARCADE_ANCHOR_SOURCES, ARCADE_SPRITE_SOURCES, arcadeClip, selectArcadeSprite } from './arcadeHarnessSprites'
 
 const recoils = {
   booster: '/booster/normalised-sleek-ready/recoil/recoil-00.png',
@@ -55,7 +55,10 @@ describe('Booster and Oracle round outcome presentation', () => {
     for (const side of [0, 1] as const) expect(selectArcadeSprite(state, side, false, 100).src).not.toContain('/normalised-outcomes-ready/')
     state.phase = 'ko'; state.winner = 1
     state.fighters[1].id = 'captain'
-    expect(selectArcadeSprite(state, 1, false, 100).placeholder).toBe(true)
+    const authored=arcadeClip('captain','victory'),selected=selectArcadeSprite(state,1,false,100)
+    expect(selected.placeholder).toBe(authored===null)
+    if(authored)expect(selected.frame?.src).toBe(authored.frames.at(-1)!.src)
+    expect(selected.frame?.attack).toBeUndefined()
   })
 
   it('settles an airborne result onto the floor without editing frozen fighter coordinates', () => {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createMarsArcadeRound, marsArcadeActiveMove } from '../game/marsArcade'
 import { marsArcadeAnimationKey, marsArcadeMoveById } from '../game/marsArcadeAnimations'
-import { marsArcadeFighter, type MarsArcadeButton } from '../game/marsArcadeFighters'
+import { marsArcadeFighter, marsArcadeKnownMoves, type MarsArcadeButton } from '../game/marsArcadeFighters'
 import { ARCADE_ANIMATIONS, ARCADE_SPRITE_SOURCES, arcadeClip, selectArcadeSprite } from './arcadeHarnessSprites'
 
 /** What the harness actually draws across one move, with consecutive repeats collapsed. */
@@ -32,10 +32,10 @@ describe('the animation table is what the harness plays', () => {
     expect(new Set(keys).size).toBe(keys.length)
   })
 
-  it('names only moves the fighter actually has', () => {
+  it('names only registered moves belonging to the fighter, including optional previews', () => {
     for (const entry of ARCADE_ANIMATIONS.animations) {
       if (!entry.moveId) continue
-      const moves = Object.values(marsArcadeFighter(entry.fighter).moves).map((move) => move.id)
+      const moves = marsArcadeKnownMoves(entry.fighter).map((move) => move.id)
       expect(moves, marsArcadeAnimationKey(entry.fighter, entry.animation)).toContain(entry.moveId)
     }
   })

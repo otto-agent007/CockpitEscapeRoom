@@ -1,19 +1,19 @@
 /**
- * Browser proof for the rule switches on /dev/arcade.html (plan 0047).
+ * Browser proof for the enabled rule switches on /dev/arcade.html (plan 0050).
  *
  *   ARCADE_PILOT_URL=http://127.0.0.1:5371/dev/arcade.html node tools/assets/check-arcade-bounds-rules.mjs
  *
  * Positions the fighters exactly by pausing and stepping single frames with a walk
  * key held, then proves, in the real page with the real rules:
  *
- *   1. both switches load off, and a jab at 49.5 px whiffs (reach 41);
+ *   1. both switches load on, reset/reload retain them, and disabling them restores a jab whiff at 49.5 px;
  *   2. with "hits by boxes" on, the same jab at the same distance lands, and with
  *      "hit stop" on the fight freezes for 2 frames and the defender flashes white;
  *   3. under reduced motion the freeze still happens but the flash does not;
  *   4. with the switches off a cornered, guarding booster blocks Hard Cutoff, and with
  *      "hits by boxes" on the same sweep goes through the guard.
  *
- * Screenshots land in preview-renders/mars-arcade/bounds-rules-v1/ at 1440 and 768.
+ * Screenshots cover 375, 768 and 1440 px; ARCADE_EVIDENCE_DIR isolates a review run.
  * Save is not exercised: it would rewrite the committed tuning file from a test.
  */
 import assert from 'node:assert/strict'
@@ -93,10 +93,28 @@ async function jabAt49(h) {
 
 try {
   const h = await open(1440)
-  assert.match(await h.read(), /rules {2}hits by reach {3}hit stop off/)
-  assert.equal(await h.page.locator('#pg-rule-useBounds').isChecked(), false)
-  assert.equal(await h.page.locator('#pg-rule-hitstop').isChecked(), false)
-  report('both switches load off from the shipped tuning')
+  const enabled = async () => {
+    assert.match(await h.read(), /rules {2}hits by boxes {3}hit stop on/)
+    assert.equal(await h.page.locator('#pg-rule-useBounds').isChecked(), true)
+    assert.equal(await h.page.locator('#pg-rule-hitstop').isChecked(), true)
+    assert.equal(await h.page.locator('#pg-candidate-oracle-walk-forward-video').isChecked(), false)
+  }
+  await enabled()
+  await h.setRule('useBounds', false)
+  await h.setRule('hitstop', false)
+  await h.page.locator('#pg-reset').click()
+  await h.tick(20)
+  await enabled()
+  await h.setRule('useBounds', false)
+  await h.setRule('hitstop', false)
+  await h.page.reload()
+  await h.page.waitForFunction(() => /^(\d+)\/\1 sprites ready/.test(document.querySelector('#asset-status').textContent))
+  await h.tick(20)
+  await enabled()
+  await h.page.locator('[data-command="KeyT"]').click()
+  report('both switches load on; reset and reload restore both; existing Oracle walk stays selected')
+  await h.setRule('useBounds', false)
+  await h.setRule('hitstop', false)
 
   const whiff = await jabAt49(h)
   assert.doesNotMatch(whiff, /HIT/)
@@ -127,20 +145,52 @@ try {
     await h.step(Math.round(await h.separation()) - 30, ['ArrowLeft']) // oracle walks in to about 30 px
     await h.page.keyboard.press('Period')
     const before = await h.frameNow()
-    await h.step(14, ['KeyA'])
+    await h.step(10, ['KeyA'])
+    if (await h.page.locator('#pg-rule-useBounds').isChecked()) assert.doesNotMatch(await h.read(), /heavy block — brace/)
+    await h.step(4, ['KeyA'])
     return h.logSince(before)
   }
-  await h.setRule('hitstop', false)
   const through = await sweep()
   assert.match(through, /HIT {6}oracle\.hardCutoff/)
   await h.page.screenshot({ path: `${out}sweep-through-guard-1440.png` })
+
+  // Bounds extend Booster's guarded heavy beyond its legacy 38 px reach.
+  await h.fresh()
+  await h.step(300, ['KeyD', 'ArrowRight'])
+  // Backward shuffle uses its slower speed; measure the resulting native gap.
+  await h.step(18, ['KeyA'])
+  const heavyGap = await h.separation()
+  assert.ok(heavyGap >= 44 && heavyGap < 46, `boxed heavy gap ${heavyGap} must exceed legacy reach 38`)
+  await h.page.keyboard.press('KeyK')
+  const heavyBefore = await h.frameNow()
+  await h.step(5, ['ArrowRight'])
+  assert.match(await h.read(), /heavy block — brace/)
+  // The button's first tick starts at move frame zero; contact follows 11 startup ticks.
+  await h.step(7, ['ArrowRight'])
+  assert.match(await h.logSince(heavyBefore), /block {4}booster\.staticFire.*stop 4f/)
+  assert.match(await h.read(), /heavy block — compress/)
+  assert.match(await h.read(), /FROZEN 4\/4f/)
+  await h.page.screenshot({ path: `${out}heavy-guard-beyond-reach-1440.png` })
+  report(`a boxed heavy at ${heavyGap} px anticipates guard, blocks and freezes for 4 frames beyond legacy 38 px reach`)
+
   await h.setRule('useBounds', false)
+  await h.setRule('hitstop', false)
   const held = await sweep()
   assert.match(held, /block {4}oracle\.hardCutoff/)
   report('a cornered booster holding away blocks Hard Cutoff with the switches off; with hits by boxes on it goes through')
 
-  await h.page.setViewportSize({ width: 768, height: 1100 })
-  await h.page.screenshot({ path: `${out}playground-rules-768.png`, fullPage: true })
+  await h.page.locator('#pg-reset').click()
+  await h.tick(20)
+  await enabled()
+  await h.fresh()
+  for (const width of [375, 768, 1440]) {
+    await h.page.setViewportSize({ width, height: 1100 })
+    await h.tick(20)
+    assert.equal(await h.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
+    await enabled()
+    await h.page.screenshot({ path: `${out}playground-rules-${width}.png`, fullPage: true })
+  }
+  report('both enabled controls remain accessible without overflow at 375, 768 and 1440 px')
   await h.page.close()
 
   const reduced = await open(1440, true)

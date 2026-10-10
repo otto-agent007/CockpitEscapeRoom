@@ -1,0 +1,109 @@
+{
+  "source": "art-source/arcade/captain/generated/full-set-v1/fx-flyby-aircraft-strip-repair01.png",
+  "method": "Existing shared-union strip normalization,110px width,uniform aspect; stage padding only; no painted-pixel edits",
+  "status": "Owner accepted aircraft style/sky placement/motion/reduced look; main5360adopted with8nativecases/918tests80files/lint/types/build and fresh review no findings. Character special remains pending.",
+  "frames": [
+    {
+      "cell": "art-source/arcade/generated/fx-flyby-v2/normalised/flyby-00.png",
+      "sha256": "b90e430ed9bdec3e6b4f44997854147a041be2c6f0b3ee35259f3225c88538db",
+      "size": [
+        320,
+        96
+      ],
+      "aircraftCrop": [
+        110,
+        31
+      ],
+      "placement": [
+        105,
+        0
+      ],
+      "opaqueBounds": [
+        111,
+        0,
+        214,
+        30
+      ],
+      "alphaComponents": [
+        1600
+      ]
+    },
+    {
+      "cell": "art-source/arcade/generated/fx-flyby-v2/normalised/flyby-01.png",
+      "sha256": "61f6d17f47e832209e7cb57db004a645c7b1d1cbb4fa9ce12146f4349d5f71d2",
+      "size": [
+        320,
+        96
+      ],
+      "aircraftCrop": [
+        110,
+        31
+      ],
+      "placement": [
+        105,
+        0
+      ],
+      "opaqueBounds": [
+        109,
+        0,
+        212,
+        30
+      ],
+      "alphaComponents": [
+        1594
+      ]
+    },
+    {
+      "cell": "art-source/arcade/generated/fx-flyby-v2/normalised/flyby-02.png",
+      "sha256": "59e836e59f6a31c8450df46fb79a6949c3bc7f9942d2dff650280bf1f8bead26",
+      "size": [
+        320,
+        96
+      ],
+      "aircraftCrop": [
+        110,
+        31
+      ],
+      "placement": [
+        105,
+        0
+      ],
+      "opaqueBounds": [
+        107,
+        0,
+        209,
+        30
+      ],
+      "alphaComponents": [
+        1604
+      ]
+    },
+    {
+      "cell": "art-source/arcade/generated/fx-flyby-v2/normalised/flyby-03.png",
+      "sha256": "3d4bd6d6453e25e67a08be76e240b221f08d7ffbd715949da267b9bafba4c5d5",
+      "size": [
+        320,
+        96
+      ],
+      "aircraftCrop": [
+        110,
+        31
+      ],
+      "placement": [
+        105,
+        0
+      ],
+      "opaqueBounds": [
+        105,
+        0,
+        208,
+        30
+      ],
+      "alphaComponents": [
+        1596
+      ]
+    }
+  ],
+  "ownerReviewed": true,
+  "appearanceAcceptance": "preview-renders/mars-arcade/captain-full-set-2026-10-05/reactions-jump-review/flyby-main-adoption/appearance-acceptance.json"
+}

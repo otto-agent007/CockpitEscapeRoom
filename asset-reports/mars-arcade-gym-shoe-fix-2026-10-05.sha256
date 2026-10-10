@@ -1,0 +1,15 @@
+bbd1d760a2797351f8ae969c4330a861c799201af04b543d8b40673ba00530f2  src/dev/arcadeArt.ts
+5605b67e65ee5c46c716533170d5dbb74d59b9a4cd9d07177977dfc1279710ab  src/dev/arcadeArtEditor.ts
+35641abd5651fdfa23037896252db3c129eb927a18d45cb8aad767153f14123c  src/dev/arcadeArt.test.ts
+8e9021f00bc6d237b91a9560641ade8a23b96a233acb507fe7c46a1f9cee1921  dev/gym.html
+ac1b4bedcf7322e72cff94dda04fffc271561b2b5834583e5c6259f900cf2314  tools/dev/arcadeArtSave.test.mjs
+01febaf0b542be896e4271865d121660146a600b06638cf2d1a91c9151b6cf4c  tools/assets/check-arcade-gym-art.mjs
+5e145f6222b06694433eedf6cee528778b9fc342b86010648651572d0b741865  docs/ARCADE_GYM_ART.md
+3bf0b3a980c166dbac0afe1823fa97a1a8a7b9eedf9ca223dffb13d94414ca82  plans/0053-gym-art-corrections.md
+7de3de0987f2015c40969b585ffdc90324e108e596368f082b486f903c838c89  asset-reports/mars-arcade-gym-shoe-fix-2026-10-05.md
+80ce3f9ef807e54a825dd55331f90f293da543f11f360360a5d913d6ee021d22  preview-renders/mars-arcade/gym-shoe-fix/live-after.png
+e8a2612963d7309a4243c4537ad48b52e34df7c0126dc390525e24a01e7ea90f  preview-renders/mars-arcade/gym-shoe-fix/check.log
+754e110095a651c2165532c7159bbcc47a7f2a1b343e85b61f196c389a299edf  preview-renders/mars-arcade/gym-shoe-fix/browser/proof.json
+198e71f6c3d30ddd99df63a30174a02d65896aba5f4d1cab37931d56f12efb6c  preview-renders/mars-arcade/gym-shoe-fix/owner-before.json
+338e117a8612e27f1056cf0bc0be1959169013935041c0036e92be468bc8f46c  preview-renders/mars-arcade/gym-shoe-fix/owner-after.json
+1106c1e8222f678e07e7c25071a6c30b26f407415fb95897b56087e490b64519  preview-renders/mars-arcade/gym-shoe-fix/heavy-match-readout.json

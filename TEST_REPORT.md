@@ -1,5 +1,309 @@
 # Test report
 
+## 2026-10-06 — Captain jab/heavy/normal guard adopted; full-set goal ongoing
+
+- Latest separate review prototype: **932 tests in82 files/lint/types/build pass**. Fresh review findings corrected: real zero-stun hit stop now keeps impact drawing/rules parity on both sides/reduced modes; flyby uses any available cell. Both regressions failed before fixes and passed afterward; reviewer recheck39tests, no new findings. Six native flyby cases pass, including missing frames0and2 together. Main remains unchanged and art/box decisions remain pending.
+
+- Owner kept normal guard art and approved its head/torso/leg hurt regions, collision and standing guard boxes. Appended reviewed `captain:block` while preserving all30 prior clips. Actual check now passes **lint/types/912 tests in79 files/build**; validator **31 clips/105 frames/98 drawings,0 errors/10 existing candidate warnings**.
+- Eight native guard cases also pass on **actual5360**: both sides, incoming light/heavy, normal/reduced motion, ready/absorb drawings, correct99/97HP, idle return and jab retry, all5 backdrop layers, zero console/page errors. Snapshots/proof: `preview-renders/mars-arcade/captain-full-set-2026-10-05/block/main-adoption/`.
+- Revised forward stride uses alternating contact/passing, lowered passing boots and8 ticks per pose. Four cell gates and32-tick audit pass; owner art review pending. First pose103px versus104px others, torso column51/baseline119 throughout. Isolated5362 native preview is unreviewed and has no main binding.
+- Heavy-block3/hit3/jump3 candidates pass unchanged cell gates and audits; heavy-block return guard and hit recovery reuse exact accepted PNGs. Jump apex correction reduced torso offset58→52 (reference51); optional jump selection TDD failed on placeholder, then51 focused tests in4 files pass. Four native5362 jump cases pass, actual rise/apex/fall, fixedx, landing/idle, both sides/reduced, no errors. Art/box review is still pending; these previews remain separate from main.
+
+- Owner accepted corrected attack art, approved jab6/3/10, damage5/chip1/reach34, approved both attacks' boxes, and confirmed no unsaved original gym edits. Appended only these two reviewed clips to latest28; all prior clips and owner Booster `jab-art-baeea189` preserved. Before snapshots: `preview-renders/mars-arcade/captain-full-set-2026-10-05/adoption/before/`.
+- Actual `npm run check`: **lint/types/910 tests in79 files/build pass**. Actual `npm run arcade:validate`: **30 clips/103 frames/96 drawings,0 errors/10 existing candidate warnings**. Tuning schema3 migrates only legacy Captain composure values after validating all input; current zero-damage edits and unrelated tuning remain intact.
+- Actual arcade5360: **24 native combat cases +12 continuity cases pass**. Both attacks, both sides, hit/block/whiff, all5 poses, correct damage/chip, reduced motion, all5 backdrop layers, keyboard, reset/reload/native replay, missing active-drawing fallback, startup interruption/retry,375/768/1440 without overflow; zero unexpected page/console errors. Proof scripts/logs/screenshots/JSON under `adoption/`.
+- First four-pose forward walk passes4 cell gates and24-tick audit; **owner requested stride revision, so it remains unbound/unreviewed**. Revised alternating contact/passing art is generating. Guard brace00/01/02 failed tiny-hole gate; third repair changes arm/chin geometry and its two-cell candidate passes cell gates/audit, pending appearance/box review. These sources are review-only5362.
+- Scoped attack diff self-review and `git diff --check` pass. Full Captain goal/tasks3–7, final review and verified full-set recovery remain open. No hosted preview, production cabinet integration, commit/push/merge/deploy claimed. Current report: `asset-reports/mars-arcade-captain-full-set-2026-10-06.md`.
+
+## 2026-10-05 — Captain full-set goal, initial heavy integration (plan 0055; ongoing)
+
+- Goal active for approved jab/heavy combat integration, walks, guard/reactions, jump, flyby/effect, victory/knockout and idle polish. Owner approved jab proposal 6/3/10, damage 5, chip 1, reach 34, and the displayed coffee-heavy regional hurt/cup-only attack boxes. No final complete-Captain approval is claimed.
+- Heavy now works in the **isolated review arcade on 5362**: shared authored-attack selector extended to Captain while missing movement/guard/special states keep their fallback. Exact sprite/rules frame parity and immutability regression failed before code (placeholder returned), then passed. Source/tests/table snapshots are saved under `preview-renders/mars-arcade/captain-full-set-2026-10-05/heavy-boxes/implementation-src/`; original worktree source/table and owner tabs stay unchanged.
+- Reviewed heavy retains 9/3/11, damage 9, chip 2, reach 36. Cup box is cell x91/y51/w9/h12 on active pose only, including disclosed 1px forward padding. Bounds-on maximum connect gap is now 55 versus Booster and 51 versus Oracle; all other pinned gaps stay unchanged. Old Captain-placeholder/fallback fixtures updated to still-unauthored special or explicit missing-heavy data; true missing-clip reach fallback remains tested.
+- Actual review `npm run check`: **lint/types/906 tests in 78 files/build pass**. Earlier 65-file partial fixture suite had four expected legacy-assumption failures; repaired without weakening authored behavior. Complete fixture type/check initially exposed missing unchanged tools/TMB2 inputs; copied those inputs and reran to green. Logs retain every failure.
+- **Twelve native heavy browser cases pass**: P1/P2 Captain, hit/block/whiff, reduced motion on/off; all five poses/three phases, actual damage 91/98/100 remaining defender HP, idle return, zero console/page errors. Initial screenshots lacked optional backdrop inputs; restored original layers and captured a separate desktop hit with an explicit **five rendered layers** assertion. Owned tmux pane now shows the full-stage active hit screenshot.
+- First new normal-guard source generated with **built-in image_gen**, fixed canonical/accepted references, prompt and hash retained under `art-source/arcade/captain/generated/full-set-v1/`. One normalized cell passes unchanged sprite gate; `block-candidate` wired in review gym, unreviewed. Heavy/guard sequence audits pass; guard brace and owner art/box review remain pending. New Captain sources exist in actual art-source; no production binding or source overwrite.
+- Still unrun for this code checkpoint: Captain missing-image/reset/reload/responsive completion proof, final integration into actual source/table after live-state preservation, final scoped code review, complete-set owner review, recovery checkpoint, hosted/production checks. Goal remains active.
+
+## 2026-10-05 — Captain corrected jab/heavy appearance accepted (plan 0052)
+
+- Used the existing gym correction/save tools to produce new copies from preserved originals: idle-reference height/alignment plus hat/trouser/shoe palette matching. All ten cells are 104px tall, stand on baseline 119, and keep foot pivot 64 within 1px. Active cup strike retains a disclosed 1px body difference. Existing 5/4/3/5/6 holds and phases are preserved; new copies remain unbound with boxes unreviewed.
+- Owner response to the tmux comparison: **“Looks consistent; keep this art candidate.”** Acceptance covers these corrected copies' appearance. Their drawings, recipes/source hashes and gate logs are retained under `art-source/arcade/captain/gym-edits/4ddcbf2f-cbfd-4c05-b99a-48ba2ec0d175/` and `e8899500-bf4d-4c22-9694-a1eacbedbda7/`.
+- Actual `npm run check`: lint, types, **904 tests / 77 files**, production build pass. Cell gates: **10 checked / 0 failures**. Both sequence audits: **2 pass / 0 failing**. Review table validator: **29 clips / 99 frames / 92 drawings, 0 errors / 11 box-review warnings**; actual original table validator: **27 / 89 / 82, 0 errors / 9 warnings**.
+- Nine artifact/browser proof checks pass: exact recipe/export bytes, same regional reference colors, unchanged original table/all 82 PNG hashes/all 27 clips, all five poses playing through tick 22, selected-copy reload, mirrored/375/768/1440 views with no overflow, keyboard step/mirror, reduced-motion manual playback, and **zero console/page errors or Vite overlays**. Browser plugin is unavailable; installed Playwright verifies the existing local gym without changing the owner's visible tab.
+- Separate review gym on **5362**, original gym/arcade on **5360**. Review fixture/table is isolated to preserve unsaved owner timing/box/loop edits. Main animation table is unchanged. Evidence, exact acceptance, replay/proof scripts, screenshots, audit GIFs, and saved review table: `preview-renders/mars-arcade/captain-gym-consistency-2026-10-05/`. Owned tmux pane `%1` shows `corrected-sequences.png`.
+- Saved `RESUME.md`, a **1,222,078-byte** local review-gym archive and SHA-256 manifest. Fresh archive extraction reproduces the table and every accepted drawing/recipe/gate file exactly. Scoped full-diff self-review and `git diff --check` found no critical/high issue; all unrelated local work is preserved.
+- Box sign-off, final jab frame data and combat binding remain open. No production journey E2E, general 3D asset check, hosted preview, commit or publication is claimed for this art-only pass.
+
+## 2026-10-05 — Learning and recurrence prevention (plan 0054)
+
+- Owner requested ongoing learning without repeating mistakes. Added a standing requirement
+  in `AGENTS.md` and `docs/CODEX_WORKFLOW.md` to consult relevant lessons before nontrivial
+  work/retries and record meaningful feedback, causes, evidence and prevention checks.
+- New `docs/LESSONS_LEARNED.md` preserves current Captain decisions and ten scoped findings
+  covering anatomy, consistency, alignment, palette skips, shading limits, exact pixels,
+  save baselines, live drafts and visual acceptance. Detailed histories remain in plans/reports.
+- Node filesystem check: **24 local Markdown links resolve** across four guidance files.
+  Full documentation diff review and `git diff --check` **pass**; no critical/high finding.
+  Reviewed duplicate-arm, skipped-color, preview/export and stale-state scenarios against
+  their evidence and prevention checks. This is a documentation review, not an automated
+  proof that future sessions will comply. Runtime tests were not rerun for documentation edits.
+- No art, live browser state, application behavior, skills, global memory, commit or publication
+  changed. Existing runtime validation below remains historical evidence.
+
+## 2026-10-05 — Gym shoe palette matching repair (plan 0053 follow-up)
+
+- Reproduced gray shoe highlights surviving repeated matches: their distance from the fixed
+  reference exceeds tolerance 45. Added **Match all colors in selected area**, an explicit
+  palette-only bypass. Legacy recipes retain their original tolerance behavior. The editor
+  reports real changed/skipped pixels and avoids empty recipe/Undo steps on repeated clicks.
+- Focused pixel/decoder/save tests **16 pass**; red tests first reproduced unchanged gray
+  pixels and missing feedback. `npm run check`: lint/types, **904 tests / 77 files**, build
+  **pass**. Isolated art browser proof **15 ok / zero console or page errors** checks actual
+  light gray shoe pixels becoming dark reference colors, unchanged alpha/trousers, keyboard,
+  Undo, no-op repeats, draft reload, real gated copy Save/reopen, and 375/768/1440 layouts.
+- Fresh existing gym regression **13 ok / no console errors**. Actual validator remains
+  **27 clips / 89 frames / 82 drawings, 0 errors / 9 existing review warnings**. All **119**
+  previous Captain source/candidate hashes verify. Full cumulative diff self-review finds
+  no critical/high issue; `git diff --check` passes. No new dependency or production change.
+- Owner drafts backed up; shoe-only all-color corrections preview on all five jab drawings,
+  using idle as fixed reference. All five existing heavy shoe previews already match that
+  palette; a repeated all-color match changes zero pixels and adds no empty step. Owned
+  tmux pane `%1` shows the actual editor.
+  Original PNGs/table remain intact; actual save tests used disposable workspaces. Palette
+  mapping can merge bright shades into the nearest dark reference shade; it does not recover
+  details changed by earlier manual replacements or approve final art. Jab still measures
+  height 105 against idle 104 and body difference 1px; unrelated artwork gates remain open.
+- Guide `docs/ARCADE_GYM_ART.md`; report `asset-reports/mars-arcade-gym-shoe-fix-2026-10-05.md`;
+  logs, browser proof and before/after drafts/screenshots `preview-renders/mars-arcade/gym-shoe-fix/`.
+  No production-journey E2E, general 3D asset check, hosted preview, commit or publication.
+
+## 2026-10-04 — Character gym art correction tools (plan 0053)
+
+- Owner requested direct fixes for Captain's changing shoe/hat/trouser colors, heavy height
+  and off-center motion. Added fixed-reference comparison, region palettes, sampled color
+  replacement, height/body alignment/nudges, drawing/clip scope, original/reference overlays,
+  Undo/reset and reloadable local art drafts. Exact PNG decoding avoids translucent RGB
+  rounding, so saving and reopening preserves the displayed correction pixels.
+- Corrected-copy Save replays recipes into new PNGs, runs the unchanged sprite gate and
+  appends an unbound/unreviewed candidate with provenance/hashes and newly seeded body/hurt
+  boxes. Original clips/art, move timing/reach/balance remain intact. Stale/missing/changed
+  sources/reference, clipping, malformed requests and failed gates refuse without partial
+  table adoption; concurrent writes are serialized. Other unsaved review edits stay local.
+- Focused pure/decoder/save tests **14 pass**. `npm run check`: lint/types, **902 tests /
+  77 files**, build **pass**. Isolated real art-editor browser proof **14 ok / zero console
+  or page errors**; byte-identical preview after save/reopen; keyboard, Undo/reset, repeated
+  refusal, draft reload, both facings, reduced-motion editing and 375/768/1440 layouts with
+  no overflow. Actual saves/gates/provenance run in a disposable workspace.
+- Existing fresh gym proof **13 ok / no console errors**. Actual `npm run arcade:validate`:
+  **27 clips / 89 frames / 82 drawings, 0 errors / 9 existing review warnings**. All 27
+  pre-tool clips unchanged; both owner's looping preferences restored locally. All 119
+  previous artifact hashes verify. Full diff self-review/generic whitespace check pass.
+- Live Captain heavy preview uses fixed idle, height 104, baseline 119, foot center 63.5;
+  active torso still differs by 1px, exposed in the readout. No art copy was written to the
+  owner's table. The owned tmux pane shows the real editor. Art quality/shape refinement,
+  pose/boxes and future jab/control/combat gates remain open; tool tests do not approve art.
+- Guide: `docs/ARCADE_GYM_ART.md`; report: `asset-reports/mars-arcade-gym-art-tools-2026-10-04.md`;
+  logs/screenshots/fixture output/owner snapshots: `preview-renders/mars-arcade/gym-art-tools/`.
+  No production-journey E2E, general 3D asset check, hosted preview, commit or publication.
+
+## 2026-10-04 — Captain jab/heavy appearance repair (plan 0052)
+
+- Owner accepted the corrected cup action but declined its color/character mismatch with
+  the palm jab. Four built-in image_gen source edits now include the same original jab and
+  Captain anchor references on every call. Five heavy slots reuse the lift on retract;
+  earlier sources remain saved. Jab/idle art, holds, reach, tuning and controls are unchanged.
+- Full-colour gate **5/0**; both Captain candidate audits **pass**. Baseline 119 throughout,
+  heavy head width 32, height 105–106, torso back 52–53, measured alignment deltas at most
+  one pixel. Jab head width 31/height 105 and idle height 104 remain recorded visual deltas.
+- `npm run arcade:validate`: **27 clips / 89 frames / 82 drawings, 0 errors / 9 warnings**.
+  `npm run check`: lint/types, **888 tests / 74 files**, build **pass**.
+- Fresh gym browser proof **13 ok / no console errors**. Visible gym playback reaches
+  `lower-cup` at tick 22; all five source/phase/hold values match the table. Active captures
+  at 1440, mirrored 768 and 375 have no horizontal overflow. Owner's unsaved looping preview
+  was captured and restored locally; no Save POST approved art or rewrote the table.
+- Full diff/provenance review: **25 original clips equal HEAD**, jab equals its prior
+  snapshot; heavy changes source paths and machine-seeded body/hurt boxes only. No moveId,
+  attack box, combat binding or reviewed flag. Four prompt/output records and selected reuse
+  verify; new and prior source/normalization SHA manifests verify; `git diff --check` passes.
+- Evidence: `preview-renders/mars-arcade/captain-consistency-v3/`; raw sources/prompts:
+  `art-source/arcade/captain/generated/consistency-v3/`; report/hashes:
+  `asset-reports/mars-arcade-captain-consistency-2026-10-04.*`. Custom tmux pane `%1` refreshed
+  with idle/jab/previous/revised comparison. Combined visual acceptance, boxes, final jab
+  frame data/light-control replacement and combat proof remain pending. No hosted preview,
+  production-journey E2E, commit or publication in this candidate slice.
+
+## 2026-10-04 — Captain coffee-heavy correction and palm-jab candidate (plan 0052)
+
+- Owner requested cup contact for the heavy and chose the earlier palm art for a jab replacing
+  the light composure action. That control decision is recorded; gameplay wiring/frame data
+  remains pending. The two gym candidates are unbound, have no attack boxes and remain unreviewed.
+- Owner caught two right arms in the first cup draft. Rejected that source and both startup
+  drafts. All selected new cup poses now show one cup-bearing arm/hand, far arm hidden.
+  Nine built-in image_gen calls, exact prompts, source corrections and rejected normalizations
+  retained; four distinct new drawings across five playback cells, with lift reused on retract.
+- Five coffee-heavy cells pass the unchanged full-colour gate. Both Captain candidate audits
+  pass. Heavy holds 5/4/3/5/6; all new cells height 106/head 32/baseline 119, torso-back 52.5–53;
+  active/retract shift +1/-1 horizontal, zero vertical. Reach extent 35 matches reach 36 tolerance.
+  Existing idle remains 104/head 31; size/shading and idle transition await visual review.
+- Validator: 27 clips / 89 frames / 82 drawing paths, 0 errors / 9 review warnings. Full
+  `npm run check`: lint/types, 888 tests / 74 files and build pass. Existing fresh-context gym
+  browser proof: 13 ok, zero console errors. Visible native frame controls confirm all five
+  phases/poses/holds; playback reaches lower-cup, reviewed false. Active and return captures at
+  1440, mirrored 768 and 375 have no page overflow. No Save approval was used.
+- Full data review: all 25 original clips exactly match HEAD; no combat/tuning/selector changes.
+  Source/prompt/reference manifest checks pass, recovery reuse is byte-identical; hashes saved.
+  Corrected the prior checklist prose/provenance to the normalizer's recorded bilinear sampling.
+- Evidence: `preview-renders/mars-arcade/captain-coffee-heavy-v2/`; report, generation provenance
+  and hashes: `asset-reports/mars-arcade-captain-coffee-heavy-2026-10-04.*`. Contact sheet shown
+  through the custom tmux sidepane. Pose/box approval, fight wiring and jab frame data remain
+  pending. No hosted preview, production-journey E2E, commit or publication.
+
+## 2026-10-04 — Captain checklist pose candidate (plan 0052)
+
+- This historical checkpoint is now retained as `captain:jab-candidate` after owner feedback;
+  its original art/preview holds remain unchanged. The new coffee-heavy section above is current.
+- Added `captain:heavy-candidate` to the gym: five frames at 5/4/3/5/6 holds, matching
+  the move's 9/3/11 rhythm. It has no move binding or attack boxes, remains unreviewed,
+  and all 25 existing clips, combat rules, tuning and sprite-selection code are unchanged.
+- Three new selected drawings plus existing idle; the ready drawing is reused on retract.
+  Raw generation attempts and prompts are retained. Alpha-gap corrections used image_gen;
+  no cell was hand-patched and no gate threshold changed. The separate recovery attempts
+  remain rejected. Owner pose and subsequent box acceptance are pending.
+- Five normalized cells pass the full-colour gate. Sequence audit passes with stable row-119
+  feet and a +1/-1 pixel settle into the exact existing idle. Active art extends 35 pixels
+  from the pivot, within reach-36 tolerance. Validator: 26 clips / 84 frames / 77 paths,
+  0 errors / 8 review warnings, including one new seeded-box review warning.
+- `npm run check` passes lint/types, 888 tests / 74 files and build. The existing gym browser
+  proof passes 13 checks. Visible candidate inspection confirms all five poses/holds and
+  playback to the final frame; captures cover 1440, mirrored 768 and 375 without page overflow.
+- Diff review confirms one application-data addition only; no default candidate override,
+  moveId, attack box, balance change or unrelated clip edit. `git diff --check` passes.
+- Evidence: `preview-renders/mars-arcade/captain-checklist-v1/`; source/report provenance in
+  `asset-reports/mars-arcade-captain-checklist-2026-10-04.md`. The comparison is displayed via
+  the custom tmux image sidepane and the live gym is on the candidate. Combat integration,
+  production journey E2E and hosted preview remain outside this pose-review slice.
+
+## 2026-10-03 — Bounds and hit stop enabled (plan 0050)
+
+- Owner requested both rules after accepting the current combat boxes. Code and shipped
+  tuning now enable both; reset and reload restore them. The existing Oracle walk stays.
+  Version-1 tuning imports retain historical disabled rules. No art, box coordinates,
+  move timing, damage, or other balance numbers changed.
+- Heavy guard anticipation now uses the engine's box lookup and overlap check. A boxed
+  Booster heavy beyond legacy reach can show its brace; Oracle's low sweep goes through
+  standing guard without showing a block brace. Hit/block reactions hold through impact
+  pauses before completing their existing beats. Legacy rule comparisons remain covered.
+- Defaults/reset tests failed before activation. Four mirrored guard-cue cases failed
+  before repair. Focused rules/presentation suites then passed 101 tests in five files.
+  `npm run check` passes lint, types, 888 tests in 74 files, and build.
+  `npm run arcade:validate`: 25 clips / 79 frames / 72 drawings, 0 errors / 7 existing
+  cosmetic/candidate review warnings. Proof-script lint and `git diff --check` pass.
+- Actual local browser proofs pass gym, playground, recorded exchange, native heavies,
+  and heavy-hit reactions. They cover action/reaction poses, pause/step/reset/reload,
+  missing-art fallback, reduced motion, and relevant responsive widths. The Oracle
+  standing-block heavy scenario explicitly disables bounds for its legacy comparison;
+  the enabled-rules proof separately verifies the low sweep bypassing standing guard.
+- The enabled-rules browser proof covers load/reset/reload, the 49.5 px jab beyond legacy
+  reach, hit-stop freeze/resume and flash, low sweep defense, responsive controls at
+  375/768/1440, candidate off, and reduced motion with freeze but no flash.
+- Fresh-context full-diff review found no critical/high findings or actionable regressions.
+  Reviewed rendered browser screenshots. Independent metadata comparison confirms only
+  the two rule flags changed in tuning; animation metadata and source art are unchanged.
+- Evidence: `preview-renders/mars-arcade/rules-enabled-2026-10-03/`. The live local pages
+  remain `/dev/arcade.html` and `/dev/gym.html` on port 5360. This is dev-harness activation;
+  cosmetic box review and Captain move art remain future work.
+
+## Arcade box owner acceptance (checkpoint `2777914`)
+
+- Owner feedback: "box feel looks good for now". Marked the 15 revised clips / 51 frames
+  reviewed for continued work. Box coordinates, art, timing, attacks, tuning, and both
+  default rule switches remain unchanged from `d321a21`.
+- The pre-acceptance proof below remains historical evidence. The proof now accepts an
+  explicit `--accepted` mode, verifies reviewed flags in the gym, and preserves the draft
+  screenshots while storing current captures under the evidence directory's `accepted/`.
+- Acceptance metadata validation passes: 51 focused tests, proof-script lint,
+  `arcade:validate` (0 errors / 7 remaining cosmetic/candidate review warnings), and
+  `box-draft-proof.mjs --accepted` at 375/768/1440. All 51 approved frames show reviewed
+  status; edit/undo, connect boundaries, invalid Save/reload and defaults still pass.
+  `git diff --check` passes. The JSON diff changes only the 15 review flags.
+
+## 2026-10-03 — Arcade combat box draft (plan 0049)
+
+- Drafted hurtboxes for 51 frames in 15 clips: idle/walk, both heavies, Oracle jab,
+  Booster special, and both fighters' hit/jump clips. Separate head/body/leg/limb regions
+  remove empty-air hits from long feet and arms. Oracle-heavy sweep/settle body outlines
+  follow their current drawings; both existing silhouette warnings are fixed.
+- The owner's current Oracle walk art stays. Drawings, holds, phases, strikes, guards,
+  tuning, rule defaults, candidates, and previously reviewed Booster jab/block and Oracle
+  block are preserved. Revised clips stay unreviewed; Oracle heavy's old flag is cleared.
+- Five new regressions failed on prior boxes, then passed: both mirrored forward strides
+  miss jabs above their feet but can be swept; Oracle crouch leaves no hurtbox above its
+  head and includes its raised shoe; two extended arms do not fill the air below them.
+  Focused animation/bounds/connect suite passes 51 tests, including mirrored engine jab
+  hit/miss at 56/57 and existing airborne, guard, reach fallback and hit-stop paths.
+- `npm run check`: lint/types, 884 tests in 74 files, build pass. `arcade:validate`:
+  25 clips / 79 frames / 72 drawings, 0 errors / 22 pending owner-sign-off warnings.
+  Idle bounds-on distances shrink 1-3 px where appropriate; reach-only distances stay
+  the same. Full before/after tables and explanation are in the asset report/evidence.
+- Final gym/playground/bounds browser commands pass (13/7/6 ok). Expanded
+  `box-draft-proof.mjs` visits all 51 frames at 375/768/1440 under reduced motion and checks
+  box counts, pending flags, mirror/onion, keyboard undo, four hit/miss boundaries,
+  repeated invalid Save/reload, defaults and no overflow/page errors. Responsive captures
+  are representative, with separate before/draft comparison images for every revised frame.
+- Full animation metadata preservation is asserted against `9d7e649`. Unchanged art,
+  tuning, fighter content and `git diff --check` pass. Independent full-diff review:
+  no findings. Inspected the actual overlay and responsive captures.
+- Evidence: `preview-renders/mars-arcade/box-review-2026-10-03/`; asset report:
+  `asset-reports/mars-arcade-box-draft-2026-10-03.md`. Owner box judgment and combat-feel
+  choices remain open. Cosmetic heavy-block/outcome boxes, Captain move art, projectile
+  boxes, low-defense mechanics and production cabinet integration follow separately.
+  Hosted preview and production journey E2E were not run for this dev-only pass.
+
+## 2026-10-03 — Arcade tooling continuation (plan 0048)
+
+- Continued from merged main `9b0743f` on `fix/arcade-tooling-continuation` in
+  `.worktrees/animation-workflow`. The owner reaffirmed that the shipped Oracle walk stays.
+  Drawings, animation JSON, tuning JSON, and the default rule switches are unchanged.
+- Combat console: light/heavy/special are native fieldsets with three-column control grids.
+  Rendered checks at 375, 768, and 1440 px passed: three move groups, 21 correctly labeled
+  fields, no field/page overflow, keyboard tab order, invalid tuning and repeated invalid
+  Save, reset, and reload under reduced motion. Inspected the actual screenshots.
+- Native config: direct Node import initially failed with `ERR_MODULE_NOT_FOUND`. Explicit
+  `.ts` imports, the JSON import attribute, and `import.meta.dirname` fix the imported graph
+  and save paths. `node --input-type=module -e 'await import("./vite.config.ts")'` now exits 0.
+  Started Vite with `--configLoader native` on 5361 from `/tmp` using the absolute project
+  root; startup took 193 ms, with none of the previous native-loader warnings. The ordinary
+  bundled loader on 5360 also passes. Both reject GET (405), malformed/invalid tuning (400),
+  and a validly shaped animation with invalid holds (422); unchanged valid payloads round-trip
+  to the intended project files. Animation/tuning bytes were verified unchanged afterward.
+- Picker: `python3 tools/assets/pick-arcade-frames.test.py` exits 0 (20 checks). First-last-frame
+  mode, provenance, count=1, closing-frame exclusion, conflicting options, default measured
+  cycles, action/hold picking, and MP4 extraction are covered. The feature's tests failed
+  before implementation. Review found that `--fps` can discard endpoint poses; its new
+  conflict test failed before the fix and passes now. A temporary mutant permitting the
+  closing frame fails the repeated-anchor test, while the other checks still pass.
+- Real archived Wan video: `python3 tools/assets/pick-arcade-frames.py
+  art-source/arcade/oracle/generated/walk-video-wan-v1/clip.mp4 /tmp/arcade-single-cycle-proof
+  --frames 4 --policy cycle --single-cycle` selects dense frames 0, 8, 16, 24 with period 32.
+  This is a tooling proof only; it does not wire or promote the rejected walk.
+- `npm run check`: lint, TypeScript, 879 tests in 74 files, and production build pass.
+  `npm run arcade:validate`: 25 clips / 79 frames / 72 drawings, 0 errors and the existing
+  23 warnings (unreviewed boxes and two Oracle-heavy silhouette findings).
+- Focused browser commands on port 5360: `check-arcade-gym.mjs` (13 ok),
+  `check-arcade-playground.mjs` (7 ok), and `check-arcade-bounds-rules.mjs` (6 ok), all exit 0.
+  They cover keyboard, onion skin, playback, invalid Save, live tuning/reset, candidate
+  isolation, hitbox overlays, low guard, hit stop, and reduced motion. `git diff --check` passes.
+- Full-diff independent review found the FPS issue above; fixed with RED/GREEN evidence.
+  The closing-frame test was strengthened. No critical/high findings remain.
+- Evidence: `preview-renders/mars-arcade/tooling-continuation-2026-10-03/`, including
+  `layout/combat-{375,768,1440}.png`, full playground captures, and check logs. An ad hoc
+  browser proof checked responsive layout and both save endpoints. Its initial fixtures
+  assumed the wrong table key and parser status; corrected to test the actual schema.
+  Saving imported tuning restarts Vite, so the proof polls through that expected restart.
+- Remaining: owner review of seeded boxes and decisions on the existing optional rule
+  switches. Production journey E2E and hosted previews were not run for this dev-tool slice.
+
 ## 2026-09-26 — Wan first-last-frame Oracle walk (candidate)
 
 - Generated on `multimodalart/wan-2-2-first-last-frame` with the owner's Hugging Face token
@@ -3057,3 +3361,309 @@ Historical checkpoint; the 2026-07-11 transition and Tripo-intake sections above
 - Full runs after the change, headed on `DISPLAY=:0` against the preview build on port 4321: `e2e/dc9-memphis-departure.spec.ts` 14 passed, 0 skipped, 3.0 min (every hardware-rate case ran); `DC9_MEMPHIS_FRAME_METRICS` median 16.7 ms / p95 16.7 ms, scene objects [37, 37, 37] (was 33; the marking group plus three meshes). `e2e/smoke.spec.ts --grep "Memphis|DC-9|journey|departure"`: 14 passed, 1.0 min. `npm run assets:check` clean. Committed evidence re-captured: ten frames under `preview-renders/dc9-memphis-legacy-departure/` changed, `{375,768,1440}-hold-short-approach.png` added, and `375-hold-short.png`, `768-runway-lineup.png`, `375-skip3d-panel.png` byte-identical because no paint is in those views.
 - Found while measuring, no code change: the thrust lever is a position that stays where the hold button leaves it. A first scripted drive misread that as a stuck native button; a controlled comparison read "54% forward" 1.2 s after a 600 ms hold for both a dispatched pointer pair and a real mouse press (0.9 units/s × 0.6 s), so releases work. Scripted drives must close the levers explicitly and hold the close ≥ 560 ms; a 400 ms close leaves 28% and the aircraft rolls through the hold into an `unsafeHold` rewind.
 - CI failure (PR #71, `browser-smoke` job) and fix: the new `paints the guided route and the hold-short marking where the panel copy points` test timed out on CI (`1440px ramp start should show the lead-out line`, 20 s poll exceeded). Reproduced headless locally: default headless Chromium uses SwiftShader (`ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero)…), SwiftShader driver)`), same as CI's GPU-less runner. A targeted diagnostic proved the paint itself renders correctly under SwiftShader (0 hits at t=11.9s, 611 hits by t=21.8s, matching the ~608 measured on GPU, held steady to t=146.9s) — the failure is that a single `page.screenshot()` round-trip alone takes 10-20+ seconds under software rendering, and this test drives 14 full reload+census cycles. Fixed by gating the test behind `skipOnSoftwareRenderer(page)`, the same helper four sibling real-GLB tests in this file already use for hardware-rate-only assertions; thresholds are unchanged. Verified: skips cleanly under local headless in <1s; passes headed on the GTX 1050 Ti in 17.5-19.6s across two re-runs; full Memphis spec 13/13 (1 pre-existing evidence-capture skip) with unchanged frame budget; `npm run check` green.
+# Captain reaction prototype and recovery — 2026-10-06
+
+Main approved jab/heavy/normal guard remains unchanged. The isolated5362 reaction
+prototype passes `npm run check` (921tests, lint, types, build). Regional boxes
+then pass41 focused tests and8 native hit/heavy-block cases across both sides and
+reduced-motion modes, all three beats, correct87/97HP, idle return, five backdrop
+layers and zero console/page errors. Validator:46clips/152frames/118drawings,
+0errors/24unreviewed warnings. Art/box owner review remains pending; not main proof.
+
+Checkpoint1162files verifies all hashes after fresh extraction and successfully
+reopens extracted reviewed guard in gym and Captain in arcade. Local same-disk
+scope; newer source corrections are outside this historical archive.
+
+Recovery follow-up: native window-error capture exposed a baseline ResizeObserver delivery warning missed by pageerror/console listeners. Reproduced on both5360/5362 at1440→768→375→1440; defer existing resize layout write to RAF, unchanged scale math. Browser RED→GREEN passes both ports/all widths/integer scale/no overflow/no window errors. Only main harness source changed; all other src/table/tuning bytes match prior checkpoint. Root ESLint initially failed1971parse errors after nested recovery configs; scoped artifact ignore and explicit tsconfigRootDir fix preserves live/unrelated coverage, independently reviewed with no findings. Main fullcheck912tests79files/lint/types/build, review932tests82files/lint/types/build plus config-final lint PASS. Prior121339Z archive remains immutable with limitation recorded; saving refreshed recovery.
+
+Latest recovery: `preview-renders/mars-arcade/captain-full-set-2026-10-05/checkpoint-20261006T122354Z`. All1,375file hashes reverified after fresh main/review browser reopen; archive92,926,398bytes, SHA256 `aa8ad73876b2f3e69922024d03c04b35459bc7b7eea7bcfc599b99da184651a4`. Direct window-error/pageerror/console capture clean, complete sprites/FX, preserved owner Booster draft. Temporary5364/5365 stopped; live5360/5362 retained. Source fixes and snapshot lint isolation reviewed, no findings. Goal active; pending owner art/boxes plus3art gaps remain. Local same-disk scope, dependencies/public linked.
+
+Independent source progress: idle-inhale repair02 clears boot pinhole; both2newcells pass original standing gates and4-slot120tick audit. Exact anchor reused twice, torso51/feet119fixed, inhale105height(+1) disclosed. Twelve native gym cases pass375/768/1440, mirrors/reduced, actualdrawsource parity/loop/no errors. Owner idle art+30ticksquestion pending, tmuxidle-art-review.png/newownedgymt16 playing. Sightrepair02 repeats handgap75-76/28; third/final repair03 replaces hand but introduces height110/10components/8holes/57.4%partialalpha, rejected/diagnostic. Stop sight generation retries at3, retain better prior candidate. Prepared unbound reverse-order0,3,2,1 backwalk-v2 from revisedstride,8holds/32tickauditpass; forward/backartdecisionspending. Reviewtable54/179/132,0errors33warnings; main entire src byte-identical to verified122354Z checkpoint. Current sources/prototype table newer than that archive; art-delta recovery next.
+
+Art-delta recovery verified: checkpoint-art-delta-20261006T125500Z,53files/3941504bytes, SHA256 `c829b0d4c4fe983c11cf6ec81846e918ac26b4412432d665e2ef7499da809092`, tied to full base122354Z. Clean base+delta extraction/hash overlay and native fresh gym12cases/arcade132sprites4FX/Captain reopen PASS with direct window-error capture. Temporary5365 stopped. Goal active; owner idle/walk/reaction/jump/KO decisions and hand-repair method remain; no runtime source changes this turn.
+
+Flyby owner review prepared: source4cell hashes unchanged; fresh native clean captures at active30 bothdirections,132sprites/4FXready,window/page/console0errors. Tmux flyby-aircraft-art-review.png compares all4frames and two stage captures with oriented BoeingDC9-32 PDF15 reference. Chunkier fuselage/tail disclosed; effect appearance/placement/motion question pending. Owned newarcadet17 pausedP1flybyactive30 (26/8/22,30damage,70meter); body remainsanchorplaceholder because character special diagnostic/unbound. Also prepared unreviewed idle-v3 box draft with exact reviewed neutral collision/head/torso/legs on all4poses, noattack/noguard; imagepixelsunchanged.44focusedtests4files and validator54/179/132,0errors33warnings pass. Main allsrc bytes and prior50 review clips preserved. No new approvals or code changes; saving cumulative art-delta update.
+
+Owner kept aircraft FX. Main adoption scope onlynewmodule/test and harness import/load/draw/status; before snapshots preserved, REDmodulemissing→GREEN21focusedtests4files. Full actual918tests80files/lint/types/build PASS;8native5360cases incl375/768,normal/reduced,bothdirections,missing0+2fallback andwindowerrors PASS. Existing26/8/22/damage30/meter70,4PNGhashes, mainanimation/tuningJSON/ownerBooster draft unchanged. Fresh reviewer6tests/hash/integration review no findings. Normalization report/appearance receipt mark aircraft accepted; character special7poses stillunapproved/unbound. Current idle box draft and allother art gates pending. Saving new full checkpoint; earlier art deltas historical beforeFXadoption.
+
+
+Aircraft adoption follow-up (2026-10-06): two native keyboard cases on main
+pass for both sides: jump, existing grounded-only special rejection, landing,
+grounded flyby, and reload with all98sprites/4FX and zero errors. Combined with
+8FX/layout/fallback cases, this is10new native control/effect cases. The earlier
+driver failures are retained: the canvas is not focusable, jump reads held keys,
+and attacks require grounding; no combat rule was changed to fit the driver.
+
+Recovery tsconfig writes under owned evidence/cache caused Vite full reloads and
+reset paused demonstrations. Root-relative server.watch.ignored now excludes only
+preview-renders/.cache under each config root; native proof records navigation1
+before/after, unchanged paused Captain, and zero errors. The fresh reviewer tested
+38 actual matcher paths, verified live source/assets stay watched and identical
+main/review configs, and found no findings. Latest main full check passes lint,
+types,918tests80files/build; review lint passes. Evidence: reactions-jump-review/
+flyby-main-adoption/{air-keyboard-proof.json,watch-isolation-proof.json,
+watch-isolation-check.log}. A refreshed full checkpoint includes these changes;
+134411Z remains the verified historical checkpoint before watcher isolation.
+
+
+Latest full recovery verified: checkpoint-20261006T142930Z,1,478files,
+97,698,726archive bytes, SHA256
+`31e94b3f3c2fc0e356e8bd3d39e5afe4c2d945713b344ce79edbbde63d932bba`.
+Fresh approved/review gym and arcade reopen pass; approved block reviewed=true,
+review KO reviewed=false, preserved Booster jab-art-baeea189,98/132sprites and
+4/4flyby effects, zero window/page/console errors. All file hashes and archive
+rechecked after browser proof. Temporary5364/5365 stopped; main5360/review5362
+retained. Same-disk recovery with existing public/dependency links; goal active.
+Owned new main arcade tab shows accepted FX paused at P1active30,98/98sprites,
+4/4effects, no errors. Captain character special still uses its standing anchor.
+
+
+Movement review proof (2026-10-06): existing shared clip overrides support the
+unbound revised back-step and idle candidates without application changes.
+6new review-only tests plus nearby selectors pass27tests3files; review lint and
+types pass. Tests prove both-side forward/back engine-state parity with ordinary
+travel, every pose, matching rules/drawing frames, reduced idle freeze with fixed
+standing boxes, walking hitstop freeze and guard fallback after override removal.
+12native cases cover375/768/1440, both sides and reduced modes:32ticks each walk
+paint all4sources,120ticks idle paint all4slots (staticneutral under reduced),
+no overflow or window/page/console errors; reload removes temporary overrides.
+Main source and review runtime/table bytes match verified142930Z checkpoint.
+Owned new review gym plays walk-back-v2-candidate (timeline9→20,reviewedfalse),
+draft boxes hidden. Tmux%1 shows back-step-art-review.png with idle/four poses
+and actual retreat capture. Owner question for back-step art+four8tick holds
+pending; neither boxes nor any new character art approved. Evidence lives under
+reactions-jump-review/movement-preview; saved supplement ties to full142930Z.
+Task3 remains incomplete pending art/balance/boxes and main adoption.
+
+
+Walking box draft (2026-10-06): changed only review Captain revised-forward
+candidate/canonical preview and unbound back-v2 candidate. Head/torso use reviewed
+standing idle regions; legs fit alpha>=192 rows78..118 with1px horizontal inset
+and exclusivebottom119. Existing body boxes, PNGs, holds8, bindings and allflags
+preserved; backguard copies accepted standing box (cosmetic, existing guard-height
+rules unchanged), noattack.51other clips exact. Main168source files/all275archived
+PNGs unchanged; all132review sources byte-identical.2new actual wall-retreat/palm-
+jab block engine cases pass on both sides with99HP, nohit;56focusedtests4files and
+full review940tests83files/lint/types/build pass. Validator54/179/132,0errors33prior
+warnings;12native movement cases rerunPASS with separate output, noerrors.
+Fresh independent scoped review has no findings. Actual owned gym shows3regional
+hurt boxes/backguard; tmux%1 cleanposes plus clearlylabelled walking-draft-boxes.png.
+Art/timing questions remain pending; box signoff follows art acceptance. No new
+character approval/main adoption. Save supplement with exact table/test delta and
+fresh isolated review reopen; previous movement proof supplement remains historical.
+
+
+Owner-reported portrait/input repair (2026-10-06): Captain HUD crop52/14/22/24
+cut face/chin; new crop46/14/34/34 fits22x22 centered in the existing22x24 slot,
+with nearest pixel sampling and unchanged Booster/Oracle crops. Canonical anchor
+PNG untouched; test measures actual opaque head bounds. Fighter-picker focus owns
+keys, and the old arena was not focusable. Arena now participates in Tab order,
+clicking it focuses game input, and Free play starts unpaused with arena focus.
+Native form navigation remains owned by fields; game/collision/tuning data unchanged.
+
+TDD2portrait tests RED helpermissing→GREEN; browser RED arena focus→GREEN. Initial
+typecheck failures fixed with optional canvas focus in hoisted command and a native
+URL argument to existing PNG reader (declaration string|URL, no TS config changes).
+Focused38tests3files; main920tests80files and review942tests83files plus lint/types/
+build pass.6main+6review native cases cover375/768/1440×reduced, both fighters'
+move/jump/jab/heavy/flyby, actual full-head HUD crop, pointer/Tab/FreePlay focus,
+native select/number-field key ownership, nooverflow/window/page/console errors.
+2additional unpaused RAF cases (bothports/bothactors) prove full live controls with
+zero manual steps. Driver initially sampled K before next simulationtick:288→288,
+then same unresent tap starts290. Existing pending retention works; no extra input
+queue change. Failures preserved separately. Scoped reviewer found no remaining
+correctness issues after type fixes; final evidence update pending. Tmux%1 now
+shows portrait-before-after.png. Save full refreshed recovery, then leave main
+CaptainP1 FreePlay, arena focused. Remaining character art/timing/box gates pending.
+
+
+Final portrait/control recovery: checkpoint-20261006T154017Z,1,556files,
+99,385,070archive bytes; fresh approved/review gym+arcade reopen and allpost-browser
+file/archive hashes PASS, portrait34x34/22x22fit and arena focus included.
+Owner Booster draft,98/132sprites and4FX preserved;0errors;temporary5364/5365
+stopped. Final independent reviewer verifies920main/942review checks plus all
+12layout/focus cases and2unpaused cases;no remaining findings. Earlier full/delta
+checkpoints retained. Main playable session is set up as CaptainP1/rookieCPU,
+unpaused,arenafocus,chargedmeter;tmuxportrait-before-after.png. Goal active:
+remaining character art/timing/box approvals are still pending.
+
+
+Victory wider-stance option (2026-10-06): assembled complete UNBOUND
+captain:victory-v3-candidate from exact anchor preparation10, existing identical
+raise8, passing repair02wide salute12. No sourcegeneration/painting ormain edits.
+All54old review entries exact; regional boxes are cosmetic/draft,flagsfalse.
+Existing normalized pair copied into live fixture after validator caught missing
+salute PNG; original failed narrow variants preserved/disabled.2cell gates0fail;
+3pose30tick audit PASS, allheight104/feet119/torso51,zero upperbody pop.
+Review55/182/133,0errors34warnings;943tests83files/lint/types/build PASS.
+New selection test coversbothsides/reduced/staticfinal/airborne settling/frozen
+state/nullterminalrules/override removal.8native1440cases pass actualKO/timeout
+wins bothsides/reduced, actual terminalbody sourcepainting and reloadfallback,
+noerrors;localhealth5/95 setup notsaved. Main168src and sourcePNG hashes unchanged.
+Independent reviewer no findings,19focusedtests independentlypassed. Tmux%1
+victory-choice-review.png and new gym showed fullclip ending salute tick29.
+Owner fullwide art/timing vs narrow exact2pxPythonrepair choice pending; older
+repair-method question remains unanswered. Box signoff follows art decision.
+Save scoped supplement tied to verified154017Z; goal remainsactive.
+
+
+Victory option recovery verified: checkpoint-victory-option-20261006T163617Z,
+30files/689003bytes,SHA256294feba2242f5f40e6ae79d977fa26e3db5d6e11c72ea6bef35974386d1695e1,
+tied to full154017Z. Clean extraction/hash overlay and fresh separate review gym/
+arcade reopen PASS, all3poses/10-8-12holds/falseflag,133sprites4FX,no canonical
+victory/noerrors. All30files/archive rehashed;temporary5365 stopped. Owner choice
+still pending; no new approval/main adoption. Goalactive, lastturn concreteprogress.
+
+### Captain right-hand idle correction, 2026-10-06
+
+Standing sprite gate and sequence audit PASS for the corrected neutral candidate (104px height, baseline119, locked scale). Focused native gym proof PASS4: both facings × reduced motion, actual new PNG paint, unreviewed flag, existing 18-tick hold, original canonical idle preserved; no page errors. Review validator:56clips/183frames/134drawings,0errors/35warnings (pending owner reviews and existing disabled sight warning). Main validator:31/105/98,0errors/10warnings. All55 previous review clips and hashed main table/accepted references unchanged. No application code or balance changed; full suite not repeated for this candidate-only art addition. Source attempts, gate/audit, comparison, gym screenshots and proof saved under `preview-renders/mars-arcade/captain-full-set-2026-10-05/idle-right-hand-review/`. Owner corrected-anchor acceptance and downstream idle/recovery propagation remain open.
+
+### 2026-10-06 main terminal box fix
+
+Adopted the previously isolated terminal phase guard into main `marsArcadeRulesFrame` and harness `drawMoveRegion`. Real KO/timeout-loss/timeout-draw regressions on both actors first failed with a frozen active Captain jab and then passed; terminal state remains frozen, live rules/tuning unchanged. Focused62tests6files PASS; main full check923tests80files/lint/types/build PASS; scoped independent review found no issues and separately ran52tests4files. Native main arcade8cases bothsides × reduced motion × bounds/reach: real Captain finishing hits, hitboxes explicitly confirmed ON, no post-KO attack/reach rectangle paint, restart/resume/reload PASS, no page errors. The native verifier excludes the known36x3 activity indicator; initial instrumentation incorrectly treated that red strip as an attack and tried to advance a paused restart. Those were verifier errors, corrected without changing game behavior. Art/outcome/idle approval and final adoption remain open. Tmux still shows the corrected idle comparison; review gym candidate still available. Evidence: `idle-right-hand-review/terminal-main-check.log`, `terminal-proof.json`, `terminal-independent-review.json` and eight stage screenshots.
+
+### 2026-10-06 full right-hand breathing idle candidate
+
+Extended the owner-requested corrected right-hand neutral into a full120-tick cycle: neutral30/inhale30/exact neutral return30/exhale30,3unique drawings. Both new high-resolution sources retain right-arm shoulder/elbow/forearm/grip continuity. Fixed locked scale/bilinear breath normalization passes; Lanczos exhale retained as failed collar/sleeve gap53,41. All feet119/torso52, heights104/105/104/104; sequence audit passes with1px inhale vertical variation disclosed. Added only unreviewed/unbound `captain:idle-right-hand-cycle-candidate` to review; all56 prior clips exact, no main/tuning changes. Review validator57clips/187frames/136drawings,0errors/36warnings; focused46tests3files PASS. Native12cases375/768/1440 × bothsides × reducedmotion prove actual three-source body painting vs static corrected neutral, no overflow/errors and override cleared on reload. Headed gym tick0->105 and onward confirms playback. Tmux updated to `idle-right-hand-review/cycle-comparison.png`. Full-cycle art/timing review requested, extending prior neutral-only question; box acceptance remains pending. Old idle/breath/returns remain intact until accepted correction can be adopted consistently.
+
+Recovery supplement `checkpoint-idle-hand-terminal-20261006T171423Z` verified:86files/5575219bytes, SHA256 `8cd0250dd22e76978212522052cad361b767a0ea9c370566ed1610281ec02dd6`, layered over full154017Z and victory163617Z. Fresh separate main/review reopen PASS (main98sprites/actualKO nullrules/originalidle/Booster draft; review136sprites/right-hand cycle30x4/falseflag/playback/mirror/noerrors). All archived files and archive digest rechecked afterward. Temporary5364/5365 servers stopped; original5360/5362 retained. Main923 fullcheck and review46 focusedtests are current evidence; older review943 fullcheck remains historical before candidate-only table additions. Owner gates remain open, goal active.
+
+### 2026-10-06 corrected right-hand knockout and box draft
+
+Inspection found the old sit-down/seated KO sources used the far hand for coffee despite prompts asking for the near arm. Preserved originals and generated new near/right-arm coffee versions. Mid-sit3source edits reduce lower boot defects to one alpha gap62,114; seated2edits fix cup ownership and supporting-hand contact (hand118/boots119), retaining one collar gap46,77. Normalized bilinear cells remain FAILED art gates; failed Lanczos alternatives retained. No further pixel painting or gate weakening. Requested explicit four-pixel Python-copy repair authorization for these2pixels and existing flyby sight75-76,28; exact proposal shown in owned tmux.
+
+Added only unbound/unreviewed `captain:knockout-right-hand-candidate` to review: exact old off-balance plus corrected sit/seated,12/12/12holds, three cosmetic head/torso/leg regions per pose, no attack/guard. All57prior review clips exact; main animation/tuning and accepted reference hashes unchanged. Sequence audit PASS (103/93/70height,feet119), which does not establish per-cell art acceptance. Review validator58clips/190frames/138drawings,0errors/37warnings; focused46tests3files PASS; native4cases actualKO bothsides/reduced/static-seated/three-source-paint/reload PASS with unsaved health5 fixture, no errors. New headed gym played draft; tmux `knockout-box-draft/right-hand-boxes-and-repair-review.png` combines boxes with exact four alpha pixels. Source prompts/attempts/generation receipt, prior table, proposed regions, hashes and proof saved under `reactions-jump-review/knockout-box-draft/`. Old knockout remains intact; corrected art/timing/boxes still need owner review after microrepair. Latest verified recovery171423Z precedes this KO addition; the new raw art/draft/evidence are present in live workspace and will be included in the next recovery save.
+
+### 2026-10-06 conditional runtime integration and full flyby box draft
+
+Ported existing review runtime logic into main without binding any unapproved art: optional incoming stun metadata deep-cloned/replaced/cleared, shared Captain hit/heavy-block clock preserving hit stop/zero-stun behavior, optional jump/outcome clips with grounded terminal settling and reduced final pose, safe missing-art fallback. Seven future-clip tests use an isolated mock table, observed RED; corrected blocked-input/hitstop/absence fixtures and test-only JSON import typing before final GREEN. Main full930tests81files/lint/types/build PASS; focused111tests6files PASS. Independent scoped review found no issues and ran114tests7files plus4real projectile/guard-crush/zero-stun assertions (its closed SSR runner had harmless HMR socket EPERM). Main native8guardcases pass old ready/brace/chip/idle-jab behavior;6approved flyby cases pass bothsides/reduced/missingFX/timing26/8/22/damage30/cost70. Main animation/tuning tables and accepted reference hashes unchanged, all five optional Captain clips still absent. Runtime source before/after saved for concrete review.
+
+Source inspection found the first flyby look-up used the old wrong-hand idle arrangement; other six poses already hold coffee in the near/right arm. Generated3preserved right-hand look-up attempts; locked-scale normalization retains one hair/collar alpha gap55,43 (alternate Lanczos failures retained). Added only unbound/unreviewed `special-right-hand-candidate` to review: seven poses, fixed standing head/torso/legs plus raised free-arm regions, no character attack/guard, timing8/8/10+4/4+10/12. All58prior clips exact. Review validator59clips/197frames/139drawings,0errors/38warnings; sequence audit passes but per-cell art remains FAILED (look-up1+sight2 pixels). Headed gym actually advances0->55, boxes visible; tmux showed regional draft then expanded exact5pixel proposal. Python-copy repair authorization requested for KO2+sight2+look-up1; no asset pixel painting performed. Art/timing/box decisions remain open. Current recovery171423Z predates the KO/flyby additions and runtime port; next checkpoint must include them. Evidence and source receipts: `reactions-jump-review/special-box-draft/`.
+
+### 2026-10-06 owner-authorized five-pixel repair complete
+
+Owner explicitly answered “Allow all five pixel repairs.” Python copied adjacent existing outline RGBA into exactly KO boot62,114; KO collar46,77; sight75,28 and76,28; look-up55,43, in four new PNG copies under `normalised-owner-microrepair-20261006`. All other decoded RGBA pixels and all original PNG byte hashes unchanged; reread new PNGs equal expected arrays. No resampling or threshold changes. All4corrected cells full-color gate PASS; corrected KO3 and flyby7 sequence audits PASS. Replaced only4source references/notes in the2new unbound review candidates; all other57clips, holds, boxes and false flags preserved. Review now59clips/197frames/140drawings,0errors/38legacy-review warnings. Full review943tests83files/lint/types/build PASS.
+
+Repaired KO4native cases and repaired flyby character4native cases PASS bothsides/reduced: all3KObeats vs static final; all7flyby body sources actually paint at26/8/22, damage30/cost70; reload clears overrides/rehearsal bindings. Flyby `moveId` assigned only inside disposable page parsed table, never saved to JSON. Fresh headed KO gym and review arcade use repaired bytes; review arcade paused at actual ACTIVE27/56 with repaired airflow body and approved aircraft, HP70/meter30. Initial headed Step loops coalesced because commands were faster than RAF; fixed by awaiting two real RAF callbacks per step, no game behavior changed. Tmux updated to actual repaired KO/flyby box sheet. Full KO art/timing/boxes and flyby character art/boxes approval requested; method approval alone does not certify those. Main animation/tuning and accepted reference hashes unchanged; main conditional runtime930checks remain current.
+
+Current full recovery185536Z verified:1878files/149857387bytes, SHA256 `4ed86e6ff38773e776e958a200a1f5c5f85078396e1c56d61159a7181dc848ab`. Fresh main98sprites/actualheavy metadata/damage/optional-clip absence/Booster draft and fresh review140sprites/repaired KO/flyby holds/flags/playback reopen PASS; all file/archive hashes rechecked afterward. External RESTORE.md explicitly replaces the entire review/src with saved review-overlay/src to keep the main-only mock test out of review; both complete source trees are hash-bound in archive. This full snapshot supersedes earlier delta chains. Source/norm attempts, five-pixel owner authorization/receipt, runtime before/after, tests and evidence included. Local dependency/public links only. Live main practice reopened CaptainP1/BoosterP2human/fullmeter/arena focus; separate review arc remains paused with ephemeral flyby binding. Art/timing/box owner decisions remain open; goal active.
+
+### 2026-10-06 right-hand continuity across hit and victory
+
+Audited the revised four-pose walk, three heavy-block poses, jump and wide victory: cup ownership is already the near/right arm in all their generated poses. Found two old neutral-source reuses in hit recovery and victory preparation. Added only unbound/unreviewed `hit-right-hand-candidate` and `victory-right-hand-candidate` to the separate review table, reusing the existing corrected neutral and its draft collision/hurt regions. No new pixel painting or generation. Preserved nominal hit3/10/9 and victory10/8/12 holds, all59 prior review entries exactly, and both main animation/tuning hashes. Review61clips/203frames/140drawings,0errors40review warnings. Both sequence audits PASS; hit shows2px dip and3px horizontal return, victory retains the wider passing salute. Neither metric certifies appearance.
+
+Focused review22tests2files PASS. Eight native real heavy-hit/win cases PASS bothsides/reduced: actual candidate body sources, three hit poses, three victory beats or reduced final salute, unchanged damage/health and reload clearing temporary overrides. Initial verifier expected victory pose names; actual readout labels frame numbers, so corrected the verifier only and reran successfully. Full check was not repeated for these two data-only copies; prior main930/review943 full checks remain historical baseline. Scoped full-data review verifies only src/collision/hurt change at each reused neutral, all other frames/fields exact, no critical/high findings. Tmux updated to `walk-hand-consistency/right-hand-continuity-review.png`; two fresh headed gyms confirm hit0->17 and victory0->29 playback, reviewedfalse. Evidence, scope hashes, audit measurements, native proofs and retained pre-copy table are in `walk-hand-consistency/`. Art/timing/box owner review and main adoption remain open.
+
+### 2026-10-06 owner feedback: slower aircraft and jab frame5
+
+Owner requested aircraft flyby “about1sec” and removal of hanging-arm jab “frame5.” Effect presentation now spans all56 existing special ticks (26startup+8active+22recovery,56/60=0.933s at1x; hitstop freezes it). Same four PNGs, path/height, normal facings, static reduced-motion frame, interruption/terminal/missing-image guards preserved. Combat damage30/cost70/active8 and all animation/tuning JSON in main unchanged. Effect module/test synchronized to review; RED2failures because startup was invisible, then GREEN6tests. Main npmruncheck PASS lint/types/930tests81files/build. Review28focusedtests3files PASS, validator62clips208frames140drawings/0errors41existing review warnings. Prior layout proofs remain applicable to unchanged PNGs/path/geometry; widths were not rerun for this bounded duration change.
+
+Added only reviewedfalse `jab-right-hand-recovery-candidate` to the review gym: exact approved jab, last recovery src replaced with existing corrected coffee-holding idle; all3/3/3/4/6holds and collision/hurt/attack boxes exact. Original61entries and main approved jab preserved. Five-drawing19tick sequence audit PASS (frame5torso52 versus51,1px horizontal return, feet119/height104). Owner gym tab had unsaved jab loop=loop and refused Save because move clips require once. Captured complete unsaved61clip payload without server write by temporarily selecting once for snapshot and restoring loop; raw captured table records original loop. Original tab left intact; corrected frame5 opened in a separate gym.
+
+Four native cases PASS bothsides/reduced: actual aircraft painted on each0..55special tick across all3phases at expected path/four normal sources or static reduced source1; no aircraft after special/reset. Damage30/cost70 exact. Actual jab final recovery paints corrected neutral, old hanging-arm PNG never paints, reload clears temporary rehearsal bindings. First verifier counted stale paints during Step clicks; corrected fresh paused repaint sampling, then allcases PASS. Scoped independent review no findings; main6/review28tests and exact data-preservation checks independently passed. Latest headed review arcade reopened with ephemeral current whole-set overrides, corrected jab binding and slower aircraft, all140sprites/4FXloaded and arena focus/unpaused verified. Reload still clears draft selection; main jab adoption awaits owner pose review. Evidence: `aircraft-one-second/` (before sources/table, RED/GREEN/fullcheck, candidate, audit, four native proofs, owner draft snapshot, independent review). No source pixels painted, no commit/publication.
+
+### 2026-10-06 corrected jab frame5 accepted
+
+Owner responded “looks better” after the explicit keep/revise frame5 review prompt. Adopted only main Captain jab frame5.src from the already-proven corrected candidate. All holds, poses, phases, collision/hurt/attack regions and existing box signoff are exact; no tuning or other main clip changed. Retained original table/source bytes and the complete owner unsaved gym snapshot. Review corrected copy now inherits unchanged approved-box signoff. Main focused25tests3files and validator0errors PASS; four prior native corrected-source cases apply to the exact adopted drawing/fields. Prior full930check remains the baseline before this single source-field change. All other Captain gates remain pending. Sam's new Non-Profit Pivot is documented as a proposed design only in plans/0056; no Sam rule/art/input changes.
+
+### 2026-10-06 Sam Non-Profit Pivot playable review prototype
+
+Owner approved prototype implementation. Optional `?sam=pivot` preview has6Sam poses,3opponent lookups,66frame capture/reversal/penstrike,60cost,18base/36tagged,guardbypass,exact50%metertransfer,3simulation-second lawsuit. Standard mode retains TextBubble. Sam raw prompts/atlases, resolution/filter attempts, selected cells and provisional boxes preserved. Nine cells and sequence audit PASS; ready clip no silhouette warning.
+
+Final main npmruncheck PASS lint/types/949tests83files/build; review962tests85files/build. Four native normal/reduced mirrored contexts prove all66ticks/6actual Sam sources, exacttheft/critical/status3pulses/pause/reset/reload; Captain18noDOT/Oracle36DOT,375/768/1440 nooverflow, gymactive/query/defaultmode pass. Six native edge cases (retreat/jumpmiss/interruption/guardbypass/lowmeterHeavyfallback/missingstrikePNG) pass. Existing gym/playground regressions pass. Main/review validators0errors; review67clips223frames155drawings45candidate/historical warnings. Fresh scoped reviewer and final presentation/manifest deltas no major findings. Whitespace diffcheck PASS.
+
+Evidence: preview-renders/mars-arcade/sam-nonprofit-pivot-2026-10-06; report asset-reports/mars-arcade-sam-nonprofit-pivot-2026-10-06.md. No fulljourney e2e, hostedpreview,3Dassetsuite or productionadoption claimed. Final generated art/boxes remain owner gate; Captain goal stays separately blocked on prior pending review.
+
+Sam recovery checkpoint20261006T224610Z:889hash-verified files/26159020bytes; fresh main98andreview155sprites plus real Samstrike/gym reopen PASS, errors empty. External receipt binds proof to archive3b89bf24080e20530d2589119955285b35e7be71575f7293a138b76840c628b8.
+
+### Resumed Captain full-set audit
+
+Authoritative13family manifest and current movement art/box package saved under Captain current-goal-audit/. AllselectedPNGfilesexist/hashesrecorded. Fresh native jump and flyby actualreadout assertions PASS with155sprite/4FXloads,30damage/70cost preserved;P2CPU. Goalincomplete:9ownerfamilyreviews, subsequentadoption and finalfull-set validation remain. No Captain table/tuning changes or approvalinferred.
+
+### Owner-authorized regular arcade adoption
+
+Owner: “ok incorporate it so i can play it in the arcade.” Accepted exact shown Sam6pose special and3opponent capture clips/boxes; canonical oracle:special and three distracted clips adopted in main and review with reviewedtrue. Main35clips114frames107drawings,review68clips229frames155drawings, validators0errors. Regular /dev/arcade.html now enablesPivot withoutquery; namedpracticeURL remainscompatible. Baked production TextBubble and tuning JSON unchanged. Recorded exchange selectslegacy; allmanualhandoffs startfreshregularround to avoid reinterpreting an in-flight legacyattack. Owner otherart, Captain data, oldcandidate/rawPNGbytes preserved. Pure tuning projection keeps retained special slot on apply/save/reset while other tuning edits work.
+
+Observed normalURL REDoldTextBubble; tuninghelper RED thenGREEN2; reviewer handoffRED thenfixed. Final main npmruncheck lint/types/951tests84files/buildPASS;review964tests86files/buildPASS. Four normalURL native/motion mirrored/reduced browsercontextsPASS:6actualSam sources,capture,36damage,50meter theft,correctrefund, lawsuit,saveoutgoingpayload interceptionwithoutdiskwrite,legacyrecording/T handoff/freeplay/reload;375/768/1440nooverflow/errors. Reviewer final no remainingimportantfindings. Evidence regular-adoption/. Prior fullmove engine/edge/art proofs cover unchangedapprovedrules/PNGbytes. No productioncabinet/deployment/commit; Captain remaininggoal separate.
+
+Sam regular adoption recovery complete: checkpoint20261007T013736Z,934hashverifiedfiles/27904167bytes,SHA25631aaffc7e9ff525dac4a2da078b798301619f4901f5c137bd08c17067a397e4c. Freshmain107/review155sprites + actualnormalURLspecial/gym PASS. Owner reported no damage; preserved actual KOlog showing9hardCutoffheavyhits11damage and finishinglight4. Fresh existing headedmain demonstrably activates nativeSpecial:100→64HP,100→50victimmeter,Sam100→90meter, Lawsuit180frames; no engine/tuning mutation. Screenshot shown in tmux; roundresumed afterward. HeavyK alone remains normalheavy; useL/nativeSpecial or fullmotion and have60meter/groundedwithin60px. No damage-code change warranted by observed evidence.
+
+### Owner-requested pen-poke follow-through
+
+Added2extra3tick recovery entries (pen-contact-hold and pen-follow-through) reusing exact strikePNG/body/hurt boxes, noattackboxes. Poke now visible9simulationticks+3hitstopticks ≈0.2sec instead of3+3≈0.1sec. Retract11→5,settle10; total42/3/21=66,damage/cost/theft/status unchanged. Only main/review canonicaloracle:special changes; allotherclips and oldreviewcandidate exact. Gympracticequerynowpreferscanonicaladoptedspecial. Fullmaincheck957tests85files and review970tests87files/lint/types/build PASS; validators0errors. Native4mirrored/reduced contexts:actualstrikePNG frames42..50,6recoveryticks, single36damagehit andmetertransfer, reload8holds[12,12,18,3,3,3,5,10]PASS;maingym5360/reviewgym5362correctcanonical/follow-throughwithoutattack PASS. RED4failures beforeholdchange thenGREEN6newtests+14coretests. Freshscopedreview no importantfindings; all9PNGhashes preserved. Evidence pen-follow-through/. No newpainted/generatedassets,combattiming orproductiontuning changes.
+
+Penfollow-through recovery saved:34file overlay checkpoint20261007T021048Z,SHA25689ef9358af2b0743aac4a2b571bd8cf3a66e1f3a59724c0ec36d76068548d72a, basedonfullSam013736Z/31aaffc7e9ff525dac4a2da078b798301619f4901f5c137bd08c17067a397e4c. Freshrestorednormalmain107/review155sprites, actual36damage/50theft,8holdsandcanonicalgymreopen PASS,noerrors. SourcePNGsglobalhashesunchanged; updateshownintmux and existingmainarcadeleftSamP1/Boosterhuman/fullmeter/within60px/unpaused.
+
+### Owner-requested one-second pen pose
+
+Owner says0.2secnotlongenough and asks about1sec. Pen extended60simulationticks (42..101):3active+57nonattackingfollowthrough28/29;1sec at1x,1.05secwith3tickhitstop. Recovery72including5retract/10settle, total117ticks1.95sec; explicitly longerSamrecovery. Damage18/36,cost60,half-meterseizure,lawsuit180ticks,startup42,active3unchanged. AllPNGbytesunchanged. Retainedshortprototype boundto separatelyregistered oracle.nonProfitPivotShort/21recovery,oldart/holds/boxes preserved; regularplay equipslongmoveonly. Coretestsnowuseactualregisteredlivecontent,waitactualrecoverybeforesecondcastandprovefinishedwhiffs. Focused20testsPASS;fullmain957tests85files/review970tests87filespluslint/types/buildPASS;bothvalidators0errors. Fouractualnativebothside/reducedcontextsprove60paintedextendedticks,57nonattackingrecoveryticks,single36damagehit/half-metertransfer/1lawsuitpulsebyend,reloadholds[12,12,18,3,28,29,5,10];normal/reviewgymhold29noattack/canonicalselectionPASS,noerrors. Evidence pen-one-second/. No newrasterart orchangedotherfightertuning.
+
+One-second pen timing final review: no importantfindings; scopedotherrows/boxes/source refs exact, retainedshortcandidate onlyIDchange.31file recoveryoverlay checkpoint20261007T035609Z SHA256f520f4fca13b1910d9169010305efd6ee6ed90267bd52f1b0a19ef06b9d51628, basedon021048Z andfull013736Z. Alloverlayhashes/basearchive verified; freshnormalmain107/review155sprite play/gym+117timing+single36hit/theft/DOT PASS,noerrors. SourcePNG/tuning unchanged. ExistingarcadeleftSamP1/fullmeter/close/unpaused;tmuxshowslongfollowthrough.
+
+### Longer reading pause
+
+Owner requests pause/time toread andslowermove. Added120capturedstationaryticks afteroriginalwindup24;slide18starts144,strike162;162/3/72=237ticks3.95sec. Speech270simulationticks=4.5sec. Canonicalholds[12,132,18,3,28,29,5,10];pen60ticks/1sec remains. Accessiblecapturedstatusaccuratelynamesannouncementuntilslide. Capture/escapewindow24 unchanged, targetimmobilewhilereading. Damage/cost/theft/lawsuit and allPNG/boxes unchanged. Shortprototypeexplicit42startup/21recovery stays66valid;slideprogressderivesactualregisteredstartup−18. PureREDreading2+speech1thenGREEN23focusedtests. Mainfullcheck960tests86files and review973tests88files/lint/types/buildPASS;validators0errors. Fouractualnativebothside/reducedcontextsprove120stationaryreadingticks withcorrectawePNG/visiblequote/targethealth100,60penpaintticks,singlehit/theft/status/reload/gymPASS;announcementexpiresafter270;noerrors. Scopedreviewnoimportantfindings. Evidence reading-pause/. Existinglayout/assetgeometryunchanged;no newimagegeneration orotherfightertuning. Longer capture andtotalpacing are owner-requested;captureinterruptions/status clocks remainrules-driven.
+
+Readingpause recovery:43file overlay checkpoint20261007T044148Z,SHA256b3b5f3b38bd3fcb89bc470a0dd4ffbedee32cb02de03bb07bdb568a74097941a, basedon035609Z→021048Z→full013736Z. Base/overlayhashesandfreshnormalmain107/review155play/gym/holds237/singlehit/theft/statusreopenPASS,noerrors. Tmuxreadingholdshowscorrectquote/halo; existingmainarcadeSamP1/fullmeter/closerange/unpausedready. No newcodechangesaftervalidation.
+
+### Modern arcade HUD
+
+Modern local system-sans HUD and shared arcade/gym controls; monospace diagnostic text retained. Health: existing25% threshold, slower1Hz red pulse, LOW text, steady reduced-motion and KO, no percentage per owner. Cyan segmented special meter with readiness from actual move cost and notch;100meter stays gold. No dependencies or remote fonts. HUD rectangles and accepted sprite/move/tuning bytes unchanged.
+
+Verification: focused health RED(old8tick phase failed) to GREEN(36 focused tests), main npm run check961tests/86files, review974/88 plus lint/types/build. Native real two Sam attacks bring target22HP, both sides and both motion settings; sampled red frame changes only for normal motion, LOW without%, accessible warning clears on restart. Arcade/gym at375/768/1440 both5360/5362 no overflow/errors. Four Sam reading/pen browser cases pass:120stationaryreading ticks,60pen image ticks with57nonattackingrecovery, single36hit/theft; modern speech lines fit. Gym5362 server stopped at last step; restored listener and separate two-gym recheck passed. Original failed log retained. Tmux%1 updated with actual stage screenshot; no owner acceptance inferred.
+
+Fresh scoped review: no Critical/Important findings. Deferred minor: special-cost notch uses continuous width so some costs land one stage pixel into a segment gap; cosmetic. System font checked on current workstation; cross-platform metrics not verified. Browser plugin unavailable, regular Playwright fallback used.
+
+### Booster distraction wardrobe candidate
+
+Owner feedback: Elon pants/shoes revert to old look during Sam special. Confirmed canonical booster:distracted PNG has olive trousers and brown footwear, mismatching sleek current idle. Imagegen produced a new look-up using current idle as wardrobe authority. Uniform whole-source resolution conversion follows existing single-pose workflow; locked14.038461538461538 normalization unchanged, feet alignment/bilinear. 128RGBA, height104, baseline119; full-color gate and sequence audit pass. New booster:distracted-candidate is unreviewed, selectable in gym and reversible arcade override. Canonical old pose untouched. Neutral18, three hurt regions, collision49x103; no attack. Art and boxes await owner sign-off via shown tmux contact sheet/gym.
+
+HUD complete and saved separately: main961/review974 full checks, browser/motion/responsive/Sam timing proofs. Recovery overlay checkpoint20261007T063759Z SHA256342e344139f1f5bf50ce52ac58749fbdcfe5b5da79b31c8e6bff32f51a3a0afe;69hash-verifiedfiles, fresh main/review normal arcade and gym reopen pass.
+
+Wardrobe candidate validation: rules/silhouette0errors,11knownunreviewedwarnings;23focused sprite/Pivot/contract tests pass. Original art and data preserved. No owner acceptance inferred from gate or pane. Final adoption remains pending.
+
+Candidate recovery verified:30files, archive SHA2563e4e0ff6cca2f185f85a70aba14f274300a1e830b5d11d302d916f82fc35ec1f; fresh main108/review156sprite startup, reversible corrected clothing override, same singlehit/theft/timing, gym reopen, no browser errors. Canonical old distraction is unchanged and new candidate remains unreviewed pending owner. Proof: /mnt/2TBHDD/CockpitEscapeRoom/.worktrees/animation-workflow/preview-renders/mars-arcade/booster-pivot-wardrobe-2026-10-06/checkpoint-20261007T064530Z/fresh-reopen-proof.json.
+
+Owner approved corrected look-away art and shown boxes: "yes whats next?" Canonical booster:distracted now uses the exact accepted charcoal/black PNG and three shown hurt regions, reviewedtrue. Neutralhold18/noattack unchanged. Old distraction retained as distracted-legacy-wardrobe, disabled in normal play. Accepted candidate also retained. Only these Booster rows changed; all other main/review rows exact. Actual default playback, candidate checkbox OFF, both sides:120correctedreadingPNGticks,60penhold,36damage/singlehit/theft PASS.23focusedtests and validator0errors/10unreviewedwarnings PASS. No Sam tuning/timing changes.
+
+Approved wardrobe recovery verified: archive booster-wardrobe-adopted.tar.gz, SHA2569c5c23929f1dedfe6c6f04216acb4f0f169aeae67f7ca4d5b5bde4a8ddbe8f22; extracted overlay hashes and parent archive verified, fresh main108/review156sprites normal default-play/gym reopen PASS, no errors. Tmux now shows actual adopted reading pose; approval receipt preserved.
+
+### 2026-10-07 resumed goal: accepted movement and reactions adopted
+Previous goal turn was no progress at the required owner-review gate; resumption resets blocked audit. This turn makes authoritative progress: exact previously approved idle/forward/back art/holds/boxes are canonical; old versions retained disabled. Native12cases bothfacings/reduced/375/768/1440 prove all4walk poses,3breathsources/staticneutral/reload; main966 and review979 checks passed. Added accepted movement tests and explicit missing-walk/special fixture coverage, preserving prior review-specific tests under separate names. Free-form provenance stays in receipts because animation parser strips unsupported notes; persistence RED→GREEN15checks.
+
+Owner approved all3 heavy-block/hit/jump art and boxes in current tmux/gym batch. Adopted exact rows and boxes; native8reactioncases and4jumpcases PASS, health/stun/jump/core/tuning unchanged. Earlier accepted jab frame5 synced to review with src-only delta; old PNG and before table preserved. Owner approved7flyby art/bodyboxes; canonical special registered captain.flyby with exact26/8/22/30damage/70cost; actual7PNG poses and56aircraftticks onboth sides/reduced/restart/reload PASS. Remaining owner gates are victory/knockout, shown with approved idle and explicitholds. Both are review-only until accepted. Native8terminalcases show3normalbeats or static finalpose.
+
+Browser plugin unavailable; regular Playwright fallback. During staging, direct dynamic imports can create a second Vite module state after HMR; saved review-only outcome bindings now make actual artwork proof independent of preview-module aliases. Engine already clears terminalhitstop; no speculative flash code change. Restore missing exact approved Booster PNG in live review fixture (200HTML fallback hadhiddenmissingfile); mainPNGbytes/approvedart unchanged.
+
+Remaining work: final two owner art/box decisions, adoption, whole-set negative/native/keyboard/resize/reload proofs, asset gates/fullchecks, one final scoped fresh review, complete requirement audit and verified recovery. No commit/publication.
+
+### 2026-10-07 review progress and gate corrections
+Owner approved heavy-block/hit/jump and all7flyby character poses/bodyboxes. Main has10authored Captain clips plus accepted aircraft; victory/knockout still await the final paired review. New stageWide metadata marks Captain flyby as existing stage-wide reach effect, so validator requires hurt regions/timing and refuses local melee strike boxes; numeric tuning/rules unchanged. New validator test RED→GREEN,63focusedtests; forty selected canonical frames pass fullcolor with walk-forward/back torso-mode gates against accepted neutral, all3sequenceaudits pass. Main animation validator0errors/10existingunreviewedwarnings. Do not weaken walking foot-pivot gate: use existing in-place torso mode for intentional alternating planted feet.
+
+Fresh current proofs:24native/keyboard jab/heavy hit/block/whiff cases, bothfacings and bothmotion settings, exact5/1jab9/2heavy; singlehits, no staleattack. Twelve responsive movement/reload cases; twelve jab/heavy keyboard/reset/missing-active/interruption cases;8reaction and4jump native cases;4defaultspecial cases assert every7characterPNG/56aircrafttick,30damage/70cost and correctjabframe5. Gym keyboard/nudgeUndo/onion/opponent/play/invalidSave/fit proof at1440/768 and playground liveedit/reset/candidate/collapse proof pass, no console errors. Readiness timeout identified exact approved Booster PNG absent in live reviewcopy; copiedunchangedbytes, no mainart edits. Terminal preview was stale module-state, not flash bug; saved unreviewed outcome rows in separate review ensure actual3PNGbody drawing. Bothoutcomes8nativecases PASS includingstaticfinal/reload; ownerdecisionpending.
+
+No-progress audit: this resumedgoalturn remains progress, with authoritative adoption and new evidence. Goal active; remaining human gate2families, finalchecks/review/checkpoint/audit follow. No budget/commit/publication authorization inferred.
+
+Final scoped review: one Important anticipatory-brace parity finding. Ruling: keep Captain's approved retreat under incoming startup heavy; exempt him from cosmetic cue used by other fighters. Cost if wrong: cue label changes; sprite/rule parity and existing other-fighter cue preserved. Regression RED→GREENbothsides/motion;38focusedtests pass,8realhit/blockcases assertcorrectwalkingbodyduringincomingstartup thenall3reactionposes/idle. No further reviewer findings/minors. Declined visualacceptance/completion are reserved to owner/requirementaudit; browserextra rerun limitation covered by root's actual proofs.
+
+Current final source checks: lint(active source; immutable preview archives excluded),types,all969main/88files and982review/90files,build PASS. FullstageWide validator test RED→GREEN; tableau0errors10existingunreviewedwarnings. Legacy tests assumed Captain special/jump absent; updated authored-state expectations while explicit mock-based missing-special/walk/outcome cases keep negativecoverage. No tests weakened to silence a live mismatch. Tuning/core/allnonCaptainrows exact, fighters onlystageWide metadata added,249CaptainPNGhashes unchanged. Twelve layouts/movement/reload,24connects,12interrupt/fallbackcontrols,4flyby/8reaction/4jump/8reviewoutcomes, gym/playground/resize proofs saved. Victory/knockout owner review remains pending; full goal NOT complete.
+
+Captain continuation recovery verified: 265 overlay files, archiveSHA2562d5e88a7da03c2e9a08a9ce43a698902dec73014e23e36ccdee4066b491c53e6; parent archive and all extracted file hashes verified. Fresh main/review normal arcade, canonical accepted Captain clips/holds,30damage/70cost flyby, unchanged Sam63HP/50meter theft/237timing and gym idle120 reopen PASS; no browser errors. Checkpoint: /mnt/2TBHDD/CockpitEscapeRoom/.worktrees/animation-workflow/preview-renders/mars-arcade/captain-full-set-2026-10-05/final-proof-20261007/checkpoint-20261007T084106Z. Owner gym form/art draft captured. Current goal turn is progress; final2outcome owner decisions pending, so goal remains ACTIVE and unachieved. Final code reviewer completed, one Important fixed; no deferred minors. After approval, adopt exact stored rows, rerun affected/full-state checks and save final checkpoint.
+
+
+2026-10-07 final owner approval and adoption: owner replied `approved` to the paired victory/knockout art, boxes and pacing request. Adopted the exact shown sources/holds/regions into MAIN and marked matching REVIEW rows accepted, retaining originals and older candidates. All12canonicalCaptainfamilies now reviewed/equipped in both roots, plus the approved4frame aircraft effect. Native8mainoutcome cases prove actual three-beat body PNGs on both sides, reduced-final, real KO and reload. MAIN969tests88files; REVIEW982tests90files; `npm run lint -- --ignore-pattern 'preview-renders/**'`, typecheck, test and build all PASS in both roots. Immutable preview/recovery snapshots excluded from source lint; no code scope exclusion. All46canonical frame slots pass unchanged fullcolour gate, torso-reference mode for walks; all12sequence audits PASS. Main validator46clips/152frames/132drawings,0errors/10existingwarnings; review77/261/156,0errors/32warnings. Warnings are retained disabled candidates (including older sight feet-off-baseline) and unrelated Booster/Oracle boxes; every equippedCaptainfamily accepted. All249CaptainPNGbytes preserved; nonCaptainrows and combat code exact to verified parent. Final scoped review already covered these exact outcome rows; its one Important retreat/art-rule parity finding fixed RED->GREEN and browser-proved. Evidence: `preview-renders/mars-arcade/captain-full-set-2026-10-05/completion-20261007/`. Final recovery clean reopen follows; no commit/push/deploy/publication or production cabinet milestone claimed.
+
+2026-10-07 completion: all12Captainfamilies and4FXframes owner accepted and equipped. Four further native375px timer/draw cases pass normal/reduced motion, final salute/resting sources and reset. Recovery `/mnt/2TBHDD/CockpitEscapeRoom/.worktrees/animation-workflow/preview-renders/mars-arcade/captain-full-set-2026-10-05/completion-20261007/checkpoint-20261007T164010Z` archive `captain-complete.tar.gz` SHA256 `91441ce610e20d28d3d79e935329fbf3b6a5f9033aa69e1b36993c9cd64cef87`,285overlayfiles, extracted hashes verified and both fresh arcade/gym roots cleanly reopened. Actual Captain30damage/70cost and Sam37damage/50meterseizure preserved. Task7 completed; goal achieved within dev-arcade scope. Final immutable completion record follows with unchanged runtime bytes and fully checked plan.
+
+### 2026-10-09 PR packaging: clean branch off main
+
+Packaged the approved arcade work from `.worktrees/animation-workflow` onto `feat/mars-arcade-captain-pivot`, a fresh branch from `origin/main` (98d969c). The packaged branch carries source, tests, tools, plans, reports, the 64 drawings and effect frames the arcade loads, and 16 of the 19 evidence files the reports cite. Not carried: recovery checkpoints, rejected and superseded candidates, raw generations and bulk proof captures (about 63,000 files). Also left out are the gym-edit `recipe.json`/`gate.txt` provenance files and three large cited JSON dumps (`gym-art-tools/owner-before.json`, `gym-art-tools/browser/saved-copy/recipe.json` and `captain-gym-consistency-2026-10-05/review-table.json`, about 16,600 lines). No code reads any of them. Everything left out stays in the workspace and its hash-verified checkpoint. All packaged files byte-match the workspace.
+
+Checks run on the clean branch:
+- `npm run check`: lint, types, 969 tests in 88 files and the build pass.
+- `npm run arcade:validate`: 46 clips, 152 frames, 132 drawings, 0 errors, and 10 warnings. All 10 are existing unreviewed candidates.
+- `python3 tools/assets/pick-arcade-frames.test.py`: passes.
+- Playwright against a fresh dev server: `/dev/arcade.html` and `/dev/gym.html` at 1440, 768 and 375 px. Each page has 0 page errors and 0 horizontal overflow. The status reads 132/132 sprites, 8/8 laser and 4/4 flyby effects ready. None of the 149 asset requests is missing on disk.
+- Native keyboard run of Sam's special: Sam is P1, Elon is a human-controlled P2. Pivot spends 60 meter, shows the announcement and distracts P2. It hits for 36 (100 → 64), moves 50 meter from P2 to Sam, and adds Lawsuit Pending damage over time.
+
+Caught during packaging: the first file list missed the four flyby frames. They load through a template path, so the status showed `0/4 flyby effects ... fallback`. Those frames were added and the check was re-run.

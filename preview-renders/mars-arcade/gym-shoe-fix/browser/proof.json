@@ -1,0 +1,22 @@
+{
+  "reports": [
+    "gray shoe reproduction: tolerance skips reported, all-color keyboard match/Undo/reload work, repeated match adds no empty correction",
+    "fixed Captain idle reference and initial size/body metrics load",
+    "all five heavy poses match reference height/feet, body within 1px and foot pivot within contract; three region palettes preview",
+    "before/after playback and fixed-reference stage overlay draw",
+    "native keyboard nudge/Undo and repeated clipping refusal retain the valid draft",
+    "native coordinate samplers and scoped color replacement/Undo work",
+    "reload restores the selected frame and unsaved art draft; normal Save explains separate art persistence",
+    "real Save appends a gated unbound copy with new PNGs/recipe; all original clips and 82 input drawing hashes remain unchanged; reload reopens copy",
+    "corrected-copy save preserves unrelated unsaved loop settings locally without changing the original clip on disk",
+    "1440: usable native controls, fixed-reference panel, no horizontal overflow",
+    "768: usable native controls, fixed-reference panel, no horizontal overflow, mirrored stage",
+    "375: usable native controls, fixed-reference panel, no horizontal overflow",
+    "reduced-motion editing, whole-clip reset and unchanged save state work",
+    "normal timing/box Save advances the baseline; a subsequent corrected-copy save succeeds"
+  ],
+  "unexpectedBrowserErrors": [],
+  "originalClips": 27,
+  "originalDrawings": 82,
+  "savedClip": "captain:heavy-candidate-art-6a8712b8"
+}

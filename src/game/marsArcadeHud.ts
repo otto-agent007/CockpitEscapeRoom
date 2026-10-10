@@ -49,6 +49,10 @@ export const MARS_ARCADE_HUD = {
     sourceWidth: 22,
     sourceHeight: 24,
     sourceX: { booster: 54, oracle: 49, captain: 52 } as Record<string, number>,
+    /** Captain's full hat, face and chin fit into the same portrait slot. */
+    sourceOverrides: { captain: { x: 46, y: 14, width: 34, height: 34 } } as Record<
+      string, { x: number; y: number; width: number; height: number } | undefined
+    >,
   },
   /**
    * Health and guard share one frame, because they are both what is keeping this
@@ -106,6 +110,26 @@ export function marsArcadeMeterSegments(meter: number): number[] {
   )
 }
 
+/** Fit the complete source crop inside its frame without stretching its proportions. */
+export function marsArcadePortraitFit(id: string) {
+  const { portrait, frame } = MARS_ARCADE_HUD
+  const x = portrait.sourceX[id]
+  if (x === undefined) return null
+  const source = portrait.sourceOverrides[id] ?? {
+    x, y: portrait.sourceY, width: portrait.sourceWidth, height: portrait.sourceHeight,
+  }
+  const width = portrait.width - frame * 2, height = portrait.height - frame * 2
+  const scale = Math.min(width / source.width, height / source.height)
+  const targetWidth = Math.floor(source.width * scale), targetHeight = Math.floor(source.height * scale)
+  return {
+    source,
+    target: {
+      x: Math.floor((width - targetWidth) / 2), y: Math.floor((height - targetHeight) / 2),
+      width: targetWidth, height: targetHeight,
+    },
+  }
+}
+
 export const MARS_ARCADE_HUD_COLOURS = {
   frame: '#10101c',
   /**
@@ -134,9 +158,9 @@ export const MARS_ARCADE_HUD_COLOURS = {
   healthLow: { light: '#ff8a7a', base: '#e83232', shade: '#8a1616' },
   /** The lagging trail behind a fresh hit: the bar that shows what was just taken. */
   chip: '#fff0d0',
-  meter: { light: '#baf0ff', base: '#4ac4ff', shade: '#1c6a96' },
+  meter: { light: '#d2fcff', base: '#20d9ff', shade: '#135ab6' },
   meterFull: { light: '#fff6d4', base: '#ffde78', shade: '#b08a18' },
-  meterEmpty: '#241f42',
+  meterEmpty: '#101e39',
   guard: { light: '#7fa4ff', base: '#4a7bff', shade: '#243f8f' },
   guardLow: { light: '#ff8098', base: '#ff4a6e', shade: '#8f2038' },
   name: '#f4e6d2',
@@ -158,7 +182,7 @@ export const MARS_ARCADE_HUD_LOW_HEALTH = 0.25
 /** Health fraction below which the bar turns amber. */
 export const MARS_ARCADE_HUD_MID_HEALTH = 0.5
 /** Frames per blink phase once health is critical. */
-export const MARS_ARCADE_HUD_BLINK_FRAMES = 8
+export const MARS_ARCADE_HUD_BLINK_FRAMES = 30
 
 export const MARS_ARCADE_CHIP = {
   /** Frames the trail sits still after a hit, so the damage is readable. */
@@ -216,8 +240,8 @@ export function marsArcadeHealthColour(fraction: number): MarsArcadeFill {
  * Always true above the critical threshold, so a caller can apply it unconditionally
  * without having to re-test the health fraction and get the boundary wrong.
  */
-export function marsArcadeHealthBlink(fraction: number, frame: number): boolean {
-  if (fraction > MARS_ARCADE_HUD_LOW_HEALTH) return true
+export function marsArcadeHealthBlink(fraction: number, frame: number,reducedMotion=false): boolean {
+  if (fraction<=0||fraction > MARS_ARCADE_HUD_LOW_HEALTH||reducedMotion) return true
   return Math.floor(frame / MARS_ARCADE_HUD_BLINK_FRAMES) % 2 === 0
 }
 

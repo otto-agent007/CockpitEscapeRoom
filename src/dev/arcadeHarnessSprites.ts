@@ -8,7 +8,8 @@
  * how a reaction is stretched over the stun the engine applied, and which airborne
  * drawing a velocity picks.
  */
-import { marsArcadeActiveMove, type MarsArcadeSide, type MarsArcadeState } from '../game/marsArcade'
+import { marsArcadeActiveMove, marsArcadeMeleeBoxes, type MarsArcadeSide, type MarsArcadeState } from '../game/marsArcade'
+import { marsArcadeBoxesOverlap } from '../game/marsArcadeBounds'
 import {
   marsArcadeAnimationSources,
   marsArcadeDrawingAt,
@@ -17,11 +18,12 @@ import {
   type MarsArcadeAnimationFrame,
   type MarsArcadeAnimationsFile,
 } from '../game/marsArcadeAnimations'
-import type { MarsArcadeFighterId } from '../game/marsArcadeFighters'
+import { marsArcadeRules, type MarsArcadeFighterId } from '../game/marsArcadeFighters'
 import {
   MARS_ARCADE_ANIMATIONS,
   marsArcadeClip,
   marsArcadeJumpIndex,
+  marsArcadeCaptainReactionFrame,
   marsArcadeMoveClip,
 } from '../game/marsArcadePose'
 import type { HeavyReaction } from './arcadeHarnessReactions'
@@ -58,7 +60,7 @@ export const ARCADE_ANCHOR_SOURCES = anchors
 
 export interface ArcadeSpriteSelection {
   src: string
-  /** True when the pose has not been drawn and the anchor stands in for it. */
+  /** True when an available guard or anchor stands in for an undrawn pose. */
   placeholder: boolean
   label: string
   /** The table frame the drawing came from, when it came from the table: its boxes. */
@@ -84,6 +86,22 @@ function frameFor(src: string): MarsArcadeAnimationFrame | undefined {
   return undefined
 }
 
+/** Anticipate the first active drawing at the current positions, using the live rules. */
+function heavyCanMeetGuard(state: MarsArcadeState, attackerSide: MarsArcadeSide): boolean {
+  const attacker = state.fighters[attackerSide]
+  const defender = state.fighters[attackerSide === 0 ? 1 : 0]
+  const threat = marsArcadeActiveMove(attacker)!
+  if (marsArcadeRules().useBounds) {
+    if (threat.move.guardHeight === 'low') return false
+    const projected: MarsArcadeState = { ...state, fighters: [{ ...state.fighters[0] }, { ...state.fighters[1] }] }
+    projected.fighters[attackerSide].moveFrame = threat.move.startupFrames
+    const boxes = marsArcadeMeleeBoxes(projected, attackerSide)
+    if (boxes) return boxes.attack.some(attack => boxes.hurt.some(hurt => marsArcadeBoxesOverlap(attack, hurt)))
+  }
+  return Math.sign(defender.x - attacker.x) === attacker.facing &&
+    Math.abs(defender.x - attacker.x) <= threat.move.reach && defender.y <= threat.move.maxHeight
+}
+
 export function selectArcadeSprite(
   state: MarsArcadeState,
   side: MarsArcadeSide,
@@ -93,31 +111,44 @@ export function selectArcadeSprite(
 ): ArcadeSpriteSelection {
   const fighter = state.fighters[side]
   const live = state.phase === 'intro' || state.phase === 'fight'
-  if (!live && fighter.id !== 'captain') {
+  if (!live) {
     const won = state.winner === side
     const knockedOut = state.phase === 'ko' && fighter.health <= 0
     if (won || knockedOut) {
-      const clip = requireClip(fighter.id, won ? 'victory' : 'knockout')
-      const { frame, index } = reducedMotion
-        ? { frame: clip.frames.at(-1)!, index: clip.frames.length - 1 }
-        : marsArcadeFrameAt(clip, Math.max(0, outcomeFrame))
-      return {
-        src: frame.src, placeholder: false, frame,
-        label: `${won ? 'victory' : 'knockout'} ${index}`,
-        // A terminal airborne fighter settles visually; frozen rules coordinates stay intact.
-        renderY: fighter.y * (1 - index / Math.max(1, clip.frames.length - 1)),
+      const clip = arcadeClip(fighter.id, won ? 'victory' : 'knockout')
+      if (clip) {
+        const { frame, index } = reducedMotion
+          ? { frame: clip.frames.at(-1)!, index: clip.frames.length - 1 }
+          : marsArcadeFrameAt(clip, Math.max(0, outcomeFrame))
+        return {
+          src: frame.src, placeholder: false, frame,
+          label: `${won ? 'victory' : 'knockout'} ${index}`,
+          // A terminal airborne fighter settles visually; frozen rules coordinates stay intact.
+          renderY: fighter.y * (1 - index / Math.max(1, clip.frames.length - 1)),
+        }
       }
     }
-    if (state.phase === 'timeOver') {
+    if (state.phase === 'timeOver' && !won) {
       return { src: anchors[fighter.id], placeholder: false, label: 'round over — resting', renderY: 0 }
     }
   }
   const move = marsArcadeActiveMove(fighter)
-  if (live && fighter.activity === 'airborne' && fighter.id !== 'captain') {
-    const clip = requireClip(fighter.id, 'jump')
-    const index = marsArcadeJumpIndex(fighter.velocityY)
-    const frame = clip.frames[Math.min(index, clip.frames.length - 1)]!
-    return { src: frame.src, placeholder: false, frame, label: `jump ${frame.pose}` }
+  if(live&&fighter.activity==='distracted'){
+    const clip=arcadeClip(fighter.id,'distracted'),frame=clip?.frames[0]??arcadeClip(fighter.id,'idle')?.frames[0]
+    if(frame)return {src:frame.src,placeholder:!clip,frame,label:clip?'distracted — looking up':'distraction — art pending'}
+  }
+  const captainReaction = live ? marsArcadeCaptainReactionFrame(fighter) : null
+  if (captainReaction) {
+    return { src: captainReaction.src, placeholder: false, frame: captainReaction,
+      label: `${fighter.activity === 'hitstun' ? 'hit' : 'heavy block'} — ${captainReaction.pose}` }
+  }
+  if (live && fighter.activity === 'airborne') {
+    const clip = arcadeClip(fighter.id, 'jump')
+    if (clip) {
+      const index = marsArcadeJumpIndex(fighter.velocityY)
+      const frame = clip.frames[Math.min(index, clip.frames.length - 1)]!
+      return { src: frame.src, placeholder: false, frame, label: `jump ${frame.pose}` }
+    }
   }
   if (live && fighter.id !== 'captain' && fighter.activity === 'hitstun') {
     const clip = requireClip(fighter.id, 'hit')
@@ -134,10 +165,25 @@ export function selectArcadeSprite(
     const impact = reactionBeat(clip, 'impact')
     return { src: impact.src, placeholder: false, frame: impact, label: 'hit recoil' }
   }
-  if (live && fighter.id !== 'captain') {
-    const guard = requireClip(fighter.id, 'block').frames[0]!.src
-    if (fighter.activity === 'blockstun' && heavyReaction?.kind === 'block' && fighter.stunFrames > 0) {
-      const clip = requireClip(fighter.id, 'heavy-block')
+  if (live && fighter.activity === 'attack' && move && !fighter.blocking) {
+    const clip = moveClip(fighter.id, move.move.id)
+    if (clip) {
+      const frameInPhase = move.phase === 'startup' ? move.frame :
+        move.phase === 'active' ? move.frame - move.move.startupFrames :
+          move.frame - move.move.startupFrames - move.move.activeFrames
+      const drawing = marsArcadeDrawingAt(clip, move.phase, frameInPhase)
+      if (drawing) {
+        return { src: drawing.frame.src, placeholder: false, frame: drawing.frame, label: `${clip.animation} ${move.phase} — ${drawing.frame.pose}` }
+      }
+    }
+  }
+  if (live) {
+    const guardClip = arcadeClip(fighter.id, 'block')
+    const guardFrame = guardClip?.frames[0]
+    const guard = guardFrame?.src
+    const heavyBlock = arcadeClip(fighter.id, 'heavy-block')
+    if (fighter.id !== 'captain' && guard && heavyBlock && fighter.activity === 'blockstun' && heavyReaction?.kind === 'block' && fighter.stunFrames > 0) {
+      const clip = heavyBlock
       const elapsed = Math.max(0, heavyReaction.duration - fighter.stunFrames)
       const beat = elapsed < Math.ceil(heavyReaction.duration * 0.35) ? 'compress' :
         elapsed < Math.ceil(heavyReaction.duration * 0.75) ? 'settle' : 'guard'
@@ -146,30 +192,26 @@ export function selectArcadeSprite(
     }
     const opponent = state.fighters[side === 0 ? 1 : 0]
     const threat = marsArcadeActiveMove(opponent)
-    if (fighter.blocking && fighter.stunFrames === 0 && fighter.y === 0 &&
+    // Captain's authored retreat already carries its guard regions; keep rules and drawing together.
+    if (fighter.id !== 'captain' && guardFrame && fighter.blocking && fighter.stunFrames === 0 && fighter.y === 0 &&
       threat?.move.button === 'heavy' && threat.phase === 'startup' &&
-      Math.abs(opponent.x - fighter.x) <= threat.move.reach) {
-      return { src: guard, placeholder: false, frame: frameFor(guard), label: 'heavy block — brace' }
+      heavyCanMeetGuard(state, side === 0 ? 1 : 0)) {
+      return { src: guardFrame.src, placeholder: false, frame: guardFrame, label: 'heavy block — brace' }
     }
     if (fighter.activity === 'walk') {
-      const clip = requireClip(fighter.id, fighter.blocking ? 'walk-back' : 'walk-forward')
-      const { frame } = marsArcadeFrameAt(clip, state.frame)
-      return { src: frame.src, placeholder: false, frame, label: fighter.blocking ? 'backward shuffle' : 'forward shuffle' }
-    }
-    if (fighter.activity === 'blockstun' || fighter.blocking) {
-      return { src: guard, placeholder: false, frame: frameFor(guard), label: 'raised guard' }
-    }
-    if (fighter.activity === 'attack' && move) {
-      const clip = moveClip(fighter.id, move.move.id)
+      const clip = arcadeClip(fighter.id, fighter.blocking ? 'walk-back' : 'walk-forward')
       if (clip) {
-        const frameInPhase = move.phase === 'startup' ? move.frame :
-          move.phase === 'active' ? move.frame - move.move.startupFrames :
-            move.frame - move.move.startupFrames - move.move.activeFrames
-        const drawing = marsArcadeDrawingAt(clip, move.phase, frameInPhase)
-        if (drawing) {
-          return { src: drawing.frame.src, placeholder: false, frame: drawing.frame, label: `${clip.animation} ${move.phase} — ${drawing.frame.pose}` }
-        }
+        const { frame } = marsArcadeFrameAt(clip, state.frame)
+        return { src: frame.src, placeholder: false, frame, label: fighter.blocking ? 'backward shuffle' : 'forward shuffle' }
       }
+      if (fighter.id === 'captain' && fighter.blocking && guardFrame) {
+        return { src: guardFrame.src, placeholder: true, frame: guardFrame, label: 'raised guard — back-walk art pending' }
+      }
+    }
+    if (guardFrame && (fighter.activity === 'blockstun' || fighter.blocking)) {
+      const absorb = fighter.id === 'captain' && fighter.activity === 'blockstun'
+      const frame = absorb ? guardClip!.frames.at(-1)! : guardFrame
+      return { src: frame.src, placeholder: false, frame, label: absorb ? 'guard absorb' : 'raised guard' }
     }
   }
   const resting = fighter.activity === 'idle' && !fighter.blocking && live

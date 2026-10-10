@@ -33,8 +33,7 @@ function span(frames: number, framesPerDrawing: number, maximum: number): number
 export function drawingBudget(move: MarsArcadeMove): DrawingBudget {
   // A move with no startup opens straight on its active drawing, so a startup
   // drawing would never be on screen (the booster's space laser). Active and
-  // recovery keep their floor of one: the captain's coffee has no active frames,
-  // yet the cup going down is still the pose the move exists to show.
+  // recovery keep their floor of one, reserving a pose even for a non-striking span.
   const startup =
     move.startupFrames === 0
       ? 0

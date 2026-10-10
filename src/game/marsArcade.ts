@@ -21,6 +21,8 @@ import {
   marsArcadeGravity,
 } from './marsArcadeFighters'
 import { marsArcadeRulesFrame } from './marsArcadePose'
+import {advanceMarsArcadePivot,finishInterruptedMarsArcadePivot,releaseMarsArcadePivot,seizeMarsArcadeAssets,tickMarsArcadeLawsuits,type MarsArcadeLawsuit,type MarsArcadePivotCapture} from './marsArcadePivot'
+import {MARS_ARCADE_COFOUNDER_TARGETS} from './marsArcadeFighters'
 
 export const MARS_ARCADE_TIMING = {
   frameSeconds: 1 / 60,
@@ -67,7 +69,7 @@ export const MARS_ARCADE_STAGE = {
 export const METER_GAIN_PER_DAMAGE_TAKEN = 0.5
 
 export type MarsArcadeSide = 0 | 1
-export type MarsArcadeActivity = 'idle' | 'walk' | 'airborne' | 'attack' | 'hitstun' | 'blockstun'
+export type MarsArcadeActivity = 'idle' | 'walk' | 'airborne' | 'attack' | 'hitstun' | 'blockstun' | 'distracted'
 
 export interface MarsArcadeInput {
   /** -1 walks left, 1 walks right, 0 stands. Holding away from the opponent blocks. */
@@ -99,6 +101,9 @@ export interface MarsArcadeFighterState {
   activeButton: MarsArcadeButton | null
   moveFrame: number
   stunFrames: number
+  /** Incoming stun clock; remaining frames freeze with combat during hit stop. */
+  stunOrigin?: { moveId: string; button?: MarsArcadeButton; duration: number }
+  lawsuit?: MarsArcadeLawsuit
   hasHitThisMove: boolean
   blocking: boolean
   previousButtons: Record<MarsArcadeButton, boolean>
@@ -137,6 +142,7 @@ export interface MarsArcadeHitstop {
 }
 
 export interface MarsArcadeState {
+  pivot?: MarsArcadePivotCapture
   phase: 'intro' | 'fight' | 'ko' | 'timeOver'
   frame: number
   timerFrames: number
@@ -149,6 +155,9 @@ export interface MarsArcadeState {
 }
 
 export type MarsArcadeEvent =
+  | {type:'pivotCapture';attacker:MarsArcadeSide;defender:MarsArcadeSide}
+  | {type:'assetSeizure';attacker:MarsArcadeSide;defender:MarsArcadeSide;amount:number}
+  | {type:'lawsuitDamage';attacker:MarsArcadeSide;defender:MarsArcadeSide;damage:number}
   | { type: 'roundStart' }
   /** `hitstopFrames` is present only when this connect started a freeze (the `hitstop` rule). */
   | { type: 'hit'; attacker: MarsArcadeSide; moveId: string; damage: number; hitstopFrames?: number }
@@ -177,6 +186,7 @@ interface PendingHit {
     | 'blockstunFrames'
     | 'knockback'
     | 'unblockable'
+    | 'pivot'
     | 'meterGainOnHit'
     | 'meterGainOnBlock'
     | 'guardHeight'
@@ -230,7 +240,7 @@ export function createMarsArcadeRound(
 }
 
 function cloneFighter(fighter: MarsArcadeFighterState): MarsArcadeFighterState {
-  return { ...fighter, previousButtons: { ...fighter.previousButtons } }
+  return { ...fighter, ...(fighter.stunOrigin ? { stunOrigin: { ...fighter.stunOrigin } } : {}), ...(fighter.lawsuit?{lawsuit:{...fighter.lawsuit}}:{}), previousButtons: { ...fighter.previousButtons } }
 }
 
 function moveTotalFrames(move: MarsArcadeMove): number {
@@ -247,7 +257,7 @@ function isGrounded(fighter: MarsArcadeFighterState): boolean {
 }
 
 function canAct(fighter: MarsArcadeFighterState): boolean {
-  return fighter.stunFrames === 0 && fighter.activity !== 'attack' && isGrounded(fighter)
+  return fighter.health>0 && fighter.stunFrames === 0 && fighter.activity !== 'attack' && fighter.activity !== 'distracted' && isGrounded(fighter)
 }
 
 function pressedButton(
@@ -396,6 +406,7 @@ export function marsArcadeMeleeBoxes(
  * `|dx| <= reach` and the defender's feet no higher than `maxHeight`.
  */
 function meleeConnects(state: MarsArcadeState, side: MarsArcadeSide, move: MarsArcadeMove): boolean {
+  if(move.pivot)return state.pivot?.attacker===side&&state.pivot.defender===(side===0?1:0)
   if (move.lockOn) return true
   const attacker = state.fighters[side]
   const defender = state.fighters[side === 0 ? 1 : 0]
@@ -413,10 +424,12 @@ function collectMeleeHits(state: MarsArcadeState): PendingHit[] {
   for (const side of [0, 1] as const) {
     const attacker = state.fighters[side]
     const move = activeMoveOf(attacker)
-    if (!move || attacker.hasHitThisMove || !isInActiveWindow(attacker, move)) continue
+    if (!move || attacker.health<=0 || attacker.hasHitThisMove || !isInActiveWindow(attacker, move)) continue
     if (move.activeFrames === 0 || move.damage === 0 || move.projectile) continue
     if (!meleeConnects(state, side, move)) continue
-    hits.push({ attacker: side, defender: side === 0 ? 1 : 0, move })
+    const defender=side===0?1:0
+    const critical=move.pivot&&MARS_ARCADE_COFOUNDER_TARGETS.includes(state.fighters[defender].id)
+    hits.push({ attacker: side, defender, move:critical?{...move,damage:move.damage*2}:move })
   }
   return hits
 }
@@ -450,6 +463,7 @@ function applyHit(
   const attacker = state.fighters[hit.attacker]
   const defender = state.fighters[hit.defender]
   const defenderFighter = marsArcadeFighter(defender.id)
+  const incomingButton = Object.values(marsArcadeFighter(attacker.id).moves).find(move => move.id === hit.move.id)?.button
   const blocking =
     !hit.move.unblockable &&
     guardStops(hit.move.guardHeight) &&
@@ -462,6 +476,8 @@ function applyHit(
     if (defender.guard > 0) {
       defender.health = Math.max(0, defender.health - hit.move.chipDamage)
       defender.stunFrames = hit.move.blockstunFrames
+      if (defender.stunFrames > 0) defender.stunOrigin = { moveId: hit.move.id, button: incomingButton, duration: defender.stunFrames }
+      else delete defender.stunOrigin
       defender.activity = 'blockstun'
       defender.x += Math.sign(defender.x - attacker.x || 1) * (hit.move.knockback * 0.4)
       attacker.meter = Math.min(MARS_ARCADE_METER_MAX, attacker.meter + hit.move.meterGainOnBlock)
@@ -481,16 +497,22 @@ function applyHit(
 
   defender.health = Math.max(0, defender.health - hit.move.damage)
   defender.stunFrames = hit.move.hitstunFrames
+  if (defender.stunFrames > 0) defender.stunOrigin = { moveId: hit.move.id, button: incomingButton, duration: defender.stunFrames }
+  else delete defender.stunOrigin
   defender.activity = 'hitstun'
   defender.activeButton = null
   defender.moveFrame = 0
   defender.blocking = false
   defender.x += Math.sign(defender.x - attacker.x || 1) * hit.move.knockback
-  defender.meter = Math.min(
-    MARS_ARCADE_METER_MAX,
-    defender.meter + hit.move.damage * METER_GAIN_PER_DAMAGE_TAKEN,
-  )
-  attacker.meter = Math.min(MARS_ARCADE_METER_MAX, attacker.meter + hit.move.meterGainOnHit)
+  if(hit.move.pivot){
+    seizeMarsArcadeAssets(state,hit.attacker,hit.defender,events)
+  }else{
+    defender.meter = Math.min(
+      MARS_ARCADE_METER_MAX,
+      defender.meter + hit.move.damage * METER_GAIN_PER_DAMAGE_TAKEN,
+    )
+    attacker.meter = Math.min(MARS_ARCADE_METER_MAX, attacker.meter + hit.move.meterGainOnHit)
+  }
   const hitstopFrames = startHitstop(state, hit)
   events.push({
     type: 'hit',
@@ -597,6 +619,7 @@ function stepFrame(
 ): MarsArcadeState {
   const state: MarsArcadeState = {
     ...previous,
+    ...(previous.pivot?{pivot:{...previous.pivot}}:{}),
     fighters: [cloneFighter(previous.fighters[0]), cloneFighter(previous.fighters[1])],
     projectiles: previous.projectiles.map((projectile) => ({ ...projectile })),
   }
@@ -620,10 +643,12 @@ function stepFrame(
     return state
   }
 
+  tickMarsArcadeLawsuits(state,events)
   for (const side of [0, 1] as const) {
     const fighter = state.fighters[side]
     if (fighter.stunFrames > 0) {
       fighter.stunFrames -= 1
+      if (fighter.stunFrames === 0) delete fighter.stunOrigin
       if (fighter.stunFrames === 0 && isGrounded(fighter)) fighter.activity = 'idle'
     }
   }
@@ -641,7 +666,7 @@ function stepFrame(
   for (const side of [0, 1] as const) {
     const fighter = state.fighters[side]
     const move = activeMoveOf(fighter)
-    if (!move?.projectile) continue
+    if (fighter.health<=0||!move?.projectile) continue
     if (fighter.moveFrame === move.startupFrames && !fighter.hasHitThisMove) {
       fighter.hasHitThisMove = true
       state.projectiles.push(spawnProjectile(fighter, move, side))
@@ -649,6 +674,7 @@ function stepFrame(
     }
   }
 
+  advanceMarsArcadePivot(state,events,MARS_ARCADE_STAGE.halfWidth)
   const hits = collectMeleeHits(state)
   for (const hit of hits) {
     state.fighters[hit.attacker].hasHitThisMove = true
@@ -658,9 +684,10 @@ function stepFrame(
   }
 
   advanceProjectiles(state, events)
+  finishInterruptedMarsArcadePivot(state)
 
   for (const fighter of state.fighters) applyPhysics(fighter)
-  separate(state.fighters, [previous.fighters[0].x, previous.fighters[1].x])
+  if(!state.pivot)separate(state.fighters, [previous.fighters[0].x, previous.fighters[1].x])
 
   for (const side of [0, 1] as const) {
     const fighter = state.fighters[side]
@@ -687,6 +714,8 @@ function stepFrame(
     // The round is over and never steps again, so a freeze started by the final blow
     // would otherwise stay set, and flash, for as long as the result is on screen.
     state.hitstop = null
+    releaseMarsArcadePivot(state)
+    for(const fighter of state.fighters)delete fighter.lawsuit
   }
   if (first.health <= 0 || second.health <= 0) {
     state.phase = 'ko'

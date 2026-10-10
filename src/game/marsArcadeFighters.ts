@@ -65,8 +65,12 @@ export interface MarsArcadeMove {
    * not consulted: there is nowhere on the stage to go.
    */
   lockOn?: boolean
+  /** Stage-wide effect: character drawings carry hurt regions, not melee strike boxes. */
+  stageWide?: boolean
   /** Cannot be blocked. Lands full damage and never touches the guard meter. */
   unblockable?: boolean
+  /** Optional dev candidate: close-range distraction and rear reversal. */
+  pivot?: boolean
   /** Where the attack arrives. Only a guard at that height stops it. */
   guardHeight: MarsArcadeGuardHeight
   /**
@@ -250,23 +254,23 @@ const oracleMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
 
 const captainMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
   light: {
-    id: 'captain.setDownTheCoffee',
-    label: 'SET DOWN THE COFFEE',
+    id: 'captain.palmJab',
+    label: 'PALM JAB',
     button: 'light',
     startupFrames: 6,
-    activeFrames: 0,
+    activeFrames: 3,
     recoveryFrames: 10,
-    damage: 0,
-    chipDamage: 0,
-    guardDamage: 0,
-    reach: 0,
-    maxHeight: 0,
-    hitstunFrames: 0,
-    blockstunFrames: 0,
-    knockback: 0,
+    damage: 5,
+    chipDamage: 1,
+    guardDamage: 6,
+    reach: 34,
+    maxHeight: 34,
+    hitstunFrames: 14,
+    blockstunFrames: 10,
+    knockback: 2,
     meterCost: 0,
-    meterGainOnHit: 0,
-    meterGainOnBlock: 0,
+    meterGainOnHit: 6,
+    meterGainOnBlock: 3,
     guardHeight: 'mid',
     hitstopFrames: 2,
   },
@@ -293,6 +297,7 @@ const captainMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
   },
   special: {
     id: 'captain.flyby',
+    stageWide: true,
     label: 'DC-9 FLYBY',
     button: 'special',
     startupFrames: 26,
@@ -382,8 +387,8 @@ export interface MarsArcadeMoveTuning {
 }
 
 /**
- * The rule switches the playground can flip. Both ship off, so the cabinet plays
- * today's numbers until the owner decides otherwise (plan 0047).
+ * The rule switches the playground can flip. Both ship on following the owner's
+ * combat-box approval and request to enable both rules (plan 0050).
  *
  * - `useBounds`: melee connects when an attack box drawn in the gym overlaps a hurt
  *   box, instead of `|dx| <= reach`, and a guard only stops attacks at its height.
@@ -396,7 +401,7 @@ export interface MarsArcadeRules {
   hitstop: boolean
 }
 
-export const MARS_ARCADE_DEFAULT_RULES: Readonly<MarsArcadeRules> = { useBounds: false, hitstop: false }
+export const MARS_ARCADE_DEFAULT_RULES: Readonly<MarsArcadeRules> = { useBounds: true, hitstop: true }
 
 export interface MarsArcadeFighterTuning {
   health: number
@@ -414,10 +419,32 @@ export interface MarsArcadeTuning {
   fighters: Record<MarsArcadeFighterId, MarsArcadeFighterTuning>
 }
 
-export const MARS_ARCADE_TUNING_VERSION = 2
+export const MARS_ARCADE_TUNING_VERSION = 3
 
 /** Gravity as the content defines it; `marsArcadeGravity()` is what the rules read. */
 export const MARS_ARCADE_DEFAULT_GRAVITY = 0.28
+
+/** Separately registered candidate; the default Oracle move remains Text Bubble. */
+export const MARS_ARCADE_PIVOT_TIMING={windup:24,readingPause:120,slide:18,active:3,recovery:72} as const
+export const MARS_ARCADE_NON_PROFIT_PIVOT: Readonly<MarsArcadeMove> = {
+  id:'oracle.nonProfitPivot',label:'NON-PROFIT PIVOT',button:'special',
+  startupFrames:MARS_ARCADE_PIVOT_TIMING.windup+MARS_ARCADE_PIVOT_TIMING.readingPause+MARS_ARCADE_PIVOT_TIMING.slide,
+  activeFrames:MARS_ARCADE_PIVOT_TIMING.active,recoveryFrames:MARS_ARCADE_PIVOT_TIMING.recovery,
+  damage:18,chipDamage:0,guardDamage:0,reach:49,maxHeight:0,
+  hitstunFrames:18,blockstunFrames:0,knockback:0,
+  meterCost:60,meterGainOnHit:0,meterGainOnBlock:0,
+  guardHeight:'mid',hitstopFrames:3,unblockable:true,pivot:true,
+}
+export const MARS_ARCADE_COFOUNDER_TARGETS: readonly MarsArcadeFighterId[] = ['booster','oracle']
+let pivotPreview = false
+export function setMarsArcadePivotPreview(enabled:boolean):void { pivotPreview=enabled }
+export function marsArcadePivotPreviewEnabled():boolean { return pivotPreview }
+/** Retained art prototype: never equipped by regular play. */
+const shortPivot:Readonly<MarsArcadeMove>={...MARS_ARCADE_NON_PROFIT_PIVOT,id:'oracle.nonProfitPivotShort',startupFrames:42,recoveryFrames:21}
+/** Known art moves include the retained default and separately enabled candidate. */
+export function marsArcadeKnownMoves(fighter:MarsArcadeFighterId): readonly MarsArcadeMove[] {
+  return [...Object.values(MARS_ARCADE_FIGHTERS[fighter].moves),...(fighter==='oracle'?[MARS_ARCADE_NON_PROFIT_PIVOT,shortPivot]:[])]
+}
 
 let tuned: Record<MarsArcadeFighterId, MarsArcadeFighter> = MARS_ARCADE_FIGHTERS
 let gravity = MARS_ARCADE_DEFAULT_GRAVITY
@@ -492,7 +519,7 @@ export function marsArcadeTuningInForce(): MarsArcadeTuning {
     version: MARS_ARCADE_TUNING_VERSION,
     stage: { gravity },
     rules: { ...rules },
-    fighters: { booster: pick(tuned.booster), oracle: pick(tuned.oracle), captain: pick(tuned.captain) },
+    fighters: { booster: pick(marsArcadeFighter('booster')), oracle: pick(marsArcadeFighter('oracle')), captain: pick(marsArcadeFighter('captain')) },
   }
 }
 
@@ -512,5 +539,8 @@ export function marsArcadeDefaultTuning(): MarsArcadeTuning {
 }
 
 export function marsArcadeFighter(id: MarsArcadeFighterId): MarsArcadeFighter {
-  return tuned[id]
+  const fighter=tuned[id]
+  return id==='oracle'&&pivotPreview
+    ? {...fighter,moves:{...fighter.moves,special:MARS_ARCADE_NON_PROFIT_PIVOT}}
+    : fighter
 }

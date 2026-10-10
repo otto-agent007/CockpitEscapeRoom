@@ -17,12 +17,12 @@ describe('short exchange review uses the real fight rules', () => {
   it('shows both fighters getting blocked and landing a jab before returning idle', () => {
     const { state, events } = play(1 / 60)
     expect(events.filter(e => e.type === 'blocked')).toEqual([
-      { type: 'blocked', attacker: 0, moveId: 'booster.padJab', chipDamage: 1 },
-      { type: 'blocked', attacker: 1, moveId: 'oracle.prompt', chipDamage: 1 },
+      { type: 'blocked', attacker: 0, moveId: 'booster.padJab', chipDamage: 1, hitstopFrames: 2 },
+      { type: 'blocked', attacker: 1, moveId: 'oracle.prompt', chipDamage: 1, hitstopFrames: 2 },
     ])
     expect(events.filter(e => e.type === 'hit')).toEqual([
-      { type: 'hit', attacker: 0, moveId: 'booster.padJab', damage: 5 },
-      { type: 'hit', attacker: 1, moveId: 'oracle.prompt', damage: 4 },
+      { type: 'hit', attacker: 0, moveId: 'booster.padJab', damage: 5, hitstopFrames: 2 },
+      { type: 'hit', attacker: 1, moveId: 'oracle.prompt', damage: 4, hitstopFrames: 2 },
     ])
     expect(state.fighters.map(f => f.activity)).toEqual(['idle', 'idle'])
     expect(state.fighters[0].health).toBe(95)

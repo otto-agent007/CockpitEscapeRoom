@@ -16,6 +16,8 @@ import { MARS_ARCADE_FIGHTER_TUNING_FIELDS, MARS_ARCADE_MOVE_TUNING_FIELDS, appl
 import type { MarsArcadeBoundKind } from '../game/marsArcadeBounds'
 import type { MarsArcadeState } from '../game/marsArcade'
 import { arcadeCandidateClips, setArcadeClipOverride } from './arcadeHarnessSprites'
+import {marsArcadePivotPreviewEnabled} from '../game/marsArcadeFighters'
+import {arcadePersistedTuning} from './arcadePlaygroundTuning'
 
 export interface PlaygroundBoxToggles {
   collision: boolean
@@ -45,6 +47,9 @@ const STEP: Record<string, string> = { walkSpeed: '0.05', jumpVelocity: '0.1', g
  */
 export function startArcadePlayground(root: ParentNode, getState: () => MarsArcadeState): ArcadePlayground {
   const tuning: MarsArcadeTuning = structuredClone(applyShippedMarsArcadeTuning())
+  const retainedSpecial=structuredClone(tuning.fighters.oracle.moves.special)
+  const devPivotTuning=marsArcadePivotPreviewEnabled()
+  const persisted=()=>arcadePersistedTuning(tuning,retainedSpecial,devPivotTuning)
   const boxes: PlaygroundBoxToggles = { collision: false, hurt: true, attack: true, guard: false }
   const fighterSelect = root.querySelector<HTMLSelectElement>('#pg-fighter')
   const gravityField = root.querySelector<HTMLInputElement>('#pg-gravity')
@@ -77,7 +82,7 @@ export function startArcadePlayground(root: ParentNode, getState: () => MarsArca
 
   const apply = (): void => {
     try {
-      setMarsArcadeTuning(parseMarsArcadeTuning(structuredClone(tuning)))
+      setMarsArcadeTuning(parseMarsArcadeTuning(persisted()))
       say('tuning applied — felt on the next frame; Save to keep it')
     } catch (error) {
       say(`not applied — ${String(error)}`)
@@ -121,18 +126,23 @@ export function startArcadePlayground(root: ParentNode, getState: () => MarsArca
     if (moves) {
       moves.replaceChildren()
       for (const button of ['light', 'heavy', 'special'] as MarsArcadeButton[]) {
-        const row = document.createElement('div')
-        row.className = 'row'
-        const head = document.createElement('label')
-        head.className = 'wide'
+        const group = document.createElement('fieldset')
+        group.className = 'combat-move'
+        const head = document.createElement('legend')
         head.textContent = button
-        row.append(head)
+        const fields = document.createElement('div')
+        fields.className = 'combat-fields'
         for (const key of MARS_ARCADE_MOVE_TUNING_FIELDS) {
-          row.append(numberField(`pg-${button}-${key}`, FIELD_LABELS[key] ?? key, tuning.fighters[fighter].moves[button][key], '1', (value) => {
+          fields.append(numberField(`pg-${button}-${key}`, FIELD_LABELS[key] ?? key, tuning.fighters[fighter].moves[button][key], '1', (value) => {
             tuning.fighters[fighter].moves[button][key] = value
           }))
         }
-        moves.append(row)
+        group.append(head, fields)
+        if(fighter==='oracle'&&button==='special'&&devPivotTuning){
+          for(const input of fields.querySelectorAll('input'))input.disabled=true
+          head.textContent=`special · ${marsArcadePivotPreviewEnabled()?'Non-Profit Pivot':'Text Bubble'}`
+        }
+        moves.append(group)
       }
     }
   }
@@ -154,7 +164,7 @@ export function startArcadePlayground(root: ParentNode, getState: () => MarsArca
   })
 
   root.querySelector('#pg-reset')?.addEventListener('click', () => {
-    setMarsArcadeTuning(marsArcadeDefaultTuning())
+    setMarsArcadeTuning(arcadePersistedTuning(marsArcadeDefaultTuning(),retainedSpecial,devPivotTuning))
     sync()
     say('reset to the baked content — Save to make it the shipped tuning')
   })
@@ -162,11 +172,12 @@ export function startArcadePlayground(root: ParentNode, getState: () => MarsArca
     for (const side of getState().fighters) side.meter = MARS_ARCADE_METER_MAX
     say('both special bars filled')
   })
-  root.querySelector('#pg-save')?.addEventListener('click', () => {
+  const saveButton=root.querySelector<HTMLButtonElement>('#pg-save')
+  saveButton?.addEventListener('click', () => {
     void (async () => {
       let payload: MarsArcadeTuning
       try {
-        payload = parseMarsArcadeTuning(structuredClone(tuning))
+        payload = parseMarsArcadeTuning(persisted())
       } catch (error) {
         say(`not saved — ${String(error)}`)
         return

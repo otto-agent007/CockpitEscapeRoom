@@ -1,8 +1,10 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { advanceMarsArcade, createMarsArcadeRound, NEUTRAL_MARS_ARCADE_INPUT as neutral, type MarsArcadeSide } from '../game/marsArcade'
 import { updateHeavyReactions, type HeavyReactions } from './arcadeHarnessReactions'
 import { selectArcadeSprite, ARCADE_SPRITE_SOURCES } from './arcadeHarnessSprites'
-import { MARS_ARCADE_FIGHTERS } from '../game/marsArcadeFighters'
+import { MARS_ARCADE_FIGHTERS, marsArcadeDefaultTuning, setMarsArcadeTuning } from '../game/marsArcadeFighters'
+
+afterEach(() => setMarsArcadeTuning(null))
 
 function block(side: MarsArcadeSide, button: 'heavy' | 'light' = 'heavy', crush = false, attackerId: 'booster' | 'oracle' = 'booster') {
   const defenderId = attackerId === 'booster' ? 'oracle' : 'booster'
@@ -30,6 +32,17 @@ function block(side: MarsArcadeSide, button: 'heavy' | 'light' = 'heavy', crush 
 }
 
 describe('Oracle blocked-heavy presentation', () => {
+  it.each([0, 1] as const)('anticipates a boxed heavy beyond legacy reach on side %i, but not empty air', side => {
+    const defender = side === 0 ? 1 : 0
+    const state = createMarsArcadeRound(side === 0 ? 'booster' : 'oracle', side === 0 ? 'oracle' : 'booster')
+    state.phase = 'fight'
+    Object.assign(state.fighters[side], { x: 0, activity: 'attack', activeButton: 'heavy', moveFrame: 2 })
+    Object.assign(state.fighters[defender], { x: side === 0 ? 44 : -44, blocking: true })
+    expect(44).toBeGreaterThan(MARS_ARCADE_FIGHTERS.booster.moves.heavy.reach)
+    expect(selectArcadeSprite(state, defender, false).label).toBe('heavy block — brace')
+    state.fighters[defender].x = side === 0 ? 80 : -80
+    expect(selectArcadeSprite(state, defender, false).label).toBe('raised guard')
+  })
   it.each([0, 1] as const)('braces then compresses and settles on side %i within original blockstun', side => {
     const fixture = block(side)
     const { seen, health, guard } = fixture
@@ -40,7 +53,8 @@ describe('Oracle blocked-heavy presentation', () => {
     expect(guard - state.fighters[defender].guard).toBe(16)
     expect(state.fighters[defender].stunFrames).toBe(14)
     const sources = new Set<string>()
-    for (let frame = 0; frame < 14; frame++) {
+    const freeze = state.hitstop!.framesRemaining
+    for (let frame = 0; frame < 14 + freeze; frame++) {
       const before = structuredClone(state)
       const pose = selectArcadeSprite(state, defender, false, 0, reactions[defender])
       expect(state).toEqual(before)
@@ -49,6 +63,7 @@ describe('Oracle blocked-heavy presentation', () => {
       expect(selectArcadeSprite(state, defender, true, 0, reactions[defender]).src).toBe(pose.src)
       sources.add(pose.src)
       seen.add(pose.label)
+      if (frame <= freeze) expect(pose.label).toBe('heavy block — compress')
       const transition = advanceMarsArcade(state, [neutral, neutral], 1 / 60)
       reactions = updateHeavyReactions(reactions, state, transition.state, transition.events)
       state = transition.state
@@ -82,7 +97,18 @@ describe('Oracle blocked-heavy presentation', () => {
 describe('Booster blocked-heavy presentation', () => {
   const heavy = MARS_ARCADE_FIGHTERS.oracle.moves.heavy
 
+  it.each([0, 1] as const)('takes the low sweep through standing guard on side %i without a block brace', side => {
+    const fixture = block(side, 'heavy', false, 'oracle')
+    const defender = side === 0 ? 1 : 0
+    expect(fixture.health - fixture.state.fighters[defender].health).toBe(heavy.damage)
+    expect(fixture.seen.has('heavy block — brace')).toBe(false)
+    expect(fixture.reactions[defender]?.kind).toBe('hit')
+    expect(fixture.state.hitstop?.framesRemaining).toBe(heavy.hitstopFrames)
+  })
+
   it.each([0, 1] as const)('compresses and settles against an Oracle heavy on side %i within original blockstun', side => {
+    // Retain the old standing-block presentation for explicit legacy comparisons.
+    setMarsArcadeTuning({ ...marsArcadeDefaultTuning(), rules: { useBounds: false, hitstop: false } })
     const fixture = block(side, 'heavy', false, 'oracle')
     const { seen, health, guard } = fixture
     let { state, reactions } = fixture

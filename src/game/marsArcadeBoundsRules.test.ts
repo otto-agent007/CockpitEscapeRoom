@@ -1,4 +1,5 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { MARS_ARCADE_ANIMATIONS } from './marsArcadePose'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import {
   MARS_ARCADE_TIMING,
@@ -20,17 +21,49 @@ import {
   type MarsArcadeFighterId,
   type MarsArcadeRules,
 } from './marsArcadeFighters'
-import { marsArcadeCandidateClips, marsArcadeRulesFrame, setMarsArcadeClipOverride } from './marsArcadePose'
+import { marsArcadeCandidateClips, marsArcadeClip, marsArcadeRulesFrame, setMarsArcadeClipOverride } from './marsArcadePose'
+import { marsArcadeBoxToStage, marsArcadeBoxesOverlap } from './marsArcadeBounds'
 import { parseMarsArcadeTuning } from './marsArcadeTuning'
 import shipped from './marsArcadeTuning.json'
 
 afterEach(() => setMarsArcadeTuning(null))
+// Isolate each switch's behavior; the default-on integration is asserted below.
+beforeEach(() => rules({ useBounds: false, hitstop: false }))
 
 function rules(next: Partial<MarsArcadeRules>): void {
-  setMarsArcadeTuning({ ...marsArcadeDefaultTuning(), rules: { ...MARS_ARCADE_DEFAULT_RULES, ...next } })
+  setMarsArcadeTuning({ ...marsArcadeDefaultTuning(), rules: { useBounds: false, hitstop: false, ...next } })
 }
 
 const neutral = (): MarsArcadeInput => ({ ...NEUTRAL_MARS_ARCADE_INPUT })
+
+describe('terminal combat boxes', () => {
+  it.each(['ko', 'timeout-loss', 'timeout-draw'] as const)('clears frozen attacks after a real %s on either side', (finish) => {
+    rules({ useBounds: true, hitstop: false })
+    for (const side of [0, 1] as const) {
+      const previous = poised('captain', 'light', 'booster', 24)
+      if (side === 1) previous.fighters.reverse()
+      const attacker = previous.fighters[side]
+      if (finish === 'ko') previous.fighters[side === 0 ? 1 : 0].health = 1
+      else {
+        previous.timerFrames = 1
+        previous.fighters[0].x = -120
+        previous.fighters[1].x = 120
+        if (finish === 'timeout-loss') attacker.health = 90
+      }
+      expect(marsArcadeRulesFrame(previous, side)).not.toBeNull()
+      const state = step(previous).state
+      expect(state.phase).toBe(finish === 'ko' ? 'ko' : 'timeOver')
+      expect(state.winner).toBe(finish === 'ko' ? side : finish === 'timeout-draw' ? null : side === 0 ? 1 : 0)
+      const frozen = structuredClone(state)
+      for (const actor of [0, 1] as const) {
+        expect(marsArcadeRulesFrame(state, actor)).toBeNull()
+        expect(marsArcadeMeleeBoxes(state, actor)).toBeNull()
+      }
+      expect(state).toEqual(frozen)
+      expect(step(state).state).toEqual(frozen)
+    }
+  })
+})
 
 function step(state: MarsArcadeState, inputs: [MarsArcadeInput, MarsArcadeInput] = [neutral(), neutral()]) {
   return advanceMarsArcade(state, inputs, MARS_ARCADE_TIMING.frameSeconds)
@@ -62,27 +95,82 @@ function poised(
 const struck = (events: MarsArcadeEvent[]) => events.find((event) => event.type === 'hit' || event.type === 'blocked')
 
 describe('the rule switches', () => {
-  it('ship off, in the code default and in the shipped tuning file', () => {
-    expect(MARS_ARCADE_DEFAULT_RULES).toEqual({ useBounds: false, hitstop: false })
-    expect(parseMarsArcadeTuning(shipped).rules).toEqual({ useBounds: false, hitstop: false })
-    expect(marsArcadeRules()).toEqual({ useBounds: false, hitstop: false })
+  it('ship on and connect beyond legacy reach with an impact pause', () => {
+    setMarsArcadeTuning(null)
+    expect(MARS_ARCADE_DEFAULT_RULES).toEqual({ useBounds: true, hitstop: true })
+    expect(parseMarsArcadeTuning(shipped).rules).toEqual({ useBounds: true, hitstop: true })
+    expect(marsArcadeRules()).toEqual({ useBounds: true, hitstop: true })
+    const transition = step(poised('booster', 'light', 'oracle', 49.5))
+    expect(struck(transition.events)?.type).toBe('hit')
+    expect(transition.state.hitstop?.framesRemaining).toBe(MARS_ARCADE_FIGHTERS.booster.moves.light.hitstopFrames)
   })
 
   it('come in with the tuning and go back to the default with it', () => {
-    rules({ useBounds: true, hitstop: true })
-    expect(marsArcadeRules()).toEqual({ useBounds: true, hitstop: true })
-    setMarsArcadeTuning(null)
+    rules({ useBounds: false, hitstop: false })
     expect(marsArcadeRules()).toEqual({ useBounds: false, hitstop: false })
+    setMarsArcadeTuning(null)
+    expect(marsArcadeRules()).toEqual({ useBounds: true, hitstop: true })
   })
 })
 
 describe('melee by box overlap (useBounds on)', () => {
+  it.each(['booster', 'oracle'] as const)('hits %s walking legs with a sweep, without jabbing empty air above them, on either facing', (defenderId) => {
+    for (const facing of [1, -1] as const) {
+      const overlap = (attacker: MarsArcadeFighterId, button: MarsArcadeButton) => {
+        const state = poised(attacker, button, defenderId, 70, { activity: 'walk' })
+        state.frame = 0 // The long forward stride, not the gathered legs.
+        state.fighters[0].moveFrame += 1 // First active frame, without moving either fighter.
+        state.fighters[0].facing = facing
+        state.fighters[1].facing = facing === 1 ? -1 : 1
+        state.fighters[1].x *= facing
+        expect(marsArcadeRulesFrame(state, 1)?.pose).toBe('step')
+        const boxes = marsArcadeMeleeBoxes(state, 0)!
+        return boxes.attack.some((attack) => boxes.hurt.some((hurt) => marsArcadeBoxesOverlap(attack, hurt)))
+      }
+      expect(overlap('booster', 'light'), `jab facing ${facing}`).toBe(false)
+      expect(overlap('oracle', 'heavy'), `sweep facing ${facing}`).toBe(true)
+    }
+  })
+
+  it('moves Oracle sweep hurtboxes down with the crouched drawing and includes its extended leg', () => {
+    const frame = marsArcadeClip('oracle', 'heavy')!.frames[1]!
+    const hurts = frame.hurt!.map((box) => marsArcadeBoxToStage(box, 0, 1))
+    const touches = (x: number, y: number) => hurts.some((hurt) =>
+      marsArcadeBoxesOverlap(hurt, marsArcadeBoxToStage({ x, y, width: 1, height: 1 }, 0, 1)))
+    expect(touches(63, 29)).toBe(false) // Empty air above the lowered head.
+    expect(touches(107, 94)).toBe(true) // The raised shoe beyond the torso.
+  })
+
+  it.each([
+    ['booster', 'heavy', 3, 94, 39, 65],
+    ['oracle', 'jab', 1, 100, 37, 70],
+  ] as const)('keeps %s %s extended arms hittable without filling the air below them', (fighter, animation, index, x, armY, airY) => {
+    const frame = marsArcadeClip(fighter, animation)!.frames[index]!
+    expect(frame.phase).toBe('active')
+    for (const facing of [1, -1] as const) {
+      const hurts = frame.hurt!.map((box) => marsArcadeBoxToStage(box, 0, facing))
+      const touches = (y: number) => hurts.some((hurt) => marsArcadeBoxesOverlap(hurt,
+        marsArcadeBoxToStage({ x, y, width: 1, height: 1 }, 0, facing)))
+      expect(touches(armY)).toBe(true)
+      expect(touches(airY)).toBe(false)
+    }
+  })
+
   it('lands the jab where its attack box meets the hurt box, and not one pixel further', () => {
-    // The jab's attack box ends 41 px ahead of the booster; Oracle's idle hurt box
-    // starts 19 px ahead of Oracle. They overlap while the gap is under 60.
+    // The jab ends 41 px ahead of Booster. Oracle's tightened upper-body box
+    // reaches 16 px toward him; strict overlap ends at a separation of 57.
     rules({ useBounds: true })
-    expect(struck(step(poised('booster', 'light', 'oracle', 59)).events)?.type).toBe('hit')
-    expect(struck(step(poised('booster', 'light', 'oracle', 60)).events)).toBeUndefined()
+    for (const facing of [1, -1] as const) {
+      const at = (gap: number) => {
+        const state = poised('booster', 'light', 'oracle', gap)
+        state.fighters[0].facing = facing
+        state.fighters[1].facing = facing === 1 ? -1 : 1
+        state.fighters[1].x *= facing
+        return step(state)
+      }
+      expect(struck(at(56).events)?.type, `facing ${facing}`).toBe('hit')
+      expect(struck(at(57).events), `facing ${facing}`).toBeUndefined()
+    }
   })
 
   it('leaves the reach check exactly as it was with the switch off', () => {
@@ -98,7 +186,11 @@ describe('melee by box overlap (useBounds on)', () => {
     expect(marsArcadeRulesFrame(state, 0)?.pose).toBe('jab')
     expect(marsArcadeRulesFrame(state, 1)?.pose).toBe('anchor')
     expect(boxes?.attack).toEqual([{ minX: 21, maxX: 41, minY: 74, maxY: 84 }])
-    expect(boxes?.hurt[0]?.minX).toBe(70 - 19)
+    expect(boxes?.hurt).toEqual([
+      { minX: 63, maxX: 83, minY: 79, maxY: 101 }, // Head.
+      { minX: 54, maxX: 84, minY: 41, maxY: 79 }, // Upper body.
+      { minX: 52, maxX: 86, minY: 0, maxY: 41 }, // Legs.
+    ])
   })
 
   it('lets a fighter jump over the sweep by the drawn boxes, not by maxHeight', () => {
@@ -110,18 +202,26 @@ describe('melee by box overlap (useBounds on)', () => {
     expect(struck(step(poised('oracle', 'heavy', 'booster', 40, airborne)).events)).toBeUndefined()
     const low = { y: 12, velocityY: -2, activity: 'airborne' as const }
     expect(struck(step(poised('oracle', 'heavy', 'booster', 40, low)).events)?.type).toBe('hit')
-    setMarsArcadeTuning(null)
+    rules({ useBounds: false })
     expect(struck(step(poised('oracle', 'heavy', 'booster', 40, airborne)).events)?.type).toBe('hit')
   })
 
   it('falls back to reach for a move with no drawn attack box rather than never landing', () => {
-    // The captain has no move clips yet.
+    // Remove the authored heavy to exercise the real missing-clip fallback.
     rules({ useBounds: true })
-    const reach = MARS_ARCADE_FIGHTERS.captain.moves.heavy.reach
-    const at = (gap: number) => poised('captain', 'heavy', 'booster', gap)
-    expect(marsArcadeMeleeBoxes(step(at(reach)).state, 0)).toBeNull()
-    expect(struck(step(at(reach)).events)?.type).toBe('hit')
-    expect(struck(step(at(reach + 1)).events)).toBeUndefined()
+    const clips = MARS_ARCADE_ANIMATIONS.animations
+    const index = clips.findIndex(clip => clip.moveId === 'captain.runTheChecklist')
+    expect(index).toBeGreaterThanOrEqual(0)
+    const [authored] = clips.splice(index, 1)
+    try {
+      const reach = MARS_ARCADE_FIGHTERS.captain.moves.heavy.reach
+      const at = (gap: number) => poised('captain', 'heavy', 'booster', gap)
+      expect(marsArcadeMeleeBoxes(step(at(reach)).state, 0)).toBeNull()
+      expect(struck(step(at(reach)).events)?.type).toBe('hit')
+      expect(struck(step(at(reach + 1)).events)).toBeUndefined()
+    } finally {
+      clips.splice(index, 0, authored!)
+    }
   })
 })
 
@@ -149,6 +249,7 @@ describe('guard height (useBounds on)', () => {
 
 describe('pushbox from the fighter content', () => {
   it('holds the fighters apart by the average of their two pushboxes', () => {
+    setMarsArcadeTuning(null) // Read the mutable baked content directly in this fixture.
     const original = MARS_ARCADE_FIGHTERS.booster.pushboxWidth
     const round = createMarsArcadeRound('booster', 'oracle')
     const touching: MarsArcadeState = {
@@ -247,7 +348,7 @@ describe('hit stop', () => {
   })
 })
 
-describe('tuning file v2', () => {
+describe('tuning file v3', () => {
   it('migrates a v1 file: switches off, each move takes the content\'s hit stop', () => {
     const v1 = structuredClone(shipped) as Record<string, unknown> & { fighters: Record<string, { moves: Record<string, Record<string, unknown>> }> }
     v1.version = 1
@@ -257,7 +358,7 @@ describe('tuning file v2', () => {
     }
     v1.fighters.oracle!.moves.light!.damage = 7
     const migrated = parseMarsArcadeTuning(v1)
-    expect(migrated.version).toBe(2)
+    expect(migrated.version).toBe(3)
     expect(migrated.rules).toEqual({ useBounds: false, hitstop: false })
     expect(migrated.fighters.booster.moves.heavy.hitstopFrames).toBe(MARS_ARCADE_FIGHTERS.booster.moves.heavy.hitstopFrames)
     expect(migrated.fighters.oracle.moves.light.damage).toBe(7)
