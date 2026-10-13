@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.3.0](https://github.com/otto-agent007/CockpitEscapeRoom/compare/cockpit-escape-room-v0.2.0...cockpit-escape-room-v0.3.0) (2026-10-10)
+
+
+### Features
+
+* **arcade:** arcade-anim wire puts a normalised clip in the table, and the gym, in one step ([268f89f](https://github.com/otto-agent007/CockpitEscapeRoom/commit/268f89f271b688cfce883b0679aacddbd8831917))
+* **arcade:** Captain fighter, Sam's Non-Profit Pivot and the modern HUD ([d340a5e](https://github.com/otto-agent007/CockpitEscapeRoom/commit/d340a5e7769cf5637a0a4f98044486c631213edb))
+* **arcade:** clip-level sprite pipeline, sequence audit, video picker and the skill ([aa0f601](https://github.com/otto-agent007/CockpitEscapeRoom/commit/aa0f601df8ab9285bcb6853d2ebf20ee2f932bc8))
+* **arcade:** fighter playground with persisted tuning, authored-box overlay, and a free video generator ([1bf19c8](https://github.com/otto-agent007/CockpitEscapeRoom/commit/1bf19c8eedff571f8de6871d2b901d6065ae31fa))
+* **arcade:** first free image-to-video walk trial, with a despill clamp for codec spill ([d02e854](https://github.com/otto-agent007/CockpitEscapeRoom/commit/d02e854f5e47beb1178fb631b565a8c7fcd49abc))
+* **arcade:** game controllers for two-player play ([8240778](https://github.com/otto-agent007/CockpitEscapeRoom/commit/8240778c463d5bd1f39411512badc18ba6d9b982))
+* **arcade:** game controllers for two-player play ([4669c7b](https://github.com/otto-agent007/CockpitEscapeRoom/commit/4669c7b9bdcf9678426fdbc7ab7ea947115a7ba3))
+* **arcade:** give Oracle round outcomes and a five-pose heavy sweep ([92bd64d](https://github.com/otto-agent007/CockpitEscapeRoom/commit/92bd64d44672b014049d5106d314580af7c0e11e))
+* **arcade:** one animation table, keyed by drawing, and a gym that plays it ([a4d43e3](https://github.com/otto-agent007/CockpitEscapeRoom/commit/a4d43e3489e3da25de70b7e70f1a92c8cfc5fc2c))
+* **arcade:** Oracle walk from Wan first-last-frame, the shipped drawing at both ends ([f7bb9ed](https://github.com/otto-agent007/CockpitEscapeRoom/commit/f7bb9edff67969cd90fe6c5b7f3291162a9d8f30))
+* **arcade:** per-drawing nudge in the clip normaliser ([14110ca](https://github.com/otto-agent007/CockpitEscapeRoom/commit/14110cac446d0674ab31eb01dcc43700fb06f33c))
+* **arcade:** playground candidate switch previews a candidate clip in the fight ([46683ee](https://github.com/otto-agent007/CockpitEscapeRoom/commit/46683ee801d43b12fdd88ba020334c26028ad90b))
+* **arcade:** the rules read the boxes, guards have a height, hits stop (plan 0046 M3) ([daae44b](https://github.com/otto-agent007/CockpitEscapeRoom/commit/daae44b0678cab88e0ed9afafbb4fd6edef75047))
+
+
+### Fixes
+
+* **arcade:** clamp key spill again after the downsample ([0516b2d](https://github.com/otto-agent007/CockpitEscapeRoom/commit/0516b2dd2868665f193db7fbe8faa3a3aa977ded))
+* **arcade:** integer stage scale at 375 px; refresh the stale exchange check ([12568c1](https://github.com/otto-agent007/CockpitEscapeRoom/commit/12568c1cdeda2e7b2e90d24dcbe442cf1daaa0e0))
+* **arcade:** the picker measures a cycle's period instead of guessing its spacing ([4d94d5f](https://github.com/otto-agent007/CockpitEscapeRoom/commit/4d94d5f97f94fa58a988ab9b368f462b26ae4906))
+* **arcade:** wire strips the clip name with a prefix test, not a RegExp ([452bcb5](https://github.com/otto-agent007/CockpitEscapeRoom/commit/452bcb51bb3876488e419e57dd55f9c8880dc7eb))
+* **locker:** complete the intro and hat finale whichever arrives second, and stop asserting sub-frame transients ([c99fa04](https://github.com/otto-agent007/CockpitEscapeRoom/commit/c99fa04be045aeaf6fabb3d6248bd7e3f8654b3d))
+
 ## [0.2.0](https://github.com/otto-agent007/CockpitEscapeRoom/compare/cockpit-escape-room-v0.1.0...cockpit-escape-room-v0.2.0) (2026-09-23)
 
 
