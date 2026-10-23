@@ -1,0 +1,8 @@
+# Python packages for the CI `quality` job's tool tests (tools/assets/*.test.py).
+# Pinned exactly: normalise-popt-frame.test.py checks that re-exported sprites stay
+# byte-identical to the committed ones, and Pillow 13.0.0 changes about half the
+# visible pixels of every fighter's anchor frame. Unpinned, that release turned main
+# red overnight on 2026-10-17. Dependabot proposes bumps (.github/dependabot.yml), so
+# a resampling change now fails one PR instead of every PR.
+numpy==2.5.4
+pillow==12.3.0

@@ -30,6 +30,14 @@ describe('vercel ignored build step', () => {
     expect(shouldBuild(['dev/arcade.html', 'src/dev/arcadeHarness.ts'])).toBe(false)
   })
 
+  it('treats the CI tool-test Python pins as inert, but not the rest of tools/', () => {
+    // A weekly Dependabot pip bump touches only this file.
+    expect(shouldBuild(['tools/requirements.txt'])).toBe(false)
+    expect(isDeployInert('tools/requirements.txt.bak')).toBe(false)
+    expect(isDeployInert('tools/assets/requirements.txt')).toBe(false)
+    expect(shouldBuild(['tools/assets/normalise-popt-frame.py'])).toBe(true)
+  })
+
   it('still builds for real application source', () => {
     expect(shouldBuild(['src/game/marsArcade.ts'])).toBe(true)
     expect(shouldBuild(['src/components/Hud.tsx'])).toBe(true)

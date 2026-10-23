@@ -15,7 +15,7 @@ describe('browser suite change detection', () => {
   })
 
   it('skips dev-only arcade work, art sources and documentation', () => {
-    const files = ['src/dev/arcadeHarness.ts', 'dev/arcade.html', 'art-source/arcade/booster/x.png', 'asset-reports/r.md', 'plans/0045.md', 'TEST_REPORT.md']
+    const files = ['src/dev/arcadeHarness.ts', 'dev/arcade.html', 'art-source/arcade/booster/x.png', 'asset-reports/r.md', 'plans/0045.md', 'TEST_REPORT.md', 'tools/requirements.txt']
     expect(decide(files)).toEqual({ run: false, reasons: [] })
   })
 

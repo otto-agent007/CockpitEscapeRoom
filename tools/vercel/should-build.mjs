@@ -43,11 +43,17 @@ export const DEPLOY_INERT_PREFIXES = [
   '.agents/',
 ]
 
+/** Single files in otherwise bundled directories, matched exactly. */
+export const DEPLOY_INERT_FILES = [
+  'tools/requirements.txt', // Python packages that only CI's quality job installs
+]
+
 /** Repository-root Markdown, e.g. README.md, CLAUDE.md, AGENTS.md, TEST_REPORT.md. */
 const ROOT_MARKDOWN = /^[^/]+\.md$/
 
 export function isDeployInert(file) {
   if (ROOT_MARKDOWN.test(file)) return true
+  if (DEPLOY_INERT_FILES.includes(file)) return true
   return DEPLOY_INERT_PREFIXES.some((prefix) => file.startsWith(prefix))
 }
 
