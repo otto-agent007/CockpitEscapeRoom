@@ -63,6 +63,17 @@ def despill(sub: np.ndarray, figure: np.ndarray, clean: np.ndarray) -> int:
     return len(ys)
 
 
+def resize(image: Image.Image, size: tuple[int, int], resample: Image.Resampling) -> Image.Image:
+    """Resize the width, then the height, in two explicit passes.
+
+    Pillow 13 runs the vertical pass first when the height shrinks more than twice as much
+    as the width (python-pillow/Pillow#9549), and a standing figure does. The intermediate
+    image is rounded between the passes, so that order changes about half of an exported
+    sprite's pixels. Pillow 12 always went horizontal first; two calls keep that on any Pillow.
+    """
+    return image.resize((size[0], image.height), resample).resize(size, resample)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -132,19 +143,19 @@ def main() -> int:
     if args.resample == "bilinear":
         # Keep precision until unpremultiplication: an 8-bit rounding error divided by
         # a small edge alpha becomes a visible colour shift (including false magenta).
-        amask = np.asarray(Image.fromarray(alpha.astype(np.float32))
-                           .resize((new_w, new_h), resample))
+        amask = np.asarray(resize(Image.fromarray(alpha.astype(np.float32)),
+                                  (new_w, new_h), resample))
         premul = np.stack([
-            np.asarray(Image.fromarray((sub[:, :, channel] * alpha).astype(np.float32))
-                       .resize((new_w, new_h), resample))
+            np.asarray(resize(Image.fromarray((sub[:, :, channel] * alpha).astype(np.float32)),
+                              (new_w, new_h), resample))
             for channel in range(3)
         ], axis=2)
     else:
         # Retain the exact legacy export path for existing intro assets.
         premul = Image.fromarray((sub * alpha[:, :, None]).astype(np.uint8))
-        premul = np.asarray(premul.resize((new_w, new_h), resample)).astype(np.float64)
-        amask = np.asarray(Image.fromarray((alpha * 255).astype(np.uint8))
-                           .resize((new_w, new_h), resample)).astype(np.float64) / 255.0
+        premul = np.asarray(resize(premul, (new_w, new_h), resample)).astype(np.float64)
+        amask = np.asarray(resize(Image.fromarray((alpha * 255).astype(np.uint8)),
+                                  (new_w, new_h), resample)).astype(np.float64) / 255.0
     flat = np.divide(premul, np.maximum(amask, 1e-6)[:, :, None]).clip(0, 255)
     if args.source_alpha:
         # Restore the nearest 8-bit source colour after float premultiplication.

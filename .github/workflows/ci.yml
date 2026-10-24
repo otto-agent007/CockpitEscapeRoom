@@ -80,7 +80,7 @@ jobs:
         with:
           python-version: '3.12'
       # Before `npm run check`: the gym art-save test runs the real Python sprite gate.
-      # Pinned in tools/requirements.txt: a new Pillow changes the exported sprite pixels.
+      # Pinned in tools/requirements.txt, so a new Pillow can't change sprite exports overnight.
       - run: python -m pip install --quiet -r tools/requirements.txt
       - run: npm ci
       - run: npm run check

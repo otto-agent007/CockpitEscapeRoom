@@ -36,7 +36,7 @@ updates:
     commit-message:
       prefix: ci
   # The CI tool tests' Python packages. Pinned because the sprite byte-identity test
-  # fails on any Pillow that resamples differently; a bump that does stays in its PR.
+  # fails on any Pillow that resamples differently; a bump that does fails in its own PR.
   - package-ecosystem: pip
     directory: /tools
     schedule:
