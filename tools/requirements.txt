@@ -1,0 +1,7 @@
+# Python packages for the CI `quality` job's tool tests (tools/assets/*.test.py).
+# Pinned exactly, so a new release can't change CI overnight: unpinned, Pillow 13.0.0
+# turned main red on 2026-10-17 by changing its resize pass order, which moved about half
+# the pixels of every re-exported sprite (normalise-popt-frame.py now fixes the order).
+# Dependabot proposes bumps (.github/dependabot.yml), so a behaviour change fails one PR.
+numpy==2.5.4
+pillow==13.0.0
