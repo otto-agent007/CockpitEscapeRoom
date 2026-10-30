@@ -27,7 +27,7 @@ Wrong answers must never erase completed progress or force a restart.
 3. **Airbus A320 Pop T Captain Mode** — a mandatory five-card cockpit qualification followed by the Storm Line arcade flight challenge from the left seat.
 4. **Ground Transport Upgrade Authorized** — protected red Tesla Model Y surprise.
 5. **Advanced Mobility Package Unlocked** — Model Y Flight Mode transformation.
-6. **Father’s Day Final Message** — emotional closing beat.
+6. **Family Tribute** — emotional closing beat.
 7. **Optional Mars Easter Egg** — short, playful, and separate from the main ending.
 
 ## DC-9 Final Flight Log
@@ -66,7 +66,7 @@ The Airbus chapter turns the captain/left-seat cockpit into a short arcade fligh
 
 The production familiarization uses five tactile training cards—sidestick, thrust levers, gear lever, radio panel, and altitude area—with immediate explanations, green confirmation, and clue-based retries. An instruction box at the top of the screen announces the interaction up front: drag each label card onto its matching cockpit control, or tap a card and then tap its glowing target. Completing it opens Storm Line and never completes Airbus by itself.
 
-Storm Line lasts about three minutes and uses three durable checkpoints: Weather Entry, Storm Core, and Clear-Air Recovery. The briefing and a live Route guidance line map "west" to "off your left wing", and a drift meter shows the aircraft against the green west-lane band the flight model actually enforces (the Weather Entry gate is `STORM_ENTRY_GATE_LATERAL`, eased to −0.25 at owner request on 2026-08-23, and the meter band is derived from the same exported constants). The guidance line counts down when Weather Entry is about to close and warns before the player overshoots the far lane edge. Leaving the attitude, energy, or corridor envelope for five seconds pauses the scenario and offers focused coaching before rewinding only the active checkpoint. Keyboard, standard gamepad, and native HTML hold controls share the same Captain-mode physics. PFD, ND, and upper ECAM textures appear on Blender-authored display surfaces, while native HTML mirrors expose the same state. Completion awards the Captain traits Calm Control, Weather Judgment, and Energy Management when earned. The existing **“POP T CAPTAIN MODE COMPLETE”** celebration and its **Continue** action still route to the protected Model Y reward.
+Storm Line lasts about three minutes and uses three durable checkpoints: Weather Entry, Storm Core, and Clear-Air Recovery. The briefing and a live Route guidance line map "west" to "off your left wing", and a drift meter shows the aircraft against the green west-lane band the flight model actually enforces (the Weather Entry gate is `STORM_ENTRY_GATE_LATERAL`, eased to −0.25 at owner request on 2026-08-23, and the meter band is derived from the same exported constants). The guidance line counts down when Weather Entry is about to close and warns before the player overshoots the far lane edge. Leaving the attitude, energy, or corridor envelope for five seconds pauses the scenario and offers focused coaching before rewinding only the active checkpoint. Keyboard, standard gamepad, and native HTML hold controls share the same Captain-mode physics. PFD, ND, and upper ECAM textures appear on Blender-authored display surfaces, while native HTML mirrors expose the same state. Completion awards the Captain traits Calm Control, Weather Judgment, and Energy Management when earned. The **“POP T CAPTAIN MODE COMPLETE”** scene shows an animated Optimus review candidate, speaks the owner-selected Heart line, shows the same line as text, and offers a native **Reveal reward** action. That action routes to the protected Model Y film.
 
 The captain workload makes those existing displays part of play. At Weather Entry the player sets the fictional ND scan to `MID`; at Storm Core they confirm the western training gap. Engine-Out Recognition asks for acknowledgement of the instructor-triggered training event on the upper ECAM, and Diversion asks for the right-side SAFE RETURN corridor on the ND. Each display click has the same keyboard-reachable native button. Incorrect sectors never fail the flight or erase progress; they produce progressively clearer coaching. If the aircraft reaches a scenario boundary first, the challenge holds the stable frame until the current decision is complete. Task completion and the last ND selection persist through safe retry and reload, while explicit scenario replay resets only that scenario's tasks.
 
@@ -80,17 +80,13 @@ Do not reveal the Model Y, Flight Mode, or Mars reward before this chapter is co
 
 The red Tesla Model Y must remain hidden until the reordered DC-9 → locker → Airbus journey is complete.
 
-Reward sequence:
+After Engine-Out Handling is complete, the Captain Mode completion scene's **Reveal reward** action enters the 85-second Tesla Flight Mode film directly. The film fills the browser viewport, requests browser fullscreen from that click, and starts automatically when the browser allows sound playback. A Play control appears if it is blocked; reduced-motion mode waits for an explicit Play. The film itself contains the hangar reveal, red Model Y transformation, flight, cloud passage and sunrise. The old runtime 3D legacy hangar is no longer part of the reward. The film file is requested only after the protected reward phase begins.
 
-1. Airbus qualification and captain scenarios complete.
-2. The hangar confirms the full family journey.
-3. The red Tesla Model Y is revealed.
-4. Title: **“Ground Transport Upgrade Authorized.”**
-5. Second title: **“Advanced Mobility Package Unlocked.”**
-6. The Model Y enters a short **Flight Mode** transformation.
-7. The final pose is hover-ready or launch-ready while remaining clearly recognizable as the red Model Y.
+After the reveal, player-facing copy calls the vehicle **The Future Tesla**. Asset records retain the exact red Model Y identity for provenance and visual checks.
 
-An Optimus 3 ceremonial escort is a future reward-scene concept only. If pursued, it appears after legacy authorization and must never transform the vehicle, reveal the Model Y early, or displace the Model Y as the hero reward.
+The film uses native video controls. Audible playback is attempted on entry; if the browser blocks it, a clear **Play film** button appears. Reduced-motion players start playback themselves. On film end or **Skip film and read tribute**, the family tribute appears. A failed load offers Retry and the same safe Skip path without changing chapter progress. **Replay film** begins the movie again from the start.
+
+The Optimus 3 escort's Heart voice, text and Blender-exported 3D review candidate are in the completion scene. The owner selected the in-place `dance_02` motion for the current browser review. Its appearance and motion quality remain owner review candidates; they must never transform the vehicle, reveal the Model Y early, or displace the Model Y as the hero reward.
 
 Flight Mode visual language:
 
@@ -103,22 +99,22 @@ Flight Mode visual language:
 
 The sequence is a reward/cinematic beat, not required puzzle gameplay. Every important visual beat needs a text equivalent in the HTML overlay.
 
-## Father’s Day final message
+## Family tribute
 
-The Father’s Day message should happen after the Model Y reveal and Flight Mode transformation. Keep it editable in data/config rather than buried in scene logic.
+The closing message should happen after the Model Y reveal and Flight Mode transformation. Keep it editable in data/config rather than buried in scene logic.
 
-Suggested placeholder:
+Current local closing copy (owner-selected opening):
 
-> Happy Father’s Day, Pop T. From the baseball field to the captain’s seat, from the DC-9 to the Airbus, you showed us how preparation, calm judgment, teamwork, and leadership can carry a family anywhere. This game was built from the lessons you gave us. Your crew loves you.
+> Thank you for being someone we can always count on. From the baseball field to the captain’s seat, from the DC-9 to the Airbus, you showed us how preparation, calm judgment, teamwork, and leadership can carry a family anywhere. This game was built from the lessons you gave us. Your crew loves you.
 
 ## Mars Easter egg
 
-The Mars Easter egg remains short, optional, and playful. It is not part of the required main ending and should be explored later after the Model Y Flight Mode reward is stable.
+The Mars Easter egg remains short, optional, and playful. It is not part of the required main ending and should be explored later after the Tesla Flight Mode reward is stable.
 
 Suggested payoff:
 
 - A space clue activates after the main ending.
-- The Model Y may later become a fictional Mars surface vehicle, but that design is not finalized in this update.
+- The Future Tesla may later become a fictional Mars surface vehicle, but that design is not finalized in this update.
 - The player receives the title: **“Commander, Mars Transport Division.”**
 
 This should never block the main ending.
@@ -166,7 +162,7 @@ Keep asset groups separate and lazy-loaded:
 - Locker room scene
 - DC-9-32 First-Officer cockpit
 - Memphis legacy departure environment
-- Model Y hangar reward and Flight Mode transformation
+- Tesla Flight Mode film reward and transformation
 - Mars Easter egg
 
 Essential gameplay must not exist only inside WebGL. Use HTML overlays for instructions, hints, progress, captions, final family message, status messages, and reward / Flight Mode text equivalents.

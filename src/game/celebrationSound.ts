@@ -1,6 +1,6 @@
 /**
- * The cheer that plays when a milestone celebration card opens: the Captain's Key, the
- * captain's locker, and Pop T Captain Mode complete.
+ * The cheer that plays when the Captain's Key or locker celebration card opens.
+ * The later Airbus completion card uses the Heart voice with the same mute preference.
  *
  * An owner-supplied crowd recording, first ten seconds. Provenance and licence status are in
  * `public/audio/README.md` and `LICENSES/ASSET_MANIFEST.md`.
@@ -21,7 +21,7 @@ export const CELEBRATION_SOUND_FILE = 'audio/key-celebration.mp3'
 export const CELEBRATION_SOUND_VOLUME = 0.55
 
 /**
- * One preference for every milestone, and separate from the game-state key on purpose:
+ * One preference for all milestone audio, and separate from the game-state key on purpose:
  * restarting the game clears progress, and a player who turned the sound off does not want
  * it back on because they replayed or because they reached the next milestone.
  */

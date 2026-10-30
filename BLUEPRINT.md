@@ -17,7 +17,7 @@ It honors an expert pilot who began on the McDonnell Douglas DC-9 and later flew
 5. The **Legacy Route Record**, ceremonial shutdown, ATP milestone, and Captain's Key close the Final Flight Log.
 6. The key opens the unchanged Captain's Locker sequence: watch → baseball → Charging Bull → airline wings → captain's hat.
 7. **Enter Pop T Captain Mode** opens the separate Airbus A320 captain/left-seat cockpit, five-card qualification, Storm Line, and Engine-Out Handling scenarios.
-8. Completing Airbus unlocks the protected red Model Y reveal and sleek Flight Mode transformation, followed by the Father's Day message.
+8. Completing Airbus opens an animated Optimus congratulations scene with the owner-selected Heart voice and matching text. Its **Reveal reward** action starts the protected red Model Y film in a viewport-sized cinema, requests browser fullscreen, then reaches the family tribute. The 3D robot remains under visual review.
 9. Mars remains optional and separate from the main ending.
 
 Persisted later chapters resume directly. Wrong choices may rewind the active checkpoint but never erase completed puzzle or chapter progress.
@@ -43,7 +43,7 @@ Every required 3D action has a native HTML, keyboard, or equivalent accessible p
 - Pure rules, content, reducer state, and persistence live in `src/game/`; 3D presentation lives in `src/scenes/`; accessible UI lives in `src/components/`.
 - Canonical schema 15 stores local-only progress across `briefing | dc9 | locker | airbus | reward | mars` and migrates older saves safely.
 - The app loads the cinematic first, preloads the DC-9 cockpit and Memphis view during it, and lazy-loads later chapter assets.
-- Blender is authoritative for production geometry, materials, pivots, cameras, animation, hierarchy, and exported `game_id` metadata. Validated GLBs are the runtime format.
+- Blender is authoritative for production geometry, materials, pivots, cameras, animation, hierarchy, and exported `game_id` metadata. Validated GLBs are the runtime format for interactive 3D chapters; the final Tesla Flight Mode reward uses the approved film.
 
 ## Asset boundaries
 
@@ -53,7 +53,8 @@ Each production group has a separate source and deployable:
 - `art-source/blender/dc9-memphis-legacy-departure.blend` → `public/models/dc9-memphis-legacy-departure.glb`
 - authoritative shaded A320 master → `public/models/airbus-captain.glb`
 - `art-source/blender/locker_room_master.blend` → `public/models/locker-room.glb`
-- `art-source/blender/tesla_reward.blend` → `public/models/model-y-reward.glb`
+- staged Tesla film masters → `public/media/tesla-flight-mode-final.mp4` (reward runtime)
+- `art-source/blender/tesla_reward.blend` → `public/models/model-y-reward.glb` (preserved historical 3D reward, no longer loaded)
 
 Stable names, pivots, hierarchy, animations, cameras, and `game_id` properties are public runtime contracts. Tripo outputs remain candidates until Blender cleanup, deterministic validation, asset reporting, and browser review are complete.
 

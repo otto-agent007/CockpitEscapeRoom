@@ -1,9 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { gameCopy } from '../game/config'
 import { rewardCopy } from '../game/rewardCopy'
-import { REWARD_CLIP_DURATION_MS, rewardFrameAt } from '../game/rewardSequence'
-import { RewardScene, type RewardLoadState } from '../scenes/RewardScene'
 
 interface RewardExperienceProps {
   reducedMotion: boolean
@@ -11,148 +9,121 @@ interface RewardExperienceProps {
   onRestart: () => void
 }
 
-const initialLoadState: RewardLoadState = { status: 'loading', loadedBytes: 0 }
+const filmUrl = `${import.meta.env.BASE_URL}media/tesla-flight-mode-final.mp4`
 
 export function RewardExperience({
   reducedMotion,
   forceAccessible,
   onRestart,
 }: RewardExperienceProps) {
-  const [loadState, setLoadState] = useState<RewardLoadState>(
-    forceAccessible ? { status: 'accessible-fallback', loadedBytes: 0 } : initialLoadState,
-  )
-  const [elapsedMs, setElapsedMs] = useState(0)
-  const [skipped, setSkipped] = useState(forceAccessible)
-  const [retryToken, setRetryToken] = useState(0)
-  const [replayRevision, setReplayRevision] = useState(0)
-  const startAtRef = useRef<number | null>(null)
-  const ready = loadState.status === 'ready'
-  const accessiblePresentation = forceAccessible
-    || loadState.status === 'accessible-fallback'
-    || loadState.status === 'error'
-  const showAccessibleScene = forceAccessible || loadState.status === 'accessible-fallback'
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [stage, setStage] = useState<'film' | 'complete'>('film')
+  const [loadFailed, setLoadFailed] = useState(false)
+  const [manualPlayNeeded, setManualPlayNeeded] = useState(reducedMotion || forceAccessible)
 
   useEffect(() => {
-    if (!ready || reducedMotion || skipped) return
-    startAtRef.current = performance.now()
-    let animationFrame = 0
-    const tick = (now: number) => {
-      const nextElapsed = Math.min(now - (startAtRef.current ?? now), REWARD_CLIP_DURATION_MS)
-      setElapsedMs(nextElapsed)
-      if (nextElapsed < REWARD_CLIP_DURATION_MS) animationFrame = requestAnimationFrame(tick)
+    if (videoRef.current) videoRef.current.src = filmUrl
+  }, [])
+
+  useEffect(() => {
+    if (reducedMotion || forceAccessible) return
+    const video = videoRef.current
+    if (!video) return
+    let mounted = true
+    void video.play().catch(() => {
+      if (!mounted) return
+      if (video.error) setLoadFailed(true)
+      else setManualPlayNeeded(true)
+    })
+    return () => { mounted = false }
+  }, [forceAccessible, reducedMotion])
+
+  const finishFilm = useCallback(() => {
+    videoRef.current?.pause()
+    setStage('complete')
+  }, [])
+
+  const playFilm = useCallback(() => {
+    const video = videoRef.current
+    if (!video) return
+    if (video.error) {
+      setLoadFailed(true)
+      return
     }
-    animationFrame = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(animationFrame)
-  }, [ready, reducedMotion, replayRevision, skipped])
-
-  const frame = useMemo(() => rewardFrameAt({
-    elapsedMs,
-    ready: ready || accessiblePresentation,
-    reducedMotion,
-    skipped: skipped || accessiblePresentation,
-  }), [accessiblePresentation, elapsedMs, ready, reducedMotion, skipped])
-
-  const replay = useCallback(() => {
-    setElapsedMs(0)
-    setSkipped(false)
-    setReplayRevision((revision) => revision + 1)
+    void video.play().then(() => setManualPlayNeeded(false)).catch(() => {
+      if (video.error) setLoadFailed(true)
+      else setManualPlayNeeded(true)
+    })
   }, [])
 
-  const retry = useCallback(() => {
-    setElapsedMs(0)
-    setSkipped(false)
-    setLoadState(initialLoadState)
-    setRetryToken((token) => token + 1)
-  }, [])
-
-  const loadedMb = (loadState.loadedBytes / 1_000_000).toFixed(1)
-  const totalMb = loadState.totalBytes ? (loadState.totalBytes / 1_000_000).toFixed(1) : null
-  const progress = loadState.totalBytes
-    ? Math.min(100, Math.round((loadState.loadedBytes / loadState.totalBytes) * 100))
-    : 0
+  const replayFilm = useCallback(() => {
+    const video = videoRef.current
+    if (!video) return
+    video.currentTime = 0
+    setStage('film')
+    playFilm()
+  }, [playFilm])
 
   return (
-    <section
-      className={`reward-experience reward-experience--${frame.stage}`}
-      data-reward-stage={frame.stage}
-      aria-labelledby="reward-title"
-    >
-      {!showAccessibleScene && (
-        <RewardScene
-          clipTimeSeconds={frame.clipTimeSeconds}
-          playbackRevision={replayRevision}
-          retryToken={retryToken}
-          onLoadState={setLoadState}
+    <section className={`reward-experience reward-experience--${stage}`} data-reward-stage={stage} aria-labelledby="reward-title">
+      <div className={stage === 'film' ? 'reward-cinema' : 'reward-film-layout'}>
+        <header className="reward-film-intro">
+          <p className="eyebrow">CockpitEscapeRoom · Final film</p>
+          <h1 id="reward-title">{stage === 'film' ? 'Flight Mode' : 'Ground Transport Upgrade Authorized'}</h1>
+          {stage === 'film' && <p>The Future Tesla is here. Watch the full journey.</p>}
+        </header>
+
+        <video
+          ref={videoRef}
+          className="reward-film-video"
+          controls
+          autoPlay={!reducedMotion && !forceAccessible}
+          playsInline
+          preload="auto"
+          hidden={stage === 'complete'}
+          aria-label="Tesla Flight Mode film"
+          onPlay={() => setManualPlayNeeded(false)}
+          onEnded={finishFilm}
+          onError={() => setLoadFailed(true)}
+          onLoadedMetadata={() => setLoadFailed(false)}
         />
-      )}
-      {showAccessibleScene && (
-        <div className="reward-scene reward-scene--accessible" aria-label="Accessible Model Y reward">
-          <div className="reward-accessible-silhouette" aria-hidden="true" />
-        </div>
-      )}
 
-      <div className="reward-overlay">
-        <p className="eyebrow">CockpitEscapeRoom · Legacy Hangar</p>
-        <h1 id="reward-title">{frame.title}</h1>
-        <p className="reward-caption" role="status" aria-live="polite" aria-atomic="true">
-          {reducedMotion && frame.stage === 'complete'
-            ? 'Reduced motion is on. Flight Mode is shown in its completed pose. '
-            : ''}
-          {frame.caption}
-        </p>
-        {frame.stage === 'complete' && (
-          <div className="reward-release-summary">
-            <strong>{gameCopy.rewardTitle}</strong>
-            <span>{rewardCopy.vehicleLine}</span>
-          </div>
-        )}
-
-        {loadState.status === 'loading' && !forceAccessible && (
-          <div className="reward-loader" aria-label="Model Y reward loading progress">
-            <div><span>Preparing the Model Y reward</span><strong>{progress ? `${progress}%` : `${loadedMb} MB`}</strong></div>
-            <progress max={100} value={progress} />
-            <small>{totalMb ? `${loadedMb} of ${totalMb} MB downloaded` : `${loadedMb} MB downloaded`}</small>
-          </div>
-        )}
-
-        {loadState.status === 'error' && (
-          <div className="reward-load-error" role="alert">
-            <strong>The 3D hangar could not be opened.</strong>
-            <span>{loadState.message} Your completed journey is safe.</span>
-            <div>
-              <button type="button" className="primary-button" onClick={retry}>Retry 3D</button>
-              <button
-                type="button"
-                className="secondary-button"
-                onClick={() => setLoadState({
-                  status: 'accessible-fallback',
-                  loadedBytes: loadState.loadedBytes,
-                  totalBytes: loadState.totalBytes,
-                })}
-              >
-                Continue with accessible reward
-              </button>
+        {stage === 'film' ? (
+          <>
+            <p className="reward-film-description">
+              The Future Tesla transforms in the hangar, flies over the landscape,
+              passes through clouds into sunrise, then cuts to black. The original music plays throughout.
+            </p>
+            {loadFailed && (
+              <div className="reward-film-error" role="alert">
+                <span>The film could not load. Your completed journey is safe.</span>
+                <button type="button" className="secondary-button" onClick={() => {
+                  setLoadFailed(false)
+                  videoRef.current?.load()
+                  setManualPlayNeeded(true)
+                }}>Retry film</button>
+              </div>
+            )}
+            {reducedMotion && <p className="reward-film-motion-note">Reduced motion is on. The film will play only when you choose Play.</p>}
+            <div className="reward-actions">
+              {manualPlayNeeded && !loadFailed && <button type="button" className="primary-button" onClick={playFilm}>Play film</button>}
+              <button type="button" className="secondary-button" onClick={finishFilm}>Skip film and read tribute</button>
+              <button type="button" className="text-button" onClick={onRestart}>Restart game</button>
+            </div>
+          </>
+        ) : (
+          <div className="reward-finale">
+            <div className="reward-release-summary">
+              <strong>{gameCopy.rewardTitle}</strong>
+              <span>{rewardCopy.vehicleLine}</span>
+            </div>
+            <blockquote className="reward-tribute">{gameCopy.finalMessage}</blockquote>
+            <div className="reward-actions">
+              <button type="button" className="primary-button" onClick={replayFilm}>Replay film</button>
+              <button type="button" className="text-button" onClick={onRestart}>Restart game</button>
             </div>
           </div>
         )}
-
-        {frame.stage === 'complete' && (
-          <blockquote className="reward-tribute">{gameCopy.finalMessage}</blockquote>
-        )}
-
-        <div className="reward-actions">
-          {ready && frame.stage !== 'complete' && (
-            <button type="button" className="secondary-button" onClick={() => setSkipped(true)}>
-              Skip cinematic
-            </button>
-          )}
-          {frame.stage === 'complete' && ready && !reducedMotion && (
-            <button type="button" className="primary-button" onClick={replay}>
-              Replay Flight Mode
-            </button>
-          )}
-          <button type="button" className="text-button" onClick={onRestart}>Restart game</button>
-        </div>
       </div>
     </section>
   )

@@ -3688,3 +3688,18 @@ Checks run:
   - no overflow at 375, 768 and 1440 px, with 0 page or console errors
 
 Not run: a physical controller. None was connected, and this PC has no Bluetooth adapter (`bluetooth.service` skipped: no `/sys/class/bluetooth`).
+
+### 2026-10-29 Optimus and Future Tesla ending PR candidate
+
+A clean `feat/optimus-future-tesla-ending` branch was prepared from `origin/main` at `6f1e5ad` so the ending can be reviewed independently of the unfinished Mars arcade work in the original workspace. The player reaches the protected film through the Airbus completion card's animated `dance_02` Optimus and Heart greeting. The final tribute begins, “Thank you for being someone we can always count on.”
+
+Checks on this clean branch:
+
+- `npm run assets:check`: PASS. The Optimus GLB reports the known generated-tangent-space and `NODE_SKINNED_MESH_NON_ROOT` validator warnings; hierarchy, animation, textures, materials and runtime loading checks pass.
+- `VITE_CONFIG_NATIVE_IGNORE_WARNING=true npm run check`: PASS — lint, typecheck, 985 tests in 89 files and production build.
+- Chromium `e2e/reward.spec.ts`: 12/12 PASS, including spoiler gating, model/audio/video failure fallbacks, keyboard, reload, reduced motion, autoplay/fullscreen handoff and 375/768/1440 px layouts.
+- Chromium filtered `e2e/smoke.spec.ts` and `e2e/airbus-engine-out.spec.ts`: the complete reordered journey and five native Airbus/Engine-Out cases PASS. The broad real-cockpit case passed its 3D/simulator assertions but initially failed its final console audit on a missing `/favicon.ico`. After serving a fresh production build with the favicon file, the heavy case PASS (1/1, 2.4 minutes).
+
+The PR carries the Blender masters, deployable media/model, audio, fallback image, source reports, plans and selected visual evidence. The robot's appearance and full motion quality, Tripo distribution rights, owner review of the current browser ending, hosted preview and complete-game release review remain open. This is a draft review candidate, not final release approval.
+
+The failed real-Airbus console audit was traced with a short Chromium diagnostic to a baseline browser request for missing `/favicon.ico`; no Airbus or ending media request failed. `index.html` now names the already approved TMB2 logo PNG, and `public/favicon.ico` serves identical approved PNG bytes for Chromium’s default request. Playwright had reused a stale preview server during the first recheck. After restarting it, the short console probe PASS and the full heavy Airbus audit PASS with no console errors. Temporary probes were removed.

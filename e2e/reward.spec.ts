@@ -1,13 +1,11 @@
 import { expect, test, type Page } from '@playwright/test'
-import { mkdirSync } from 'node:fs'
+import { mkdirSync, statSync } from 'node:fs'
 
 import { createInitialState, type GameState } from '../src/game/state'
 import { STORAGE_KEY } from '../src/game/storage'
+import { createCompletedAirbusState } from './journeyStates'
 
 const evidenceDirectory = 'preview-renders/model-y-reward'
-
-// Budget for assertions that must survive a viewport change under CI load.
-const expectResize = expect.configure({ timeout: 30_000 })
 
 async function captureEvidence(page: Page, name: string) {
   if (process.env.CAPTURE_REWARD_EVIDENCE !== '1') return
@@ -26,72 +24,6 @@ function rewardState(overrides: Partial<GameState> = {}): GameState {
   }
 }
 
-/**
- * Records what the reveal looked like at every pose or stage change, from the
- * first frame the canvas exists.
- *
- * The cinematic advances on wall time, so sampling these attributes whenever the
- * test happens to look asserts how fast the machine is. On a CI runner the clip
- * had already reached 10.955s and the pose had left `stowed` for `deployed`, so
- * the test failed for being slow rather than for being wrong — reproduced
- * locally at 20x CPU throttling, where the pose leaves `stowed` at clip time
- * 9.7s. Reading the sequence back tests the actual contract, that the reveal
- * begins stowed, at any machine speed.
- */
-type RewardSample = { pose: string, stage: string | null, clip: number }
-
-async function recordRewardPoses(page: Page) {
-  await page.addInitScript(() => {
-    const samples: { pose: string, stage: string | null, clip: number }[] = []
-    Object.defineProperty(window, '__rewardSamples', { configurable: true, get: () => samples })
-    Object.defineProperty(window, '__resetRewardSamples', {
-      configurable: true,
-      get: () => () => { samples.length = 0 },
-    })
-    const record = () => {
-      // Query by the attribute, not by tag: another canvas can be in the DOM
-      // first, and `querySelector('canvas')` then returns one that never
-      // carries a pose, so nothing is ever recorded.
-      const canvas = document.querySelector('canvas[data-reward-pose]')
-      const pose = canvas?.getAttribute('data-reward-pose')
-      if (!pose) return
-      const stage = document.querySelector('[data-reward-stage]')?.getAttribute('data-reward-stage') ?? null
-      const previous = samples[samples.length - 1]
-      if (previous && previous.pose === pose && previous.stage === stage) return
-      samples.push({ pose, stage, clip: Number(canvas?.getAttribute('data-reward-clip-time') ?? Number.NaN) })
-    }
-    // Init scripts run before the document exists, so observing
-    // documentElement here throws and the recorder is silently never
-    // installed. Wait for a root to attach to.
-    const install = () => {
-      if (!document.documentElement) {
-        setTimeout(install, 0)
-        return
-      }
-      new MutationObserver(record).observe(document.documentElement, {
-        subtree: true,
-        childList: true,
-        attributes: true,
-        attributeFilter: ['data-reward-pose', 'data-reward-stage'],
-      })
-      record()
-    }
-    install()
-  })
-}
-
-async function observedSamples(page: Page): Promise<RewardSample[]> {
-  return page.evaluate(() => (window as unknown as { __rewardSamples: RewardSample[] }).__rewardSamples ?? [])
-}
-
-async function observedPoses(page: Page): Promise<string[]> {
-  return (await observedSamples(page)).map((sample) => sample.pose)
-}
-
-async function resetRewardSamples(page: Page) {
-  await page.evaluate(() => (window as unknown as { __resetRewardSamples: () => void }).__resetRewardSamples?.())
-}
-
 async function seed(page: Page, state: GameState) {
   await page.evaluate(({ key, value }) => {
     localStorage.setItem(key, JSON.stringify(value))
@@ -99,184 +31,260 @@ async function seed(page: Page, state: GameState) {
   await page.reload()
 }
 
-test('protects the Model Y request until the reward phase', async ({ page }) => {
-  let rewardRequests = 0
-  page.on('request', (request) => {
-    if (request.url().includes('/models/model-y-reward.glb')) rewardRequests += 1
-  })
+test('Airbus completion offers the Heart greeting before the protected reward', async ({ page }) => {
+  const requested: string[] = []
+  page.on('request', (request) => requested.push(request.url()))
+  await page.goto('/?skip3d=1')
+  expect(requested.some((url) => url.includes('/audio/optimus-congratulations-heart.mp3'))).toBe(false)
 
+  await seed(page, createCompletedAirbusState())
+  const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
+  await expect(celebration).toContainText('Congratulations! You did it!')
+  await expect(celebration).toContainText('Your pilot skills have earned you something special.')
+  await expect(celebration.getByLabel('Optimus greeting')).toHaveAttribute('src', /audio\/optimus-congratulations-heart\.mp3$/)
+  await expect(celebration.getByRole('button', { name: 'Reveal reward' })).toBeVisible()
+  expect(requested.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(false)
+
+  await celebration.getByRole('button', { name: 'Play greeting' }).click()
+  await expect.poll(() => celebration.getByLabel('Optimus greeting').evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(0.2)
+  await celebration.getByRole('button', { name: 'Reveal reward' }).click()
+  await expect(page.getByRole('heading', { name: 'Flight Mode' })).toBeVisible()
+  await expect.poll(() => requested.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(true)
+})
+
+test('the animated Optimus handoff opens an automatically playing viewport-sized film', async ({ page }) => {
+  test.setTimeout(60_000)
+  const requested: string[] = []
+  page.on('request', (request) => requested.push(request.url()))
+  await page.goto('/')
+  expect(requested.some((url) => url.includes('/models/optimus-guide-dance-02-review.glb'))).toBe(false)
+  await seed(page, createCompletedAirbusState())
+  const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
+  await expect(celebration.locator('.optimus-guide-canvas canvas')).toBeVisible({ timeout: 30_000 })
+  await expect.poll(() => requested.some((url) => url.includes('/models/optimus-guide-dance-02-review.glb'))).toBe(true)
+  expect(await page.evaluate(async () => {
+    const response = await fetch('/models/optimus-guide-dance-02-review.glb', { cache: 'no-store' })
+    return response.ok ? (await response.arrayBuffer()).byteLength : -1
+  })).toBe(statSync('public/models/optimus-guide-dance-02-review.glb').size)
+  expect(requested.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(false)
+
+  await celebration.getByRole('button', { name: 'Play greeting' }).click()
+  await expect.poll(() => celebration.getByLabel('Optimus greeting').evaluate((audio: HTMLAudioElement) => audio.currentTime)).toBeGreaterThan(0.2)
+  await celebration.getByRole('button', { name: 'Reveal reward' }).click()
+
+  const video = page.getByLabel('Tesla Flight Mode film')
+  await expect(video).toBeVisible()
+  await expect.poll(() => page.evaluate(() => Boolean(document.fullscreenElement))).toBe(true)
+  const dimensions = await video.evaluate((element: HTMLVideoElement) => ({
+    width: element.getBoundingClientRect().width,
+    height: element.getBoundingClientRect().height,
+    viewportWidth: window.innerWidth,
+    viewportHeight: window.innerHeight,
+  }))
+  expect(dimensions.width).toBeGreaterThanOrEqual(dimensions.viewportWidth - 1)
+  expect(dimensions.height).toBeGreaterThanOrEqual(dimensions.viewportHeight - 1)
+  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime), { timeout: 15_000 }).toBeGreaterThan(0.25)
+})
+
+test('blocked greeting autoplay keeps a manual play path without reporting a broken file', async ({ page }) => {
+  await page.addInitScript(() => {
+    const originalPlay = HTMLMediaElement.prototype.play
+    let blockedOnce = false
+    HTMLMediaElement.prototype.play = function () {
+      if (this.getAttribute('aria-label') === 'Optimus greeting' && !blockedOnce) {
+        blockedOnce = true
+        return Promise.reject(new DOMException('Playback needs a click', 'NotAllowedError'))
+      }
+      return originalPlay.call(this)
+    }
+  })
+  await page.goto('/?skip3d=1')
+  await seed(page, createCompletedAirbusState())
+  const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
+  await expect(celebration.getByRole('button', { name: 'Play greeting' })).toBeVisible()
+  await expect(celebration.getByText('The greeting is shown above. You can still reveal your reward.')).toHaveCount(0)
+  await celebration.getByRole('button', { name: 'Play greeting' }).click()
+  await expect.poll(() => celebration.getByLabel('Optimus greeting').evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(0.2)
+})
+
+test('muted greeting loads no voice and keyboard still reveals the reward', async ({ page }) => {
+  const requested: string[] = []
+  page.on('request', (request) => requested.push(request.url()))
+  await page.goto('/?skip3d=1')
+  await page.evaluate(() => localStorage.setItem('cockpit-escape-room:sound:v1', '{"muted":true}'))
+  await seed(page, createCompletedAirbusState())
+
+  const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
+  await expect(celebration).toContainText('Congratulations! You did it!')
+  await expect(celebration.getByLabel('Optimus greeting')).toHaveCount(0)
+  await expect(celebration.getByRole('button', { name: 'Sound off' })).toBeVisible()
+  expect(requested.some((url) => url.includes('/audio/optimus-congratulations-heart.mp3'))).toBe(false)
+  expect(requested.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(false)
+
+  const reveal = celebration.getByRole('button', { name: 'Reveal reward' })
+  await expect(reveal).toBeFocused()
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('heading', { name: 'Flight Mode' })).toBeVisible()
+  await expect.poll(() => requested.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(true)
+})
+
+test('the completed Airbus greeting stays readable at phone, tablet and desktop widths', async ({ page }) => {
+  await page.goto('/?skip3d=1')
+  await seed(page, createCompletedAirbusState())
+  mkdirSync('preview-renders/optimus-gen3-animation-intake/browser', { recursive: true })
+  for (const width of [375, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 })
+    const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
+    await expect(celebration).toContainText('Ready to see it?')
+    const reveal = celebration.getByRole('button', { name: 'Reveal reward' })
+    await reveal.scrollIntoViewIfNeeded()
+    await expect(reveal).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
+    await page.screenshot({ path: `preview-renders/optimus-gen3-animation-intake/browser/heart-handoff-${width}.png` })
+  }
+})
+
+test('a missing greeting file leaves the caption and reward path usable', async ({ page }) => {
+  await page.route('**/audio/optimus-congratulations-heart.mp3', (route) => route.fulfill({ status: 503, body: 'offline' }))
+  await page.goto('/?skip3d=1')
+  await seed(page, createCompletedAirbusState())
+  const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
+  await expect(celebration).toContainText('Congratulations! You did it!')
+  await expect(celebration.getByRole('status')).toContainText('You can still reveal your reward.')
+  await celebration.getByRole('button', { name: 'Play greeting' }).click()
+  await expect(celebration.getByRole('status')).toContainText('You can still reveal your reward.')
+  await celebration.getByRole('button', { name: 'Reveal reward' }).click()
+  await expect(page.getByRole('heading', { name: 'Flight Mode' })).toBeVisible()
+})
+
+test('a failed Optimus model load keeps the pictured guide and reward action usable', async ({ page }) => {
+  await page.route('**/models/optimus-guide-dance-02-review.glb*', (route) => route.fulfill({ status: 503, body: 'offline' }))
+  await page.goto('/')
+  const failedModel = page.waitForResponse((response) => response.url().includes('/models/optimus-guide-dance-02-review.glb') && response.status() === 503)
+  await seed(page, createCompletedAirbusState())
+  await failedModel
+  const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
+  await expect(celebration.locator('img.optimus-guide-fallback')).toBeVisible()
+  await expect(celebration.locator('.optimus-guide-canvas canvas')).toHaveCount(0)
+  await expect(celebration).toContainText('Congratulations! You did it!')
+  await celebration.getByRole('button', { name: 'Reveal reward' }).click()
+  await expect(page.getByLabel('Tesla Flight Mode film')).toBeVisible()
+})
+
+test('the Tesla film is protected until reward and replaces the legacy hangar', async ({ page }) => {
+  const requested: string[] = []
+  page.on('request', (request) => requested.push(request.url()))
   await page.goto('/')
   await expect(page.getByRole('region', { name: 'Game intro' })).toBeVisible()
-  expect(rewardRequests).toBe(0)
+  expect(requested.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(false)
+  expect(requested.some((url) => url.includes('/models/model-y-reward.glb'))).toBe(false)
 
   await seed(page, rewardState())
-  await expect.poll(() => rewardRequests).toBe(1)
-  const rewardCanvas = page.locator('canvas[data-reward-model-state="ready"]')
-  await expect(rewardCanvas).toBeVisible({ timeout: 15_000 })
-  await expect(rewardCanvas).toHaveAttribute('data-reward-pose', 'stowed')
+  await expect(page.getByRole('heading', { name: 'Flight Mode' })).toBeVisible()
+  const video = page.getByLabel('Tesla Flight Mode film')
+  await expect(video).toHaveAttribute('src', /media\/tesla-flight-mode-final\.mp4$/)
+  await expect(video).toHaveAttribute('controls', '')
+  await expect(page.locator('.reward-scene, canvas[data-reward-pose]')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Watch full Flight Mode film' })).toHaveCount(0)
+  await expect.poll(() => requested.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(true)
+  expect(requested.some((url) => url.includes('/models/model-y-reward.glb'))).toBe(false)
+  await expect.poll(async () =>
+    !(await video.evaluate((element: HTMLVideoElement) => element.paused))
+    || await page.getByRole('button', { name: 'Play film' }).isVisible(),
+  ).toBe(true)
 })
 
-test('plays the authored reward and provides Skip and Replay', async ({ page }) => {
-  test.setTimeout(180_000)
-  await page.setViewportSize({ width: 1440, height: 900 })
-  await recordRewardPoses(page)
+test('reduced motion waits for Play and Skip reveals tribute without losing progress', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/?skip3d=1')
+  await seed(page, rewardState())
+  const video = page.getByLabel('Tesla Flight Mode film')
+  await expect(video).toBeVisible()
+  await expect(page.getByText('Reduced motion is on.')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Play film' })).toBeVisible()
+  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(true)
+  await expect(page.getByText(/Your crew loves you/)).toHaveCount(0)
+  await page.getByRole('button', { name: 'Skip film and read tribute' }).focus()
+  await page.keyboard.press('Enter')
+  await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible()
+  await expect(page.getByText(/Your crew loves you/)).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Replay film' })).toBeVisible()
+  expect(await page.evaluate((key) => {
+    const saved = JSON.parse(localStorage.getItem(key) ?? '{}') as GameState
+    return { phase: saved.phase, rewardUnlocked: saved.rewardUnlocked, completed: saved.completedPuzzles }
+  }, STORAGE_KEY)).toEqual({ phase: 'reward', rewardUnlocked: true, completed: ['dc9', 'locker', 'airbus'] })
+
+  await page.reload()
+  await expect(video).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Play film' })).toBeVisible()
+})
+
+test('failed film loading offers retry and a safe route to the tribute', async ({ page }) => {
+  test.setTimeout(45_000)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  let fail = true
+  let requests = 0
+  await page.route('**/media/tesla-flight-mode-final.mp4', (route) => {
+    requests += 1
+    return fail ? route.fulfill({ status: 503, body: 'offline' }) : route.continue()
+  })
   await page.goto('/')
   await seed(page, rewardState())
-
-  // `Skip cinematic` is rendered only while `stage !== 'complete'`, so it exists
-  // for one 11.5s clip and is then replaced by Replay. Wait for the BUTTON, not
-  // for the canvas followed by a run of polls: on CI those polls spent the
-  // window and the button was already gone by the time the test looked for it
-  // (three retries, same failure). Everything that is true regardless of stage
-  // is asserted after the interaction instead of before it.
-  const skipButton = page.getByRole('button', { name: 'Skip cinematic' })
-  await expect(skipButton).toBeVisible({ timeout: 60_000 })
-  await page.keyboard.press('Tab')
-  await expect(skipButton).toBeFocused()
-  if (process.env.CAPTURE_REWARD_EVIDENCE === '1') {
-    // Only spend the window settling the reveal when a screenshot is actually
-    // being taken; captureEvidence is a no-op otherwise.
-    await page.waitForTimeout(1_250)
-    await captureEvidence(page, '1440-static-reveal')
-  }
-  await page.keyboard.press('Enter')
-
-  await expect(page.locator('canvas[data-reward-model-state="ready"]')).toBeVisible({ timeout: 15_000 })
-  await expect.poll(
-    async () => (await page.locator('canvas').boundingBox())?.width,
-    { timeout: 15_000 },
-  ).toBe(1440)
-  await expect(page.locator('canvas')).toHaveAttribute('data-reward-camera', 'game')
-  // The reveal must BEGIN stowed. Asserting the attribute here would instead
-  // assert how fast this machine is — see recordRewardPoses.
-  await expect.poll(async () => (await observedPoses(page))[0], { timeout: 15_000 }).toBe('stowed')
-
-  await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible()
-  await expect(page.locator('canvas')).toHaveAttribute('data-reward-clip-time', '11.500')
-  await expect(page.locator('canvas')).toHaveAttribute('data-reward-pose', 'deployed')
-  await expect(page.getByText('Ground Transport Upgrade Authorized', { exact: true })).toBeVisible()
-  await expect(page.getByText('The red Tesla Model Y is unlocked.', { exact: true })).toBeVisible()
-  await expect(page.getByText(/From the baseball field to the captain’s seat/)).toBeVisible()
+  const video = page.getByLabel('Tesla Flight Mode film')
+  await expect(video).toHaveAttribute('src', /media\/tesla-flight-mode-final\.mp4$/)
+  await video.evaluate((element: HTMLVideoElement) => element.load())
+  await expect(page.getByRole('alert')).toContainText('Your completed journey is safe.', { timeout: 20_000 })
+  const requestsBeforeRetry = requests
+  await page.getByRole('button', { name: 'Retry film' }).click()
+  await expect.poll(() => requests).toBeGreaterThan(requestsBeforeRetry)
+  await expect(page.getByRole('alert')).toContainText('Your completed journey is safe.')
+  fail = false
+  await page.evaluate(() => document.querySelector<HTMLButtonElement>('.reward-film-error button')?.click())
+  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.duration), { timeout: 20_000 }).toBeGreaterThan(85)
+  await expect(page.getByRole('alert')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Skip film and read tribute' }).click()
   await expect(page.getByText(/Your crew loves you/)).toBeVisible()
-  await expect(page.getByText(/mars/i)).toHaveCount(0)
-  await page.waitForTimeout(300)
-  await captureEvidence(page, '1440-flight-mode-final')
-
-  for (const viewport of [
-    { width: 768, height: 900 },
-    { width: 375, height: 812 },
-  ]) {
-    await page.setViewportSize(viewport)
-    // A resize has to reach React, re-render the scene and swap in the narrow
-    // still. Under load that is slower than the 5s default — same assertions,
-    // just given time to be answered rather than answered by a fast machine.
-    await expectResize(page.locator('canvas')).toHaveAttribute('data-reward-camera', 'narrow')
-    await expectResize(page.locator('img.reward-narrow-presentation')).toBeVisible()
-    await expectResize(page.locator('img.reward-narrow-presentation')).toHaveAttribute(
-      'src',
-      /model-y-reward-narrow-final\.png$/,
-    )
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
-    expect(overflow).toBeLessThanOrEqual(0)
-    await captureEvidence(page, `${viewport.width}-flight-mode-final`)
-  }
-
-  await page.setViewportSize({ width: 1440, height: 900 })
-  await resetRewardSamples(page)
-  await page.getByRole('button', { name: 'Replay Flight Mode' }).press('Enter')
-  // Skip comes back for the whole replay, so this one can be asserted live.
-  await expect(page.getByRole('button', { name: 'Skip cinematic' })).toBeVisible()
-  await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible({ timeout: 30_000 })
-  // The replay's opening state is read back from the recorder rather than
-  // sampled live: `clip < 5`, `stage !== complete` and `pose stowed` are true
-  // only for the first seconds of an 11.5s clip, which is the same window that
-  // broke the first half of this test. Same assertions, taken when they are
-  // supposed to hold instead of whenever the runner got there.
-  const replaySamples = await observedSamples(page)
-  // Require the three facts together at one real moment, rather than sampling
-  // them one at a time while the clip runs. Note the stage attribute lands a
-  // mutation batch before `data-reward-clip-time` catches up, so the first
-  // post-complete sample still carries the old 11.5 — the restart shows up on
-  // the next one (measured: 11.5 -> 0.837 -> 3.42).
-  const restarted = replaySamples.some(
-    (sample) => sample.pose === 'stowed' && sample.stage !== 'complete' && sample.clip < 5,
-  )
-  expect(restarted, `replay never restarted from the top: ${JSON.stringify(replaySamples)}`).toBe(true)
-  await expect(page.locator('canvas')).toHaveAttribute('data-reward-clip-time', '11.500')
-  await expect(page.locator('canvas')).toHaveAttribute('data-reward-pose', 'deployed')
 })
 
-test('reduced motion starts at the exact final pose and survives reload', async ({ page }) => {
-  test.setTimeout(45_000)
+test('film and controls fit desktop, tablet and phone widths', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
   await seed(page, rewardState())
-
-  await expect(page.locator('canvas[data-reward-model-state="ready"]')).toBeVisible({ timeout: 15_000 })
-  await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible()
-  await expect(page.locator('canvas')).toHaveAttribute('data-reward-clip-time', '11.500')
-  await expect(page.getByText(/Reduced motion is on/)).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Skip cinematic' })).toHaveCount(0)
-  await expect(page.getByRole('button', { name: 'Replay Flight Mode' })).toHaveCount(0)
-
-  await page.reload()
-  await expect(page.locator('canvas[data-reward-model-state="ready"]')).toBeVisible({ timeout: 15_000 })
-  await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible()
-})
-
-test('failed reward loading preserves the tribute and offers retry or accessible fallback', async ({ page }) => {
-  let requests = 0
-  await page.route('**/models/model-y-reward.glb*', (route) => {
-    requests += 1
-    return route.fulfill({ status: 503, body: 'offline' })
-  })
-  await page.goto('/')
-  await seed(page, rewardState())
-
-  // The tribute alert renders only once the loader gives up on the GLB, measured
-  // at ~6s under CPU throttling against the 5s default.
-  await expect(page.getByRole('alert')).toContainText('Your completed journey is safe.', {
-    timeout: 30_000,
-  })
-  await expect(page.getByText(/Your crew loves you/)).toBeVisible()
-  await page.getByRole('button', { name: 'Retry 3D' }).click()
-  await expect.poll(() => requests).toBe(2)
-  await page.getByRole('button', { name: 'Continue with accessible reward' }).click()
-  await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible()
-  await expect(page.getByLabel('Accessible Model Y reward')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Retry 3D' })).toHaveCount(0)
-})
-
-test('accessible reward and legacy Mars saves return to the protected hangar', async ({ page }) => {
-  let rewardRequests = 0
-  page.on('request', (request) => {
-    if (request.url().includes('/models/model-y-reward.glb')) rewardRequests += 1
-  })
-  await page.goto('/?skip3d=1')
-  await seed(page, rewardState({
-    phase: 'mars',
-    marsUnlocked: true,
-  }))
-
-  await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible()
-  await expect(page.getByText('Ground Transport Upgrade Authorized', { exact: true })).toBeVisible()
-  await expect(page.getByText(/mars/i)).toHaveCount(0)
-  expect(rewardRequests).toBe(0)
-})
-
-test('accessible reward has no horizontal overflow at owner-review widths', async ({ page }) => {
-  await page.goto('/?skip3d=1')
-  await seed(page, rewardState())
-
   for (const viewport of [
     { width: 1440, height: 900 },
     { width: 768, height: 900 },
     { width: 375, height: 812 },
   ]) {
     await page.setViewportSize(viewport)
-    await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible()
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
-    expect(overflow).toBeLessThanOrEqual(0)
-    await captureEvidence(page, `${viewport.width}-accessible-final`)
+    await expect(page.getByLabel('Tesla Flight Mode film')).toBeVisible()
+    const videoSize = await page.getByLabel('Tesla Flight Mode film').evaluate((element) => {
+      const bounds = element.getBoundingClientRect()
+      return { width: bounds.width, height: bounds.height, viewportWidth: innerWidth, viewportHeight: innerHeight }
+    })
+    expect(videoSize.width).toBeGreaterThanOrEqual(videoSize.viewportWidth - 1)
+    expect(videoSize.height).toBeGreaterThanOrEqual(videoSize.viewportHeight - 1)
+    await expect(page.getByRole('button', { name: 'Play film' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Skip film and read tribute' })).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
+    await captureEvidence(page, `${viewport.width}-direct-tesla-film`)
   }
+})
+
+test('the authored movie plays with native controls and ends at the family tribute', async ({ page }) => {
+  test.setTimeout(90_000)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  await seed(page, rewardState())
+  const video = page.getByLabel('Tesla Flight Mode film')
+  await expect(video).toHaveAttribute('controls', '')
+  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.duration), { timeout: 30_000 }).toBeGreaterThan(85)
+  await video.evaluate((element: HTMLVideoElement) => { element.muted = true })
+  await page.getByRole('button', { name: 'Play film' }).click()
+  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime), { timeout: 15_000 }).toBeGreaterThan(0.1)
+  await video.evaluate((element: HTMLVideoElement) => { element.currentTime = element.duration - 0.2 })
+  await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible({ timeout: 20_000 })
+  await expect(page.getByText(/Your crew loves you/)).toBeVisible()
+  await page.getByRole('button', { name: 'Replay film' }).click()
+  await expect(video).toBeVisible()
+  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime), { timeout: 15_000 }).toBeLessThan(5)
 })

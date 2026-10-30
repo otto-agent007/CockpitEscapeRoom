@@ -649,6 +649,13 @@ export default function App() {
   }, [beginAirbusLoading, dispatch])
 
   const continueToReward = useCallback(() => {
+    if (!document.fullscreenElement) {
+      // Request browser fullscreen while the player's reward click still has activation.
+      try {
+        const request = shellRef.current?.requestFullscreen?.()
+        void request?.catch(() => { /* The viewport-sized cinema still works if denied. */ })
+      } catch { /* A synchronous fullscreen failure must not block the reward. */ }
+    }
     dispatch({ type: 'CONTINUE_FROM_AIRBUS_TO_REWARD' })
   }, [dispatch])
 
@@ -752,6 +759,7 @@ export default function App() {
   const restart = () => {
     const confirmed = window.confirm(`Restart ${gameCopy.title} and clear saved progress?`)
     if (!confirmed) return
+    if (document.fullscreenElement) void document.exitFullscreen().catch(() => {})
     clearGameState()
     beginAirbusLoading()
     dc9LoaderStartedAtRef.current = performance.now()
@@ -816,7 +824,7 @@ export default function App() {
   if (state.phase === 'reward' || state.phase === 'mars') {
     return (
       <main ref={shellRef} className="game-shell reward-shell">
-        <Suspense fallback={<div className="reward-module-loading" role="status">Preparing the legacy hangar…</div>}>
+        <Suspense fallback={<div className="reward-module-loading" role="status">Preparing the final reward…</div>}>
           <RewardExperience
             reducedMotion={reducedMotion}
             forceAccessible={skipPrototypeScene}
@@ -960,6 +968,7 @@ export default function App() {
       {state.phase === 'airbus' && state.completedPuzzles.includes('airbus') && !lockerIntroActive && (
         <AirbusCompletionCelebration
           reducedMotion={reducedMotion}
+          forceAccessible={skipPrototypeScene}
           traits={state.airbusSimulator.engineOut.bestTraits}
           onContinue={continueToReward}
         />

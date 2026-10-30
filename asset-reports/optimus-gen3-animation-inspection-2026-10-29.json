@@ -1,0 +1,526 @@
+{
+  "blender": "5.1.2",
+  "source": "/mnt/2TBHDD/CockpitEscapeRoom/.worktrees/animation-workflow/.cache/cockpit-pipeline/sources/model-y-reward/optimus-gen3/extracted/animations-2026-10-29/tripo_convert_56ab879e-f961-4ef1-94eb-0447a3f34c16.fbx",
+  "rigs": [
+    {
+      "name": "Armature",
+      "bones": 65,
+      "bone_names": [
+        "mixamorig:Head",
+        "mixamorig:HeadTop_End",
+        "mixamorig:Hips",
+        "mixamorig:LeftArm",
+        "mixamorig:LeftFoot",
+        "mixamorig:LeftForeArm",
+        "mixamorig:LeftHand",
+        "mixamorig:LeftHandIndex1",
+        "mixamorig:LeftHandIndex2",
+        "mixamorig:LeftHandIndex3",
+        "mixamorig:LeftHandIndex4",
+        "mixamorig:LeftHandMiddle1",
+        "mixamorig:LeftHandMiddle2",
+        "mixamorig:LeftHandMiddle3",
+        "mixamorig:LeftHandMiddle4",
+        "mixamorig:LeftHandPinky1",
+        "mixamorig:LeftHandPinky2",
+        "mixamorig:LeftHandPinky3",
+        "mixamorig:LeftHandPinky4",
+        "mixamorig:LeftHandRing1",
+        "mixamorig:LeftHandRing2",
+        "mixamorig:LeftHandRing3",
+        "mixamorig:LeftHandRing4",
+        "mixamorig:LeftHandThumb1",
+        "mixamorig:LeftHandThumb2",
+        "mixamorig:LeftHandThumb3",
+        "mixamorig:LeftHandThumb4",
+        "mixamorig:LeftLeg",
+        "mixamorig:LeftShoulder",
+        "mixamorig:LeftToeBase",
+        "mixamorig:LeftToe_End",
+        "mixamorig:LeftUpLeg",
+        "mixamorig:Neck",
+        "mixamorig:RightArm",
+        "mixamorig:RightFoot",
+        "mixamorig:RightForeArm",
+        "mixamorig:RightHand",
+        "mixamorig:RightHandIndex1",
+        "mixamorig:RightHandIndex2",
+        "mixamorig:RightHandIndex3",
+        "mixamorig:RightHandIndex4",
+        "mixamorig:RightHandMiddle1",
+        "mixamorig:RightHandMiddle2",
+        "mixamorig:RightHandMiddle3",
+        "mixamorig:RightHandMiddle4",
+        "mixamorig:RightHandPinky1",
+        "mixamorig:RightHandPinky2",
+        "mixamorig:RightHandPinky3",
+        "mixamorig:RightHandPinky4",
+        "mixamorig:RightHandRing1",
+        "mixamorig:RightHandRing2",
+        "mixamorig:RightHandRing3",
+        "mixamorig:RightHandRing4",
+        "mixamorig:RightHandThumb1",
+        "mixamorig:RightHandThumb2",
+        "mixamorig:RightHandThumb3",
+        "mixamorig:RightHandThumb4",
+        "mixamorig:RightLeg",
+        "mixamorig:RightShoulder",
+        "mixamorig:RightToeBase",
+        "mixamorig:RightToe_End",
+        "mixamorig:RightUpLeg",
+        "mixamorig:Spine",
+        "mixamorig:Spine1",
+        "mixamorig:Spine2"
+      ],
+      "active_action": "Armature|walk.001",
+      "nla_strips": []
+    }
+  ],
+  "base_glb_bones": 65,
+  "base_glb_bounds": [
+    [
+      -0.49975574016571045,
+      -0.094970703125,
+      -8.05181912255648e-08
+    ],
+    [
+      0.49975594878196716,
+      0.094970703125,
+      0.99462890625
+    ]
+  ],
+  "fbx_bounds": [
+    [
+      -0.16079558432102203,
+      -0.12070561200380325,
+      -0.0009501978638581932
+    ],
+    [
+      0.1723117083311081,
+      0.11584719270467758,
+      0.9845815896987915
+    ]
+  ],
+  "fps": 24,
+  "fbx_materials": [
+    {
+      "name": "tripo_mat_56ab879e",
+      "texture_links": [
+        {
+          "image": "tripo_image_56ab879e_0",
+          "to_node": "ShaderNodeBsdfPrincipled",
+          "to_socket": "Base Color"
+        },
+        {
+          "image": "tripo_image_56ab879e_3",
+          "to_node": "ShaderNodeNormalMap",
+          "to_socket": "Color"
+        },
+        {
+          "image": "tripo_image_56ab879e_1",
+          "to_node": "ShaderNodeBsdfPrincipled",
+          "to_socket": "Roughness"
+        },
+        {
+          "image": "tripo_image_56ab879e_2",
+          "to_node": "ShaderNodeBsdfPrincipled",
+          "to_socket": "Metallic"
+        }
+      ]
+    }
+  ],
+  "max_rest_bone_endpoint_delta": 0.028906372815386532,
+  "bone_names_missing_from_fbx": [],
+  "bone_names_extra_in_fbx": [],
+  "meshes": [
+    {
+      "name": "tripo_node_56ab879e",
+      "vertices": 20663,
+      "faces": 23479,
+      "triangles": 40462,
+      "vertex_groups": 52,
+      "parent": "Armature",
+      "armature_modifiers": [
+        "Armature"
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "name": "Armature|agree.001",
+      "range": [
+        1.0,
+        97.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|cheer.001",
+      "range": [
+        1.0,
+        291.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|clap.001",
+      "range": [
+        1.0,
+        329.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|dance_01.001",
+      "range": [
+        1.0,
+        557.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|dance_02.001",
+      "range": [
+        1.0,
+        308.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|dance_03.001",
+      "range": [
+        1.0,
+        308.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|dance_04.001",
+      "range": [
+        1.0,
+        260.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|dance_05.001",
+      "range": [
+        1.0,
+        70.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|dance_06.001",
+      "range": [
+        1.0,
+        262.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|dive.001",
+      "range": [
+        1.0,
+        66.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|fall.001",
+      "range": [
+        1.0,
+        73.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|fire.001",
+      "range": [
+        1.0,
+        37.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|flee_02.001",
+      "range": [
+        1.0,
+        89.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|flip.001",
+      "range": [
+        1.0,
+        108.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|football_catch.001",
+      "range": [
+        1.0,
+        84.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|front_kick_01.001",
+      "range": [
+        1.0,
+        61.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|greet_01.001",
+      "range": [
+        1.0,
+        85.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|greet_02.001",
+      "range": [
+        1.0,
+        135.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|greet_03.001",
+      "range": [
+        1.0,
+        219.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|greet_04.001",
+      "range": [
+        1.0,
+        68.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|heart_pose.001",
+      "range": [
+        1.0,
+        130.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|hug.001",
+      "range": [
+        1.0,
+        135.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|idle.001",
+      "range": [
+        1.0,
+        369.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|make_a_call_01.001",
+      "range": [
+        1.0,
+        423.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|pitch_baseball.001",
+      "range": [
+        1.0,
+        92.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|run.001",
+      "range": [
+        1.0,
+        31.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|swagger.001",
+      "range": [
+        1.0,
+        89.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|turn.001",
+      "range": [
+        1.0,
+        93.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|walk.001",
+      "range": [
+        1.0,
+        57.0
+      ],
+      "users": 2,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|warm_up.001",
+      "range": [
+        1.0,
+        440.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    },
+    {
+      "name": "Armature|wave_goodbye_02.001",
+      "range": [
+        1.0,
+        142.0
+      ],
+      "users": 1,
+      "slots": 1,
+      "fcurves": null
+    }
+  ],
+  "images": [
+    {
+      "name": "tripo_image_4f61a58b-e75a-4a72-9411-c3c8a9f2c266_2-tripo_image_4f61a58b-e75a-4a72-9411-c3c8a9f2c266_1",
+      "size": [
+        4096,
+        4096
+      ],
+      "filepath": ""
+    },
+    {
+      "name": "tripo_image_56ab879e_0",
+      "size": [
+        8192,
+        8192
+      ],
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.worktrees/animation-workflow/.cache/cockpit-pipeline/sources/model-y-reward/optimus-gen3/extracted/animations-2026-10-29/tripo_convert_56ab879e-f961-4ef1-94eb-0447a3f34c16.fbm/tripo_rgb_917004f7-91a9-4e5b-b549-7e6b21d440ec.jpg"
+    },
+    {
+      "name": "tripo_image_56ab879e_1",
+      "size": [
+        4096,
+        4096
+      ],
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.worktrees/animation-workflow/.cache/cockpit-pipeline/sources/model-y-reward/optimus-gen3/extracted/animations-2026-10-29/tripo_convert_56ab879e-f961-4ef1-94eb-0447a3f34c16.fbm/d2e3d079_d2bf_4497_a357_bbe7770ae088_roughness.jpg"
+    },
+    {
+      "name": "tripo_image_56ab879e_2",
+      "size": [
+        4096,
+        4096
+      ],
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.worktrees/animation-workflow/.cache/cockpit-pipeline/sources/model-y-reward/optimus-gen3/extracted/animations-2026-10-29/tripo_convert_56ab879e-f961-4ef1-94eb-0447a3f34c16.fbm/d2e3d079_d2bf_4497_a357_bbe7770ae088_metallic.jpg"
+    },
+    {
+      "name": "tripo_image_56ab879e_3",
+      "size": [
+        4096,
+        4096
+      ],
+      "filepath": "/mnt/2TBHDD/CockpitEscapeRoom/.worktrees/animation-workflow/.cache/cockpit-pipeline/sources/model-y-reward/optimus-gen3/extracted/animations-2026-10-29/tripo_convert_56ab879e-f961-4ef1-94eb-0447a3f34c16.fbm/tripo_normal_5d3ebeb8-5bec-42f4-b0d2-f187d38cfc77.jpg"
+    },
+    {
+      "name": "tripo_normal_5d3ebeb8-5bec-42f4-b0d2-f187d38cfc77",
+      "size": [
+        4096,
+        4096
+      ],
+      "filepath": ""
+    },
+    {
+      "name": "tripo_rgb_917004f7-91a9-4e5b-b549-7e6b21d440ec",
+      "size": [
+        8192,
+        8192
+      ],
+      "filepath": ""
+    },
+    {
+      "name": "Viewer Node",
+      "size": [
+        256,
+        256
+      ],
+      "filepath": ""
+    }
+  ]
+}
