@@ -18,7 +18,7 @@ It honors an expert pilot who began on the McDonnell Douglas DC-9 and later flew
 6. The key opens the unchanged Captain's Locker sequence: watch → baseball → Charging Bull → airline wings → captain's hat.
 7. **Enter Pop T Captain Mode** opens the separate Airbus A320 captain/left-seat cockpit, five-card qualification, Storm Line, and Engine-Out Handling scenarios.
 8. Completing Airbus opens an animated Optimus congratulations scene with the owner-selected Heart voice and matching text. Its **Reveal reward** action starts the protected red Model Y film in a viewport-sized cinema, requests browser fullscreen, then reaches the family tribute. The 3D robot remains under visual review.
-9. Mars remains optional and separate from the main ending.
+9. After the final tribute has completed once, hold T+M+B together for 1.5 seconds from any chapter to open the optional Mars arcade. No visible entry control or standalone URL starts a match; the local unlock survives reload and Restart, and returning preserves the current chapter.
 
 Persisted later chapters resume directly. Wrong choices may rewind the active checkpoint but never erase completed puzzle or chapter progress.
 

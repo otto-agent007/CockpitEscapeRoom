@@ -13,7 +13,6 @@
   --danger: #d35a4c;
   --text-soft: #bfc9bb;
 }
-
 /* Authoritative 320 x 224 TMB2 Canvas presentation. */
 .game-intro.game-intro {
   --intro-ink: #f8fbff;
@@ -4263,3 +4262,10 @@ progress {
     grid-template-columns: auto 1fr;
   }
 }
+
+/* Hidden Mars arcade chapter shell. */
+.mars-arcade-view { min-height: 100dvh; display: flex; flex-direction: column; background: #0b0d16; color: #e6e8f3; }
+.mars-arcade-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 12px 16px; }
+.mars-arcade-bar .secondary-button { width: auto; margin: 0; flex: 0 0 auto; }
+.mars-arcade-view > p, .mars-arcade-view > div[role="alert"] { margin: 8px 16px; }
+.mars-arcade-view iframe { flex: 1; width: 100%; min-height: calc(100dvh - 90px); border: 0; background: #0b0d16; }

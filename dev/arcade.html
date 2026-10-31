@@ -17,6 +17,7 @@
         <p class="sub">The real fight loop with live state, hitboxes and native controls. A work-in-progress animation study.</p>
       </div>
       <nav class="shell-tabs" aria-label="Arcade tools">
+        <label class="arcade-background-picker">Background <select id="background-choice"><option value="mars">Mars</option><option value="moonbase">Moonbase</option></select></label>
         <a href="./gym.html">Character gym</a>
         <a href="./arcade.html" aria-current="page">Fighter playground</a>
       </nav>
@@ -31,12 +32,12 @@
         <p class="keys" aria-label="Key hints">
           Free play starts a round. Click the arena to control P1.<br />
           <kbd>A</kbd><kbd>D</kbd> move · <kbd>W</kbd> jump · <kbd>J</kbd> light · <kbd>K</kbd> heavy · <kbd>L</kbd> special ·
-          <kbd>Space</kbd> pause · <kbd>N</kbd> step · <kbd>R</kbd> reset · <kbd>H</kbd> boxes · <kbd>T</kbd> human P2<br />
-          Controller: d-pad or stick move · <kbd>A</kbd> jump · <kbd>X</kbd> light · <kbd>Y</kbd> heavy · <kbd>B</kbd> special ·
-          <kbd>Start</kbd> pause · <kbd>Back</kbd> reset. PlayStation: <kbd>✕</kbd> <kbd>□</kbd> <kbd>△</kbd> <kbd>○</kbd> in the same places.
+          <kbd>Space</kbd> pause · <kbd>N</kbd> step · <kbd>R</kbd> reset · <kbd>H</kbd> boxes · <kbd>T</kbd> human P2
         </p>
         <p id="asset-status" class="status" role="status">Loading sprite pilot…</p>
-        <p id="pad-status" class="status" role="status" aria-live="polite">No controller yet. Plug one in by USB or pair it by Bluetooth, then press any button on it.</p>
+        <p id="pad-status" class="status" role="status"></p>
+        <p id="background-status" class="status" role="status"></p>
+        <button class="background-retry" id="background-retry" type="button" hidden>Retry background</button>
         <p id="health-status" class="health-status" role="status" aria-live="polite"></p>
         <div class="controls" aria-label="Round controls">
           <button class="btn-primary" data-command="exchange">Play exchange</button>
@@ -76,6 +77,7 @@
         </p>
         <p id="pivot-preview-info" hidden>Sam’s Non-Profit Pivot ·60 meter ·capture within60px ·guard bypass ·steals half the opponent's meter. Sam: forward, down, down-forward +Heavy; L/Special also works. S is down for Sam; the speed button still works.</p>
         <p id="pivot-status" role="status" aria-live="polite" hidden></p>
+        <p id="cap-status" role="status" aria-live="polite" hidden></p>
       </section>
       <aside class="console" id="arcade-console" aria-label="Debug console">
         <div class="console-head"><span>Debug console</span><button type="button" id="arcade-collapse" aria-expanded="true">Collapse</button></div>
@@ -128,6 +130,7 @@
           <div class="keys">
             <span>P1 move / jump</span><span><kbd>A</kbd> <kbd>D</kbd> <kbd>W</kbd></span>
             <span>P1 light / heavy / special</span><span><kbd>J</kbd> <kbd>K</kbd> <kbd>L</kbd></span>
+            <span>Trump Cap Throw</span><span><kbd>S</kbd> then forward + <kbd>J</kbd> · 40 meter</span>
             <span>P2 move / jump</span><span><kbd>&larr;</kbd> <kbd>&rarr;</kbd> <kbd>&uarr;</kbd></span>
             <span>P2 light / heavy / special</span><span><kbd>,</kbd> <kbd>.</kbd> <kbd>/</kbd></span>
             <span>pause / step one frame</span><span><kbd>Space</kbd> <kbd>N</kbd></span>
@@ -138,10 +141,6 @@
             <span>hitbox overlay</span><span><kbd>H</kbd></span>
             <span>sprites / boxes</span><span><kbd>V</kbd></span>
             <span>pick P1 / P2 fighter</span><span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> / <kbd>Shift</kbd>+</span>
-            <span>controller move / jump</span><span>d-pad or stick · <kbd>A</kbd></span>
-            <span>controller light / heavy / special</span><span><kbd>X</kbd> <kbd>Y</kbd> <kbd>B</kbd></span>
-            <span>controller pause / restart</span><span><kbd>Start</kbd> <kbd>Back</kbd></span>
-            <span>controllers</span><span>1st → P1, 2nd → P2</span>
           </div>
         </section>
 

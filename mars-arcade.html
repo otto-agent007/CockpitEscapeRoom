@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en" data-mars-arcade>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0d16" />
+    <title>CockpitEscapeRoom · Mars arcade</title>
+  </head>
+  <body>
+    <main id="arcade-locked">
+      <h1>CockpitEscapeRoom</h1>
+      <p>Complete the main game once to unlock this Easter egg.</p>
+      <a href="./">Return to game</a>
+    </main>
+    <main id="arcade-game" hidden>
+      <header class="shell-header">
+        <div class="shell-brand"><p class="eyebrow">Bonus unlocked</p><h1>Mars arcade</h1><p class="sub">Your crew has earned a little free play.</p></div>
+        <div class="shell-tabs">
+          <label class="arcade-background-picker">Background <select id="background-choice"><option value="mars">Mars</option><option value="moonbase">Moonbase</option></select></label>
+          <button id="arcade-return" type="button">Return to game</button>
+        </div>
+      </header>
+      <div class="shell-main arcade-player-main">
+        <section class="stage-panel" aria-label="Arcade match">
+          <h2 class="titlebar" id="stage-title">Captain vs Booster</h2>
+          <div class="viewport"><canvas id="stage" tabindex="0" aria-label="Mars fighting arena. Use the native controls below or A and D to move, W to jump, J for light, K for heavy, L for special."></canvas></div>
+          <p class="status" id="match-status" aria-live="off"></p>
+          <p class="status" id="background-status" role="status"></p>
+          <p class="status" id="pad-status" role="status"></p>
+          <button class="background-retry" id="background-retry" type="button" hidden>Retry background</button>
+          <p class="status" id="health-status" role="status" aria-live="polite"></p>
+          <p class="status" id="pivot-status" role="status" aria-live="polite" hidden></p>
+          <p class="status" id="cap-status" role="status" aria-live="polite" hidden></p>
+          <div class="controls">
+            <label>Your fighter <select data-fighter="0" aria-label="Your fighter"></select></label>
+            <label>Opponent <select data-fighter="1" aria-label="Opponent"></select></label>
+            <button type="button" data-command="Space">Pause</button>
+            <button type="button" data-command="KeyR">Restart round</button>
+            <button type="button" data-command="KeyT">Switch CPU / two players</button>
+            <button type="button" data-command="KeyG">Switch difficulty</button>
+          </div>
+          <fieldset><legend>Player 1</legend><div class="controls">
+            <button type="button" data-combat="KeyA">P1 left</button><button type="button" data-combat="KeyD">P1 right</button><button type="button" data-combat="KeyW">P1 jump</button>
+            <button type="button" data-combat="KeyJ">P1 light</button><button type="button" data-combat="KeyK">P1 heavy</button><button type="button" data-combat="KeyL">P1 special</button>
+            <button type="button" data-combat="KeyS" data-pivot-down="0" hidden>P1 down</button>
+          </div></fieldset>
+          <details class="arcade-player-two"><summary>Second player controls</summary><fieldset><legend>Player 2</legend><div class="controls">
+            <button type="button" data-combat="ArrowLeft">P2 left</button><button type="button" data-combat="ArrowRight">P2 right</button><button type="button" data-combat="ArrowUp">P2 jump</button>
+            <button type="button" data-combat="Comma">P2 light</button><button type="button" data-combat="Period">P2 heavy</button><button type="button" data-combat="Slash">P2 special</button>
+            <button type="button" data-combat="ArrowDown" data-pivot-down="1" hidden>P2 down</button>
+          </div></fieldset></details>
+          <details class="arcade-instructions"><summary>How to play</summary>
+            <p>Player 1: A / D move, W jumps, J light, K heavy, L special. Walk away from an incoming attack to guard. Player 2: arrow keys move and jump; comma / period / slash attack.</p>
+            <p>Donald’s Cap Throw: S, then forward + J. Sam’s Non-Profit Pivot: S, then forward + K. Native Special buttons perform the same moves. Earn meter through play.</p>
+            <p>Space pauses, R restarts the round, T switches the opponent between CPU and a second player, G switches difficulty. A connected controller uses the left stick or D-pad to move, face buttons to attack, Start to pause, and Back to restart. Escape returns to your game.</p>
+          </details>
+          <p class="status" id="arcade-art-message" role="status" hidden></p>
+          <p id="asset-status" hidden></p>
+          <pre id="readout" hidden></pre><pre id="log" hidden></pre>
+        </section>
+      </div>
+    </main>
+    <script type="module" src="/src/arcade/main.ts"></script>
+  </body>
+</html>

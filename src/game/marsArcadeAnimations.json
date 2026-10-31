@@ -784,7 +784,7 @@
       "fighter": "booster",
       "animation": "heavy-block",
       "loop": "by-stun",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/booster/normalised-heavy-block-ready/compress/compress-00.png",
@@ -1233,7 +1233,7 @@
       "fighter": "booster",
       "animation": "victory",
       "loop": "hold-last",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/booster/normalised-outcomes-ready/win/win-00.png",
@@ -1301,7 +1301,7 @@
       "fighter": "booster",
       "animation": "knockout",
       "loop": "hold-last",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/booster/normalised-sleek-ready/recoil/recoil-00.png",
@@ -2035,7 +2035,7 @@
       "fighter": "oracle",
       "animation": "heavy-block",
       "loop": "by-stun",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/oracle/normalised-heavy-block-ready/compress/compress-00.png",
@@ -2303,7 +2303,7 @@
       "fighter": "oracle",
       "animation": "victory",
       "loop": "hold-last",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/oracle/normalised-outcomes-ready/win/win-00.png",
@@ -2371,7 +2371,7 @@
       "fighter": "oracle",
       "animation": "knockout",
       "loop": "hold-last",
-      "reviewed": false,
+      "reviewed": true,
       "frames": [
         {
           "src": "/art-source/arcade/oracle/normalised-exchange-ready/recoil/recoil-00.png",
@@ -5049,6 +5049,2081 @@
           ]
         }
       ]
+    },
+    {
+      "fighter": "trump",
+      "animation": "idle",
+      "loop": "loop",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/trump/normalised-anchor-v2/anchor/anchor-00.png",
+          "pose": "approved base",
+          "phase": "neutral",
+          "hold": 30,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 57,
+              "y": 16,
+              "width": 27,
+              "height": 25
+            },
+            {
+              "x": 43,
+              "y": 42,
+              "width": 44,
+              "height": 28
+            },
+            {
+              "x": 39,
+              "y": 75,
+              "width": 25,
+              "height": 37
+            },
+            {
+              "x": 64,
+              "y": 75,
+              "width": 19,
+              "height": 37
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/idle/idle-01.png",
+          "pose": "inhale",
+          "phase": "neutral",
+          "hold": 30,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 57,
+              "y": 17,
+              "width": 26,
+              "height": 24
+            },
+            {
+              "x": 49,
+              "y": 33,
+              "width": 27,
+              "height": 35
+            },
+            {
+              "x": 39,
+              "y": 67,
+              "width": 25,
+              "height": 45
+            },
+            {
+              "x": 64,
+              "y": 71,
+              "width": 18,
+              "height": 41
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fighter": "trump",
+      "animation": "jab",
+      "loop": "once",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/trump/normalised-actions-v2-candidate/jab/jab-01.png",
+          "pose": "anticipation",
+          "phase": "startup",
+          "hold": 4,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 57,
+              "y": 17,
+              "width": 26,
+              "height": 24
+            },
+            {
+              "x": 42,
+              "y": 42,
+              "width": 45,
+              "height": 27
+            },
+            {
+              "x": 38,
+              "y": 75,
+              "width": 26,
+              "height": 37
+            },
+            {
+              "x": 64,
+              "y": 75,
+              "width": 18,
+              "height": 37
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-actions-v2-candidate/jab/jab-02.png",
+          "pose": "contact",
+          "phase": "active",
+          "hold": 3,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 56,
+              "y": 17,
+              "width": 25,
+              "height": 24
+            },
+            {
+              "x": 47,
+              "y": 43,
+              "width": 39,
+              "height": 25
+            },
+            {
+              "x": 38,
+              "y": 75,
+              "width": 26,
+              "height": 37
+            },
+            {
+              "x": 64,
+              "y": 75,
+              "width": 19,
+              "height": 37
+            }
+          ],
+          "attack": [
+            {
+              "x": 95,
+              "y": 39,
+              "width": 13,
+              "height": 11
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-actions-v2-candidate/jab/jab-03.png",
+          "pose": "retract",
+          "phase": "recovery",
+          "hold": 7,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 57,
+              "y": 17,
+              "width": 26,
+              "height": 24
+            },
+            {
+              "x": 44,
+              "y": 42,
+              "width": 43,
+              "height": 27
+            },
+            {
+              "x": 38,
+              "y": 75,
+              "width": 26,
+              "height": 37
+            },
+            {
+              "x": 64,
+              "y": 75,
+              "width": 19,
+              "height": 38
+            }
+          ]
+        }
+      ],
+      "moveId": "trump.jab"
+    },
+    {
+      "fighter": "trump",
+      "animation": "heavy",
+      "loop": "once",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/trump/normalised-heavy-windmill-v1-candidate/heavy/heavy-01.png",
+          "pose": "retained-windup",
+          "phase": "startup",
+          "hold": 10,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 58,
+              "y": 23,
+              "width": 24,
+              "height": 23
+            },
+            {
+              "x": 42,
+              "y": 42,
+              "width": 34,
+              "height": 31
+            },
+            {
+              "x": 39,
+              "y": 75,
+              "width": 25,
+              "height": 37
+            },
+            {
+              "x": 64,
+              "y": 75,
+              "width": 18,
+              "height": 38
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-heavy-windmill-v1-candidate/heavy/heavy-02.png",
+          "pose": "overhead-arc",
+          "phase": "startup",
+          "hold": 4,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 65,
+              "y": 30,
+              "width": 15,
+              "height": 19
+            },
+            {
+              "x": 47,
+              "y": 42,
+              "width": 28,
+              "height": 33
+            },
+            {
+              "x": 38,
+              "y": 75,
+              "width": 26,
+              "height": 38
+            },
+            {
+              "x": 64,
+              "y": 75,
+              "width": 17,
+              "height": 38
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-heavy-windmill-v1-candidate/heavy/heavy-03.png",
+          "pose": "windmill-contact",
+          "phase": "active",
+          "hold": 5,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 57,
+              "y": 22,
+              "width": 25,
+              "height": 22
+            },
+            {
+              "x": 48,
+              "y": 42,
+              "width": 39,
+              "height": 30
+            },
+            {
+              "x": 36,
+              "y": 75,
+              "width": 28,
+              "height": 37
+            },
+            {
+              "x": 64,
+              "y": 75,
+              "width": 19,
+              "height": 37
+            }
+          ],
+          "attack": [
+            {
+              "x": 98,
+              "y": 46,
+              "width": 13,
+              "height": 17
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-heavy-windmill-v1-candidate/heavy/heavy-04.png",
+          "pose": "outward-sweep",
+          "phase": "recovery",
+          "hold": 6,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 56,
+              "y": 22,
+              "width": 25,
+              "height": 23
+            },
+            {
+              "x": 48,
+              "y": 42,
+              "width": 39,
+              "height": 30
+            },
+            {
+              "x": 36,
+              "y": 75,
+              "width": 28,
+              "height": 37
+            },
+            {
+              "x": 64,
+              "y": 75,
+              "width": 20,
+              "height": 37
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-heavy-windmill-v1-candidate/heavy/heavy-05.png",
+          "pose": "backward-sweep",
+          "phase": "recovery",
+          "hold": 6,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 55,
+              "y": 24,
+              "width": 24,
+              "height": 22
+            },
+            {
+              "x": 42,
+              "y": 42,
+              "width": 33,
+              "height": 31
+            },
+            {
+              "x": 37,
+              "y": 75,
+              "width": 27,
+              "height": 37
+            },
+            {
+              "x": 64,
+              "y": 75,
+              "width": 18,
+              "height": 38
+            }
+          ]
+        }
+      ],
+      "moveId": "trump.windmill"
+    },
+    {
+      "fighter": "trump",
+      "animation": "block",
+      "loop": "hold-last",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/trump/normalised-actions-v2-candidate/block/block-01.png",
+          "pose": "guard",
+          "phase": "neutral",
+          "hold": 12,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 57,
+              "y": 17,
+              "width": 26,
+              "height": 25
+            },
+            {
+              "x": 47,
+              "y": 42,
+              "width": 40,
+              "height": 27
+            },
+            {
+              "x": 39,
+              "y": 75,
+              "width": 25,
+              "height": 37
+            },
+            {
+              "x": 64,
+              "y": 75,
+              "width": 19,
+              "height": 38
+            }
+          ],
+          "guard": {
+            "x": 66,
+            "y": 30,
+            "width": 24,
+            "height": 41
+          }
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-actions-v2-candidate/block/block-02.png",
+          "pose": "brace",
+          "phase": "neutral",
+          "hold": 6,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 47,
+              "y": 19,
+              "width": 20,
+              "height": 22
+            },
+            {
+              "x": 42,
+              "y": 42,
+              "width": 37,
+              "height": 25
+            },
+            {
+              "x": 39,
+              "y": 75,
+              "width": 25,
+              "height": 37
+            },
+            {
+              "x": 64,
+              "y": 75,
+              "width": 18,
+              "height": 37
+            }
+          ],
+          "guard": {
+            "x": 66,
+            "y": 30,
+            "width": 24,
+            "height": 41
+          }
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-actions-v2-candidate/block/block-03.png",
+          "pose": "settle",
+          "phase": "neutral",
+          "hold": 12,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 57,
+              "y": 17,
+              "width": 26,
+              "height": 25
+            },
+            {
+              "x": 47,
+              "y": 42,
+              "width": 40,
+              "height": 27
+            },
+            {
+              "x": 39,
+              "y": 75,
+              "width": 25,
+              "height": 37
+            },
+            {
+              "x": 64,
+              "y": 75,
+              "width": 19,
+              "height": 38
+            }
+          ],
+          "guard": {
+            "x": 66,
+            "y": 30,
+            "width": 24,
+            "height": 41
+          }
+        }
+      ]
+    },
+    {
+      "fighter": "trump",
+      "animation": "walk-forward",
+      "loop": "loop",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/walk-forward/walk-forward-00.png",
+          "pose": "right-contact",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 57,
+              "y": 16,
+              "width": 27,
+              "height": 25
+            },
+            {
+              "x": 50,
+              "y": 32,
+              "width": 26,
+              "height": 36
+            },
+            {
+              "x": 39,
+              "y": 67,
+              "width": 25,
+              "height": 45
+            },
+            {
+              "x": 64,
+              "y": 70,
+              "width": 19,
+              "height": 42
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/walk-forward/walk-forward-01.png",
+          "pose": "left-pass",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 58,
+              "y": 18,
+              "width": 26,
+              "height": 24
+            },
+            {
+              "x": 50,
+              "y": 34,
+              "width": 26,
+              "height": 35
+            },
+            {
+              "x": 46,
+              "y": 68,
+              "width": 18,
+              "height": 40
+            },
+            {
+              "x": 64,
+              "y": 71,
+              "width": 18,
+              "height": 43
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/walk-forward/walk-forward-02.png",
+          "pose": "contact-return",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 57,
+              "y": 16,
+              "width": 27,
+              "height": 25
+            },
+            {
+              "x": 50,
+              "y": 32,
+              "width": 26,
+              "height": 36
+            },
+            {
+              "x": 39,
+              "y": 67,
+              "width": 25,
+              "height": 45
+            },
+            {
+              "x": 64,
+              "y": 70,
+              "width": 19,
+              "height": 42
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/walk-forward/walk-forward-03.png",
+          "pose": "right-pass",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 58,
+              "y": 17,
+              "width": 26,
+              "height": 25
+            },
+            {
+              "x": 50,
+              "y": 34,
+              "width": 26,
+              "height": 34
+            },
+            {
+              "x": 47,
+              "y": 66,
+              "width": 17,
+              "height": 47
+            },
+            {
+              "x": 64,
+              "y": 71,
+              "width": 23,
+              "height": 40
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fighter": "trump",
+      "animation": "walk-back",
+      "loop": "loop",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/walk-forward/walk-forward-00.png",
+          "pose": "right-contact",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 57,
+              "y": 16,
+              "width": 27,
+              "height": 25
+            },
+            {
+              "x": 50,
+              "y": 32,
+              "width": 26,
+              "height": 36
+            },
+            {
+              "x": 39,
+              "y": 67,
+              "width": 25,
+              "height": 45
+            },
+            {
+              "x": 64,
+              "y": 70,
+              "width": 19,
+              "height": 42
+            }
+          ],
+          "guard": {
+            "x": 66,
+            "y": 30,
+            "width": 24,
+            "height": 41
+          }
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/walk-forward/walk-forward-03.png",
+          "pose": "right-pass",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 58,
+              "y": 17,
+              "width": 26,
+              "height": 25
+            },
+            {
+              "x": 50,
+              "y": 34,
+              "width": 26,
+              "height": 34
+            },
+            {
+              "x": 47,
+              "y": 66,
+              "width": 17,
+              "height": 47
+            },
+            {
+              "x": 64,
+              "y": 71,
+              "width": 23,
+              "height": 40
+            }
+          ],
+          "guard": {
+            "x": 66,
+            "y": 30,
+            "width": 24,
+            "height": 41
+          }
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/walk-forward/walk-forward-02.png",
+          "pose": "contact-return",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 57,
+              "y": 16,
+              "width": 27,
+              "height": 25
+            },
+            {
+              "x": 50,
+              "y": 32,
+              "width": 26,
+              "height": 36
+            },
+            {
+              "x": 39,
+              "y": 67,
+              "width": 25,
+              "height": 45
+            },
+            {
+              "x": 64,
+              "y": 70,
+              "width": 19,
+              "height": 42
+            }
+          ],
+          "guard": {
+            "x": 66,
+            "y": 30,
+            "width": 24,
+            "height": 41
+          }
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/walk-forward/walk-forward-01.png",
+          "pose": "left-pass",
+          "phase": "neutral",
+          "hold": 8,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 58,
+              "y": 18,
+              "width": 26,
+              "height": 24
+            },
+            {
+              "x": 50,
+              "y": 34,
+              "width": 26,
+              "height": 35
+            },
+            {
+              "x": 46,
+              "y": 68,
+              "width": 18,
+              "height": 40
+            },
+            {
+              "x": 64,
+              "y": 71,
+              "width": 18,
+              "height": 43
+            }
+          ],
+          "guard": {
+            "x": 66,
+            "y": 30,
+            "width": 24,
+            "height": 41
+          }
+        }
+      ]
+    },
+    {
+      "fighter": "trump",
+      "animation": "jump",
+      "loop": "by-velocity",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/jump/jump-00.png",
+          "pose": "rise",
+          "phase": "neutral",
+          "hold": 1,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 57,
+              "y": 29,
+              "width": 26,
+              "height": 24
+            },
+            {
+              "x": 49,
+              "y": 45,
+              "width": 26,
+              "height": 34
+            },
+            {
+              "x": 48,
+              "y": 78,
+              "width": 16,
+              "height": 29
+            },
+            {
+              "x": 64,
+              "y": 81,
+              "width": 24,
+              "height": 28
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/jump/jump-00.png",
+          "pose": "apex",
+          "phase": "neutral",
+          "hold": 1,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 57,
+              "y": 29,
+              "width": 26,
+              "height": 24
+            },
+            {
+              "x": 49,
+              "y": 45,
+              "width": 26,
+              "height": 34
+            },
+            {
+              "x": 48,
+              "y": 78,
+              "width": 16,
+              "height": 29
+            },
+            {
+              "x": 64,
+              "y": 81,
+              "width": 24,
+              "height": 28
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/jump/jump-01.png",
+          "pose": "fall",
+          "phase": "neutral",
+          "hold": 1,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 66,
+              "y": 17,
+              "width": 26,
+              "height": 24
+            },
+            {
+              "x": 56,
+              "y": 33,
+              "width": 28,
+              "height": 35
+            },
+            {
+              "x": 56,
+              "y": 66,
+              "width": 8,
+              "height": 46
+            },
+            {
+              "x": 64,
+              "y": 68,
+              "width": 28,
+              "height": 43
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fighter": "trump",
+      "animation": "hit",
+      "loop": "by-stun",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/hit/hit-00.png",
+          "pose": "impact",
+          "phase": "neutral",
+          "hold": 6,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 39,
+              "y": 18,
+              "width": 20,
+              "height": 28
+            },
+            {
+              "x": 44,
+              "y": 38,
+              "width": 27,
+              "height": 26
+            },
+            {
+              "x": 39,
+              "y": 71,
+              "width": 25,
+              "height": 41
+            },
+            {
+              "x": 64,
+              "y": 74,
+              "width": 19,
+              "height": 38
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/hit/hit-01.png",
+          "pose": "recover",
+          "phase": "neutral",
+          "hold": 12,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 57,
+              "y": 16,
+              "width": 27,
+              "height": 25
+            },
+            {
+              "x": 50,
+              "y": 32,
+              "width": 26,
+              "height": 36
+            },
+            {
+              "x": 39,
+              "y": 67,
+              "width": 25,
+              "height": 45
+            },
+            {
+              "x": 64,
+              "y": 70,
+              "width": 19,
+              "height": 42
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fighter": "trump",
+      "animation": "heavy-block",
+      "loop": "by-stun",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/trump/normalised-actions-v2-candidate/block/block-02.png",
+          "pose": "compress",
+          "phase": "neutral",
+          "hold": 5,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 47,
+              "y": 19,
+              "width": 20,
+              "height": 22
+            },
+            {
+              "x": 42,
+              "y": 42,
+              "width": 37,
+              "height": 25
+            },
+            {
+              "x": 39,
+              "y": 75,
+              "width": 25,
+              "height": 37
+            },
+            {
+              "x": 64,
+              "y": 75,
+              "width": 18,
+              "height": 37
+            }
+          ],
+          "guard": {
+            "x": 66,
+            "y": 30,
+            "width": 24,
+            "height": 41
+          }
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-actions-v2-candidate/block/block-03.png",
+          "pose": "settle",
+          "phase": "neutral",
+          "hold": 6,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 57,
+              "y": 17,
+              "width": 26,
+              "height": 25
+            },
+            {
+              "x": 47,
+              "y": 42,
+              "width": 40,
+              "height": 27
+            },
+            {
+              "x": 39,
+              "y": 75,
+              "width": 25,
+              "height": 37
+            },
+            {
+              "x": 64,
+              "y": 75,
+              "width": 19,
+              "height": 38
+            }
+          ],
+          "guard": {
+            "x": 66,
+            "y": 30,
+            "width": 24,
+            "height": 41
+          }
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-actions-v2-candidate/block/block-01.png",
+          "pose": "guard",
+          "phase": "neutral",
+          "hold": 3,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 57,
+              "y": 17,
+              "width": 26,
+              "height": 25
+            },
+            {
+              "x": 47,
+              "y": 42,
+              "width": 40,
+              "height": 27
+            },
+            {
+              "x": 39,
+              "y": 75,
+              "width": 25,
+              "height": 37
+            },
+            {
+              "x": 64,
+              "y": 75,
+              "width": 19,
+              "height": 38
+            }
+          ],
+          "guard": {
+            "x": 66,
+            "y": 30,
+            "width": 24,
+            "height": 41
+          }
+        }
+      ]
+    },
+    {
+      "fighter": "trump",
+      "animation": "victory",
+      "loop": "loop",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/trump/normalised-victory-final-v2/victory/victory-00.png",
+          "pose": "dance-in",
+          "phase": "neutral",
+          "hold": 12,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 55,
+              "y": 17,
+              "width": 26,
+              "height": 24
+            },
+            {
+              "x": 51,
+              "y": 34,
+              "width": 24,
+              "height": 35
+            },
+            {
+              "x": 37,
+              "y": 68,
+              "width": 27,
+              "height": 44
+            },
+            {
+              "x": 64,
+              "y": 72,
+              "width": 18,
+              "height": 41
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-victory-final-v2/victory/victory-01.png",
+          "pose": "dance-out",
+          "phase": "neutral",
+          "hold": 12,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 58,
+              "y": 18,
+              "width": 25,
+              "height": 24
+            },
+            {
+              "x": 52,
+              "y": 34,
+              "width": 24,
+              "height": 35
+            },
+            {
+              "x": 39,
+              "y": 69,
+              "width": 25,
+              "height": 43
+            },
+            {
+              "x": 64,
+              "y": 71,
+              "width": 20,
+              "height": 41
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fighter": "trump",
+      "animation": "knockout",
+      "loop": "hold-last",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/knockout/knockout-00.png",
+          "pose": "off-balance",
+          "phase": "neutral",
+          "hold": 10,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 39,
+              "y": 18,
+              "width": 20,
+              "height": 28
+            },
+            {
+              "x": 44,
+              "y": 38,
+              "width": 27,
+              "height": 26
+            },
+            {
+              "x": 39,
+              "y": 71,
+              "width": 25,
+              "height": 41
+            },
+            {
+              "x": 64,
+              "y": 74,
+              "width": 19,
+              "height": 38
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/knockout/knockout-01.png",
+          "pose": "lower",
+          "phase": "neutral",
+          "hold": 12,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 65,
+              "y": 52,
+              "width": 25,
+              "height": 27
+            },
+            {
+              "x": 54,
+              "y": 61,
+              "width": 20,
+              "height": 32
+            },
+            {
+              "x": 45,
+              "y": 93,
+              "width": 19,
+              "height": 26
+            },
+            {
+              "x": 64,
+              "y": 82,
+              "width": 30,
+              "height": 37
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/knockout/knockout-02.png",
+          "pose": "seated",
+          "phase": "neutral",
+          "hold": 12,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 50,
+              "y": 55,
+              "width": 28,
+              "height": 23
+            },
+            {
+              "x": 46,
+              "y": 69,
+              "width": 22,
+              "height": 35
+            },
+            {
+              "x": 50,
+              "y": 94,
+              "width": 14,
+              "height": 23
+            },
+            {
+              "x": 64,
+              "y": 86,
+              "width": 35,
+              "height": 29
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fighter": "trump",
+      "animation": "special",
+      "loop": "once",
+      "reviewed": true,
+      "frames": [
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/special/special-00.png",
+          "pose": "two-step-in",
+          "phase": "startup",
+          "hold": 12,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 56,
+              "y": 17,
+              "width": 26,
+              "height": 24
+            },
+            {
+              "x": 52,
+              "y": 34,
+              "width": 24,
+              "height": 35
+            },
+            {
+              "x": 38,
+              "y": 68,
+              "width": 26,
+              "height": 44
+            },
+            {
+              "x": 64,
+              "y": 71,
+              "width": 19,
+              "height": 42
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/special/special-01.png",
+          "pose": "two-step-out",
+          "phase": "startup",
+          "hold": 12,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 58,
+              "y": 17,
+              "width": 26,
+              "height": 24
+            },
+            {
+              "x": 53,
+              "y": 34,
+              "width": 23,
+              "height": 34
+            },
+            {
+              "x": 39,
+              "y": 67,
+              "width": 25,
+              "height": 45
+            },
+            {
+              "x": 64,
+              "y": 70,
+              "width": 19,
+              "height": 43
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/special/special-02.png",
+          "pose": "reach-into-box",
+          "phase": "startup",
+          "hold": 16,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 76,
+              "y": 29,
+              "width": 27,
+              "height": 25
+            },
+            {
+              "x": 47,
+              "y": 38,
+              "width": 37,
+              "height": 30
+            },
+            {
+              "x": 37,
+              "y": 64,
+              "width": 27,
+              "height": 47
+            },
+            {
+              "x": 64,
+              "y": 72,
+              "width": 21,
+              "height": 39
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/special/special-03.png",
+          "pose": "lift-fresh-cap",
+          "phase": "startup",
+          "hold": 8,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 56,
+              "y": 16,
+              "width": 26,
+              "height": 25
+            },
+            {
+              "x": 49,
+              "y": 32,
+              "width": 26,
+              "height": 36
+            },
+            {
+              "x": 38,
+              "y": 67,
+              "width": 26,
+              "height": 45
+            },
+            {
+              "x": 64,
+              "y": 71,
+              "width": 18,
+              "height": 41
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/special/special-03.png",
+          "pose": "ready-to-flick",
+          "phase": "startup",
+          "hold": 8,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 56,
+              "y": 16,
+              "width": 26,
+              "height": 25
+            },
+            {
+              "x": 49,
+              "y": 32,
+              "width": 26,
+              "height": 36
+            },
+            {
+              "x": 38,
+              "y": 67,
+              "width": 26,
+              "height": 45
+            },
+            {
+              "x": 64,
+              "y": 71,
+              "width": 18,
+              "height": 41
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/special/special-04.png",
+          "pose": "flick-1",
+          "phase": "active",
+          "hold": 2,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 55,
+              "y": 16,
+              "width": 26,
+              "height": 25
+            },
+            {
+              "x": 54,
+              "y": 33,
+              "width": 21,
+              "height": 35
+            },
+            {
+              "x": 39,
+              "y": 70,
+              "width": 25,
+              "height": 42
+            },
+            {
+              "x": 64,
+              "y": 71,
+              "width": 19,
+              "height": 42
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/special/special-02.png",
+          "pose": "reach-2",
+          "phase": "active",
+          "hold": 6,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 76,
+              "y": 29,
+              "width": 27,
+              "height": 25
+            },
+            {
+              "x": 47,
+              "y": 38,
+              "width": 37,
+              "height": 30
+            },
+            {
+              "x": 37,
+              "y": 64,
+              "width": 27,
+              "height": 47
+            },
+            {
+              "x": 64,
+              "y": 72,
+              "width": 21,
+              "height": 39
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/special/special-03.png",
+          "pose": "lift-2",
+          "phase": "active",
+          "hold": 5,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 56,
+              "y": 16,
+              "width": 26,
+              "height": 25
+            },
+            {
+              "x": 49,
+              "y": 32,
+              "width": 26,
+              "height": 36
+            },
+            {
+              "x": 38,
+              "y": 67,
+              "width": 26,
+              "height": 45
+            },
+            {
+              "x": 64,
+              "y": 71,
+              "width": 18,
+              "height": 41
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/special/special-03.png",
+          "pose": "ready-2",
+          "phase": "active",
+          "hold": 5,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 56,
+              "y": 16,
+              "width": 26,
+              "height": 25
+            },
+            {
+              "x": 49,
+              "y": 32,
+              "width": 26,
+              "height": 36
+            },
+            {
+              "x": 38,
+              "y": 67,
+              "width": 26,
+              "height": 45
+            },
+            {
+              "x": 64,
+              "y": 71,
+              "width": 18,
+              "height": 41
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/special/special-04.png",
+          "pose": "flick-2",
+          "phase": "active",
+          "hold": 2,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 55,
+              "y": 16,
+              "width": 26,
+              "height": 25
+            },
+            {
+              "x": 54,
+              "y": 33,
+              "width": 21,
+              "height": 35
+            },
+            {
+              "x": 39,
+              "y": 70,
+              "width": 25,
+              "height": 42
+            },
+            {
+              "x": 64,
+              "y": 71,
+              "width": 19,
+              "height": 42
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/special/special-02.png",
+          "pose": "reach-3",
+          "phase": "active",
+          "hold": 6,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 76,
+              "y": 29,
+              "width": 27,
+              "height": 25
+            },
+            {
+              "x": 47,
+              "y": 38,
+              "width": 37,
+              "height": 30
+            },
+            {
+              "x": 37,
+              "y": 64,
+              "width": 27,
+              "height": 47
+            },
+            {
+              "x": 64,
+              "y": 72,
+              "width": 21,
+              "height": 39
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/special/special-03.png",
+          "pose": "lift-3",
+          "phase": "active",
+          "hold": 5,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 56,
+              "y": 16,
+              "width": 26,
+              "height": 25
+            },
+            {
+              "x": 49,
+              "y": 32,
+              "width": 26,
+              "height": 36
+            },
+            {
+              "x": 38,
+              "y": 67,
+              "width": 26,
+              "height": 45
+            },
+            {
+              "x": 64,
+              "y": 71,
+              "width": 18,
+              "height": 41
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/special/special-03.png",
+          "pose": "ready-3",
+          "phase": "active",
+          "hold": 5,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 56,
+              "y": 16,
+              "width": 26,
+              "height": 25
+            },
+            {
+              "x": 49,
+              "y": 32,
+              "width": 26,
+              "height": 36
+            },
+            {
+              "x": 38,
+              "y": 67,
+              "width": 26,
+              "height": 45
+            },
+            {
+              "x": 64,
+              "y": 71,
+              "width": 18,
+              "height": 41
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/special/special-04.png",
+          "pose": "flick-3",
+          "phase": "active",
+          "hold": 1,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 55,
+              "y": 16,
+              "width": 26,
+              "height": 25
+            },
+            {
+              "x": 54,
+              "y": 33,
+              "width": 21,
+              "height": 35
+            },
+            {
+              "x": 39,
+              "y": 70,
+              "width": 25,
+              "height": 42
+            },
+            {
+              "x": 64,
+              "y": 71,
+              "width": 19,
+              "height": 42
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/special/special-04.png",
+          "pose": "wrist-settle",
+          "phase": "recovery",
+          "hold": 6,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 55,
+              "y": 16,
+              "width": 26,
+              "height": 25
+            },
+            {
+              "x": 54,
+              "y": 33,
+              "width": 21,
+              "height": 35
+            },
+            {
+              "x": 39,
+              "y": 70,
+              "width": 25,
+              "height": 42
+            },
+            {
+              "x": 64,
+              "y": 71,
+              "width": 19,
+              "height": 42
+            }
+          ]
+        },
+        {
+          "src": "/art-source/arcade/trump/normalised-full-set-ready-v1/special/special-05.png",
+          "pose": "guard-return",
+          "phase": "recovery",
+          "hold": 10,
+          "collision": {
+            "x": 52,
+            "y": 86,
+            "width": 24,
+            "height": 33
+          },
+          "hurt": [
+            {
+              "x": 57,
+              "y": 16,
+              "width": 27,
+              "height": 25
+            },
+            {
+              "x": 50,
+              "y": 32,
+              "width": 26,
+              "height": 36
+            },
+            {
+              "x": 39,
+              "y": 67,
+              "width": 25,
+              "height": 45
+            },
+            {
+              "x": 64,
+              "y": 70,
+              "width": 19,
+              "height": 42
+            }
+          ]
+        }
+      ],
+      "moveId": "trump.capThrow"
     }
   ]
 }

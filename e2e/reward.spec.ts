@@ -168,7 +168,8 @@ test('a failed Optimus model load keeps the pictured guide and reward action usa
   await expect(celebration.locator('.optimus-guide-canvas canvas')).toHaveCount(0)
   await expect(celebration).toContainText('Congratulations! You did it!')
   await celebration.getByRole('button', { name: 'Reveal reward' }).click()
-  await expect(page.getByLabel('Tesla Flight Mode film')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Flight Mode' })).toBeVisible()
+  await expect(page.getByLabel('Tesla Flight Mode film')).toBeVisible({ timeout: 15_000 })
 })
 
 test('the Tesla film is protected until reward and replaces the legacy hangar', async ({ page }) => {
@@ -208,6 +209,7 @@ test('reduced motion waits for Play and Skip reveals tribute without losing prog
   await page.keyboard.press('Enter')
   await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible()
   await expect(page.getByText(/Your crew loves you/)).toBeVisible()
+  await expect(page.getByText('Bonus access', { exact: true })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Replay film' })).toBeVisible()
   expect(await page.evaluate((key) => {
     const saved = JSON.parse(localStorage.getItem(key) ?? '{}') as GameState
@@ -217,6 +219,7 @@ test('reduced motion waits for Play and Skip reveals tribute without losing prog
   await page.reload()
   await expect(video).toBeVisible()
   await expect(page.getByRole('button', { name: 'Play film' })).toBeVisible()
+  await expect(page.getByText('Bonus access', { exact: true })).toHaveCount(0)
 })
 
 test('failed film loading offers retry and a safe route to the tribute', async ({ page }) => {

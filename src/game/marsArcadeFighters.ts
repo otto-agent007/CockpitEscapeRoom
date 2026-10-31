@@ -3,8 +3,8 @@
  *
  * Content only: no Three.js, no rendering, no sprite paths. The cabinet is an
  * optional Easter-egg beat that lives behind the Mars phase, so nothing in this
- * module may name a real person, and nothing here may reference the protected
- * ground-transport reward.
+ * module may reference the protected ground-transport reward. Fighter identities
+ * and likenesses follow the owner's direction, including Donald Trump (2026-10-10).
  *
  * Identity: THE BOOSTER and THE ORACLE are drawn as cartoon likenesses of Elon
  * Musk and Sam Altman, and THE CAPTAIN is Pop T. Owner decision, 2026-09-20,
@@ -17,7 +17,11 @@
  * stage is now wider than the 320 px screen; see `marsArcadeStage.ts`.
  */
 
-export type MarsArcadeFighterId = 'booster' | 'oracle' | 'captain'
+export const MARS_ARCADE_FIGHTER_IDS = ['booster', 'oracle', 'captain', 'trump'] as const
+export type MarsArcadeFighterId = (typeof MARS_ARCADE_FIGHTER_IDS)[number]
+export const MARS_ARCADE_SELECT_LABELS: Record<MarsArcadeFighterId, string> = {
+  booster: 'Booster · Elon', oracle: 'Oracle · Sam', captain: 'Captain · Pop T', trump: 'Donald Trump',
+}
 export type MarsArcadeButton = 'light' | 'heavy' | 'special'
 
 /**
@@ -32,10 +36,14 @@ export interface MarsArcadeProjectileSpec {
   speed: number
   lifetimeFrames: number
   maxHeight: number
+  /** Repeated arcing caps; damage and freeze use the move's editable tuning. */
+  capThrow?: { count: number; intervalFrames: number; range: number; height: number; arcHeight: number }
 }
 
 export interface MarsArcadeMove {
   id: string
+  /** False while an action has not been designed; ignored by rules and CPU. */
+  enabled?: boolean
   label: string
   button: MarsArcadeButton
   /** Frames before the hitbox exists. The move cannot hit during startup. */
@@ -323,6 +331,23 @@ const captainMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
   },
 }
 
+const trumpMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
+  light: { ...boosterMoves.light, id: 'trump.jab', label: 'JAB', reach: 44 },
+  heavy: {
+    ...boosterMoves.heavy, id: 'trump.windmill', label: 'WINDMILL',
+    startupFrames: 14, activeFrames: 5, recoveryFrames: 12, reach: 47, maxHeight: 34,
+  },
+  special: {
+    id: 'trump.capThrow', label: 'CAP THROW', button: 'special',
+    startupFrames: 56, activeFrames: 37, recoveryFrames: 16,
+    damage: 6, chipDamage: 1, guardDamage: 10, reach: 0, maxHeight: 999,
+    hitstunFrames: 30, blockstunFrames: 12, knockback: 0, meterCost: 40,
+    meterGainOnHit: 0, meterGainOnBlock: 0, guardHeight: 'high', hitstopFrames: 2,
+    projectile: { speed: 6, lifetimeFrames: 96, maxHeight: 999,
+      capThrow: { count: 3, intervalFrames: 18, range: 288, height: 90, arcHeight: 12 } },
+  },
+}
+
 export const MARS_ARCADE_FIGHTERS: Record<MarsArcadeFighterId, MarsArcadeFighter> = {
   booster: {
     id: 'booster',
@@ -362,6 +387,13 @@ export const MARS_ARCADE_FIGHTERS: Record<MarsArcadeFighterId, MarsArcadeFighter
     pushboxWidth: 24,
     unlockedByDefault: false,
     moves: captainMoves,
+  },
+  trump: {
+    id: 'trump', label: 'TRUMP',
+    blurb: 'A big wind-up. A bigger windmill.',
+    health: 100, walkSpeed: 1.25, jumpVelocity: 4.6,
+    guardMax: 90, guardRegenPerFrame: 0.22, pushboxWidth: 24,
+    unlockedByDefault: true, moves: trumpMoves,
   },
 }
 
@@ -478,6 +510,7 @@ export function setMarsArcadeTuning(tuning: MarsArcadeTuning | null): void {
     booster: mergeFighter(MARS_ARCADE_FIGHTERS.booster, tuning.fighters.booster),
     oracle: mergeFighter(MARS_ARCADE_FIGHTERS.oracle, tuning.fighters.oracle),
     captain: mergeFighter(MARS_ARCADE_FIGHTERS.captain, tuning.fighters.captain),
+    trump: mergeFighter(MARS_ARCADE_FIGHTERS.trump, tuning.fighters.trump),
   }
   gravity = tuning.stage.gravity
   rules = { ...tuning.rules }
@@ -519,7 +552,7 @@ export function marsArcadeTuningInForce(): MarsArcadeTuning {
     version: MARS_ARCADE_TUNING_VERSION,
     stage: { gravity },
     rules: { ...rules },
-    fighters: { booster: pick(marsArcadeFighter('booster')), oracle: pick(marsArcadeFighter('oracle')), captain: pick(marsArcadeFighter('captain')) },
+    fighters: { booster: pick(marsArcadeFighter('booster')), oracle: pick(marsArcadeFighter('oracle')), captain: pick(marsArcadeFighter('captain')), trump: pick(marsArcadeFighter('trump')) },
   }
 }
 

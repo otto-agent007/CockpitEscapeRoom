@@ -104,6 +104,8 @@ export interface MarsArcadeFighterState {
   /** Incoming stun clock; remaining frames freeze with combat during hit stop. */
   stunOrigin?: { moveId: string; button?: MarsArcadeButton; duration: number }
   lawsuit?: MarsArcadeLawsuit
+  /** A cap is attached to the head while this combat-clock freeze is alive. */
+  capFreeze?: { framesRemaining: number; hits: number }
   hasHitThisMove: boolean
   blocking: boolean
   previousButtons: Record<MarsArcadeButton, boolean>
@@ -127,6 +129,7 @@ export interface MarsArcadeProjectile {
   meterGainOnBlock: number
   guardHeight: MarsArcadeMove['guardHeight']
   hitstopFrames: number
+  capFlight?: { originX: number; originY: number; facing: 1 | -1; age: number; total: number; range: number; arcHeight: number }
 }
 
 /**
@@ -193,6 +196,7 @@ interface PendingHit {
     | 'hitstopFrames'
   >
   projectileIndex?: number
+  cap?: boolean
 }
 
 function clamp(value: number, minimum: number, maximum: number): number {
@@ -240,7 +244,7 @@ export function createMarsArcadeRound(
 }
 
 function cloneFighter(fighter: MarsArcadeFighterState): MarsArcadeFighterState {
-  return { ...fighter, ...(fighter.stunOrigin ? { stunOrigin: { ...fighter.stunOrigin } } : {}), ...(fighter.lawsuit?{lawsuit:{...fighter.lawsuit}}:{}), previousButtons: { ...fighter.previousButtons } }
+  return { ...fighter, ...(fighter.capFreeze ? { capFreeze: { ...fighter.capFreeze } } : {}), ...(fighter.stunOrigin ? { stunOrigin: { ...fighter.stunOrigin } } : {}), ...(fighter.lawsuit?{lawsuit:{...fighter.lawsuit}}:{}), previousButtons: { ...fighter.previousButtons } }
 }
 
 function moveTotalFrames(move: MarsArcadeMove): number {
@@ -257,7 +261,7 @@ function isGrounded(fighter: MarsArcadeFighterState): boolean {
 }
 
 function canAct(fighter: MarsArcadeFighterState): boolean {
-  return fighter.health>0 && fighter.stunFrames === 0 && fighter.activity !== 'attack' && fighter.activity !== 'distracted' && isGrounded(fighter)
+  return fighter.health>0 && !fighter.capFreeze && fighter.stunFrames === 0 && fighter.activity !== 'attack' && fighter.activity !== 'distracted' && isGrounded(fighter)
 }
 
 function pressedButton(
@@ -265,7 +269,8 @@ function pressedButton(
   input: MarsArcadeInput,
   button: MarsArcadeButton,
 ): boolean {
-  return input[button] && !fighter.previousButtons[button]
+  return marsArcadeFighter(fighter.id).moves[button].enabled !== false &&
+    input[button] && !fighter.previousButtons[button]
 }
 
 function startMove(
@@ -275,6 +280,7 @@ function startMove(
   events: MarsArcadeEvent[],
 ): void {
   const move = marsArcadeFighter(fighter.id).moves[button]
+  if (move.enabled === false) return
   if (move.meterCost > fighter.meter) return
   fighter.meter -= move.meterCost
   fighter.activity = 'attack'
@@ -358,11 +364,12 @@ function spawnProjectile(
 ): MarsArcadeProjectile {
   const spec = move.projectile
   if (!spec) throw new Error(`move ${move.id} has no projectile spec`)
+  const cap = spec.capThrow
   return {
     owner: side,
     moveId: move.id,
-    x: fighter.x + fighter.facing * 20,
-    y: MARS_ARCADE_STAGE.projectileSpawnHeight,
+    x: fighter.x + fighter.facing * (cap ? 24 : 20),
+    y: cap?.height ?? MARS_ARCADE_STAGE.projectileSpawnHeight,
     velocityX: fighter.facing * spec.speed,
     framesRemaining: spec.lifetimeFrames,
     damage: move.damage,
@@ -376,6 +383,8 @@ function spawnProjectile(
     meterGainOnBlock: move.meterGainOnBlock,
     guardHeight: move.guardHeight,
     hitstopFrames: move.hitstopFrames,
+    ...(cap ? { capFlight: { originX: fighter.x + fighter.facing * 24, originY: cap.height, facing: fighter.facing,
+      age: 0, total: spec.lifetimeFrames, range: cap.range, arcHeight: cap.arcHeight } } : {}),
   }
 }
 
@@ -503,6 +512,9 @@ function applyHit(
   defender.activeButton = null
   defender.moveFrame = 0
   defender.blocking = false
+  if (hit.cap && hit.move.hitstunFrames > 0) {
+    defender.capFreeze = { framesRemaining: hit.move.hitstunFrames, hits: (defender.capFreeze?.hits ?? 0) + 1 }
+  }
   defender.x += Math.sign(defender.x - attacker.x || 1) * hit.move.knockback
   if(hit.move.pivot){
     seizeMarsArcadeAssets(state,hit.attacker,hit.defender,events)
@@ -523,17 +535,32 @@ function applyHit(
   })
 }
 
+/** First authored hurt region is the head, used by caps in rules and presentation. */
+export function marsArcadeHeadBox(state: MarsArcadeState, side: MarsArcadeSide): MarsArcadeStageBox {
+  const fighter = state.fighters[side]
+  const head = marsArcadeRulesFrame(state, side)?.hurt?.[0]
+  return head ? marsArcadeBoxToStage(head, fighter.x, fighter.facing, fighter.y) :
+    { minX: fighter.x - 10, maxX: fighter.x + 10, minY: fighter.y + 80, maxY: fighter.y + 104 }
+}
+
 function advanceProjectiles(state: MarsArcadeState, events: MarsArcadeEvent[]): void {
   const surviving: MarsArcadeProjectile[] = []
   for (const projectile of state.projectiles) {
+    const flight = projectile.capFlight
+    const age = flight ? flight.age + 1 : 0
+    const capX = flight ? flight.originX + flight.facing * flight.range * Math.sin(Math.PI * age / flight.total) : 0
     const moved: MarsArcadeProjectile = {
       ...projectile,
-      x: projectile.x + projectile.velocityX,
+      x: flight ? capX : projectile.x + projectile.velocityX,
+      y: flight ? flight.originY + flight.arcHeight * Math.sin(2 * Math.PI * age / flight.total) : projectile.y,
+      ...(flight ? { capFlight: { ...flight, age }, velocityX: capX - projectile.x } : {}),
       framesRemaining: projectile.framesRemaining - 1,
     }
     const defenderSide: MarsArcadeSide = moved.owner === 0 ? 1 : 0
     const defender = state.fighters[defenderSide]
-    const struck =
+    const head = marsArcadeHeadBox(state, defenderSide)
+    const struck = flight ? defender.health > 0 &&
+      moved.x + 10 >= head.minX && moved.x - 10 <= head.maxX && moved.y + 6 >= head.minY && moved.y - 6 <= head.maxY :
       Math.abs(moved.x - defender.x) <= MARS_ARCADE_STAGE.projectileRadius &&
       defender.y <= moved.maxHeight
     if (struck) {
@@ -542,6 +569,7 @@ function advanceProjectiles(state: MarsArcadeState, events: MarsArcadeEvent[]): 
         {
           attacker: moved.owner,
           defender: defenderSide,
+          ...(flight ? { cap: true } : {}),
           move: {
             id: moved.moveId,
             damage: moved.damage,
@@ -560,13 +588,14 @@ function advanceProjectiles(state: MarsArcadeState, events: MarsArcadeEvent[]): 
       )
       continue
     }
-    if (moved.framesRemaining <= 0 || Math.abs(moved.x) > MARS_ARCADE_STAGE.halfWidth + 40) continue
+    if (moved.framesRemaining <= 0 || (!flight && Math.abs(moved.x) > MARS_ARCADE_STAGE.halfWidth + 40)) continue
     surviving.push(moved)
   }
   state.projectiles = surviving
 }
 
 function applyPhysics(fighter: MarsArcadeFighterState): void {
+  if (fighter.capFreeze) return
   if (fighter.y > 0 || fighter.velocityY > 0) {
     fighter.y += fighter.velocityY
     fighter.velocityY -= marsArcadeGravity()
@@ -646,6 +675,10 @@ function stepFrame(
   tickMarsArcadeLawsuits(state,events)
   for (const side of [0, 1] as const) {
     const fighter = state.fighters[side]
+    if (fighter.capFreeze) {
+      fighter.capFreeze.framesRemaining -= 1
+      if (fighter.capFreeze.framesRemaining <= 0) delete fighter.capFreeze
+    }
     if (fighter.stunFrames > 0) {
       fighter.stunFrames -= 1
       if (fighter.stunFrames === 0) delete fighter.stunOrigin
@@ -667,8 +700,12 @@ function stepFrame(
     const fighter = state.fighters[side]
     const move = activeMoveOf(fighter)
     if (fighter.health<=0||!move?.projectile) continue
-    if (fighter.moveFrame === move.startupFrames && !fighter.hasHitThisMove) {
-      fighter.hasHitThisMove = true
+    const cap = move.projectile.capThrow
+    const elapsed = fighter.moveFrame - move.startupFrames
+    const release = cap ? elapsed >= 0 && elapsed % cap.intervalFrames === 0 && elapsed / cap.intervalFrames < cap.count :
+      fighter.moveFrame === move.startupFrames && !fighter.hasHitThisMove
+    if (release) {
+      if (!cap) fighter.hasHitThisMove = true
       state.projectiles.push(spawnProjectile(fighter, move, side))
       events.push({ type: 'projectileFired', attacker: side, moveId: move.id })
     }
@@ -715,7 +752,8 @@ function stepFrame(
     // would otherwise stay set, and flash, for as long as the result is on screen.
     state.hitstop = null
     releaseMarsArcadePivot(state)
-    for(const fighter of state.fighters)delete fighter.lawsuit
+    for(const fighter of state.fighters) { delete fighter.lawsuit; delete fighter.capFreeze }
+    state.projectiles = state.projectiles.filter(projectile => !projectile.capFlight)
   }
   if (first.health <= 0 || second.health <= 0) {
     state.phase = 'ko'

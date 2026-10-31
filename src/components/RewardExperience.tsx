@@ -6,7 +6,10 @@ import { rewardCopy } from '../game/rewardCopy'
 interface RewardExperienceProps {
   reducedMotion: boolean
   forceAccessible: boolean
+  initialComplete?: boolean
+  onReplay?: () => void
   onRestart: () => void
+  onComplete?: () => void
 }
 
 const filmUrl = `${import.meta.env.BASE_URL}media/tesla-flight-mode-final.mp4`
@@ -14,10 +17,13 @@ const filmUrl = `${import.meta.env.BASE_URL}media/tesla-flight-mode-final.mp4`
 export function RewardExperience({
   reducedMotion,
   forceAccessible,
+  initialComplete = false,
+  onReplay,
   onRestart,
+  onComplete,
 }: RewardExperienceProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [stage, setStage] = useState<'film' | 'complete'>('film')
+  const [stage, setStage] = useState<'film' | 'complete'>(initialComplete ? 'complete' : 'film')
   const [loadFailed, setLoadFailed] = useState(false)
   const [manualPlayNeeded, setManualPlayNeeded] = useState(reducedMotion || forceAccessible)
 
@@ -26,7 +32,11 @@ export function RewardExperience({
   }, [])
 
   useEffect(() => {
-    if (reducedMotion || forceAccessible) return
+    if (stage === 'complete') onComplete?.()
+  }, [stage, onComplete])
+
+  useEffect(() => {
+    if (stage !== 'film' || reducedMotion || forceAccessible) return
     const video = videoRef.current
     if (!video) return
     let mounted = true
@@ -36,7 +46,7 @@ export function RewardExperience({
       else setManualPlayNeeded(true)
     })
     return () => { mounted = false }
-  }, [forceAccessible, reducedMotion])
+  }, [forceAccessible, reducedMotion, stage])
 
   const finishFilm = useCallback(() => {
     videoRef.current?.pause()
@@ -59,10 +69,11 @@ export function RewardExperience({
   const replayFilm = useCallback(() => {
     const video = videoRef.current
     if (!video) return
+    onReplay?.()
     video.currentTime = 0
     setStage('film')
     playFilm()
-  }, [playFilm])
+  }, [onReplay, playFilm])
 
   return (
     <section className={`reward-experience reward-experience--${stage}`} data-reward-stage={stage} aria-labelledby="reward-title">
@@ -77,7 +88,7 @@ export function RewardExperience({
           ref={videoRef}
           className="reward-film-video"
           controls
-          autoPlay={!reducedMotion && !forceAccessible}
+          autoPlay={stage === 'film' && !reducedMotion && !forceAccessible}
           playsInline
           preload="auto"
           hidden={stage === 'complete'}

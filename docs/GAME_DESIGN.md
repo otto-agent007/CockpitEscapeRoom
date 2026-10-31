@@ -109,15 +109,13 @@ Current local closing copy (owner-selected opening):
 
 ## Mars Easter egg
 
-The Mars Easter egg remains short, optional, and playful. It is not part of the required main ending and should be explored later after the Tesla Flight Mode reward is stable.
+Mars arcade is an optional Easter egg earned after reaching the completed Flight Mode reward and final family tribute once. Hold **T+M+B together for 1.5 seconds** to enter from any chapter afterward, including a restarted game. Completion and access stay local to the browser; Restart resets the chapter save while retaining the earned unlock.
 
-Suggested payoff:
+Partial holds, typing, keyboard modifiers, focus moving into a text field, losing window focus, and backgrounding the page cancel the shortcut. The arcade has no visible entry control or hint in the game, even after completion. Its standalone URL does not start a match; the game opens it after the chord. It is an optional keyboard secret for players who know T+M+B; touch-only players cannot open it. The main story and reward remain fully playable without it.
 
-- A space clue activates after the main ending.
-- The Future Tesla may later become a fictional Mars surface vehicle, but that design is not finalized in this update.
-- The player receives the title: **“Commander, Mars Transport Division.”**
+The arcade loads its four fighters and artwork only on entry, runs independently of cockpit presentation, and offers **Return to game** and Escape. Exit returns keyboard focus to the game. Current chapter progress remains in memory while playing, including when browser storage rejects writes. Loading failures retain a return control and offer retry. The arcade never blocks or replaces the family ending, and it does not change vehicle rewards or main-game puzzle progress.
 
-This should never block the main ending.
+A native **Background** selector offers the original **Mars** scenery and an outdoor **Moonbase**: gray lunar terrain, habitat domes, antennas, and Earth in a black sky. Mars is the first-use default. A separate versioned local preference remembers the selection across reloads and arcade re-entry. Changing backgrounds preserves fight positions, health, meter, and timing. Moonbase artwork loads only when selected; failed scenery keeps combat usable with a fallback and **Retry background** control. The same selector is available in the development fighter playground.
 
 ## Visual priorities
 

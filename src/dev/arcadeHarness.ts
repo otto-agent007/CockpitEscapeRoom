@@ -30,6 +30,8 @@ import {
 import {
   MARS_ARCADE_METER_MAX,
   marsArcadeFighter,
+  MARS_ARCADE_FIGHTER_IDS,
+  MARS_ARCADE_SELECT_LABELS,
   marsArcadeRules,
   setMarsArcadePivotPreview,
   marsArcadePivotPreviewEnabled,
@@ -48,16 +50,20 @@ import {
   inputFromKeys,
 } from './arcadeHarnessInput'
 import { padStatus, readPad, swapPadSides, updatePadSides, type ArcadePad, type ArcadeSide, type PadReading } from './arcadeHarnessGamepad'
-import { ARCADE_ANCHOR_SOURCES, loadArcadeSprites, selectArcadeSprite, type ArcadeSpriteSelection } from './arcadeHarnessSprites'
-import { startArcadePlayground, type ArcadePlayground, type PlaygroundBoxToggles } from './arcadePlayground'
+import { ARCADE_ANCHOR_SOURCES, arcadeClip, loadArcadeSprites, selectArcadeSprite, type ArcadeSpriteSelection } from './arcadeHarnessSprites'
+import type { ArcadePlayground, PlaygroundBoxToggles } from './arcadePlayground'
+import { applyShippedMarsArcadeTuning } from '../game/marsArcadeTuning'
 import { MARS_ARCADE_BOUND_KINDS, marsArcadeBoxToStage, type MarsArcadeBoundKind, type MarsArcadeBox } from '../game/marsArcadeBounds'
 import { hitFlash, updateHeavyReactions, type HeavyReactions } from './arcadeHarnessReactions'
 import { laserStrikeLook, updateLaserStrikes, type LaserStrike } from './arcadeHarnessLaser'
 import { LASER_EFFECT_LAYOUT, loadArcadeEffects, type ArcadeEffectImages } from './arcadeHarnessEffects'
 import { drawCaptainFlybys, loadCaptainFlybyEffects, type CaptainFlybyImages } from './arcadeHarnessFlyby'
-import {advancePivotMotion,createPivotMotion,pivotDirection,type PivotMotionHistory} from './arcadeHarnessMotion'
+import {advancePivotMotion,createPivotMotion,pivotDirection,type PivotMotionHistory,advanceCapMotion,createCapMotion,type CapMotionHistory} from './arcadeHarnessMotion'
 import {drawPivotPresentation,pivotAccessibleStatus,updatePivotPresentations,type PivotPresentation} from './arcadeHarnessPivot'
+import { loadCapEffects, drawCapBoxes, drawCaps, capAccessibleStatus, type CapEffectImages } from './arcadeHarnessCapThrow'
 import { loadArcadeBackdrop, type ArcadeBackdropImages } from './arcadeHarnessBackdrop'
+import { MOONBASE_PANORAMA } from '../game/marsArcadeArt'
+import { ARCADE_BACKGROUND_LABELS, isArcadeBackground, loadArcadeBackground, saveArcadeBackground, moonbasePanoramaLeft, MOONBASE_BACKGROUND_BANDS } from '../game/arcadeBackground'
 import { advanceExchange, EXCHANGE_END_FRAME } from './arcadeHarnessExchange'
 import {GLYPH_HEIGHT} from './arcadePixelFont'
 import {drawTextShadowed,measureText} from './arcadeTypography'
@@ -103,12 +109,13 @@ const FIGHTER_HEIGHT = 104
 const SPRITE_STANDING_WIDTH = 44
 
 const SPEEDS = [1, 0.5, 0.25] as const
-const FIGHTER_ORDER: MarsArcadeFighterId[] = ['booster', 'oracle', 'captain']
+const FIGHTER_ORDER: readonly MarsArcadeFighterId[] = MARS_ARCADE_FIGHTER_IDS
 
 const COLOURS: Record<MarsArcadeFighterId, string> = {
   booster: '#ff7a2f',
   oracle: '#39c7d8',
   captain: '#3a5ba8',
+  trump: '#d94b48',
 }
 
 const STATE_TINT: Record<string, string> = {
@@ -136,6 +143,7 @@ interface Harness {
   /** Space-laser beams and scorch marks still on screen — presentation only. */
   laserStrikes: LaserStrike[]
   pivotMotion:[PivotMotionHistory,PivotMotionHistory]
+  capMotion: [CapMotionHistory, CapMotionHistory]
   pivotPresentations:PivotPresentation[]
   /** Named practice link skips the intro; regular matches keep their normal setup. */
   pivotPractice:boolean
@@ -158,7 +166,7 @@ const held = new Set<string>()
  * before the next step samples the held set, so the move never starts.
  */
 const pending = new Set<string>()
-/** Keys the seated controllers hold this frame, recomputed on every poll. */
+/** Keys held by connected controllers, sampled alongside keyboard and native controls. */
 const padHeld = new Set<string>()
 
 function newRound(harness: Harness): void {
@@ -166,6 +174,7 @@ function newRound(harness: Harness): void {
   harness.heavyReactions = [null, null]
   harness.laserStrikes = []
   harness.pivotMotion=[createPivotMotion(),createPivotMotion()]
+  harness.capMotion=[createCapMotion(),createCapMotion()]
   harness.pivotPresentations=[]
   harness.exchange = false
   setMarsArcadePivotPreview(true)
@@ -415,11 +424,16 @@ function drawBackdrop(
   camera: number,
   backdrop: ArcadeBackdropImages,
 ): void {
-  for (const band of MARS_ARCADE_BANDS) {
+  for (const band of backdrop.background === 'mars' ? MARS_ARCADE_BANDS : MOONBASE_BACKGROUND_BANDS) {
     ctx.fillStyle = band.colour
     ctx.fillRect(0, band.y * SCALE, STAGE_WIDTH * SCALE, band.height * SCALE)
   }
   ctx.imageSmoothingEnabled = false
+  if (backdrop.background === 'moonbase') {
+    const image = backdrop.get('panorama')
+    if (image) ctx.drawImage(image, moonbasePanoramaLeft(camera) * SCALE, 0, MOONBASE_PANORAMA.width * SCALE, MOONBASE_PANORAMA.height * SCALE)
+    return
+  }
   for (const layer of MARS_ARCADE_BACKDROP) {
     const image = backdrop.get(layer.id)
     if (!image) continue
@@ -466,6 +480,7 @@ function drawProjectiles(
 ): void {
   const size = MARS_ARCADE_STAGE.projectileRadius * 2 * SCALE
   for (const projectile of state.projectiles) {
+    if (projectile.capFlight) continue
     ctx.fillStyle = 'rgba(57, 199, 216, 0.75)'
     ctx.fillRect(stageX(projectile.x, camera) - size / 2, stageY(projectile.y) - size / 2, size, size)
     ctx.strokeStyle = '#39c7d8'
@@ -641,8 +656,9 @@ function drawMeter(
 ): void {
   const { meter, frame } = MARS_ARCADE_HUD
   const charged = fighter.meter >= MARS_ARCADE_METER_MAX
-  const cost=marsArcadeFighter(fighter.id).moves.special.meterCost
-  const ready=fighter.meter>=cost
+  const special=marsArcadeFighter(fighter.id).moves.special
+  const cost=special.meterCost
+  const ready=special.enabled!==false&&fighter.meter>=cost
   // Cyan trim means enough energy for this fighter's special; gold means full.
   ctx.fillStyle = charged ? MARS_ARCADE_HUD_COLOURS.goldLow : ready ? MARS_ARCADE_HUD_COLOURS.meter.base : MARS_ARCADE_HUD_COLOURS.frame
   ctx.fillRect(x * SCALE, meter.y * SCALE, meter.width * SCALE, meter.height * SCALE)
@@ -896,6 +912,7 @@ function draw(
   backdrop: ArcadeBackdropImages,
   effects: ArcadeEffectImages,
   flyby: CaptainFlybyImages,
+  caps: CapEffectImages,
 ): void {
   const width = STAGE_WIDTH * SCALE
   const camera = harness.cameraX
@@ -922,6 +939,7 @@ function draw(
   }
 
   drawProjectiles(ctx, harness.state, camera)
+  drawCapBoxes(ctx, harness.state, caps, n => stageX(n, camera), stageY, SCALE)
   // Both shadows stay behind both fighters, including when their feet overlap.
   for (const side of [0, 1] as const) {
     const fighter = harness.state.fighters[side]
@@ -959,6 +977,7 @@ function draw(
   drawLaserStrikes(ctx, harness, effects, camera)
   drawCaptainFlybys(ctx, harness.state, flyby, harness.reducedMotion, SCALE)
   drawPivotPresentation(ctx,harness.state,harness.pivotPresentations,camera,SCALE)
+  drawCaps(ctx, harness.state, caps, n => stageX(n, camera), stageY, SCALE, harness.reducedMotion)
   for (const side of [0, 1] as const) {
     drawMoveRegion(ctx, harness.state, side, harness.showHitboxes, camera)
     if (harness.showHitboxes) drawCentreLine(ctx, harness.state.fighters[side], camera)
@@ -979,6 +998,7 @@ function describeFighter(fighter: MarsArcadeFighterState): string {
     `  position   x ${fighter.x.toFixed(1)}  y ${fighter.y.toFixed(1)}  facing ${fighter.facing > 0 ? '>' : '<'}`,
   ]
   if(fighter.lawsuit)lines.push(`  status     Lawsuit Pending ${fighter.lawsuit.framesRemaining}f`)
+  if(fighter.capFreeze)lines.push(`  status     Cap freeze ${fighter.capFreeze.framesRemaining}f · ${fighter.capFreeze.hits} hits`)
   if (active) {
     lines.push(
       `  move       ${active.move.id}`,
@@ -1044,8 +1064,8 @@ function formatEvent(event: MarsArcadeEvent, frame: number): string | null {
   }
 }
 
-function mount(): void {
-  const pivotPreview=new URLSearchParams(location.search).get('sam')==='pivot'
+export async function mountMarsArcade(production = false): Promise<void> {
+  const pivotPreview=!production && new URLSearchParams(location.search).get('sam')==='pivot'
   setMarsArcadePivotPreview(true)
   const canvas = document.querySelector<HTMLCanvasElement>('#stage')
   const readout = document.querySelector<HTMLPreElement>('#readout')
@@ -1054,9 +1074,20 @@ function mount(): void {
   if (!canvas || !readout || !logPanel || !assetStatus) throw new Error('harness markup missing')
   const sprites = loadArcadeSprites()
   canvas.addEventListener('pointerdown', () => canvas.focus({ preventScroll: true }))
-  const backdrop = loadArcadeBackdrop()
+  const backdrop = loadArcadeBackdrop(loadArcadeBackground())
+  const backgroundChoice = document.querySelector<HTMLSelectElement>('#background-choice')
+  if (backgroundChoice) {
+    backgroundChoice.value = backdrop.background
+    backgroundChoice.addEventListener('change', () => {
+      if (!isArcadeBackground(backgroundChoice.value)) return
+      backdrop.select(backgroundChoice.value)
+      saveArcadeBackground(backgroundChoice.value)
+    })
+  }
+  document.querySelector('#background-retry')?.addEventListener('click', () => backdrop.retry())
   const effects = loadArcadeEffects()
   const flyby = loadCaptainFlybyEffects()
+  const caps = loadCapEffects()
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
 
   canvas.width = STAGE_WIDTH * SCALE
@@ -1069,19 +1100,21 @@ function mount(): void {
     const available = parent && style
       ? parent.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight)
       : STAGE_WIDTH * SCALE
-    canvas.style.width = `${STAGE_WIDTH * Math.max(1, Math.min(SCALE, Math.floor(available / STAGE_WIDTH)))}px`
+    const heightScale = production ? Math.max(1, Math.floor((window.innerHeight - 340) / STAGE_HEIGHT)) : SCALE
+    canvas.style.width = `${STAGE_WIDTH * Math.max(1, Math.min(SCALE, heightScale, Math.floor(available / STAGE_WIDTH)))}px`
   }
   resize()
+  if (production) window.addEventListener('resize', resize)
   // Defer layout writes beyond observer delivery to avoid a height/width feedback warning.
   if (canvas.parentElement) new ResizeObserver(() => requestAnimationFrame(resize)).observe(canvas.parentElement)
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('2d context unavailable')
 
   const harness: Harness = {
-    state: createMarsArcadeRound('booster', 'oracle'),
+    state: createMarsArcadeRound(production ? 'captain' : 'booster', production ? 'booster' : 'oracle'),
     opponent: createMarsArcadeOpponent(1, 'veteran', 1),
-    leftId: 'booster',
-    rightId: 'oracle',
+    leftId: production ? 'captain' : 'booster',
+    rightId: production ? 'booster' : 'oracle',
     cameraX: 0,
     chip: [createChipBar(100), createChipBar(100)],
     difficulty: 'veteran',
@@ -1089,13 +1122,14 @@ function mount(): void {
     speedIndex: 0,
     paused: false,
     stepRequested: false,
-    showHitboxes: true,
+    showHitboxes: !production,
     showSprites: true,
     reducedMotion: motion.matches,
     outcomeFrames: 0,
     heavyReactions: [null, null],
     laserStrikes: [],
     pivotMotion:[createPivotMotion(),createPivotMotion()],
+    capMotion:[createCapMotion(),createCapMotion()],
     pivotPresentations:[],
     pivotPractice:pivotPreview,
     exchange: false,
@@ -1106,7 +1140,23 @@ function mount(): void {
   motion.addEventListener('change', event => { harness.reducedMotion = event.matches })
   // The shipped tuning goes in force before the first round is played, and the
   // console edits it live from here on.
-  playground = startArcadePlayground(document, () => harness.state)
+  if (!production && import.meta.env.DEV) {
+    const { startArcadePlayground } = await import('./arcadePlayground')
+    playground = startArcadePlayground(document, () => harness.state)
+  } else {
+    applyShippedMarsArcadeTuning()
+  }
+  for (const select of document.querySelectorAll<HTMLSelectElement>('[data-fighter]')) {
+    select.replaceChildren(...FIGHTER_ORDER.map(id => {
+      const option = document.createElement('option')
+      option.value = id
+      option.textContent = MARS_ARCADE_SELECT_LABELS[id]
+      return option
+    }))
+    select.value = select.dataset.fighter === '0' ? harness.leftId : harness.rightId
+  }
+  const requestedFighter = production ? null : new URLSearchParams(location.search).get('fighter')
+  if (FIGHTER_ORDER.some(id => id === requestedFighter)) harness.leftId = requestedFighter as MarsArcadeFighterId
   const pivotInfo=document.querySelector<HTMLElement>('#pivot-preview-info');if(pivotInfo)pivotInfo.hidden=false
   if(pivotPreview){
     harness.leftId='oracle';harness.rightId='booster';harness.humanRight=true;harness.showHitboxes=false
@@ -1124,6 +1174,7 @@ function mount(): void {
   if(pivotPreview)canvas.focus({preventScroll:true})
 
   function command(code: string): boolean {
+    if (production && !['Space', 'KeyR', 'KeyT', 'KeyG', 'freeplay'].includes(code)) return false
     switch (code) {
       case 'Space':
         if (harness.exchange && harness.state.frame >= EXCHANGE_END_FRAME) return true
@@ -1187,16 +1238,20 @@ function mount(): void {
   }
 
   const combatKeys = new Set([...Object.values(PLAYER_ONE_BINDINGS), ...Object.values(PLAYER_TWO_BINDINGS)])
-  function recordMotion(heavyCode?:string):void {
-    if(!marsArcadePivotPreviewEnabled())return
-    const holding=new Set([...held,...padHeld])
+  function recordMotion(pressedCode?:string):void {
     for(const side of [0,1] as const){
       const fighter=harness.state.fighters[side]
-      if(fighter.id!=='oracle')continue
       const bindings=side===0?PLAYER_ONE_BINDINGS:PLAYER_TWO_BINDINGS
-      const next=advancePivotMotion(harness.pivotMotion[side],pivotDirection(holding,bindings,fighter.facing),heavyCode===bindings.heavy,harness.state.frame,fighter.facing)
-      harness.pivotMotion[side]=next.history
-      if(next.special&&fighter.meter>=marsArcadeFighter(fighter.id).moves.special.meterCost)pending.add(bindings.special)
+      const direction=pivotDirection(new Set([...held,...padHeld]),bindings,fighter.facing)
+      if(fighter.id==='trump') {
+        const next=advanceCapMotion(harness.capMotion[side],direction,pressedCode===bindings.light,harness.state.frame,fighter.facing)
+        harness.capMotion[side]=next.history
+        if(next.special) { pending.add(bindings.special); pending.delete(bindings.light); held.delete(bindings.light); padHeld.delete(bindings.light) }
+      } else if(fighter.id==='oracle'&&marsArcadePivotPreviewEnabled()) {
+        const next=advancePivotMotion(harness.pivotMotion[side],direction,pressedCode===bindings.heavy,harness.state.frame,fighter.facing)
+        harness.pivotMotion[side]=next.history
+        if(next.special&&fighter.meter>=marsArcadeFighter(fighter.id).moves.special.meterCost)pending.add(bindings.special)
+      }
     }
   }
   window.addEventListener('keydown', (event) => {
@@ -1206,13 +1261,13 @@ function mount(): void {
       if (event.target.closest('button') && ['Space', 'Enter'].includes(event.code)) return
     }
     const motionDown=event.code===PLAYER_ONE_BINDINGS.down||event.code===PLAYER_TWO_BINDINGS.down
-    const activeDown=marsArcadePivotPreviewEnabled()&&((event.code===PLAYER_ONE_BINDINGS.down&&harness.leftId==='oracle')||(event.code===PLAYER_TWO_BINDINGS.down&&harness.rightId==='oracle'))
+    const downFighter=event.code===PLAYER_ONE_BINDINGS.down?harness.leftId:harness.rightId
+    const activeDown=motionDown&&(downFighter==='trump'||(downFighter==='oracle'&&marsArcadePivotPreviewEnabled()))
     const combatKey=combatKeys.has(event.code)&&(!motionDown||activeDown)
     if (combatKey || event.code === 'Space') event.preventDefault()
     if (event.repeat) return
-    const pivotDown=marsArcadePivotPreviewEnabled()&&harness.leftId==='oracle'&&event.code===PLAYER_ONE_BINDINGS.down
-    if (!pivotDown&&command(event.code)) return
-    const digit = ['Digit1', 'Digit2', 'Digit3'].indexOf(event.code)
+    if (!activeDown&&command(event.code)) return
+    const digit = ['Digit1', 'Digit2', 'Digit3', 'Digit4'].indexOf(event.code)
     const chosen = digit >= 0 ? FIGHTER_ORDER[digit] : undefined
     if (chosen) {
       if (event.shiftKey) harness.rightId = chosen
@@ -1228,7 +1283,7 @@ function mount(): void {
     }
   })
   window.addEventListener('keyup', (event) => {held.delete(event.code);recordMotion()})
-  const clearInput = () => { held.clear(); pending.clear();harness.pivotMotion=[createPivotMotion(),createPivotMotion()] }
+  const clearInput = () => { held.clear(); padHeld.clear(); pending.clear();harness.pivotMotion=[createPivotMotion(),createPivotMotion()];harness.capMotion=[createCapMotion(),createCapMotion()] }
   function cancelExchange(): void {
     if (!harness.exchange) return
     const completed=harness.state.frame>=EXCHANGE_END_FRAME
@@ -1242,7 +1297,7 @@ function mount(): void {
   let padSides = new Map<number, ArcadeSide>()
   let padPrevious = new Map<number, PadReading>()
   const padStatusLine = document.querySelector<HTMLElement>('#pad-status')
-  /** Controllers have no events for buttons, so each frame diffs them against the last. */
+  /** Controllers have no button events, so diff their readings each frame. */
   function pollPads(): void {
     const pads = (navigator.getGamepads?.() ?? []).filter((pad): pad is Gamepad => pad !== null && pad.connected)
     padSides = updatePadSides(padSides, pads.map(pad => pad.index))
@@ -1260,7 +1315,7 @@ function mount(): void {
         padHeld.add(code)
         if (!before?.held.has(code)) pressed.push({ code, side })
       }
-      for (const command of reading.commands) if (!before?.commands.has(command)) commands.push(command)
+      for (const code of reading.commands) if (!before?.commands.has(code)) commands.push(code)
       if (before && [...before.held].some(code => !reading.held.has(code))) changed = true
       readings.set(index, reading)
     }
@@ -1268,7 +1323,6 @@ function mount(): void {
     if (changed || pressed.length > 0) recordMotion()
     for (const { code, side } of pressed) {
       cancelExchange()
-      // Picking up the P2 controller and pressing a button takes P2 from the CPU.
       if (side === 1) harness.humanRight = true
       pending.add(code)
       recordMotion(code)
@@ -1342,8 +1396,9 @@ function mount(): void {
       if (transition.state.frame !== harness.state.frame) pending.clear()
       // The fight intentionally freezes at KO/timeOver. Only this presentation clock advances.
       const terminal = harness.state.phase === 'ko' || harness.state.phase === 'timeOver'
+      const loopingVictory = harness.state.winner !== null && arcadeClip(harness.state.fighters[harness.state.winner].id, 'victory')?.loop === 'loop'
       harness.outcomeFrames = terminal
-        ? Math.min(24, harness.outcomeFrames + Math.min(elapsed, MARS_ARCADE_TIMING.maxFrameDeltaSeconds) / MARS_ARCADE_TIMING.frameSeconds)
+        ? Math.min(loopingVictory ? Number.MAX_SAFE_INTEGER : 24, harness.outcomeFrames + Math.min(elapsed, MARS_ARCADE_TIMING.maxFrameDeltaSeconds) / MARS_ARCADE_TIMING.frameSeconds)
         : 0
       harness.heavyReactions = updateHeavyReactions(harness.heavyReactions, source, transition.state, transition.events)
       harness.laserStrikes = updateLaserStrikes(harness.laserStrikes, transition.state, transition.events)
@@ -1374,8 +1429,26 @@ function mount(): void {
       if (harness.log.length > 14) harness.log = harness.log.slice(-14)
     }
 
-    draw(ctx, harness, sprites, backdrop, effects, flyby)
+    draw(ctx, harness, sprites, backdrop, effects, flyby, caps)
+    canvas.dataset.background = backdrop.background
+    const backgroundLabel = ARCADE_BACKGROUND_LABELS[backdrop.background]
+    const arenaLabel = `${backgroundLabel} fighting arena. Use the native controls or A and D to move, W to jump, J for light, K for heavy, L for special.`
+    if (canvas.getAttribute('aria-label') !== arenaLabel) canvas.setAttribute('aria-label', arenaLabel)
+    const backgroundStatus = document.querySelector<HTMLElement>('#background-status')
+    const backgroundText = backdrop.failed() ? `${backgroundLabel} artwork could not load. Retry or choose another background.`
+      : backdrop.ready() ? `${backgroundLabel} ready` : `Loading ${backgroundLabel}…`
+    if (backgroundStatus && backgroundStatus.textContent !== backgroundText) backgroundStatus.textContent = backgroundText
+    const backgroundRetry = document.querySelector<HTMLButtonElement>('#background-retry')
+    if (backgroundRetry) backgroundRetry.hidden = !backdrop.failed()
     readout.textContent = describe(harness)
+    const matchStatus = document.querySelector<HTMLElement>('#match-status')
+    if (matchStatus) {
+      const beat = harness.state.phase === 'fight' ? `${marsArcadeTimerSeconds(harness.state)} seconds`
+        : harness.state.phase === 'intro' ? 'Get ready'
+        : harness.state.winner === null ? 'Draw' : `${marsArcadeFighter(harness.state.fighters[harness.state.winner].id).label} wins`
+      const text = `${harness.humanRight ? 'Two players' : `CPU: ${harness.difficulty}`} · ${beat} · P1 health ${harness.state.fighters[0].health} · P2 health ${harness.state.fighters[1].health}`
+      if (matchStatus.textContent !== text) matchStatus.textContent = text
+    }
     const healthStatus=document.querySelector<HTMLElement>('#health-status')
     if(healthStatus){
       const warnings=harness.state.fighters.flatMap((fighter,side)=>{
@@ -1390,9 +1463,12 @@ function mount(): void {
       if(pivotStatus.textContent!==statusText)pivotStatus.textContent=statusText
       pivotStatus.hidden=!statusText
     }
+    const capStatus=document.querySelector<HTMLElement>('#cap-status')
+    if(capStatus) { const text=capAccessibleStatus(harness.state); if(capStatus.textContent!==text)capStatus.textContent=text;capStatus.hidden=!text }
     for(const button of document.querySelectorAll<HTMLButtonElement>('[data-pivot-down]')){
       const side=Number(button.dataset.pivotDown)===0?0:1
-      const hidden=!marsArcadePivotPreviewEnabled()||harness.state.fighters[side].id!=='oracle'
+      const id=harness.state.fighters[side].id
+      const hidden=id!=='trump'&&(id!=='oracle'||!marsArcadePivotPreviewEnabled())
       if(button.hidden!==hidden)button.hidden=hidden
     }
     const title = document.querySelector<HTMLElement>('#stage-title')
@@ -1400,8 +1476,15 @@ function mount(): void {
       const versus = `${marsArcadeFighter(harness.leftId).label} vs ${marsArcadeFighter(harness.rightId).label}${harness.humanRight ? '' : ' (CPU)'}`
       if (title.textContent !== versus) title.textContent = versus
     }
-    const status = sprites.status() + (harness.reducedMotion ? '; reduced motion: static idle' : '') + ` · ${effects.status()} · ${flyby.status()}`
+    const status = sprites.status() + (harness.reducedMotion ? '; reduced motion: static idle' : '') + ` · ${effects.status()} · ${flyby.status()} · ${caps.status()} · ${backdrop.status()}`
     if (assetStatus.textContent !== status) assetStatus.textContent = status
+    const artMessage = document.querySelector<HTMLElement>('#arcade-art-message')
+    if (artMessage) {
+      const failed = /failed|not found|fallback/.test(status)
+      const message = failed ? 'Some artwork could not load. You can keep playing, or return to your game and try again.' : ''
+      if (artMessage.textContent !== message) artMessage.textContent = message
+      artMessage.hidden = !message
+    }
     const events = harness.log.join('\n') || '(no events yet)'
     if (logPanel.textContent !== events) logPanel.textContent = events
     const pause = document.querySelector<HTMLButtonElement>('[data-command="Space"]')
@@ -1412,10 +1495,18 @@ function mount(): void {
     for (const select of document.querySelectorAll<HTMLSelectElement>('[data-fighter]')) {
       select.value = select.dataset.fighter === '0' ? harness.leftId : harness.rightId
     }
+    for (const [side, code] of [[0, PLAYER_ONE_BINDINGS.special], [1, PLAYER_TWO_BINDINGS.special]] as const) {
+      const button = document.querySelector<HTMLButtonElement>(`[data-combat="${code}"]`)
+      if (button) {
+        const available = marsArcadeFighter(harness.state.fighters[side].id).moves.special.enabled !== false
+        button.disabled = !available
+        button.textContent = `P${side + 1} special${available ? '' : ' coming soon'}`
+      }
+    }
     window.requestAnimationFrame(frame)
   }
 
   window.requestAnimationFrame(frame)
 }
 
-mount()
+if (import.meta.env.DEV && !document.documentElement.hasAttribute('data-mars-arcade')) void mountMarsArcade()
