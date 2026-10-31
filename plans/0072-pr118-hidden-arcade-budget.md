@@ -22,7 +22,7 @@ PR #118 (`feat/optimus-future-tesla-ending`, `171a7a7`) contains the Optimus and
 - [x] Repair both build budgets; record exact source/output sizes and film validation.
 - [x] Run focused and full local checks, production browser flow, asset guards and complete diff review.
 - [x] Commit `e0d22dc`, push to draft PR #118 and update its description. GitHub CI, CodeQL and dependency checks passed.
-- [ ] Push the Vercel source-packaging repair and verify the new preview.
+- [x] Push Vercel source-packaging repair `8fbd125`; GitHub CI, CodeQL, dependency guard and the new Vercel preview pass. Owner visual review remains.
 
 ## Discoveries and decisions
 
@@ -36,7 +36,8 @@ PR #118 (`feat/optimus-future-tesla-ending`, `171a7a7`) contains the Optimus and
 - The initial Chromium run used port 5370, which Playwright reused from an older preview; its controller failure revealed stale HTML. That run is excluded from PR-branch proof. A fresh production build/preview on 5397 passed 40/40 arcade, Moonbase and reward cases, including the production controller. The complete reordered journey passed 1/1 on a separate fresh 5398 preview. Screenshots under `preview-renders/mars-arcade/pr118-2026-10-30/` were inspected at 375, 768 and 1440 px.
 - Full local review checked the runtime references of every omitted output path, protected reward loading, state/reload/denied-storage paths, controller preservation, unchanged budget limits, and the selected art provenance. `git diff --check` and final lint pass. No critical/high finding remains in the local review.
 - Vercel preview `dpl_9qaiTbmYqpDEW2dDPF9szMmUEEHt` failed despite green GitHub CI: its log shows `ENOENT` for `art-source/arcade/booster/normalised-sleek-ready/anchor/anchor-00.png` in the build plugin. `.vercelignore` excludes the entire `art-source/` tree, so local and CI source reads did not prove hosted packaging. The fix places the 184 selected PNGs under `runtime-art/arcade/` and emits their existing URLs from those deployable copies. All 184 source/runtime/dist PNGs match byte for byte (3,867,922 bytes). Unused source candidates remain excluded. `preview-renders/` is also excluded from the Vercel upload while remaining in Git.
-- Fresh post-repair `npm run check` passes 1,048 tests in 95 files, lint, types and build. Budgets remain 185.3 MB total and 567 KB initial. Fresh built-preview Chromium on 5400 passes 2/2 focused four-fighter and Moonbase camera-edge cases using the final `runtime-art/` path; the Vercel build-step test passes 10/10 under Vitest. The specific hosted failure is ready for recheck after push.
+- Fresh post-repair `npm run check` passes 1,048 tests in 95 files, lint, types and build. Budgets remain 185.3 MB total and 567 KB initial. Fresh built-preview Chromium on 5400 passes 2/2 focused four-fighter and Moonbase camera-edge cases using the final `runtime-art/` path; the Vercel build-step test passes 10/10 under Vitest. The hosted recheck passed after the push.
+- Commit `8fbd125` passed GitHub CI quality and all hosted checks. Vercel deployment `dpl_7XL2GNgGwQ7fb5o9HbHoCBwmcGbU` reached READY; its build log includes the arcade PNG outputs and completed deployment. The connected protected-URL fetch returned an access/not-found error, so this is hosted build evidence, not an authenticated browser or HTTP proof. The preview link is in PR #118 for owner review.
 
 ## Implementation steps
 
@@ -56,4 +57,4 @@ For each failure, record the observed cause, make one bounded correction, rerun 
 
 ## Evidence and outcome
 
-Implementation, local code/asset checks, fresh production browser validation and local full-diff review pass. GitHub CI on the first push passed; Vercel exposed a packaging error now corrected locally. The follow-up push and hosted preview recheck remain. Owner visual and rights gates remain open.
+Implementation, local code/asset checks, fresh production browser validation and local full-diff review pass. The first Vercel packaging error is repaired, and hosted CI plus the follow-up Vercel build pass. Owner visual acceptance and Tripo/soundtrack rights remain open; the PR stays draft, with no merge or release deployment.
