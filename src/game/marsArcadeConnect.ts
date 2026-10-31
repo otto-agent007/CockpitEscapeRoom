@@ -23,6 +23,7 @@ import {
 } from './marsArcade'
 import {
   marsArcadeFighter,
+  MARS_ARCADE_FIGHTER_IDS,
   marsArcadeTuningInForce,
   setMarsArcadeTuning,
   type MarsArcadeButton,
@@ -47,12 +48,12 @@ export interface MarsArcadeConnectRow {
   resolvedBy: 'boxes' | 'reach'
 }
 
-const FIGHTERS: readonly MarsArcadeFighterId[] = ['booster', 'oracle', 'captain']
+const FIGHTERS: readonly MarsArcadeFighterId[] = MARS_ARCADE_FIGHTER_IDS
 const BUTTONS: readonly MarsArcadeButton[] = ['light', 'heavy', 'special']
 
 /** A move the table measures: it strikes by position, not by projectile or lock-on. */
 export function marsArcadeStrikesByPosition(move: MarsArcadeMove): boolean {
-  return move.damage > 0 && move.activeFrames > 0 && !move.projectile && !move.lockOn
+  return move.enabled !== false && move.damage > 0 && move.activeFrames > 0 && !move.projectile && !move.lockOn
 }
 
 /**

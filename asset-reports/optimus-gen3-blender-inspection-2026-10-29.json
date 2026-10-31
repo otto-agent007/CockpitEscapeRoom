@@ -1,0 +1,111 @@
+{
+  "blender": "5.1.2",
+  "mesh_objects": [
+    {
+      "name": "tripo_node_4f61a58b-e75a-4a72-9411-c3c8a9f2c266",
+      "verts": 23370,
+      "faces": 40462,
+      "vertex_groups": 65
+    },
+    {
+      "name": "Icosphere",
+      "verts": 42,
+      "faces": 80,
+      "vertex_groups": 0
+    }
+  ],
+  "rig": "Armature",
+  "bones": 65,
+  "actions": [],
+  "bounds": {
+    "min": [
+      -0.49975574016571045,
+      -0.094970703125,
+      -8.05181912255648e-08
+    ],
+    "max": [
+      0.49975594878196716,
+      0.094970703125,
+      0.99462890625
+    ],
+    "size": [
+      0.99951171875,
+      0.18994140625,
+      0.9946289658546448
+    ]
+  },
+  "images": [
+    {
+      "name": "tripo_image_4f61a58b-e75a-4a72-9411-c3c8a9f2c266_2-tripo_image_4f61a58b-e75a-4a72-9411-c3c8a9f2c266_1",
+      "size": [
+        4096,
+        4096
+      ],
+      "filepath": ""
+    },
+    {
+      "name": "tripo_normal_5d3ebeb8-5bec-42f4-b0d2-f187d38cfc77",
+      "size": [
+        4096,
+        4096
+      ],
+      "filepath": ""
+    },
+    {
+      "name": "tripo_rgb_917004f7-91a9-4e5b-b549-7e6b21d440ec",
+      "size": [
+        8192,
+        8192
+      ],
+      "filepath": ""
+    },
+    {
+      "name": "Viewer Node",
+      "size": [
+        256,
+        256
+      ],
+      "filepath": ""
+    }
+  ],
+  "material_nodes": [
+    {
+      "name": "Dots Stroke",
+      "nodes": [
+        "NodeFrame",
+        "ShaderNodeOutputMaterial",
+        "ShaderNodeBsdfPrincipled",
+        "ShaderNodeOutputMaterial",
+        "ShaderNodeBsdfDiffuse"
+      ]
+    },
+    {
+      "name": "Material",
+      "nodes": [
+        "ShaderNodeOutputMaterial",
+        "ShaderNodeBsdfPrincipled"
+      ]
+    },
+    {
+      "name": "tripo_mat_4f61a58b-e75a-4a72-9411-c3c8a9f2c266",
+      "nodes": [
+        "ShaderNodeBsdfPrincipled",
+        "ShaderNodeOutputMaterial",
+        "ShaderNodeTexImage",
+        "ShaderNodeSeparateColor",
+        "ShaderNodeTexImage",
+        "ShaderNodeNormalMap",
+        "ShaderNodeTexImage"
+      ]
+    }
+  ],
+  "tested_vertex_influence_counts": {
+    "mixamorig:RightArm": 2143,
+    "mixamorig:RightForeArm": 1641,
+    "mixamorig:RightHand": 432,
+    "mixamorig:RightHandIndex1": 164,
+    "mixamorig:RightHandThumb1": 315,
+    "mixamorig:LeftHandIndex1": 164,
+    "mixamorig:LeftHandThumb1": 320
+  }
+}

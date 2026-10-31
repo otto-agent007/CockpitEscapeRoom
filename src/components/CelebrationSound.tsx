@@ -9,9 +9,8 @@ import {
 /**
  * The celebration cheer and its Sound on/off toggle, as the `aside` of a milestone card.
  *
- * Every milestone card mounts this, so the cheer that first shipped on the Captain's Key
- * now also marks the locker room and the Airbus. The mute preference is one shared key, so
- * a player who silences the cheer at one milestone stays silenced at the next.
+ * The Captain's Key and locker cards mount this cheer. The Airbus completion card uses
+ * Optimus's Heart voice instead. All three honor one shared mute preference.
  *
  * The cheer plays once as the card opens. The player clicked their way to the milestone, so
  * the gesture requirement is met; if the browser refuses playback anyway the rejection is

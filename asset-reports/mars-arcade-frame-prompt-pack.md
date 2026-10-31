@@ -576,3 +576,11 @@ yet** — it is specified in the contract under `reachBinding` and is the obviou
 write once real frames exist.
 
 Captain coffee-hand authority (owner correction, 2026-10-06): anatomical RIGHT hand carries the mug. In source right-facing profile this is the near-side visible arm. Explicitly connect right shoulder/sleeve to elbow, forearm, grip and cup; left arm stays free. Screen mirroring must mirror the whole drawing, never swap cup ownership. Corrected neutral candidate pending owner review; do not reuse old wrong-hand neutral in new sequences.
+
+## Donald Trump registration and remaining drawing budget — 2026-10-10
+
+Owner-requested muscular character: approved anchor at art-source/arcade/trump/generated/anchor-v2/anchor-00.png, locked scale12.653846153846153. Canonical local fighter is trump; exact existing idle/jab/windmill/block cells are now in the gym. Jab gameplay4/3/7, windmill14/5/12; no source-review guard pauses are combat data. Derived budget:trump.jab1startup/1active/1recovery, trump.windmill3/2/2, disabled trump.specialPending0/1/1reserved. Reserved budget does not assert generated special artwork. Current actual runtime uses1idle+3jab+5heavy+3block slots. No walk/jump/reaction/outcome families have been authored; keep safe own-anchor/guard fallbacks until those source poses are approved. See plans/0061-trump-runtime-integration.md and the runtime asset report.
+
+### Donald Cap Throw and full set — 2026-10-10
+
+Supersedes the disabled-special note above: `trump.capThrow` is56startup/37active/16recovery, so the unchanged minimum drawing budget is3/2/2=7. The actual canonical move uses16timeline slots with repeated reach/lift/flick beats and three releases. Donald has all12normal families; victory is the owner's classic low two-fist dance. Exact built-in imagegen prompts and reference/output provenance are in `art-source/arcade/trump/generated/{full-set-v1,cap-throw-v1}/*.generation.json`; source outputs and rejected candidates retained. Selected cells keep source scale12.653846153846153 and bilinear genuine-alpha reduction. Details and actual gym/arcade proof: `asset-reports/mars-arcade-trump-full-set-cap-throw-2026-10-10.md`.

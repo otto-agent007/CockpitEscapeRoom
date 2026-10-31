@@ -996,11 +996,10 @@ test("The Captain's Key reveal plays the celebration cheer and remembers Sound o
 
 test('Sound off at one milestone card carries to the next', async ({ page }) => {
   // One preference for the whole game, and it has to survive the phase change: silencing the
-  // cheer at the locker must reach the Airbus card. Both cards are seeded into view here
+  // cheer at the locker must reach the Airbus voice card. Both cards are seeded into view here
   // rather than played to, which is why this asserts silence and not playback — a card that
   // the document has never been interacted with is silent regardless of the preference.
-  // The click-driven proof that each card really cheers lives in `locker-room.spec.ts` and
-  // `airbus-engine-out.spec.ts`.
+  // The click-driven audio proofs live in `locker-room.spec.ts` and `airbus-engine-out.spec.ts`.
   await page.goto('/?skip3d=1')
   await seedGameState(page, {
     ...createLockerState(),
@@ -1019,6 +1018,7 @@ test('Sound off at one milestone card carries to the next', async ({ page }) => 
   const completion = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
   await expect(completion).toBeVisible()
   await expect(completion.getByRole('button', { name: 'Sound off' })).toBeVisible()
+  await expect(completion.getByLabel('Optimus greeting')).toHaveCount(0)
   expect(await sampleCelebrationAudio(page)).toBeNull()
 
   // The hub behind the Airbus card owns no sound control of its own, so the card's toggle is
@@ -1460,10 +1460,14 @@ test('complete reordered journey', async ({ page }) => {
   await expect(completion).toBeVisible()
   await expect(completion).toContainText('Directional Control · Energy Discipline · Calm Diversion')
   await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toHaveCount(0)
-  await completion.getByRole('button', { name: 'Continue' }).click()
-  await expect(page.getByText('Ground Transport Upgrade Authorized', { exact: true })).toBeVisible()
-  await expect(page.getByText(/Happy Father’s Day/i)).toBeVisible()
-  await expect(page.getByText(/red Tesla Model Y is unlocked/i)).toBeVisible()
+  await completion.getByRole('button', { name: 'Reveal reward' }).click()
+  await expect(page.getByRole('heading', { name: 'Flight Mode' })).toBeVisible()
+  await expect(page.getByLabel('Tesla Flight Mode film')).toBeVisible()
+  await page.getByRole('button', { name: 'Skip film and read tribute' }).click()
+  await expect(page.getByRole('heading', { name: 'Ground Transport Upgrade Authorized' })).toBeVisible()
+  await expect(page.getByText(/Thank you for being someone we can always count on\. From the baseball field to the captain’s seat/i)).toBeVisible()
+  await expect(page.getByText(/One more flight, Captain/i)).toHaveCount(0)
+  await expect(page.getByText(/The Future Tesla is unlocked/i)).toBeVisible()
 })
 
 test('Airbus cards show immediate placement feedback and recover', async ({ page }) => {

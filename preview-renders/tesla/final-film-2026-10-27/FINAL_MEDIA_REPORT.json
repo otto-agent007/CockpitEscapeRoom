@@ -1,0 +1,26 @@
+{
+  "status": "pass",
+  "movie": "/mnt/2TBHDD/CockpitEscapeRoom/.worktrees/animation-workflow/preview-renders/tesla/final-film-2026-10-27/tesla-flight-mode-final-candidate.mp4",
+  "sha256": "542f09152b7d9e096410e18acc4902665e084bdaaf3311a929349c1db5b6637c",
+  "bytes": 60766724,
+  "videoFrames": 2050,
+  "pictureFrames": 2026,
+  "blackFrames": 24,
+  "fps": 24,
+  "resolution": [
+    1920,
+    1080
+  ],
+  "durationSeconds": 85.416667,
+  "blackBeginsSeconds": 84.41666666666667,
+  "audioDurationSeconds": 85.4,
+  "audioPacketHash": "SHA256=806fa2f86749a54b1e8e293fab503de07c0689f8ca0715dbd751a3fc3c66e281",
+  "originalSoundtrackPreserved": true,
+  "fullDecode": "pass",
+  "blackSampleMaxRgb": 0,
+  "sourceHashes": {
+    "hangar": "c38c7382782311488c9a0aa1a723ea9d45dcce71b5fb8edeb7ee299e5245ce3d",
+    "flyover": "32c4dea21177b149305a13804e160c3e9d07e959d171fd57cdf6e2657ce1410e",
+    "ending": "9f99da8d9c5db3a7c3b5d68fefde9b81a39ddac4097730d297178b3be0501699"
+  }
+}

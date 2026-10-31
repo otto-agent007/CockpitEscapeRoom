@@ -1,5 +1,14 @@
 # Test report
 
+## 2026-10-30 — PR #118 ending plus earned hidden Mars arcade
+
+- The draft ending branch now earns a versioned local Mars unlock only after the complete tribute. A continuous T+M+B hold opens the optional four-fighter arcade; the standalone URL and first play stay locked. Mars/Moonbase choice persists independently. The existing PR gamepad path was restored in the production renderer. Return preserves the chapter and the film or tribute stage, even when storage writes fail.
+- Fresh `npm run check` passed lint, types, **1,048 tests in 95 files**, and production build. A final `npm run lint` and `git diff --check` also passed after the browser-test adjustment. `npm run assets:check` passed with existing nonfatal GLB notices; `npm run arcade:validate` found 58 clips, 202 frames, 164 drawings, 0 errors, and four retained candidate warnings. CI's Python tool suites, spoiler guard, and privacy guard passed locally.
+- The unchanged asset budgets pass: **185.3/190.0 MB total** and **567/600 KB initial download**. Historical unused public files and source maps remain outside the deployable build; their source files remain versioned. The Tesla runtime movie is 38,596,084 bytes, with the same 85.416667-second cut and byte-identical AAC packets as the original. A full decode and 2,050-frame comparison passed (SSIM mean 0.990039, minimum 0.969956). Original and optimized hashes are in the film asset report.
+- Production Chromium on a **fresh PR-branch preview at port 5397** passed **40/40** focused cases: initial/direct lock, 1.5-second chord and cancellation, reload/Restart, denied storage, loading retry, native controls, connected-controller pause, four fighter artwork, Moonbase persistence/fallback/camera edges, reduced motion, keyboard and axe checks, 375/768/1440 layouts, Optimus handoff, fullscreen/autoplay film, failed media and tribute. A separate fresh preview at port 5398 passed the **complete reordered journey 1/1**. The first run on port 5370 reused an older preview and is excluded from PR-branch evidence; the fresh run corrected this.
+- Current branch screenshots under `preview-renders/mars-arcade/pr118-2026-10-30/` were opened at 375, 768 and 1440 px. No horizontal overflow or missing stage art was observed. The code and asset diff was reviewed against source references, local permissions, spoiler protection, persisted-state recovery, unused-output allowlist and no-new-dependency constraints; no critical or high issue remains in this local review.
+- Draft owner gates remain: robot appearance and motion, final complete-game visual acceptance, Tripo distribution rights and soundtrack rights. Hosted CI and Vercel preview are checked after the push; a green local run does not grant release approval.
+
 ## 2026-10-06 — Captain jab/heavy/normal guard adopted; full-set goal ongoing
 
 - Latest separate review prototype: **932 tests in82 files/lint/types/build pass**. Fresh review findings corrected: real zero-stun hit stop now keeps impact drawing/rules parity on both sides/reduced modes; flyby uses any available cell. Both regressions failed before fixes and passed afterward; reviewer recheck39tests, no new findings. Six native flyby cases pass, including missing frames0and2 together. Main remains unchanged and art/box decisions remain pending.
@@ -3688,3 +3697,18 @@ Checks run:
   - no overflow at 375, 768 and 1440 px, with 0 page or console errors
 
 Not run: a physical controller. None was connected, and this PC has no Bluetooth adapter (`bluetooth.service` skipped: no `/sys/class/bluetooth`).
+
+### 2026-10-29 Optimus and Future Tesla ending PR candidate
+
+A clean `feat/optimus-future-tesla-ending` branch was prepared from `origin/main` at `6f1e5ad` so the ending can be reviewed independently of the unfinished Mars arcade work in the original workspace. The player reaches the protected film through the Airbus completion card's animated `dance_02` Optimus and Heart greeting. The final tribute begins, “Thank you for being someone we can always count on.”
+
+Checks on this clean branch:
+
+- `npm run assets:check`: PASS. The Optimus GLB reports the known generated-tangent-space and `NODE_SKINNED_MESH_NON_ROOT` validator warnings; hierarchy, animation, textures, materials and runtime loading checks pass.
+- `VITE_CONFIG_NATIVE_IGNORE_WARNING=true npm run check`: PASS — lint, typecheck, 985 tests in 89 files and production build.
+- Chromium `e2e/reward.spec.ts`: 12/12 PASS, including spoiler gating, model/audio/video failure fallbacks, keyboard, reload, reduced motion, autoplay/fullscreen handoff and 375/768/1440 px layouts.
+- Chromium filtered `e2e/smoke.spec.ts` and `e2e/airbus-engine-out.spec.ts`: the complete reordered journey and five native Airbus/Engine-Out cases PASS. The broad real-cockpit case passed its 3D/simulator assertions but initially failed its final console audit on a missing `/favicon.ico`. After serving a fresh production build with the favicon file, the heavy case PASS (1/1, 2.4 minutes).
+
+The PR carries the Blender masters, deployable media/model, audio, fallback image, source reports, plans and selected visual evidence. The robot's appearance and full motion quality, Tripo distribution rights, owner review of the current browser ending, hosted preview and complete-game release review remain open. This is a draft review candidate, not final release approval.
+
+The failed real-Airbus console audit was traced with a short Chromium diagnostic to a baseline browser request for missing `/favicon.ico`; no Airbus or ending media request failed. `index.html` now names the already approved TMB2 logo PNG, and `public/favicon.ico` serves identical approved PNG bytes for Chromium’s default request. Playwright had reused a stale preview server during the first recheck. After restarting it, the short console probe PASS and the full heavy Airbus audit PASS with no console errors. Temporary probes were removed.

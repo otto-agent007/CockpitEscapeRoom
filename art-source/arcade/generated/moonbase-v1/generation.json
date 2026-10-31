@@ -1,0 +1,19 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-10-14",
+  "originalPath": "/home/user1/.codex/generated_images/01a131f8-efb4-7cf3-8e81-ec479b714fe3/exec-f504e270-953c-47eb-a47b-96319cbe3e6e.png",
+  "sourceSha256": "9399a2d6d6c743ca634450ce6f373e1c251e37810d6c27e7c38a30e7052f0c05",
+  "bytes": 2473220,
+  "width": 1836,
+  "height": 857,
+  "mode": "RGB",
+  "logicalWidth": 480,
+  "logicalHeight": 224,
+  "editing": "none; exact original PNG copied; runtime nearest-neighbor scaling only",
+  "authority": "owner chose outdoor lunar base with Earth; rendered appearance approved on 2026-10-14",
+  "appearanceApproval": {
+    "date": "2026-10-14",
+    "quote": "very nice. I like it.",
+    "receipt": "preview-renders/mars-arcade/moonbase-2026-10-14/owner-approval.json"
+  }
+}

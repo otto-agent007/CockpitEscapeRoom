@@ -105,12 +105,13 @@ export function marsArcadeJumpIndex(velocityY: number): 0 | 1 | 2 {
 }
 
 /** Captain's reaction drawing and boxes share the actual, hit-stop-frozen stun clock. */
-export function marsArcadeCaptainReactionFrame(fighter: MarsArcadeFighterState): MarsArcadeAnimationFrame | null {
-  if (fighter.id !== 'captain') return null
+export function marsArcadeReactionFrame(fighter: MarsArcadeFighterState): MarsArcadeAnimationFrame | null {
+  if (fighter.capFreeze) return marsArcadeClip(fighter.id, 'hit')?.frames[0] ?? marsArcadeClip(fighter.id, 'idle')?.frames[0] ?? null
+  if (fighter.id !== 'captain' && fighter.id !== 'trump') return null
   const origin = fighter.stunOrigin
   const name = fighter.activity === 'hitstun' ? 'hit' :
     fighter.activity === 'blockstun' && origin?.button === 'heavy' ? 'heavy-block' : null
-  const clip = name ? marsArcadeClip('captain', name) : null
+  const clip = name ? marsArcadeClip(fighter.id, name) : null
   if (!clip) return null
   // A zero-stun hit still freezes its impact activity during hit stop.
   if (fighter.stunFrames <= 0) return fighter.activity === 'hitstun' ? clip.frames[0] ?? null : null
@@ -121,9 +122,12 @@ export function marsArcadeCaptainReactionFrame(fighter: MarsArcadeFighterState):
   return marsArcadeFrameAt(clip, Math.min(ticks - 1, Math.floor(elapsed * ticks / Math.max(1, duration)))).frame
 }
 
+/** Existing Captain callers share the same deterministic reaction clock. */
+export const marsArcadeCaptainReactionFrame = marsArcadeReactionFrame
+
 function fighterFrame(fighter: MarsArcadeFighterState, frame: number): MarsArcadeAnimationFrame | null {
   const clip = (name: string) => marsArcadeClip(fighter.id, name)
-  const reaction = marsArcadeCaptainReactionFrame(fighter)
+  const reaction = marsArcadeReactionFrame(fighter)
   if (reaction) return reaction
 
   if (fighter.activity === 'attack' && fighter.activeButton) {
@@ -135,13 +139,16 @@ function fighterFrame(fighter: MarsArcadeFighterState, frame: number): MarsArcad
   }
   if (fighter.activity === 'airborne') {
     const jump = clip('jump')
-    return jump ? jump.frames[Math.min(marsArcadeJumpIndex(fighter.velocityY), jump.frames.length - 1)]! : null
+    return jump ? jump.frames[Math.min(marsArcadeJumpIndex(fighter.velocityY), jump.frames.length - 1)]! :
+      fighter.id === 'trump' ? clip('idle')?.frames[0] ?? null : null
   }
-  if (fighter.activity === 'hitstun') return clip('hit')?.frames[0] ?? null
+  if (fighter.activity === 'hitstun') return clip('hit')?.frames[0] ??
+    (fighter.id === 'trump' ? clip('idle')?.frames[0] ?? null : null)
   if(fighter.activity==='distracted')return clip('distracted')?.frames[0]??clip('idle')?.frames[0]??null
   if (fighter.activity === 'walk') {
     const walk = clip(fighter.blocking ? 'walk-back' : 'walk-forward')
     if (walk) return marsArcadeFrameAt(walk, frame).frame
+    if (fighter.id === 'trump') return clip(fighter.blocking ? 'block' : 'idle')?.frames[0] ?? null
     // A reviewed Captain guard can back up before its walking art is ready.
     return fighter.id === 'captain' && fighter.blocking ? clip('block')?.frames[0] ?? null : null
   }

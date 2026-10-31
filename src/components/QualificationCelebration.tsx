@@ -1,20 +1,24 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { EngineOutTrait } from '../game/airbusEngineOut'
+import { OPTIMUS_GREETING_TEXT } from '../game/optimusGreeting'
 import { CelebrationSoundAside } from './CelebrationSound'
+import { OptimusNarrationAside } from './OptimusNarration'
 
 const CAPTAIN_CELEBRATION_REVEAL_DELAY_MS = 850
+const OptimusGuideScene = lazy(() => import('../scenes/OptimusGuideScene'))
+const optimusFallbackUrl = `${import.meta.env.BASE_URL}images/optimus-guide-fallback.png`
 
 interface MilestoneCelebrationProps {
   eyebrow: string
   title: string
-  body: string
+  body: ReactNode
   actionLabel: string
   reducedMotion: boolean
   onContinue: () => void
   onDismiss?: () => void
   visual: ReactNode
   fadeToBlack?: boolean
-  variant?: 'qualification' | 'captain' | 'key'
+  variant?: 'qualification' | 'captain' | 'key' | 'optimus'
   /** Optional secondary control shown under the primary action, e.g. a sound toggle. */
   aside?: ReactNode
 }
@@ -49,7 +53,9 @@ export function MilestoneCelebration({
     ? ' qualification-celebration--captain'
     : variant === 'key'
       ? ' qualification-celebration--key'
-      : ''
+      : variant === 'optimus'
+        ? ' qualification-celebration--optimus'
+        : ''
   const fadeClass = fadeToBlack ? ' qualification-celebration--fade-to-black' : ''
 
   return (
@@ -105,13 +111,17 @@ const captainTraitLabels: Record<EngineOutTrait, string> = {
 
 export function AirbusCompletionCelebration({
   reducedMotion,
+  forceAccessible,
   traits,
   onContinue,
 }: {
   reducedMotion: boolean
+  forceAccessible: boolean
   traits: EngineOutTrait[]
   onContinue: () => void
 }) {
+  const [replayRevision, setReplayRevision] = useState(0)
+  const replayMotion = useCallback(() => setReplayRevision((revision) => revision + 1), [])
   const debrief = traits.length > 0
     ? `Captain traits: ${traits.map((trait) => captainTraitLabels[trait]).join(' · ')}`
     : 'Both captain challenges are complete. Captain knowledge logged.'
@@ -119,12 +129,23 @@ export function AirbusCompletionCelebration({
     <MilestoneCelebration
       eyebrow="Airbus A320"
       title="POP T CAPTAIN MODE COMPLETE"
-      body={debrief}
-      actionLabel="Continue"
+      body={<><span className="optimus-greeting-copy">{OPTIMUS_GREETING_TEXT}</span><span className="optimus-debrief">{debrief}</span></>}
+      actionLabel="Reveal reward"
       reducedMotion={reducedMotion}
       onContinue={onContinue}
-      visual={<div className="qualification-emblem" aria-hidden="true">✓</div>}
-      aside={<CelebrationSoundAside />}
+      visual={
+        <div className="optimus-figure" aria-hidden="true">
+          {forceAccessible ? (
+            <img className="optimus-guide-fallback" src={optimusFallbackUrl} alt="" />
+          ) : (
+            <Suspense fallback={<img className="optimus-guide-fallback" src={optimusFallbackUrl} alt="" />}>
+              <OptimusGuideScene replayRevision={replayRevision} reducedMotion={reducedMotion} />
+            </Suspense>
+          )}
+        </div>
+      }
+      variant="optimus"
+      aside={<OptimusNarrationAside onReplay={replayMotion} />}
     />
   )
 }
