@@ -16,7 +16,7 @@ import { saveGymArt } from './tools/dev/arcadeArtSave.ts'
 import { MARS_ARCADE_BACKDROP } from './src/game/marsArcadeStage.ts'
 import { LASER_EFFECT_ART, CAPTAIN_FLYBY_ART, CAP_EFFECT_ART, MOONBASE_PANORAMA } from './src/game/marsArcadeArt.ts'
 
-/** Ship only referenced PNGs; Blender/source masters and generation archives stay local. */
+/** Emit only referenced PNGs from a deployable copy outside Vercel's art-source/ ignore rule. */
 function marsArcadeAssets(): Plugin {
   return {
     name: 'mars-arcade-assets',
@@ -34,7 +34,8 @@ function marsArcadeAssets(): Plugin {
       for (const src of sources) {
         if (!src.startsWith('/art-source/arcade/') || src.includes('..') || !src.endsWith('.png')) throw new Error(`Invalid arcade asset path: ${src}`)
         const fileName = src.slice(1)
-        this.emitFile({ type: 'asset', fileName, source: await readFile(resolve(import.meta.dirname, fileName)) })
+        const runtimePath = resolve(import.meta.dirname, 'runtime-art/arcade', src.slice('/art-source/arcade/'.length))
+        this.emitFile({ type: 'asset', fileName, source: await readFile(runtimePath) })
       }
     },
   }

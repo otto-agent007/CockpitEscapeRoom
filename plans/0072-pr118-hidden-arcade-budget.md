@@ -21,7 +21,8 @@ PR #118 (`feat/optimus-future-tesla-ending`, `171a7a7`) contains the Optimus and
 - [x] Import the arcade's production dependencies, referenced art, provenance and relevant tests into the PR branch; restore the PR's newer gamepad path.
 - [x] Repair both build budgets; record exact source/output sizes and film validation.
 - [x] Run focused and full local checks, production browser flow, asset guards and complete diff review.
-- [ ] Commit and push to PR #118; inspect new CI and Vercel preview, update PR description and report remaining owner gates.
+- [x] Commit `e0d22dc`, push to draft PR #118 and update its description. GitHub CI, CodeQL and dependency checks passed.
+- [ ] Push the Vercel source-packaging repair and verify the new preview.
 
 ## Discoveries and decisions
 
@@ -34,6 +35,8 @@ PR #118 (`feat/optimus-future-tesla-ending`, `171a7a7`) contains the Optimus and
 - Fresh combined `npm run check` passes lint, types, 1,048 tests in 95 files and production build. Asset check passes with known nonfatal model notices. Arcade validator finds 58 clips, 202 frames, 164 drawings, 0 errors and four retained candidate warnings. Spoiler/privacy guards pass. Asset budgets pass at 185.3/190.0 MB total and 567/600 KB initial download; the largest script and per-model caps pass too. Python tool suites pass.
 - The initial Chromium run used port 5370, which Playwright reused from an older preview; its controller failure revealed stale HTML. That run is excluded from PR-branch proof. A fresh production build/preview on 5397 passed 40/40 arcade, Moonbase and reward cases, including the production controller. The complete reordered journey passed 1/1 on a separate fresh 5398 preview. Screenshots under `preview-renders/mars-arcade/pr118-2026-10-30/` were inspected at 375, 768 and 1440 px.
 - Full local review checked the runtime references of every omitted output path, protected reward loading, state/reload/denied-storage paths, controller preservation, unchanged budget limits, and the selected art provenance. `git diff --check` and final lint pass. No critical/high finding remains in the local review.
+- Vercel preview `dpl_9qaiTbmYqpDEW2dDPF9szMmUEEHt` failed despite green GitHub CI: its log shows `ENOENT` for `art-source/arcade/booster/normalised-sleek-ready/anchor/anchor-00.png` in the build plugin. `.vercelignore` excludes the entire `art-source/` tree, so local and CI source reads did not prove hosted packaging. The fix places the 184 selected PNGs under `runtime-art/arcade/` and emits their existing URLs from those deployable copies. All 184 source/runtime/dist PNGs match byte for byte (3,867,922 bytes). Unused source candidates remain excluded. `preview-renders/` is also excluded from the Vercel upload while remaining in Git.
+- Fresh post-repair `npm run check` passes 1,048 tests in 95 files, lint, types and build. Budgets remain 185.3 MB total and 567 KB initial. Fresh built-preview Chromium on 5400 passes 2/2 focused four-fighter and Moonbase camera-edge cases using the final `runtime-art/` path; the Vercel build-step test passes 10/10 under Vitest. The specific hosted failure is ready for recheck after push.
 
 ## Implementation steps
 
@@ -53,4 +56,4 @@ For each failure, record the observed cause, make one bounded correction, rerun 
 
 ## Evidence and outcome
 
-Implementation, local code/asset checks, fresh production browser validation and local full-diff review pass. Push and hosted checks remain in progress. Owner visual and rights gates remain open after those checks.
+Implementation, local code/asset checks, fresh production browser validation and local full-diff review pass. GitHub CI on the first push passed; Vercel exposed a packaging error now corrected locally. The follow-up push and hosted preview recheck remain. Owner visual and rights gates remain open.

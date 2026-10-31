@@ -26,3 +26,7 @@ This is a locally built and browser-verified visual candidate. No new hosted Ver
 ## 2026-10-30 owner revision for PR #118
 
 The owner chose a secret entrance. The prior Bonus access section described above is removed from the player-facing game. After the completed tribute earns the local unlock, a continuous T+M+B hold opens the arcade from the game; the standalone URL remains guarded. Four fighters and the owner-approved Moonbase background are carried into PR #118. Current code, budget, browser and hosted results are tracked in `plans/0072-pr118-hidden-arcade-budget.md` and `TEST_REPORT.md`; the historical 2026-10-13 checks above are not claimed as fresh PR-branch checks.
+
+## 2026-10-31 hosted packaging correction
+
+Vercel's first build of PR #118 failed because `.vercelignore` excluded `art-source/`, while the Vite arcade plugin still read sprites from that source path. The 184 selected runtime PNGs now have byte-identical copies under `runtime-art/arcade/`, which Vercel uploads and Vite emits at their existing URLs. The build requires every referenced runtime copy. Source/candidate art remains under `art-source/arcade/`; Vercel continues to exclude it. The checked source, runtime and built copies each total 3,867,922 bytes and match for every selected path. `preview-renders/` is also excluded from deployment upload while its Git evidence is preserved.

@@ -1,5 +1,11 @@
 # Test report
 
+## 2026-10-31 — PR #118 Vercel arcade packaging repair
+
+- GitHub CI, CodeQL and dependency checks passed on commit `e0d22dc`, but its Vercel preview failed. The Vercel build log identified the exact cause: `[plugin mars-arcade-assets] ENOENT` for `art-source/arcade/booster/normalised-sleek-ready/anchor/anchor-00.png`. `.vercelignore` intentionally excludes `art-source/`, so the prior plugin's source read could only succeed locally and in GitHub CI.
+- The 184 equipped PNGs now have deployable copies under `runtime-art/arcade/`, outside Vercel's excluded source tree. Every source, runtime and built copy was byte-compared; all 184 match and total 3,867,922 bytes. The Vite plugin reads every referenced runtime copy and emits its existing URL. No sprite art, rules, or URL changed. `.vercelignore` also excludes tracked preview screenshots from upload.
+- Fresh `npm run check` passed lint, types, 1,048 tests in 95 files and build. The unchanged asset budgets still pass at **185.3/190.0 MB total** and **567/600 KB initial**; `git diff --check` passed. Fresh Chromium on port 5400 passed the production four-fighter artwork/control case at 375 px and the Moonbase camera-edge case, **2/2**, after the final `runtime-art/` path was selected. The Vercel build-step test passed 10/10 under Vitest. Hosted follow-up deployment is pending the next push.
+
 ## 2026-10-30 — PR #118 ending plus earned hidden Mars arcade
 
 - The draft ending branch now earns a versioned local Mars unlock only after the complete tribute. A continuous T+M+B hold opens the optional four-fighter arcade; the standalone URL and first play stay locked. Mars/Moonbase choice persists independently. The existing PR gamepad path was restored in the production renderer. Return preserves the chapter and the film or tribute stage, even when storage writes fail.
