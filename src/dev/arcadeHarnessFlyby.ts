@@ -1,5 +1,6 @@
 import {marsArcadeActiveMove, type MarsArcadeSide, type MarsArcadeState} from '../game/marsArcade'
 import {MARS_ARCADE_VIEW} from '../game/marsArcadeStage'
+import { CAPTAIN_FLYBY_ART } from '../game/marsArcadeArt'
 
 export interface CaptainFlybyLook {
   frame: 0 | 1 | 2 | 3
@@ -23,7 +24,7 @@ export function loadCaptainFlybyEffects(): CaptainFlybyImages {
       else failures.set(frame, 'wrong size')
     }
     image.onerror = () => failures.set(frame, 'not found')
-    image.src = `/art-source/arcade/generated/fx-flyby-v2/normalised/flyby-0${frame}.png`
+    image.src = `${import.meta.env.BASE_URL}${CAPTAIN_FLYBY_ART[frame]!.slice(1)}`
   }
   return {
     get: frame => images.get(frame),

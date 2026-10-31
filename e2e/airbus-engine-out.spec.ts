@@ -3,7 +3,7 @@ import { statSync } from 'node:fs'
 import { airbusCaptainFlow, dc9LegacyFlow, lockerFlow } from '../src/game/config'
 import { createInitialState, type GameState } from '../src/game/state'
 import { STORAGE_KEY } from '../src/game/storage'
-import { expectCelebrationCheerPlaying } from './celebrationAudio'
+import { expectOptimusGreetingPlaying } from './celebrationAudio'
 
 /**
  * The production tests drive the real 38 MiB GLB through a CPU rasteriser at
@@ -184,10 +184,9 @@ test('Engine-Out diversion completes Airbus without exposing the reward early', 
   await page.clock.runFor(45_000)
   await expect(page.getByRole('heading', { name: 'POP T CAPTAIN MODE COMPLETE' })).toBeVisible()
   await expect(page.getByText(/Captain traits:/)).toBeVisible()
-  // The Airbus milestone cheers like the Captain's Key does. The card was reached by clicking
-  // the diversion corridor, so the document is interacted with and playback is allowed. The
-  // installed clock is the page's timers only; the media element keeps its own real clock.
-  await expectCelebrationCheerPlaying(page)
+  // The completed Airbus card speaks with Heart. The card was reached by clicking, so browser
+  // playback can start; the media clock is independent from the installed page timer clock.
+  await expectOptimusGreetingPlaying(page)
   expect(await page.evaluate((key) => {
     const saved = JSON.parse(localStorage.getItem(key) ?? '{}') as GameState
     return {
@@ -200,6 +199,15 @@ test('Engine-Out diversion completes Airbus without exposing the reward early', 
     rewardUnlocked: false,
     engineStatus: 'completed',
   })
+
+  const rewardRequests: string[] = []
+  page.on('request', (request) => rewardRequests.push(request.url()))
+  await page.getByRole('button', { name: 'Reveal reward' }).click()
+  await expect(page.getByRole('heading', { name: 'Flight Mode' })).toBeVisible()
+  await expect(page.getByLabel('Tesla Flight Mode film')).toHaveAttribute('src', /media\/tesla-flight-mode-final\.mp4$/)
+  await expect(page.locator('.reward-scene, canvas[data-reward-pose]')).toHaveCount(0)
+  await expect.poll(() => rewardRequests.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(true)
+  expect(rewardRequests.some((url) => url.includes('/models/model-y-reward.glb'))).toBe(false)
 })
 
 test('Captain Challenges and Engine-Out controls remain usable at tablet and phone widths', async ({ page }) => {

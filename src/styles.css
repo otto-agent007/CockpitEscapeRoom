@@ -13,7 +13,6 @@
   --danger: #d35a4c;
   --text-soft: #bfc9bb;
 }
-
 /* Authoritative 320 x 224 TMB2 Canvas presentation. */
 .game-intro.game-intro {
   --intro-ink: #f8fbff;
@@ -248,90 +247,103 @@
 }
 
 .reward-experience {
-  position: relative;
-  min-height: 100vh;
+  min-height: 100dvh;
+  padding: clamp(1rem, 2.5vw, 2.5rem);
+  color: #f3ead5;
+  background: radial-gradient(circle at 50% 15%, #18313d, #03070a 65%);
+}
+
+.reward-experience--film {
+  height: 100dvh;
+  padding: 0;
   overflow: hidden;
-  isolation: isolate;
-  background:
-    radial-gradient(circle at 68% 35%, rgba(34, 103, 142, 0.22), transparent 38rem),
-    #03070a;
+  background: #000;
 }
 
-.reward-scene {
-  position: absolute;
-  z-index: 0;
-  inset: 0;
-  min-height: 100vh;
+.reward-cinema {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: #000;
 }
 
-.reward-scene canvas {
-  display: block;
+.reward-cinema .reward-film-video {
   width: 100%;
   height: 100%;
-  min-height: 100vh;
+  max-height: none;
+  aspect-ratio: auto;
+  object-fit: contain;
+  box-shadow: none;
 }
 
-.reward-narrow-presentation {
-  display: none;
-}
-
-.reward-scene--accessible {
-  display: grid;
-  place-items: center;
-  background:
-    linear-gradient(135deg, transparent 48%, rgba(212, 172, 83, 0.32) 49% 49.3%, transparent 50%),
-    radial-gradient(circle at center, rgba(48, 117, 153, 0.34), transparent 46%),
-    #061018;
-}
-
-.reward-accessible-silhouette {
-  width: min(62vw, 48rem);
-  aspect-ratio: 2.35;
-  border: 1px solid rgba(255, 216, 179, 0.54);
-  border-radius: 42% 48% 18% 18% / 60% 62% 26% 28%;
-  background:
-    radial-gradient(circle at 20% 88%, #111 0 7%, #bbb 7.5% 11%, #111 11.5% 15%, transparent 15.5%),
-    radial-gradient(circle at 80% 88%, #111 0 7%, #bbb 7.5% 11%, #111 11.5% 15%, transparent 15.5%),
-    linear-gradient(145deg, #9b0812 10%, #e8272d 46%, #4b0208 82%);
-  box-shadow: 0 2rem 5rem rgba(0, 0, 0, 0.62), inset 0 0 2.5rem rgba(255, 255, 255, 0.18);
-  transform: translate(12vw, -5vh) perspective(45rem) rotateY(-12deg);
-}
-
-.reward-experience::after {
+.reward-cinema .reward-film-intro {
   position: absolute;
-  z-index: 1;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(2, 6, 9, 0.94) 0%,
-    rgba(2, 6, 9, 0.72) 24%,
-    rgba(2, 6, 9, 0.22) 40%,
-    transparent 56%
-  );
-  content: "";
+  z-index: 2;
+  top: 0;
+  right: 0;
+  left: 0;
+  padding: clamp(1rem, 3vw, 2rem);
+  background: linear-gradient(#000a, transparent);
   pointer-events: none;
 }
 
-.reward-overlay {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  width: min(31rem, calc(100% - 3rem));
-  align-content: end;
-  gap: 0.8rem;
-  min-height: 100vh;
-  margin-left: clamp(1rem, 5vw, 5rem);
-  padding: clamp(2rem, 7vh, 6rem) 0;
+.reward-cinema .reward-film-intro h1 {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
 }
 
-.reward-overlay .eyebrow,
-.reward-overlay h1,
-.reward-overlay p,
-.reward-overlay blockquote {
+.reward-cinema .reward-film-intro > p:last-child,
+.reward-cinema .reward-film-description {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.reward-cinema .reward-actions {
+  position: absolute;
+  z-index: 2;
+  right: clamp(1rem, 3vw, 2rem);
+  bottom: 4rem;
+  left: clamp(1rem, 3vw, 2rem);
+  padding: 0.75rem;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.18));
+}
+
+.reward-cinema .reward-film-error,
+.reward-cinema .reward-film-motion-note {
+  position: absolute;
+  z-index: 3;
+  right: clamp(1rem, 3vw, 2rem);
+  bottom: 8.5rem;
+  left: clamp(1rem, 3vw, 2rem);
+  max-width: 44rem;
+}
+
+.reward-cinema .reward-film-motion-note {
+  bottom: 13rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.reward-film-layout {
+  display: grid;
+  gap: 1rem;
+  width: min(100%, 80rem);
+  margin: 0 auto;
+}
+
+.reward-film-intro .eyebrow,
+.reward-film-intro h1,
+.reward-film-intro p,
+.reward-film-description,
+.reward-film-motion-note {
   margin: 0;
 }
 
-.reward-overlay .eyebrow {
+.reward-film-intro .eyebrow {
   color: #e8bd68;
   font-size: 0.74rem;
   font-weight: 850;
@@ -339,75 +351,49 @@
   text-transform: uppercase;
 }
 
-.reward-overlay h1 {
-  max-width: 13ch;
+.reward-film-intro h1 {
+  margin: 0.3rem 0;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(2.2rem, 5.2vw, 5.4rem);
+  font-size: clamp(2.2rem, 5.2vw, 4.6rem);
   font-weight: 500;
-  line-height: 0.96;
-  text-wrap: balance;
+  line-height: 1;
 }
 
-.reward-caption {
-  max-width: 42rem;
+.reward-film-intro > p:last-child,
+.reward-film-description,
+.reward-film-motion-note {
   color: #cbd9df;
-  font-size: clamp(0.94rem, 1.4vw, 1.08rem);
-  line-height: 1.55;
+  line-height: 1.5;
 }
 
-.reward-release-summary {
-  display: grid;
-  gap: 0.18rem;
-  color: #f1d69d;
+.reward-film-video {
+  display: block;
+  width: 100%;
+  max-height: 70dvh;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  box-shadow: 0 1.5rem 5rem rgba(0, 0, 0, 0.65);
 }
 
-.reward-release-summary span {
-  color: #cbd9df;
+.reward-film-video[hidden] {
+  display: none;
 }
 
-.reward-loader,
-.reward-load-error {
-  display: grid;
-  gap: 0.55rem;
-  padding: 0.85rem 1rem;
-  border: 1px solid rgba(125, 183, 214, 0.34);
-  border-radius: 0.7rem;
-  background: rgba(5, 16, 23, 0.86);
-  backdrop-filter: blur(12px);
-}
-
-.reward-loader > div,
-.reward-load-error > div {
+.reward-film-error {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.65rem;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(225, 193, 125, 0.5);
+  border-radius: 0.7rem;
+  color: #f7d4bb;
+  background: rgba(5, 16, 23, 0.86);
 }
 
-.reward-loader progress {
-  width: 100%;
-  accent-color: #62bce7;
-}
-
-.reward-loader small,
-.reward-load-error span {
-  color: #acc2cc;
-}
-
-.reward-load-error .primary-button,
-.reward-load-error .secondary-button {
+.reward-film-error .secondary-button {
   width: auto;
   margin: 0;
-}
-
-.reward-tribute {
-  padding-left: 1rem;
-  border-left: 2px solid #e0b85d;
-  color: #f3ead5;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(1rem, 1.45vw, 1.15rem);
-  line-height: 1.58;
 }
 
 .reward-actions {
@@ -424,6 +410,36 @@
   margin: 0;
 }
 
+.reward-finale {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 48rem;
+  padding: clamp(1rem, 4vw, 2rem);
+  border: 1px solid rgba(225, 193, 125, 0.5);
+  border-radius: 0.85rem;
+  background: rgba(5, 16, 23, 0.88);
+}
+
+.reward-release-summary {
+  display: grid;
+  gap: 0.18rem;
+  color: #f1d69d;
+}
+
+.reward-release-summary span {
+  color: #cbd9df;
+}
+
+.reward-tribute {
+  margin: 0;
+  padding-left: 1rem;
+  border-left: 2px solid #e0b85d;
+  color: #f3ead5;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1rem, 1.45vw, 1.15rem);
+  line-height: 1.58;
+}
+
 .reward-module-loading {
   display: grid;
   min-height: 100vh;
@@ -432,64 +448,7 @@
   background: #03070a;
 }
 
-@media (max-width: 768px) {
-  .reward-scene canvas {
-    opacity: 0;
-  }
-
-  .reward-narrow-presentation {
-    position: absolute;
-    display: block;
-    width: 100%;
-    height: 100%;
-    min-height: 100vh;
-    object-fit: cover;
-    object-position: center top;
-  }
-
-  .reward-experience::after {
-    background: linear-gradient(0deg, rgba(2, 6, 9, 0.98) 0%, rgba(2, 6, 9, 0.73) 48%, transparent 78%);
-  }
-
-  .reward-overlay {
-    width: auto;
-    align-content: end;
-    gap: 0.65rem;
-    margin: 0;
-    padding: 2rem 1rem 1rem;
-  }
-
-  .reward-overlay h1 {
-    max-width: 16ch;
-    font-size: clamp(2rem, 8vw, 3.4rem);
-  }
-
-  .reward-tribute {
-    max-height: 9.5rem;
-    overflow-y: auto;
-  }
-
-  .reward-accessible-silhouette {
-    width: 86vw;
-    transform: translate(0, -18vh) perspective(45rem) rotateY(-10deg);
-  }
-}
-
 @media (max-width: 420px) {
-  .reward-overlay {
-    max-height: 100vh;
-    overflow-y: auto;
-  }
-
-  .reward-overlay h1 {
-    font-size: clamp(1.75rem, 10vw, 2.6rem);
-  }
-
-  .reward-caption,
-  .reward-tribute {
-    font-size: 0.9rem;
-  }
-
   .reward-actions {
     align-items: stretch;
   }
@@ -2842,6 +2801,7 @@ p {
   position: relative;
   z-index: 2;
   width: min(34rem, 100%);
+  color: #eff3e8;
   border: 1px solid rgba(241, 199, 106, 0.62);
   border-radius: 1rem;
   padding: clamp(1.5rem, 4vw, 2.6rem);
@@ -2850,6 +2810,111 @@ p {
     rgba(7, 18, 19, 0.97);
   box-shadow: 0 2rem 7rem rgba(0, 0, 0, 0.62), 0 0 3rem rgba(213, 170, 76, 0.12);
   text-align: center;
+}
+
+.qualification-celebration--optimus .qualification-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  align-content: center;
+  align-items: center;
+  column-gap: clamp(1rem, 3vw, 3rem);
+  width: min(80rem, 100%);
+  min-height: min(42rem, calc(100dvh - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  background: radial-gradient(circle at 28% 46%, rgba(99, 121, 132, 0.36), transparent 38%), #071014;
+}
+
+.qualification-celebration--optimus .qualification-card > :not(.optimus-figure) {
+  grid-column: 2;
+}
+
+.optimus-figure {
+  grid-column: 1;
+  grid-row: 1 / span 5;
+  width: 100%;
+  height: min(36rem, 70dvh);
+  min-height: 20rem;
+  overflow: hidden;
+}
+
+.optimus-guide-canvas,
+.optimus-guide-fallback {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.optimus-guide-fallback {
+  object-fit: contain;
+}
+
+.qualification-celebration--optimus .qualification-card h2 {
+  max-width: 12ch;
+  margin-left: 0;
+  margin-right: 0;
+  font-size: clamp(2rem, 3.5vw, 3.5rem);
+  text-align: left;
+}
+
+.qualification-celebration--optimus .qualification-card > p,
+.qualification-celebration--optimus .qualification-card > button,
+.qualification-celebration--optimus .optimus-narration-controls {
+  width: 100%;
+  text-align: left;
+}
+
+.qualification-celebration--optimus .optimus-narration-controls {
+  justify-content: flex-start;
+}
+
+@media (max-width: 760px) {
+  .qualification-celebration--optimus .qualification-card {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    width: min(38rem, 100%);
+  }
+
+  .qualification-celebration--optimus .qualification-card > :not(.optimus-figure),
+  .optimus-figure {
+    grid-column: 1;
+  }
+
+  .optimus-figure {
+    grid-row: auto;
+    height: min(30dvh, 18rem);
+    min-height: 12rem;
+  }
+}
+
+.optimus-greeting-copy,
+.optimus-debrief {
+  display: block;
+}
+
+.optimus-debrief {
+  margin-top: 1rem;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.optimus-narration-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.optimus-narration-controls .celebration-sound-toggle {
+  margin: 0;
+}
+
+.qualification-card .optimus-audio-fallback {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.85rem;
 }
 
 .qualification-celebration--captain .qualification-card {
@@ -4197,3 +4262,10 @@ progress {
     grid-template-columns: auto 1fr;
   }
 }
+
+/* Hidden Mars arcade chapter shell. */
+.mars-arcade-view { min-height: 100dvh; display: flex; flex-direction: column; background: #0b0d16; color: #e6e8f3; }
+.mars-arcade-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 12px 16px; }
+.mars-arcade-bar .secondary-button { width: auto; margin: 0; flex: 0 0 auto; }
+.mars-arcade-view > p, .mars-arcade-view > div[role="alert"] { margin: 8px 16px; }
+.mars-arcade-view iframe { flex: 1; width: 100%; min-height: calc(100dvh - 90px); border: 0; background: #0b0d16; }

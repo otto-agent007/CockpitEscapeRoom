@@ -8,5 +8,5 @@
  * Held by tools/ci/spoiler-guard.mjs, which fails if they reach the initial download.
  */
 export const rewardCopy = {
-  vehicleLine: 'The red Tesla Model Y is unlocked.',
+  vehicleLine: 'The Future Tesla is unlocked.',
 } as const

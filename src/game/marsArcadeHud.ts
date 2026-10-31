@@ -15,7 +15,7 @@ import {
   type MarsArcadeFighterState,
   type MarsArcadeState,
 } from './marsArcade'
-import { MARS_ARCADE_METER_MAX, marsArcadeFighter } from './marsArcadeFighters'
+import { MARS_ARCADE_METER_MAX, MARS_ARCADE_FIGHTER_IDS, marsArcadeFighter } from './marsArcadeFighters'
 import { MARS_ARCADE_VIEW } from './marsArcadeStage'
 
 /**
@@ -48,9 +48,9 @@ export const MARS_ARCADE_HUD = {
     sourceY: 14,
     sourceWidth: 22,
     sourceHeight: 24,
-    sourceX: { booster: 54, oracle: 49, captain: 52 } as Record<string, number>,
+    sourceX: { booster: 54, oracle: 49, captain: 52, trump: 65 } as Record<string, number>,
     /** Captain's full hat, face and chin fit into the same portrait slot. */
-    sourceOverrides: { captain: { x: 46, y: 14, width: 34, height: 34 } } as Record<
+    sourceOverrides: { captain: { x: 46, y: 14, width: 34, height: 34 }, trump: { x: 59, y: 14, width: 35, height: 35 } } as Record<
       string, { x: number; y: number; width: number; height: number } | undefined
     >,
   },
@@ -308,7 +308,7 @@ export function marsArcadeBanner(state: MarsArcadeState): MarsArcadeBanner | nul
 
 /** Every character the HUD can put on screen, for the font's coverage test. */
 export function marsArcadeHudAlphabet(): string {
-  const labels = (['booster', 'oracle', 'captain'] as const)
+  const labels = MARS_ARCADE_FIGHTER_IDS
     .map((id) => marsArcadeFighter(id).label)
     .join('')
   return `${labels}ROUND 1FIGHT!K.O.TIME UPDRAWWINSR TO RUN IT AGAIN0123456789`

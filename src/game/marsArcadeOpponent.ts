@@ -98,7 +98,8 @@ export function advanceMarsArcadeOpponent(
   const self = state.fighters[opponent.side]
   const player = state.fighters[opponent.side === 0 ? 1 : 0]
   const tuning = DIFFICULTY[opponent.difficulty]
-  const specialCost = marsArcadeFighter(self.id).moves.special.meterCost
+  const special = marsArcadeFighter(self.id).moves.special
+  const specialCost = special.enabled === false ? Infinity : special.meterCost
   const distance = Math.abs(player.x - self.x)
 
   const next: MarsArcadeOpponent = { ...opponent }

@@ -6,6 +6,7 @@ import { Dc9Chapter } from './components/dc9/Dc9Chapter'
 import { LockerTransition, type LockerIntroStage } from './components/LockerTransition'
 import { AirbusCompletionCelebration, CaptainHatCelebration } from './components/QualificationCelebration'
 import { SceneHelp } from './components/SceneHelp'
+import { MarsArcade } from './components/MarsArcade'
 import { dc9LegacyFlow, gameCopy, lockerFlow, type AirbusControl, type LockerMemoryId } from './game/config'
 import { dc9InstrumentIdFromGameId } from './game/dc9FlightDeck'
 import { useDc9FlightControls } from './game/useDc9FlightControls'
@@ -18,11 +19,13 @@ import {
   type AirbusWorkloadAction,
   type AirbusWorkloadTaskId,
 } from './game/airbusWorkload'
-import { isLockerMemoryAvailable, type CockpitOrientationId } from './game/state'
+import { isLockerMemoryAvailable, PUZZLE_IDS, type CockpitOrientationId } from './game/state'
 import { deriveCockpitOrientationDecision } from './game/cockpitOrientationState'
 import { clearGameState } from './game/storage'
 import { useAirbusSimulator } from './game/useAirbusSimulator'
 import { useGame } from './game/useGame'
+import { loadMarsArcadeUnlock, saveMarsArcadeUnlock } from './game/marsArcadeUnlock'
+import { useMarsArcadeShortcut } from './game/useMarsArcadeShortcut'
 import type { AirbusHotspotScreenPositions, AirbusLoadState, Dc9HotspotScreenPositions, Dc9LoadState, LockerCameraCue, LockerLoadState } from './scenes/PrototypeScene'
 import {
   attachDc9MemphisEnvironmentState,
@@ -182,7 +185,31 @@ function Dc9Loader({ state, environment, fading }: {
 }
 
 export default function App() {
-  const { state, dispatch } = useGame()
+  const game = useGame()
+  const [completedOnce, setCompletedOnce] = useState(() => loadMarsArcadeUnlock())
+  const [arcadeOpen, setArcadeOpen] = useState(false)
+  const [resumeTribute, setResumeTribute] = useState(false)
+  const openArcade = useCallback(() => setArcadeOpen(true), [])
+  const closeArcade = useCallback(() => {
+    setArcadeOpen(false)
+    requestAnimationFrame(() => document.querySelector<HTMLElement>('main')?.focus())
+  }, [])
+  const completeJourney = useCallback(() => {
+    saveMarsArcadeUnlock()
+    setCompletedOnce(true)
+    setResumeTribute(true)
+  }, [])
+  const resetTribute = useCallback(() => setResumeTribute(false), [])
+  useMarsArcadeShortcut(completedOnce && !arcadeOpen, openArcade)
+
+  if (arcadeOpen && completedOnce) {
+    return <MarsArcade onClose={closeArcade} />
+  }
+  return <GameApp game={game} onJourneyComplete={completeJourney} resumeTribute={resumeTribute} onTributeReset={resetTribute} />
+}
+
+function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset }: { game: ReturnType<typeof useGame>; onJourneyComplete: () => void; resumeTribute: boolean; onTributeReset: () => void }) {
+  const { state, dispatch } = game
   const reducedMotion = useReducedMotion()
   const skipPrototypeScene = shouldSkipPrototypeScene()
   const shellRef = useRef<HTMLElement>(null)
@@ -649,6 +676,13 @@ export default function App() {
   }, [beginAirbusLoading, dispatch])
 
   const continueToReward = useCallback(() => {
+    if (!document.fullscreenElement) {
+      // Request browser fullscreen while the player's reward click still has activation.
+      try {
+        const request = shellRef.current?.requestFullscreen?.()
+        void request?.catch(() => { /* The viewport-sized cinema still works if denied. */ })
+      } catch { /* A synchronous fullscreen failure must not block the reward. */ }
+    }
     dispatch({ type: 'CONTINUE_FROM_AIRBUS_TO_REWARD' })
   }, [dispatch])
 
@@ -752,6 +786,8 @@ export default function App() {
   const restart = () => {
     const confirmed = window.confirm(`Restart ${gameCopy.title} and clear saved progress?`)
     if (!confirmed) return
+    onTributeReset()
+    if (document.fullscreenElement) void document.exitFullscreen().catch(() => {})
     clearGameState()
     beginAirbusLoading()
     dc9LoaderStartedAtRef.current = performance.now()
@@ -806,7 +842,7 @@ export default function App() {
 
   if (state.phase === 'briefing') {
     return (
-      <main className="briefing-shell">
+      <main className="briefing-shell" tabIndex={-1}>
         <GameIntro reducedMotion={reducedMotion} onComplete={beginDc9Entry} />
         {dc9EntryStage !== 'idle' && <Dc9EntryTransition stage={dc9EntryStage} reducedMotion={reducedMotion} onFadeInComplete={finishDc9Entry} />}
       </main>
@@ -815,12 +851,15 @@ export default function App() {
 
   if (state.phase === 'reward' || state.phase === 'mars') {
     return (
-      <main ref={shellRef} className="game-shell reward-shell">
-        <Suspense fallback={<div className="reward-module-loading" role="status">Preparing the legacy hangar…</div>}>
+      <main ref={shellRef} className="game-shell reward-shell" tabIndex={-1}>
+        <Suspense fallback={<div className="reward-module-loading" role="status">Preparing the final reward…</div>}>
           <RewardExperience
             reducedMotion={reducedMotion}
             forceAccessible={skipPrototypeScene}
+            initialComplete={resumeTribute}
+            onReplay={onTributeReset}
             onRestart={restart}
+            onComplete={state.rewardUnlocked && PUZZLE_IDS.every(id => state.completedPuzzles.includes(id)) ? onJourneyComplete : undefined}
           />
         </Suspense>
       </main>
@@ -830,6 +869,7 @@ export default function App() {
   return (
     <main
       ref={shellRef}
+      tabIndex={-1}
       data-locker-hat-finale-stage={state.phase === 'locker' ? lockerHatFinaleStage : undefined}
       data-airbus-camera-phase={state.phase === 'airbus' ? state.airbusSimulator.cameraPhase : undefined}
       className={`game-shell${state.phase === 'airbus' ? ' airbus-shell' : ''}${activeAirbusScenario ? ' airbus-simulator-active' : ''}${state.phase === 'locker' ? ' locker-shell' : ''}${state.phase === 'dc9' ? ' captain-shell' : ''}`}
@@ -960,6 +1000,7 @@ export default function App() {
       {state.phase === 'airbus' && state.completedPuzzles.includes('airbus') && !lockerIntroActive && (
         <AirbusCompletionCelebration
           reducedMotion={reducedMotion}
+          forceAccessible={skipPrototypeScene}
           traits={state.airbusSimulator.engineOut.bestTraits}
           onContinue={continueToReward}
         />

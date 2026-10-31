@@ -24,3 +24,25 @@ export function advancePivotMotion(previous:PivotMotionHistory,direction:PivotDi
   if(special)history.stage=0
   return {history,special}
 }
+
+export interface CapMotionHistory { stage: 0 | 1 | 2; startedFrame: number; facing: 1 | -1; lastDirection: PivotDirection }
+export function createCapMotion(): CapMotionHistory {
+  return { stage: 0, startedFrame: 0, facing: 1, lastDirection: 'neutral' }
+}
+/** Down then forward, with an optional diagonal between them; neutral releases are allowed. */
+export function advanceCapMotion(previous: CapMotionHistory, direction: PivotDirection, lightPressed: boolean, frame: number, facing: 1 | -1): { history: CapMotionHistory; special: boolean } {
+  const history = { ...previous }
+  if (frame < previous.startedFrame || frame - previous.startedFrame > 18 || facing !== previous.facing) {
+    Object.assign(history, { stage: 0, startedFrame: frame, facing, lastDirection: 'neutral' })
+  }
+  if (direction !== history.lastDirection && direction !== 'neutral') {
+    if (direction === 'down') { history.stage = 1; history.startedFrame = frame; history.facing = facing }
+    else if (direction === 'back') history.stage = 0
+    else if (direction === 'forward' && history.stage === 1) history.stage = 2
+    else if (direction !== 'down-forward') history.stage = 0
+  }
+  history.lastDirection = direction
+  const special = lightPressed && history.stage === 2 && direction === 'forward' && frame - history.startedFrame <= 18
+  if (special) history.stage = 0
+  return { history, special }
+}

@@ -23,7 +23,7 @@ import {
   MARS_ARCADE_ANIMATIONS,
   marsArcadeClip,
   marsArcadeJumpIndex,
-  marsArcadeCaptainReactionFrame,
+  marsArcadeReactionFrame,
   marsArcadeMoveClip,
 } from '../game/marsArcadePose'
 import type { HeavyReaction } from './arcadeHarnessReactions'
@@ -54,6 +54,7 @@ const anchors: Record<MarsArcadeFighterId, string> = {
   booster: requireClip('booster', 'idle').frames[0]!.src,
   oracle: requireClip('oracle', 'idle').frames[0]!.src,
   captain: requireClip('captain', 'idle').frames[0]!.src,
+  trump: requireClip('trump', 'idle').frames[0]!.src,
 }
 /** The anchor frame per fighter, reused by the HUD as the portrait source. */
 export const ARCADE_ANCHOR_SOURCES = anchors
@@ -137,10 +138,10 @@ export function selectArcadeSprite(
     const clip=arcadeClip(fighter.id,'distracted'),frame=clip?.frames[0]??arcadeClip(fighter.id,'idle')?.frames[0]
     if(frame)return {src:frame.src,placeholder:!clip,frame,label:clip?'distracted — looking up':'distraction — art pending'}
   }
-  const captainReaction = live ? marsArcadeCaptainReactionFrame(fighter) : null
-  if (captainReaction) {
-    return { src: captainReaction.src, placeholder: false, frame: captainReaction,
-      label: `${fighter.activity === 'hitstun' ? 'hit' : 'heavy block'} — ${captainReaction.pose}` }
+  const reaction = live ? marsArcadeReactionFrame(fighter) : null
+  if (reaction) {
+    return { src: reaction.src, placeholder: false, frame: reaction,
+      label: `${fighter.capFreeze ? 'cap freeze' : fighter.activity === 'hitstun' ? 'hit' : 'heavy block'} — ${reaction.pose}` }
   }
   if (live && fighter.activity === 'airborne') {
     const clip = arcadeClip(fighter.id, 'jump')
@@ -151,8 +152,8 @@ export function selectArcadeSprite(
     }
   }
   if (live && fighter.id !== 'captain' && fighter.activity === 'hitstun') {
-    const clip = requireClip(fighter.id, 'hit')
-    if (heavyReaction?.kind === 'hit' && fighter.stunFrames > 0 && fighter.y === 0) {
+    const clip = arcadeClip(fighter.id, 'hit')
+    if (clip && heavyReaction?.kind === 'hit' && fighter.stunFrames > 0 && fighter.y === 0) {
       const elapsed = Math.max(0, heavyReaction.duration - fighter.stunFrames)
       const beat = elapsed >= Math.ceil(heavyReaction.duration * 0.55) ? 'recover' :
         elapsed < 3 ? 'impact' : 'stagger'
@@ -162,8 +163,10 @@ export function selectArcadeSprite(
       const frame = reactionBeat(clip, beat)
       return { src: frame.src, placeholder: false, frame, label: `heavy hit — ${beat}`, renderX: fighter.x + offset }
     }
-    const impact = reactionBeat(clip, 'impact')
-    return { src: impact.src, placeholder: false, frame: impact, label: 'hit recoil' }
+    if (clip) {
+      const impact = reactionBeat(clip, 'impact')
+      return { src: impact.src, placeholder: false, frame: impact, label: 'hit recoil' }
+    }
   }
   if (live && fighter.activity === 'attack' && move && !fighter.blocking) {
     const clip = moveClip(fighter.id, move.move.id)
@@ -193,7 +196,7 @@ export function selectArcadeSprite(
     const opponent = state.fighters[side === 0 ? 1 : 0]
     const threat = marsArcadeActiveMove(opponent)
     // Captain's authored retreat already carries its guard regions; keep rules and drawing together.
-    if (fighter.id !== 'captain' && guardFrame && fighter.blocking && fighter.stunFrames === 0 && fighter.y === 0 &&
+    if (fighter.id !== 'captain' && fighter.id !== 'trump' && guardFrame && fighter.blocking && fighter.stunFrames === 0 && fighter.y === 0 &&
       threat?.move.button === 'heavy' && threat.phase === 'startup' &&
       heavyCanMeetGuard(state, side === 0 ? 1 : 0)) {
       return { src: guardFrame.src, placeholder: false, frame: guardFrame, label: 'heavy block — brace' }
@@ -220,7 +223,8 @@ export function selectArcadeSprite(
     const frame = reducedMotion ? clip.frames[0]! : marsArcadeFrameAt(clip, state.frame).frame
     return { src: frame.src, placeholder: false, frame, label: 'idle pilot' }
   }
-  return { src: anchors[fighter.id], placeholder: true, label: 'anchor placeholder — pose not authored' }
+  return { src: anchors[fighter.id], placeholder: true, label: 'anchor placeholder — pose not authored',
+    ...(fighter.id === 'trump' && live ? { frame: arcadeClip('trump', 'idle')?.frames[0] } : {}) }
 }
 
 /** One preload per source; an unavailable image falls back to the original box renderer. */
@@ -234,7 +238,7 @@ export function loadArcadeSprites() {
       else failures.add(src)
     }
     image.onerror = () => failures.add(src)
-    image.src = src
+    image.src = `${import.meta.env.BASE_URL}${src.slice(1)}`
   }
   return {
     get: (src: string) => images.get(src),

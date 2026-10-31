@@ -25,7 +25,7 @@ import {
   type MarsArcadeBox,
   type MarsArcadeFramePhase,
 } from './marsArcadeBounds.ts'
-import { marsArcadeFighter, marsArcadeKnownMoves, type MarsArcadeFighterId, type MarsArcadeMove } from './marsArcadeFighters.ts'
+import { MARS_ARCADE_FIGHTER_IDS, marsArcadeFighter, marsArcadeKnownMoves, type MarsArcadeFighterId, type MarsArcadeMove } from './marsArcadeFighters.ts'
 
 /** Bumped when the on-disk shape changes in a way old files cannot satisfy. */
 export const MARS_ARCADE_ANIMATIONS_VERSION = 2
@@ -286,7 +286,7 @@ export interface MarsArcadeAnimationFinding {
 export const MARS_ARCADE_REACH_TOLERANCE_PX = 3
 
 export function marsArcadeMoveById(id: string): MarsArcadeMove | null {
-  for (const fighter of ['booster', 'oracle', 'captain'] as MarsArcadeFighterId[]) {
+  for (const fighter of MARS_ARCADE_FIGHTER_IDS) {
     for (const move of Object.values(marsArcadeFighter(fighter).moves)) {
       if (move.id === id) return move
     }

@@ -115,6 +115,42 @@
           "hitstopFrames": 6
         }
       }
+    },
+    "trump": {
+      "health": 100,
+      "walkSpeed": 1.25,
+      "jumpVelocity": 4.6,
+      "guardMax": 90,
+      "guardRegenPerFrame": 0.22,
+      "moves": {
+        "light": {
+          "damage": 5,
+          "chipDamage": 1,
+          "guardDamage": 6,
+          "knockback": 2,
+          "hitstunFrames": 14,
+          "blockstunFrames": 10,
+          "hitstopFrames": 2
+        },
+        "heavy": {
+          "damage": 13,
+          "chipDamage": 3,
+          "guardDamage": 16,
+          "knockback": 7,
+          "hitstunFrames": 22,
+          "blockstunFrames": 14,
+          "hitstopFrames": 4
+        },
+        "special": {
+          "damage": 6,
+          "chipDamage": 1,
+          "guardDamage": 10,
+          "knockback": 0,
+          "hitstunFrames": 30,
+          "blockstunFrames": 12,
+          "hitstopFrames": 2
+        }
+      }
     }
   }
 }

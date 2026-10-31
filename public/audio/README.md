@@ -53,8 +53,7 @@ Kept in stereo, unlike the previous mono clip, because the source is a stereo cr
 the width is most of what makes it read as a room full of people. `volume=0.80` is a deterministic
 gain: it takes the source's 0.868 peak to -3.7 dBFS.
 
-Playback: every milestone celebration card plays it once at `volume 0.55` — the Captain's Key, the
-captain's locker, and Pop T Captain Mode complete — inside the click that got the player there, and
+Playback: the Captain's Key and captain's locker cards play it once at `volume 0.55` inside the click that got the player there, and
 stops it when the card closes, so continuing early cuts it short rather than letting it run on.
 Each card carries a **Sound on/off** toggle, and all three share one stored choice under
 `cockpit-escape-room:sound:v1`: silencing it at one milestone keeps it silent at the next. The key
@@ -65,3 +64,12 @@ controls, and the Airbus simulator ambience has its own topbar Sound button.
 A card reached without a click — a reload while the celebration is already on screen — is silent,
 because the browser blocks playback until the document has been interacted with. That is the
 browser's rule, not a setting, and it is why the playback tests click their way to each card.
+
+## Optimus congratulations voice
+
+- Local source: Kokoro v1.0 ONNX model and voice bank at `/mnt/2TBHDD/thermo-explainer-video/tts/`; model and bank hashes and license links are recorded in `asset-reports/optimus-gen3-voice-preview-2026-10-29.md`.
+- Approved voice: `af_heart` (Heart), selected by the owner on 2026-10-29 after hearing the greeting-and-walk preview.
+- Spoken line and on-screen caption: “Congratulations! You did it! Your pilot skills have earned you something special. Ready to see it?”
+- Deployable: `public/audio/optimus-congratulations-heart.mp3`, 52,149 bytes, SHA-256 `596507e432e37eff0d2884399f2ff3b91ed8e42934fec9ef45fbb0b552f5ec1c`, 24 kHz mono MP3, 5.664 seconds including MP3 padding.
+
+The clip was generated offline with the local Heart voice at speed 0.96, then encoded to MP3. The ONNX model and voice bank stay outside the deployable game. The Airbus completion card mounts the clip only after chapter completion, attempts playback, offers a native replay control if autoplay is blocked, shares the persistent milestone Sound on/off choice, and keeps the entire line visible if audio is unavailable. Muting removes the audio element, so the file is not requested. The voice stops when the player selects **Reveal reward**.

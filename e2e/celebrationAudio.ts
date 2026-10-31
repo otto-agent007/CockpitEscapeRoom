@@ -21,7 +21,7 @@ export function sampleCelebrationAudio(page: Page) {
 }
 
 /**
- * Every milestone card plays the same ten-second cut at the same under-unity level.
+ * The Captain's Key and locker cards play the same ten-second cheer at the same level.
  *
  * "play() was called" is not proof of playback — an earlier version of this check passed
  * while the sound was inaudible — so this asserts the element is really running: not paused,
@@ -44,4 +44,21 @@ export async function expectCelebrationCheerPlaying(page: Page): Promise<void> {
   expect(second?.currentTime ?? 0).toBeGreaterThan((first?.currentTime ?? 0) + 0.3)
   expect(second?.duration ?? 0).toBeGreaterThan(9.5)
   expect(second?.duration ?? 0).toBeLessThan(10.5)
+}
+
+/** The completed Airbus card speaks with Heart instead of playing the earlier cheer. */
+export async function expectOptimusGreetingPlaying(page: Page): Promise<void> {
+  const greeting = page.getByLabel('Optimus greeting')
+  await expect.poll(() => greeting.evaluate((audio: HTMLAudioElement) => audio.paused), { timeout: 10_000 }).toBe(false)
+  const first = await greeting.evaluate((audio: HTMLAudioElement) => ({
+    src: audio.currentSrc,
+    time: audio.currentTime,
+    duration: audio.duration,
+  }))
+  expect(first.src).toContain('/audio/optimus-congratulations-heart.mp3')
+  await page.waitForTimeout(700)
+  const second = await greeting.evaluate((audio: HTMLAudioElement) => audio.currentTime)
+  expect(second).toBeGreaterThan(first.time + 0.3)
+  expect(first.duration).toBeGreaterThan(5.5)
+  expect(first.duration).toBeLessThan(6)
 }

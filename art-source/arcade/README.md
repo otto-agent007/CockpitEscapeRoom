@@ -1,5 +1,9 @@
 # Mars arcade cabinet — sprite source
 
+## 2026-10-30 — Hidden production Easter egg
+
+The game uses 184 referenced runtime PNGs. Their byte-identical deployable copies live under `runtime-art/arcade/`, outside Vercel's `art-source/` ignore rule. The production build reads only these copies and emits the canonical `/art-source/arcade/` URLs. Keep them in sync when changing equipped art; source files, prompts, and prior candidates remain here. After the main tribute is completed once, holding T+M+B opens the separate arcade frame; no visible access control or direct URL starts a match. The outdoor Moonbase panorama is owner-approved, with its prompt, generation record, source hash, and browser proof documented in `asset-reports/arcade-moonbase-2026-10-14.md`. Older notes below describe earlier development-only checkpoints.
+
 ## 2026-09-24 — Animation table, gym v2 and the clip pipeline
 
 Every clip is described once, in `src/game/marsArcadeAnimations.json`: each drawing's path,

@@ -1,0 +1,44 @@
+{
+  "source": "/mnt/2TBHDD/CockpitEscapeRoom/.worktrees/animation-workflow/.cache/cockpit-pipeline/sources/model-y-reward/optimus/original/tesla+humanoid+robot+3d+model_Clone1.glb",
+  "blend": "/mnt/2TBHDD/CockpitEscapeRoom/.worktrees/animation-workflow/art-source/blender/optimus-escort-wave-candidate.blend",
+  "candidate_glb": "/mnt/2TBHDD/CockpitEscapeRoom/.worktrees/animation-workflow/.cache/assets/optimus/optimus-wave-candidate.glb",
+  "blender_version": "5.1.2",
+  "body_vertices": 419542,
+  "body_triangles": 800965,
+  "bone_count": 39,
+  "action_name": "OPTIMUS_CONGRATULATE_WAVE",
+  "frame_range": [
+    1,
+    48
+  ],
+  "fps": 24,
+  "world_bounds": {
+    "min": [
+      -0.17091387510299683,
+      -0.09502346813678741,
+      -6.716390998917632e-09
+    ],
+    "max": [
+      0.17091362178325653,
+      0.09502406418323517,
+      0.9999997019767761
+    ]
+  },
+  "material_count": 1,
+  "image_sizes": [
+    {
+      "name": "tripo_image_9c7cba0f-0454-4d20-b264-ca077e841903_0_0",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "name": "Viewer Node",
+      "size": [
+        256,
+        256
+      ]
+    }
+  ]
+}

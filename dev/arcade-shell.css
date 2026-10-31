@@ -29,6 +29,10 @@
 html, body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 var(--sans); }
 a { color: inherit; }
 :focus-visible { outline: 3px solid var(--warn); outline-offset: 2px; }
+.arcade-background-picker { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; }
+.arcade-background-picker select { width: auto; min-height: 36px; padding: 0 8px; background: var(--field); color: var(--ink); border: 1px solid var(--field-edge); border-radius: 4px; }
+.background-retry { margin: 8px 12px; }
+#background-retry[hidden] { display: none !important; }
 
 /* header */
 .shell-header {

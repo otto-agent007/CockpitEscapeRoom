@@ -16,7 +16,7 @@ import { MARS_ARCADE_FIGHTER_TUNING_FIELDS, MARS_ARCADE_MOVE_TUNING_FIELDS, appl
 import type { MarsArcadeBoundKind } from '../game/marsArcadeBounds'
 import type { MarsArcadeState } from '../game/marsArcade'
 import { arcadeCandidateClips, setArcadeClipOverride } from './arcadeHarnessSprites'
-import {marsArcadePivotPreviewEnabled} from '../game/marsArcadeFighters'
+import {MARS_ARCADE_FIGHTER_IDS, MARS_ARCADE_SELECT_LABELS, marsArcadePivotPreviewEnabled} from '../game/marsArcadeFighters'
 import {arcadePersistedTuning} from './arcadePlaygroundTuning'
 
 export interface PlaygroundBoxToggles {
@@ -32,7 +32,7 @@ export interface ArcadePlayground {
   sync(): void
 }
 
-const FIGHTER_LABELS: Record<MarsArcadeFighterId, string> = { booster: 'Booster · Elon', oracle: 'Oracle · Sam', captain: 'Captain · Pop T' }
+const FIGHTER_LABELS = MARS_ARCADE_SELECT_LABELS
 const FIELD_LABELS: Record<string, string> = {
   health: 'max hp', walkSpeed: 'walk speed', jumpVelocity: 'jump power', guardMax: 'guard max', guardRegenPerFrame: 'guard regen',
   damage: 'dmg', chipDamage: 'chip', guardDamage: 'guard dmg', knockback: 'kb', hitstunFrames: 'hitstun', blockstunFrames: 'blockstun',
@@ -67,7 +67,7 @@ export function startArcadePlayground(root: ParentNode, getState: () => MarsArca
   }
 
   if (fighterSelect) {
-    for (const id of ['booster', 'oracle', 'captain'] as MarsArcadeFighterId[]) {
+    for (const id of MARS_ARCADE_FIGHTER_IDS) {
       const option = document.createElement('option')
       option.value = id
       option.textContent = FIGHTER_LABELS[id]

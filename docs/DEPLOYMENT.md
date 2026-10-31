@@ -27,7 +27,7 @@ Every pull request should receive a preview deployment. Use that URL for owner v
 
 ## What is not deployed
 
-`.vercelignore` excludes Blender sources, caches, test reports, and source asset files. Production GLBs belong in `public/models` only after local validation.
+`.vercelignore` excludes Blender sources, caches, preview renders, test reports, and source asset files. The 184 referenced arcade PNGs have byte-identical deployable copies under `runtime-art/arcade/`; the build emits their existing URLs from that included directory because `art-source/` is excluded from Vercel uploads. Production GLBs belong in `public/models` only after local validation.
 
 ## Environment variables
 

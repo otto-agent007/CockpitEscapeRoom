@@ -12,6 +12,8 @@
 
 import {
   MARS_ARCADE_FIGHTERS,
+  MARS_ARCADE_FIGHTER_IDS,
+  marsArcadeDefaultTuning,
   MARS_ARCADE_TUNING_VERSION,
   setMarsArcadeTuning,
   type MarsArcadeButton,
@@ -22,7 +24,7 @@ import {
 } from './marsArcadeFighters.ts'
 import shipped from './marsArcadeTuning.json' with { type: 'json' }
 
-const FIGHTERS: readonly MarsArcadeFighterId[] = ['booster', 'oracle', 'captain']
+const FIGHTERS: readonly MarsArcadeFighterId[] = MARS_ARCADE_FIGHTER_IDS
 const BUTTONS: readonly MarsArcadeButton[] = ['light', 'heavy', 'special']
 const MOVE_FIELDS: readonly (keyof MarsArcadeMoveTuning)[] = ['damage', 'chipDamage', 'guardDamage', 'knockback', 'hitstunFrames', 'blockstunFrames', 'hitstopFrames']
 const FIGHTER_FIELDS: readonly Exclude<keyof MarsArcadeFighterTuning, 'moves'>[] = ['health', 'walkSpeed', 'jumpVelocity', 'guardMax', 'guardRegenPerFrame']
@@ -92,7 +94,10 @@ export function parseMarsArcadeTuning(input: unknown): MarsArcadeTuning {
     fighters: {} as MarsArcadeTuning['fighters'],
   }
   for (const id of FIGHTERS) {
-    const raw = fighters[id] as Record<string, unknown> | undefined
+    // Existing v1-v3 saves predate this fighter. Only an absent new row gets defaults;
+    // explicit malformed rows and missing original fighters still fail validation.
+    const raw = (id === 'trump' && fighters[id] === undefined
+      ? marsArcadeDefaultTuning().fighters.trump : fighters[id]) as unknown as Record<string, unknown> | undefined
     if (typeof raw !== 'object' || raw === null) throw new Error(`tuning: fighters.${id} is missing`)
     const moves = raw.moves as Record<string, unknown> | undefined
     if (typeof moves !== 'object' || moves === null) throw new Error(`tuning: fighters.${id}.moves is missing`)

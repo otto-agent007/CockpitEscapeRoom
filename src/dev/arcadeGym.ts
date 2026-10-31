@@ -429,6 +429,11 @@ export function startArcadeGym(root: HTMLElement): void {
     state.key = recovered!.key
     state.tick = tickOfFrame(recoveredEntry, Math.max(0, recoveredEntry.frames.findIndex(frame => frame.src === recovered!.src)))
   }
+  const requestedClip = new URLSearchParams(location.search).get('clip')
+  if (requestedClip && parsed.animations.some(entry => marsArcadeAnimationKey(entry.fighter, entry.animation) === requestedClip)) {
+    state.key = requestedClip
+    state.tick = 0
+  }
   if(new URLSearchParams(location.search).get('sam')==='pivot'){
     const candidate=parsed.animations.find(entry=>entry.fighter==='oracle'&&entry.animation==='special'&&entry.moveId==='oracle.nonProfitPivot')??
       parsed.animations.find(entry=>entry.fighter==='oracle'&&entry.animation==='nonprofit-pivot-candidate')

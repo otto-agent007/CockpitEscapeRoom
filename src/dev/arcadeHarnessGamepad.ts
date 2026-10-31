@@ -5,8 +5,7 @@
  * holds, pause-and-step and Sam's motion input behave exactly as they do from the
  * keyboard. USB and Bluetooth controllers reach the browser the same way.
  *
- * Dev-only. Nothing in `src/dev/` is imported by the application, so none of it
- * reaches the production bundle.
+ * Shared by the development harness and the guarded production arcade entry.
  */
 
 import type { ArcadeKeyBindings } from './arcadeHarnessInput'
