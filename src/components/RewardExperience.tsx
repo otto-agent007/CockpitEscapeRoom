@@ -79,9 +79,9 @@ export function RewardExperience({
     <section className={`reward-experience reward-experience--${stage}`} data-reward-stage={stage} aria-labelledby="reward-title">
       <div className={stage === 'film' ? 'reward-cinema' : 'reward-film-layout'}>
         <header className="reward-film-intro">
-          <p className="eyebrow">CockpitEscapeRoom · Final film</p>
-          <h1 id="reward-title">{stage === 'film' ? 'Flight Mode' : 'Ground Transport Upgrade Authorized'}</h1>
-          {stage === 'film' && <p>The Future Tesla is here. Watch the full journey.</p>}
+          <p className="eyebrow">Upgraded Transport</p>
+          <h1 id="reward-title">{stage === 'film' ? 'Model FLY' : 'Ground Transport Upgrade Authorized'}</h1>
+          {stage === 'film' && <p>Model FLY is here. Watch the full journey.</p>}
         </header>
 
         <video
@@ -92,7 +92,7 @@ export function RewardExperience({
           playsInline
           preload="auto"
           hidden={stage === 'complete'}
-          aria-label="Tesla Flight Mode film"
+          aria-label="Model FLY film"
           onPlay={() => setManualPlayNeeded(false)}
           onEnded={finishFilm}
           onError={() => setLoadFailed(true)}
@@ -102,7 +102,7 @@ export function RewardExperience({
         {stage === 'film' ? (
           <>
             <p className="reward-film-description">
-              The Future Tesla transforms in the hangar, flies over the landscape,
+              Model FLY transforms in the hangar, flies over the landscape,
               passes through clouds into sunrise, then cuts to black. The original music plays throughout.
             </p>
             {loadFailed && (

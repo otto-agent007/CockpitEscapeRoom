@@ -11,11 +11,69 @@ async function start(): Promise<void> {
   started = true
   window.removeEventListener('message', access)
   try {
-    const { mountMarsArcade } = await import('../dev/arcadeHarness')
+    const [{ mountMarsArcade }, { ARCADE_ANCHOR_SOURCES }] = await Promise.all([
+      import('../dev/arcadeHarness'),
+      import('../dev/arcadeHarnessSprites'),
+    ])
     document.querySelector<HTMLElement>('#arcade-locked')!.hidden = true
     document.querySelector<HTMLElement>('#arcade-game')!.hidden = false
-    await mountMarsArcade(true)
-    document.querySelector<HTMLCanvasElement>('#stage')?.focus()
+    const session = await mountMarsArcade(true)
+    const setup = document.querySelector<HTMLElement>('#arcade-setup')!
+    const selectionTitle = document.querySelector<HTMLHeadingElement>('#selection-title')!
+    const match = document.querySelector<HTMLElement>('#arcade-match')!
+    const choices = document.querySelector<HTMLElement>('#arcade-choices')!
+    const fighter = document.querySelector<HTMLSelectElement>('[data-fighter="0"]')!
+    const options = document.querySelector<HTMLDetailsElement>('#match-options')!
+    const startButton = document.querySelector<HTMLButtonElement>('#start-fight')!
+    const cards = document.querySelector<HTMLElement>('#player-cards')!
+    for (const option of fighter.options) {
+      const button = document.createElement('button')
+      button.type = 'button'
+      button.dataset.player = option.value
+      button.setAttribute('aria-label', option.textContent!)
+      const image = document.createElement('img')
+      image.src = ARCADE_ANCHOR_SOURCES[option.value as keyof typeof ARCADE_ANCHOR_SOURCES]
+      image.alt = ''
+      const name = document.createElement('span')
+      name.textContent = option.textContent
+      button.append(image, name)
+      button.addEventListener('click', () => {
+        fighter.value = option.value
+        fighter.dispatchEvent(new Event('change'))
+      })
+      cards.append(button)
+    }
+    const updateSelection = () => {
+      for (const button of cards.querySelectorAll('button')) button.setAttribute('aria-pressed', String(button.dataset.player === fighter.value))
+    }
+    fighter.addEventListener('change', updateSelection)
+    updateSelection()
+    startButton.addEventListener('click', () => {
+      // Request from the user gesture; a denied request still leaves a full viewport arena.
+      if (!document.fullscreenElement) void document.documentElement.requestFullscreen?.().catch(() => {})
+      options.append(choices)
+      options.open = false
+      setup.hidden = true
+      match.hidden = false
+      session.startRound()
+      document.querySelector<HTMLCanvasElement>('#stage')?.focus({ preventScroll: true })
+    })
+    document.querySelector('#change-selection')!.addEventListener('click', () => {
+      session.setActive(false)
+      setup.insertBefore(choices, startButton)
+      updateSelection()
+      match.hidden = true
+      setup.hidden = false
+      window.scrollTo(0, 0)
+      selectionTitle.focus({ preventScroll: true })
+    })
+    for (const details of document.querySelectorAll<HTMLDetailsElement>('.match-tools details')) {
+      details.addEventListener('toggle', () => {
+        if (!details.open && details.contains(document.activeElement)) details.querySelector('summary')?.focus()
+      })
+    }
+    startButton.disabled = false
+    selectionTitle.focus({ preventScroll: true })
     tellParent('mars-arcade-ready')
   } catch {
     document.querySelector<HTMLElement>('#arcade-game')!.hidden = true
@@ -34,7 +92,7 @@ function close(): void {
   if (window.parent === window) window.location.assign(import.meta.env.BASE_URL)
   else tellParent('mars-arcade-close')
 }
-document.querySelector('#arcade-return')?.addEventListener('click', close)
+document.querySelectorAll('[data-arcade-return]').forEach(button => button.addEventListener('click', close))
 window.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); close() } })
 window.addEventListener('message', access)
 if (window.parent !== window) tellParent('mars-arcade-request-access')

@@ -4,6 +4,7 @@ import { mkdirSync } from 'node:fs'
 import { createInitialState } from '../src/game/state'
 import { STORAGE_KEY } from '../src/game/storage'
 import { createLockerState } from './journeyStates'
+import { startArcadeFight } from './arcadeFlow'
 
 const unlockKey = 'cockpit-escape-room-mars-arcade-unlock'
 async function seed(page: Page, complete = false) {
@@ -24,10 +25,11 @@ async function complete(page: Page) {
   await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible()
   await expect.poll(() => page.evaluate(key => localStorage.getItem(key), unlockKey)).toContain('"completedOnce":true')
 }
-async function openAccess(page: Page) {
+async function openAccess(page: Page, start = true) {
   await expect(page.locator('main')).toBeVisible()
   await hold(page)
   await expect(page.getByTitle('Mars arcade')).toBeVisible()
+  if (start) await startArcadeFight(page.frameLocator('iframe[title="Mars arcade"]'))
 }
 
 test('first play and direct arcade entry stay locked without loading arcade art', async ({ page }) => {
@@ -69,7 +71,7 @@ test('the final tribute unlocks T+M+B, reload and Restart retain access, and exi
   await expect(page.getByTitle('Mars arcade')).toHaveCount(0)
   await hold(page)
   const frame = page.frameLocator('iframe[title="Mars arcade"]')
-  await expect(frame.locator('#stage')).toBeVisible()
+  await startArcadeFight(frame)
   await expect(frame.locator('#asset-status')).toContainText('sprites ready')
   await expect(frame.locator('#stage-title')).toContainText(/CAPTAIN/)
   await frame.getByRole('button', { name: 'Return to game' }).click()
@@ -79,6 +81,7 @@ test('the final tribute unlocks T+M+B, reload and Restart retain access, and exi
   await expect(page.getByText('Bonus access', { exact: true })).toHaveCount(0)
   await hold(page)
   await expect(page.getByTitle('Mars arcade')).toBeVisible()
+  await startArcadeFight(frame)
   await frame.locator('#stage').focus()
   await page.keyboard.press('Escape')
   await expect(page.getByTitle('Mars arcade')).toHaveCount(0)
@@ -153,7 +156,7 @@ test('arcade exit preserves the current in-memory chapter when all storage write
   await expect(page.locator('.briefing-shell')).toBeVisible()
   await openAccess(page)
   await expect(page.frameLocator('iframe').locator('#stage')).toBeVisible()
-  await page.getByRole('button', { name: 'Return to game', exact: true }).click()
+  await page.frameLocator('iframe[title="Mars arcade"]').getByRole('button', { name: 'Return to game', exact: true }).click()
   await expect(page.locator('.briefing-shell')).toBeVisible()
 })
 
@@ -230,11 +233,11 @@ test('arcade loading can retry without altering game progress', async ({ page })
     if (block) { block = false; return route.abort() }
     return route.continue()
   })
-  await openAccess(page)
+  await openAccess(page, false)
   await expect(page.getByRole('button', { name: 'Retry arcade' })).toBeVisible()
   await page.getByRole('button', { name: 'Retry arcade' }).click()
   await expect(page.frameLocator('iframe').locator('#asset-status')).toContainText('sprites ready')
-  await page.getByRole('button', { name: 'Return to game', exact: true }).click()
+  await page.frameLocator('iframe[title="Mars arcade"]').getByRole('button', { name: 'Return to game', exact: true }).click()
   await expect(page.locator('main')).toBeFocused()
   expect(await page.evaluate(key => localStorage.getItem(key), STORAGE_KEY)).toBe(before)
 })
@@ -272,7 +275,7 @@ test('an unreachable arcade document offers a retry', async ({ page }) => {
     if (block) { block = false; return route.abort() }
     return route.continue()
   })
-  await openAccess(page)
+  await openAccess(page, false)
   await page.clock.fastForward(16_000)
   await expect(page.getByRole('button', { name: 'Retry arcade' })).toBeVisible()
   await page.getByRole('button', { name: 'Retry arcade' }).click()
@@ -283,8 +286,8 @@ test('the arcade exit survives an unavailable optional shell chunk', async ({ pa
   await complete(page)
   await page.route(/assets\/MarsArcade-[^/]*\.js$/, route => route.abort())
   await openAccess(page)
-  await expect(page.getByRole('button', { name: 'Return to game', exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Return to game', exact: true }).click()
+  await expect(page.frameLocator('iframe[title="Mars arcade"]').getByRole('button', { name: 'Return to game', exact: true })).toBeVisible()
+  await page.frameLocator('iframe[title="Mars arcade"]').getByRole('button', { name: 'Return to game', exact: true }).click()
   await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible()
 })
 
@@ -293,7 +296,7 @@ test('returning to a replayed reward keeps the film stage', async ({ page }) => 
   await page.getByRole('button', { name: 'Replay film' }).click()
   await expect(page.locator('[data-reward-stage="film"]')).toBeVisible()
   await openAccess(page)
-  await page.getByRole('button', { name: 'Return to game', exact: true }).click()
+  await page.frameLocator('iframe[title="Mars arcade"]').getByRole('button', { name: 'Return to game', exact: true }).click()
   await expect(page.locator('[data-reward-stage="film"]')).toBeVisible()
   await expect(page.locator('main')).toBeFocused()
 })

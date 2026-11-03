@@ -8,6 +8,8 @@ After finishing the reward and final tribute once, hold **T+M+B** together for *
 
 Inside the arcade, **Background** offers **Mars** or an outdoor **Moonbase** with Earth in the sky. The browser remembers your choice; switching scenery keeps the current round running.
 
+Arcade entry opens **Choose your player** and **Choose your battlefield** before combat. **Start fight** fills the screen with the arena; **Controls** and **Match options** open native controls over it. **Change player / battlefield** freezes combat and returns to selection for a fresh round.
+
 ## Run
 
 Requires Node.js 24.

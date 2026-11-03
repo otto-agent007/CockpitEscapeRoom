@@ -27,14 +27,14 @@ export function MarsArcade({ onClose }: { onClose: () => void }) {
     return () => { window.clearTimeout(timeout); window.removeEventListener('message', message); window.removeEventListener('keydown', escape) }
   }, [onClose, revision])
   return (
-    <main className="mars-arcade-view" aria-label="Mars arcade">
+    <main className="mars-arcade-view" data-arcade-status={status} aria-label="Mars arcade">
       <div className="mars-arcade-bar">
         <strong>CockpitEscapeRoom · Mars arcade</strong>
         <button ref={closeRef} type="button" className="secondary-button" onClick={onClose}>Return to game</button>
       </div>
       {status === 'loading' && <p role="status">Opening the Mars arcade…</p>}
       {status === 'error' && <div role="alert"><p>The arcade could not open. Your game progress is safe.</p><button type="button" className="secondary-button" onClick={() => { setStatus('loading'); setRevision(value => value + 1) }}>Retry arcade</button></div>}
-      <iframe key={revision} ref={frameRef} title="Mars arcade" src={`${import.meta.env.BASE_URL}mars-arcade.html`} onLoad={() => frameRef.current?.contentWindow?.postMessage('mars-arcade-access-granted', window.location.origin)} onError={() => setStatus('error')} />
+      <iframe key={revision} ref={frameRef} title="Mars arcade" allowFullScreen src={`${import.meta.env.BASE_URL}mars-arcade.html`} onLoad={() => frameRef.current?.contentWindow?.postMessage('mars-arcade-access-granted', window.location.origin)} onError={() => setStatus('error')} />
     </main>
   )
 }
