@@ -1064,7 +1064,13 @@ function formatEvent(event: MarsArcadeEvent, frame: number): string | null {
   }
 }
 
-export async function mountMarsArcade(production = false): Promise<void> {
+export interface MarsArcadeSession {
+  setActive(active: boolean): void
+  startRound(): void
+}
+
+export async function mountMarsArcade(production = false): Promise<MarsArcadeSession> {
+  let active = !production
   const pivotPreview=!production && new URLSearchParams(location.search).get('sam')==='pivot'
   setMarsArcadePivotPreview(true)
   const canvas = document.querySelector<HTMLCanvasElement>('#stage')
@@ -1093,6 +1099,11 @@ export async function mountMarsArcade(production = false): Promise<void> {
   canvas.width = STAGE_WIDTH * SCALE
   canvas.height = STAGE_HEIGHT * SCALE
   const resize = () => {
+    if (production) {
+      canvas.style.width = '100%'
+      canvas.style.height = '100%'
+      return
+    }
     // clientWidth includes the viewport's padding; a scale chosen from it overflows and CSS
     // max-width then squashes the stage to a non-integer size.
     const parent = canvas.parentElement
@@ -1100,8 +1111,7 @@ export async function mountMarsArcade(production = false): Promise<void> {
     const available = parent && style
       ? parent.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight)
       : STAGE_WIDTH * SCALE
-    const heightScale = production ? Math.max(1, Math.floor((window.innerHeight - 340) / STAGE_HEIGHT)) : SCALE
-    canvas.style.width = `${STAGE_WIDTH * Math.max(1, Math.min(SCALE, heightScale, Math.floor(available / STAGE_WIDTH)))}px`
+    canvas.style.width = `${STAGE_WIDTH * Math.max(1, Math.min(SCALE, Math.floor(available / STAGE_WIDTH)))}px`
   }
   resize()
   if (production) window.addEventListener('resize', resize)
@@ -1174,6 +1184,7 @@ export async function mountMarsArcade(production = false): Promise<void> {
   if(pivotPreview)canvas.focus({preventScroll:true})
 
   function command(code: string): boolean {
+    if (!active) return false
     if (production && !['Space', 'KeyR', 'KeyT', 'KeyG', 'freeplay'].includes(code)) return false
     switch (code) {
       case 'Space':
@@ -1255,10 +1266,11 @@ export async function mountMarsArcade(production = false): Promise<void> {
     }
   }
   window.addEventListener('keydown', (event) => {
+    if (!active) return
     // Native fields own navigation; buttons own activation, but not game letter keys.
     if (event.target instanceof HTMLElement) {
       if (event.target.closest('select, input, textarea')) return
-      if (event.target.closest('button') && ['Space', 'Enter'].includes(event.code)) return
+      if (event.target.closest('button, summary') && ['Space', 'Enter'].includes(event.code)) return
     }
     const motionDown=event.code===PLAYER_ONE_BINDINGS.down||event.code===PLAYER_TWO_BINDINGS.down
     const downFighter=event.code===PLAYER_ONE_BINDINGS.down?harness.leftId:harness.rightId
@@ -1369,10 +1381,10 @@ export async function mountMarsArcade(production = false): Promise<void> {
     const deltaSeconds = Math.max(0, (now - previous) / 1000)
     previous = now
 
-    pollPads()
+    if (active) pollPads()
     const stepping = harness.stepRequested
     harness.stepRequested = false
-    if (!harness.paused || stepping) {
+    if (active && (!harness.paused || stepping)) {
       // Sampled only when the world is about to move, so a long pause does not burn
       // the opponent's intent timer against a frozen fight.
       const sampled = new Set([...held, ...padHeld, ...pending])
@@ -1507,6 +1519,18 @@ export async function mountMarsArcade(production = false): Promise<void> {
   }
 
   window.requestAnimationFrame(frame)
+  return {
+    setActive(value) {
+      active = value
+      clearInput()
+    },
+    startRound() {
+      clearInput()
+      newRound(harness)
+      harness.paused = false
+      active = true
+    },
+  }
 }
 
 if (import.meta.env.DEV && !document.documentElement.hasAttribute('data-mars-arcade')) void mountMarsArcade()

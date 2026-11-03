@@ -203,8 +203,8 @@ test('Engine-Out diversion completes Airbus without exposing the reward early', 
   const rewardRequests: string[] = []
   page.on('request', (request) => rewardRequests.push(request.url()))
   await page.getByRole('button', { name: 'Reveal reward' }).click()
-  await expect(page.getByRole('heading', { name: 'Flight Mode' })).toBeVisible()
-  await expect(page.getByLabel('Tesla Flight Mode film')).toHaveAttribute('src', /media\/tesla-flight-mode-final\.mp4$/)
+  await expect(page.getByRole('heading', { name: 'Model FLY' })).toBeVisible()
+  await expect(page.getByLabel('Model FLY film')).toHaveAttribute('src', /media\/tesla-flight-mode-final\.mp4$/)
   await expect(page.locator('.reward-scene, canvas[data-reward-pose]')).toHaveCount(0)
   await expect.poll(() => rewardRequests.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(true)
   expect(rewardRequests.some((url) => url.includes('/models/model-y-reward.glb'))).toBe(false)

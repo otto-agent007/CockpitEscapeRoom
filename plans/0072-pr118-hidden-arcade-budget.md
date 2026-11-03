@@ -58,3 +58,13 @@ For each failure, record the observed cause, make one bounded correction, rerun 
 ## Evidence and outcome
 
 Implementation, local code/asset checks, fresh production browser validation and local full-diff review pass. The first Vercel packaging error is repaired, and hosted CI plus the follow-up Vercel build pass. Owner visual acceptance and Tripo/soundtrack rights remain open; the PR stays draft, with no merge or release deployment.
+
+## 2026-11-03 — Model FLY ending copy correction
+
+- Goal: the final film shows “Upgraded Transport” above a white “Model FLY”; the ending reward summary names Model FLY instead of Tesla.
+- Context: reproduced the old film overlay and “The Future Tesla is unlocked.” summary in Chromium on the current ending worktree at port 5410. The family tribute paragraph itself contains no Tesla reference.
+- Constraints: change ending presentation and its existing browser expectations only; preserve film bytes, playback, chapter gates, saves and the CockpitEscapeRoom project identity. Use Model FLY consistently in the ending's accessible media label and description too.
+- Done when: existing reward and nearby handoff/browser cases pass; inspect film/tribute at 375, 768 and 1440 px with no overflow, confirm white title and keyboard skip/replay/reload/reduced-motion behavior; run `npm run check`, spoiler guard and full scoped diff review.
+- Progress: reproduction, implementation and validation complete. Browser plugin is unavailable, so installed Playwright and Chromium 1243 were used explicitly (the configured default 1248 is absent). Local server/browser used approved sandbox escalation.
+- Repair loop: at most three evidence-led attempts per failing check; record unresolved failures and do not claim hosted deployment or owner acceptance.
+- Outcome: copy and computed white title verified in Chromium at 375/768/1440 px. Final full check passes 1,048 unit tests; the combined production ending/arcade/handoff browser run passes 55/55. Model FLY remains lazy and is now included in the spoiler guard. See plan 0073, `TEST_REPORT.md` and `asset-reports/ending-ui-2026-11-03.md` for the final evidence. No film asset, dependency or publication changed.

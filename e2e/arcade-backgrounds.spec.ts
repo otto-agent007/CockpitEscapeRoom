@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 import { mkdirSync } from 'node:fs'
 import { STORAGE_KEY } from '../src/game/storage'
+import { startArcadeFight } from './arcadeFlow'
 
 const settingKey = 'cockpit-escape-room-arcade-background'
 async function enterArcade(page: Page, navigate = true) {
@@ -10,7 +11,7 @@ async function enterArcade(page: Page, navigate = true) {
   await page.waitForTimeout(1600)
   for (const key of ['b', 'm', 't']) await page.keyboard.up(key)
   const frame = page.frameLocator('iframe[title="Mars arcade"]')
-  await expect(frame.locator('#stage')).toBeVisible()
+  await startArcadeFight(frame)
   return frame
 }
 test.beforeEach(async ({ page }) => {
@@ -107,6 +108,7 @@ test('Moonbase survives returning to the chapter and re-entering with T+M+B', as
   await page.waitForTimeout(1600)
   for (const key of ['b', 'm', 't']) await page.keyboard.up(key)
   const frame = page.frameLocator('iframe[title="Mars arcade"]')
+  await startArcadeFight(frame)
   await frame.getByRole('combobox', { name: 'Background', exact: true }).selectOption('moonbase')
   await expect(frame.locator('#background-status')).toContainText('Moonbase ready')
   await frame.getByRole('button', { name: 'Return to game', exact: true }).click()
@@ -115,6 +117,7 @@ test('Moonbase survives returning to the chapter and re-entering with T+M+B', as
   for (const key of ['t', 'm', 'b']) await page.keyboard.down(key)
   await page.waitForTimeout(1600)
   for (const key of ['t', 'm', 'b']) await page.keyboard.up(key)
+  await startArcadeFight(frame)
   await expect(frame.getByRole('combobox', { name: 'Background', exact: true })).toHaveValue('moonbase')
   await expect(frame.locator('#background-status')).toContainText('Moonbase ready')
 })

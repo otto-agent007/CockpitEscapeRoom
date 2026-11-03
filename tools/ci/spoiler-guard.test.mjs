@@ -35,6 +35,7 @@ describe('spoiler guard', () => {
   it('fails a mention in the entry, in a static import, or in index.html', () => {
     for (const [where, files] of Object.entries({
       entry: { 'index.html': html, 'assets/index.js': 'title:"Your new Model Y"' },
+      fly: { 'index.html': html, 'assets/index.js': 'title:"Model FLY"' },
       vendor: { 'index.html': html, 'assets/index.js': 'import"./v.js"', 'assets/v.js': 'flight mode ready' },
       html: { 'index.html': html.replace('<head>', '<head><title>Tesla</title>'), 'assets/index.js': '' },
       preload: { 'index.html': html.replace('</head>', '<link rel="modulepreload" href="/assets/tesla.js"></head>'), 'assets/index.js': '', 'assets/tesla.js': '' },

@@ -82,7 +82,7 @@ The red Tesla Model Y must remain hidden until the reordered DC-9 → locker →
 
 After Engine-Out Handling is complete, the Captain Mode completion scene's **Reveal reward** action enters the 85-second Tesla Flight Mode film directly. The film fills the browser viewport, requests browser fullscreen from that click, and starts automatically when the browser allows sound playback. A Play control appears if it is blocked; reduced-motion mode waits for an explicit Play. The film itself contains the hangar reveal, red Model Y transformation, flight, cloud passage and sunrise. The old runtime 3D legacy hangar is no longer part of the reward. The film file is requested only after the protected reward phase begins.
 
-After the reveal, player-facing copy calls the vehicle **The Future Tesla**. Asset records retain the exact red Model Y identity for provenance and visual checks.
+After the reveal, player-facing copy calls the vehicle **Model FLY**. The film overlay reads **Upgraded Transport** above a white **Model FLY**, and the tribute summary says **Model FLY is unlocked.** Asset records retain the exact red Model Y identity for provenance and visual checks.
 
 The film uses native video controls. Audible playback is attempted on entry; if the browser blocks it, a clear **Play film** button appears. Reduced-motion players start playback themselves. On film end or **Skip film and read tribute**, the family tribute appears. A failed load offers Retry and the same safe Skip path without changing chapter progress. **Replay film** begins the movie again from the start.
 
@@ -116,6 +116,8 @@ Partial holds, typing, keyboard modifiers, focus moving into a text field, losin
 The arcade loads its four fighters and artwork only on entry, runs independently of cockpit presentation, and offers **Return to game** and Escape. Exit returns keyboard focus to the game. Current chapter progress remains in memory while playing, including when browser storage rejects writes. Loading failures retain a return control and offer retry. The arcade never blocks or replaces the family ending, and it does not change vehicle rewards or main-game puzzle progress.
 
 A native **Background** selector offers the original **Mars** scenery and an outdoor **Moonbase**: gray lunar terrain, habitat domes, antennas, and Earth in a black sky. Mars is the first-use default. A separate versioned local preference remembers the selection across reloads and arcade re-entry. Changing backgrounds preserves fight positions, health, meter, and timing. Moonbase artwork loads only when selected; failed scenery keeps combat usable with a fallback and **Retry background** control. The same selector is available in the development fighter playground.
+
+Every arcade entry first opens **Choose your player**, with four fighter cards, an opponent choice, and **Choose your battlefield**. Combat and combat input stay suspended here. **Start fight** begins a fresh round in a viewport-filling arena and requests browser fullscreen; denied fullscreen still leaves the arena filling the browser. A compact action bar offers pause, restart, return and **Change player / battlefield**. Native **Controls** and **Match options** expand over the arena. Essential live feedback remains accessible when those trays are closed. Choosing again freezes the fight; Start begins the new selection as a fresh round.
 
 ## Visual priorities
 

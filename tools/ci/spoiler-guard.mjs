@@ -19,7 +19,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
-export const PROTECTED = /tesla|model[\s_-]?y\b|flight[\s_-]?mode|cybertruck/gi
+export const PROTECTED = /tesla|model[\s_-]?(?:y|fly)\b|flight[\s_-]?mode|cybertruck/gi
 const CONTEXT = 80
 
 /** Static `import ... from "./x.js"` and bare `import "./x.js"`, never `import("./x.js")`. */

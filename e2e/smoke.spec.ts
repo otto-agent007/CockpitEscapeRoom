@@ -1461,13 +1461,13 @@ test('complete reordered journey', async ({ page }) => {
   await expect(completion).toContainText('Directional Control · Energy Discipline · Calm Diversion')
   await expect(page.getByRole('textbox', { name: 'Airline Transport Pilot answer' })).toHaveCount(0)
   await completion.getByRole('button', { name: 'Reveal reward' }).click()
-  await expect(page.getByRole('heading', { name: 'Flight Mode' })).toBeVisible()
-  await expect(page.getByLabel('Tesla Flight Mode film')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Model FLY' })).toBeVisible()
+  await expect(page.getByLabel('Model FLY film')).toBeVisible()
   await page.getByRole('button', { name: 'Skip film and read tribute' }).click()
   await expect(page.getByRole('heading', { name: 'Ground Transport Upgrade Authorized' })).toBeVisible()
   await expect(page.getByText(/Thank you for being someone we can always count on\. From the baseball field to the captain’s seat/i)).toBeVisible()
   await expect(page.getByText(/One more flight, Captain/i)).toHaveCount(0)
-  await expect(page.getByText(/The Future Tesla is unlocked/i)).toBeVisible()
+  await expect(page.getByText(/Model FLY is unlocked/i)).toBeVisible()
 })
 
 test('Airbus cards show immediate placement feedback and recover', async ({ page }) => {

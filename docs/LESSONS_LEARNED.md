@@ -2,6 +2,11 @@
 
 Use the entries relevant to the current task before making changes or retrying. After meaningful owner feedback or a confirmed root cause, add or update the smallest useful entry. Each entry needs a symptom, cause or labelled hypothesis, evidence, and a concrete prevention check. Detailed attempt history stays in plans and reports. These are dated findings with stated scope; recheck facts that can change.
 
+## Ending film and arcade presentation — 2026-11-03
+
+- Owner requested Upgraded Transport / white Model FLY and a selection page before full-screen fighting. Old labels were literal reward copy, while production inherited a capped, padded dev panel. Check actual ending text and computed title color, then assert the production canvas bounds against the viewport; passing build checks do not prove either presentation.
+- Moving controls into collapsed details hid essential live status regions from assistive technology, and the existing global Space binding prevented native summary activation. Keep essential live feedback outside closed disclosures and exempt native summary activation from game shortcuts. Both review findings were reproduced by failing browser tests before repair; `e2e/arcade-selection.spec.ts` now covers them.
+
 ## Mars arcade animation and gym
 
 Recorded 2026-10-05 from the Captain animation and gym correction work. Current decisions and approval status come from the latest dated records in [plan 0052](../plans/0052-captain-checklist-animation.md) and [plan 0053](../plans/0053-gym-art-corrections.md). Read the [gym guide](ARCADE_GYM_ART.md) for actual controls.

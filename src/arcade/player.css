@@ -1,16 +1,52 @@
 [hidden] { display: none !important; }
 #arcade-locked { max-width: 560px; margin: 15vh auto; padding: 24px; }
-.arcade-player-main { display: block; max-width: 1100px; margin: 0 auto; }
-.arcade-player-main .titlebar { margin: 0; font-weight: 600; }
-.arcade-player-main button { min-height: 44px; }
-.arcade-player-main .controls label { display: flex; align-items: center; gap: 8px; }
-.arcade-player-main select { max-width: 180px; min-height: 44px; }
-.arcade-instructions, .arcade-player-two { padding: 10px 12px; border-top: 1px solid var(--panel-edge); }
-.arcade-instructions summary, .arcade-player-two summary { cursor: pointer; }
-.arcade-instructions p { max-width: 80ch; }
-@media (max-width: 480px) {
-  .shell-main { padding: 8px; }
-  .shell-header { padding: 12px; }
-  .shell-brand { min-width: 0; }
-  .shell-tabs { margin-left: 0; }
+#arcade-game button, #arcade-game select, #arcade-game summary { min-height: 44px; }
+.arcade-setup { min-height: 100dvh; max-width: 1100px; margin: auto; padding: clamp(20px, 4vw, 56px); }
+.selection-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.selection-header .eyebrow { color: var(--accent); text-transform: uppercase; letter-spacing: .18em; font-size: 12px; }
+.arcade-setup h1 { margin: 36px 0 8px; font-size: clamp(30px, 5vw, 56px); line-height: 1.1; }
+.selection-intro, .selection-note { color: #bbc0d6; }
+.player-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 28px 0; }
+.player-cards button { display: grid; justify-items: center; gap: 12px; padding: 20px 8px; background: linear-gradient(160deg, #202941, #111622); border: 2px solid #46506e; }
+.player-cards button[aria-pressed="true"] { background: linear-gradient(160deg, #174a37, #10251e); color: #effff3; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.player-cards img { width: min(100%, 128px); height: 128px; object-fit: contain; image-rendering: pixelated; }
+.arcade-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: end; margin: 24px 0; }
+.arcade-choices label { display: grid; gap: 8px; color: #e6e8f3; }
+.arcade-choices select { width: 100%; min-width: 0; }
+.arcade-choices h2 { margin: 0 0 8px; font-size: 16px; }
+.start-fight { min-width: 180px; padding: 12px 24px; font-size: 16px; }
+.selection-note { font-size: 12px; }
+.arcade-match { position: fixed; inset: 0; overflow: hidden; background: #080c16; }
+.arcade-match .stage-panel { position: absolute; inset: 0; border: 0; border-radius: 0; background: transparent; }
+.arcade-match .viewport { position: absolute; inset: 0; padding: 0; background: #080c16; }
+.arcade-match canvas { width: 100%; height: 100%; max-width: none; object-fit: contain; }
+.match-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.match-tools { position: absolute; z-index: 1; bottom: 0; left: 0; right: 0; display: flex; align-items: end; flex-wrap: wrap; gap: 6px; max-height: 58dvh; overflow-y: auto; padding: 6px 12px max(6px, env(safe-area-inset-bottom)); background: linear-gradient(transparent, #080c16ed 25%); }
+.match-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.match-actions { flex: 1 1 auto; }
+.match-tools button { background: #101827ed; border-color: #58627e; color: #fff; }
+.match-tools details { background: #0b0d16ed; border-radius: 6px; margin-top: 4px; }
+.match-tools summary { display: flex; align-items: center; padding: 6px 10px; cursor: pointer; color: #d1d6eb; }
+.match-tools summary::before { content: '+ '; margin-right: 8px; }
+.match-tools details[open] > summary::before { content: '− '; }
+.match-tools .arcade-choices { padding: 0 12px; }
+.match-tools > details { max-width: 100%; }
+.match-tools > details[open] { flex: 1 1 100%; }
+#combat-controls > fieldset { border: 0; margin: 0; padding: 0; }
+#combat-controls > fieldset .controls { padding: 4px 0 0; gap: 6px; }
+.arcade-instructions p { padding: 0 12px 10px; margin: 0; max-width: 80ch; }
+.match-tools .status { color: #bbc0d6; }
+.match-announcements { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+@media (max-width: 600px) {
+  .player-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .player-cards button { padding: 10px 6px; }
+  .player-cards img { height: 100px; }
+  .arcade-choices { grid-template-columns: 1fr 1fr; }
+  .battlefield-choice { grid-column: 1 / -1; }
+  .match-tools { padding-inline: 6px; }
+  .match-actions button { flex: 1 1 auto; font-size: 11px; padding: 6px; }
+  #combat-controls > fieldset .controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-height: 500px) and (min-width: 601px) {
+  .match-tools { max-height: 50dvh; }
 }

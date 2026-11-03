@@ -48,7 +48,7 @@ test('Airbus completion offers the Heart greeting before the protected reward', 
   await celebration.getByRole('button', { name: 'Play greeting' }).click()
   await expect.poll(() => celebration.getByLabel('Optimus greeting').evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(0.2)
   await celebration.getByRole('button', { name: 'Reveal reward' }).click()
-  await expect(page.getByRole('heading', { name: 'Flight Mode' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Model FLY' })).toBeVisible()
   await expect.poll(() => requested.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(true)
 })
 
@@ -72,7 +72,7 @@ test('the animated Optimus handoff opens an automatically playing viewport-sized
   await expect.poll(() => celebration.getByLabel('Optimus greeting').evaluate((audio: HTMLAudioElement) => audio.currentTime)).toBeGreaterThan(0.2)
   await celebration.getByRole('button', { name: 'Reveal reward' }).click()
 
-  const video = page.getByLabel('Tesla Flight Mode film')
+  const video = page.getByLabel('Model FLY film')
   await expect(video).toBeVisible()
   await expect.poll(() => page.evaluate(() => Boolean(document.fullscreenElement))).toBe(true)
   const dimensions = await video.evaluate((element: HTMLVideoElement) => ({
@@ -124,7 +124,7 @@ test('muted greeting loads no voice and keyboard still reveals the reward', asyn
   const reveal = celebration.getByRole('button', { name: 'Reveal reward' })
   await expect(reveal).toBeFocused()
   await page.keyboard.press('Enter')
-  await expect(page.getByRole('heading', { name: 'Flight Mode' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Model FLY' })).toBeVisible()
   await expect.poll(() => requested.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(true)
 })
 
@@ -154,7 +154,7 @@ test('a missing greeting file leaves the caption and reward path usable', async 
   await celebration.getByRole('button', { name: 'Play greeting' }).click()
   await expect(celebration.getByRole('status')).toContainText('You can still reveal your reward.')
   await celebration.getByRole('button', { name: 'Reveal reward' }).click()
-  await expect(page.getByRole('heading', { name: 'Flight Mode' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Model FLY' })).toBeVisible()
 })
 
 test('a failed Optimus model load keeps the pictured guide and reward action usable', async ({ page }) => {
@@ -168,8 +168,8 @@ test('a failed Optimus model load keeps the pictured guide and reward action usa
   await expect(celebration.locator('.optimus-guide-canvas canvas')).toHaveCount(0)
   await expect(celebration).toContainText('Congratulations! You did it!')
   await celebration.getByRole('button', { name: 'Reveal reward' }).click()
-  await expect(page.getByRole('heading', { name: 'Flight Mode' })).toBeVisible()
-  await expect(page.getByLabel('Tesla Flight Mode film')).toBeVisible({ timeout: 15_000 })
+  await expect(page.getByRole('heading', { name: 'Model FLY' })).toBeVisible()
+  await expect(page.getByLabel('Model FLY film')).toBeVisible({ timeout: 15_000 })
 })
 
 test('the Tesla film is protected until reward and replaces the legacy hangar', async ({ page }) => {
@@ -181,8 +181,8 @@ test('the Tesla film is protected until reward and replaces the legacy hangar', 
   expect(requested.some((url) => url.includes('/models/model-y-reward.glb'))).toBe(false)
 
   await seed(page, rewardState())
-  await expect(page.getByRole('heading', { name: 'Flight Mode' })).toBeVisible()
-  const video = page.getByLabel('Tesla Flight Mode film')
+  await expect(page.getByRole('heading', { name: 'Model FLY' })).toBeVisible()
+  const video = page.getByLabel('Model FLY film')
   await expect(video).toHaveAttribute('src', /media\/tesla-flight-mode-final\.mp4$/)
   await expect(video).toHaveAttribute('controls', '')
   await expect(page.locator('.reward-scene, canvas[data-reward-pose]')).toHaveCount(0)
@@ -199,7 +199,7 @@ test('reduced motion waits for Play and Skip reveals tribute without losing prog
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/?skip3d=1')
   await seed(page, rewardState())
-  const video = page.getByLabel('Tesla Flight Mode film')
+  const video = page.getByLabel('Model FLY film')
   await expect(video).toBeVisible()
   await expect(page.getByText('Reduced motion is on.')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Play film' })).toBeVisible()
@@ -233,7 +233,7 @@ test('failed film loading offers retry and a safe route to the tribute', async (
   })
   await page.goto('/')
   await seed(page, rewardState())
-  const video = page.getByLabel('Tesla Flight Mode film')
+  const video = page.getByLabel('Model FLY film')
   await expect(video).toHaveAttribute('src', /media\/tesla-flight-mode-final\.mp4$/)
   await video.evaluate((element: HTMLVideoElement) => element.load())
   await expect(page.getByRole('alert')).toContainText('Your completed journey is safe.', { timeout: 20_000 })
@@ -259,8 +259,8 @@ test('film and controls fit desktop, tablet and phone widths', async ({ page }) 
     { width: 375, height: 812 },
   ]) {
     await page.setViewportSize(viewport)
-    await expect(page.getByLabel('Tesla Flight Mode film')).toBeVisible()
-    const videoSize = await page.getByLabel('Tesla Flight Mode film').evaluate((element) => {
+    await expect(page.getByLabel('Model FLY film')).toBeVisible()
+    const videoSize = await page.getByLabel('Model FLY film').evaluate((element) => {
       const bounds = element.getBoundingClientRect()
       return { width: bounds.width, height: bounds.height, viewportWidth: innerWidth, viewportHeight: innerHeight }
     })
@@ -278,7 +278,7 @@ test('the authored movie plays with native controls and ends at the family tribu
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
   await seed(page, rewardState())
-  const video = page.getByLabel('Tesla Flight Mode film')
+  const video = page.getByLabel('Model FLY film')
   await expect(video).toHaveAttribute('controls', '')
   await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.duration), { timeout: 30_000 }).toBeGreaterThan(85)
   await video.evaluate((element: HTMLVideoElement) => { element.muted = true })
