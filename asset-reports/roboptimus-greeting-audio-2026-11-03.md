@@ -1,0 +1,11 @@
+# Roboptimus greeting wording and automatic sound
+
+The owner replaced the final question with **“Let's go check it out!”** and requested sound on automatically. The caption and new Heart recording now use the same complete line: “Congratulations! You did it! Your pilot skills have earned you something special. Let's go check it out!”
+
+`tools/audio/render_roboptimus_greeting.py` reads both text and output path from `src/game/optimusGreeting.ts`. It uses the existing local Kokoro model/voice bank documented in the October 29 voice report, with `af_heart` at speed 0.96. Model files remain outside this game; synthesis uses no external API, and ONNX telemetry events are disabled. The existing voice project's Python environment supplies the tool dependencies. WAV/build metadata are in `.cache/assets/roboptimus-audio/`.
+
+New deployable `public/audio/roboptimus-greeting-heart.mp3`: **73,485 bytes**, SHA-256 **`c1eab3809a444d31117b0f62b2cded9e96b0ce7f38494ccd3ddabeff1f34d617`**, 24 kHz mono, **6.096 seconds** including MP3 padding (source WAV 6.0373 seconds). The new URL prevents returning browsers reusing the earlier words. The original MP3 remains intact as history.
+
+Roboptimus now initializes unmuted on each entry, including after earlier muted milestones and after reload. The native sound control still mutes immediately; other celebrations continue to respect their saved preference. Audible autoplay is attempted when the scene is ready. A browser refusal retains the existing Play greeting control; an unavailable file retains its caption and reward path.
+
+The default-sound regression failed before the change because no greeting element was mounted with the earlier mute preference. After repair, **6/6 focused Chromium cases pass**: real Engine-Out completion with a stored earlier mute and actual unmuted advancing playback without a Play click, matching caption/current recording, mute/reload/keyboard reveal, blocked autoplay recovery, missing-file recovery, and earlier milestone mute behavior. Typecheck, focused ESLint and diff checks pass. The browser helper checks actual volume/mute/time plus the new clip's duration. Full game/production validation remains pending the ongoing Roboptimus motion review; this scoped update does not claim those broader checks.

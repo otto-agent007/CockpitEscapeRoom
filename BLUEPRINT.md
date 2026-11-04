@@ -17,7 +17,7 @@ It honors an expert pilot who began on the McDonnell Douglas DC-9 and later flew
 5. The **Legacy Route Record**, ceremonial shutdown, ATP milestone, and Captain's Key close the Final Flight Log.
 6. The key opens the unchanged Captain's Locker sequence: watch → baseball → Charging Bull → airline wings → captain's hat.
 7. **Enter Pop T Captain Mode** opens the separate Airbus A320 captain/left-seat cockpit, five-card qualification, Storm Line, and Engine-Out Handling scenarios.
-8. Completing Airbus opens an animated Optimus congratulations scene with the owner-selected Heart voice and matching text. Its **Reveal reward** action starts the protected red Model Y film in a viewport-sized cinema, requests browser fullscreen, then reaches the family tribute. The 3D robot remains under visual review.
+8. Completing Airbus opens Roboptimus close to the viewer, waiting farther outside the hangar. She gives a personal greeting ending with **“Let's go check it out!”**, with sound on and matching captions, then walks to the closed hangar doors. She dances while the doors open onto darkness; the scene fades into the automatically playing Model FLY film and then the family tribute. The complete guide and hangar appear together after loading. Native **Reveal reward**, sound and film Skip controls preserve an accessible route.
 9. After the final tribute has completed once, hold T+M+B together for 1.5 seconds from any chapter to open the optional Mars arcade. No visible entry control or standalone URL starts a match; the local unlock survives reload and Restart, and returning preserves the current chapter.
 
 Persisted later chapters resume directly. Wrong choices may rewind the active checkpoint but never erase completed puzzle or chapter progress.

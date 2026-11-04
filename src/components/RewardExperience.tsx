@@ -4,8 +4,6 @@ import { gameCopy } from '../game/config'
 import { rewardCopy } from '../game/rewardCopy'
 
 interface RewardExperienceProps {
-  reducedMotion: boolean
-  forceAccessible: boolean
   initialComplete?: boolean
   onReplay?: () => void
   onRestart: () => void
@@ -15,17 +13,17 @@ interface RewardExperienceProps {
 const filmUrl = `${import.meta.env.BASE_URL}media/tesla-flight-mode-final.mp4`
 
 export function RewardExperience({
-  reducedMotion,
-  forceAccessible,
   initialComplete = false,
   onReplay,
   onRestart,
   onComplete,
 }: RewardExperienceProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const playbackGeneration = useRef(0)
   const [stage, setStage] = useState<'film' | 'complete'>(initialComplete ? 'complete' : 'film')
   const [loadFailed, setLoadFailed] = useState(false)
-  const [manualPlayNeeded, setManualPlayNeeded] = useState(reducedMotion || forceAccessible)
+  const [manualPlayNeeded, setManualPlayNeeded] = useState(false)
+  const [filmMuted, setFilmMuted] = useState(false)
 
   useEffect(() => {
     if (videoRef.current) videoRef.current.src = filmUrl
@@ -35,20 +33,50 @@ export function RewardExperience({
     if (stage === 'complete') onComplete?.()
   }, [stage, onComplete])
 
-  useEffect(() => {
-    if (stage !== 'film' || reducedMotion || forceAccessible) return
+  const startFilm = useCallback(async (allowMutedAutoplay: boolean) => {
     const video = videoRef.current
     if (!video) return
-    let mounted = true
-    void video.play().catch(() => {
-      if (!mounted) return
-      if (video.error) setLoadFailed(true)
-      else setManualPlayNeeded(true)
-    })
-    return () => { mounted = false }
-  }, [forceAccessible, reducedMotion, stage])
+    const generation = ++playbackGeneration.current
+    const current = () => generation === playbackGeneration.current && videoRef.current === video
+    try {
+      await video.play()
+    } catch (error) {
+      if (!current()) return
+      if (allowMutedAutoplay && !video.error && !video.muted && error instanceof DOMException && error.name === 'NotAllowedError') {
+        video.muted = true
+        try {
+          await video.play()
+        } catch {
+          if (current()) {
+            setLoadFailed(Boolean(video.error))
+            setManualPlayNeeded(!video.error)
+          }
+          return
+        }
+      } else {
+        setLoadFailed(Boolean(video.error))
+        setManualPlayNeeded(!video.error)
+        return
+      }
+    }
+    if (current()) {
+      setManualPlayNeeded(false)
+      setFilmMuted(video.muted)
+    }
+  }, [])
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (stage !== 'film' || !video) return
+    if (video.paused) void startFilm(true)
+    return () => {
+      playbackGeneration.current += 1
+      video.pause()
+    }
+  }, [stage, startFilm])
 
   const finishFilm = useCallback(() => {
+    playbackGeneration.current += 1
     videoRef.current?.pause()
     setStage('complete')
   }, [])
@@ -60,11 +88,9 @@ export function RewardExperience({
       setLoadFailed(true)
       return
     }
-    void video.play().then(() => setManualPlayNeeded(false)).catch(() => {
-      if (video.error) setLoadFailed(true)
-      else setManualPlayNeeded(true)
-    })
-  }, [])
+    video.muted = false
+    void startFilm(false)
+  }, [startFilm])
 
   const replayFilm = useCallback(() => {
     const video = videoRef.current
@@ -72,8 +98,8 @@ export function RewardExperience({
     onReplay?.()
     video.currentTime = 0
     setStage('film')
-    playFilm()
-  }, [onReplay, playFilm])
+    void startFilm(true)
+  }, [onReplay, startFilm])
 
   return (
     <section className={`reward-experience reward-experience--${stage}`} data-reward-stage={stage} aria-labelledby="reward-title">
@@ -88,12 +114,13 @@ export function RewardExperience({
           ref={videoRef}
           className="reward-film-video"
           controls
-          autoPlay={stage === 'film' && !reducedMotion && !forceAccessible}
+          autoPlay={stage === 'film'}
           playsInline
           preload="auto"
           hidden={stage === 'complete'}
           aria-label="Model FLY film"
           onPlay={() => setManualPlayNeeded(false)}
+          onVolumeChange={(event) => setFilmMuted(event.currentTarget.muted)}
           onEnded={finishFilm}
           onError={() => setLoadFailed(true)}
           onLoadedMetadata={() => setLoadFailed(false)}
@@ -111,14 +138,14 @@ export function RewardExperience({
                 <button type="button" className="secondary-button" onClick={() => {
                   setLoadFailed(false)
                   videoRef.current?.load()
-                  setManualPlayNeeded(true)
+                  void startFilm(true)
                 }}>Retry film</button>
               </div>
             )}
-            {reducedMotion && <p className="reward-film-motion-note">Reduced motion is on. The film will play only when you choose Play.</p>}
             <div className="reward-actions">
               {manualPlayNeeded && !loadFailed && <button type="button" className="primary-button" onClick={playFilm}>Play film</button>}
-              <button type="button" className="secondary-button" onClick={finishFilm}>Skip film and read tribute</button>
+              {filmMuted && !manualPlayNeeded && !loadFailed && <button type="button" className="primary-button" onClick={playFilm}>Turn film sound on</button>}
+              <button type="button" className="secondary-button" onClick={() => finishFilm()}>Skip film and read tribute</button>
               <button type="button" className="text-button" onClick={onRestart}>Restart game</button>
             </div>
           </>

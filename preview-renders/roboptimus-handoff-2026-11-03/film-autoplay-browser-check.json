@@ -1,0 +1,13 @@
+{
+  "visible": true,
+  "url": "http://127.0.0.1:5416/",
+  "title": "Model FLY — automatic playback",
+  "playback": {
+    "time": 0.798334,
+    "paused": false,
+    "muted": false
+  },
+  "extraPlayClick": false,
+  "autoplayPolicyOverride": false,
+  "errors": []
+}

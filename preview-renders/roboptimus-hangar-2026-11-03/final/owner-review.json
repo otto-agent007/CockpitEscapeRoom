@@ -1,0 +1,17 @@
+{
+  "visible": true,
+  "url": "http://127.0.0.1:5418/",
+  "title": "Roboptimus — synchronized scene reveal",
+  "stage": "greeting",
+  "greeting": {
+    "time": 0.316887,
+    "paused": false,
+    "muted": false,
+    "volume": 0.85,
+    "src": "http://127.0.0.1:5418/audio/roboptimus-greeting-heart.mp3"
+  },
+  "errors": [],
+  "autoplayPolicyOverride": false,
+  "extraFilmPlayClick": false,
+  "reloadReplaysSequence": true
+}

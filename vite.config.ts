@@ -47,7 +47,8 @@ function omitHistoricalPublicAssets(): Plugin {
   const unused = [
     'favicon.ico', // The existing 14 KB TMB2 base image is the favicon.
     'models/model-y-reward.glb', // The reward is now the protected film.
-    'models/optimus-guide-review.glb', // Superseded by the dance_02 review candidate.
+    'models/optimus-guide-review.glb', // Superseded by the combined greeting/walk/dance export.
+    'models/optimus-guide-dance-02-review.glb', // Both historical robot exports are replaced by the combined escort asset.
     'images/intro/tmb2/contact-sheet.png', // Source review sheet, never requested by the game.
     'images/a320-fo-view.png', // Historical reference, never requested by the game.
   ]

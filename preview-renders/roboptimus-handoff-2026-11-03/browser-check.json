@@ -1,0 +1,16 @@
+{
+  "url": "http://127.0.0.1:5414/",
+  "title": "Roboptimus handoff — CockpitEscapeRoom",
+  "visible": true,
+  "viewportWidthsInspected": [375, 768, 1440],
+  "pageErrors": [],
+  "consoleWarnings": [
+    "THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.",
+    "THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."
+  ],
+  "productionBrowserCasesPassed": 20,
+  "sourceModelBytes": 4991096,
+  "sourceModelSHA256": "285f8a53e53a3594c11cc5eb2ebdb42d0d221bc2d9df08cdfba930c8b4e49b11",
+  "fallbackBytes": 95634,
+  "fallbackSHA256": "6486af9746878e61abc04686534deefde44915c9a17ac3f6c6fc74d1c218dd33"
+}

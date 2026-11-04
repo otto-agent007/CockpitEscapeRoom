@@ -147,6 +147,7 @@ test('Engine-Out exposes a confirmed full-game restart button', async ({ page })
 test('Engine-Out diversion completes Airbus without exposing the reward early', async ({ page }) => {
   await page.clock.install()
   await page.addInitScript(() => {
+    localStorage.setItem('cockpit-escape-room:sound:v1', '{"muted":true}')
     const gamepad = {
       axes: [0.65, 0, 0.52, 0],
       buttons: Array.from({ length: 16 }, () => ({ pressed: false, touched: false, value: 0 })),
@@ -181,7 +182,11 @@ test('Engine-Out diversion completes Airbus without exposing the reward early', 
   await expect(
     page.getByRole('region', { name: 'Captain task: Diversion judgment' }),
   ).toContainText('Captain task complete')
-  await page.clock.runFor(45_000)
+  // Stop at the handoff: its caption now advances automatically to the film.
+  for (let elapsed = 0; elapsed < 45_000; elapsed += 250) {
+    await page.clock.runFor(250)
+    if (await page.getByRole('heading', { name: 'POP T CAPTAIN MODE COMPLETE' }).isVisible()) break
+  }
   await expect(page.getByRole('heading', { name: 'POP T CAPTAIN MODE COMPLETE' })).toBeVisible()
   await expect(page.getByText(/Captain traits:/)).toBeVisible()
   // The completed Airbus card speaks with Heart. The card was reached by clicking, so browser

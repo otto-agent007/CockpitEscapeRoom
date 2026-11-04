@@ -4,6 +4,7 @@ Use the entries relevant to the current task before making changes or retrying. 
 
 ## Ending film and arcade presentation — 2026-11-03
 
+- A retired robot still flashed between Engine-Out completion and the current model because both lazy-module and GLB-loading fallbacks still used the earlier PNG. Use one shared current-model still for every loading/accessibility/error branch and a new URL when retiring cached art. Hold the module and model separately in browser regression tests; checking only the final canvas misses this transient defect. See plan 0074 and the Roboptimus handoff report.
 - Owner requested Upgraded Transport / white Model FLY and a selection page before full-screen fighting. Old labels were literal reward copy, while production inherited a capped, padded dev panel. Check actual ending text and computed title color, then assert the production canvas bounds against the viewport; passing build checks do not prove either presentation.
 - Moving controls into collapsed details hid essential live status regions from assistive technology, and the existing global Space binding prevented native summary activation. Keep essential live feedback outside closed disclosures and exempt native summary activation from game shortcuts. Both review findings were reproduced by failing browser tests before repair; `e2e/arcade-selection.spec.ts` now covers them.
 

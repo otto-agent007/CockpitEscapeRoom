@@ -675,7 +675,7 @@ function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset }: { g
     beginAirbusLoading()
   }, [beginAirbusLoading, dispatch])
 
-  const continueToReward = useCallback(() => {
+  const requestRewardFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
       // Request browser fullscreen while the player's reward click still has activation.
       try {
@@ -683,8 +683,12 @@ function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset }: { g
         void request?.catch(() => { /* The viewport-sized cinema still works if denied. */ })
       } catch { /* A synchronous fullscreen failure must not block the reward. */ }
     }
+  }, [])
+
+  const continueToReward = useCallback(() => {
+    requestRewardFullscreen()
     dispatch({ type: 'CONTINUE_FROM_AIRBUS_TO_REWARD' })
-  }, [dispatch])
+  }, [dispatch, requestRewardFullscreen])
 
   const claimCaptainsKey = useCallback(() => {
     if (lockerIntroStage !== 'idle') return
@@ -854,14 +858,26 @@ function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset }: { g
       <main ref={shellRef} className="game-shell reward-shell" tabIndex={-1}>
         <Suspense fallback={<div className="reward-module-loading" role="status">Preparing the final reward…</div>}>
           <RewardExperience
-            reducedMotion={reducedMotion}
-            forceAccessible={skipPrototypeScene}
             initialComplete={resumeTribute}
             onReplay={onTributeReset}
             onRestart={restart}
             onComplete={state.rewardUnlocked && PUZZLE_IDS.every(id => state.completedPuzzles.includes(id)) ? onJourneyComplete : undefined}
           />
         </Suspense>
+      </main>
+    )
+  }
+
+  if (state.phase === 'airbus' && state.completedPuzzles.includes('airbus')) {
+    return (
+      <main ref={shellRef} className="game-shell" tabIndex={-1}>
+        <AirbusCompletionCelebration
+          reducedMotion={reducedMotion}
+          forceAccessible={skipPrototypeScene}
+          traits={state.airbusSimulator.engineOut.bestTraits}
+          onContinue={continueToReward}
+          onPrepareReward={requestRewardFullscreen}
+        />
       </main>
     )
   }
@@ -997,14 +1013,6 @@ function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset }: { g
       )}
       {!lockerIntroActive && !captainHatCelebrationActive && !lockerHatFinaleActive && helpOpen && <button type="button" className="scene-help-dismiss" onClick={closeHelp} aria-label="Dismiss viewer help" tabIndex={-1} />}
       {!lockerIntroActive && !captainHatCelebrationActive && !lockerHatFinaleActive && <SceneHelp phase={state.phase} open={helpOpen} onClose={closeHelp} />}
-      {state.phase === 'airbus' && state.completedPuzzles.includes('airbus') && !lockerIntroActive && (
-        <AirbusCompletionCelebration
-          reducedMotion={reducedMotion}
-          forceAccessible={skipPrototypeScene}
-          traits={state.airbusSimulator.engineOut.bestTraits}
-          onContinue={continueToReward}
-        />
-      )}
       {captainHatCelebrationActive && (
         <CaptainHatCelebration reducedMotion={reducedMotion} onContinue={continueToAirbus} />
       )}

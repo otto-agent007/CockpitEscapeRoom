@@ -1,0 +1,27 @@
+{
+  "url": "http://127.0.0.1:5419/",
+  "playback": {
+    "time": 0.248039,
+    "paused": false,
+    "muted": false
+  },
+  "assets": {
+    "roboptimus-guide.glb": {
+      "status": 200,
+      "bytes": 4147260,
+      "sha256": "c38c1f161b60f20a7764b9581f502f424f0dbeb5338aa48061f3f05c6f72ae53"
+    },
+    "roboptimus-hangar.glb": {
+      "status": 200,
+      "bytes": 2063528,
+      "sha256": "99b60b0dfef79d81c6f8a58d2dd7c9ee45f40ea8c2680df0bad7d00bd4c3eb19"
+    }
+  },
+  "errors": [],
+  "viewports": [
+    1440,
+    768,
+    375
+  ],
+  "sequence": "greeting outside -> walk through open doors -> autoplay film -> natural film end -> final dance"
+}

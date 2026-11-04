@@ -16,10 +16,12 @@ import bpy
 
 
 ROOT = Path.cwd()
-SOURCE = ROOT / "art-source/blender/optimus_guide_source_candidate.blend"
+SOURCE = Path(bpy.data.filepath) if bpy.data.filepath else ROOT / "art-source/blender/optimus_guide_source_candidate.blend"
 VARIANTS = {
     "greet-walk": ("optimus-guide-review-raw.glb", {"Armature|greet_01.001", "Armature|walk.001"}, "Armature|greet_01.001"),
     "dance-02": ("optimus-dance-02-review-raw.glb", {"Armature|dance_02.001"}, "Armature|dance_02.001"),
+    "hangar-escort": ("roboptimus-guide-raw.glb", {"Armature|greet_01.001", "Armature|walk.001", "Armature|dance_02.001"}, "Armature|greet_01.001"),
+    "personal-escort": ("roboptimus-personal-raw.glb", {"ROBOPTIMUS_PERSONAL_GREETING", "Armature|walk.001", "Armature|dance_02.001"}, "ROBOPTIMUS_PERSONAL_GREETING"),
 }
 
 

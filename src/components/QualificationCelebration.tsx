@@ -1,12 +1,9 @@
-import { lazy, Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { EngineOutTrait } from '../game/airbusEngineOut'
-import { OPTIMUS_GREETING_TEXT } from '../game/optimusGreeting'
 import { CelebrationSoundAside } from './CelebrationSound'
-import { OptimusNarrationAside } from './OptimusNarration'
+import { RoboptimusHandoff } from './RoboptimusHandoff'
 
 const CAPTAIN_CELEBRATION_REVEAL_DELAY_MS = 850
-const OptimusGuideScene = lazy(() => import('../scenes/OptimusGuideScene'))
-const optimusFallbackUrl = `${import.meta.env.BASE_URL}images/optimus-guide-fallback.png`
 
 interface MilestoneCelebrationProps {
   eyebrow: string
@@ -114,38 +111,24 @@ export function AirbusCompletionCelebration({
   forceAccessible,
   traits,
   onContinue,
+  onPrepareReward,
 }: {
   reducedMotion: boolean
   forceAccessible: boolean
   traits: EngineOutTrait[]
   onContinue: () => void
+  onPrepareReward?: () => void
 }) {
-  const [replayRevision, setReplayRevision] = useState(0)
-  const replayMotion = useCallback(() => setReplayRevision((revision) => revision + 1), [])
   const debrief = traits.length > 0
     ? `Captain traits: ${traits.map((trait) => captainTraitLabels[trait]).join(' · ')}`
     : 'Both captain challenges are complete. Captain knowledge logged.'
   return (
-    <MilestoneCelebration
-      eyebrow="Airbus A320"
-      title="POP T CAPTAIN MODE COMPLETE"
-      body={<><span className="optimus-greeting-copy">{OPTIMUS_GREETING_TEXT}</span><span className="optimus-debrief">{debrief}</span></>}
-      actionLabel="Reveal reward"
+    <RoboptimusHandoff
       reducedMotion={reducedMotion}
+      forceAccessible={forceAccessible}
+      debrief={debrief}
       onContinue={onContinue}
-      visual={
-        <div className="optimus-figure" aria-hidden="true">
-          {forceAccessible ? (
-            <img className="optimus-guide-fallback" src={optimusFallbackUrl} alt="" />
-          ) : (
-            <Suspense fallback={<img className="optimus-guide-fallback" src={optimusFallbackUrl} alt="" />}>
-              <OptimusGuideScene replayRevision={replayRevision} reducedMotion={reducedMotion} />
-            </Suspense>
-          )}
-        </div>
-      }
-      variant="optimus"
-      aside={<OptimusNarrationAside onReplay={replayMotion} />}
+      onPrepareReward={onPrepareReward}
     />
   )
 }

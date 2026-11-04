@@ -69,7 +69,9 @@ browser's rule, not a setting, and it is why the playback tests click their way 
 
 - Local source: Kokoro v1.0 ONNX model and voice bank at `/mnt/2TBHDD/thermo-explainer-video/tts/`; model and bank hashes and license links are recorded in `asset-reports/optimus-gen3-voice-preview-2026-10-29.md`.
 - Approved voice: `af_heart` (Heart), selected by the owner on 2026-10-29 after hearing the greeting-and-walk preview.
-- Spoken line and on-screen caption: “Congratulations! You did it! Your pilot skills have earned you something special. Ready to see it?”
-- Deployable: `public/audio/optimus-congratulations-heart.mp3`, 52,149 bytes, SHA-256 `596507e432e37eff0d2884399f2ff3b91ed8e42934fec9ef45fbb0b552f5ec1c`, 24 kHz mono MP3, 5.664 seconds including MP3 padding.
+- Spoken line and on-screen caption: “Congratulations! You did it! Your pilot skills have earned you something special. Let's go check it out!”
+- Current deployable: `public/audio/roboptimus-greeting-heart.mp3`, 73,485 bytes, SHA-256 `c1eab3809a444d31117b0f62b2cded9e96b0ce7f38494ccd3ddabeff1f34d617`, 24 kHz mono MP3, 6.096 seconds including MP3 padding. The earlier recording remains preserved at its historical filename.
 
-The clip was generated offline with the local Heart voice at speed 0.96, then encoded to MP3. The ONNX model and voice bank stay outside the deployable game. The Airbus completion card mounts the clip only after chapter completion, attempts playback, offers a native replay control if autoplay is blocked, shares the persistent milestone Sound on/off choice, and keeps the entire line visible if audio is unavailable. Muting removes the audio element, so the file is not requested. The voice stops when the player selects **Reveal reward**.
+The clip was generated offline with the local Heart voice at speed 0.96, then encoded to MP3. The ONNX model and voice bank stay outside the deployable game. The Airbus completion card mounts the clip only after chapter completion, attempts playback, offers a native replay control if autoplay is blocked, starts with sound on regardless of an earlier milestone mute, retains a native mute control for the current greeting, and keeps the entire line visible if audio is unavailable. Muting removes the audio element, so the file is not requested. The voice stops when the player selects **Reveal reward**.
+
+The current line is generated from `OPTIMUS_GREETING_TEXT` by `tools/audio/render_roboptimus_greeting.py`, using the same local Heart voice at speed 0.96. See `asset-reports/roboptimus-greeting-audio-2026-11-03.md`.

@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-03",
+  "branch": "fix/roboptimus-loading-handoff",
+  "fullCheck": {
+    "command": "npm run check",
+    "exitCode": 0,
+    "tests": 1048,
+    "files": 95
+  },
+  "assetsCheck": {
+    "command": "npm run assets:check",
+    "exitCode": 0,
+    "notices": "existing nonfatal model warnings/info"
+  },
+  "pipelineEvals": {
+    "command": "npm run pipeline:evals",
+    "passed": 6,
+    "total": 6
+  },
+  "productionBrowser": {
+    "baseURL": "http://127.0.0.1:5419",
+    "initialRun": {
+      "passed": 30,
+      "failed": 1
+    },
+    "failedCase": "the Roboptimus hangar escort opens an automatically playing viewport-sized film",
+    "reason": "Old 12-second expectation did not include the approved 14.7-second walk/door dance/fade. Deadline corrected to 20 seconds.",
+    "recheck": {
+      "passed": 1,
+      "failed": 0,
+      "seconds": 17.6
+    },
+    "uniqueAffectedCasesVerified": 31
+  },
+  "budget": {
+    "totalMB": 187.0,
+    "totalLimitMB": 190,
+    "initialKB": 573,
+    "initialLimitKB": 600
+  },
+  "review": "No remaining critical/high/important findings after scene-only WebGL error recovery.",
+  "scopeLimit": "Full journey/heavy cockpit, other browsers, screen-reader speech and hosted CI are separate."
+}
