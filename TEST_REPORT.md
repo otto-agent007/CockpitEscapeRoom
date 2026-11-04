@@ -1,5 +1,12 @@
 # Test report
 
+## 2026-11-03 — PR #121 native click delivery follow-up
+
+- The next hosted [light-2 run](https://github.com/otto-agent007/CockpitEscapeRoom/actions/runs/41774491642/job/126392169314) on `36d8aee` got past the stale Replay step but failed its walking assertion. Its retry trace shows Reveal click actionability taking **6.47 seconds**. The DOM was greeting/Reveal when resolved and walking/Skip immediately before pointer dispatch, so that delayed click skipped to film. Moving the byte check alone was insufficient.
+- The explicit Reveal/fullscreen browser case now holds the first model request while setting the **real greeting audio** to loop and supplying a harmless native document gesture, then releases the scene. This keeps greeting/Reveal stable while the driver waits. It still checks real audio time, first-frame opacity, walking, actual fullscreen dimensions, advancing film and no-cache GLB bytes. Dedicated default/manual greeting and automatic completion cases retain their original behavior. Product code, assets and timeout/retry settings are unchanged.
+- The revised native-click case passes **1/1 in 30.5 seconds**. A controlled stress with **nine seconds before native Reveal plus nine seconds on the duplicate model request** passes **1/1 in 46.7 seconds**. The complete normal reward browser suite passes **12/12 in 45.3 seconds**. An initial local priming attempt targeted a decorative pointer-disabled heading and timed out; the verified setup uses a harmless native background click. Those setup failures are excluded from acceptance.
+- Exact logs: `/tmp/roboptimus-ci-loop-debug.log`, `/tmp/roboptimus-ci-native-click-stress-fixed.log`, `/tmp/roboptimus-ci-reward-final.log`. Fresh `npm run check` passes lint/types, 1,048 tests in 95 files and build (exit 0; `/tmp/roboptimus-ci-final-check.log`). Independent review reports no important findings; the model gate is released in `finally` and narration unmounts before the film. Diff checks pass and historical test-written screenshots are restored. Hosted follow-up is tracked on PR #121.
+
 ## 2026-11-03 — PR #121 hosted reward-test race
 
 - Hosted [light-2 job](https://github.com/otto-agent007/CockpitEscapeRoom/actions/runs/41770985369/job/126380511311) on `887f031` passed 70 cases and failed the real escort/fullscreen test on all three attempts: Replay greeting was detached or already absent. The aggregate browser-smoke failure follows that failed job. Quality, CodeQL, dependency checks, heavy browser groups and light-1 passed.

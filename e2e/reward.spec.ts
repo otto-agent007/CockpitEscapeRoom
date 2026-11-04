@@ -55,40 +55,56 @@ test('Airbus completion offers the Heart greeting before the protected reward', 
 
 test('the Roboptimus hangar escort opens an automatically playing viewport-sized film', async ({ page }) => {
   test.setTimeout(60_000)
-  const requested: string[] = []
-  page.on('request', (request) => requested.push(request.url()))
-  await page.goto('/')
-  expect(requested.some((url) => url.includes('/models/roboptimus-guide.glb'))).toBe(false)
-  await seed(page, createCompletedAirbusState())
-  const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
-  await expect(celebration.locator('.optimus-guide-canvas canvas')).toBeVisible({ timeout: 30_000 })
-  await expect(celebration.locator('.optimus-guide-canvas')).toHaveCSS('opacity', '1', { timeout: 30_000 })
-  expect(requested.some((url) => url.includes('/models/roboptimus-guide.glb'))).toBe(true)
-  expect(requested.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(false)
+  let releaseGuide!: () => void
+  const guideGate = new Promise<void>(resolve => { releaseGuide = resolve })
+  await page.route('**/models/roboptimus-guide.glb*', async route => {
+    await guideGate
+    await route.continue().catch(() => {})
+  })
+  try {
+    const requested: string[] = []
+    page.on('request', (request) => requested.push(request.url()))
+    await page.goto('/')
+    expect(requested.some((url) => url.includes('/models/roboptimus-guide.glb'))).toBe(false)
+    await seed(page, createCompletedAirbusState())
+    const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
+    // Keep real narration playing until this test's native Reveal gesture. CI's
+    // software renderer can otherwise let it finish while click actionability runs,
+    // changing the same button from Reveal reward into Skip to film.
+    const greeting = celebration.getByLabel('Roboptimus greeting')
+    await greeting.evaluate((audio: HTMLAudioElement) => { audio.loop = true })
+    await page.mouse.click(5, 5) // A harmless native gesture enables real audio before the model arrives.
+    releaseGuide()
+    await expect(celebration.locator('.optimus-guide-canvas canvas')).toBeVisible({ timeout: 30_000 })
+    await expect(celebration.locator('.optimus-guide-canvas')).toHaveCSS('opacity', '1', { timeout: 30_000 })
+    expect(requested.some((url) => url.includes('/models/roboptimus-guide.glb'))).toBe(true)
+    expect(requested.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(false)
+    await expect.poll(() => greeting.evaluate((audio: HTMLAudioElement) => audio.currentTime)).toBeGreaterThan(0.2)
 
-  await celebration.getByRole('button', { name: 'Reveal reward' }).click()
-  await expect(celebration).toHaveAttribute('data-handoff-stage', 'walking')
+    await celebration.getByRole('button', { name: 'Reveal reward' }).click()
+    await expect(celebration).toHaveAttribute('data-handoff-stage', 'walking')
 
-  const video = page.getByLabel('Model FLY film')
-  // The walk, door dance and fade take 14.7 seconds before the movie opens.
-  await expect(video).toBeVisible({ timeout: 20_000 })
-  await expect.poll(() => page.evaluate(() => Boolean(document.fullscreenElement))).toBe(true)
-  const dimensions = await video.evaluate((element: HTMLVideoElement) => ({
-    width: element.getBoundingClientRect().width,
-    height: element.getBoundingClientRect().height,
-    viewportWidth: window.innerWidth,
-    viewportHeight: window.innerHeight,
-  }))
-  expect(dimensions.width).toBeGreaterThanOrEqual(dimensions.viewportWidth - 1)
-  expect(dimensions.height).toBeGreaterThanOrEqual(dimensions.viewportHeight - 1)
-  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime), { timeout: 15_000 }).toBeGreaterThan(0.25)
+    const video = page.getByLabel('Model FLY film')
+    // The walk, door dance and fade take 14.7 seconds before the movie opens.
+    await expect(video).toBeVisible({ timeout: 20_000 })
+    await expect.poll(() => page.evaluate(() => Boolean(document.fullscreenElement))).toBe(true)
+    const dimensions = await video.evaluate((element: HTMLVideoElement) => ({
+      width: element.getBoundingClientRect().width,
+      height: element.getBoundingClientRect().height,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+    }))
+    expect(dimensions.width).toBeGreaterThanOrEqual(dimensions.viewportWidth - 1)
+    expect(dimensions.height).toBeGreaterThanOrEqual(dimensions.viewportHeight - 1)
+    await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime), { timeout: 15_000 }).toBeGreaterThan(0.25)
 
-  // Byte verification can outlast the greeting on CI; keep it out of the
-  // automatic greeting's short window for interacting with Reveal reward.
-  expect(await page.evaluate(async () => {
-    const response = await fetch('/models/roboptimus-guide.glb', { cache: 'no-store' })
-    return response.ok ? (await response.arrayBuffer()).byteLength : -1
-  })).toBe(statSync('public/models/roboptimus-guide.glb').size)
+    // Byte verification can outlast the greeting on CI; keep it out of the
+    // automatic greeting's short window for interacting with Reveal reward.
+    expect(await page.evaluate(async () => {
+      const response = await fetch('/models/roboptimus-guide.glb', { cache: 'no-store' })
+      return response.ok ? (await response.arrayBuffer()).byteLength : -1
+    })).toBe(statSync('public/models/roboptimus-guide.glb').size)
+  } finally { releaseGuide() }
 })
 
 test('blocked greeting autoplay keeps a manual play path without reporting a broken file', async ({ page }) => {
