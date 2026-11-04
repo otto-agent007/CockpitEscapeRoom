@@ -53,8 +53,11 @@ function GuideFigure({ model, motion, replayRevision, reducedMotion, staged, bea
     action.reset().setLoop(motion === 'greeting' ? THREE.LoopOnce : THREE.LoopRepeat, motion === 'greeting' ? 1 : Infinity)
     action.clampWhenFinished = true
     action.setEffectiveTimeScale(motion === 'walk' ? 1.5 : 1)
-    action.fadeIn(0.3).play()
-    if (reducedMotion) action.paused = true
+    if (reducedMotion) {
+      action.play()
+      action.paused = true
+      mixer.update(0) // Apply the authored first pose before freezing it.
+    } else action.fadeIn(0.3).play()
     return () => { action.fadeOut(0.2) }
   }, [mixer, model, motion, reducedMotion, replayRevision])
 

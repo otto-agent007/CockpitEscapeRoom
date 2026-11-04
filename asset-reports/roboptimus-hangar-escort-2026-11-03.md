@@ -1,5 +1,11 @@
 # Roboptimus hangar escort — local review
 
+## Screenshot readiness and reduced-motion first pose
+
+The completion evidence fixture now verifies the guide and hangar together and holds the real narration loop only while capturing. Reduced-motion runtime now evaluates the authored first pose at time zero before pausing, correcting the bind pose seen in actual captures. Normal motion, framing, lighting and all asset bytes remain unchanged. Final neutral-pose captures at 375/768/1440 are inspected under `preview-renders/roboptimus-hangar-2026-11-03/review-evidence/`.
+
+A current no-cache runtime fetch matches disk for both assets. Guide: 4,185,524 bytes, SHA-256 `6b98e874c8686a2e5ccfc16cd41c621671429ff9ad22d82a3bce360e1116943e`, 67 nodes, two `game_id` extras, one material and three 1600px maps. Hangar: 2,063,528 bytes, SHA-256 `99b60b0dfef79d81c6f8a58d2dd7c9ee45f40ea8c2680df0bad7d00bd4c3eb19`, six nodes, no interactive `game_id`, three materials and one 1K atlas. No Blender export or generated-asset edit was needed.
+
 ## Latest scene and loading checkpoint
 
 This checkpoint supersedes the historical sequence and loading-image descriptions below. Current sequence: close personal greeting → walk to closed doors → dance as doors open onto darkness → fade into the automatically playing film → family tribute. The guide now uses the authored `ROBOPTIMUS_PERSONAL_GREETING`, retaining the existing walk/dance and geometry; its runtime file is 4,185,524 bytes, SHA-256 `6b98e874c8686a2e5ccfc16cd41c621671429ff9ad22d82a3bce360e1116943e`. The hangar remains 2,063,528 bytes, SHA-256 `99b60b0dfef79d81c6f8a58d2dd7c9ee45f40ea8c2680df0bad7d00bd4c3eb19`. No asset bytes changed in this loading repair.
