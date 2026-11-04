@@ -26,7 +26,8 @@ Keep CockpitEscapeRoom, protected reward gating, chapter progress, native keyboa
 - [x] Repair robot-only loading flash; prove independent module/robot/hangar delays and initial Canvas visibility.
 - [x] Owner authorizes PR preparation.
 - [x] Complete final PR review/checks, including unavailable-WebGL recovery and the corrected escort timing expectation.
-- [ ] Open the PR against main; record hosted preview/check status.
+- [x] Open [PR #121](https://github.com/otto-agent007/CockpitEscapeRoom/pull/121) against main; Vercel preview is ready.
+- [x] Repair the hosted reward-test race; verify the controlled slow-download case and all 12 normal reward browser cases. Hosted results are tracked on PR #121.
 
 ## Validation and acceptance
 
@@ -40,4 +41,10 @@ The original facade painted a closed door, so door transforms alone did not expo
 
 ## Remaining delta
 
-Publish the reviewed branch and PR, inspect hosted build/CI status, and leave merge/final complete-game release review with the owner. No new personalization placeholders.
+PR #121 is open and its Vercel preview is ready. Publish the scoped CI synchronization fix, verify the updated hosted checks, and leave merge/final complete-game release review with the owner. No new personalization placeholders.
+
+## CI follow-up — 2026-11-03
+
+Goal: make the real reward/fullscreen browser check deterministic while preserving the selected game behavior. Initial hosted CI on `887f031` passed quality, CodeQL, dependency checks, all four heavy browser groups and light-1. Light-2 had one failing test (`reward.spec.ts:56`) and 70 passing tests; the aggregate browser-smoke check consequently failed. All three attempts waited for a Replay greeting button after the automatic greeting had already advanced.
+
+The test downloaded the guide again to verify bytes inside the six-second greeting window, then clicked Replay. A scoped local reproduction holding only that second request for nine seconds failed at the same stale button. The corrected check waits for first-frame opacity, clicks native Reveal promptly, asserts walking/fullscreen/advancing film, then verifies the same guide bytes after movie entry. The redundant Replay is covered by the separate greeting cases. No product, media, asset, timeout or retry policy changes. The same delayed-download stress now passes; final normal-suite results and hosted recheck are recorded in `TEST_REPORT.md`.

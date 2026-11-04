@@ -2,6 +2,10 @@
 
 Use the entries relevant to the current task before making changes or retrying. After meaningful owner feedback or a confirmed root cause, add or update the smallest useful entry. Each entry needs a symptom, cause or labelled hypothesis, evidence, and a concrete prevention check. Detailed attempt history stays in plans and reports. These are dated findings with stated scope; recheck facts that can change.
 
+## Automatic reward handoff tests — 2026-11-03
+
+- PR #121's reward/fullscreen test fetched the guide a second time during its six-second automatic greeting, then tried to click Replay after that control had unmounted. Hosted light-2 failed all three attempts at the stale locator while the rest of that group passed. A nine-second delay on only the byte-verification request reproduced it locally. Wait for first-frame readiness and perform the native reveal action before independent download checks; verify asset bytes once the persistent film is open. Keep manual and automatic greeting audio assertions in their dedicated cases. Changing the movie-entry timeout did not address this separate race.
+
 ## Ending film and arcade presentation — 2026-11-03
 
 - A retired robot still flashed between Engine-Out completion and the current model because both lazy-module and GLB-loading fallbacks still used the earlier PNG. Use one shared current-model still for every loading/accessibility/error branch and a new URL when retiring cached art. Hold the module and model separately in browser regression tests; checking only the final canvas misses this transient defect. See plan 0074 and the Roboptimus handoff report.

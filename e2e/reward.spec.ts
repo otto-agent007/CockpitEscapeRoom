@@ -62,16 +62,12 @@ test('the Roboptimus hangar escort opens an automatically playing viewport-sized
   await seed(page, createCompletedAirbusState())
   const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
   await expect(celebration.locator('.optimus-guide-canvas canvas')).toBeVisible({ timeout: 30_000 })
-  await expect.poll(() => requested.some((url) => url.includes('/models/roboptimus-guide.glb'))).toBe(true)
-  expect(await page.evaluate(async () => {
-    const response = await fetch('/models/roboptimus-guide.glb', { cache: 'no-store' })
-    return response.ok ? (await response.arrayBuffer()).byteLength : -1
-  })).toBe(statSync('public/models/roboptimus-guide.glb').size)
+  await expect(celebration.locator('.optimus-guide-canvas')).toHaveCSS('opacity', '1', { timeout: 30_000 })
+  expect(requested.some((url) => url.includes('/models/roboptimus-guide.glb'))).toBe(true)
   expect(requested.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(false)
 
-  await celebration.getByRole('button', { name: /^(Play|Replay) greeting$/ }).click()
-  await expect.poll(() => celebration.getByLabel('Roboptimus greeting').evaluate((audio: HTMLAudioElement) => audio.currentTime)).toBeGreaterThan(0.2)
   await celebration.getByRole('button', { name: 'Reveal reward' }).click()
+  await expect(celebration).toHaveAttribute('data-handoff-stage', 'walking')
 
   const video = page.getByLabel('Model FLY film')
   // The walk, door dance and fade take 14.7 seconds before the movie opens.
@@ -86,6 +82,13 @@ test('the Roboptimus hangar escort opens an automatically playing viewport-sized
   expect(dimensions.width).toBeGreaterThanOrEqual(dimensions.viewportWidth - 1)
   expect(dimensions.height).toBeGreaterThanOrEqual(dimensions.viewportHeight - 1)
   await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime), { timeout: 15_000 }).toBeGreaterThan(0.25)
+
+  // Byte verification can outlast the greeting on CI; keep it out of the
+  // automatic greeting's short window for interacting with Reveal reward.
+  expect(await page.evaluate(async () => {
+    const response = await fetch('/models/roboptimus-guide.glb', { cache: 'no-store' })
+    return response.ok ? (await response.arrayBuffer()).byteLength : -1
+  })).toBe(statSync('public/models/roboptimus-guide.glb').size)
 })
 
 test('blocked greeting autoplay keeps a manual play path without reporting a broken file', async ({ page }) => {
