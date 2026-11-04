@@ -414,7 +414,7 @@
 .reward-finale {
   display: grid;
   gap: 1.5rem;
-  max-width: 48rem;
+  max-width: 64rem;
   padding: clamp(1rem, 4vw, 2rem);
   border: 1px solid rgba(225, 193, 125, 0.5);
   border-radius: 0.85rem;
@@ -437,8 +437,8 @@
   border-left: 2px solid #e0b85d;
   color: #f3ead5;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(1rem, 1.45vw, 1.15rem);
-  line-height: 1.58;
+  font-size: clamp(1.6rem, 3vw, 2.5rem);
+  line-height: 1.5;
 }
 
 .reward-module-loading {

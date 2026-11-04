@@ -1,12 +1,11 @@
 import { expect, test, type Page } from '@playwright/test'
+import { holdForArcade } from './arcadeFlow'
 
 async function openArcade(page: Page) {
   await page.addInitScript(() => localStorage.setItem('cockpit-escape-room-mars-arcade-unlock', JSON.stringify({ version: 1, completedOnce: true })))
   await page.goto('/?skip3d=1')
   await expect(page.locator('.briefing-shell')).toBeVisible()
-  for (const key of ['t', 'm', 'b']) await page.keyboard.down(key)
-  await page.waitForTimeout(1600)
-  for (const key of ['b', 'm', 't']) await page.keyboard.up(key)
+  await holdForArcade(page)
   return page.frameLocator('iframe[title="Mars arcade"]')
 }
 
@@ -24,7 +23,7 @@ test('arcade selection freezes combat until a chosen player and battlefield star
   await page.keyboard.press('Enter')
   await expect(frame.locator('#stage')).toBeVisible()
   await expect.poll(() => page.evaluate(() => Boolean(document.fullscreenElement))).toBe(true)
-  await expect(frame.locator('#stage-title')).toContainText('TRUMP')
+  await expect(frame.locator('#stage-title')).toContainText('TEFLON DON')
   await expect(frame.locator('#stage')).toHaveAttribute('data-background', 'moonbase')
   await expect.poll(() => frame.locator('#readout').textContent()).not.toBe(before)
   await frame.getByRole('button', { name: 'Change player / battlefield' }).click()

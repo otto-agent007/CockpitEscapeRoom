@@ -2,6 +2,11 @@
 
 Use the entries relevant to the current task before making changes or retrying. After meaningful owner feedback or a confirmed root cause, add or update the smallest useful entry. Each entry needs a symptom, cause or labelled hypothesis, evidence, and a concrete prevention check. Detailed attempt history stays in plans and reports. These are dated findings with stated scope; recheck facts that can change.
 
+## Fighting audio and positive shortcut checks — 2026-11-04
+
+- The owner found the first oscillator/noise sound packs too generic for a fighting game. Recorded contact and swish layers, differentiated hit/block/miss/knockdown cues and recurring-hit variation led to the selected Heavy hitters set. Audition before binding sounds to combat; keep accepted WAV bytes, source/license evidence and per-asset hashes. In-game feedback then approved the integrated sound, separately from the candidate choice. See plans 0076/0077 and the selected audio report.
+- A positive arcade-entry fixture released T+M+B after 1,600 ms on the driver clock. A controlled delayed browser timer reproduced its failure: keyup canceled activation before the app observed the completed hold. Positive helpers now hold until the arcade is visible, then release in `finally`; short-hold and cancellation tests keep their original rejection assertions. The natural cause of one intermittent phone entry was not traced, so the controlled reproduction proves the fixture weakness without claiming that incident's cause. Keep the delayed-timer regression in `mars-arcade-easter-egg.spec.ts`.
+
 ## Completion screenshot evidence — 2026-11-03
 
 - Removing the hidden Airbus renderer left the shared review-evidence fixture waiting for `airbus-captain.glb` after completion. Nine four-minute waits made a 40.7-minute failure. When a scene changes, update `e2e/review-evidence.spec.ts` expected assets as well as gameplay tests, and run its completion gate captures at all three sizes before PR publication. Wait for the current first frame and then verify its actual asset contracts promptly; hold transient narration inside capture fixtures rather than let the screen advance underneath the screenshot.

@@ -65,6 +65,8 @@ import { loadArcadeBackdrop, type ArcadeBackdropImages } from './arcadeHarnessBa
 import { MOONBASE_PANORAMA } from '../game/marsArcadeArt'
 import { ARCADE_BACKGROUND_LABELS, isArcadeBackground, loadArcadeBackground, saveArcadeBackground, moonbasePanoramaLeft, MOONBASE_BACKGROUND_BANDS } from '../game/arcadeBackground'
 import { advanceExchange, EXCHANGE_END_FRAME } from './arcadeHarnessExchange'
+import { DEFAULT_ARCADE_SOUND, loadArcadeSound, saveArcadeSound, marsArcadeSoundCues, MarsArcadeComboSound } from '../game/marsArcadeSfx'
+import { MarsArcadeSfxPlayer, type ArcadeAudioStatus } from '../arcade/marsArcadeSfxPlayer'
 import {GLYPH_HEIGHT} from './arcadePixelFont'
 import {drawTextShadowed,measureText} from './arcadeTypography'
 import {
@@ -919,12 +921,15 @@ function draw(
 
   drawBackdrop(ctx, camera, backdrop)
 
-  ctx.strokeStyle = '#a5714f'
-  ctx.lineWidth = 2
-  ctx.beginPath()
-  ctx.moveTo(0, stageY(0))
-  ctx.lineTo(width, stageY(0))
-  ctx.stroke()
+  // Keep the rust-colored floor accent on the Mars stage.
+  if (backdrop.background === 'mars') {
+    ctx.strokeStyle = '#a5714f'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    ctx.moveTo(0, stageY(0))
+    ctx.lineTo(width, stageY(0))
+    ctx.stroke()
+  }
 
   // Stage walls: the clamp the fight loop actually enforces. They sit inside the
   // screen now, which is the point of the corner margin — a cornered fighter is
@@ -1071,6 +1076,59 @@ export interface MarsArcadeSession {
 
 export async function mountMarsArcade(production = false): Promise<MarsArcadeSession> {
   let active = !production
+  let soundSettings = loadArcadeSound()
+  let soundStatus: ArcadeAudioStatus = 'loading'
+  const comboSound = new MarsArcadeComboSound()
+  const sound = production ? new MarsArcadeSfxPlayer(soundSettings, status => { soundStatus = status; updateSoundControls() }) : null
+  function updateSoundControls(): void {
+    const enabled = !soundSettings.muted && soundSettings.volume > 0
+    for (const button of document.querySelectorAll<HTMLButtonElement>('[data-arcade-sound]')) {
+      button.textContent = enabled ? 'Sound on' : 'Sound off'
+      button.setAttribute('aria-pressed', String(enabled))
+    }
+    const volume = document.querySelector<HTMLInputElement>('#arcade-volume')
+    if (volume) volume.value = String(Math.round(soundSettings.volume * 100))
+    const feedback = document.querySelector<HTMLElement>('#arcade-sound-feedback')
+    if (feedback) {
+      const text = soundStatus === 'partial' ? 'Some sounds could not load. You can keep playing.'
+        : soundStatus === 'blocked' ? 'Sound needs a click to start.'
+        : soundStatus === 'unavailable' ? 'Sound is unavailable. You can keep playing.' : ''
+      feedback.textContent = text
+      feedback.hidden = !text
+    }
+    const retry = document.querySelector<HTMLButtonElement>('#arcade-sound-retry')
+    if (retry) retry.hidden = !['partial', 'blocked', 'unavailable'].includes(soundStatus)
+  }
+  function syncSound(): void { sound?.setActive(active && !harness.paused && !document.hidden) }
+  function resetRound(): void {
+    sound?.stop()
+    comboSound.reset()
+    newRound(harness)
+    syncSound()
+    if (active && !harness.paused) sound?.play({ sound: 'round' })
+  }
+  document.querySelectorAll<HTMLButtonElement>('[data-arcade-sound]').forEach(button => {
+    button.addEventListener('click', () => {
+      const enabled = !soundSettings.muted && soundSettings.volume > 0
+      soundSettings = { version: 1, muted: enabled, volume: soundSettings.volume || DEFAULT_ARCADE_SOUND.volume }
+      sound?.setSettings(soundSettings)
+      sound?.unlock()
+      saveArcadeSound(soundSettings)
+      updateSoundControls()
+    })
+  })
+  document.querySelector<HTMLInputElement>('#arcade-volume')?.addEventListener('input', event => {
+    soundSettings = { ...soundSettings, volume: Number((event.target as HTMLInputElement).value) / 100 }
+    sound?.setSettings(soundSettings)
+    sound?.unlock()
+    saveArcadeSound(soundSettings)
+    updateSoundControls()
+  })
+  document.querySelector('#arcade-sound-retry')?.addEventListener('click', () => { sound?.prepare(); sound?.unlock() })
+  document.querySelectorAll('[data-arcade-return]').forEach(button => button.addEventListener('click', () => sound?.setActive(false)))
+  window.addEventListener('pagehide', () => sound?.dispose(), { once: true })
+  updateSoundControls()
+  sound?.prepare()
   const pivotPreview=!production && new URLSearchParams(location.search).get('sam')==='pivot'
   setMarsArcadePivotPreview(true)
   const canvas = document.querySelector<HTMLCanvasElement>('#stage')
@@ -1190,13 +1248,14 @@ export async function mountMarsArcade(production = false): Promise<MarsArcadeSes
       case 'Space':
         if (harness.exchange && harness.state.frame >= EXCHANGE_END_FRAME) return true
         harness.paused = !harness.paused
+        syncSound()
         return true
       case 'KeyN':
         harness.paused = true
         harness.stepRequested = true
         return true
       case 'KeyR':
-        newRound(harness)
+        resetRound()
         return true
       case 'KeyT':
         cancelExchange()
@@ -1215,7 +1274,7 @@ export async function mountMarsArcade(production = false): Promise<MarsArcadeSes
         harness.speedIndex = 1
         return true
       case 'freeplay':
-        newRound(harness)
+        resetRound()
         harness.paused = false
         harness.humanRight = harness.pivotPractice || [...padSides.values()].includes(1)
         harness.speedIndex = 0
@@ -1232,7 +1291,7 @@ export async function mountMarsArcade(production = false): Promise<MarsArcadeSes
         return true
       case 'KeyG':
         harness.difficulty = harness.difficulty === 'veteran' ? 'rookie' : 'veteran'
-        newRound(harness)
+        resetRound()
         return true
       case 'swapPads':
         padSides = swapPadSides(padSides)
@@ -1267,6 +1326,7 @@ export async function mountMarsArcade(production = false): Promise<MarsArcadeSes
   }
   window.addEventListener('keydown', (event) => {
     if (!active) return
+    sound?.unlock()
     // Native fields own navigation; buttons own activation, but not game letter keys.
     if (event.target instanceof HTMLElement) {
       if (event.target.closest('select, input, textarea')) return
@@ -1284,7 +1344,7 @@ export async function mountMarsArcade(production = false): Promise<MarsArcadeSes
     if (chosen) {
       if (event.shiftKey) harness.rightId = chosen
       else harness.leftId = chosen
-      newRound(harness)
+      resetRound()
       return
     }
     if (combatKey) {
@@ -1304,7 +1364,7 @@ export async function mountMarsArcade(production = false): Promise<MarsArcadeSes
     if(completed)harness.paused=false
   }
   window.addEventListener('blur', clearInput)
-  document.addEventListener('visibilitychange', () => { if (document.hidden) clearInput() })
+  document.addEventListener('visibilitychange', () => { if (document.hidden) clearInput(); syncSound() })
 
   let padSides = new Map<number, ArcadeSide>()
   let padPrevious = new Map<number, PadReading>()
@@ -1353,13 +1413,14 @@ export async function mountMarsArcade(production = false): Promise<MarsArcadeSes
       if (!id) return
       if (select.dataset.fighter === '0') harness.leftId = id
       else harness.rightId = id
-      newRound(harness)
+      resetRound()
     })
   })
   document.querySelectorAll<HTMLButtonElement>('[data-combat]').forEach(button => {
     const code = button.dataset.combat ?? ''
     button.addEventListener('pointerdown', event => {
       if (event.button !== 0) return
+      sound?.unlock()
       cancelExchange()
       button.setPointerCapture(event.pointerId)
       held.add(code)
@@ -1371,7 +1432,7 @@ export async function mountMarsArcade(production = false): Promise<MarsArcadeSes
     button.addEventListener('pointercancel', () => { held.delete(code); pending.delete(code);recordMotion() })
     // Keyboard or assistive-technology activation is a one-frame tap, never a stuck hold.
     button.addEventListener('click', event => {
-      if (event.detail === 0) { cancelExchange(); pending.add(code);recordMotion(code) }
+      if (event.detail === 0) { sound?.unlock(); cancelExchange(); pending.add(code);recordMotion(code) }
     })
   })
 
@@ -1416,6 +1477,9 @@ export async function mountMarsArcade(production = false): Promise<MarsArcadeSes
       harness.laserStrikes = updateLaserStrikes(harness.laserStrikes, transition.state, transition.events)
       harness.pivotPresentations=updatePivotPresentations(harness.pivotPresentations,source,transition.state,transition.events)
       harness.state = transition.state
+      syncSound()
+      for (const cue of marsArcadeSoundCues(transition.state, transition.events, harness.humanRight)) sound?.play(cue)
+      if (comboSound.update(transition.state.frame, transition.events)) sound?.play({ sound: 'combo' })
       if (harness.exchange && harness.state.frame >= EXCHANGE_END_FRAME) harness.paused = true
 
       // Ease toward the target, but always by at least one whole pixel. A plain
@@ -1523,12 +1587,14 @@ export async function mountMarsArcade(production = false): Promise<MarsArcadeSes
     setActive(value) {
       active = value
       clearInput()
+      syncSound()
     },
     startRound() {
       clearInput()
-      newRound(harness)
       harness.paused = false
       active = true
+      sound?.unlock()
+      resetRound()
     },
   }
 }

@@ -1,0 +1,15 @@
+{
+  "visible": true,
+  "baseURL": "http://127.0.0.1:5419",
+  "errors": [],
+  "tribute": {
+    "title": "Family tribute — larger message",
+    "fontSize": "40px"
+  },
+  "arcade": {
+    "title": "Moonbase — clean ground and fighter names",
+    "matchup": "SCAM ALTMAN vs TEFLON DON (CPU)",
+    "paused": true
+  },
+  "isolatedReviewProfile": true
+}

@@ -1,0 +1,26 @@
+CockpitEscapeRoom arcade audio — Heavy hitters, revision 1
+
+Selected by the owner on 2026-11-04 after listening to the recorded fighting
+sound auditions. Announcer and character specials were explicitly approved too.
+
+Underlying recordings (CC0 1.0):
+37 hits/punches — Independent.nu, submitted by qubodup
+https://opengameart.org/node/2558
+Thwack Sounds — Jordan Irwin (AntumDeluge)
+https://opengameart.org/content/thwack-sounds
+Swishes Sound Pack — artisticdude
+https://opengameart.org/content/swishes-sound-pack
+Voiceover Pack: Fighter — Kenney
+https://opengameart.org/content/voiceover-pack-fighter-40-taunts
+
+CC0: https://creativecommons.org/publicdomain/zero/1.0/
+
+CockpitEscapeRoom edits: trimming, pitch/EQ, layered recorded contact/body/air,
+dynamics and fades. Laser/text/cap designs combine recorded layers with original
+sound design; flyby is original synthesized engine and air. The recorded
+announcer lines are normalized edits; no cloned or character-imitation voice.
+
+Selected source WAVs are copied byte for byte. Source filenames, archive hashes,
+licenses, source hashes and exact regeneration steps are preserved in the repo:
+art-source/audio/arcade-fight-candidates-v2-2026-11-03/
+See SELECTION.json and asset-reports/mars-arcade-audio-2026-11-04.md.

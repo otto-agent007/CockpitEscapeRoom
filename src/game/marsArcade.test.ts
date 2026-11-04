@@ -200,9 +200,10 @@ describe('frame data', () => {
     const startup = pump(initial, 5, attack)
     expect(startup.events).toEqual([])
     const active = pump(startup.state, 1, attack)
-    expect(active.events).toEqual(connects
-      ? [{ type: 'hit', attacker: 0, moveId: 'oracle.prompt', damage: 4 }]
-      : [])
+    expect(active.events).toEqual([
+      { type: 'moveActive', attacker: 0, moveId: 'oracle.prompt' },
+      ...(connects ? [{ type: 'hit', attacker: 0, moveId: 'oracle.prompt', damage: 4 }] : []),
+    ])
     expect(active.state.fighters[1].health).toBe(connects ? 96 : 100)
     expect(pump(initial, 15, attack).state.fighters[0].activity).toBe('attack')
     expect(pump(initial, 16, attack).state.fighters[0].activity).toBe('idle')
@@ -218,7 +219,7 @@ describe('frame data', () => {
     expect(startup.events).toEqual([])
     expect(startup.state.fighters[1].x).toBe(38.75)
     const result = pump(startup.state, 1, inputs)
-    expect(result.events).toEqual([{ type: 'blocked', attacker: 0, moveId: 'oracle.prompt', chipDamage: 1 }])
+    expect(result.events).toEqual([{ type: 'moveActive', attacker: 0, moveId: 'oracle.prompt' }, { type: 'blocked', attacker: 0, moveId: 'oracle.prompt', chipDamage: 1 }])
     expect(result.state.fighters[1].health).toBe(99)
   })
 
@@ -237,9 +238,10 @@ describe('frame data', () => {
     const startup = pump(initial, 4, attack)
     expect(startup.events).toEqual([])
     const active = pump(startup.state, 1, attack)
-    expect(active.events).toEqual(connects
-      ? [{ type: 'hit', attacker: 0, moveId: 'booster.padJab', damage: 5 }]
-      : [])
+    expect(active.events).toEqual([
+      { type: 'moveActive', attacker: 0, moveId: 'booster.padJab' },
+      ...(connects ? [{ type: 'hit', attacker: 0, moveId: 'booster.padJab', damage: 5 }] : []),
+    ])
     expect(active.state.fighters[1].health).toBe(connects ? 95 : 100)
     expect(pump(initial, 14, attack).state.fighters[0].activity).toBe('attack')
     expect(pump(initial, 15, attack).state.fighters[0].activity).toBe('idle')
@@ -255,7 +257,7 @@ describe('frame data', () => {
     expect(startup.state.fighters[1].x).toBe(40)
     expect(startup.events).toEqual([])
     const result = pump(startup.state, 1, inputs)
-    expect(result.events).toEqual([{ type: 'blocked', attacker: 0, moveId: 'booster.padJab', chipDamage: 1 }])
+    expect(result.events).toEqual([{ type: 'moveActive', attacker: 0, moveId: 'booster.padJab' }, { type: 'blocked', attacker: 0, moveId: 'booster.padJab', chipDamage: 1 }])
     expect(result.state.fighters[1].health).toBe(99)
   })
 

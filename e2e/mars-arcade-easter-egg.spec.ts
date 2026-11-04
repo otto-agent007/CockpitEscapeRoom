@@ -4,7 +4,7 @@ import { mkdirSync } from 'node:fs'
 import { createInitialState } from '../src/game/state'
 import { STORAGE_KEY } from '../src/game/storage'
 import { createLockerState } from './journeyStates'
-import { startArcadeFight } from './arcadeFlow'
+import { holdForArcade, startArcadeFight } from './arcadeFlow'
 
 const unlockKey = 'cockpit-escape-room-mars-arcade-unlock'
 async function seed(page: Page, complete = false) {
@@ -27,8 +27,7 @@ async function complete(page: Page) {
 }
 async function openAccess(page: Page, start = true) {
   await expect(page.locator('main')).toBeVisible()
-  await hold(page)
-  await expect(page.getByTitle('Mars arcade')).toBeVisible()
+  await holdForArcade(page)
   if (start) await startArcadeFight(page.frameLocator('iframe[title="Mars arcade"]'))
 }
 
@@ -54,6 +53,17 @@ test('an earned direct URL still requires the in-game T+M+B entrance', async ({ 
   await expect(page.locator('#arcade-game')).toBeHidden()
   await page.goto('/?skip3d=1')
   await expect(page.locator('.briefing-shell')).toBeVisible()
+  await openAccess(page)
+  await expect(page.frameLocator('iframe[title="Mars arcade"]').locator('#stage')).toBeVisible()
+})
+
+test('earned entry remains held until a delayed browser timer opens the arcade', async ({ page }) => {
+  await page.addInitScript(() => {
+    const timeout = window.setTimeout.bind(window)
+    window.setTimeout = ((handler: TimerHandler, delay?: number, ...args: unknown[]) =>
+      timeout(handler, delay === 1500 ? 1950 : delay, ...args)) as typeof window.setTimeout
+  })
+  await complete(page)
   await openAccess(page)
   await expect(page.frameLocator('iframe[title="Mars arcade"]').locator('#stage')).toBeVisible()
 })
@@ -199,10 +209,11 @@ for (const width of [375, 768, 1440]) {
     expect(bounds).not.toBeNull()
     expect(bounds!.y).toBeGreaterThanOrEqual(0)
     expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(900)
-    for (const fighter of ['booster', 'oracle', 'captain', 'trump']) {
+    const fighterNames = { booster: 'TECHNOKING', oracle: 'SCAM ALTMAN', captain: 'THE CAPTAIN', trump: 'TEFLON DON' }
+    for (const fighter of ['booster', 'oracle', 'captain', 'trump'] as const) {
       await frame.locator('[data-fighter="0"]').selectOption(fighter)
       await frame.getByRole('button', { name: 'P1 light' }).click()
-      await expect(frame.locator('#readout')).toContainText(new RegExp(fighter, 'i'))
+      await expect(frame.locator('#readout')).toContainText(fighterNames[fighter])
       await expect.poll(() => frame.locator('#stage').evaluate((canvas, id) => {
         const sources = (canvas.ownerDocument.defaultView as unknown as { __arcadeBodySources: string[] }).__arcadeBodySources
         return sources.some(source => source.includes(`/arcade/${id}/`) || (id === 'oracle' && source.includes('/arcade/generated/oracle')))

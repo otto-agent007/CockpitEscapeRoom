@@ -1,15 +1,13 @@
 import { expect, test, type Page } from '@playwright/test'
 import { mkdirSync } from 'node:fs'
 import { STORAGE_KEY } from '../src/game/storage'
-import { startArcadeFight } from './arcadeFlow'
+import { holdForArcade, startArcadeFight } from './arcadeFlow'
 
 const settingKey = 'cockpit-escape-room-arcade-background'
 async function enterArcade(page: Page, navigate = true) {
   if (navigate) await page.goto('/?skip3d=1')
   await expect(page.locator('.briefing-shell')).toBeVisible()
-  for (const key of ['t', 'm', 'b']) await page.keyboard.down(key)
-  await page.waitForTimeout(1600)
-  for (const key of ['b', 'm', 't']) await page.keyboard.up(key)
+  await holdForArcade(page)
   const frame = page.frameLocator('iframe[title="Mars arcade"]')
   await startArcadeFight(frame)
   return frame

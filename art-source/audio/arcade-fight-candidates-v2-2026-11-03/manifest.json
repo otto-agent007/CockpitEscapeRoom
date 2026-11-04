@@ -1,0 +1,541 @@
+{
+  "status": "revision-2-awaiting-owner-audition",
+  "rate": 48000,
+  "channels": 1,
+  "bits": 16,
+  "sets": [
+    {
+      "id": "snap",
+      "name": "Arcade snap",
+      "description": "Fast, dry smacks. Crisp jabs, a sharp kick crack and clearly muffled blocks.",
+      "cues": {
+        "jab": [
+          {
+            "file": "snap/jab-1.wav",
+            "label": "Punch / jab",
+            "duration": 0.25,
+            "peakDbFS": -4.73,
+            "bytes": 24044,
+            "sha256": "665bce8d039233872cd6aaaf734b350088c90786d306e964343c4e424f6d6b90",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          },
+          {
+            "file": "snap/jab-2.wav",
+            "label": "Punch / jab",
+            "duration": 0.25,
+            "peakDbFS": -4.73,
+            "bytes": 24044,
+            "sha256": "8c25e9a179d4e0ac1110acb533b9154d7c40f00e0535582fafbe38a1675af992",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          },
+          {
+            "file": "snap/jab-3.wav",
+            "label": "Punch / jab",
+            "duration": 0.25,
+            "peakDbFS": -4.73,
+            "bytes": 24044,
+            "sha256": "b04f3e34ab0593edf8babeb5e6bef7b898a402e257caf8a10ff65cbe0e06ba0a",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          }
+        ],
+        "heavy": [
+          {
+            "file": "snap/heavy-1.wav",
+            "label": "Heavy punch",
+            "duration": 0.43,
+            "peakDbFS": -1.94,
+            "bytes": 41324,
+            "sha256": "278a046d963da3e1c3f31bb06c93d91f19cb6ee498de45deaacb968807e369d1",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          },
+          {
+            "file": "snap/heavy-2.wav",
+            "label": "Heavy punch",
+            "duration": 0.43,
+            "peakDbFS": -1.94,
+            "bytes": 41324,
+            "sha256": "962144a82f8aba256eb98f5440b17f3aa3149683f210a7543a344a17f99a5068",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          }
+        ],
+        "kick": [
+          {
+            "file": "snap/kick-1.wav",
+            "label": "Kick impact",
+            "duration": 0.48,
+            "peakDbFS": -2.16,
+            "bytes": 46124,
+            "sha256": "b42f93ec04ae7dd1f890b4a5830e222057aae67b6f874438be5b2886f9914dbd",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          },
+          {
+            "file": "snap/kick-2.wav",
+            "label": "Kick impact",
+            "duration": 0.48,
+            "peakDbFS": -2.16,
+            "bytes": 46124,
+            "sha256": "f57e175e46a9fceae99f42094a3855cb829d07acfa605999c435c67474d71aec",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          }
+        ],
+        "block": [
+          {
+            "file": "snap/block-1.wav",
+            "label": "Guarded hit",
+            "duration": 0.23,
+            "peakDbFS": -6.2,
+            "bytes": 22124,
+            "sha256": "21af74d59b15fff60e1bc9431b00eaf9c7f3ba462d1b7240442eef9e1b0c5c6b",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          },
+          {
+            "file": "snap/block-2.wav",
+            "label": "Guarded hit",
+            "duration": 0.23,
+            "peakDbFS": -6.2,
+            "bytes": 22124,
+            "sha256": "96cbbe3d9b87b969f23cc5270afe3ae51dbdbb02a6137f7060fdded80b7b5a18",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          }
+        ],
+        "whiff": [
+          {
+            "file": "snap/whiff-1.wav",
+            "label": "Missed swing",
+            "duration": 0.24,
+            "peakDbFS": -10.75,
+            "bytes": 23084,
+            "sha256": "0f3895f0a34ddaed05d19bb27582d4197971c08a8b12e72293feb0538923d384",
+            "sources": [
+              "swishes"
+            ]
+          }
+        ],
+        "break": [
+          {
+            "file": "snap/break-1.wav",
+            "label": "Guard break",
+            "duration": 0.48,
+            "peakDbFS": -1.94,
+            "bytes": 46124,
+            "sha256": "cea39ea7a4c1a7978c40d5ba72d1cf1f0dbc3d2a0999845281e9d4ef984cf0b4",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          }
+        ],
+        "down": [
+          {
+            "file": "snap/down-1.wav",
+            "label": "Knockdown",
+            "duration": 0.72,
+            "peakDbFS": -1.94,
+            "bytes": 69164,
+            "sha256": "833bff574d25de2a5459295dea94f5843ef4f42bc2cb01bdc8b67c7ff8522c0d",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          }
+        ]
+      },
+      "demo": {
+        "file": "snap/demo.wav",
+        "label": "Combo and finish",
+        "duration": 10.3,
+        "peakDbFS": -1.94,
+        "bytes": 988844,
+        "sha256": "01e3dc928b0be54a5075c7e48960e9fbc42e453d2ce008b26247a50c3c5b0763",
+        "sources": [
+          "punches",
+          "thwack",
+          "swishes",
+          "voice-oga"
+        ]
+      }
+    },
+    {
+      "id": "weight",
+      "name": "Heavy hitters",
+      "description": "Deeper body hits, a fuller kick thud and a heavier floor landing.",
+      "cues": {
+        "jab": [
+          {
+            "file": "weight/jab-1.wav",
+            "label": "Punch / jab",
+            "duration": 0.25,
+            "peakDbFS": -4.73,
+            "bytes": 24044,
+            "sha256": "e3b6792bcf5e4792ddd14d4d5afd9c5c6e01f40b6145b0672c017f0a5f0efdd4",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          },
+          {
+            "file": "weight/jab-2.wav",
+            "label": "Punch / jab",
+            "duration": 0.25,
+            "peakDbFS": -4.73,
+            "bytes": 24044,
+            "sha256": "82b0f6483325e43ae130e0c272ab70bc4d55eedfc79a2ecb739294ac962923a9",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          },
+          {
+            "file": "weight/jab-3.wav",
+            "label": "Punch / jab",
+            "duration": 0.25,
+            "peakDbFS": -4.73,
+            "bytes": 24044,
+            "sha256": "747bba96bccb89e0e05640eafea1160fe30a551dde9f3d206c731e496489fe73",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          }
+        ],
+        "heavy": [
+          {
+            "file": "weight/heavy-1.wav",
+            "label": "Heavy punch",
+            "duration": 0.43,
+            "peakDbFS": -1.94,
+            "bytes": 41324,
+            "sha256": "5ff05bcd8de1cdfe06c3249c081fd2530a6e805c8db2c74c4770ecb09816801c",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          },
+          {
+            "file": "weight/heavy-2.wav",
+            "label": "Heavy punch",
+            "duration": 0.43,
+            "peakDbFS": -1.94,
+            "bytes": 41324,
+            "sha256": "a2370c93ebc69e6918964e973aa9e8102777f3ffbcaebc00e1d05e1d473e3986",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          }
+        ],
+        "kick": [
+          {
+            "file": "weight/kick-1.wav",
+            "label": "Kick impact",
+            "duration": 0.48,
+            "peakDbFS": -2.16,
+            "bytes": 46124,
+            "sha256": "c966468b3018cd12c5ef0c57c0f0a66f8e455f88891ee14d19ad8a16866044bd",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          },
+          {
+            "file": "weight/kick-2.wav",
+            "label": "Kick impact",
+            "duration": 0.48,
+            "peakDbFS": -2.16,
+            "bytes": 46124,
+            "sha256": "51f87cf51b80b162b4092ac98ef2a5912a22c840cfcd75ef1225214940f8fc7f",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          }
+        ],
+        "block": [
+          {
+            "file": "weight/block-1.wav",
+            "label": "Guarded hit",
+            "duration": 0.23,
+            "peakDbFS": -6.2,
+            "bytes": 22124,
+            "sha256": "0465a189b5ffc3bf84d736818e28434846360199b6a9e6918a7896be3892e347",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          },
+          {
+            "file": "weight/block-2.wav",
+            "label": "Guarded hit",
+            "duration": 0.23,
+            "peakDbFS": -6.2,
+            "bytes": 22124,
+            "sha256": "6149d68f3013e21a175926f03d6940a6d07b051211db9465bdd7f3c7e5247d39",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          }
+        ],
+        "whiff": [
+          {
+            "file": "weight/whiff-1.wav",
+            "label": "Missed swing",
+            "duration": 0.24,
+            "peakDbFS": -10.75,
+            "bytes": 23084,
+            "sha256": "511d83d2a6ad986aea3aa9b26188696485b37f9d17f8e505a85b7a1b79fe3c3d",
+            "sources": [
+              "swishes"
+            ]
+          }
+        ],
+        "break": [
+          {
+            "file": "weight/break-1.wav",
+            "label": "Guard break",
+            "duration": 0.48,
+            "peakDbFS": -1.94,
+            "bytes": 46124,
+            "sha256": "abf1866e7374b31f9eaef01c7a6ac9f4bd3a1e16525363b4379b8e4b5d4acbec",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          }
+        ],
+        "down": [
+          {
+            "file": "weight/down-1.wav",
+            "label": "Knockdown",
+            "duration": 0.72,
+            "peakDbFS": -1.94,
+            "bytes": 69164,
+            "sha256": "f819b22353797c5036e5af1bba74b70551a4816cd8c76e4324fae520440ff13e",
+            "sources": [
+              "punches",
+              "thwack"
+            ]
+          }
+        ]
+      },
+      "demo": {
+        "file": "weight/demo.wav",
+        "label": "Combo and finish",
+        "duration": 10.3,
+        "peakDbFS": -1.94,
+        "bytes": 988844,
+        "sha256": "1ee908f37d4df8d4c5dab0783db7c81170997e31591e8316d50117bae88e898b",
+        "sources": [
+          "punches",
+          "thwack",
+          "swishes",
+          "voice-oga"
+        ]
+      }
+    }
+  ],
+  "signatures": {
+    "laser": {
+      "file": "common/laser.wav",
+      "label": "TECHNOKING \u00b7 space laser",
+      "duration": 0.7,
+      "peakDbFS": -2.62,
+      "bytes": 67244,
+      "sha256": "52b76c2c85cab14cd616f41a720878fba361a9a1caacf09714ed06b84e247c8d",
+      "sources": [
+        "punches",
+        "original synthesis"
+      ]
+    },
+    "caps": {
+      "file": "common/caps.wav",
+      "label": "TEFLON DON \u00b7 cap throw",
+      "duration": 0.66,
+      "peakDbFS": -4.73,
+      "bytes": 63404,
+      "sha256": "3226b208a730ab467ab56ce625e2b45219cac0b85c936124fae22c04bfedbe31",
+      "sources": [
+        "swishes",
+        "thwack"
+      ]
+    },
+    "flyby": {
+      "file": "common/flyby.wav",
+      "label": "THE CAPTAIN \u00b7 flyby",
+      "duration": 1.8,
+      "peakDbFS": -3.35,
+      "bytes": 172844,
+      "sha256": "df98ca843e14517ac60e0a2340e38af01114646d01d3d1ed019841393a22386e",
+      "sources": [
+        "original synthesis"
+      ]
+    },
+    "text": {
+      "file": "common/text.wav",
+      "label": "SCAM ALTMAN \u00b7 text burst",
+      "duration": 0.44,
+      "peakDbFS": -5.19,
+      "bytes": 42284,
+      "sha256": "30943d8c880784c4a5eb0175297e8c40898ae5e2a6e3fe90952983a2f0d1eed4",
+      "sources": [
+        "swishes",
+        "thwack",
+        "punches"
+      ]
+    }
+  },
+  "announcer": {
+    "round": {
+      "file": "common/round.wav",
+      "label": "Round one",
+      "duration": 1.2604583333333332,
+      "peakDbFS": -4.73,
+      "bytes": 121048,
+      "sha256": "d6caf40308e88001e2d436c113b621fc752ee853ff3fe6832f02f20bdcc09180",
+      "sources": [
+        "voice-oga"
+      ]
+    },
+    "fight": {
+      "file": "common/fight.wav",
+      "label": "Fight!",
+      "duration": 0.6733958333333333,
+      "peakDbFS": -4.73,
+      "bytes": 64690,
+      "sha256": "d2fe3f6de27cc1d2ef1301f977b8d83587e8fafa8017e58adb43bf8ba7f8866f",
+      "sources": [
+        "voice-oga"
+      ]
+    },
+    "win": {
+      "file": "common/win.wav",
+      "label": "You win!",
+      "duration": 1.067,
+      "peakDbFS": -4.73,
+      "bytes": 102476,
+      "sha256": "8e0b6791541db670b0dfa8d78eca82b36913df43d383ee175211128dec8de9e3",
+      "sources": [
+        "voice-oga"
+      ]
+    },
+    "combo": {
+      "file": "common/combo.wav",
+      "label": "Combo!",
+      "duration": 0.87125,
+      "peakDbFS": -4.73,
+      "bytes": 83684,
+      "sha256": "0766c8865df946cd3edefbf268cbb3977562a18f0ce7a994cc9d3f90b3fab742",
+      "sources": [
+        "voice-oga"
+      ]
+    }
+  },
+  "timeline": [
+    {
+      "at": 0.1,
+      "cue": "round",
+      "label": "Round one"
+    },
+    {
+      "at": 1.6,
+      "cue": "fight",
+      "label": "Fight!"
+    },
+    {
+      "at": 2.8,
+      "cue": "whiff",
+      "label": "Missed swing"
+    },
+    {
+      "at": 2.92,
+      "cue": "jab",
+      "label": "Punch / jab"
+    },
+    {
+      "at": 3.3,
+      "cue": "jab",
+      "label": "Punch / jab"
+    },
+    {
+      "at": 3.65,
+      "cue": "jab",
+      "label": "Punch / jab"
+    },
+    {
+      "at": 4.1,
+      "cue": "heavy",
+      "label": "Heavy punch"
+    },
+    {
+      "at": 4.95,
+      "cue": "kick",
+      "label": "Kick impact"
+    },
+    {
+      "at": 5.7,
+      "cue": "block",
+      "label": "Guarded hit"
+    },
+    {
+      "at": 6.25,
+      "cue": "whiff",
+      "label": "Missed swing"
+    },
+    {
+      "at": 6.9,
+      "cue": "break",
+      "label": "Guard break"
+    },
+    {
+      "at": 7.8,
+      "cue": "down",
+      "label": "Knockdown"
+    },
+    {
+      "at": 8.7,
+      "cue": "win",
+      "label": "You win!"
+    }
+  ],
+  "specialsDemo": {
+    "file": "common/specials-demo.wav",
+    "label": "Signature moves",
+    "duration": 7.5,
+    "peakDbFS": -2.62,
+    "bytes": 720044,
+    "sha256": "db8280ab053b42a381c416f07e16fa3820290db40bcd048876986b88c0aa7b23",
+    "sources": [
+      "punches",
+      "thwack",
+      "swishes",
+      "original synthesis"
+    ]
+  }
+}
