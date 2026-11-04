@@ -994,7 +994,7 @@ test("The Captain's Key reveal plays the celebration cheer and remembers Sound o
   expect(await sampleCelebrationAudio(page)).toBeNull()
 })
 
-test('Sound off at one milestone card carries to the next', async ({ page }) => {
+test('milestone mute is remembered while Roboptimus starts with sound on', async ({ page }) => {
   // One preference for the whole game, and it has to survive the phase change: silencing the
   // cheer at the locker must reach the Airbus voice card. Both cards are seeded into view here
   // rather than played to, which is why this asserts silence and not playback — a card that
@@ -1017,8 +1017,11 @@ test('Sound off at one milestone card carries to the next', async ({ page }) => 
   await seedGameState(page, createCompletedAirbusState())
   const completion = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
   await expect(completion).toBeVisible()
-  await expect(completion.getByRole('button', { name: 'Sound off' })).toBeVisible()
-  await expect(completion.getByLabel('Optimus greeting')).toHaveCount(0)
+  await expect(completion.getByRole('button', { name: 'Sound on', exact: true })).toBeVisible()
+  await expect(completion.getByLabel('Roboptimus greeting')).toBeAttached()
+  await completion.getByRole('button', { name: 'Sound on', exact: true }).click()
+  await expect(completion.getByRole('button', { name: 'Sound off', exact: true })).toBeVisible()
+  await expect(completion.getByLabel('Roboptimus greeting')).toHaveCount(0)
   expect(await sampleCelebrationAudio(page)).toBeNull()
 
   // The hub behind the Airbus card owns no sound control of its own, so the card's toggle is

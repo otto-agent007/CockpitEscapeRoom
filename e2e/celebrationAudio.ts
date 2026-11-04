@@ -48,17 +48,21 @@ export async function expectCelebrationCheerPlaying(page: Page): Promise<void> {
 
 /** The completed Airbus card speaks with Heart instead of playing the earlier cheer. */
 export async function expectOptimusGreetingPlaying(page: Page): Promise<void> {
-  const greeting = page.getByLabel('Optimus greeting')
+  const greeting = page.getByLabel('Roboptimus greeting')
   await expect.poll(() => greeting.evaluate((audio: HTMLAudioElement) => audio.paused), { timeout: 10_000 }).toBe(false)
   const first = await greeting.evaluate((audio: HTMLAudioElement) => ({
     src: audio.currentSrc,
     time: audio.currentTime,
     duration: audio.duration,
+    muted: audio.muted,
+    volume: audio.volume,
   }))
-  expect(first.src).toContain('/audio/optimus-congratulations-heart.mp3')
+  expect(first.src).toContain('/audio/roboptimus-greeting-heart.mp3')
+  expect(first.muted).toBe(false)
+  expect(first.volume).toBeGreaterThan(0)
   await page.waitForTimeout(700)
   const second = await greeting.evaluate((audio: HTMLAudioElement) => audio.currentTime)
   expect(second).toBeGreaterThan(first.time + 0.3)
-  expect(first.duration).toBeGreaterThan(5.5)
-  expect(first.duration).toBeLessThan(6)
+  expect(first.duration).toBeGreaterThan(6)
+  expect(first.duration).toBeLessThan(6.5)
 }

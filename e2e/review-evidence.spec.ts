@@ -26,17 +26,17 @@ interface Screen {
   slug: string
   state: GameState | null
   heading: string | null
-  /** The model this screen must show; the capture waits for it to finish downloading. */
-  model: string
+  /** Required scene assets; the capture verifies every download. */
+  models: string[]
 }
 
 const SCREENS: Screen[] = [
   // The intro preloads the DC-9 during the cinematic (CLAUDE.md).
-  { slug: '1-intro', state: null, heading: null, model: 'dc9-cockpit.glb' },
-  { slug: '2-dc9', state: createDc9State(), heading: 'DC-9 Final Flight Log', model: 'dc9-cockpit.glb' },
-  { slug: '3-locker', state: createLockerState(), heading: "Before the captain's seat", model: 'locker-room.glb' },
-  { slug: '4-airbus', state: createAirbusState(), heading: 'Airbus cockpit label placement', model: 'airbus-captain.glb' },
-  { slug: '5-airbus-complete', state: createCompletedAirbusState(), heading: 'POP T CAPTAIN MODE COMPLETE', model: 'airbus-captain.glb' },
+  { slug: '1-intro', state: null, heading: null, models: ['dc9-cockpit.glb'] },
+  { slug: '2-dc9', state: createDc9State(), heading: 'DC-9 Final Flight Log', models: ['dc9-cockpit.glb'] },
+  { slug: '3-locker', state: createLockerState(), heading: "Before the captain's seat", models: ['locker-room.glb'] },
+  { slug: '4-airbus', state: createAirbusState(), heading: 'Airbus cockpit label placement', models: ['airbus-captain.glb'] },
+  { slug: '5-airbus-complete', state: createCompletedAirbusState(), heading: 'POP T CAPTAIN MODE COMPLETE', models: ['roboptimus-guide.glb', 'roboptimus-hangar.glb'] },
 ]
 
 /**
@@ -89,7 +89,18 @@ async function capture(page: Page): Promise<Buffer> {
 }
 
 async function settle(page: Page, screen: Screen, models: ModelTracker) {
-  await expect.poll(() => models.finished(screen.model), { timeout: 240_000, intervals: [1_000] }).toBe(true)
+  const completion = screen.slug === '5-airbus-complete'
+  if (completion) {
+    await expect(page.locator('.roboptimus-hangar-view .optimus-guide-canvas')).toHaveCSS('opacity', '1', { timeout: 60_000 })
+    await expect(page.locator('.roboptimus-hangar-view canvas')).toBeVisible()
+    await expect(page.locator('[data-handoff-stage]')).toHaveAttribute('data-handoff-stage', 'greeting')
+    expect(models.finished('airbus-captain.glb')).toBe(false)
+  }
+  for (const model of screen.models) {
+    // After the completion scene has drawn, its expected downloads must already
+    // exist. A stale asset contract should fail promptly rather than wait minutes.
+    await expect.poll(() => models.finished(model), { timeout: completion ? 5_000 : 240_000, intervals: [1_000] }).toBe(true)
+  }
   await expect.poll(() => models.inFlight(), { timeout: 240_000, intervals: [1_000] }).toBe(0)
   const dc9 = page.locator('canvas[data-dc9-model-state]')
   if (await dc9.count()) await expect(dc9).toHaveAttribute('data-dc9-model-state', /ready|fallback/, { timeout: 240_000 })
@@ -105,18 +116,37 @@ async function settle(page: Page, screen: Screen, models: ModelTracker) {
 }
 
 async function open(page: Page, screen: Screen, skip3d: boolean) {
-  if (screen.state) {
-    await page.addInitScript(
-      ({ key, saved }) => window.localStorage.setItem(key, JSON.stringify(saved)),
-      { key: STORAGE_KEY, saved: screen.state },
-    )
+  const completion = screen.slug === '5-airbus-complete'
+  let releaseModel: () => void = () => {}
+  if (completion && !skip3d) {
+    const gate = new Promise<void>(resolve => { releaseModel = resolve })
+    await page.route('**/models/roboptimus-guide.glb*', async route => {
+      await gate
+      await route.continue().catch(() => {})
+    })
   }
-  await page.goto(skip3d && screen.state ? '/?skip3d=1' : '/')
-  if (screen.heading) {
-    await expect(page.getByRole('heading', { name: screen.heading })).toBeVisible({ timeout: 60_000 })
-  } else {
-    await expect(page.getByRole('region', { name: 'Game intro' })).toHaveAttribute('aria-busy', 'false', { timeout: 60_000 })
-  }
+  try {
+    if (screen.state) {
+      await page.addInitScript(
+        ({ key, saved }) => window.localStorage.setItem(key, JSON.stringify(saved)),
+        { key: STORAGE_KEY, saved: screen.state },
+      )
+    }
+    await page.goto(skip3d && screen.state ? '/?skip3d=1' : '/')
+    if (screen.heading) {
+      await expect(page.getByRole('heading', { name: screen.heading })).toBeVisible({ timeout: 60_000 })
+    } else {
+      await expect(page.getByRole('region', { name: 'Game intro' })).toHaveAttribute('aria-busy', 'false', { timeout: 60_000 })
+    }
+    if (completion) {
+      // Hold this transient screen for evidence using real looped narration.
+      // The normal greeting/escort timing stays covered by the journey tests.
+      await page.getByLabel('Roboptimus greeting').evaluate((audio: HTMLAudioElement) => { audio.loop = true })
+      await page.mouse.click(5, 5)
+      if (skip3d) await page.getByRole('button', { name: /^(Play|Replay) greeting$/ }).click()
+      await page.getByRole('button', { name: 'Reveal reward', exact: true }).focus()
+    }
+  } finally { releaseModel() }
 }
 
 const evidenceDir = process.env.REVIEW_EVIDENCE_DIR

@@ -1,0 +1,14 @@
+{
+  "visible": true,
+  "url": "http://127.0.0.1:5419/",
+  "title": "Roboptimus — hangar reveal",
+  "stage": "greeting",
+  "greeting": {
+    "time": 0.359575,
+    "paused": false
+  },
+  "errors": [],
+  "autoplayPolicyOverride": false,
+  "extraFilmPlayClick": false,
+  "reloadReplaysSequence": true
+}

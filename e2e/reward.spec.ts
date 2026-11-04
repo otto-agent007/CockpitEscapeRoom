@@ -35,55 +35,76 @@ test('Airbus completion offers the Heart greeting before the protected reward', 
   const requested: string[] = []
   page.on('request', (request) => requested.push(request.url()))
   await page.goto('/?skip3d=1')
-  expect(requested.some((url) => url.includes('/audio/optimus-congratulations-heart.mp3'))).toBe(false)
+  expect(requested.some((url) => url.includes('/audio/roboptimus-greeting-heart.mp3'))).toBe(false)
 
   await seed(page, createCompletedAirbusState())
   const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
   await expect(celebration).toContainText('Congratulations! You did it!')
   await expect(celebration).toContainText('Your pilot skills have earned you something special.')
-  await expect(celebration.getByLabel('Optimus greeting')).toHaveAttribute('src', /audio\/optimus-congratulations-heart\.mp3$/)
+  await expect(celebration).toContainText("Let's go check it out!")
+  await expect(celebration.getByLabel('Roboptimus greeting')).toHaveAttribute('src', /audio\/roboptimus-greeting-heart\.mp3$/)
   await expect(celebration.getByRole('button', { name: 'Reveal reward' })).toBeVisible()
   expect(requested.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(false)
 
   await celebration.getByRole('button', { name: 'Play greeting' }).click()
-  await expect.poll(() => celebration.getByLabel('Optimus greeting').evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(0.2)
+  await expect.poll(() => celebration.getByLabel('Roboptimus greeting').evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(0.2)
   await celebration.getByRole('button', { name: 'Reveal reward' }).click()
   await expect(page.getByRole('heading', { name: 'Model FLY' })).toBeVisible()
   await expect.poll(() => requested.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(true)
 })
 
-test('the animated Optimus handoff opens an automatically playing viewport-sized film', async ({ page }) => {
+test('the Roboptimus hangar escort opens an automatically playing viewport-sized film', async ({ page }) => {
   test.setTimeout(60_000)
-  const requested: string[] = []
-  page.on('request', (request) => requested.push(request.url()))
-  await page.goto('/')
-  expect(requested.some((url) => url.includes('/models/optimus-guide-dance-02-review.glb'))).toBe(false)
-  await seed(page, createCompletedAirbusState())
-  const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
-  await expect(celebration.locator('.optimus-guide-canvas canvas')).toBeVisible({ timeout: 30_000 })
-  await expect.poll(() => requested.some((url) => url.includes('/models/optimus-guide-dance-02-review.glb'))).toBe(true)
-  expect(await page.evaluate(async () => {
-    const response = await fetch('/models/optimus-guide-dance-02-review.glb', { cache: 'no-store' })
-    return response.ok ? (await response.arrayBuffer()).byteLength : -1
-  })).toBe(statSync('public/models/optimus-guide-dance-02-review.glb').size)
-  expect(requested.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(false)
+  let releaseGuide!: () => void
+  const guideGate = new Promise<void>(resolve => { releaseGuide = resolve })
+  await page.route('**/models/roboptimus-guide.glb*', async route => {
+    await guideGate
+    await route.continue().catch(() => {})
+  })
+  try {
+    const requested: string[] = []
+    page.on('request', (request) => requested.push(request.url()))
+    await page.goto('/')
+    expect(requested.some((url) => url.includes('/models/roboptimus-guide.glb'))).toBe(false)
+    await seed(page, createCompletedAirbusState())
+    const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
+    // Keep real narration playing until this test's native Reveal gesture. CI's
+    // software renderer can otherwise let it finish while click actionability runs,
+    // changing the same button from Reveal reward into Skip to film.
+    const greeting = celebration.getByLabel('Roboptimus greeting')
+    await greeting.evaluate((audio: HTMLAudioElement) => { audio.loop = true })
+    await page.mouse.click(5, 5) // A harmless native gesture enables real audio before the model arrives.
+    releaseGuide()
+    await expect(celebration.locator('.optimus-guide-canvas canvas')).toBeVisible({ timeout: 30_000 })
+    await expect(celebration.locator('.optimus-guide-canvas')).toHaveCSS('opacity', '1', { timeout: 30_000 })
+    expect(requested.some((url) => url.includes('/models/roboptimus-guide.glb'))).toBe(true)
+    expect(requested.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(false)
+    await expect.poll(() => greeting.evaluate((audio: HTMLAudioElement) => audio.currentTime)).toBeGreaterThan(0.2)
 
-  await celebration.getByRole('button', { name: 'Play greeting' }).click()
-  await expect.poll(() => celebration.getByLabel('Optimus greeting').evaluate((audio: HTMLAudioElement) => audio.currentTime)).toBeGreaterThan(0.2)
-  await celebration.getByRole('button', { name: 'Reveal reward' }).click()
+    await celebration.getByRole('button', { name: 'Reveal reward' }).click()
+    await expect(celebration).toHaveAttribute('data-handoff-stage', 'walking')
 
-  const video = page.getByLabel('Model FLY film')
-  await expect(video).toBeVisible()
-  await expect.poll(() => page.evaluate(() => Boolean(document.fullscreenElement))).toBe(true)
-  const dimensions = await video.evaluate((element: HTMLVideoElement) => ({
-    width: element.getBoundingClientRect().width,
-    height: element.getBoundingClientRect().height,
-    viewportWidth: window.innerWidth,
-    viewportHeight: window.innerHeight,
-  }))
-  expect(dimensions.width).toBeGreaterThanOrEqual(dimensions.viewportWidth - 1)
-  expect(dimensions.height).toBeGreaterThanOrEqual(dimensions.viewportHeight - 1)
-  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime), { timeout: 15_000 }).toBeGreaterThan(0.25)
+    const video = page.getByLabel('Model FLY film')
+    // The walk, door dance and fade take 14.7 seconds before the movie opens.
+    await expect(video).toBeVisible({ timeout: 20_000 })
+    await expect.poll(() => page.evaluate(() => Boolean(document.fullscreenElement))).toBe(true)
+    const dimensions = await video.evaluate((element: HTMLVideoElement) => ({
+      width: element.getBoundingClientRect().width,
+      height: element.getBoundingClientRect().height,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+    }))
+    expect(dimensions.width).toBeGreaterThanOrEqual(dimensions.viewportWidth - 1)
+    expect(dimensions.height).toBeGreaterThanOrEqual(dimensions.viewportHeight - 1)
+    await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime), { timeout: 15_000 }).toBeGreaterThan(0.25)
+
+    // Byte verification can outlast the greeting on CI; keep it out of the
+    // automatic greeting's short window for interacting with Reveal reward.
+    expect(await page.evaluate(async () => {
+      const response = await fetch('/models/roboptimus-guide.glb', { cache: 'no-store' })
+      return response.ok ? (await response.arrayBuffer()).byteLength : -1
+    })).toBe(statSync('public/models/roboptimus-guide.glb').size)
+  } finally { releaseGuide() }
 })
 
 test('blocked greeting autoplay keeps a manual play path without reporting a broken file', async ({ page }) => {
@@ -91,7 +112,7 @@ test('blocked greeting autoplay keeps a manual play path without reporting a bro
     const originalPlay = HTMLMediaElement.prototype.play
     let blockedOnce = false
     HTMLMediaElement.prototype.play = function () {
-      if (this.getAttribute('aria-label') === 'Optimus greeting' && !blockedOnce) {
+      if (this.getAttribute('aria-label') === 'Roboptimus greeting' && !blockedOnce) {
         blockedOnce = true
         return Promise.reject(new DOMException('Playback needs a click', 'NotAllowedError'))
       }
@@ -104,10 +125,10 @@ test('blocked greeting autoplay keeps a manual play path without reporting a bro
   await expect(celebration.getByRole('button', { name: 'Play greeting' })).toBeVisible()
   await expect(celebration.getByText('The greeting is shown above. You can still reveal your reward.')).toHaveCount(0)
   await celebration.getByRole('button', { name: 'Play greeting' }).click()
-  await expect.poll(() => celebration.getByLabel('Optimus greeting').evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(0.2)
+  await expect.poll(() => celebration.getByLabel('Roboptimus greeting').evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(0.2)
 })
 
-test('muted greeting loads no voice and keyboard still reveals the reward', async ({ page }) => {
+test('Roboptimus starts with sound on despite earlier mute and can still be muted before keyboard reveal', async ({ page }) => {
   const requested: string[] = []
   page.on('request', (request) => requested.push(request.url()))
   await page.goto('/?skip3d=1')
@@ -116,12 +137,20 @@ test('muted greeting loads no voice and keyboard still reveals the reward', asyn
 
   const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
   await expect(celebration).toContainText('Congratulations! You did it!')
-  await expect(celebration.getByLabel('Optimus greeting')).toHaveCount(0)
-  await expect(celebration.getByRole('button', { name: 'Sound off' })).toBeVisible()
-  expect(requested.some((url) => url.includes('/audio/optimus-congratulations-heart.mp3'))).toBe(false)
+  await expect(celebration.getByLabel('Roboptimus greeting')).toBeAttached()
+  await expect(celebration.getByRole('button', { name: 'Sound on', exact: true })).toBeVisible()
+  await celebration.getByRole('button', { name: 'Sound on', exact: true }).click()
+  await expect(celebration.getByLabel('Roboptimus greeting')).toHaveCount(0)
+  await expect(celebration.getByRole('button', { name: 'Sound off', exact: true })).toBeVisible()
+  await page.reload()
+  await expect(celebration.getByLabel('Roboptimus greeting')).toBeAttached()
+  await expect(celebration.getByRole('button', { name: 'Sound on', exact: true })).toBeVisible()
+  await celebration.getByRole('button', { name: 'Sound on', exact: true }).click()
+  await expect(celebration.getByLabel('Roboptimus greeting')).toHaveCount(0)
   expect(requested.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(false)
 
   const reveal = celebration.getByRole('button', { name: 'Reveal reward' })
+  await reveal.focus()
   await expect(reveal).toBeFocused()
   await page.keyboard.press('Enter')
   await expect(page.getByRole('heading', { name: 'Model FLY' })).toBeVisible()
@@ -135,7 +164,7 @@ test('the completed Airbus greeting stays readable at phone, tablet and desktop 
   for (const width of [375, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 })
     const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
-    await expect(celebration).toContainText('Ready to see it?')
+    await expect(celebration).toContainText("Let's go check it out!")
     const reveal = celebration.getByRole('button', { name: 'Reveal reward' })
     await reveal.scrollIntoViewIfNeeded()
     await expect(reveal).toBeVisible()
@@ -145,7 +174,7 @@ test('the completed Airbus greeting stays readable at phone, tablet and desktop 
 })
 
 test('a missing greeting file leaves the caption and reward path usable', async ({ page }) => {
-  await page.route('**/audio/optimus-congratulations-heart.mp3', (route) => route.fulfill({ status: 503, body: 'offline' }))
+  await page.route('**/audio/roboptimus-greeting-heart.mp3', (route) => route.fulfill({ status: 503, body: 'offline' }))
   await page.goto('/?skip3d=1')
   await seed(page, createCompletedAirbusState())
   const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
@@ -158,9 +187,9 @@ test('a missing greeting file leaves the caption and reward path usable', async 
 })
 
 test('a failed Optimus model load keeps the pictured guide and reward action usable', async ({ page }) => {
-  await page.route('**/models/optimus-guide-dance-02-review.glb*', (route) => route.fulfill({ status: 503, body: 'offline' }))
+  await page.route('**/models/roboptimus-guide.glb*', (route) => route.fulfill({ status: 503, body: 'offline' }))
   await page.goto('/')
-  const failedModel = page.waitForResponse((response) => response.url().includes('/models/optimus-guide-dance-02-review.glb') && response.status() === 503)
+  const failedModel = page.waitForResponse((response) => response.url().includes('/models/roboptimus-guide.glb') && response.status() === 503)
   await seed(page, createCompletedAirbusState())
   await failedModel
   const celebration = page.getByRole('dialog', { name: 'POP T CAPTAIN MODE COMPLETE' })
@@ -195,15 +224,13 @@ test('the Tesla film is protected until reward and replaces the legacy hangar', 
   ).toBe(true)
 })
 
-test('reduced motion waits for Play and Skip reveals tribute without losing progress', async ({ page }) => {
+test('reduced motion starts the film on entry and Skip preserves progress', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/?skip3d=1')
   await seed(page, rewardState())
   const video = page.getByLabel('Model FLY film')
   await expect(video).toBeVisible()
-  await expect(page.getByText('Reduced motion is on.')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Play film' })).toBeVisible()
-  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(true)
+  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(0.1)
   await expect(page.getByText(/Your crew loves you/)).toHaveCount(0)
   await page.getByRole('button', { name: 'Skip film and read tribute' }).focus()
   await page.keyboard.press('Enter')
@@ -218,7 +245,7 @@ test('reduced motion waits for Play and Skip reveals tribute without losing prog
 
   await page.reload()
   await expect(video).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Play film' })).toBeVisible()
+  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(0.1)
   await expect(page.getByText('Bonus access', { exact: true })).toHaveCount(0)
 })
 
@@ -266,7 +293,7 @@ test('film and controls fit desktop, tablet and phone widths', async ({ page }) 
     })
     expect(videoSize.width).toBeGreaterThanOrEqual(videoSize.viewportWidth - 1)
     expect(videoSize.height).toBeGreaterThanOrEqual(videoSize.viewportHeight - 1)
-    await expect(page.getByRole('button', { name: 'Play film' })).toBeVisible()
+    await expect.poll(() => page.getByLabel('Model FLY film').evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(0.1)
     await expect(page.getByRole('button', { name: 'Skip film and read tribute' })).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
     await captureEvidence(page, `${viewport.width}-direct-tesla-film`)
@@ -282,7 +309,6 @@ test('the authored movie plays with native controls and ends at the family tribu
   await expect(video).toHaveAttribute('controls', '')
   await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.duration), { timeout: 30_000 }).toBeGreaterThan(85)
   await video.evaluate((element: HTMLVideoElement) => { element.muted = true })
-  await page.getByRole('button', { name: 'Play film' }).click()
   await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime), { timeout: 15_000 }).toBeGreaterThan(0.1)
   await video.evaluate((element: HTMLVideoElement) => { element.currentTime = element.duration - 0.2 })
   await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible({ timeout: 20_000 })
