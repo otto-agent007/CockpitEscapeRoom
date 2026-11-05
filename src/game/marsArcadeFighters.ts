@@ -6,8 +6,9 @@
  * module may reference the protected ground-transport reward. Fighter identities
  * and likenesses follow the owner's direction, including Donald Trump (2026-10-10).
  *
- * Identity: THE BOOSTER and THE ORACLE are drawn as cartoon likenesses of Elon
- * Musk and Sam Altman, and THE CAPTAIN is Pop T. Owner decision, 2026-09-20,
+ * Identity: TECHNOKING and SCAM ALTMAN are cartoon likenesses of Elon Musk and
+ * Sam Altman, TEFLON DON is Donald Trump, and THE CAPTAIN is Pop T. Owner naming
+ * update, 2026-11-03, follows the likeness decision of 2026-09-20,
  * superseding the invented-archetype-only rule of 2026-09-19. The ids and move
  * names below stay archetype-named on purpose: the rules do not depend on who a
  * fighter looks like, and the art direction can move again without touching them.
@@ -20,7 +21,7 @@
 export const MARS_ARCADE_FIGHTER_IDS = ['booster', 'oracle', 'captain', 'trump'] as const
 export type MarsArcadeFighterId = (typeof MARS_ARCADE_FIGHTER_IDS)[number]
 export const MARS_ARCADE_SELECT_LABELS: Record<MarsArcadeFighterId, string> = {
-  booster: 'Booster · Elon', oracle: 'Oracle · Sam', captain: 'Captain · Pop T', trump: 'Donald Trump',
+  booster: 'TECHNOKING', oracle: 'SCAM ALTMAN', captain: 'Captain · Pop T', trump: 'TEFLON DON',
 }
 export type MarsArcadeButton = 'light' | 'heavy' | 'special'
 
@@ -351,7 +352,7 @@ const trumpMoves: Record<MarsArcadeButton, MarsArcadeMove> = {
 export const MARS_ARCADE_FIGHTERS: Record<MarsArcadeFighterId, MarsArcadeFighter> = {
   booster: {
     id: 'booster',
-    label: 'THE BOOSTER',
+    label: 'TECHNOKING',
     blurb: 'Goes up fast. Coming back down is the hard part.',
     health: 100,
     walkSpeed: 1.25,
@@ -364,7 +365,7 @@ export const MARS_ARCADE_FIGHTERS: Record<MarsArcadeFighterId, MarsArcadeFighter
   },
   oracle: {
     id: 'oracle',
-    label: 'THE ORACLE',
+    label: 'SCAM ALTMAN',
     blurb: 'Answers from anywhere on the stage. Runs out of room to think.',
     health: 100,
     walkSpeed: 1,
@@ -389,7 +390,7 @@ export const MARS_ARCADE_FIGHTERS: Record<MarsArcadeFighterId, MarsArcadeFighter
     moves: captainMoves,
   },
   trump: {
-    id: 'trump', label: 'TRUMP',
+    id: 'trump', label: 'TEFLON DON',
     blurb: 'A big wind-up. A bigger windmill.',
     health: 100, walkSpeed: 1.25, jumpVelocity: 4.6,
     guardMax: 90, guardRegenPerFrame: 0.22, pushboxWidth: 24,

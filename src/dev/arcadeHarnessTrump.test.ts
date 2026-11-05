@@ -19,7 +19,7 @@ describe('Donald Trump runtime integration', () => {
   it('creates a playable round for the new fighter', () => {
     const state = round()
     expect(state.fighters[0]).toMatchObject({ id: 'trump', health: 100 })
-    expect(marsArcadeFighter(trump).label).toBe('TRUMP')
+    expect(marsArcadeFighter(trump).label).toBe('TEFLON DON')
     expect(selectArcadeSprite(state, 0, false).src).toContain('/trump/normalised-anchor-v2/')
   })
   it('plays the windmill contact with an attack box only while active', () => {

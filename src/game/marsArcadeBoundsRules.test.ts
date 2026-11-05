@@ -325,7 +325,7 @@ describe('hit stop', () => {
     rules({ hitstop: true })
     const lastBlow = poised('booster', 'heavy', 'oracle', 30, { health: 5 })
     const { state, events } = step(lastBlow)
-    expect(events.map((event) => event.type)).toEqual(['hit', 'ko'])
+    expect(events.map((event) => event.type)).toEqual(['moveActive', 'hit', 'ko'])
     expect(state.phase).toBe('ko')
     expect(state.hitstop).toBeNull()
   })

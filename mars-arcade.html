@@ -14,7 +14,7 @@
     </main>
     <main id="arcade-game" hidden>
       <section class="arcade-setup" id="arcade-setup" aria-labelledby="selection-title">
-        <header class="selection-header"><p class="eyebrow">Mars arcade · Bonus unlocked</p><button type="button" data-arcade-return>Return to game</button></header>
+        <header class="selection-header"><p class="eyebrow">Mars arcade · Bonus unlocked</p><div class="selection-actions"><button type="button" data-arcade-sound aria-pressed="true">Sound on</button><button type="button" data-arcade-return>Return to game</button></div></header>
         <h1 id="selection-title" tabindex="-1">Choose your player</h1>
         <p class="selection-intro">Pick your fighter. Choose your battlefield. Make it your match.</p>
         <div class="player-cards" id="player-cards" role="group" aria-label="Player choices"></div>
@@ -30,12 +30,13 @@
       </section>
       <div class="arcade-match" id="arcade-match" hidden>
         <section class="stage-panel" aria-label="Arcade match">
-          <h2 class="match-title" id="stage-title">Captain vs Booster</h2>
+          <h2 class="match-title" id="stage-title">THE CAPTAIN vs TECHNOKING</h2>
           <div class="viewport"><canvas id="stage" tabindex="0" aria-label="Mars fighting arena. Use the native controls below or A and D to move, W to jump, J for light, K for heavy, L for special."></canvas></div>
           <div class="match-tools">
           <div class="match-actions">
             <button type="button" data-command="Space">Pause</button>
             <button type="button" data-command="KeyR">Restart round</button>
+            <button type="button" data-arcade-sound aria-pressed="true">Sound on</button>
             <button type="button" id="change-selection">Change player / battlefield</button>
             <button type="button" data-arcade-return>Return to game</button>
           </div>
@@ -44,6 +45,7 @@
             <button type="button" data-command="KeyT">Switch CPU / two players</button>
             <button type="button" data-command="KeyG">Switch difficulty</button>
           </div>
+          <label class="arcade-volume">Sound volume <input id="arcade-volume" type="range" min="0" max="100" step="5" value="55" /></label>
           <p class="status" id="match-status" aria-live="off"></p>
           </details>
           <details id="combat-controls"><summary>Controls</summary>
@@ -59,7 +61,7 @@
           </div></fieldset></details>
           <details class="arcade-instructions"><summary>How to play</summary>
             <p>Player 1: A / D move, W jumps, J light, K heavy, L special. Walk away from an incoming attack to guard. Player 2: arrow keys move and jump; comma / period / slash attack.</p>
-            <p>Donald’s Cap Throw: S, then forward + J. Sam’s Non-Profit Pivot: S, then forward + K. Native Special buttons perform the same moves. Earn meter through play.</p>
+            <p>TEFLON DON’s Cap Throw: S, then forward + J. SCAM ALTMAN’s Non-Profit Pivot: S, then forward + K. Native Special buttons perform the same moves. Earn meter through play.</p>
             <p>Space pauses, R restarts the round, T switches the opponent between CPU and a second player, G switches difficulty. A connected controller uses the left stick or D-pad to move, face buttons to attack, Start to pause, and Back to restart. Escape returns to your game.</p>
           </details>
           </details>
@@ -71,6 +73,8 @@
             <p class="status" id="cap-status" role="status" aria-live="polite" hidden></p>
           </div>
           <button class="background-retry" id="background-retry" type="button" hidden>Retry background</button>
+          <p class="status" id="arcade-sound-feedback" role="status" hidden></p>
+          <button type="button" id="arcade-sound-retry" hidden>Retry sound</button>
           <p class="status" id="arcade-art-message" role="status" hidden></p>
           </div>
           <p id="asset-status" hidden></p>

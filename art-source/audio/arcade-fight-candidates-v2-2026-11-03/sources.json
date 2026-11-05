@@ -1,0 +1,161 @@
+[
+  {
+    "id": "punches",
+    "author": "Independent.nu; submitted by qubodup",
+    "page": "https://opengameart.org/node/2558",
+    "license": "CC0 1.0",
+    "checked": "2026-11-04",
+    "download": "https://opengameart.org/sites/default/files/independent_nu_ljudbank-hits_and_punches.7z",
+    "archiveSha256": "641c65d2e1a00002171c23e2c6fa14e925ae4c12db09d3f79d130a4538916032",
+    "files": [
+      {
+        "file": "sources/punches/hit09.mp3.flac",
+        "sha256": "97666669bdb698ee5a9061a8dbe78fa6cb873f3158899f3689d5e9efdde8cf0a",
+        "bytes": 52079
+      },
+      {
+        "file": "sources/punches/hit10.mp3.flac",
+        "sha256": "1a1f4bec8fed5a1b785b9d43b335fa1cf99efcb85cf37507482f32e75a052265",
+        "bytes": 55828
+      },
+      {
+        "file": "sources/punches/hit15.mp3.flac",
+        "sha256": "17ae3b96c30b5da6dcd734e7735f7e62825c4a27f8ffdc24fd98c6a5f51cc334",
+        "bytes": 58538
+      },
+      {
+        "file": "sources/punches/hit23.mp3.flac",
+        "sha256": "68df3fb44642bf6a772024c563f5e7295a70f461fe2eb855984091f1acd29654",
+        "bytes": 34915
+      },
+      {
+        "file": "sources/punches/hit24.mp3.flac",
+        "sha256": "54cede756d133f5593f90dec636029841bb9a1cf294e97b18f159543d51c8469",
+        "bytes": 43640
+      },
+      {
+        "file": "sources/punches/hit31.mp3.flac",
+        "sha256": "fd7d981ec9e7a5af4d5b2048f74e3c0a9a6310e131e636e2cf80d50d586b0b1f",
+        "bytes": 46737
+      },
+      {
+        "file": "sources/punches/hit37.mp3.flac",
+        "sha256": "c851594349aeca38b64a7520ba70841dae415a321e43da5e5a9b146c8814216d",
+        "bytes": 37830
+      }
+    ]
+  },
+  {
+    "id": "thwack",
+    "author": "Jordan Irwin (AntumDeluge)",
+    "page": "https://opengameart.org/content/thwack-sounds",
+    "license": "CC0 1.0",
+    "checked": "2026-11-04",
+    "download": "https://opengameart.org/sites/default/files/thwack-1.0.zip",
+    "archiveSha256": "8edb002735a01369ef4d6259573be4885f9fe32c9a9efa89dfbbb14067c8c8e5",
+    "files": [
+      {
+        "file": "sources/thwack/thwack-01.wav",
+        "sha256": "bb48616d77a89fff6a40ded7244f2e0473dbd7d6b51855927f9b8a4f83a8a037",
+        "bytes": 27758
+      },
+      {
+        "file": "sources/thwack/thwack-02.wav",
+        "sha256": "ce97b3a0bd775841c895150b8d563ca05ecf9d56211565c54a5497f04ce83545",
+        "bytes": 18700
+      },
+      {
+        "file": "sources/thwack/thwack-03.wav",
+        "sha256": "9c36a279381bb7d984fb0e4cb2bd075ad8c9736524af1d950a1e08b03aee2b29",
+        "bytes": 13980
+      },
+      {
+        "file": "sources/thwack/thwack-06.wav",
+        "sha256": "1d3683c158a93fe2d0451634b684a6383a6e0e8d5b521a6096ca34a7a6c72daa",
+        "bytes": 31768
+      },
+      {
+        "file": "sources/thwack/thwack-10.wav",
+        "sha256": "9b69981665fcbf8bb76c9709ce23e00a6f9a70ed9939690ec20d6e812f5b36c2",
+        "bytes": 44080
+      },
+      {
+        "file": "sources/thwack/LICENSE.txt",
+        "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499",
+        "bytes": 7048
+      },
+      {
+        "file": "sources/thwack/README.txt",
+        "sha256": "54136a0ed36a19fd20caad241bdf1f6cc5d27af124db951b162bd8ac60040d38",
+        "bytes": 239
+      }
+    ]
+  },
+  {
+    "id": "swishes",
+    "author": "artisticdude",
+    "page": "https://opengameart.org/content/swishes-sound-pack",
+    "license": "CC0 1.0",
+    "checked": "2026-11-04",
+    "download": "https://opengameart.org/sites/default/files/swishes.zip",
+    "archiveSha256": "7980215241b739a787dcf26f660ce510bb237900968789395a86911619795693",
+    "files": [
+      {
+        "file": "sources/swishes/swish-1.wav",
+        "sha256": "9a15c881345c1ce1c39cc31f52f081c8c4dc81fa41111e0079400f39d3ba0e45",
+        "bytes": 34138
+      },
+      {
+        "file": "sources/swishes/swish-4.wav",
+        "sha256": "0060f4a7040edce4cc50d1daa10a9cb76764128a942e4688339e69cd1d5d784c",
+        "bytes": 39384
+      },
+      {
+        "file": "sources/swishes/swish-7.wav",
+        "sha256": "e6de737a34de16afed094d6170d7679149022f149e0a8356d2f029b0e8f4a4d7",
+        "bytes": 50420
+      },
+      {
+        "file": "sources/swishes/swish-12.wav",
+        "sha256": "0513a86d428d9ed8601e93b8554580a5932c6c1a82d39d81a8f48883f1807a67",
+        "bytes": 20892
+      }
+    ]
+  },
+  {
+    "id": "voice-oga",
+    "author": "Kenney",
+    "page": "https://opengameart.org/content/voiceover-pack-fighter-40-taunts",
+    "license": "CC0 1.0",
+    "checked": "2026-11-04",
+    "download": "https://opengameart.org/sites/default/files/kenney_voiceoverFighter.zip",
+    "archiveSha256": "368ac0711e59521aff965a833e22e2b5218c397cf8b059ce3cb72e8d13219ee2",
+    "files": [
+      {
+        "file": "sources/voice-oga/fight.ogg",
+        "sha256": "fc16c61cd474da6c80fffe34fb3bfcee79b754fcc345bd916b0e66a826695e89",
+        "bytes": 14444
+      },
+      {
+        "file": "sources/voice-oga/round_1.ogg",
+        "sha256": "cb553cdc365409f927a659088ff08a47bcc20a20a4a113ac1a0e8d325b394df7",
+        "bytes": 21527
+      },
+      {
+        "file": "sources/voice-oga/you_win.ogg",
+        "sha256": "545b68cd40bc3f91af565b70ea0abcd759ed715edd23e556fa61027374660992",
+        "bytes": 17233
+      },
+      {
+        "file": "sources/voice-oga/combo.ogg",
+        "sha256": "d44f1f04ad079964b94a0a54289632fcf4086c807a179b3b9066ef226d2066aa",
+        "bytes": 17079
+      },
+      {
+        "file": "sources/voice-oga/License.txt",
+        "sha256": "1680179f31ab785164f171488dbf262f988483417fb72af353c75aac03e34796",
+        "bytes": 492
+      }
+    ]
+  }
+]

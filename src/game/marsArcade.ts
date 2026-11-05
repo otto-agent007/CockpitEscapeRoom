@@ -162,6 +162,8 @@ export type MarsArcadeEvent =
   | {type:'assetSeizure';attacker:MarsArcadeSide;defender:MarsArcadeSide;amount:number}
   | {type:'lawsuitDamage';attacker:MarsArcadeSide;defender:MarsArcadeSide;damage:number}
   | { type: 'roundStart' }
+  /** Presentation cue once at the first active frame of an accepted move. */
+  | { type: 'moveActive'; attacker: MarsArcadeSide; moveId: string }
   /** `hitstopFrames` is present only when this connect started a freeze (the `hitstop` rule). */
   | { type: 'hit'; attacker: MarsArcadeSide; moveId: string; damage: number; hitstopFrames?: number }
   | { type: 'blocked'; attacker: MarsArcadeSide; moveId: string; chipDamage: number; hitstopFrames?: number }
@@ -699,7 +701,11 @@ function stepFrame(
   for (const side of [0, 1] as const) {
     const fighter = state.fighters[side]
     const move = activeMoveOf(fighter)
-    if (fighter.health<=0||!move?.projectile) continue
+    if (fighter.health<=0||!move) continue
+    if (move.activeFrames > 0 && fighter.moveFrame === move.startupFrames) {
+      events.push({ type: 'moveActive', attacker: side, moveId: move.id })
+    }
+    if (!move.projectile) continue
     const cap = move.projectile.capThrow
     const elapsed = fighter.moveFrame - move.startupFrames
     const release = cap ? elapsed >= 0 && elapsed % cap.intervalFrames === 0 && elapsed / cap.intervalFrames < cap.count :

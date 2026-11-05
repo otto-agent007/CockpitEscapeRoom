@@ -1,0 +1,138 @@
+{
+  "status": "owner-selected-and-integrated-locally",
+  "date": "2026-11-04",
+  "impactSet": "Heavy hitters",
+  "announcer": true,
+  "characterSpecials": true,
+  "ownerStatements": [
+    "Heavy hitters is the one I like better.",
+    "go ahead and use the announcer and character specials too"
+  ],
+  "files": [
+    {
+      "source": "weight/jab-1.wav",
+      "runtime": "public/audio/mars-arcade-v1/jab-1.wav",
+      "bytes": 24044,
+      "sha256": "e3b6792bcf5e4792ddd14d4d5afd9c5c6e01f40b6145b0672c017f0a5f0efdd4"
+    },
+    {
+      "source": "weight/jab-2.wav",
+      "runtime": "public/audio/mars-arcade-v1/jab-2.wav",
+      "bytes": 24044,
+      "sha256": "82b0f6483325e43ae130e0c272ab70bc4d55eedfc79a2ecb739294ac962923a9"
+    },
+    {
+      "source": "weight/jab-3.wav",
+      "runtime": "public/audio/mars-arcade-v1/jab-3.wav",
+      "bytes": 24044,
+      "sha256": "747bba96bccb89e0e05640eafea1160fe30a551dde9f3d206c731e496489fe73"
+    },
+    {
+      "source": "weight/heavy-1.wav",
+      "runtime": "public/audio/mars-arcade-v1/heavy-1.wav",
+      "bytes": 41324,
+      "sha256": "5ff05bcd8de1cdfe06c3249c081fd2530a6e805c8db2c74c4770ecb09816801c"
+    },
+    {
+      "source": "weight/heavy-2.wav",
+      "runtime": "public/audio/mars-arcade-v1/heavy-2.wav",
+      "bytes": 41324,
+      "sha256": "a2370c93ebc69e6918964e973aa9e8102777f3ffbcaebc00e1d05e1d473e3986"
+    },
+    {
+      "source": "weight/kick-1.wav",
+      "runtime": "public/audio/mars-arcade-v1/kick-1.wav",
+      "bytes": 46124,
+      "sha256": "c966468b3018cd12c5ef0c57c0f0a66f8e455f88891ee14d19ad8a16866044bd"
+    },
+    {
+      "source": "weight/kick-2.wav",
+      "runtime": "public/audio/mars-arcade-v1/kick-2.wav",
+      "bytes": 46124,
+      "sha256": "51f87cf51b80b162b4092ac98ef2a5912a22c840cfcd75ef1225214940f8fc7f"
+    },
+    {
+      "source": "weight/block-1.wav",
+      "runtime": "public/audio/mars-arcade-v1/block-1.wav",
+      "bytes": 22124,
+      "sha256": "0465a189b5ffc3bf84d736818e28434846360199b6a9e6918a7896be3892e347"
+    },
+    {
+      "source": "weight/block-2.wav",
+      "runtime": "public/audio/mars-arcade-v1/block-2.wav",
+      "bytes": 22124,
+      "sha256": "6149d68f3013e21a175926f03d6940a6d07b051211db9465bdd7f3c7e5247d39"
+    },
+    {
+      "source": "weight/whiff-1.wav",
+      "runtime": "public/audio/mars-arcade-v1/whiff-1.wav",
+      "bytes": 23084,
+      "sha256": "511d83d2a6ad986aea3aa9b26188696485b37f9d17f8e505a85b7a1b79fe3c3d"
+    },
+    {
+      "source": "weight/break-1.wav",
+      "runtime": "public/audio/mars-arcade-v1/break-1.wav",
+      "bytes": 46124,
+      "sha256": "abf1866e7374b31f9eaef01c7a6ac9f4bd3a1e16525363b4379b8e4b5d4acbec"
+    },
+    {
+      "source": "weight/down-1.wav",
+      "runtime": "public/audio/mars-arcade-v1/down-1.wav",
+      "bytes": 69164,
+      "sha256": "f819b22353797c5036e5af1bba74b70551a4816cd8c76e4324fae520440ff13e"
+    },
+    {
+      "source": "common/laser.wav",
+      "runtime": "public/audio/mars-arcade-v1/laser.wav",
+      "bytes": 67244,
+      "sha256": "52b76c2c85cab14cd616f41a720878fba361a9a1caacf09714ed06b84e247c8d"
+    },
+    {
+      "source": "common/caps.wav",
+      "runtime": "public/audio/mars-arcade-v1/caps.wav",
+      "bytes": 63404,
+      "sha256": "3226b208a730ab467ab56ce625e2b45219cac0b85c936124fae22c04bfedbe31"
+    },
+    {
+      "source": "common/flyby.wav",
+      "runtime": "public/audio/mars-arcade-v1/flyby.wav",
+      "bytes": 172844,
+      "sha256": "df98ca843e14517ac60e0a2340e38af01114646d01d3d1ed019841393a22386e"
+    },
+    {
+      "source": "common/text.wav",
+      "runtime": "public/audio/mars-arcade-v1/text.wav",
+      "bytes": 42284,
+      "sha256": "30943d8c880784c4a5eb0175297e8c40898ae5e2a6e3fe90952983a2f0d1eed4"
+    },
+    {
+      "source": "common/round.wav",
+      "runtime": "public/audio/mars-arcade-v1/round.wav",
+      "bytes": 121048,
+      "sha256": "d6caf40308e88001e2d436c113b621fc752ee853ff3fe6832f02f20bdcc09180"
+    },
+    {
+      "source": "common/fight.wav",
+      "runtime": "public/audio/mars-arcade-v1/fight.wav",
+      "bytes": 64690,
+      "sha256": "d2fe3f6de27cc1d2ef1301f977b8d83587e8fafa8017e58adb43bf8ba7f8866f"
+    },
+    {
+      "source": "common/win.wav",
+      "runtime": "public/audio/mars-arcade-v1/win.wav",
+      "bytes": 102476,
+      "sha256": "8e0b6791541db670b0dfa8d78eca82b36913df43d383ee175211128dec8de9e3"
+    },
+    {
+      "source": "common/combo.wav",
+      "runtime": "public/audio/mars-arcade-v1/combo.wav",
+      "bytes": 83684,
+      "sha256": "0766c8865df946cd3edefbf268cbb3977562a18f0ce7a994cc9d3f90b3fab742"
+    }
+  ],
+  "totalBytes": 1147322,
+  "inGameApproval": {
+    "date": "2026-11-04",
+    "statement": "Worked goo for me, good job!"
+  }
+}

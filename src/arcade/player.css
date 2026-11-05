@@ -4,6 +4,9 @@
 .arcade-setup { min-height: 100dvh; max-width: 1100px; margin: auto; padding: clamp(20px, 4vw, 56px); }
 .selection-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
 .selection-header .eyebrow { color: var(--accent); text-transform: uppercase; letter-spacing: .18em; font-size: 12px; }
+.selection-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.arcade-volume { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 8px 12px; }
+.arcade-volume input { min-height: 44px; max-width: 100%; }
 .arcade-setup h1 { margin: 36px 0 8px; font-size: clamp(30px, 5vw, 56px); line-height: 1.1; }
 .selection-intro, .selection-note { color: #bbc0d6; }
 .player-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 28px 0; }
