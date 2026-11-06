@@ -45,7 +45,7 @@ function marsArcadeAssets(): Plugin {
 function omitHistoricalPublicAssets(): Plugin {
   let outDir: string
   const unused = [
-    'favicon.ico', // The existing 14 KB TMB2 base image is the favicon.
+    'favicon.ico', // Retired icon; index.html references the generated winged-key PNGs.
     'models/model-y-reward.glb', // The reward is now the protected film.
     'models/optimus-guide-review.glb', // Superseded by the combined greeting/walk/dance export.
     'models/optimus-guide-dance-02-review.glb', // Both historical robot exports are replaced by the combined escort asset.

@@ -141,7 +141,7 @@ test('Engine-Out exposes a confirmed full-game restart button', async ({ page })
   await expect(page.getByRole('button', { name: 'Restart' })).toBeVisible()
   page.once('dialog', (dialog) => dialog.accept())
   await page.getByRole('button', { name: 'Restart' }).click()
-  await expect(page.getByRole('region', { name: 'Game intro' })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Game entry' })).toBeVisible()
 })
 
 test('Engine-Out diversion completes Airbus without exposing the reward early', async ({ page }) => {

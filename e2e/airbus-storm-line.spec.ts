@@ -371,7 +371,7 @@ test('Storm Line exposes a confirmed full-game restart button', async ({ page })
   await expect(page.getByRole('button', { name: 'Restart' })).toBeVisible()
   page.once('dialog', (dialog) => dialog.accept())
   await page.getByRole('button', { name: 'Restart' }).click()
-  await expect(page.getByRole('region', { name: 'Game intro' })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Game entry' })).toBeVisible()
 })
 
 test('Storm Flight controls default compact on desktop and expanded at 768px', async ({ page }) => {
