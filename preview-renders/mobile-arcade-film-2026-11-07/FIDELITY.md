@@ -1,6 +1,6 @@
 # Mobile arcade and landscape film review
 
-These are actual production-build browser captures from port 4174 using installed Chromium with touch emulation. Browser plugin is unavailable. Image labels sit outside screenshots; no game pixels were generated/repainted. The owner selected controls below the arena in portrait and beside it in landscape. Owner visual approval remains pending.
+These are actual production-build browser captures from port 4174 using installed Chromium with touch emulation. Browser plugin is unavailable. Image labels sit outside screenshots; no game pixels were generated/repainted. The owner selected controls below the arena in portrait and beside it in landscape. Owner approved the mobile arcade layout and landscape film screenshot visuals on 2026-11-07 ("ok looks good"). Physical-phone validation and final complete-game review remain separate.
 
 ## Player-visible result
 
