@@ -164,18 +164,12 @@
   line-height: 1;
 }
 
-.game-entry__sound,
 .game-entry__status {
-  margin: 64px 0 0;
-  color: #bba7de;
+  margin: 14px 0 0;
+  color: #ffdb87;
   font-size: clamp(1rem, 1.9vw, 1.9rem);
   letter-spacing: 0.045em;
   line-height: 1.35;
-}
-
-.game-entry__status {
-  margin-top: 14px;
-  color: #ffdb87;
 }
 
 .game-entry__error {
@@ -222,7 +216,6 @@
   .game-entry h1 { font-size: min(clamp(2.4rem, 6.2vw, 3.2rem), 16.2cqi); }
   .game-entry__dedication { margin: 22px 0 24px; font-size: 1.25rem; }
   .game-entry__begin { min-height: 64px; font-size: 1.6rem; }
-  .game-entry__sound { margin-top: 26px; font-size: 1.1rem; }
 }
 
 @media (max-width: 480px) {
@@ -232,7 +225,6 @@
   .game-entry h1 { font-size: min(2.5rem, 16.2cqi); }
   .game-entry__dedication { margin: 20px 0 22px; font-size: 1.1rem; }
   .game-entry__begin { min-height: 58px; font-size: 1.3rem; gap: 14px; }
-  .game-entry__sound { margin-top: 23px; font-size: 1rem; }
 }
 
 @media (max-height: 800px) and (min-width: 901px) {
@@ -240,7 +232,6 @@
   .game-entry h1 { font-size: min(clamp(3.25rem, 6.6vw, 5.9rem), 16.2cqi); }
   .game-entry__dedication { margin: 24px 0 32px; font-size: 1.35rem; }
   .game-entry__begin { min-height: 76px; font-size: 2rem; }
-  .game-entry__sound { margin-top: 32px; font-size: 1.15rem; }
 }
 
 @media (max-height: 640px) and (min-width: 901px) {
@@ -249,7 +240,6 @@
   .game-entry h1 { font-size: min(4.1rem, 16.2cqi); }
   .game-entry__dedication { margin: 22px 0 28px; font-size: 1.35rem; }
   .game-entry__begin { min-height: 64px; font-size: 1.6rem; }
-  .game-entry__sound { margin-top: 24px; font-size: 1.1rem; }
 }
 
 @media (max-height: 520px) and (min-width: 600px) and (max-width: 900px) {
@@ -260,7 +250,6 @@
   .game-entry h1 { font-size: min(2.6rem, 16.2cqi); }
   .game-entry__dedication { margin: 18px 0; font-size: 1.1rem; }
   .game-entry__begin { min-height: 50px; padding: 10px; gap: 12px; font-size: 1.25rem; }
-  .game-entry__sound { margin-top: 22px; font-size: 1rem; }
 }
 
 /* Authoritative 320 x 224 TMB2 Canvas presentation. */

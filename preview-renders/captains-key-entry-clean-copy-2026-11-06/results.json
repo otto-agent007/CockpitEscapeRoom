@@ -1,0 +1,111 @@
+{
+  "url": "http://127.0.0.1:4174/",
+  "browser": "installed Chromium; Browser plugin unavailable",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 900,
+      "font": "Bungee, \"Arial Black\", Impact, sans-serif",
+      "fontLoaded": true,
+      "bodyFontLoaded": true,
+      "title": {
+        "x": 52,
+        "y": 183.28125,
+        "width": 513.6875,
+        "height": 234.65625,
+        "bottom": 417.9375
+      },
+      "button": {
+        "x": 52,
+        "y": 594.703125,
+        "width": 513.6875,
+        "height": 102,
+        "bottom": 696.703125
+      },
+      "art": {
+        "x": 597.6875,
+        "y": 54.84375,
+        "width": 790.3125,
+        "height": 790.3125,
+        "bottom": 845.15625
+      },
+      "horizontalOverflow": false,
+      "verticalOverflow": false,
+      "copy": "THE\nCAPTAIN’S\nKEY\n\nFor Pop T, from your crew.\n\n▶\nCLICK TO BEGIN",
+      "screenshot": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/captains-key-entry-clean-copy-2026-11-06/entry-1440.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "font": "Bungee, \"Arial Black\", Impact, sans-serif",
+      "fontLoaded": true,
+      "bodyFontLoaded": true,
+      "title": {
+        "x": 144,
+        "y": 609.578125,
+        "width": 480,
+        "height": 134.25,
+        "bottom": 743.828125
+      },
+      "button": {
+        "x": 144,
+        "y": 816.828125,
+        "width": 480,
+        "height": 65.59375,
+        "bottom": 882.421875
+      },
+      "art": {
+        "x": 164,
+        "y": 141.578125,
+        "width": 440,
+        "height": 440,
+        "bottom": 581.578125
+      },
+      "horizontalOverflow": false,
+      "verticalOverflow": false,
+      "copy": "THE\nCAPTAIN’S\nKEY\n\nFor Pop T, from your crew.\n\n▶\nCLICK TO BEGIN",
+      "screenshot": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/captains-key-entry-clean-copy-2026-11-06/entry-768.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "font": "Bungee, \"Arial Black\", Impact, sans-serif",
+      "fontLoaded": true,
+      "bodyFontLoaded": true,
+      "title": {
+        "x": 26,
+        "y": 447.328125,
+        "width": 323,
+        "height": 112.78125,
+        "bottom": 560.109375
+      },
+      "button": {
+        "x": 26,
+        "y": 625.859375,
+        "width": 323,
+        "height": 60.796875,
+        "bottom": 686.65625
+      },
+      "art": {
+        "x": 37.5,
+        "y": 125.328125,
+        "width": 300,
+        "height": 300,
+        "bottom": 425.328125
+      },
+      "horizontalOverflow": false,
+      "verticalOverflow": false,
+      "copy": "THE\nCAPTAIN’S\nKEY\n\nFor Pop T, from your crew.\n\n▶\nCLICK TO BEGIN",
+      "screenshot": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/captains-key-entry-clean-copy-2026-11-06/entry-375.png"
+    }
+  ],
+  "errors": [],
+  "externalRequests": [],
+  "title": "The Captain's Key",
+  "beginSound": {
+    "paused": false,
+    "muted": false,
+    "currentTime": 0.34986
+  },
+  "passed": true
+}

@@ -108,3 +108,13 @@ Done when: option B is faithfully rendered at 375, 768, 1440 and short landscape
 - [x] Review, record evidence and update the existing draft preview.
 
 Bungee validation evidence: `preview-renders/captains-key-bungee-entry-2026-11-06/` (seven responsive captures, results and fidelity record); `/tmp/captains-key-bungee-{quality,browser,capture,guards}.log`. Eight entry/accessibility cases pass; fonts decode, no overflow/errors/external requests, Enter produces advancing unmuted sound. Lint/types/build, asset/privacy/spoiler/diff checks and 597/600 KB budget pass. No unit or complete-journey rerun for the scoped font revision. Independent review finds no Critical/Important issue; its Minor arrow-coverage wording correction is applied. Code and evidence are committed/pushed as `83d91edd2cc48ed1ad1f873b62decc834cd8a46d`. Draft PR #123 describes the final selected typography. The new preview is READY: https://cockpit-escape-room-8qogsdllr-ottoagent007-gmailcoms-projects.vercel.app/ (deployment `dpl_EDNQT3rnAuCt5aZ78y2sMxH5FmvB`, metadata source SHA matches that code commit). Preview authentication remains unchanged; local Chromium supplied the browser proof. Remaining owner step: actual-page review before any production merge/promotion.
+
+
+## Remove the sound helper line — owner request
+
+Goal: omit “Your flight begins with sound.” from the Bungee entry page. Remove its paragraph, the Begin button's now-unused aria-describedby relationship, and unused sound-line CSS. Keep the native Begin action, soundtrack, Bungee typography, selected artwork and all progress unchanged. Existing loading-status styling remains equivalent. Done when the line/relationship are absent, entry/accessibility checks and lint/build pass, and desktop/tablet/phone browser captures show a clean layout. Update the same draft preview without production promotion.
+
+- [x] Remove the requested line and dead styles/relationship.
+- [x] Verify, record current browser evidence and update the draft preview.
+
+Removal evidence: focused ESLint and TypeScript/build pass; 8/8 entry/accessibility Chromium checks pass in 11.3 s; 1440/768/375 screenshots and `results.json` are in `preview-renders/captains-key-entry-clean-copy-2026-11-06/`. Browser confirms no helper text or aria-describedby, no overflow/errors/external requests, and unmuted advancing sound on Begin. Budget 596/600 KB. Full diff review/check passes. Runtime/evidence changes are scoped to the existing draft PR; its push triggers the updated preview, with no production promotion.

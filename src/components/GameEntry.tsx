@@ -27,12 +27,10 @@ export function GameEntry({ loadState, onBegin, onRetry }: GameEntryProps) {
             className="game-entry__begin"
             disabled={!ready}
             onClick={onBegin}
-            aria-describedby="game-entry-sound"
           >
             <span aria-hidden="true">▶</span>
             Click to begin
           </button>
-          <p id="game-entry-sound" className="game-entry__sound">Your flight begins with sound.</p>
           {loadState.status === 'loading' && (
             <p className="game-entry__status" role="status">Preparing your flight…</p>
           )}

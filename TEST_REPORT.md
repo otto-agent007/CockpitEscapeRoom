@@ -1,5 +1,12 @@
 # Test report
 
+## 2026-11-06 — Remove the entry sound helper line
+
+- Owner requested removal of “Your flight begins with sound.” `GameEntry.tsx` now omits that paragraph and the Begin button's unused aria-describedby relationship; `styles.css` removes its dead selectors while preserving loading-status styles. The native sound-start action, font, art, icons and game state are unchanged.
+- Fresh focused ESLint and TypeScript/production build pass (`/tmp/captains-key-no-sound-line-quality.log`). Existing entry/accessibility Chromium checks pass **8/8 in 11.3 seconds** (`/tmp/captains-key-clean-copy-browser.log`), including pointer/Enter audio, retries, reload/resume, reduced motion, font fallback and axe. Browser plugin unavailable; installed Playwright/Chromium used.
+- [Actual page captures and measurements](preview-renders/captains-key-entry-clean-copy-2026-11-06/results.json) at 1440×900, 768×1024 and 375×812 confirm no helper text or dangling aria-describedby, no document overflow, decoded fonts, full title/art/Begin visibility, no runtime/console errors or external requests. Enter starts advancing, unmuted/unpaused audio (0.34986 s). Desktop/phone screenshots were visually inspected; desktop capture is in the existing tagged tmux pane. Initial budget passes **596/600 KB**; diff review/check passes. Full unit/journey suites and other browsers were not rerun for this small copy removal. The existing draft PR receives this change; production remains unchanged.
+
+
 ## 2026-11-06 — Owner-selected Bungee font revision
 
 - The owner chose **B — Bungee** from three actual-page font previews. The title and Begin button now use Bungee 400; dedication, sound and retry/loading text use Barlow 500. Both WOFF2 fonts and original OFL licenses are hosted locally. Scoped CSS fits the wider title to its column; no game logic, selected artwork, icons, production dependency or budget limit changed. Files: `src/styles.css`, `index.html`, public font files, the existing missing-font browser fixture, and current design/provenance records.
