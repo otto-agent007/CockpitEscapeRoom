@@ -3,6 +3,7 @@ import { expect, test, type Page } from '@playwright/test'
 import type { GameState } from '../src/game/state'
 import { STORAGE_KEY } from '../src/game/storage'
 import { createAirbusState, createCompletedAirbusState, createDc9State, createLockerState } from './journeyStates'
+import { beginGameIntro } from './gameEntry'
 
 /**
  * Accessibility sweep of every chapter's screen (CLAUDE.md: every required 3D
@@ -16,9 +17,17 @@ const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']
 
 const SCREENS: { name: string; state: GameState | null; ready: (page: Page) => Promise<void> }[] = [
   {
+    name: 'game entry',
+    state: null,
+    ready: async (page) => {
+      await expect(page.getByRole('button', { name: 'Click to begin', exact: true })).toBeEnabled({ timeout: 60_000 })
+    },
+  },
+  {
     name: 'intro cinematic',
     state: null,
     ready: async (page) => {
+      await beginGameIntro(page)
       const intro = page.getByRole('region', { name: 'Game intro' })
       await expect(intro).toHaveAttribute('aria-busy', 'false', { timeout: 60_000 })
     },

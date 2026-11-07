@@ -1,0 +1,8 @@
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/l/font?kit=7cHqv4kjgoGqM7E3_-gc5UhQvR4BVZWZGNeSj7D4iDVkeYpcwCIwitOm6vjRdEK7Vr-jqSGVLNIpPgoY6VDBOHuOw_gArtsyZlQHDfWcKqvWFoc6bTt4KDxIWMGC2oNHhP0tlQ1dmNzQ1Hh4eEBfi10reJLC4BUC9NI6oV_vq87nHTXSdsjBhgG0oQ&skey=4c8d0d0b13516148&v=v13) format('woff2');
+  unicode-range: U+20-7e, U+d7, U+2013-2014, U+2018-2019, U+201c-201d, U+2026, U+2192;
+}

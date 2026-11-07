@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
+import { beginGameIntro } from './gameEntry'
 import type { GameState } from '../src/game/state'
 import { STORAGE_KEY } from '../src/game/storage'
 import { createAirbusState, createCompletedAirbusState, createDc9State, createLockerState } from './journeyStates'
@@ -136,6 +137,7 @@ async function open(page: Page, screen: Screen, skip3d: boolean) {
     if (screen.heading) {
       await expect(page.getByRole('heading', { name: screen.heading })).toBeVisible({ timeout: 60_000 })
     } else {
+      await beginGameIntro(page)
       await expect(page.getByRole('region', { name: 'Game intro' })).toHaveAttribute('aria-busy', 'false', { timeout: 60_000 })
     }
     if (completion) {

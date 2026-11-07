@@ -15,6 +15,7 @@ import {
   createCompletedAirbusState,
 } from './journeyStates'
 import { expectCelebrationCheerPlaying, sampleCelebrationAudio } from './celebrationAudio'
+import { beginGameIntro } from './gameEntry'
 
 async function placeAirbusCard(page: Page, card: string, targetName: string): Promise<void> {
   const dropZoneByTarget: Record<string, string> = {
@@ -132,19 +133,20 @@ async function capturePlacementEvidence(page: Page, scene: 'airbus' | 'locker'):
 async function openGameIntro(page: Page) {
   await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
   await page.goto('/')
+  await beginGameIntro(page)
   const intro = page.getByRole('region', { name: 'Game intro' })
   await expect(intro).toBeVisible()
   await expect(intro).toHaveAttribute('aria-busy', 'false', { timeout: 60_000 })
   return intro
 }
 
-test('fresh games start the cinematic without a DC-9 station gate', async ({ page }) => {
+test('fresh games show the Begin page without the retired DC-9 station gate', async ({ page }) => {
   await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
   await page.goto('/')
 
-  const intro = page.getByRole('region', { name: 'Game intro' })
-  await expect(intro).toBeVisible({ timeout: 60_000 })
-  await expect(intro).toHaveAttribute('data-intro-cue', 'tmb2-ident')
+  await expect(page.getByRole('region', { name: 'Game entry' })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Game intro' })).toHaveCount(0)
+  await expect(page.locator('audio')).toHaveJSProperty('paused', true)
   await expect(page.getByRole('button', { name: 'Start Game' })).toHaveCount(0)
   await expect(page.locator('.briefing-hero')).toHaveCount(0)
 })
@@ -164,6 +166,7 @@ for (const [width, height, label] of [
     test.setTimeout(45_000)
     await page.setViewportSize({ width, height })
     await page.goto('/')
+    await beginGameIntro(page)
     const intro = page.getByRole('region', { name: 'Game intro' })
     await expect(intro).toHaveAttribute('aria-busy', 'false', { timeout: 60_000 })
     await expect(intro).toHaveAttribute('data-intro-cue', 'tmb2-ident')
@@ -216,6 +219,7 @@ test('opening stays spoiler-safe, preloads the DC-9, and unlocks it through the 
   await page.goto('/')
   await dc9Request
 
+  await beginGameIntro(page)
   const intro = page.getByRole('region', { name: 'Game intro' })
   await expect(intro).toBeVisible()
   await expect(intro).toHaveAttribute('aria-busy', 'false', { timeout: 60_000 })
@@ -517,14 +521,15 @@ test('TMB2 cinematic lands the aircraft reveal and holds the lettered title fina
 test('TMB2 cinematic blocks playback with an exact retry when opening art fails', async ({ page }) => {
   await page.route('**/images/intro/tmb2/logo/tmb2-ident-base.png', (route) => route.abort())
   await page.goto('/')
-  const intro = page.getByRole('region', { name: 'Game intro' })
-  await expect(intro).toHaveAttribute('aria-busy', 'false')
+  const entry = page.getByRole('region', { name: 'Game entry' })
+  await expect(entry).toHaveAttribute('aria-busy', 'false')
   await expect(page.getByRole('alert')).toContainText(
     'logo-base (images/intro/tmb2/logo/tmb2-ident-base.png)',
   )
   await page.unroute('**/images/intro/tmb2/logo/tmb2-ident-base.png')
   await page.getByRole('button', { name: 'Retry cinematic assets' }).click()
-  await expect(intro).toHaveAttribute('aria-busy', 'false', { timeout: 60_000 })
+  await expect(entry.getByRole('button', { name: 'Click to begin', exact: true })).toBeEnabled({ timeout: 60_000 })
+  await expect(page.locator('audio')).toHaveJSProperty('paused', true)
 })
 
 test('captures TMB2 Productions owner-review proof', async ({ page }) => {
@@ -532,6 +537,7 @@ test('captures TMB2 Productions owner-review proof', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
   await page.goto('/')
+  await beginGameIntro(page)
   const intro = page.getByRole('region', { name: 'Game intro' })
   await expect(intro).toHaveAttribute('aria-busy', 'false', { timeout: 60_000 })
   const audio = page.locator('audio')
@@ -1338,6 +1344,7 @@ test('complete reordered journey', async ({ page }) => {
   await page.route('**/models/dc9-cockpit.glb*', (route) => route.abort())
   await page.goto('/?skip3d=1')
 
+  await beginGameIntro(page)
   const intro = page.getByRole('region', { name: 'Game intro' })
   await expect(intro).toBeVisible()
   await expect(page.getByText('DC-9-32 first-officer station')).toHaveCount(0)

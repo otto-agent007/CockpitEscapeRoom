@@ -27,6 +27,7 @@ import {
 import { deriveDueIntroSfx } from '../game/introSfx'
 import { IntroSfxPlayer } from '../game/introSfxPlayer'
 import { IntroCanvas } from './intro/IntroCanvas'
+import { GameEntry } from './GameEntry'
 
 interface GameIntroProps {
   reducedMotion: boolean
@@ -45,7 +46,6 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
   const sfxTimeRef = useRef(0)
   const assetLoadStateRef = useRef<IntroAssetLoadState>(createIntroAssetLoadState())
   const assetLoadGenerationRef = useRef(0)
-  const autoStartRequestedRef = useRef(false)
   const [started, setStarted] = useState(false)
   const [timeSeconds, setTimeSeconds] = useState(0)
   const [startAvailable, setStartAvailable] = useState(false)
@@ -67,7 +67,6 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
 
   const loadIntroAssets = useCallback(() => {
     const generation = ++assetLoadGenerationRef.current
-    autoStartRequestedRef.current = false
     const loadingState = beginIntroAssetLoad(assetLoadStateRef.current)
     assetLoadStateRef.current = loadingState
     setAssetLoadState(loadingState)
@@ -214,12 +213,6 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
   }, [loadIntroAssets])
 
   useEffect(() => {
-    if (assetLoadState.status !== 'ready' || started || autoStartRequestedRef.current) return
-    autoStartRequestedRef.current = true
-    startIntro()
-  }, [assetLoadState.status, startIntro, started])
-
-  useEffect(() => {
     if (!started || reducedMotion) return
     const player = new IntroSfxPlayer()
     sfxPlayerRef.current = player
@@ -328,82 +321,72 @@ export function GameIntro({ reducedMotion, onComplete }: GameIntroProps) {
         onTimeUpdate={(event) => updatePlaybackTime(event.currentTarget.currentTime)}
       />
 
-      <section
-        className={`game-intro${phase === 'handoff' ? ' game-intro--handoff' : ''}`}
-        aria-label="Game intro"
-        aria-busy={assetLoadState.status === 'loading'}
-        data-intro-cue={scene.id}
-        data-audio-failed={audioFailed ? 'true' : 'false'}
-        data-reduced-motion={reducedMotion ? 'true' : 'false'}
-        data-start-available={startAvailable ? 'true' : 'false'}
-        data-transition-state={phase}
-      >
-        {assetLoadState.status === 'error' ? (
-          <div className="game-intro__asset-error">
-            <p id="intro-asset-status" role="alert">
-              Cinematic art failed: {assetLoadState.failure.assetId} ({assetLoadState.failure.assetPath}).
-            </p>
-            <button type="button" className="game-intro__control" onClick={loadIntroAssets}>
-              Retry cinematic assets
-            </button>
+      {!started ? (
+        <GameEntry loadState={assetLoadState} onBegin={startIntro} onRetry={loadIntroAssets} />
+      ) : (
+        <section
+          className={`game-intro${phase === 'handoff' ? ' game-intro--handoff' : ''}`}
+          aria-label="Game intro"
+          aria-busy={assetLoadState.status === 'loading'}
+          data-intro-cue={scene.id}
+          data-audio-failed={audioFailed ? 'true' : 'false'}
+          data-reduced-motion={reducedMotion ? 'true' : 'false'}
+          data-start-available={startAvailable ? 'true' : 'false'}
+          data-transition-state={phase}
+        >
+          <div className="game-intro__stage-shell">
+            <IntroCanvas
+              timeSeconds={timeSeconds}
+              assets={assets}
+              reducedMotion={reducedMotion}
+              handoffProgress={handoffProgress}
+            />
           </div>
-        ) : null}
-        <div className="game-intro__stage-shell">
-          <IntroCanvas
-            timeSeconds={timeSeconds}
-            assets={assets}
-            reducedMotion={reducedMotion}
-            handoffProgress={handoffProgress}
-          />
-        </div>
-        <p className="game-intro__summary sr-only">{scene.summary}</p>
+          <p className="game-intro__summary sr-only">{scene.summary}</p>
 
-        {startAvailable && phase === 'playing' ? (
-          <button
-            type="button"
-            className="game-intro__press-start"
-            aria-label="Start game"
-            onClick={requestStart}
-          >
-            PRESS START
-          </button>
-        ) : null}
+          {startAvailable && phase === 'playing' ? (
+            <button
+              type="button"
+              className="game-intro__press-start"
+              aria-label="Start game"
+              onClick={requestStart}
+            >
+              PRESS START
+            </button>
+          ) : null}
 
-        <div className="game-intro__controls">
-          <p className="game-intro__sound-status" role="status" aria-live="polite">
-            {!started
-              ? 'Preparing the TMB2 cinematic…'
-              : audioFailed
+          <div className="game-intro__controls">
+            <p className="game-intro__sound-status" role="status" aria-live="polite">
+              {audioFailed
                 ? 'The intro is continuing without sound.'
                 : muted
                   ? 'Intro muted.'
                   : 'Intro audio playing.'}
-          </p>
-          {visualFailure ? <p className="game-intro__visual-status">{visualFailure}</p> : null}
-          {started ? (
+            </p>
+            {visualFailure ? <p className="game-intro__visual-status">{visualFailure}</p> : null}
             <div className="game-intro__audio-controls">
-              {audioFailed ? (
-                <button type="button" className="game-intro__control" onClick={retrySound}>Retry sound</button>
-              ) : null}
-              <button type="button" className="game-intro__control" onClick={toggleMute}>
-                {muted ? 'Unmute intro' : 'Mute intro'}
-              </button>
-              <label className="game-intro__volume">
-                <span>Volume</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  value={volume}
-                  aria-label="Intro volume"
-                  onChange={(event) => changeVolume(Number(event.currentTarget.value))}
-                />
-              </label>
+                {audioFailed ? (
+                  <button type="button" className="game-intro__control" onClick={retrySound}>Retry sound</button>
+                ) : null}
+                <button type="button" className="game-intro__control" onClick={toggleMute}>
+                  {muted ? 'Unmute intro' : 'Mute intro'}
+                </button>
+                <label className="game-intro__volume">
+                  <span>Volume</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    value={volume}
+                    aria-label="Intro volume"
+                    onChange={(event) => changeVolume(Number(event.currentTarget.value))}
+                  />
+                </label>
             </div>
-          ) : null}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
     </>
   )
 }

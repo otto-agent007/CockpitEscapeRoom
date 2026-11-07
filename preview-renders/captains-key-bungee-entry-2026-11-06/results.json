@@ -1,0 +1,239 @@
+{
+  "url": "http://127.0.0.1:4174/",
+  "browser": "installed Chromium; Browser plugin unavailable",
+  "viewports": [
+    {
+      "width": 1586,
+      "height": 992,
+      "font": "Bungee, \"Arial Black\", Impact, sans-serif",
+      "fontLoaded": true,
+      "bodyFontLoaded": true,
+      "title": {
+        "x": 52,
+        "y": 161.640625,
+        "width": 571.203125,
+        "height": 260.90625,
+        "bottom": 422.546875
+      },
+      "button": {
+        "x": 52,
+        "y": 603.640625,
+        "width": 560,
+        "height": 102,
+        "bottom": 705.640625
+      },
+      "art": {
+        "x": 655.203125,
+        "y": 56.59375,
+        "width": 878.796875,
+        "height": 878.796875,
+        "bottom": 935.390625
+      },
+      "horizontalOverflow": false,
+      "verticalOverflow": false,
+      "copy": "THE\nCAPTAIN’S\nKEY\n\nFor Pop T, from your crew.\n\n▶\nCLICK TO BEGIN\n\nYour flight begins with sound.",
+      "screenshot": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/captains-key-bungee-entry-2026-11-06/entry-1586.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "font": "Bungee, \"Arial Black\", Impact, sans-serif",
+      "fontLoaded": true,
+      "bodyFontLoaded": true,
+      "title": {
+        "x": 52,
+        "y": 132.828125,
+        "width": 513.6875,
+        "height": 234.65625,
+        "bottom": 367.484375
+      },
+      "button": {
+        "x": 52,
+        "y": 544.25,
+        "width": 513.6875,
+        "height": 102,
+        "bottom": 646.25
+      },
+      "art": {
+        "x": 597.6875,
+        "y": 54.84375,
+        "width": 790.3125,
+        "height": 790.3125,
+        "bottom": 845.15625
+      },
+      "horizontalOverflow": false,
+      "verticalOverflow": false,
+      "copy": "THE\nCAPTAIN’S\nKEY\n\nFor Pop T, from your crew.\n\n▶\nCLICK TO BEGIN\n\nYour flight begins with sound.",
+      "screenshot": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/captains-key-bungee-entry-2026-11-06/entry-1440.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "font": "Bungee, \"Arial Black\", Impact, sans-serif",
+      "fontLoaded": true,
+      "bodyFontLoaded": true,
+      "title": {
+        "x": 52,
+        "y": 148.09375,
+        "width": 450.65625,
+        "height": 205.828125,
+        "bottom": 353.921875
+      },
+      "button": {
+        "x": 52,
+        "y": 439.0625,
+        "width": 450.65625,
+        "height": 76,
+        "bottom": 515.0625
+      },
+      "art": {
+        "x": 612,
+        "y": 52,
+        "width": 616,
+        "height": 616,
+        "bottom": 668
+      },
+      "horizontalOverflow": false,
+      "verticalOverflow": false,
+      "copy": "THE\nCAPTAIN’S\nKEY\n\nFor Pop T, from your crew.\n\n▶\nCLICK TO BEGIN\n\nYour flight begins with sound.",
+      "screenshot": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/captains-key-bungee-entry-2026-11-06/entry-1280.png"
+    },
+    {
+      "width": 901,
+      "height": 900,
+      "font": "Bungee, \"Arial Black\", Impact, sans-serif",
+      "fontLoaded": true,
+      "bodyFontLoaded": true,
+      "title": {
+        "x": 52,
+        "y": 196.25,
+        "width": 301.359375,
+        "height": 137.625,
+        "bottom": 333.875
+      },
+      "button": {
+        "x": 52,
+        "y": 494.640625,
+        "width": 301.359375,
+        "height": 102,
+        "bottom": 596.640625
+      },
+      "art": {
+        "x": 385.359375,
+        "y": 218.1875,
+        "width": 463.625,
+        "height": 463.625,
+        "bottom": 681.8125
+      },
+      "horizontalOverflow": false,
+      "verticalOverflow": false,
+      "copy": "THE\nCAPTAIN’S\nKEY\n\nFor Pop T, from your crew.\n\n▶\nCLICK TO BEGIN\n\nYour flight begins with sound.",
+      "screenshot": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/captains-key-bungee-entry-2026-11-06/entry-901.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "font": "Bungee, \"Arial Black\", Impact, sans-serif",
+      "fontLoaded": true,
+      "bodyFontLoaded": true,
+      "title": {
+        "x": 144,
+        "y": 584.703125,
+        "width": 480,
+        "height": 134.25,
+        "bottom": 718.953125
+      },
+      "button": {
+        "x": 144,
+        "y": 791.953125,
+        "width": 480,
+        "height": 65.59375,
+        "bottom": 857.546875
+      },
+      "art": {
+        "x": 164,
+        "y": 116.703125,
+        "width": 440,
+        "height": 440,
+        "bottom": 556.703125
+      },
+      "horizontalOverflow": false,
+      "verticalOverflow": false,
+      "copy": "THE\nCAPTAIN’S\nKEY\n\nFor Pop T, from your crew.\n\n▶\nCLICK TO BEGIN\n\nYour flight begins with sound.",
+      "screenshot": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/captains-key-bungee-entry-2026-11-06/entry-768.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "font": "Bungee, \"Arial Black\", Impact, sans-serif",
+      "fontLoaded": true,
+      "bodyFontLoaded": true,
+      "title": {
+        "x": 26,
+        "y": 425.03125,
+        "width": 323,
+        "height": 112.78125,
+        "bottom": 537.8125
+      },
+      "button": {
+        "x": 26,
+        "y": 603.5625,
+        "width": 323,
+        "height": 60.796875,
+        "bottom": 664.359375
+      },
+      "art": {
+        "x": 37.5,
+        "y": 103.03125,
+        "width": 300,
+        "height": 300,
+        "bottom": 403.03125
+      },
+      "horizontalOverflow": false,
+      "verticalOverflow": false,
+      "copy": "THE\nCAPTAIN’S\nKEY\n\nFor Pop T, from your crew.\n\n▶\nCLICK TO BEGIN\n\nYour flight begins with sound.",
+      "screenshot": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/captains-key-bungee-entry-2026-11-06/entry-375.png"
+    },
+    {
+      "width": 667,
+      "height": 375,
+      "font": "Bungee, \"Arial Black\", Impact, sans-serif",
+      "fontLoaded": true,
+      "bodyFontLoaded": true,
+      "title": {
+        "x": 28,
+        "y": 52.171875,
+        "width": 308.9375,
+        "height": 117.28125,
+        "bottom": 169.453125
+      },
+      "button": {
+        "x": 28,
+        "y": 229.203125,
+        "width": 308.9375,
+        "height": 50,
+        "bottom": 279.203125
+      },
+      "art": {
+        "x": 360.9375,
+        "y": 48.46875,
+        "width": 278.046875,
+        "height": 278.046875,
+        "bottom": 326.515625
+      },
+      "horizontalOverflow": false,
+      "verticalOverflow": false,
+      "copy": "THE\nCAPTAIN’S\nKEY\n\nFor Pop T, from your crew.\n\n▶\nCLICK TO BEGIN\n\nYour flight begins with sound.",
+      "screenshot": "/mnt/2TBHDD/CockpitEscapeRoom/preview-renders/captains-key-bungee-entry-2026-11-06/entry-667.png"
+    }
+  ],
+  "errors": [],
+  "externalRequests": [],
+  "title": "The Captain's Key",
+  "beginSound": {
+    "paused": false,
+    "muted": false,
+    "currentTime": 0.352561
+  },
+  "passed": true
+}
