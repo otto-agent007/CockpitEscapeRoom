@@ -1,0 +1,159 @@
+{
+  "environment": "Local production on 4174; Browser plugin unavailable; installed Chromium with touch emulation; real A320 GLB; no model changes",
+  "results": [
+    {
+      "name": "a320-engine",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "url": "http://127.0.0.1:4174/",
+      "title": "The Captain's Key",
+      "geometry": {
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "width": 375,
+          "height": 432
+        },
+        "tray": {
+          "x": 0,
+          "y": 432,
+          "width": 375,
+          "height": 380
+        },
+        "holds": [
+          {
+            "label": "Hold Bank left",
+            "text": "",
+            "x": 13,
+            "y": 689,
+            "width": 52.171875,
+            "height": 48
+          },
+          {
+            "label": "Hold Bank right",
+            "text": "",
+            "x": 70.171875,
+            "y": 689,
+            "width": 52.1875,
+            "height": 48
+          },
+          {
+            "label": "Hold Increase",
+            "text": "Increase",
+            "x": 127.359375,
+            "y": 689,
+            "width": 57.640625,
+            "height": 48
+          },
+          {
+            "label": "Hold Decrease",
+            "text": "Decrease",
+            "x": 190,
+            "y": 689,
+            "width": 57.640625,
+            "height": 48
+          },
+          {
+            "label": "Hold Balance left",
+            "text": "Balance left",
+            "x": 252.640625,
+            "y": 703,
+            "width": 52.171875,
+            "height": 48
+          },
+          {
+            "label": "Hold Balance right",
+            "text": "Balance right",
+            "x": 309.8125,
+            "y": 703,
+            "width": 52.1875,
+            "height": 48
+          }
+        ],
+        "horizontalOverflow": false
+      }
+    },
+    {
+      "name": "a320-engine",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "url": "http://127.0.0.1:4174/",
+      "title": "The Captain's Key",
+      "geometry": {
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "width": 667,
+          "height": 177
+        },
+        "tray": {
+          "x": 0,
+          "y": 177,
+          "width": 667,
+          "height": 198
+        },
+        "holds": [
+          {
+            "label": "Hold Bank left",
+            "text": "",
+            "x": 213.296875,
+            "y": 206,
+            "width": 67.453125,
+            "height": 48
+          },
+          {
+            "label": "Hold Bank right",
+            "text": "",
+            "x": 284.75,
+            "y": 206,
+            "width": 67.46875,
+            "height": 48
+          },
+          {
+            "label": "Hold Increase",
+            "text": "Increase",
+            "x": 357.21875,
+            "y": 206,
+            "width": 74.40625,
+            "height": 48
+          },
+          {
+            "label": "Hold Decrease",
+            "text": "Decrease",
+            "x": 435.625,
+            "y": 206,
+            "width": 74.421875,
+            "height": 48
+          },
+          {
+            "label": "Hold Balance left",
+            "text": "Balance left",
+            "x": 515.046875,
+            "y": 206,
+            "width": 67.46875,
+            "height": 48
+          },
+          {
+            "label": "Hold Balance right",
+            "text": "Balance right",
+            "x": 586.515625,
+            "y": 206,
+            "width": 67.46875,
+            "height": 48
+          }
+        ],
+        "horizontalOverflow": false
+      }
+    }
+  ],
+  "errors": [],
+  "fingerprints": {
+    "src/components/Hud.tsx": "36049155a012d8c3c7f4d566730a9a0b51e544a99b30fb47f31fa72a1ce9f7de",
+    "src/components/mobileCockpit.css": "d7c375d3d4281f454b1702b9f665b0f57599ec936c73ad2e7cce17b2d5a50967",
+    "e2e/mobile-cockpit.spec.ts": "e0b8ac65e3de97f2c12e5efac50ec7dd96f9823aef84442cfd11a23b9b80d469"
+  }
+}

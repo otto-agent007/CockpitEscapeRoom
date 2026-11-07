@@ -79,14 +79,24 @@ function HoldControl({
   control,
   label,
   runtime,
+  arrow,
 }: {
   control: AirbusHoldControl
   label: string
   runtime: AirbusSimulatorRuntime
+  arrow?: 'left' | 'right'
 }) {
   const disabled = runtime.paused || runtime.activeFrame?.state.phase === 'checkpointFailed'
   // A pause/failure starts a new native hold, releasing captured fingers on unmount.
-  return <HoldButton key={disabled ? 'inactive' : 'active'} className="storm-hold-control" control={control} label={`Hold ${label}`} disabled={disabled} onHold={(pressed) => runtime.setHoldControl(control, pressed)}>{label}</HoldButton>
+  return (
+    <HoldButton key={disabled ? 'inactive' : 'active'} className="storm-hold-control" control={control} label={`Hold ${label}`} disabled={disabled} onHold={(pressed) => runtime.setHoldControl(control, pressed)}>
+      {arrow ? (
+        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d={arrow === 'left' ? 'M19 12H5m7-7-7 7 7 7' : 'M5 12h14m-7-7 7 7-7 7'} />
+        </svg>
+      ) : label}
+    </HoldButton>
+  )
 }
 
 function AirbusRouteGuidanceBlock({ guidance }: { guidance: AirbusRouteGuidance | null }) {
@@ -358,10 +368,10 @@ function AirbusStormLineHud({
         <div id="storm-flight-controls" className="storm-control-deck" aria-label="Accessible flight controls">
           <div className="storm-control-group">
             <span>Sidestick</span>
-            <HoldControl control="bankLeft" label="Bank left" runtime={runtime} />
-            <HoldControl control="pitchUp" label="Pitch up" runtime={runtime} />
-            <HoldControl control="pitchDown" label="Pitch down" runtime={runtime} />
-            <HoldControl control="bankRight" label="Bank right" runtime={runtime} />
+            <HoldControl control="bankLeft" label="Bank left" runtime={runtime} arrow={compact ? 'left' : undefined} />
+            {!compact && <HoldControl control="pitchUp" label="Pitch up" runtime={runtime} />}
+            {!compact && <HoldControl control="pitchDown" label="Pitch down" runtime={runtime} />}
+            <HoldControl control="bankRight" label="Bank right" runtime={runtime} arrow={compact ? 'right' : undefined} />
           </div>
           <div className="storm-control-group">
             <span>Paired thrust</span>
@@ -653,10 +663,10 @@ function AirbusEngineOutHud({
         <div id="engine-out-controls" className="storm-control-deck" aria-label="Accessible Engine-Out controls">
           <div className="storm-control-group">
             <span>Sidestick</span>
-            <HoldControl control="bankLeft" label="Bank left" runtime={runtime} />
-            <HoldControl control="pitchUp" label="Pitch up" runtime={runtime} />
-            <HoldControl control="pitchDown" label="Pitch down" runtime={runtime} />
-            <HoldControl control="bankRight" label="Bank right" runtime={runtime} />
+            <HoldControl control="bankLeft" label="Bank left" runtime={runtime} arrow={compact ? 'left' : undefined} />
+            {!compact && <HoldControl control="pitchUp" label="Pitch up" runtime={runtime} />}
+            {!compact && <HoldControl control="pitchDown" label="Pitch down" runtime={runtime} />}
+            <HoldControl control="bankRight" label="Bank right" runtime={runtime} arrow={compact ? 'right' : undefined} />
           </div>
           <div className="storm-control-group">
             <span>Paired thrust</span>

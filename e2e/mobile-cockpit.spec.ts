@@ -13,19 +13,19 @@ export function mobileDepartureState(): GameState {
   return { ...state, cockpitOrientationSeen: { dc9: true, airbus: true }, dc9: { ...state.dc9, stage: 'memphisDeparture', instrumentScan: { identified: [...DC9_INSTRUMENT_SCAN_ORDER], attempts: 0 } } }
 }
 
-export function mobileAirbusFlightState(engineOut = false): GameState {
+export function mobileAirbusFlightState(engineOut = false, decision = false): GameState {
   const state = engineOut ? createCompletedAirbusState() : createAirbusState()
   return {
     ...state, completedPuzzles: ['dc9', 'locker'], airbusAssignments: { ...airbusCaptainFlow.controlMatch },
     airbusSimulator: {
       ...state.airbusSimulator, familiarization: 'completed', cameraPhase: 'storm', location: engineOut ? 'engineOut' : 'stormLine',
-      stormLine: { ...state.airbusSimulator.stormLine, status: engineOut ? 'completed' : 'in_progress', checkpoint: engineOut ? 'clearAir' : 'stormEntry' },
-      engineOut: { ...state.airbusSimulator.engineOut, status: engineOut ? 'in_progress' : 'locked', checkpoint: 'recognition' },
+      stormLine: { ...state.airbusSimulator.stormLine, status: engineOut ? 'completed' : 'in_progress', checkpoint: engineOut ? 'clearAir' : decision ? 'stormCore' : 'stormEntry' },
+      engineOut: { ...state.airbusSimulator.engineOut, status: engineOut ? 'in_progress' : 'locked', checkpoint: decision ? 'diversion' : 'recognition' },
       workload: engineOut ? {
         ...state.airbusSimulator.workload,
-        completedTasks: ['stormScanRange', 'stormGapSelection'],
+        completedTasks: decision ? ['stormScanRange', 'stormGapSelection', 'engineEventAcknowledgement'] : ['stormScanRange', 'stormGapSelection'],
         selectedSafeReturnSide: null,
-      } : state.airbusSimulator.workload,
+      } : decision ? { ...state.airbusSimulator.workload, completedTasks: ['stormScanRange'] } : state.airbusSimulator.workload,
     },
   }
 }
@@ -80,13 +80,33 @@ for (const [name, state, selector] of [
   ['A320 qualification', createAirbusState(), '.airbus-card-tray'],
   ['A320 Storm Line', mobileAirbusFlightState(), '.cockpit-flight-tray'],
   ['A320 Engine-Out', mobileAirbusFlightState(true), '.cockpit-flight-tray'],
+  ['A320 Storm Line route choice', mobileAirbusFlightState(false, true), '.cockpit-flight-tray'],
+  ['A320 Engine-Out corridor choice', mobileAirbusFlightState(true, true), '.cockpit-flight-tray'],
 ] as const) {
   test(`${name} keeps its touch panel below the cockpit in portrait and landscape`, async ({ page }) => {
     await openState(page, state)
     await expect(page.locator(selector)).toBeVisible()
+    if (name === 'A320 Engine-Out') {
+      await expect(page.locator('.storm-route-guidance')).toContainText('hold Balance right')
+    }
     for (const viewport of [{ width: 375, height: 812 }, { width: 768, height: 1024 }, { width: 667, height: 375 }, { width: 932, height: 430 }, { width: 1024, height: 768 }]) {
       await page.setViewportSize(viewport)
       await expectSeparated(page, selector)
+      if (selector === '.cockpit-flight-tray') {
+        const scene = (await page.locator('.scene').boundingBox())!
+        expect(scene.height / viewport.height, 'compact flight controls must give most of the screen to the cockpit').toBeGreaterThanOrEqual(viewport.width > viewport.height ? 0.54 : 0.64)
+        if (viewport.width > viewport.height && viewport.height <= 520) {
+          const advice = (await page.locator('.storm-route-guidance p').boundingBox())!
+          const meter = (await page.locator('.storm-drift-meter').boundingBox())!
+          expect(meter.y, 'landscape route advice and drift meter must share one row').toBeLessThan(advice.y + advice.height)
+        }
+        await expect(page.getByRole('button', { name: /^Hold Pitch/ })).toHaveCount(0)
+        for (const direction of ['left', 'right']) {
+          const bank = page.getByRole('button', { name: `Hold Bank ${direction}`, exact: true })
+          await expect(bank.locator('svg[aria-hidden="true"]')).toHaveCount(1)
+          await expect(bank).toHaveText('')
+        }
+      }
       if (name === 'DC-9 departure') {
         await expect(page.getByText('1995 MEMPHIS MEMORY', { exact: true })).toBeVisible()
         await expect(page.locator('.dc9-memphis-departure__header > p:last-child')).toBeInViewport({ ratio: 1 })
@@ -97,6 +117,10 @@ for (const [name, state, selector] of [
         const box = (await button.boundingBox())!
         expect(box.width).toBeGreaterThanOrEqual(48)
         expect(box.height).toBeGreaterThanOrEqual(48)
+        if (selector === '.cockpit-flight-tray') {
+          const tools = (await page.locator('.scene-tools').boundingBox())!
+          expect(box.y + box.height, 'flight holds must clear the viewer toolbar').toBeLessThanOrEqual(tools.y + 1)
+        }
       }
       for (const action of await page.locator('.airbus-workload-actions button:visible').all()) {
         await expect(action).toBeInViewport({ ratio: 1 })
@@ -112,6 +136,11 @@ for (const [name, state, selector] of [
           expect(overlap, 'touch controls must not overlap each other').toBe(false)
         }
       }
+    }
+    if (selector === '.cockpit-flight-tray') {
+      await page.setViewportSize({ width: 1440, height: 900 })
+      await expect(page.getByRole('button', { name: /^Hold Pitch/ })).toHaveCount(2)
+      await expect(page.getByRole('button', { name: 'Hold Bank left', exact: true })).toHaveText('Bank left')
     }
   })
 }

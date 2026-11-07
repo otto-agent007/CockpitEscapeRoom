@@ -1,5 +1,7 @@
 # Mobile cockpit touch presentation
 
+2026-11-07 owner revisions: the compact A320 sidestick now has two bank arrow buttons, with pitch controls retained on desktop. The tray shrinks from 380 to 280px at 375×812, increasing the actual cockpit canvas from 432 to 532px. New final images/source fingerprints live in `preview-renders/mobile-airbus-compact-2026-11-07/`; the first arrow-only candidate is preserved in `preview-renders/mobile-airbus-bank-controls-2026-11-07/`. The original milestone images/receipts below remain historical. This revision changes native UI only. All model, material, geometry, camera, runtime asset identity and license authority described below remains unchanged. Focused checks are recorded in the 2026-11-07 TEST_REPORT.md entry.
+
 The owner reported that phone control panels obscured the cockpit and selected compact native controls below the cockpit, with instructions in Help. The new layout reserves actual canvas space above the touch tray for DC-9 control check/scan/departure/shutdown and A320 qualification/Storm Line/Engine-Out. The DC-9 remains the first-officer/right-seat view; the A320 remains the captain/left-seat view. Camera poses, GLBs, geometry, materials, textures, lights, mesh contracts and game rules were not edited.
 
 ## Runtime asset identity
