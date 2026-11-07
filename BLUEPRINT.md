@@ -4,13 +4,13 @@
 
 CockpitEscapeRoom is a personalized, family-friendly browser escape room with one emotional arc:
 
-**automatic console-era cinematic → DC-9 First-Officer Final Flight Log → Captain's Locker → Airbus A320 Pop T Captain Mode → red Model Y Flight Mode reward → optional Mars Easter egg**
+**Click to begin → console-era cinematic with sound → DC-9 First-Officer Final Flight Log → Captain's Locker → Airbus A320 Pop T Captain Mode → red Model Y Flight Mode reward → optional Mars Easter egg**
 
 It honors an expert pilot who began on the McDonnell Douglas DC-9 and later flew Airbus aircraft. Dad is always portrayed as capable, calm, and respected. The present-day tribute aircraft is safely parked; the Memphis taxi and takeoff are an explicitly fictional 1995 memory recreation, never an accident or operational lesson.
 
 ## Current journey
 
-1. A fresh or restarted game mounts the cinematic immediately. There is no outer **Start Game** screen; the cinematic's own **PRESS START** opens the DC-9 chapter.
+1. A fresh or restarted game opens on the illustrated **Click to begin** page. That native button starts the cinematic and requests unmuted audio within the player's click or key press; the cinematic's own **PRESS START** opens the DC-9 chapter. Saved later chapters resume directly.
 2. From the DC-9-32 first-officer/right seat, the player completes the control check and instrument scan.
 3. **Memphis Legacy Departure** recreates a short, qualitative Concourse B taxi and takeoff memory through checkpoint-safe arcade controls.
 4. The non-puzzle **Home Operations Log** recognizes Momma Cheryl's parallel work at home.
@@ -42,7 +42,7 @@ Every required 3D action has a native HTML, keyboard, or equivalent accessible p
 - Vite, React, TypeScript, React Three Fiber, and Three.js power the browser game.
 - Pure rules, content, reducer state, and persistence live in `src/game/`; 3D presentation lives in `src/scenes/`; accessible UI lives in `src/components/`.
 - Canonical schema 15 stores local-only progress across `briefing | dc9 | locker | airbus | reward | mars` and migrates older saves safely.
-- The app loads the cinematic first, preloads the DC-9 cockpit and Memphis view during it, and lazy-loads later chapter assets.
+- The app prepares the cinematic and preloads the DC-9 cockpit and Memphis view while the Begin page is visible, starts the cinematic on the player's gesture, and lazy-loads later chapter assets.
 - Blender is authoritative for production geometry, materials, pivots, cameras, animation, hierarchy, and exported `game_id` metadata. Validated GLBs are the runtime format for interactive 3D chapters; the final Tesla Flight Mode reward uses the approved film.
 
 ## Asset boundaries

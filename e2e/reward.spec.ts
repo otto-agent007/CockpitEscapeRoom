@@ -205,7 +205,7 @@ test('the Tesla film is protected until reward and replaces the legacy hangar', 
   const requested: string[] = []
   page.on('request', (request) => requested.push(request.url()))
   await page.goto('/')
-  await expect(page.getByRole('region', { name: 'Game intro' })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Game entry' })).toBeVisible()
   expect(requested.some((url) => url.includes('/media/tesla-flight-mode-final.mp4'))).toBe(false)
   expect(requested.some((url) => url.includes('/models/model-y-reward.glb'))).toBe(false)
 

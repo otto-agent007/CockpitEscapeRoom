@@ -1,0 +1,33 @@
+{
+  "url": "http://127.0.0.1:4173/",
+  "browser": "installed Chromium; Browser plugin unavailable",
+  "checks": [
+    {
+      "width": 1440,
+      "entryVisible": true,
+      "overflow": false,
+      "screenshot": "/tmp/captains-key-entry/entry-1440.png"
+    },
+    {
+      "width": 768,
+      "entryVisible": true,
+      "overflow": false,
+      "screenshot": "/tmp/captains-key-entry/entry-768.png"
+    },
+    {
+      "width": 375,
+      "entryVisible": true,
+      "overflow": false,
+      "screenshot": "/tmp/captains-key-entry/entry-375.png"
+    }
+  ],
+  "errors": [],
+  "warnings": [],
+  "title": "The Captain's Key",
+  "keyboardSound": {
+    "muted": false,
+    "paused": false,
+    "currentTime": 0.452077
+  },
+  "passed": true
+}

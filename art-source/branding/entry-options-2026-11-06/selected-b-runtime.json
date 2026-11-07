@@ -1,0 +1,52 @@
+{
+  "selected": "B",
+  "approvedBy": "Owner: B and make the whole page match that aesthetic; layout subsequently approved",
+  "files": [
+    {
+      "path": "art-source/branding/entry-options-2026-11-06/arcade-adventure.png",
+      "bytes": 1703074,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "9f860b039ca422c241eec45b81c5a4171a796fb10edbaf255f1ef98928a9215d"
+    },
+    {
+      "path": "public/images/captains-key-arcade.webp",
+      "bytes": 207518,
+      "width": 1024,
+      "height": 1024,
+      "sha256": "25230c38d3a641da2ec74035fd355759ddca144ee1dc1a2ac153b11e5dbdd90a"
+    },
+    {
+      "path": "public/favicon-arcade-16.png",
+      "bytes": 873,
+      "width": 16,
+      "height": 16,
+      "sha256": "78a01a70e6f7fc97ccfb0dfda3cfeb7ba6e9bab6386d3cb2f638dec95771aad8"
+    },
+    {
+      "path": "public/favicon-arcade-32.png",
+      "bytes": 3063,
+      "width": 32,
+      "height": 32,
+      "sha256": "6c93a1a2e19659c58b0cb54232543c734be146e3fa1f50f5880ee9d2fa51be10"
+    },
+    {
+      "path": "public/apple-touch-icon-arcade.png",
+      "bytes": 8021,
+      "width": 180,
+      "height": 180,
+      "sha256": "4809b640cb4fb8a14fa4a5ffaf8918aac731fa2c7de9da49c6c4a88c072886f2"
+    },
+    {
+      "bytes": 2476,
+      "sha256": "9eb12e013b1f3d96fde4fa44b73c7f32fc71e9d0ab3d7e81ee6e7946f938c231",
+      "path": "public/fonts/bungee-entry.woff2"
+    },
+    {
+      "bytes": 15368,
+      "sha256": "f842567c0023c4d44aa31303e8eca9b51520573d4ac85a4152131da39bce8a78",
+      "path": "public/fonts/barlow-medium-latin.woff2"
+    }
+  ],
+  "selectedFontOption": "B \u2014 Bungee"
+}
