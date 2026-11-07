@@ -1,0 +1,53 @@
+{
+  "baseCommit": "77e04df06375a0f6040b463aed04ccf6db320b6c",
+  "files": [
+    {
+      "path": "src/App.tsx",
+      "sha256": "7ee2e9548c6da5cee3b91f769e37cc89c2c98087542f152317cdd13195520e13"
+    },
+    {
+      "path": "src/main.tsx",
+      "sha256": "a2ed1949af0ad4fb278760aeefbcddcba8375905664f7dc42df17e95dedb5e7a"
+    },
+    {
+      "path": "src/components/mobileCockpit.css",
+      "sha256": "27011f2c64d159760af5bed49ae9b7617e191cde7a0b213e857536881639b02b"
+    },
+    {
+      "path": "src/components/Hud.tsx",
+      "sha256": "33e39e01c7bfa91fc9fa080b13b6886397930af3898705c87ade1ecedb7e9879"
+    },
+    {
+      "path": "src/components/HoldButton.tsx",
+      "sha256": "ef1db3107491a68e6ff3c7fe61846d7d755dbc2611891ebc8aa1d20d2e9eed6a"
+    },
+    {
+      "path": "src/components/CockpitHelp.tsx",
+      "sha256": "f482b5cac3fdf1af7fb65959e451ed50ec9e9934cd4ac0e89f33101a28804bb2"
+    },
+    {
+      "path": "src/components/useCompactCockpit.ts",
+      "sha256": "dee7bd40f71335f7c708d3de74ed40f34c54fc63cdef71cca8e17fcb8ed708d0"
+    },
+    {
+      "path": "src/components/dc9/Dc9Chapter.tsx",
+      "sha256": "fe05be2fd45f0ee244c539d46788d924784ff40f9488d01f183b89d28d8f74fa"
+    },
+    {
+      "path": "src/components/dc9/ControlCheckPanel.tsx",
+      "sha256": "be3cfb3b998c8594d1446ae766350e1893427c900c0fa95c60de8de24a924068"
+    },
+    {
+      "path": "src/components/dc9/Dc9AxisControls.tsx",
+      "sha256": "746d4848801809cb5c693c177b69f055f7c5c9bd9b3f9e8bbf3be23e53228c1c"
+    },
+    {
+      "path": "src/components/dc9/InstrumentScanPanel.tsx",
+      "sha256": "9d1d4af5796d99fcb1fefcb163de47a964a6d4088e5235673168bea51a4424dd"
+    },
+    {
+      "path": "src/components/dc9/MemphisDeparturePanel.tsx",
+      "sha256": "eee3ee6d218486b2a5bd5a67c00a0d7d2f5ecea799dfce133bf2655a8dc3bc31"
+    }
+  ]
+}

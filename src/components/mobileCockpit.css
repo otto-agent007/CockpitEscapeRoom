@@ -1,0 +1,266 @@
+/* Desktop keeps its existing cockpit layout and full instructions. */
+.cockpit-touch-label,
+.cockpit-touch-progress,
+.cockpit-touch-instruction,
+.cockpit-touch-feedback { display: none; }
+.cockpit-flight-tray,
+.cockpit-flight-guidance,
+.dc9-departure-guide { display: contents; }
+
+.dc9-axis__hold,
+.storm-hold-control { touch-action: none; user-select: none; -webkit-touch-callout: none; }
+.dc9-axis__hold[data-held='true'],
+.storm-hold-control[data-held='true'] { background: #28545a; border-color: #e9c475; color: #fff; }
+
+@media (max-width: 900px), (pointer: coarse) and (max-width: 1200px) {
+  .game-shell[data-cockpit-controls] {
+    --cockpit-tray-height: min(36svh, 290px);
+    --cockpit-footer-height: calc(52px + env(safe-area-inset-bottom));
+    position: relative;
+    height: 100svh;
+    min-height: 100svh;
+    overflow: hidden;
+  }
+  .game-shell[data-cockpit-controls='dc9-instrumentScan'] { --cockpit-tray-height: min(45svh, 350px); }
+  .game-shell[data-cockpit-controls='dc9-memphisDeparture'] { --cockpit-tray-height: min(43svh, 340px); }
+  .game-shell[data-cockpit-controls='airbus-qualification'] { --cockpit-tray-height: min(40svh, 280px); }
+  .game-shell[data-cockpit-controls='airbus-flight'] { --cockpit-tray-height: min(48svh, 380px); }
+  .game-shell[data-cockpit-controls] .scene {
+    position: absolute;
+    inset: 0 0 var(--cockpit-tray-height);
+    height: calc(100svh - var(--cockpit-tray-height));
+    min-height: 0;
+  }
+  .game-shell[data-cockpit-controls] .scene-tools {
+    z-index: 40;
+    top: auto;
+    bottom: calc(4px + env(safe-area-inset-bottom));
+    right: auto;
+    left: 8px;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+  .game-shell[data-cockpit-controls] .scene-tool-button { width: 44px; height: 44px; min-height: 44px; }
+  .game-shell[data-cockpit-controls]::after {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    inset: auto 0 0;
+    height: var(--cockpit-tray-height);
+    border-top: 1px solid #526366;
+    background: #0a1417;
+    pointer-events: none;
+  }
+  .cockpit-touch-help { position: absolute; z-index: 30; top: 4px; right: 8px; pointer-events: auto; }
+  .cockpit-touch-help > button {
+    display: grid;
+    place-items: center;
+    min-width: 48px;
+    min-height: 44px;
+    padding: 6px 10px;
+    border: 1px solid #8badaf;
+    border-radius: 6px;
+    background: #162d33;
+    color: #edf7ee;
+    font: 700 13px/1.1 system-ui, sans-serif;
+    cursor: pointer;
+    list-style: none;
+  }
+  .cockpit-touch-help > button:focus-visible { outline: 3px solid #ffd073; outline-offset: 2px; }
+  .cockpit-touch-help__content {
+    position: fixed;
+    z-index: 60;
+    inset: 52px 8px 12px;
+    width: auto;
+    height: auto;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    overflow: auto;
+    padding: 16px;
+    border: 1px solid #82a7a6;
+    border-radius: 8px;
+    background: #0b1a20;
+    box-shadow: 0 10px 35px #0009;
+    color: #edf7ee;
+    font: 14px/1.5 system-ui, sans-serif;
+    overscroll-behavior: contain;
+  }
+  .cockpit-touch-help__content p { color: inherit; }
+  .cockpit-touch-help__content button { min-height: 48px; padding: 8px 12px; margin: 4px; border: 1px solid #8badaf; border-radius: 6px; color: #f4fbf8; background: #16343c; font-weight: 700; cursor: pointer; }
+  .cockpit-touch-help__content button:focus-visible { outline: 3px solid #ffd073; outline-offset: 2px; }
+  .cockpit-touch-help__content::backdrop { background: #0009; }
+  .cockpit-touch-feedback { display: block; margin: 4px 0 7px; padding: 5px 8px; border-left: 2px solid #eac16c; color: #ffe3a6; font-size: 12px; line-height: 1.3; }
+
+  .game-shell[data-cockpit-controls] .dc9-chapter__topbar { top: 6px; left: 8px; right: 8px; padding: 7px 10px; }
+  .game-shell[data-cockpit-controls] .dc9-chapter__topbar h1 { font-size: 14px; }
+  .game-shell[data-cockpit-controls] :is(.dc9-control-check, .dc9-instrument-scan, .dc9-memphis-departure, .dc9-shutdown) {
+    top: calc(100svh - var(--cockpit-tray-height));
+    bottom: var(--cockpit-footer-height);
+    right: 0;
+    left: 0;
+    width: auto;
+    max-height: none;
+    padding: 8px 10px;
+    overflow: auto;
+    border: 0;
+    border-radius: 0;
+    background: #0a1417;
+    box-shadow: none;
+    overscroll-behavior: contain;
+  }
+  .game-shell[data-cockpit-controls] .dc9-chapter__status {
+    z-index: 8;
+    inset: auto 0 0;
+    width: auto;
+    height: var(--cockpit-footer-height);
+    padding: 2px 8px calc(2px + env(safe-area-inset-bottom)) 110px;
+    border: 0;
+    border-top: 1px solid #314347;
+    background: #0a1417;
+    transform: none;
+    justify-content: flex-end;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  .game-shell[data-cockpit-controls] .dc9-chapter__status p {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%);
+  }
+  .game-shell[data-cockpit-controls] .dc9-chapter__status button { min-height: 44px; margin: 0; }
+  .game-shell[data-cockpit-controls] :is(.dc9-control-check, .dc9-instrument-scan, .dc9-memphis-departure) header { min-height: 36px; padding-right: 64px; }
+  .game-shell[data-cockpit-controls] :is(.dc9-control-check, .dc9-instrument-scan) header .eyebrow { display: none; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__header .eyebrow { display: block; font-size: 10px; line-height: 1.2; }
+  .game-shell[data-cockpit-controls] :is(.dc9-control-check, .dc9-instrument-scan, .dc9-memphis-departure) h2 { margin: 4px 0; font-size: 14px; }
+  .game-shell[data-cockpit-controls] :is(.dc9-control-check__method, .dc9-control-check__disclaimer, .dc9-instrument-scan__disclaimer, .dc9-memphis-departure__method) { display: none; }
+  .game-shell[data-cockpit-controls] .dc9-control-check__next { margin: 4px 0; padding: 4px 8px; font-size: 13px; line-height: 1.3; }
+  .cockpit-touch-progress { display: block; margin: 3px 0 5px; color: #b0c9c6; font-size: 12px; }
+  .game-shell[data-cockpit-controls] .dc9-control-check__axes { gap: 0; }
+  .dc9-control-check[data-current-axis='pitch'] .dc9-axis:not([data-axis='pitch']),
+  .dc9-control-check[data-current-axis='roll'] .dc9-axis:not([data-axis='roll']),
+  .dc9-control-check[data-current-axis='rudder'] .dc9-axis:not([data-axis='rudder']),
+  .dc9-control-check[data-current-axis='thrust'] .dc9-axis:not([data-axis='thrust']) { display: none; }
+  .game-shell[data-cockpit-controls] .dc9-axis { min-width: 0; padding: 5px; }
+  .game-shell[data-cockpit-controls] .dc9-axis__head { flex-wrap: wrap; gap: 2px; font-size: 12px; line-height: 1.2; }
+  .game-shell[data-cockpit-controls] .dc9-axis__head strong { font-size: 11px; }
+  .game-shell[data-cockpit-controls] .dc9-axis__meter { margin: 4px 0; height: 4px; }
+  .game-shell[data-cockpit-controls] .dc9-axis__holds { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .game-shell[data-cockpit-controls] .dc9-axis__hold { min-width: 48px; min-height: 48px; justify-content: center; padding: 7px 5px; font: 700 14px/1.1 system-ui, sans-serif; }
+  .game-shell[data-cockpit-controls] .dc9-axis__hold :is(kbd, .cockpit-desktop-label) { display: none; }
+  .game-shell[data-cockpit-controls] .cockpit-touch-label { display: inline; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__header > p:last-child { margin: 3px 0; font-size: 12px; line-height: 1.25; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__guidance { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 0; margin: 4px 0; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__guidance p { margin: 0; font-size: 12px; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__guidance p:last-child { flex-basis: 100%; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__controls { display: block; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__axes { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 5px; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__axes .dc9-axis__head strong { display: none; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__actions { margin-top: 5px; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__actions button { min-height: 44px; padding: 6px 10px; font-size: 12px; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .game-shell[data-cockpit-controls] .dc9-instrument-scan__question { margin: 4px 0 7px; font-size: 13px; line-height: 1.3; }
+  .game-shell[data-cockpit-controls] .dc9-instrument-scan__list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; margin: 4px 0; }
+  .game-shell[data-cockpit-controls] .dc9-instrument-choice { min-height: 48px; padding: 6px 8px; font: 600 12px/1.2 system-ui, sans-serif; }
+  .game-shell[data-cockpit-controls] .dc9-instrument-choice small { display: none; }
+  .game-shell[data-cockpit-controls] .dc9-instrument-scan__progress { margin: 3px 0; font-size: 11px; }
+  .game-shell[data-cockpit-controls] .dc9-shutdown h2 { font-size: 15px; margin: 4px 0; }
+  .game-shell[data-cockpit-controls] .dc9-shutdown > p { font-size: 12px; margin: 4px 0; }
+  .game-shell[data-cockpit-controls] .dc9-shutdown__controls { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 6px; }
+  .game-shell[data-cockpit-controls] .dc9-shutdown__control { display: grid; min-height: 64px; padding: 6px; font-size: 12px; }
+
+  .game-shell[data-cockpit-controls='airbus-qualification'] .airbus-training { position: static; display: contents; }
+  .game-shell[data-cockpit-controls='airbus-qualification'] .airbus-topbar { position: absolute; z-index: 4; inset: 6px 8px auto; width: auto; padding: 7px; background: #081318dc; }
+  .game-shell[data-cockpit-controls='airbus-qualification'] .airbus-topbar .eyebrow { font-size: 11px; }
+  .game-shell[data-cockpit-controls='airbus-qualification'] .airbus-card-tray { position: absolute; z-index: 4; top: calc(100svh - var(--cockpit-tray-height) + 58px); right: 8px; bottom: calc(var(--cockpit-footer-height) + 52px); left: 8px; width: auto; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 0; }
+  .game-shell[data-cockpit-controls='airbus-qualification'] .airbus-card { min-height: 48px; padding: 7px; font: 700 12px/1.2 system-ui, sans-serif; }
+  .game-shell[data-cockpit-controls='airbus-qualification'] .airbus-card-description { display: none; }
+  .game-shell[data-cockpit-controls='airbus-qualification'] .airbus-target-layer { inset: 0 0 auto; height: calc(100svh - var(--cockpit-tray-height)); }
+  .game-shell[data-cockpit-controls='airbus-qualification'] .airbus-dock { z-index: 4; inset: auto 8px var(--cockpit-footer-height); width: auto; min-height: 48px; max-height: 52px; padding: 2px 6px; transform: none; }
+  .game-shell[data-cockpit-controls='airbus-qualification'] .airbus-status { grid-column: auto; min-height: 0; margin: 0; padding: 4px 6px; border: 0; background: transparent; font-size: 11px; line-height: 1.2; }
+  .game-shell[data-cockpit-controls='airbus-qualification'] .airbus-restart { grid-column: auto; min-height: 44px; margin: 0; }
+  .game-shell[data-cockpit-controls='airbus-qualification'] .cockpit-touch-instruction { position: absolute; z-index: 4; display: block; top: calc(100svh - var(--cockpit-tray-height) + 8px); left: 10px; right: 76px; margin: 0; font-size: 13px; line-height: 1.3; }
+  .game-shell[data-cockpit-controls='airbus-qualification'] .airbus-training > .cockpit-touch-help { top: calc(100svh - var(--cockpit-tray-height) + 4px); z-index: 30; }
+  .cockpit-touch-help__content .airbus-instruction-box { position: static; width: auto; margin: 0; padding: 0; background: transparent; }
+
+  .game-shell[data-cockpit-controls='airbus-flight'] .cockpit-flight-tray { position: absolute; z-index: 4; inset: auto 0 0; display: flex; flex-direction: column; height: var(--cockpit-tray-height); overflow: auto; padding: 8px 8px calc(var(--cockpit-footer-height) + 4px); gap: 5px; background: #0a1417; pointer-events: auto; overscroll-behavior: contain; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .cockpit-flight-guidance { display: flex; flex: 0 1 auto; flex-direction: column; gap: 5px; max-height: calc(100% - 122px); overflow: auto; }
+  .game-shell[data-cockpit-controls='airbus-flight'] :is(.storm-instrument-mirror, .storm-route-guidance, .airbus-workload-task, .storm-control-deck) { position: static; inset: auto; width: auto; max-width: none; margin: 0; transform: none; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-instrument-mirror { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .airbus-engine-out .storm-instrument-mirror { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-instrument-mirror > div { gap: 3px; padding: 4px; font-size: 10px; white-space: nowrap; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-route-guidance { grid-template-columns: minmax(0, 1fr); flex-shrink: 0; padding: 5px 6px; gap: 3px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-route-guidance p { font-size: 11px; line-height: 1.25; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-route-guidance-label { font-size: 10px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .airbus-workload-task { flex-shrink: 0; padding: 5px 6px; gap: 4px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .airbus-workload-task:not(.is-complete) { order: -1; flex-direction: column; align-items: start; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .airbus-workload-task:not(.is-complete) .airbus-workload-actions { order: -1; width: 100%; justify-content: space-between; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .airbus-workload-copy { font-size: 11px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .airbus-workload-copy small { display: block; font-size: 11px; line-height: 1.3; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .airbus-workload-actions button { min-height: 44px; font-size: 12px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-control-deck { display: flex; flex: 1 0 auto; flex-wrap: nowrap; align-items: stretch; padding: 4px; gap: 5px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-control-group { min-width: 0; flex: 1 1 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; gap: 5px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .airbus-engine-out .storm-control-group:nth-child(2) { flex-grow: 1.1; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-control-group > span { width: auto; grid-column: 1 / -1; padding: 0; font-size: 10px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-hold-control { min-width: 48px; min-height: 48px; padding: 5px 3px; white-space: normal; overflow-wrap: anywhere; font: 700 12px/1.15 system-ui, sans-serif; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .airbus-engine-out .storm-hold-control { padding-inline: 0; letter-spacing: -.02em; font-size: 11px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-control-deck small { display: none; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-progress { position: static; flex-shrink: 0; width: 100%; height: 3px; margin: 0; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-topbar { position: absolute; inset: 0 0 auto; min-height: 44px; width: auto; max-width: none; transform: none; padding: 4px 8px; align-items: center; gap: 6px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-topbar .eyebrow { font-size: 11px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-crew-caption { display: none; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-topbar-actions { display: flex; flex-wrap: nowrap; gap: 5px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-topbar-actions > button:not(.cockpit-pause) { display: none; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .cockpit-pause { min-height: 44px; min-width: 48px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-topbar .cockpit-touch-help { position: static; }
+}
+
+@media (max-width: 900px) and (max-height: 520px) and (orientation: landscape), (pointer: coarse) and (max-width: 1200px) and (max-height: 520px) and (orientation: landscape) {
+  .game-shell[data-cockpit-controls] { --cockpit-tray-height: 164px; }
+  .game-shell[data-cockpit-controls='dc9-instrumentScan'] { --cockpit-tray-height: 210px; }
+  .game-shell[data-cockpit-controls='dc9-memphisDeparture'] { --cockpit-tray-height: 190px; }
+  .game-shell[data-cockpit-controls='airbus-qualification'] { --cockpit-tray-height: 164px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] { --cockpit-tray-height: 198px; }
+  .game-shell[data-cockpit-controls] .dc9-control-check { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; }
+  .game-shell[data-cockpit-controls] .dc9-control-check__axes { grid-column: 2; grid-row: 1 / span 3; }
+  .game-shell[data-cockpit-controls] .dc9-control-check__next { grid-column: 1; margin: 0; }
+  .game-shell[data-cockpit-controls] .cockpit-touch-progress { display: none; }
+  .game-shell[data-cockpit-controls] .dc9-control-check .cockpit-touch-help { top: auto; right: auto; bottom: 0; left: 8px; }
+  .game-shell[data-cockpit-controls] .dc9-instrument-scan__list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .game-shell[data-cockpit-controls] .dc9-instrument-scan { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 4px 12px; }
+  .game-shell[data-cockpit-controls] .dc9-instrument-scan__list { grid-column: 2; grid-row: 1 / span 4; }
+  .game-shell[data-cockpit-controls] .dc9-instrument-scan .cockpit-touch-help { top: auto; right: auto; bottom: 0; left: 8px; }
+  .game-shell[data-cockpit-controls] .dc9-instrument-scan header { display: none; }
+  .game-shell[data-cockpit-controls] .dc9-instrument-scan__question { padding-right: 0; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure { display: block; }
+  .game-shell[data-cockpit-controls] .dc9-departure-guide { position: absolute; inset: 8px calc(55% + 6px) 56px 10px; display: flex; flex-direction: column; overflow: auto; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__header { display: contents; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__header .eyebrow { order: -2; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__header > p:last-child { order: -1; margin: 4px 0; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__header h2 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__controls { display: contents; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__axes { position: absolute; top: 8px; right: 10px; width: calc(55% - 20px); }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__actions { position: absolute; bottom: 4px; left: 68px; right: calc(55% + 6px); display: flex; margin: 0; gap: 5px; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure__actions button { flex: 1; width: auto; min-width: 0; padding: 4px; font-size: 11px; }
+  .game-shell[data-cockpit-controls] .dc9-memphis-departure .cockpit-touch-help { top: auto; right: auto; bottom: 0; left: 8px; }
+  .game-shell[data-cockpit-controls='airbus-qualification'] .airbus-card-tray { top: calc(100svh - var(--cockpit-tray-height) + 8px); right: 64px; bottom: calc(var(--cockpit-footer-height) + 48px); grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .game-shell[data-cockpit-controls='airbus-qualification'] .cockpit-touch-instruction { display: none; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .cockpit-flight-tray { display: grid; grid-template-columns: minmax(150px, .65fr) minmax(0, 1.5fr); padding: 6px 8px calc(var(--cockpit-footer-height) + 4px); }
+  .game-shell[data-cockpit-controls='airbus-flight'] .cockpit-flight-tray { grid-template-rows: minmax(0, 1fr) auto; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .cockpit-flight-guidance { grid-column: 1; grid-row: 1; height: auto; max-height: none; min-height: 0; overflow: auto; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-route-guidance { grid-column: 1; grid-row: 2; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-control-deck { grid-column: 2; grid-row: 1 / span 2; min-height: 0; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-instrument-mirror { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .game-shell[data-cockpit-controls='airbus-flight'] .airbus-engine-out .storm-instrument-mirror { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .game-shell[data-cockpit-controls='airbus-flight'] .airbus-engine-out .storm-instrument-mirror > div { flex-direction: column; align-items: start; gap: 1px; white-space: normal; font-size: 9px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-route-guidance-label { display: none; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-route-guidance p { max-height: 3.75em; overflow: auto; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .airbus-workload-task { grid-column: 1; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .airbus-workload-task:not(.is-complete) { order: -1; flex-direction: column; align-items: start; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .airbus-workload-task:not(.is-complete) .airbus-workload-actions { order: -1; width: 100%; justify-content: space-between; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .airbus-workload-actions { flex-wrap: nowrap; gap: 3px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .airbus-workload-actions button { padding: 4px 6px; font-size: 11px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .airbus-workload-readout { padding: 4px; font-size: 10px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-control-group { gap: 4px; }
+  .game-shell[data-cockpit-controls='airbus-flight'] .storm-hold-control { font-size: 11px; }
+}

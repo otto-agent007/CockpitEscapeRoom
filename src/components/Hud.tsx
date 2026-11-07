@@ -1,4 +1,7 @@
-import { useMemo, useState, type DragEvent, type KeyboardEvent, type PointerEvent } from 'react'
+import { HoldButton } from './HoldButton'
+import { CockpitHelp } from './CockpitHelp'
+import { useCompactCockpit } from './useCompactCockpit'
+import { useMemo, useState, type DragEvent } from 'react'
 import { airbusCaptainFlow, type AirbusControl, type LockerMemoryId } from '../game/config'
 import { ENGINE_OUT_ENVELOPE, ENGINE_OUT_TIMING } from '../game/airbusEngineOut'
 import type { AirbusHoldControl } from '../game/airbusInput'
@@ -81,43 +84,9 @@ function HoldControl({
   label: string
   runtime: AirbusSimulatorRuntime
 }) {
-  const setPressed = (pressed: boolean) => runtime.setHoldControl(control, pressed)
-  const onPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
-    event.currentTarget.setPointerCapture(event.pointerId)
-    setPressed(true)
-  }
-  const onPointerUp = (event: PointerEvent<HTMLButtonElement>) => {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId)
-    }
-    setPressed(false)
-  }
-  const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
-    if (event.key !== ' ' && event.key !== 'Enter') return
-    event.preventDefault()
-    setPressed(true)
-  }
-  const onKeyUp = (event: KeyboardEvent<HTMLButtonElement>) => {
-    if (event.key !== ' ' && event.key !== 'Enter') return
-    event.preventDefault()
-    setPressed(false)
-  }
-  return (
-    <button
-      type="button"
-      className="storm-hold-control"
-      aria-label={`Hold ${label}`}
-      onPointerDown={onPointerDown}
-      onPointerUp={onPointerUp}
-      onPointerCancel={() => setPressed(false)}
-      onPointerLeave={() => setPressed(false)}
-      onKeyDown={onKeyDown}
-      onKeyUp={onKeyUp}
-      onBlur={() => setPressed(false)}
-    >
-      {label}
-    </button>
-  )
+  const disabled = runtime.paused || runtime.activeFrame?.state.phase === 'checkpointFailed'
+  // A pause/failure starts a new native hold, releasing captured fingers on unmount.
+  return <HoldButton key={disabled ? 'inactive' : 'active'} className="storm-hold-control" control={control} label={`Hold ${label}`} disabled={disabled} onHold={(pressed) => runtime.setHoldControl(control, pressed)}>{label}</HoldButton>
 }
 
 function AirbusRouteGuidanceBlock({ guidance }: { guidance: AirbusRouteGuidance | null }) {
@@ -265,6 +234,7 @@ function AirbusStormLineHud({
   onRecenter: () => void
   onRestart: () => void
 }) {
+  const compact = useCompactCockpit()
   const progress = state.airbusSimulator.stormLine
   const [controlsOpen, setControlsOpen] = useState(
     () => window.innerWidth <= 768 || window.matchMedia('(pointer: coarse)').matches,
@@ -338,7 +308,7 @@ function AirbusStormLineHud({
           <button type="button" onClick={runtime.toggleSound} aria-pressed={runtime.soundEnabled}>
             {runtime.soundEnabled ? 'Sound on' : 'Sound off'}
           </button>
-          <button type="button" onClick={runtime.togglePause}>
+          <button type="button" className="cockpit-pause" onClick={runtime.togglePause}>
             {runtime.paused ? 'Resume' : 'Pause'}
           </button>
           <button type="button" onClick={onRecenter}>Recenter view</button>
@@ -351,9 +321,17 @@ function AirbusStormLineHud({
           >
             {controlsOpen ? 'Hide flight controls' : 'Show flight controls'}
           </button>
+          {compact && <CockpitHelp onOpen={() => { if (!runtime.paused) runtime.togglePause() }}>
+            <p>Hold the buttons to fly. You can use two fingers for steering and thrust together.</p>
+            <button type="button" onClick={runtime.toggleSound} aria-pressed={runtime.soundEnabled}>{runtime.soundEnabled ? 'Sound on' : 'Sound off'}</button>
+            <button type="button" onClick={onRecenter}>Recenter view</button>
+            <button type="button" onClick={onRestart}>Restart</button>
+          </CockpitHelp>}
         </div>
       </div>
 
+      <div className="cockpit-flight-tray">
+      <div className="cockpit-flight-guidance">
       <div className="storm-instrument-mirror" role="region" aria-label="Accessible flight instruments">
         <div><span>Pitch</span><strong>{simulation.aircraft.pitch.toFixed(1)}°</strong></div>
         <div><span>Bank</span><strong>{simulation.aircraft.bank.toFixed(1)}°</strong></div>
@@ -362,8 +340,6 @@ function AirbusStormLineHud({
         </div>
         <div><span>Weather</span><strong>{Math.round(simulation.weatherIntensity * 100)}%</strong></div>
       </div>
-
-      <AirbusRouteGuidanceBlock guidance={guidance} />
 
       <progress className="storm-progress" max={165} value={simulation.elapsedSeconds} aria-label="Storm Line progress" />
 
@@ -375,7 +351,10 @@ function AirbusStormLineHud({
         checkpoint={simulation.checkpoint}
       />
 
-      {controlsOpen && (
+      </div>
+
+      <AirbusRouteGuidanceBlock guidance={guidance} />
+      {(controlsOpen || compact) && (
         <div id="storm-flight-controls" className="storm-control-deck" aria-label="Accessible flight controls">
           <div className="storm-control-group">
             <span>Sidestick</span>
@@ -392,6 +371,8 @@ function AirbusStormLineHud({
           <small>Input: {runtime.inputMethod}</small>
         </div>
       )}
+
+      </div>
 
       {runtime.paused && (
         <div className="storm-modal" role="status">
@@ -535,6 +516,7 @@ function AirbusEngineOutHud({
   onRecenter: () => void
   onRestart: () => void
 }) {
+  const compact = useCompactCockpit()
   const progress = state.airbusSimulator.engineOut
   const frame = runtime.activeFrame
   const [controlsOpen, setControlsOpen] = useState(
@@ -608,7 +590,7 @@ function AirbusEngineOutHud({
           <button type="button" onClick={runtime.toggleSound} aria-pressed={runtime.soundEnabled}>
             {runtime.soundEnabled ? 'Sound on' : 'Sound off'}
           </button>
-          <button type="button" onClick={runtime.togglePause}>
+          <button type="button" className="cockpit-pause" onClick={runtime.togglePause}>
             {runtime.paused ? 'Resume' : 'Pause'}
           </button>
           <button type="button" onClick={onRecenter}>Recenter view</button>
@@ -621,9 +603,17 @@ function AirbusEngineOutHud({
           >
             {controlsOpen ? 'Hide flight controls' : 'Show flight controls'}
           </button>
+          {compact && <CockpitHelp onOpen={() => { if (!runtime.paused) runtime.togglePause() }}>
+            <p>Hold the buttons to fly. You can use two fingers for steering and thrust together.</p>
+            <button type="button" onClick={runtime.toggleSound} aria-pressed={runtime.soundEnabled}>{runtime.soundEnabled ? 'Sound on' : 'Sound off'}</button>
+            <button type="button" onClick={onRecenter}>Recenter view</button>
+            <button type="button" onClick={onRestart}>Restart</button>
+          </CockpitHelp>}
         </div>
       </div>
 
+      <div className="cockpit-flight-tray">
+      <div className="cockpit-flight-guidance">
       <div className="storm-instrument-mirror" role="region" aria-label="Accessible Engine-Out instruments">
         <div className={Math.abs(simulation.aircraft.pitch) <= ENGINE_OUT_ENVELOPE.maximumPitchDegrees ? 'is-in-range' : 'is-outside'}>
           <span>Pitch</span><strong>{simulation.aircraft.pitch.toFixed(1)}°</strong>
@@ -641,8 +631,6 @@ function AirbusEngineOutHud({
         <div><span>SAFE RETURN</span><strong>{Math.round(simulation.corridorProgress * 100)}%</strong></div>
       </div>
 
-      <AirbusRouteGuidanceBlock guidance={deriveEngineOutRouteGuidance(simulation)} />
-
       <progress
         className="storm-progress"
         max={120}
@@ -658,7 +646,10 @@ function AirbusEngineOutHud({
         checkpoint={simulation.checkpoint}
       />
 
-      {controlsOpen && (
+      </div>
+
+      <AirbusRouteGuidanceBlock guidance={deriveEngineOutRouteGuidance(simulation)} />
+      {(controlsOpen || compact) && (
         <div id="engine-out-controls" className="storm-control-deck" aria-label="Accessible Engine-Out controls">
           <div className="storm-control-group">
             <span>Sidestick</span>
@@ -680,6 +671,8 @@ function AirbusEngineOutHud({
           <small>Input: {runtime.inputMethod}</small>
         </div>
       )}
+
+      </div>
 
       {runtime.paused && (
         <div className="storm-modal" role="status">
@@ -795,6 +788,7 @@ export function Hud({
           </div>
         </div>
 
+        <CockpitHelp>
         <div className="airbus-instruction-box" data-airbus-instruction>
           <p className="eyebrow">{airbusCaptainFlow.qualificationIntro.eyebrow}</p>
           <strong>{airbusCaptainFlow.qualificationIntro.instruction}</strong>
@@ -802,6 +796,8 @@ export function Hud({
           <small>{airbusCaptainFlow.qualificationIntro.completionNote}</small>
         </div>
 
+        </CockpitHelp>
+        <p className="cockpit-touch-instruction">Tap a label, then its cockpit control.</p>
         <div className="airbus-card-tray" aria-label="Draggable label cards">
           {airbusCaptainFlow.controlCards.map((card) => {
             const control = airbusCaptainFlow.controlIds.find((controlId) => airbusCaptainFlow.controlMatch[controlId] === card)

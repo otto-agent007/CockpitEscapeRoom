@@ -1,0 +1,19 @@
+{
+  "canvas": {
+    "x": 0,
+    "y": 0,
+    "w": 1440,
+    "h": 900
+  },
+  "dc9Controls": null,
+  "dc9Scan": null,
+  "dc9Departure": null,
+  "airbusControls": {
+    "x": 280,
+    "y": 806.28125,
+    "w": 880,
+    "h": 83.328125
+  },
+  "airbusTraining": null,
+  "bodyText": "STORM LINE · WEATHER ENTRY\n\nStorm Line flight challenge\n\nFirst officer: Weather returns are building ahead.\n\n158s\nSound on\nPause\nRecenter view\nRestart\nHide flight controls\nPitch\n0.0°\nBank\n0.0°\nEnergy\n50%\nWeather\n5%\nCAPTAIN TASK\nSet the fictional captain ND scan range to MID.\nRange NEAR\nCycle scan range\nROUTE\n\nBank left into the west lane — settle the marker in the green band.\n\nW\nE\nSIDESTICK\nBank left\nPitch up\nPitch down\nBank right\nPAIRED THRUST\nIncrease\nDecrease\nInput: keyboard\n?\n⛶"
+}

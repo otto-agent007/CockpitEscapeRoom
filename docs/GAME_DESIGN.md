@@ -169,7 +169,13 @@ Keep asset groups separate and lazy-loaded:
 
 Essential gameplay must not exist only inside WebGL. Use HTML overlays for instructions, hints, progress, captions, final family message, status messages, and reward / Flight Mode text equivalents.
 
-Narrow screens receive a functional stacking/overflow fallback. Dedicated mobile layout design, mobile visual polish, and a mobile approval milestone are outside the Final Flight Log scope.
+### Mobile cockpit controls
+
+Phones and narrow tablets reserve a compact native touch tray **below the actual cockpit canvas**. The same layout applies to coarse-pointer screens up to 1200 px so rotating a large phone keeps its touch controls. Desktop retains its established view and controls. DC-9 control check exposes the current axis with large hold buttons; the instrument scan keeps native choices and visible first-miss coaching. Departure keeps its 1995 Memphis memory label, phase-specific axes, corrective guidance and safe retry. Shutdown retains visible wrong-order feedback and earned switches.
+
+A320 label cards sit below the cockpit and can be tapped before the real cockpit target. Storm Line and Engine-Out keep touch-sized hold controls with persistent route guidance; readouts/current-task details can scroll within their own compact shelf. Portrait and short landscape have separate arrangements. Instructions live in native modal Help, which contains keyboard focus, closes with Escape/Close and restores Help focus. Opening flight Help pauses the challenge; Resume remains explicit. Native holds support two independent fingers, keyboard input and safe release/cancel/blur/unmount. Layout/help state is not persisted and never resets earned game progress.
+
+The owner selected this layout after reporting that control panels obscured the cockpit. Actual phone/tablet/desktop browser proof and owner review are recorded in plan 0079 and TEST_REPORT.md.
 
 ## Approval gates
 

@@ -150,6 +150,7 @@ export function Dc9Chapter({
           hotspots={hotspots}
           projectionReady={loadState.status === 'ready'}
           onIdentify={identifyInstrument}
+          feedback={state.statusMessage}
         />
       ) : null}
 
@@ -212,6 +213,7 @@ export function Dc9Chapter({
         <section className="dc9-shutdown" aria-labelledby="dc9-shutdown-title">
           <p className="eyebrow">Ceremonial shutdown</p>
           <h2 id="dc9-shutdown-title">Secure the parked aircraft</h2>
+          <p className="cockpit-touch-feedback">{state.statusMessage}</p>
           <p>Complete the three supported controls in order. An early selection receives calm guidance and never resets a finished step.</p>
           <div className="dc9-shutdown__controls">
             {DC9_SECURE_ORDER.map((controlId) => {
