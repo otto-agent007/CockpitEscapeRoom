@@ -34,7 +34,7 @@ Architecture: preserve the game runtimes and responsive canvas aspect ratio. Arc
 - [x] Film worker: focused failing API/playback/rotation tests; implement landscape/fullscreen presentation and lifecycle cleanup. Own RewardExperience, new scoped film helper/CSS/tests. Integrate root's `SecretArcadeEntry` as a child of the completed h1 only when optional `onOpenArcade` exists. Do not edit App, secret component or shared styles.css.
 - [x] Root: `SecretArcadeEntry({onOpen, children})`, root/App earned callback wiring, hidden-entry tests, integration and full-diff review.
 - [x] Root: run focused browser checks, lint/types/full unit/build, assets/spoiler/privacy/budget guards, independent review, real screenshots, current source/asset receipts and TEST_REPORT.md.
-- [ ] Root: show the current screenshots in the existing tagged tmux pane, update the scoped draft PR and obtain preview metadata matching the code. Leave owner visual review pending; no merge/promote.
+- [x] Root: show the current screenshots in the existing tagged tmux pane, update the scoped draft PR and obtain preview metadata matching the code. Leave owner visual review pending; no merge/promote.
 
 ## Implementation, validation and evidence
 
@@ -60,4 +60,4 @@ Inspect the actual failure, identify its root cause, make one bounded fix, rerun
 
 ## Outcome and handoff
 
-Implementation and local validation are complete. Reviewable actual screenshots, source fingerprints, unchanged asset receipt and TEST_REPORT.md are current. Draft PR/preview publication is next; owner visual approval and physical-phone testing remain separate. No production merge/promotion is authorized.
+Implementation, local validation and draft handoff are complete. Code/evidence commit `ecd71fc43aff341963a2ad69e27448d4bacaee00` is published on `feat/mobile-cockpit-controls`; [draft PR #124](https://github.com/otto-agent007/CockpitEscapeRoom/pull/124) is updated and remains stacked on still-open draft #123. [Review preview](https://cockpit-escape-room-734r8z3br-ottoagent007-gmailcoms-projects.vercel.app/) is READY as `dpl_7CryBLNrFUaJQi8VdArBxUkKpbd7`, and metadata source SHA matches that code commit. Authentication is unchanged. Hosted readiness/source identity was verified; actual browser proof used local production. Current four-view contact sheet is displayed in owned tmux pane %1. One CI snapshot recorded Vercel pending before readiness; CI was not monitored further. This final receipt is documentation only. Owner visual approval and physical-phone testing remain pending. No production merge/promotion occurred.
