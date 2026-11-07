@@ -1,0 +1,201 @@
+{
+  "url": "http://127.0.0.1:4174/",
+  "browser": "installed Chromium; Browser plugin unavailable",
+  "viewports": [
+    {
+      "width": 1586,
+      "height": 992,
+      "font": "\"Pixelify Sans\", \"Arcade Mono\", monospace",
+      "fontLoaded": true,
+      "title": {
+        "x": 52,
+        "y": 135.390625,
+        "width": 571.203125,
+        "height": 313.40625,
+        "bottom": 448.796875
+      },
+      "button": {
+        "x": 52,
+        "y": 629.890625,
+        "width": 560,
+        "height": 102,
+        "bottom": 731.890625
+      },
+      "art": {
+        "x": 655.203125,
+        "y": 56.59375,
+        "width": 878.796875,
+        "height": 878.796875,
+        "bottom": 935.390625
+      },
+      "horizontalOverflow": false,
+      "verticalOverflow": false,
+      "copy": "THE\nCAPTAIN’S\nKEY\n\nFor Pop T, from your crew.\n\n▶\nCLICK TO BEGIN\n\nYour flight begins with sound.",
+      "screenshot": "/tmp/captains-key-arcade-page/entry-1586.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "font": "\"Pixelify Sans\", \"Arcade Mono\", monospace",
+      "fontLoaded": true,
+      "title": {
+        "x": 52,
+        "y": 107.890625,
+        "width": 513.6875,
+        "height": 284.53125,
+        "bottom": 392.421875
+      },
+      "button": {
+        "x": 52,
+        "y": 569.1875,
+        "width": 513.6875,
+        "height": 102,
+        "bottom": 671.1875
+      },
+      "art": {
+        "x": 597.6875,
+        "y": 54.84375,
+        "width": 790.3125,
+        "height": 790.3125,
+        "bottom": 845.15625
+      },
+      "horizontalOverflow": false,
+      "verticalOverflow": false,
+      "copy": "THE\nCAPTAIN’S\nKEY\n\nFor Pop T, from your crew.\n\n▶\nCLICK TO BEGIN\n\nYour flight begins with sound.",
+      "screenshot": "/tmp/captains-key-arcade-page/entry-1440.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "font": "\"Pixelify Sans\", \"Arcade Mono\", monospace",
+      "fontLoaded": true,
+      "title": {
+        "x": 52,
+        "y": 129.359375,
+        "width": 450.65625,
+        "height": 243.28125,
+        "bottom": 372.640625
+      },
+      "button": {
+        "x": 52,
+        "y": 457.78125,
+        "width": 450.65625,
+        "height": 76,
+        "bottom": 533.78125
+      },
+      "art": {
+        "x": 612,
+        "y": 52,
+        "width": 616,
+        "height": 616,
+        "bottom": 668
+      },
+      "horizontalOverflow": false,
+      "verticalOverflow": false,
+      "copy": "THE\nCAPTAIN’S\nKEY\n\nFor Pop T, from your crew.\n\n▶\nCLICK TO BEGIN\n\nYour flight begins with sound.",
+      "screenshot": "/tmp/captains-key-arcade-page/entry-1280.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "font": "\"Pixelify Sans\", \"Arcade Mono\", monospace",
+      "fontLoaded": true,
+      "title": {
+        "x": 144,
+        "y": 584,
+        "width": 480,
+        "height": 135.65625,
+        "bottom": 719.65625
+      },
+      "button": {
+        "x": 144,
+        "y": 792.65625,
+        "width": 480,
+        "height": 65.59375,
+        "bottom": 858.25
+      },
+      "art": {
+        "x": 164,
+        "y": 116,
+        "width": 440,
+        "height": 440,
+        "bottom": 556
+      },
+      "horizontalOverflow": false,
+      "verticalOverflow": false,
+      "copy": "THE\nCAPTAIN’S\nKEY\n\nFor Pop T, from your crew.\n\n▶\nCLICK TO BEGIN\n\nYour flight begins with sound.",
+      "screenshot": "/tmp/captains-key-arcade-page/entry-768.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "font": "\"Pixelify Sans\", \"Arcade Mono\", monospace",
+      "fontLoaded": true,
+      "title": {
+        "x": 26,
+        "y": 424.421875,
+        "width": 323,
+        "height": 114,
+        "bottom": 538.421875
+      },
+      "button": {
+        "x": 26,
+        "y": 604.171875,
+        "width": 323,
+        "height": 60.796875,
+        "bottom": 664.96875
+      },
+      "art": {
+        "x": 37.5,
+        "y": 102.421875,
+        "width": 300,
+        "height": 300,
+        "bottom": 402.421875
+      },
+      "horizontalOverflow": false,
+      "verticalOverflow": false,
+      "copy": "THE\nCAPTAIN’S\nKEY\n\nFor Pop T, from your crew.\n\n▶\nCLICK TO BEGIN\n\nYour flight begins with sound.",
+      "screenshot": "/tmp/captains-key-arcade-page/entry-375.png"
+    },
+    {
+      "width": 667,
+      "height": 375,
+      "font": "\"Pixelify Sans\", \"Arcade Mono\", monospace",
+      "fontLoaded": true,
+      "title": {
+        "x": 28,
+        "y": 51.5625,
+        "width": 308.9375,
+        "height": 118.5,
+        "bottom": 170.0625
+      },
+      "button": {
+        "x": 28,
+        "y": 229.8125,
+        "width": 308.9375,
+        "height": 50,
+        "bottom": 279.8125
+      },
+      "art": {
+        "x": 360.9375,
+        "y": 48.46875,
+        "width": 278.046875,
+        "height": 278.046875,
+        "bottom": 326.515625
+      },
+      "horizontalOverflow": false,
+      "verticalOverflow": false,
+      "copy": "THE\nCAPTAIN’S\nKEY\n\nFor Pop T, from your crew.\n\n▶\nCLICK TO BEGIN\n\nYour flight begins with sound.",
+      "screenshot": "/tmp/captains-key-arcade-page/entry-667.png"
+    }
+  ],
+  "errors": [],
+  "externalRequests": [],
+  "title": "The Captain's Key",
+  "beginSound": {
+    "paused": false,
+    "muted": false,
+    "currentTime": 0.319615
+  },
+  "passed": true
+}

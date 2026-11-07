@@ -28,7 +28,7 @@ The historical `roboptimus-guide-fallback.png` is a direct 662×576 RGBA render 
 
 ## Captain's Key entry emblem and browser icon
 
-The owner requested a generated game image and matching tab icon on 2026-11-06. The built-in image maker produced the gold winged-key original retained at `art-source/branding/captains-key-emblem-source.png`. Its WebP display and 16/32/180 px PNG derivatives are generated from that same source using existing sharp development tooling. The exact prompt, dimensions, hashes and source-to-runtime provenance are in [the entry artwork report](../asset-reports/captains-key-entry-art-2026-11-06.md). No external airline logo or third-party source image was used.
+The owner selected **B — Arcade Adventure** on 2026-11-06 and approved the full-page arcade concept. The generated pixel-art original is retained at `art-source/branding/entry-options-2026-11-06/arcade-adventure.png`; its WebP display and 16/32/180 px PNG icon derivatives use that same source. The selected 32 px preview is copied unchanged. Pixelify Sans is bundled locally under SIL OFL 1.1, with its copyright/license shipped in `public/fonts/PixelifySans-OFL.txt`; the font file is an unmodified Google Fonts Latin WOFF2. The exact art prompt, source/runtime hashes and font provenance are in [the selected entry report](../asset-reports/captains-key-arcade-entry-2026-11-06.md). The declined first winged-key direction remains in Git history and is omitted from current builds. No external airline logo was used.
 
 ## Arcade audio — selected Heavy hitters and shared announcer/specials
 

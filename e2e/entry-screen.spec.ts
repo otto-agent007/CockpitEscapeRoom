@@ -77,11 +77,38 @@ test('a saved chapter resumes directly without the Begin page', async ({ page })
 
 test('entry artwork and browser icon decode successfully', async ({ page }) => {
   await page.goto('/')
-  const image = page.getByRole('img', { name: 'Golden key with pilot wings' })
+  const image = page.getByRole('img', { name: 'A DC-9 in a hangar through a glowing keyhole' })
   await expect(image).toBeVisible()
   await expect.poll(() => image.evaluate((el: HTMLImageElement) => el.naturalWidth)).toBeGreaterThan(0)
-  await expect(page.locator('link[rel="icon"][sizes="32x32"]')).toHaveAttribute('href', '/favicon-32.png')
-  const icon = await page.request.get('/favicon-32.png')
+  for (const viewport of [{ width: 375, height: 812 }, { width: 768, height: 1024 }, { width: 1280, height: 720 }, { width: 1440, height: 900 }]) {
+    await page.setViewportSize(viewport)
+    await expect(image).toBeInViewport({ ratio: 1 })
+    await expect(page.getByRole('heading', { name: 'The Captain’s Key' })).toBeInViewport({ ratio: 1 })
+    await expect(page.getByRole('button', { name: 'Click to begin', exact: true })).toBeInViewport({ ratio: 1 })
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false)
+    expect(await page.evaluate(() => document.documentElement.scrollHeight > innerHeight)).toBe(false)
+  }
+  await expect(page.locator('link[rel="icon"][sizes="32x32"]')).toHaveAttribute('href', '/favicon-arcade-32.png')
+  const icon = await page.request.get('/favicon-arcade-32.png')
   expect(icon.ok()).toBe(true)
   expect(icon.headers()['content-type']).toContain('image/png')
+})
+
+test('an unavailable pixel font leaves the title clear of the artwork', async ({ page }) => {
+  await page.route('**/fonts/pixelify-sans-latin.woff2', route => route.abort())
+  await page.goto('/')
+  await expect(page.getByRole('button', { name: 'Click to begin', exact: true })).toBeEnabled({ timeout: 60_000 })
+  await page.evaluate(() => document.fonts.ready)
+  for (const width of [901, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 })
+    const overlap = await page.evaluate(() => {
+      const word = document.querySelector('.game-entry h1 span:nth-child(2)')!
+      const art = document.querySelector('.game-entry__art')!
+      const range = document.createRange()
+      range.selectNodeContents(word)
+      return range.getBoundingClientRect().right > art.getBoundingClientRect().left
+    })
+    expect(overlap, `fallback title overlaps the artwork at ${width}px`).toBe(false)
+    await expect(page.getByRole('button', { name: 'Click to begin', exact: true })).toBeInViewport({ ratio: 1 })
+  }
 })

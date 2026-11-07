@@ -1,0 +1,46 @@
+{
+  "selected": "B",
+  "approvedBy": "Owner: B and make the whole page match that aesthetic; layout subsequently approved",
+  "files": [
+    {
+      "path": "art-source/branding/entry-options-2026-11-06/arcade-adventure.png",
+      "bytes": 1703074,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "9f860b039ca422c241eec45b81c5a4171a796fb10edbaf255f1ef98928a9215d"
+    },
+    {
+      "path": "public/images/captains-key-arcade.webp",
+      "bytes": 207518,
+      "width": 1024,
+      "height": 1024,
+      "sha256": "25230c38d3a641da2ec74035fd355759ddca144ee1dc1a2ac153b11e5dbdd90a"
+    },
+    {
+      "path": "public/favicon-arcade-16.png",
+      "bytes": 873,
+      "width": 16,
+      "height": 16,
+      "sha256": "78a01a70e6f7fc97ccfb0dfda3cfeb7ba6e9bab6386d3cb2f638dec95771aad8"
+    },
+    {
+      "path": "public/favicon-arcade-32.png",
+      "bytes": 3063,
+      "width": 32,
+      "height": 32,
+      "sha256": "6c93a1a2e19659c58b0cb54232543c734be146e3fa1f50f5880ee9d2fa51be10"
+    },
+    {
+      "path": "public/apple-touch-icon-arcade.png",
+      "bytes": 8021,
+      "width": 180,
+      "height": 180,
+      "sha256": "4809b640cb4fb8a14fa4a5ffaf8918aac731fa2c7de9da49c6c4a88c072886f2"
+    },
+    {
+      "path": "public/fonts/pixelify-sans-latin.woff2",
+      "bytes": 12016,
+      "sha256": "4a5633a0c9c1b73abd133a56d3716c2d8df2ed03cb987346f72194aeb224f382"
+    }
+  ]
+}

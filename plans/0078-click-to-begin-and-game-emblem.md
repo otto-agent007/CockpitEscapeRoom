@@ -69,3 +69,23 @@ Review → focused repair → rerun failed and nearby checks → record remainin
 ## Outcome and handoff
 
 Implementation and local verification are complete. Local production preview remains at `http://127.0.0.1:4173/` on `feat/click-to-begin`, based on production `d1f9a6a`. The artwork and entry page are ready for owner visual review. No production deployment has been changed by this feature work.
+
+## Owner-selected B restyle — 2026-11-06
+
+The owner rejected the first gold-winged-key direction, reviewed three generated candidates in the tagged tmux pane, then chose **B — Arcade Adventure** and requested the whole Begin page match it. This selects `art-source/branding/entry-options-2026-11-06/arcade-adventure.png` (SHA-256 `9f860b039ca422c241eec45b81c5a4171a796fb10edbaf255f1ef98928a9215d`). That source stays unchanged. A new image-generated full-page layout, `arcade-page-concept.png` in the same directory, defines native text and controls around the approved artwork.
+
+Goal: a coherent arcade title screen, including the artwork, title, body/control type, background, frame, focus/hover/error states and tab icon. The click/Enter sound start and the cinematic remain as verified above.
+
+Design system: deep indigo background, pale gold pixel title with an amber offset shadow, lavender supporting copy, hard rectangular amber controls with a pixel bevel, stepped borders, and the complete square artwork displayed large. Use locally bundled Pixelify Sans (12,016-byte Latin WOFF2, SIL OFL 1.1) for the title and control/body typography. Keep the allowed copy: The Captain’s Key; For Pop T, from your crew.; Click to begin; Your flight begins with sound.; existing loading/error/retry messages. Remove the first version's Welcome aboard eyebrow. Desktop is title/control column left and square art right; narrow viewports stack art and centered title/control content.
+
+The owner explicitly approved the full-page concept with "yeah that looks dope" while implementation was in progress. That image and B remain the design authority.
+
+- [x] Restyle 1 — Integrated the unchanged approved B source, matching icons, native pixel typography, full-page styles and font/source/license provenance.
+- [x] Restyle 2 — Eight production-browser cases pass, and final native/375/667/768/1280/1440 screenshots were compared against the concept and approved art. Actual browser screenshot displayed in tagged tmux pane %1.
+- [ ] Restyle 3 — Run lint/types/full unit/build/asset guards, review the complete delta, update PR #123 and its review preview, and display the actual browser screenshot in tmux.
+
+Boundaries: preserve earlier candidates locally without promoting A/C or replacing approved B with newly generated art. Do not merge or change production. Extend the existing entry browser test to check visible art/title/Begin without overflow at the required widths; do not add tests that merely mirror CSS constants. Record at least five concept-to-render comparisons and actual command results below.
+
+Restyle evidence: lint/types/build passed in `/tmp/captains-key-arcade-final-build.log`; full unit suite 1,060/1,060, assets, spoiler/privacy and budget passed in `/tmp/captains-key-arcade-final-checks.log`. Initial download is 591/600 KB and total build 188.4/190 MB. The first 603 KB result was repaired by encoding the optional 180 px touch icon with a 16-color palette, leaving approved main art and 32 px tab preview unchanged. No budget changed.
+
+Browser evidence: `/tmp/captains-key-arcade-final-browser.log` is 8/8 green. Independent review reported no Critical/Important findings and identified a minor blocked-font title overlap; the new regression failed RED at 901 px, then passed after local fallback metric adjustment. The complete title/art/Begin viewport checks now require ratio 1. `preview-renders/captains-key-arcade-entry-2026-11-06/` holds final screenshots, measured bounds, no-error/no-external-request receipt and an eight-point fidelity ledger. Concept and latest native browser screenshot were both opened in the same final view_image pass. The actual screenshot, rather than the concept, is now in the tmux side pane. PR update/hosted preview is the remaining handoff step.

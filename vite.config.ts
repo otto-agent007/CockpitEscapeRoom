@@ -45,7 +45,11 @@ function marsArcadeAssets(): Plugin {
 function omitHistoricalPublicAssets(): Plugin {
   let outDir: string
   const unused = [
-    'favicon.ico', // Retired icon; index.html references the generated winged-key PNGs.
+    'favicon.ico', // Retired icons; index.html references the owner-selected arcade PNGs.
+    'favicon-16.png',
+    'favicon-32.png',
+    'apple-touch-icon.png',
+    'images/captains-key-emblem.webp', // Rejected first entry-art direction, preserved in source history.
     'models/model-y-reward.glb', // The reward is now the protected film.
     'models/optimus-guide-review.glb', // Superseded by the combined greeting/walk/dance export.
     'models/optimus-guide-dance-02-review.glb', // Both historical robot exports are replaced by the combined escort asset.

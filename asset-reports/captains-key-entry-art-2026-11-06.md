@@ -1,5 +1,7 @@
 # Captain's Key entry artwork and browser icon
 
+**Superseded:** the owner declined this first winged-key direction and selected B — Arcade Adventure. The original is preserved as history; its runtime derivatives are omitted from the build. The selected art and full-page restyle are documented in `captains-key-arcade-entry-2026-11-06.md`.
+
 Generated on 2026-11-06 at the owner's request using the built-in image maker (`image_gen.imagegen`). The same square artwork supplies the entry-page illustration and all browser-icon derivatives. No external airline artwork, production dependency, Blender asset or game reward asset was added or changed. Owner visual review remains pending.
 
 ## Source and derivatives

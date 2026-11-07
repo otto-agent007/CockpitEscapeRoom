@@ -1,0 +1,11 @@
+{
+  "family": "Pixelify Sans",
+  "weights": "400 700",
+  "cssSource": "https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap",
+  "fontSource": "https://fonts.gstatic.com/s/pixelifysans/v3/CHylV-3HFUT7aC4iv1TxGDR9Jn0Eiw.woff2",
+  "licenseSource": "https://raw.githubusercontent.com/google/fonts/main/ofl/pixelifysans/OFL.txt",
+  "license": "SIL OFL 1.1",
+  "runtimePath": "public/fonts/pixelify-sans-latin.woff2",
+  "bytes": 12016,
+  "sha256": "4a5633a0c9c1b73abd133a56d3716c2d8df2ed03cb987346f72194aeb224f382"
+}
