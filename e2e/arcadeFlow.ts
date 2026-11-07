@@ -16,7 +16,19 @@ export async function startArcadeFight(frame: FrameLocator, openOptions = true) 
   await start.click()
   await expect(frame.locator('#stage')).toBeVisible()
   if (openOptions) {
+    await openArcadeMenu(frame)
     await frame.getByText('Match options', { exact: true }).click()
     await frame.getByText('Controls', { exact: true }).click()
+    await resumeArcade(frame)
   }
+}
+
+export async function openArcadeMenu(frame: FrameLocator) {
+  const menu = frame.getByRole('dialog', { name: 'Arcade menu' })
+  if (!await menu.isVisible()) await frame.getByRole('button', { name: 'Menu', exact: true }).click()
+  await expect(menu).toBeVisible()
+}
+
+export async function resumeArcade(frame: FrameLocator) {
+  await frame.getByRole('dialog', { name: 'Arcade menu' }).getByRole('button', { name: 'Resume', exact: true }).click()
 }

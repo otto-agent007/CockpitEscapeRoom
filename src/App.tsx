@@ -193,11 +193,18 @@ export default function App() {
   const [completedOnce, setCompletedOnce] = useState(() => loadMarsArcadeUnlock())
   const [arcadeOpen, setArcadeOpen] = useState(false)
   const [resumeTribute, setResumeTribute] = useState(false)
+  const restoreGameFocus = useRef(false)
   const openArcade = useCallback(() => setArcadeOpen(true), [])
   const closeArcade = useCallback(() => {
+    restoreGameFocus.current = true
     setArcadeOpen(false)
-    requestAnimationFrame(() => document.querySelector<HTMLElement>('main')?.focus())
   }, [])
+  useEffect(() => {
+    if (arcadeOpen || !restoreGameFocus.current) return
+    // A frame callback can run before React replaces the old arcade main.
+    restoreGameFocus.current = false
+    document.querySelector<HTMLElement>('main')?.focus({ preventScroll: true })
+  }, [arcadeOpen])
   const completeJourney = useCallback(() => {
     saveMarsArcadeUnlock()
     setCompletedOnce(true)
@@ -209,10 +216,10 @@ export default function App() {
   if (arcadeOpen && completedOnce) {
     return <MarsArcade onClose={closeArcade} />
   }
-  return <GameApp game={game} onJourneyComplete={completeJourney} resumeTribute={resumeTribute} onTributeReset={resetTribute} />
+  return <GameApp game={game} onJourneyComplete={completeJourney} resumeTribute={resumeTribute} onTributeReset={resetTribute} onOpenArcade={completedOnce ? openArcade : undefined} />
 }
 
-function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset }: { game: ReturnType<typeof useGame>; onJourneyComplete: () => void; resumeTribute: boolean; onTributeReset: () => void }) {
+function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset, onOpenArcade }: { game: ReturnType<typeof useGame>; onJourneyComplete: () => void; resumeTribute: boolean; onTributeReset: () => void; onOpenArcade?: () => void }) {
   const { state, dispatch } = game
   const reducedMotion = useReducedMotion()
   const skipPrototypeScene = shouldSkipPrototypeScene()
@@ -862,6 +869,7 @@ function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset }: { g
       <main ref={shellRef} className="game-shell reward-shell" tabIndex={-1}>
         <Suspense fallback={<div className="reward-module-loading" role="status">Preparing the final reward…</div>}>
           <RewardExperience
+            onOpenArcade={onOpenArcade}
             initialComplete={resumeTribute}
             onReplay={onTributeReset}
             onRestart={restart}

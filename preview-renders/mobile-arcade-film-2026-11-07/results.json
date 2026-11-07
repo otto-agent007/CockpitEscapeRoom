@@ -1,0 +1,480 @@
+{
+  "browser": "Installed Chromium mobile touch emulation; Browser plugin unavailable",
+  "url": "http://127.0.0.1:4174/",
+  "title": "The Captain's Key",
+  "views": [
+    {
+      "name": "film-375",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "movie": {
+        "x": 0,
+        "y": 0,
+        "width": 375,
+        "height": 686.03125
+      },
+      "bar": {
+        "x": 0,
+        "y": 686.03125,
+        "width": 375,
+        "height": 125.96875
+      },
+      "playback": {
+        "currentTime": 12.394305,
+        "paused": false,
+        "muted": false,
+        "width": 1920,
+        "height": 1080
+      },
+      "description": "Rotate your phone for a wider view."
+    },
+    {
+      "name": "film-812",
+      "viewport": {
+        "width": 812,
+        "height": 375
+      },
+      "movie": {
+        "x": 0,
+        "y": 0,
+        "width": 812,
+        "height": 324.625
+      },
+      "bar": {
+        "x": 0,
+        "y": 324.625,
+        "width": 812,
+        "height": 50.375
+      },
+      "playback": {
+        "currentTime": 55.506105,
+        "paused": false,
+        "muted": false,
+        "width": 1920,
+        "height": 1080
+      },
+      "description": "Landscape view."
+    },
+    {
+      "name": "film-667",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "movie": {
+        "x": 0,
+        "y": 0,
+        "width": 667,
+        "height": 324.625
+      },
+      "bar": {
+        "x": 0,
+        "y": 324.625,
+        "width": 667,
+        "height": 50.375
+      },
+      "playback": {
+        "currentTime": 12.449601,
+        "paused": false,
+        "muted": false,
+        "width": 1920,
+        "height": 1080
+      },
+      "description": "Landscape view."
+    },
+    {
+      "name": "film-768",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "movie": {
+        "x": 0,
+        "y": 0,
+        "width": 768,
+        "height": 947.625
+      },
+      "bar": {
+        "x": 0,
+        "y": 947.625,
+        "width": 768,
+        "height": 76.375
+      },
+      "playback": {
+        "currentTime": 12.6574,
+        "paused": false,
+        "muted": false,
+        "width": 1920,
+        "height": 1080
+      },
+      "description": "Rotate your phone; turn off rotation lock if needed."
+    },
+    {
+      "name": "film-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "movie": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 823.625
+      },
+      "bar": {
+        "x": 0,
+        "y": 823.625,
+        "width": 1440,
+        "height": 76.375
+      },
+      "playback": {
+        "currentTime": 55.852809,
+        "paused": false,
+        "muted": false,
+        "width": 1920,
+        "height": 1080
+      },
+      "description": "Landscape view."
+    },
+    {
+      "name": "arcade-fight-375",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "arena": {
+        "x": 6.078125,
+        "y": 262,
+        "width": 362.84375,
+        "height": 254
+      },
+      "controls": [
+        {
+          "name": "P1 left",
+          "x": 6,
+          "y": 544.046875,
+          "width": 55.828125,
+          "height": 56
+        },
+        {
+          "name": "P1 right",
+          "x": 66.828125,
+          "y": 544.046875,
+          "width": 55.828125,
+          "height": 56
+        },
+        {
+          "name": "P1 jump",
+          "x": 127.65625,
+          "y": 544.046875,
+          "width": 55.828125,
+          "height": 56
+        },
+        {
+          "name": "P1 light",
+          "x": 191.5,
+          "y": 544.046875,
+          "width": 55.828125,
+          "height": 56
+        },
+        {
+          "name": "P1 heavy",
+          "x": 252.328125,
+          "y": 544.046875,
+          "width": 55.828125,
+          "height": 56
+        },
+        {
+          "name": "P1 special",
+          "x": 313.15625,
+          "y": 544.046875,
+          "width": 55.828125,
+          "height": 56
+        },
+        {
+          "name": "Menu",
+          "x": 191.5,
+          "y": 209.953125,
+          "width": 88,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "arcade-fight-667",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "arena": {
+        "x": 118.78125,
+        "y": 58,
+        "width": 441.421875,
+        "height": 309
+      },
+      "controls": [
+        {
+          "name": "P1 left",
+          "x": 6,
+          "y": 225.5,
+          "width": 48,
+          "height": 48
+        },
+        {
+          "name": "P1 right",
+          "x": 60,
+          "y": 225.5,
+          "width": 48,
+          "height": 48
+        },
+        {
+          "name": "P1 jump",
+          "x": 6,
+          "y": 171.5,
+          "width": 102,
+          "height": 48
+        },
+        {
+          "name": "P1 light",
+          "x": 571,
+          "y": 144.5,
+          "width": 90,
+          "height": 48
+        },
+        {
+          "name": "P1 heavy",
+          "x": 571,
+          "y": 198.5,
+          "width": 90,
+          "height": 48
+        },
+        {
+          "name": "P1 special",
+          "x": 571,
+          "y": 252.5,
+          "width": 90,
+          "height": 48
+        },
+        {
+          "name": "Menu",
+          "x": 337.5,
+          "y": 6,
+          "width": 88,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "arcade-fight-812",
+      "viewport": {
+        "width": 812,
+        "height": 375
+      },
+      "arena": {
+        "x": 191.28125,
+        "y": 58,
+        "width": 441.421875,
+        "height": 309
+      },
+      "controls": [
+        {
+          "name": "P1 left",
+          "x": 6,
+          "y": 225.5,
+          "width": 48,
+          "height": 48
+        },
+        {
+          "name": "P1 right",
+          "x": 60,
+          "y": 225.5,
+          "width": 48,
+          "height": 48
+        },
+        {
+          "name": "P1 jump",
+          "x": 6,
+          "y": 171.5,
+          "width": 102,
+          "height": 48
+        },
+        {
+          "name": "P1 light",
+          "x": 716,
+          "y": 144.5,
+          "width": 90,
+          "height": 48
+        },
+        {
+          "name": "P1 heavy",
+          "x": 716,
+          "y": 198.5,
+          "width": 90,
+          "height": 48
+        },
+        {
+          "name": "P1 special",
+          "x": 716,
+          "y": 252.5,
+          "width": 90,
+          "height": 48
+        },
+        {
+          "name": "Menu",
+          "x": 410,
+          "y": 6,
+          "width": 88,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "arcade-fight-768",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "arena": {
+        "x": 6.140625,
+        "y": 230.5,
+        "width": 755.703125,
+        "height": 529
+      },
+      "controls": [
+        {
+          "name": "P1 left",
+          "x": 6,
+          "y": 787.59375,
+          "width": 120.65625,
+          "height": 56
+        },
+        {
+          "name": "P1 right",
+          "x": 132.65625,
+          "y": 787.59375,
+          "width": 120.671875,
+          "height": 56
+        },
+        {
+          "name": "P1 jump",
+          "x": 259.328125,
+          "y": 787.59375,
+          "width": 120.65625,
+          "height": 56
+        },
+        {
+          "name": "P1 light",
+          "x": 388,
+          "y": 787.59375,
+          "width": 120.65625,
+          "height": 56
+        },
+        {
+          "name": "P1 heavy",
+          "x": 514.65625,
+          "y": 787.59375,
+          "width": 120.671875,
+          "height": 56
+        },
+        {
+          "name": "P1 special",
+          "x": 641.328125,
+          "y": 787.59375,
+          "width": 120.65625,
+          "height": 56
+        },
+        {
+          "name": "Menu",
+          "x": 388,
+          "y": 178.40625,
+          "width": 88,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "arcade-fight-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "arena": {
+        "x": 174,
+        "y": 87.203125,
+        "width": 1108,
+        "height": 775.59375
+      },
+      "controls": [
+        {
+          "name": "P1 left",
+          "x": 6,
+          "y": 488,
+          "width": 77,
+          "height": 56
+        },
+        {
+          "name": "P1 right",
+          "x": 89,
+          "y": 488,
+          "width": 77,
+          "height": 56
+        },
+        {
+          "name": "P1 jump",
+          "x": 6,
+          "y": 426,
+          "width": 160,
+          "height": 56
+        },
+        {
+          "name": "P1 light",
+          "x": 1290,
+          "y": 395,
+          "width": 144,
+          "height": 56
+        },
+        {
+          "name": "P1 heavy",
+          "x": 1290,
+          "y": 457,
+          "width": 144,
+          "height": 56
+        },
+        {
+          "name": "P1 special",
+          "x": 1290,
+          "y": 519,
+          "width": 144,
+          "height": 56
+        },
+        {
+          "name": "Menu",
+          "x": 724,
+          "y": 6,
+          "width": 88,
+          "height": 44
+        }
+      ]
+    }
+  ],
+  "movie": {
+    "bytes": 38596084,
+    "sha256": "b4698d81fb3c931a7d3c2a5a9c8213e4620b30b2ec7726138cd80992f27a8dfd"
+  },
+  "fingerprints": {
+    "src/App.tsx": "b0ee3592111b1a6ed570f5a1f10a6a793a32678e82ba775f8f328c76f860be86",
+    "src/arcade/main.ts": "c2bedbcd2c0ffc9c94b2fb731a1ed1a108fe297a21fc6e92fdee4af65d398729",
+    "src/arcade/player.css": "16427cb06521f4f446d499dcd76ed7dd345e80d4471a4c2658b46a61ecc9a734",
+    "src/dev/arcadeHarness.ts": "6f95f282fe1711325a69041e24f7eb27e60fc2a1420be3e2270945b97fb38535",
+    "mars-arcade.html": "fe79938340f1a20945661fd23ae5315bee6224dca2573849b350d599a4db53ce",
+    "src/components/RewardExperience.tsx": "130c67b87c02e06cde6dae50542342af46dd27d252b6c3b722482ad6f827f700",
+    "src/components/RewardFilm.css": "af2a19cd7bede583faff0903233dd21d293255451bac9658c09d20f2db828e1f",
+    "src/components/filmLandscape.ts": "9fb4b6ac61fbce20f453f63dd46ebf0a21c8a0467ec5f9ab9e9629a16876621e",
+    "src/components/SecretArcadeEntry.tsx": "bd850c9f8915de49b24f339c37d765bf0948256afbacecd807239b38ed3c727f",
+    "src/components/SecretArcadeEntry.css": "7b58a24bbbb7b489f13c1fb31ef923c5805b04ab49a77236fb3282d6f33a7ab3",
+    "src/game/secretArcadeHold.ts": "249c0b25b8695fb82155b708816a2177a709e141a6950f3015b5c019fba03349"
+  },
+  "errors": []
+}
