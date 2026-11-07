@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 import { mkdirSync } from 'node:fs'
 import { STORAGE_KEY } from '../src/game/storage'
-import { holdForArcade, startArcadeFight } from './arcadeFlow'
+import { holdForArcade, openArcadeMenu, resumeArcade, startArcadeFight } from './arcadeFlow'
 
 const settingKey = 'cockpit-escape-room-arcade-background'
 async function enterArcade(page: Page, navigate = true) {
@@ -36,7 +36,7 @@ for (const width of [375, 768, 1440]) {
       await page.setViewportSize({ width, height: 900 })
       await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' })
       const frame = await enterArcade(page)
-      const background = frame.getByRole('combobox', { name: 'Background', exact: true })
+      const background = frame.locator('#background-choice')
       await expect(background).toHaveValue('mars')
       await expect(frame.locator('#asset-status')).toContainText('5/5 backdrop layers ready')
       expect(moonRequests).toEqual([])
@@ -44,6 +44,7 @@ for (const width of [375, 768, 1440]) {
       await frame.getByRole('button', { name: 'Pause', exact: true }).click()
       await expect(frame.getByRole('button', { name: 'Resume', exact: true })).toBeVisible()
       await expect(frame.locator('#readout')).toContainText('PAUSED')
+      await openArcadeMenu(frame)
       const before = await frame.locator('#readout').textContent()
       await background.selectOption('moonbase')
       await expect(frame.locator('#background-status')).toContainText('Moonbase ready')
@@ -54,8 +55,10 @@ for (const width of [375, 768, 1440]) {
       expect(await frame.locator('body').evaluate(element => element.scrollWidth <= innerWidth)).toBe(true)
       await frame.locator('body').evaluate(() => scrollTo(0, 0))
       if (process.env.ARCADE_EVIDENCE_DIR) {
+        await frame.getByRole('button', { name: 'Close menu', exact: true }).click()
         mkdirSync(process.env.ARCADE_EVIDENCE_DIR, { recursive: true })
         await page.screenshot({ path: `${process.env.ARCADE_EVIDENCE_DIR}/moonbase-${width}-${reduced ? 'reduced' : 'normal'}.png`, fullPage: true })
+        await openArcadeMenu(frame)
       }
       await background.focus()
       await page.keyboard.press('Home')
@@ -66,6 +69,7 @@ for (const width of [375, 768, 1440]) {
       await enterArcade(page, false)
       await expect(background).toHaveValue('moonbase')
       await expect(frame.locator('#background-status')).toContainText('Moonbase ready')
+      await openArcadeMenu(frame)
       await frame.getByRole('button', { name: 'Restart round' }).click()
       await expect(background).toHaveValue('moonbase')
       expect(errors).toEqual([])
@@ -77,11 +81,14 @@ test('missing Moonbase art can retry while native combat remains usable', async 
   let blocked = true
   await page.route('**/moonbase-panorama.png', route => blocked ? route.abort() : route.continue())
   const frame = await enterArcade(page)
-  await frame.getByRole('combobox', { name: 'Background', exact: true }).selectOption('moonbase')
+  await openArcadeMenu(frame)
+  await frame.locator('#background-choice').selectOption('moonbase')
   await expect(frame.getByRole('button', { name: 'Retry background' })).toBeVisible()
+  await resumeArcade(frame)
   await frame.getByRole('button', { name: 'P1 light' }).click()
   await expect(frame.locator('#stage')).toBeVisible()
   blocked = false
+  await openArcadeMenu(frame)
   await frame.getByRole('button', { name: 'Retry background' }).click()
   await expect(frame.locator('#background-status')).toContainText('Moonbase ready')
   await expect(frame.getByRole('button', { name: 'Retry background' })).toBeHidden()
@@ -90,9 +97,10 @@ test('missing Moonbase art can retry while native combat remains usable', async 
 test('a corrupt background setting and unavailable storage recover safely', async ({ page }) => {
   await page.addInitScript(key => localStorage.setItem(key, '{broken'), settingKey)
   const frame = await enterArcade(page)
-  const choice = frame.getByRole('combobox', { name: 'Background', exact: true })
+  const choice = frame.locator('#background-choice')
   await expect(choice).toHaveValue('mars')
   await frame.locator('body').evaluate(() => { Storage.prototype.setItem = () => { throw new Error('quota') } })
+  await openArcadeMenu(frame)
   await choice.selectOption('moonbase')
   await expect(choice).toHaveValue('moonbase')
   await expect(frame.locator('#background-status')).toContainText('Moonbase ready')
@@ -101,31 +109,31 @@ test('a corrupt background setting and unavailable storage recover safely', asyn
 test('Moonbase survives returning to the chapter and re-entering with T+M+B', async ({ page }) => {
   await page.goto('/?skip3d=1')
   await expect(page.getByText('Bonus access', { exact: true })).toHaveCount(0)
+  await expect(page.locator('.briefing-shell')).toBeVisible()
   const before = await page.evaluate(key => localStorage.getItem(key), STORAGE_KEY)
-  for (const key of ['t', 'm', 'b']) await page.keyboard.down(key)
-  await page.waitForTimeout(1600)
-  for (const key of ['b', 'm', 't']) await page.keyboard.up(key)
+  await holdForArcade(page)
   const frame = page.frameLocator('iframe[title="Mars arcade"]')
   await startArcadeFight(frame)
-  await frame.getByRole('combobox', { name: 'Background', exact: true }).selectOption('moonbase')
+  await openArcadeMenu(frame)
+  await frame.locator('#background-choice').selectOption('moonbase')
   await expect(frame.locator('#background-status')).toContainText('Moonbase ready')
   await frame.getByRole('button', { name: 'Return to game', exact: true }).click()
   await expect(page.locator('.briefing-shell')).toBeVisible()
   expect(await page.evaluate(key => localStorage.getItem(key), STORAGE_KEY)).toBe(before)
-  for (const key of ['t', 'm', 'b']) await page.keyboard.down(key)
-  await page.waitForTimeout(1600)
-  for (const key of ['t', 'm', 'b']) await page.keyboard.up(key)
+  await holdForArcade(page)
   await startArcadeFight(frame)
-  await expect(frame.getByRole('combobox', { name: 'Background', exact: true })).toHaveValue('moonbase')
+  await expect(frame.locator('#background-choice')).toHaveValue('moonbase')
   await expect(frame.locator('#background-status')).toContainText('Moonbase ready')
 })
 
 test('Moonbase has no scenery gaps at either real camera edge', async ({ page }) => {
   const frame = await enterArcade(page)
-  await frame.getByRole('combobox', { name: 'Background', exact: true }).selectOption('moonbase')
+  await openArcadeMenu(frame)
+  await frame.locator('#background-choice').selectOption('moonbase')
   await expect(frame.locator('#background-status')).toContainText('Moonbase ready')
   await frame.getByRole('button', { name: 'Switch CPU / two players' }).click()
   await expect(frame.locator('#readout')).toContainText('P2 human')
+  await resumeArcade(frame)
   const canvas = frame.locator('#stage')
   for (const [one, two, limit] of [['a', 'ArrowLeft', -104], ['d', 'ArrowRight', 104]] as const) {
     await canvas.focus()

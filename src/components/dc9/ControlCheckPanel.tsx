@@ -1,3 +1,5 @@
+import { CockpitHelp } from '../CockpitHelp'
+import { useCompactCockpit } from '../useCompactCockpit'
 import { dc9LegacyFlow } from '../../game/config'
 import {
   DC9_CONTROL_CHECK_GROUP_IDS,
@@ -16,28 +18,13 @@ interface ControlCheckPanelProps {
 }
 
 export function ControlCheckPanel({ completed, controls, inputMethod, onHold }: ControlCheckPanelProps) {
+  const compact = useCompactCockpit()
   const copy = dc9LegacyFlow.controlCheck
   const done = new Set(completed)
   const nextItem = dc9ControlCheckNextItem(completed)
 
-  return (
-    <section className="dc9-control-check" aria-labelledby="dc9-control-check-title">
-      <header>
-        <p className="eyebrow">{copy.eyebrow}</p>
-        <h2 id="dc9-control-check-title">{copy.title}</h2>
-      </header>
-
-      <p className="dc9-control-check__intro">{copy.intro}</p>
-      <p className="dc9-control-check__instructions">{copy.instructions}</p>
-
-      <p className="dc9-control-check__next" aria-live="polite" aria-atomic="true">
-        {nextItem ? copy.items[nextItem].detail : copy.completionText}
-      </p>
-
-      <div className="dc9-control-check__axes">
-        <Dc9AxisControls controls={controls} onHold={onHold} />
-      </div>
-
+  const currentAxis = nextItem?.startsWith('yoke') ? 'pitch' : nextItem?.startsWith('wheel') ? 'roll' : nextItem?.startsWith('rudder') ? 'rudder' : 'thrust'
+  const checklist = (
       <div className="dc9-control-check__checklist">
         {DC9_CONTROL_CHECK_GROUP_IDS.map((group) => (
           <div key={group} className="dc9-control-check__group">
@@ -61,6 +48,32 @@ export function ControlCheckPanel({ completed, controls, inputMethod, onHold }: 
           </div>
         ))}
       </div>
+
+  )
+
+  return (
+    <section className="dc9-control-check" aria-labelledby="dc9-control-check-title" data-current-axis={currentAxis}>
+      <header>
+        <p className="eyebrow">{copy.eyebrow}</p>
+        <h2 id="dc9-control-check-title">{copy.title}</h2>
+      </header>
+
+      <CockpitHelp>
+      <p className="dc9-control-check__intro">{copy.intro}</p>
+      <p className="dc9-control-check__instructions">{copy.instructions}</p>
+      {compact && checklist}
+      </CockpitHelp>
+
+      <p className="dc9-control-check__next" aria-live="polite" aria-atomic="true">
+        {nextItem ? copy.items[nextItem].detail : copy.completionText}
+      </p>
+
+      <p className="cockpit-touch-progress">{completed.length} of 8 checks complete</p>
+      <div className="dc9-control-check__axes">
+        <Dc9AxisControls controls={controls} onHold={onHold} />
+      </div>
+
+      {!compact && checklist}
 
       <p className="dc9-control-check__method">
         <span className="sr-only">Active input: </span>

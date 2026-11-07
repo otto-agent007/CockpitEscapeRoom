@@ -95,7 +95,8 @@ test('the Roboptimus hangar escort opens an automatically playing viewport-sized
       viewportHeight: window.innerHeight,
     }))
     expect(dimensions.width).toBeGreaterThanOrEqual(dimensions.viewportWidth - 1)
-    expect(dimensions.height).toBeGreaterThanOrEqual(dimensions.viewportHeight - 1)
+    const toolbarHeight = await page.locator('.reward-film-toolbar').evaluate((element) => element.getBoundingClientRect().height)
+    expect(dimensions.height).toBeGreaterThanOrEqual(dimensions.viewportHeight - toolbarHeight - 1)
     await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime), { timeout: 15_000 }).toBeGreaterThan(0.25)
 
     // Byte verification can outlast the greeting on CI; keep it out of the
@@ -292,7 +293,8 @@ test('film and controls fit desktop, tablet and phone widths', async ({ page }) 
       return { width: bounds.width, height: bounds.height, viewportWidth: innerWidth, viewportHeight: innerHeight }
     })
     expect(videoSize.width).toBeGreaterThanOrEqual(videoSize.viewportWidth - 1)
-    expect(videoSize.height).toBeGreaterThanOrEqual(videoSize.viewportHeight - 1)
+    const toolbarHeight = await page.locator('.reward-film-toolbar').evaluate((element) => element.getBoundingClientRect().height)
+    expect(videoSize.height).toBeGreaterThanOrEqual(videoSize.viewportHeight - toolbarHeight - 1)
     await expect.poll(() => page.getByLabel('Model FLY film').evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(0.1)
     await expect(page.getByRole('button', { name: 'Skip film and read tribute' })).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)

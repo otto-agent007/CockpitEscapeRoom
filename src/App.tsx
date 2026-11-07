@@ -2,7 +2,6 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Hud } from './components/Hud'
 import { GameIntro } from './components/GameIntro'
 import { CockpitOrientation } from './components/CockpitOrientation'
-import { Dc9Chapter } from './components/dc9/Dc9Chapter'
 import { LockerTransition, type LockerIntroStage } from './components/LockerTransition'
 import { AirbusCompletionCelebration, CaptainHatCelebration } from './components/QualificationCelebration'
 import { SceneHelp } from './components/SceneHelp'
@@ -35,6 +34,11 @@ import {
 const PrototypeScene = lazy(async () => {
   const module = await import('./scenes/PrototypeScene')
   return { default: module.PrototypeScene }
+})
+
+const Dc9Chapter = lazy(async () => {
+  const module = await import('./components/dc9/Dc9Chapter')
+  return { default: module.Dc9Chapter }
 })
 
 const RewardExperience = lazy(async () => {
@@ -189,11 +193,18 @@ export default function App() {
   const [completedOnce, setCompletedOnce] = useState(() => loadMarsArcadeUnlock())
   const [arcadeOpen, setArcadeOpen] = useState(false)
   const [resumeTribute, setResumeTribute] = useState(false)
+  const restoreGameFocus = useRef(false)
   const openArcade = useCallback(() => setArcadeOpen(true), [])
   const closeArcade = useCallback(() => {
+    restoreGameFocus.current = true
     setArcadeOpen(false)
-    requestAnimationFrame(() => document.querySelector<HTMLElement>('main')?.focus())
   }, [])
+  useEffect(() => {
+    if (arcadeOpen || !restoreGameFocus.current) return
+    // A frame callback can run before React replaces the old arcade main.
+    restoreGameFocus.current = false
+    document.querySelector<HTMLElement>('main')?.focus({ preventScroll: true })
+  }, [arcadeOpen])
   const completeJourney = useCallback(() => {
     saveMarsArcadeUnlock()
     setCompletedOnce(true)
@@ -205,10 +216,10 @@ export default function App() {
   if (arcadeOpen && completedOnce) {
     return <MarsArcade onClose={closeArcade} />
   }
-  return <GameApp game={game} onJourneyComplete={completeJourney} resumeTribute={resumeTribute} onTributeReset={resetTribute} />
+  return <GameApp game={game} onJourneyComplete={completeJourney} resumeTribute={resumeTribute} onTributeReset={resetTribute} onOpenArcade={completedOnce ? openArcade : undefined} />
 }
 
-function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset }: { game: ReturnType<typeof useGame>; onJourneyComplete: () => void; resumeTribute: boolean; onTributeReset: () => void }) {
+function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset, onOpenArcade }: { game: ReturnType<typeof useGame>; onJourneyComplete: () => void; resumeTribute: boolean; onTributeReset: () => void; onOpenArcade?: () => void }) {
   const { state, dispatch } = game
   const reducedMotion = useReducedMotion()
   const skipPrototypeScene = shouldSkipPrototypeScene()
@@ -858,6 +869,7 @@ function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset }: { g
       <main ref={shellRef} className="game-shell reward-shell" tabIndex={-1}>
         <Suspense fallback={<div className="reward-module-loading" role="status">Preparing the final reward…</div>}>
           <RewardExperience
+            onOpenArcade={onOpenArcade}
             initialComplete={resumeTribute}
             onReplay={onTributeReset}
             onRestart={restart}
@@ -888,6 +900,11 @@ function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset }: { g
       tabIndex={-1}
       data-locker-hat-finale-stage={state.phase === 'locker' ? lockerHatFinaleStage : undefined}
       data-airbus-camera-phase={state.phase === 'airbus' ? state.airbusSimulator.cameraPhase : undefined}
+      data-cockpit-controls={state.phase === 'dc9' && ['controlCheck', 'instrumentScan', 'memphisDeparture', 'shutdown'].includes(state.dc9.stage)
+        ? `dc9-${state.dc9.stage}`
+        : state.phase === 'airbus' && state.airbusSimulator.familiarization === 'unseen'
+          ? 'airbus-qualification'
+          : state.phase === 'airbus' && activeAirbusScenario ? 'airbus-flight' : undefined}
       className={`game-shell${state.phase === 'airbus' ? ' airbus-shell' : ''}${activeAirbusScenario ? ' airbus-simulator-active' : ''}${state.phase === 'locker' ? ' locker-shell' : ''}${state.phase === 'dc9' ? ' captain-shell' : ''}`}
     >
       {skipPrototypeScene || (state.phase === 'airbus' && airbusLoadState.status === 'accessible-fallback') || (state.phase === 'locker' && lockerLoadState.status === 'accessible-fallback') || (state.phase === 'dc9' && dc9LoadState.status === 'accessible-fallback') ? (
@@ -966,6 +983,7 @@ function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset }: { g
         />
       )}
       {state.phase === 'dc9' && !cockpitOrientationActive && (
+        <Suspense fallback={null}>
         <Dc9Chapter
           state={state}
           dispatch={dispatch}
@@ -982,6 +1000,7 @@ function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset }: { g
           onHoldControl={dc9FlightControls.setHoldControl}
           dc9MemphisDeparture={dc9MemphisDeparture}
         />
+        </Suspense>
       )}
       {state.phase === 'dc9' && !skipPrototypeScene && showDc9Loader && dc9LoadState.status !== 'accessible-fallback' && (
         <Dc9Loader state={dc9LoadState} environment={dc9MemphisLoadState} fading={dc9LoaderFading} />

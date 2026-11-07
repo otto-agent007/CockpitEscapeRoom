@@ -1,0 +1,19 @@
+{
+  "canvas": {
+    "x": 0,
+    "y": 0,
+    "w": 1440,
+    "h": 900
+  },
+  "dc9Controls": {
+    "x": 944,
+    "y": 16,
+    "w": 480,
+    "h": 780
+  },
+  "dc9Scan": null,
+  "dc9Departure": null,
+  "airbusControls": null,
+  "airbusTraining": null,
+  "bodyText": "DC-9 Final Flight Log\n\nRIGHT SEAT · BEFORE THE LOG\n\nFlight controls — free and correct\n\nEvery leg started the same way. Parked at the gate with the checklist open, the crew walked each control to its stops and felt it come back. Take the right seat and do it once more.\n\nArrow keys move the yoke, W and S walk the thrust levers, A and D work the rudder pedals. You can also hold the buttons here, or drag the yoke itself.\n\nPull the yoke back to the stop.\n\nControl column\nNeutral\nPush column forward\nDown arrow\nPull column aft\nUp arrow\nControl wheel\nNeutral\nRoll wheel left\nLeft arrow\nRoll wheel right\nRight arrow\nRudder pedals\nNeutral\nLeft rudder pedal\nA\nRight rudder pedal\nD\nThrust levers\nClosed\nClose thrust levers\nS\nAdvance thrust levers\nW\nCONTROL COLUMN AND WHEEL\n·\nColumn full aft\n·\nColumn full forward\n·\nWheel full left\n·\nWheel full right\nRUDDER PEDALS\n·\nLeft pedal full travel\n·\nRight pedal full travel\nTHRUST LEVERS\n·\nLevers full forward\n·\nLevers closed\n\nActive input:\nKeyboard ready.\n\nThe aircraft is parked and powered down. Nothing here commands the aeroplane.\n\nThe parked DC-9 is ready. Walk every right-seat control to its stops.\n\nRestart\n?\n⛶"
+}

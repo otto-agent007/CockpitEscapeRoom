@@ -4,7 +4,7 @@ import { mkdirSync } from 'node:fs'
 import { createInitialState } from '../src/game/state'
 import { STORAGE_KEY } from '../src/game/storage'
 import { createLockerState } from './journeyStates'
-import { holdForArcade, startArcadeFight } from './arcadeFlow'
+import { holdForArcade, openArcadeMenu, resumeArcade, startArcadeFight } from './arcadeFlow'
 
 const unlockKey = 'cockpit-escape-room-mars-arcade-unlock'
 async function seed(page: Page, complete = false) {
@@ -84,6 +84,7 @@ test('the final tribute unlocks T+M+B, reload and Restart retain access, and exi
   await startArcadeFight(frame)
   await expect(frame.locator('#asset-status')).toContainText('sprites ready')
   await expect(frame.locator('#stage-title')).toContainText(/CAPTAIN/)
+  await openArcadeMenu(frame)
   await frame.getByRole('button', { name: 'Return to game' }).click()
   await expect(page.locator('.briefing-shell')).toBeVisible()
   expect(await page.evaluate(key => localStorage.getItem(key), STORAGE_KEY)).toBe(before)
@@ -166,6 +167,7 @@ test('arcade exit preserves the current in-memory chapter when all storage write
   await expect(page.locator('.briefing-shell')).toBeVisible()
   await openAccess(page)
   await expect(page.frameLocator('iframe').locator('#stage')).toBeVisible()
+  await openArcadeMenu(page.frameLocator('iframe[title="Mars arcade"]'))
   await page.frameLocator('iframe[title="Mars arcade"]').getByRole('button', { name: 'Return to game', exact: true }).click()
   await expect(page.locator('.briefing-shell')).toBeVisible()
 })
@@ -211,7 +213,9 @@ for (const width of [375, 768, 1440]) {
     expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(900)
     const fighterNames = { booster: 'TECHNOKING', oracle: 'SCAM ALTMAN', captain: 'THE CAPTAIN', trump: 'TEFLON DON' }
     for (const fighter of ['booster', 'oracle', 'captain', 'trump'] as const) {
+      await openArcadeMenu(frame)
       await frame.locator('[data-fighter="0"]').selectOption(fighter)
+      await resumeArcade(frame)
       await frame.getByRole('button', { name: 'P1 light' }).click()
       await expect(frame.locator('#readout')).toContainText(fighterNames[fighter])
       await expect.poll(() => frame.locator('#stage').evaluate((canvas, id) => {
@@ -222,7 +226,9 @@ for (const width of [375, 768, 1440]) {
     await frame.getByRole('button', { name: 'Pause', exact: true }).click()
     await expect(frame.getByRole('button', { name: 'Resume', exact: true })).toBeVisible()
     await frame.getByRole('button', { name: 'Resume', exact: true }).click()
+    await openArcadeMenu(frame)
     await frame.getByRole('button', { name: 'Restart round' }).click()
+    await resumeArcade(frame)
     await expect(frame.locator('#stage')).toBeVisible()
     await frame.locator('body').evaluate(() => window.scrollTo(0, 0))
     await page.evaluate(() => window.scrollTo(0, 0))
@@ -297,6 +303,7 @@ test('the arcade exit survives an unavailable optional shell chunk', async ({ pa
   await complete(page)
   await page.route(/assets\/MarsArcade-[^/]*\.js$/, route => route.abort())
   await openAccess(page)
+  await openArcadeMenu(page.frameLocator('iframe[title="Mars arcade"]'))
   await expect(page.frameLocator('iframe[title="Mars arcade"]').getByRole('button', { name: 'Return to game', exact: true })).toBeVisible()
   await page.frameLocator('iframe[title="Mars arcade"]').getByRole('button', { name: 'Return to game', exact: true }).click()
   await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible()
@@ -307,6 +314,7 @@ test('returning to a replayed reward keeps the film stage', async ({ page }) => 
   await page.getByRole('button', { name: 'Replay film' }).click()
   await expect(page.locator('[data-reward-stage="film"]')).toBeVisible()
   await openAccess(page)
+  await openArcadeMenu(page.frameLocator('iframe[title="Mars arcade"]'))
   await page.frameLocator('iframe[title="Mars arcade"]').getByRole('button', { name: 'Return to game', exact: true }).click()
   await expect(page.locator('[data-reward-stage="film"]')).toBeVisible()
   await expect(page.locator('main')).toBeFocused()

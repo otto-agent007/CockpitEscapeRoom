@@ -1,5 +1,5 @@
 import { expect, test, type FrameLocator, type Page } from '@playwright/test'
-import { holdForArcade } from './arcadeFlow'
+import { holdForArcade, openArcadeMenu, resumeArcade } from './arcadeFlow'
 
 interface AudioProbe { decoded: string[]; starts: string[]; live: number; stops: number }
 declare global { interface Window { __arcadeAudio: AudioProbe } }
@@ -85,8 +85,10 @@ test('selected audio follows real combat, varies hits, mutes and survives reload
   await frame.getByRole('button', { name: 'Start fight', exact: true }).focus()
   await page.keyboard.press('Enter')
   await expect.poll(() => files(frame)).toContain('round.wav')
+  await openArcadeMenu(frame)
   await frame.getByText('Match options', { exact: true }).click()
   await frame.getByRole('button', { name: 'Switch CPU / two players' }).click()
+  await resumeArcade(frame)
   await expect.poll(() => files(frame)).toContain('fight.wav')
   await closeDistance(page, frame)
   for (let index = 0; index < 7; index++) {
@@ -103,15 +105,18 @@ test('selected audio follows real combat, varies hits, mutes and survives reload
   await expect.poll(async () => (await files(frame)).some(file => file.startsWith('block-'))).toBe(true)
   await page.keyboard.up('ArrowRight')
   await advance(frame, 20)
+  await openArcadeMenu(frame)
   await frame.getByRole('button', { name: 'Sound on', exact: true }).click()
   await expect(frame.getByRole('button', { name: 'Sound off', exact: true })).toBeVisible()
   await expect.poll(async () => (await probe(frame)).live).toBe(0)
   const mutedStarts = (await probe(frame)).starts.length
+  await resumeArcade(frame)
   await frame.locator('#stage').focus()
   await page.keyboard.press('j')
   await advance(frame, 25)
   expect((await probe(frame)).starts).toHaveLength(mutedStarts)
   await frame.getByRole('button', { name: 'Pause', exact: true }).click()
+  await openArcadeMenu(frame)
   await frame.getByRole('button', { name: 'Sound off', exact: true }).click()
   await expect.poll(async () => (await probe(frame)).live).toBe(0)
   await page.waitForTimeout(250)
@@ -124,9 +129,12 @@ test('selected audio follows real combat, varies hits, mutes and survives reload
   await reloaded.getByRole('button', { name: 'Start fight', exact: true }).click()
   await advance(reloaded, 100)
   expect((await probe(reloaded)).starts).toEqual([])
+  await openArcadeMenu(reloaded)
   await reloaded.getByRole('button', { name: 'Sound off', exact: true }).click()
-  await reloaded.getByRole('button', { name: 'Restart round', exact: true }).click()
+  await resumeArcade(reloaded)
+  await page.keyboard.press('r')
   await expect.poll(() => files(reloaded)).toContain('round.wav')
+  await openArcadeMenu(reloaded)
   await reloaded.getByRole('button', { name: 'Return to game', exact: true }).click()
   await expect(page.locator('.briefing-shell')).toBeVisible()
 })
@@ -145,6 +153,7 @@ test('paused decoding never releases old audio after it finishes loading', async
     await frame.getByRole('button', { name: 'Resume', exact: true }).click()
     await page.waitForTimeout(200)
     expect(await files(frame)).not.toContain('round.wav')
+    await openArcadeMenu(frame)
     await frame.getByRole('button', { name: 'Change player / battlefield' }).click()
     await expect.poll(async () => (await probe(frame)).live).toBe(0)
   } finally { release() }
@@ -155,14 +164,16 @@ test('unavailable recordings allow play and recover through native Retry sound',
   await page.route('**/audio/mars-arcade-v1/*.wav', route => failed ? route.fulfill({ status: 503, body: 'offline' }) : route.continue())
   const frame = await openArcade(page)
   await frame.getByRole('button', { name: 'Start fight', exact: true }).click()
-  await expect(frame.getByRole('button', { name: 'Retry sound', exact: true })).toBeVisible()
   await advance(frame, 100)
   await expect(frame.locator('#arcade-sound-feedback')).toContainText('You can keep playing.')
+  await openArcadeMenu(frame)
+  await expect(frame.getByRole('button', { name: 'Retry sound', exact: true })).toBeVisible()
   failed = false
   await frame.getByRole('button', { name: 'Retry sound', exact: true }).click()
   await expect.poll(async () => (await probe(frame)).decoded.length).toBe(20)
   await expect(frame.getByRole('button', { name: 'Retry sound', exact: true })).toBeHidden()
-  await frame.getByRole('button', { name: 'Restart round', exact: true }).click()
+  await resumeArcade(frame)
+  await page.keyboard.press('r')
   await expect.poll(() => files(frame)).toContain('round.wav')
 })
 
@@ -175,6 +186,7 @@ test('missing Web Audio leaves combat and return usable', async ({ page }) => {
   await frame.getByRole('button', { name: 'Start fight', exact: true }).click()
   await expect(frame.locator('#arcade-sound-feedback')).toContainText('Sound is unavailable.')
   await advance(frame, 100)
+  await openArcadeMenu(frame)
   await frame.getByRole('button', { name: 'Return to game', exact: true }).click()
   await expect(page.locator('.briefing-shell')).toBeVisible()
 })

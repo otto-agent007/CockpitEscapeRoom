@@ -1,0 +1,19 @@
+{
+  "canvas": {
+    "x": 0,
+    "y": 0,
+    "w": 667,
+    "h": 177
+  },
+  "dc9Controls": null,
+  "dc9Scan": null,
+  "dc9Departure": null,
+  "airbusControls": {
+    "x": 208.296875,
+    "y": 183,
+    "w": 450.6875,
+    "h": 136
+  },
+  "airbusTraining": null,
+  "bodyText": "ENGINE-OUT HANDLING · RECOGNITION\n\nEngine-Out Handling challenge\nPause\nHelp\nPitch\n0.0°\nBank\n0.0°\nEnergy\n50%\nDirectional error\n19%\nENG 1\n55%\nSAFE RETURN\n0%\nCAPTAIN TASK\nAcknowledge the deliberate training event on the upper ECAM.\nAcknowledge training event\n\nThe training reduction is pulling the nose left — hold Balance right to center the drift marker.\n\nL\nR\nSIDESTICK\nBank left\nPitch up\nPitch down\nBank right\nPAIRED THRUST\nIncrease\nDecrease\nDIRECTIONAL BALANCE\nBalance left\nBalance right\n?\n⛶"
+}

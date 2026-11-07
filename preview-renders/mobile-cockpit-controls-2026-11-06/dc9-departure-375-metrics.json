@@ -1,0 +1,19 @@
+{
+  "canvas": {
+    "x": 0,
+    "y": 0,
+    "w": 375,
+    "h": 472
+  },
+  "dc9Controls": null,
+  "dc9Scan": null,
+  "dc9Departure": {
+    "x": 0,
+    "y": 472,
+    "w": 375,
+    "h": 288
+  },
+  "airbusControls": null,
+  "airbusTraining": null,
+  "bodyText": "DC-9 Final Flight Log\n\n1995 MEMPHIS MEMORY\n\nMemphis Legacy Departure\n\nRamp release · Ease the levers forward along the lead-out path.\n\nPath: Centered\n\nEnergy: Stopped\n\nKeep the highlighted path centered.\n\nHelp\n\nRamp release. Path centered. Ease the levers forward along the lead-out path.\n\nRudder pedals\nLeft\nRight\nThrust levers\nClose\nAdvance\nRetry from checkpoint\n\nThe parked DC-9 is ready. Walk every right-seat control to its stops.\n\nRestart\n?\n⛶"
+}
