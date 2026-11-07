@@ -94,8 +94,8 @@ test('entry artwork and browser icon decode successfully', async ({ page }) => {
   expect(icon.headers()['content-type']).toContain('image/png')
 })
 
-test('an unavailable pixel font leaves the title clear of the artwork', async ({ page }) => {
-  await page.route('**/fonts/pixelify-sans-latin.woff2', route => route.abort())
+test('unavailable entry fonts leave the title clear of the artwork', async ({ page }) => {
+  await page.route('**/fonts/*.woff2', route => route.abort())
   await page.goto('/')
   await expect(page.getByRole('button', { name: 'Click to begin', exact: true })).toBeEnabled({ timeout: 60_000 })
   await page.evaluate(() => document.fonts.ready)

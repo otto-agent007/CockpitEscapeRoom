@@ -9,3 +9,7 @@ public/models/*.glb -filter -diff -merge -text
 
 # Keep the hash-pinned upstream license's original CRLF and trailing tabs.
 art-source/audio/arcade-fight-candidates-v2-2026-11-03/sources/voice-oga/License.txt whitespace=-blank-at-eol,cr-at-eol
+
+# Preserve original Google Fonts license whitespace and Bungee CRLF bytes.
+public/fonts/Bungee-OFL.txt whitespace=-blank-at-eol,cr-at-eol
+public/fonts/Barlow-OFL.txt whitespace=-blank-at-eol

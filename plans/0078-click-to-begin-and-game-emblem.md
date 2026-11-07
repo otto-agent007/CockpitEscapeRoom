@@ -91,3 +91,20 @@ Restyle evidence: lint/types/build passed in `/tmp/captains-key-arcade-final-bui
 Browser evidence: `/tmp/captains-key-arcade-final-browser.log` is 8/8 green. Independent review reported no Critical/Important findings and identified a minor blocked-font title overlap; the new regression failed RED at 901 px, then passed after local fallback metric adjustment. The complete title/art/Begin viewport checks now require ratio 1. `preview-renders/captains-key-arcade-entry-2026-11-06/` holds final screenshots, measured bounds, no-error/no-external-request receipt and an eight-point fidelity ledger. Concept and latest native browser screenshot were both opened in the same final view_image pass. The actual screenshot, rather than the concept, is now in the tmux side pane.
 
 Hosted handoff: [draft PR #123](https://github.com/otto-agent007/CockpitEscapeRoom/pull/123) is updated around the selected arcade implementation. [Vercel preview](https://cockpit-escape-room-m3lt9qitl-ottoagent007-gmailcoms-projects.vercel.app/) is READY, deployment `dpl_EM6ZZdDuakm9RTC2aRXQK7BiKijz`, with exact code commit `1358538d703b4d517e6105b5c8a1f475b953731e` and preview target. Preview protection is left unchanged; no temporary share link was requested for this update. Local browser verification is recorded above; owner review of the hosted result remains pending. This final handoff-record edit changes documentation only. No merge or production promotion occurred.
+
+
+## Owner-selected Bungee typography revision — 2026-11-06
+
+Goal: replace the declined Pixelify Sans with the owner's selected **B — Bungee** live-page font preview. Context: `/tmp/captains-key-font-options/B-1440.png` and `B-375.png`, selected after the three-font comparison in the tagged tmux pane. Design: Bungee 400 for the three-line title and Begin button, Barlow 500 for dedication, sound/loading/error/retry copy. Keep the selected art, frame, copy, icons and synchronous Begin sound handler. This is the approved design; no further design decision is pending.
+
+Constraints: use locally served, licensed WOFF2 files; no new dependency or runtime third-party requests; maintain the existing 600 KB initial-load budget and accessible native controls. Use CSS to fit Bungee's wider letters in each column without JavaScript layout measurement. Preserve all unrelated local candidates and files.
+
+Implementation: replace scoped font faces/styles in `src/styles.css` and font preloads in `index.html`; replace the superseded public font with Bungee and Barlow WOFF2/license files; record exact source URLs/hashes in the existing branding provenance/report and asset manifest. Adapt the existing missing-font browser case to block the new fonts, retaining its overlap assertions. No new test suite is needed for this reversible typography change.
+
+Done when: option B is faithfully rendered at 375, 768, 1440 and short landscape widths; title, full art and Begin remain visible with no overlap/overflow including blocked fonts; existing entry/accessibility tests pass, font files decode, Begin still starts advancing unmuted audio, lint/types/build and asset/privacy/spoiler/budget guards pass, and full-diff review finds no critical/high issue. Refresh the tagged tmux pane and draft PR preview; do not merge/promote production.
+
+- [x] Replace fonts and fit the approved typography.
+- [x] Verify the production page, fallback, sound and quality/budget checks.
+- [ ] Review, record evidence and update the existing draft preview.
+
+Bungee validation evidence: `preview-renders/captains-key-bungee-entry-2026-11-06/` (seven responsive captures, results and fidelity record); `/tmp/captains-key-bungee-{quality,browser,capture,guards}.log`. Eight entry/accessibility cases pass; fonts decode, no overflow/errors/external requests, Enter produces advancing unmuted sound. Lint/types/build, asset/privacy/spoiler/diff checks and 597/600 KB budget pass. No unit or complete-journey rerun for the scoped font revision. Independent review finds no Critical/Important issue; its Minor arrow-coverage wording correction is applied. Pending delta: commit/push this verified scope and record the new preview URL.

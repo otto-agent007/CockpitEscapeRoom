@@ -14,33 +14,27 @@
   --text-soft: #bfc9bb;
 }
 @font-face {
-  font-family: "Pixelify Sans";
-  src: url("/fonts/pixelify-sans-latin.woff2") format("woff2");
+  font-family: "Bungee";
+  src: url("/fonts/bungee-entry.woff2") format("woff2");
   font-style: normal;
-  font-weight: 400 700;
+  font-weight: 400;
   font-display: swap;
 }
 
-/* Keep a failed/late web font from pushing the title into the artwork. */
 @font-face {
-  font-family: "Arcade Mono";
-  src: local("Courier New"), local("Liberation Mono"), local("DejaVu Sans Mono"), local("Courier");
-  font-weight: 400;
-  size-adjust: 85%;
-}
-
-@font-face {
-  font-family: "Arcade Mono";
-  src: local("Courier New Bold"), local("Liberation Mono Bold"), local("DejaVu Sans Mono Bold"), local("Courier-Bold");
-  font-weight: 700;
-  size-adjust: 85%;
+  font-family: "Barlow";
+  src: url("/fonts/barlow-medium-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
 }
 
 .game-entry {
   --entry-ink: #0c0d28;
   --entry-gold: #ffc64b;
   --entry-cream: #fff0b0;
-  --entry-type: "Pixelify Sans", "Arcade Mono", monospace;
+  --entry-type: "Barlow", sans-serif;
+  --entry-display: "Bungee", "Arial Black", Impact, sans-serif;
   --entry-corners: polygon(0 30px, 10px 30px, 10px 20px, 20px 20px, 20px 10px, 30px 10px, 30px 0,
     calc(100% - 30px) 0, calc(100% - 30px) 10px, calc(100% - 20px) 10px,
     calc(100% - 20px) 20px, calc(100% - 10px) 20px, calc(100% - 10px) 30px, 100% 30px,
@@ -61,6 +55,7 @@
   color: var(--entry-cream);
   background: #080a21;
   font-family: var(--entry-type);
+  font-weight: 500;
 }
 
 .game-entry::before,
@@ -91,6 +86,7 @@
 }
 
 .game-entry__copy {
+  container-type: inline-size;
   min-width: 0;
   padding: 24px 0;
   text-align: left;
@@ -101,14 +97,14 @@
   max-width: none;
   margin: 0;
   color: var(--entry-cream);
-  font-family: var(--entry-type);
-  font-size: clamp(3rem, 7.75vw, 8.5rem);
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 0.85;
+  font-family: var(--entry-display);
+  /* Bungee's widest word fits the copy column even just above the breakpoint. */
+  font-size: min(clamp(3rem, 7.75vw, 8.5rem), 16.2cqi);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.94;
   text-shadow: 0 4px 0 #ffb63d, 0 8px 0 #a5411e;
   text-transform: uppercase;
-  -webkit-text-stroke: 1px var(--entry-cream);
 }
 
 .game-entry h1 span {
@@ -119,7 +115,7 @@
   margin: 72px 0 62px;
   color: #c4afe9;
   font-size: clamp(1.1rem, 2.2vw, 2.25rem);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.035em;
   line-height: 1.35;
 }
 
@@ -138,10 +134,10 @@
     0 6px 0 #cb671e, 0 10px 0 #6c291f;
   color: var(--entry-ink);
   background: var(--entry-gold);
-  font-family: var(--entry-type);
-  font-size: clamp(1.25rem, 3vw, 3rem);
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  font-family: var(--entry-display);
+  font-size: clamp(1.25rem, 2.4vw, 2.3rem);
+  font-weight: 400;
+  letter-spacing: 0.035em;
   line-height: 1;
   text-transform: uppercase;
   cursor: pointer;
@@ -173,7 +169,7 @@
   margin: 64px 0 0;
   color: #bba7de;
   font-size: clamp(1rem, 1.9vw, 1.9rem);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.045em;
   line-height: 1.35;
 }
 
@@ -223,7 +219,7 @@
   .game-entry__content { grid-template-columns: minmax(0, 1fr); gap: 28px; justify-items: center; }
   .game-entry__art { order: -1; justify-self: center; width: min(100%, 440px); }
   .game-entry__copy { width: min(100%, 480px); padding: 0; text-align: center; transform: none; }
-  .game-entry h1 { font-size: clamp(2.4rem, 6.2vw, 3.2rem); line-height: 0.95; }
+  .game-entry h1 { font-size: min(clamp(2.4rem, 6.2vw, 3.2rem), 16.2cqi); }
   .game-entry__dedication { margin: 22px 0 24px; font-size: 1.25rem; }
   .game-entry__begin { min-height: 64px; font-size: 1.6rem; }
   .game-entry__sound { margin-top: 26px; font-size: 1.1rem; }
@@ -233,7 +229,7 @@
   .game-entry { padding: 30px 26px; }
   .game-entry__content { gap: 22px; }
   .game-entry__art { width: min(100%, 300px); }
-  .game-entry h1 { font-size: 2.5rem; }
+  .game-entry h1 { font-size: min(2.5rem, 16.2cqi); }
   .game-entry__dedication { margin: 20px 0 22px; font-size: 1.1rem; }
   .game-entry__begin { min-height: 58px; font-size: 1.3rem; gap: 14px; }
   .game-entry__sound { margin-top: 23px; font-size: 1rem; }
@@ -241,7 +237,7 @@
 
 @media (max-height: 800px) and (min-width: 901px) {
   .game-entry__copy { padding: 12px 0; transform: none; }
-  .game-entry h1 { font-size: clamp(3.25rem, 6.6vw, 5.9rem); line-height: 0.96; }
+  .game-entry h1 { font-size: min(clamp(3.25rem, 6.6vw, 5.9rem), 16.2cqi); }
   .game-entry__dedication { margin: 24px 0 32px; font-size: 1.35rem; }
   .game-entry__begin { min-height: 76px; font-size: 2rem; }
   .game-entry__sound { margin-top: 32px; font-size: 1.15rem; }
@@ -250,7 +246,7 @@
 @media (max-height: 640px) and (min-width: 901px) {
   .game-entry { padding: 36px; }
   .game-entry__content { max-width: 1050px; }
-  .game-entry h1 { font-size: 4.1rem; }
+  .game-entry h1 { font-size: min(4.1rem, 16.2cqi); }
   .game-entry__dedication { margin: 22px 0 28px; font-size: 1.35rem; }
   .game-entry__begin { min-height: 64px; font-size: 1.6rem; }
   .game-entry__sound { margin-top: 24px; font-size: 1.1rem; }
@@ -261,7 +257,7 @@
   .game-entry__content { grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); gap: 24px; }
   .game-entry__art { order: 0; width: min(100%, calc(100svh - 56px)); }
   .game-entry__copy { text-align: left; }
-  .game-entry h1 { font-size: 2.6rem; }
+  .game-entry h1 { font-size: min(2.6rem, 16.2cqi); }
   .game-entry__dedication { margin: 18px 0; font-size: 1.1rem; }
   .game-entry__begin { min-height: 50px; padding: 10px; gap: 12px; font-size: 1.25rem; }
   .game-entry__sound { margin-top: 22px; font-size: 1rem; }

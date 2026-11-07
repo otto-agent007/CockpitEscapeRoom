@@ -38,9 +38,15 @@
       "sha256": "4809b640cb4fb8a14fa4a5ffaf8918aac731fa2c7de9da49c6c4a88c072886f2"
     },
     {
-      "path": "public/fonts/pixelify-sans-latin.woff2",
-      "bytes": 12016,
-      "sha256": "4a5633a0c9c1b73abd133a56d3716c2d8df2ed03cb987346f72194aeb224f382"
+      "bytes": 2476,
+      "sha256": "9eb12e013b1f3d96fde4fa44b73c7f32fc71e9d0ab3d7e81ee6e7946f938c231",
+      "path": "public/fonts/bungee-entry.woff2"
+    },
+    {
+      "bytes": 15368,
+      "sha256": "f842567c0023c4d44aa31303e8eca9b51520573d4ac85a4152131da39bce8a78",
+      "path": "public/fonts/barlow-medium-latin.woff2"
     }
-  ]
+  ],
+  "selectedFontOption": "B \u2014 Bungee"
 }

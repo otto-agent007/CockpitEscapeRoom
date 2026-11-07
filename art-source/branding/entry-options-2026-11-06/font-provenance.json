@@ -1,11 +1,36 @@
 {
-  "family": "Pixelify Sans",
-  "weights": "400 700",
-  "cssSource": "https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap",
-  "fontSource": "https://fonts.gstatic.com/s/pixelifysans/v3/CHylV-3HFUT7aC4iv1TxGDR9Jn0Eiw.woff2",
-  "licenseSource": "https://raw.githubusercontent.com/google/fonts/main/ofl/pixelifysans/OFL.txt",
-  "license": "SIL OFL 1.1",
-  "runtimePath": "public/fonts/pixelify-sans-latin.woff2",
-  "bytes": 12016,
-  "sha256": "4a5633a0c9c1b73abd133a56d3716c2d8df2ed03cb987346f72194aeb224f382"
+  "selectedFontOption": "B",
+  "ownerSelection": "Bungee title and button; Barlow supporting text",
+  "fonts": [
+    {
+      "family": "Bungee",
+      "weight": 400,
+      "cssUrl": "https://fonts.googleapis.com/css2?family=Bungee&display=swap&text=The%20Captain%E2%80%99s%20Key%20Click%20to%20begin%20THE%20CAPTAIN%E2%80%99S%20KEY%20CLICK%20TO%20BEGIN",
+      "fontUrl": "https://fonts.gstatic.com/l/font?kit=N0bU2SZBIuF2PU_ED2ZSAZ-V2pKWKdgCSHLLF91_PJEiTsQSo9t76TydjnajePY4Gg&skey=2e93db42ee6e0e28&v=v17",
+      "runtime": "public/fonts/bungee-entry.woff2",
+      "bytes": 2476,
+      "sha256": "9eb12e013b1f3d96fde4fa44b73c7f32fc71e9d0ab3d7e81ee6e7946f938c231",
+      "license": "SIL Open Font License 1.1",
+      "licenseUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/bungee/OFL.txt",
+      "runtimeLicense": "public/fonts/Bungee-OFL.txt",
+      "modifiedLocally": false,
+      "requestedSubsetText": "The Captain\u2019s Key Click to begin THE CAPTAIN\u2019S KEY CLICK TO BEGIN"
+    },
+    {
+      "family": "Barlow",
+      "weight": 500,
+      "cssUrl": "https://fonts.googleapis.com/css2?family=Barlow:wght@500&display=swap&text=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789%21%22%23%24%25%26%27%28%29%2A%2B%2C-.%2F%3A%3B%3C%3D%3E%3F%40%5B%5C%5D%5E_%60%7B%7C%7D~%20%E2%80%98%E2%80%99%E2%80%9C%E2%80%9D%E2%80%A6%E2%80%93%E2%80%94%C3%97%E2%86%92",
+      "fontUrl": "https://fonts.gstatic.com/l/font?kit=7cHqv4kjgoGqM7E3_-gc5UhQvR4BVZWZGNeSj7D4iDVkeYpcwCIwitOm6vjRdEK7Vr-jqSGVLNIpPgoY6VDBOHuOw_gArtsyZlQHDfWcKqvWFoc6bTt4KDxIWMGC2oNHhP0tlQ1dmNzQ1Hh4eEBfi10reJLC4BUC9NI6oV_vq87nHTXSdsjBhgG0oQ&skey=4c8d0d0b13516148&v=v13",
+      "runtime": "public/fonts/barlow-medium-latin.woff2",
+      "bytes": 15368,
+      "sha256": "f842567c0023c4d44aa31303e8eca9b51520573d4ac85a4152131da39bce8a78",
+      "license": "SIL Open Font License 1.1",
+      "licenseUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/barlow/OFL.txt",
+      "runtimeLicense": "public/fonts/Barlow-OFL.txt",
+      "modifiedLocally": false,
+      "requestedSubsetText": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ \u2018\u2019\u201c\u201d\u2026\u2013\u2014\u00d7\u2192"
+    }
+  ],
+  "runtimeExternalRequests": false,
+  "subsetNote": "Google Fonts supplies the glyphs available for the requested text. Barlow does not contain U+2192; the Begin play glyph is separately rendered in monospace."
 }

@@ -10,16 +10,29 @@ The owner reviewed three generated options in the tagged tmux image pane, select
 - Runtime icons: `public/favicon-arcade-{16,32}.png`, `public/apple-touch-icon-arcade.png`. The 32 px file is copied byte for byte from the selected preview. The 180 px touch icon uses `png({ palette: true, colours: 16, dither: 0, compressionLevel: 9 })` after resizing, yielding 8,021 bytes and keeping the existing initial-download budget; the main artwork and selected tab icon are unaffected.
 - Exact bytes/hashes for all runtime derivatives are in `art-source/branding/entry-options-2026-11-06/selected-b-runtime.json`. The first winged-key source stays recoverable in Git; its old display/icon files are omitted from current builds.
 
-## Pixel font
+## Owner-selected Bungee typography
 
-Pixelify Sans (weights 400–700) is self-hosted at `public/fonts/pixelify-sans-latin.woff2`: 12,016 bytes, SHA-256 `4a5633a0c9c1b73abd133a56d3716c2d8df2ed03cb987346f72194aeb224f382`. The source CSS and download/license URLs are recorded in the source directory's `pixelify-sans-google.css` and `font-provenance.json`. The unmodified Latin WOFF2 is supplied by Google Fonts, and its SIL OFL 1.1 copyright/license is shipped beside it as `public/fonts/PixelifySans-OFL.txt`. The running page makes no external font request and adds no production dependency.
+After reviewing three real-page font previews in the tagged tmux pane, the owner selected **B — Bungee**. Bungee 400 supplies the title and Begin button; Barlow 500 supplies readable dedication, sound helper and loading/error/retry text. This replaces the declined Pixelify Sans font without altering the selected artwork or icon.
+
+Both fonts are self-hosted Google Fonts WOFF2 subsets, with no local font editing and no runtime third-party request. `art-source/branding/entry-options-2026-11-06/font-provenance.json` records the exact CSS/download/license URLs, requested characters, bytes and hashes; `bungee-google.css` and `barlow-google.css` retain the provider responses. The exact title/button text is included in Bungee's 2,476-byte subset. Barlow's 15,368-byte subset includes printable English ASCII plus curly quotes, ellipsis, dashes and multiplication, covering current visible copy and ASCII asset diagnostics. If localized/non-English copy is later introduced, expand the recorded subsets first.
+
+Original SIL OFL 1.1 copyright/licenses are shipped as `public/fonts/Bungee-OFL.txt` and `public/fonts/Barlow-OFL.txt`. The retired public Pixelify font/license are removed; their original bytes and source CSS remain recoverable in Git. No dependency or budget limit changes.
+
+The title sizes against its copy column using CSS container units so Bungee's wider letters fit above the tablet breakpoint. Native Arial/Impact/sans-serif fallbacks retain readable text while fonts load or fail; this is checked with both WOFF2 requests blocked.
 
 ## Full-page design contract
 
 - Deep indigo canvas, stepped amber frame and complete B artwork at right on desktop.
-- Three-line pale-gold pixel title at left, lavender dedication, a hard-edged amber Begin button with a pixel bevel, and the existing sound helper.
+- Three-line pale-gold Bungee title at left, lavender dedication, a hard-edged amber Begin button with a pixel bevel, and the existing sound helper.
 - Native title, captions and button; pointer/Enter invoke the original synchronous sound-start handler.
 - Narrow screens stack the artwork and centered controls; short landscape screens use two columns to retain a visible Begin control.
 - Allowed visible copy remains The Captain’s Key; For Pop T, from your crew.; Click to begin; Your flight begins with sound.; existing loading/error/retry messages. The first version's Welcome aboard eyebrow is removed.
 
 Actual browser fidelity, viewport evidence, commands and remaining limitations are recorded in plan 0078 and TEST_REPORT.md when verification completes.
+
+
+## Bungee revision evidence
+
+The selected previews are `/tmp/captains-key-font-options/B-1440.png` and `B-375.png`. Current production-browser captures and measurements are recorded in `preview-renders/captains-key-bungee-entry-2026-11-06/` and `TEST_REPORT.md`. Earlier Pixelify screenshots and test results below remain historical evidence of the prior version.
+
+Fresh validation: eight entry/accessibility browser checks, lint/types/build, asset contracts, privacy/spoiler guards and the unchanged initial budget pass (597/600 KB). Full responsive results, actual sound proof and visual comparison are recorded in the new evidence directory. Independent review found no Critical/Important issue; its Minor character-coverage wording correction is applied above.
