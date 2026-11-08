@@ -1,5 +1,12 @@
 # Test report
 
+## 2026-11-07 — PR124 ready-for-review CI repair
+
+- Inspected live [CI run42420716684](https://github.com/otto-agent007/CockpitEscapeRoom/actions/runs/42420716684) at head9bb74ee: quality/CodeQL/Vercel/heavy browser groups passed; light-1 failed one old Airbus mobile-toggle assertion (four keyboard-entry cases recovered on retry), and light-2 failed two desktop-emulated orientation resizes while fullscreen. Browser-smoke reflected those failures.
+- Updated only the Airbus test contract to preserve desktop toggling and assert the approved mobile native controls/geometry/accessibility. Film rotation tests now exit actual fullscreen before Playwright resizes its desktop window; native fullscreen/orientation coverage is unchanged. Both errors were reproduced before repair, including exact fullscreen protocol failures on bundled Chromium1248.
+- Fixed a verified earned-access publication race: the storage flag could appear53ms before shortcut listener installation. Persistence now runs after the shortcut effect and retries each completion through a private request counter. New regressions fail before the publication/recovery fixes and pass afterward. Existing denied-storage, reload, restart and native-chord assertions remain intact. No approved visual, asset, rules or persistence-schema changes.
+- Final default-Chromium1248 browser run passes **42/42 in2.2m with zero retries** (`/tmp/pr124-ci-repair-browser.log`). Fresh lint (unrelated `.worktrees/**` excluded), typecheck, **1078/1078 unit tests**, build, privacy/spoiler/budget checks pass (`/tmp/pr124-ci-repair-final-quality.log`), initial578/600KB. Independent review found no residual issue. The earlier screenshot receipt is unchanged historical evidence; [CI repair source receipt](preview-renders/mobile-arcade-film-2026-11-07/ci-repair-source.json) records the nonvisual delta. Physical-phone limitations remain unchanged. Fresh remote results will be recorded on the PR; no merge/promotion.
+
 ## 2026-11-07 — Mobile arcade and Model FLY landscape
 
 - Owner selected arcade controls below the arena in portrait and beside it in landscape. The complete 320×224 arena stays clear of native ≥48px movement/attack controls; Pause/Menu remain reachable. Selection fits Start at 375×812. Menu pauses, clears held input, contains focus and keeps Resume explicit. Separate pointers/keyboard ownership and safe cancel/blur/hidden/resize/pagehide prevent stuck actions; native P2 controls stay available. No sprites, combat rules/timing/balance, audio or models changed.

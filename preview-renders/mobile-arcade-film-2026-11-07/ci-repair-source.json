@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-07",
+  "priorHead": "9bb74eed76dff54fca9acfcf64c2e9de48b67df0",
+  "originalVisualCode": "ecd71fc43aff341963a2ad69e27448d4bacaee00",
+  "failedCIRun": 42420716684,
+  "browser": "Playwright bundled Chromium1248, matching CI",
+  "changes": "Nonvisual earned-access publication/retry ordering and browser test contracts; approved CSS, markup and assets unchanged",
+  "fingerprints": {
+    "src/App.tsx": "88cf4f8c3c1d87e528bcc766740463c5cf41f7d6a852d630e8d85f585ad693b3",
+    "e2e/airbus-storm-line.spec.ts": "0cf58d7fd47fc1559c9e6b5faf053f37e6caabaa14da7013cbf5f00292241120",
+    "e2e/mobile-film-landscape.spec.ts": "02c2b9f0824576e4abe728ea3e8ceae8e00012ba0d303780a291db9fe3db07b8",
+    "e2e/mars-arcade-easter-egg.spec.ts": "77fa2545ba2280f371a1092383fcf85b90c4e6c5c2fcda67136ca0661827fed4"
+  },
+  "localValidation": {
+    "browser": "42/42 with zero retries in2.2m",
+    "unitTests": 1078,
+    "quality": "lint/types/build/privacy/spoiler/budget pass"
+  },
+  "remoteStatus": "See PR124 checks and description for final repair run"
+}

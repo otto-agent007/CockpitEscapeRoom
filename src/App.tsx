@@ -193,6 +193,7 @@ export default function App() {
   const [completedOnce, setCompletedOnce] = useState(() => loadMarsArcadeUnlock())
   const [arcadeOpen, setArcadeOpen] = useState(false)
   const [resumeTribute, setResumeTribute] = useState(false)
+  const [unlockSaveRequest, setUnlockSaveRequest] = useState(0)
   const restoreGameFocus = useRef(false)
   const openArcade = useCallback(() => setArcadeOpen(true), [])
   const closeArcade = useCallback(() => {
@@ -206,12 +207,17 @@ export default function App() {
     document.querySelector<HTMLElement>('main')?.focus({ preventScroll: true })
   }, [arcadeOpen])
   const completeJourney = useCallback(() => {
-    saveMarsArcadeUnlock()
     setCompletedOnce(true)
     setResumeTribute(true)
+    setUnlockSaveRequest(request => request + 1)
   }, [])
   const resetTribute = useCallback(() => setResumeTribute(false), [])
   useMarsArcadeShortcut(completedOnce && !arcadeOpen, openArcade)
+  useEffect(() => {
+    // Publish earned access after the shortcut effect has installed its listener.
+    // Input can arrive immediately when another observer sees this record.
+    if (completedOnce && unlockSaveRequest > 0) saveMarsArcadeUnlock()
+  }, [completedOnce, unlockSaveRequest])
 
   if (arcadeOpen && completedOnce) {
     return <MarsArcade onClose={closeArcade} />

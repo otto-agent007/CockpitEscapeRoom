@@ -68,6 +68,57 @@ test('earned entry remains held until a delayed browser timer opens the arcade',
   await expect(page.frameLocator('iframe[title="Mars arcade"]').locator('#stage')).toBeVisible()
 })
 
+test('earned access is published only after the keyboard entrance is ready', async ({ page }) => {
+  await page.addInitScript(key => {
+    const setItem = Storage.prototype.setItem
+    let sent = false
+    Storage.prototype.setItem = function (name, value) {
+      setItem.call(this, name, value)
+      if (name !== key || sent || !value.includes('"completedOnce":true')) return
+      sent = true
+      // A player can press the chord as soon as the earned record is observable.
+      for (const letter of ['t', 'm', 'b']) {
+        const target = document.activeElement ?? window
+        target.dispatchEvent(new KeyboardEvent('keydown', { key: letter, bubbles: true }))
+      }
+    }
+  }, unlockKey)
+  await complete(page)
+  try {
+    await expect(page.getByTitle('Mars arcade')).toBeVisible()
+    await expect(page.frameLocator('iframe[title="Mars arcade"]').getByRole('heading', { name: 'Choose your player' })).toBeVisible()
+  } finally {
+    await page.evaluate(() => {
+      for (const letter of ['b', 'm', 't']) (document.activeElement ?? window).dispatchEvent(new KeyboardEvent('keyup', { key: letter, bubbles: true }))
+    })
+  }
+})
+
+test('a later completion persists earned access after a temporary storage failure', async ({ page }) => {
+  await seed(page, true)
+  await page.addInitScript(key => {
+    const setItem = Storage.prototype.setItem
+    let denied = true
+    Object.assign(window, { allowEarnedWrites: () => { denied = false } })
+    Storage.prototype.setItem = function (name, value) {
+      if (name === key && denied) throw new Error('Temporary achievement storage failure')
+      setItem.call(this, name, value)
+    }
+  }, unlockKey)
+  await page.goto('/?skip3d=1')
+  await page.getByRole('button', { name: 'Skip film and read tribute' }).click()
+  await expect(page.locator('.secret-arcade-entry')).toBeVisible()
+  expect(await page.evaluate(key => localStorage.getItem(key), unlockKey)).toBeNull()
+  await page.evaluate(() => (window as typeof window & { allowEarnedWrites: () => void }).allowEarnedWrites())
+  await page.getByRole('button', { name: 'Replay film', exact: true }).click()
+  await page.getByRole('button', { name: 'Skip film and read tribute' }).click()
+  await expect.poll(() => page.evaluate(key => localStorage.getItem(key), unlockKey)).toContain('"completedOnce":true')
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Model FLY', exact: true })).toBeVisible()
+  await openAccess(page, false)
+  await expect(page.frameLocator('iframe[title="Mars arcade"]').getByRole('heading', { name: 'Choose your player' })).toBeVisible()
+})
+
 test('the final tribute unlocks T+M+B, reload and Restart retain access, and exit preserves chapter progress', async ({ page }) => {
   await complete(page)
   await page.reload()

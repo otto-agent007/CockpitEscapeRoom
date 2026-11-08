@@ -15,6 +15,15 @@ async function revealFilm(page: Page) {
   return video
 }
 
+async function exitFullscreenBeforeManualRotation(page: Page) {
+  // Desktop viewport resizing also changes Chromium's window bounds, which
+  // requires leaving Reveal's fullscreen first. Fullscreen has its own tests below.
+  await page.evaluate(async () => {
+    if (document.fullscreenElement) await document.exitFullscreen()
+  })
+  await expect.poll(() => page.evaluate(() => Boolean(document.fullscreenElement))).toBe(false)
+}
+
 for (const viewport of [
   { width: 375, height: 812 },
   { width: 768, height: 900 },
@@ -58,6 +67,7 @@ for (const viewport of [
 test('manual phone rotation preserves the same advancing film and sound choice', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 })
   const video = await revealFilm(page)
+  await exitFullscreenBeforeManualRotation(page)
   await video.evaluate((element: HTMLVideoElement) => {
     element.dataset.rotationProof = 'same-film'
     element.currentTime = 20
@@ -86,6 +96,7 @@ test('manual phone rotation preserves the same advancing film and sound choice',
 test('rotation guidance and the button description follow the actual viewport orientation', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 })
   await revealFilm(page)
+  await exitFullscreenBeforeManualRotation(page)
   const landscape = page.getByRole('button', { name: 'Watch landscape' })
   await expect(landscape).toHaveAccessibleDescription('Rotate your phone for a wider view.')
   await page.setViewportSize({ width: 812, height: 375 })

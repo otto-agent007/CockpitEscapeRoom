@@ -1,5 +1,7 @@
 # Mobile arcade and landscape film review
 
+CI follow-up: the screenshots and original eleven fingerprints below describe captured code `ecd71fc`. A later nonvisual CI repair adjusts App's earned-unlock publication ordering and test harness contracts, without changing layout/assets. [Follow-up source receipt](ci-repair-source.json) identifies that delta; the owner-approved images and original receipt remain preserved.
+
 These are actual production-build browser captures from port 4174 using installed Chromium with touch emulation. Browser plugin is unavailable. Image labels sit outside screenshots; no game pixels were generated/repainted. The owner selected controls below the arena in portrait and beside it in landscape. Owner approved the mobile arcade layout and landscape film screenshot visuals on 2026-11-07 ("ok looks good"). Physical-phone validation and final complete-game review remain separate.
 
 ## Player-visible result
