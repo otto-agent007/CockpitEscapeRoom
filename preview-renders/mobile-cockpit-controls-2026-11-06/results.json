@@ -1,0 +1,357 @@
+{
+  "browser": "Chromium; Browser plugin unavailable",
+  "url": "http://127.0.0.1:4174/",
+  "viewports": [
+    {
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "w": 375,
+        "h": 432
+      },
+      "dc9Controls": null,
+      "dc9Scan": null,
+      "dc9Departure": null,
+      "airbusControls": {
+        "x": 8,
+        "y": 626,
+        "w": 359,
+        "h": 130
+      },
+      "airbusTraining": null,
+      "bodyText": "ENGINE-OUT HANDLING \u00b7 RECOGNITION\n\nEngine-Out Handling challenge\nPause\nHelp\nPitch\n0.0\u00b0\nBank\n0.0\u00b0\nEnergy\n50%\nDirectional error\n13%\nENG 1\n60%\nSAFE RETURN\n0%\nCAPTAIN TASK\nAcknowledge the deliberate training event on the upper ECAM.\nAcknowledge training event\nROUTE\n\nDeliberate training event \u2014 ENG 1 is reducing. Acknowledge it on the upper ECAM.\n\nL\nR\nSIDESTICK\nBank left\nPitch up\nPitch down\nBank right\nPAIRED THRUST\nIncrease\nDecrease\nDIRECTIONAL BALANCE\nBalance left\nBalance right\n?\n\u26f6",
+      "file": "a320-engine-375-metrics.json"
+    },
+    {
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "w": 667,
+        "h": 177
+      },
+      "dc9Controls": null,
+      "dc9Scan": null,
+      "dc9Departure": null,
+      "airbusControls": {
+        "x": 208.296875,
+        "y": 183,
+        "w": 450.6875,
+        "h": 136
+      },
+      "airbusTraining": null,
+      "bodyText": "ENGINE-OUT HANDLING \u00b7 RECOGNITION\n\nEngine-Out Handling challenge\nPause\nHelp\nPitch\n0.0\u00b0\nBank\n0.0\u00b0\nEnergy\n50%\nDirectional error\n19%\nENG 1\n55%\nSAFE RETURN\n0%\nCAPTAIN TASK\nAcknowledge the deliberate training event on the upper ECAM.\nAcknowledge training event\n\nThe training reduction is pulling the nose left \u2014 hold Balance right to center the drift marker.\n\nL\nR\nSIDESTICK\nBank left\nPitch up\nPitch down\nBank right\nPAIRED THRUST\nIncrease\nDecrease\nDIRECTIONAL BALANCE\nBalance left\nBalance right\n?\n\u26f6",
+      "file": "a320-engine-667-metrics.json"
+    },
+    {
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "dc9Controls": null,
+      "dc9Scan": null,
+      "dc9Departure": null,
+      "airbusControls": {
+        "x": 280,
+        "y": 806.28125,
+        "w": 880,
+        "h": 83.328125
+      },
+      "airbusTraining": null,
+      "bodyText": "STORM LINE \u00b7 WEATHER ENTRY\n\nStorm Line flight challenge\n\nFirst officer: Weather returns are building ahead.\n\n158s\nSound on\nPause\nRecenter view\nRestart\nHide flight controls\nPitch\n0.0\u00b0\nBank\n0.0\u00b0\nEnergy\n50%\nWeather\n5%\nCAPTAIN TASK\nSet the fictional captain ND scan range to MID.\nRange NEAR\nCycle scan range\nROUTE\n\nBank left into the west lane \u2014 settle the marker in the green band.\n\nW\nE\nSIDESTICK\nBank left\nPitch up\nPitch down\nBank right\nPAIRED THRUST\nIncrease\nDecrease\nInput: keyboard\n?\n\u26f6",
+      "file": "a320-flight-1440-metrics.json"
+    },
+    {
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "w": 375,
+        "h": 432
+      },
+      "dc9Controls": null,
+      "dc9Scan": null,
+      "dc9Departure": null,
+      "airbusControls": {
+        "x": 8,
+        "y": 626,
+        "w": 359,
+        "h": 130
+      },
+      "airbusTraining": null,
+      "bodyText": "STORM LINE \u00b7 WEATHER ENTRY\n\nStorm Line flight challenge\n162s\nPause\nHelp\nPitch\n-0.0\u00b0\nBank\n0.0\u00b0\nEnergy\n50%\nWeather\n5%\nCAPTAIN TASK\nSet the fictional captain ND scan range to MID.\nRange NEAR\nCycle scan range\nROUTE\n\nBank left into the west lane \u2014 settle the marker in the green band.\n\nW\nE\nSIDESTICK\nBank left\nPitch up\nPitch down\nBank right\nPAIRED THRUST\nIncrease\nDecrease\n?\n\u26f6",
+      "file": "a320-flight-375-metrics.json"
+    },
+    {
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "w": 667,
+        "h": 177
+      },
+      "dc9Controls": null,
+      "dc9Scan": null,
+      "dc9Departure": null,
+      "airbusControls": {
+        "x": 208.296875,
+        "y": 183,
+        "w": 450.6875,
+        "h": 136
+      },
+      "airbusTraining": null,
+      "bodyText": "STORM LINE \u00b7 WEATHER ENTRY\n\nStorm Line flight challenge\n161s\nPause\nHelp\nPitch\n0.0\u00b0\nBank\n0.0\u00b0\nEnergy\n50%\nWeather\n5%\nCAPTAIN TASK\nSet the fictional captain ND scan range to MID.\nRange NEAR\nCycle scan range\n\nBank left into the west lane \u2014 settle the marker in the green band.\n\nW\nE\nSIDESTICK\nBank left\nPitch up\nPitch down\nBank right\nPAIRED THRUST\nIncrease\nDecrease\n?\n\u26f6",
+      "file": "a320-flight-667-metrics.json"
+    },
+    {
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "dc9Controls": null,
+      "dc9Scan": null,
+      "dc9Departure": null,
+      "airbusControls": null,
+      "airbusTraining": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "bodyText": "AIRBUS A320 POP T CAPTAIN MODE\n\nAirbus cockpit label placement\n67% complete\n1/5\n\nCREW QUALIFICATION \u00b7 DRAG AND DROP\n\nStart by dragging each label card onto its matching cockpit control.\nNo mouse? Tap or click a card, then tap its glowing target.\nFive correct placements open the Storm Line flight.\nSIDESTICK\nUsed to guide the aircraft.\nPlaced\nTHRUST\nControls engine power.\nGEAR\nControls landing gear position.\nRADIO\nUsed for communication.\nALTITUDE\nShows how high the aircraft is.\nCockpit drop zone 1. Current card: SIDESTICK.\nSIDESTICK\nCockpit drop zone 2. No card placed.\nCockpit drop zone 3. No card placed.\nCockpit drop zone 4. No card placed.\nCockpit drop zone 5. No card placed.\nNice. That\u2019s the sidestick.\nRestart\n?\n\u26f6",
+      "file": "a320-qualification-1440-metrics.json"
+    },
+    {
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "w": 375,
+        "h": 532
+      },
+      "dc9Controls": null,
+      "dc9Scan": null,
+      "dc9Departure": null,
+      "airbusControls": null,
+      "airbusTraining": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      },
+      "bodyText": "AIRBUS A320 POP T CAPTAIN MODE\n\nAirbus cockpit label placement\n1/5\nHelp\n\nTap a label, then its cockpit control.\n\nSIDESTICK\nPlaced\nTHRUST\nGEAR\nRADIO\nALTITUDE\nCockpit drop zone 1. Current card: SIDESTICK.\nSIDESTICK\nCockpit drop zone 2. No card placed.\nCockpit drop zone 3. No card placed.\nCockpit drop zone 4. No card placed.\nCockpit drop zone 5. No card placed.\nNice. That\u2019s the sidestick.\nRestart\n?\n\u26f6",
+      "file": "a320-qualification-375-metrics.json"
+    },
+    {
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "w": 667,
+        "h": 211
+      },
+      "dc9Controls": null,
+      "dc9Scan": null,
+      "dc9Departure": null,
+      "airbusControls": null,
+      "airbusTraining": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      },
+      "bodyText": "AIRBUS A320 POP T CAPTAIN MODE\n\nAirbus cockpit label placement\n67% complete\n1/5\nHelp\nSIDESTICK\nPlaced\nTHRUST\nGEAR\nRADIO\nALTITUDE\nCockpit drop zone 1. Current card: SIDESTICK.\nSIDESTICK\nCockpit drop zone 2. No card placed.\nCockpit drop zone 3. No card placed.\nCockpit drop zone 4. No card placed.\nCockpit drop zone 5. No card placed.\nNice. That\u2019s the sidestick.\nRestart\n?\n\u26f6",
+      "file": "a320-qualification-667-metrics.json"
+    },
+    {
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "w": 768,
+        "h": 744
+      },
+      "dc9Controls": null,
+      "dc9Scan": null,
+      "dc9Departure": null,
+      "airbusControls": null,
+      "airbusTraining": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      },
+      "bodyText": "AIRBUS A320 POP T CAPTAIN MODE\n\nAirbus cockpit label placement\n67% complete\n1/5\nHelp\n\nTap a label, then its cockpit control.\n\nSIDESTICK\nPlaced\nTHRUST\nGEAR\nRADIO\nALTITUDE\nCockpit drop zone 1. Current card: SIDESTICK.\nSIDESTICK\nCockpit drop zone 2. No card placed.\nCockpit drop zone 3. No card placed.\nCockpit drop zone 4. No card placed.\nCockpit drop zone 5. No card placed.\nNice. That\u2019s the sidestick.\nRestart\n?\n\u26f6",
+      "file": "a320-qualification-768-metrics.json"
+    },
+    {
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 900
+      },
+      "dc9Controls": {
+        "x": 944,
+        "y": 16,
+        "w": 480,
+        "h": 780
+      },
+      "dc9Scan": null,
+      "dc9Departure": null,
+      "airbusControls": null,
+      "airbusTraining": null,
+      "bodyText": "DC-9 Final Flight Log\n\nRIGHT SEAT \u00b7 BEFORE THE LOG\n\nFlight controls \u2014 free and correct\n\nEvery leg started the same way. Parked at the gate with the checklist open, the crew walked each control to its stops and felt it come back. Take the right seat and do it once more.\n\nArrow keys move the yoke, W and S walk the thrust levers, A and D work the rudder pedals. You can also hold the buttons here, or drag the yoke itself.\n\nPull the yoke back to the stop.\n\nControl column\nNeutral\nPush column forward\nDown arrow\nPull column aft\nUp arrow\nControl wheel\nNeutral\nRoll wheel left\nLeft arrow\nRoll wheel right\nRight arrow\nRudder pedals\nNeutral\nLeft rudder pedal\nA\nRight rudder pedal\nD\nThrust levers\nClosed\nClose thrust levers\nS\nAdvance thrust levers\nW\nCONTROL COLUMN AND WHEEL\n\u00b7\nColumn full aft\n\u00b7\nColumn full forward\n\u00b7\nWheel full left\n\u00b7\nWheel full right\nRUDDER PEDALS\n\u00b7\nLeft pedal full travel\n\u00b7\nRight pedal full travel\nTHRUST LEVERS\n\u00b7\nLevers full forward\n\u00b7\nLevers closed\n\nActive input:\nKeyboard ready.\n\nThe aircraft is parked and powered down. Nothing here commands the aeroplane.\n\nThe parked DC-9 is ready. Walk every right-seat control to its stops.\n\nRestart\n?\n\u26f6",
+      "file": "dc9-control-check-1440-metrics.json"
+    },
+    {
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "w": 375,
+        "h": 522
+      },
+      "dc9Controls": {
+        "x": 0,
+        "y": 522,
+        "w": 375,
+        "h": 238
+      },
+      "dc9Scan": null,
+      "dc9Departure": null,
+      "airbusControls": null,
+      "airbusTraining": null,
+      "bodyText": "DC-9 Final Flight Log\nFlight controls \u2014 free and correct\nHelp\n\nPull the yoke back to the stop.\n\n0 of 8 checks complete\n\nControl column\nNeutral\nPush\nPull\n\nThe parked DC-9 is ready. Walk every right-seat control to its stops.\n\nRestart\n?\n\u26f6",
+      "file": "dc9-control-check-375-metrics.json"
+    },
+    {
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "w": 667,
+        "h": 211
+      },
+      "dc9Controls": {
+        "x": 0,
+        "y": 211,
+        "w": 667,
+        "h": 112
+      },
+      "dc9Scan": null,
+      "dc9Departure": null,
+      "airbusControls": null,
+      "airbusTraining": null,
+      "bodyText": "DC-9 Final Flight Log\nFlight controls \u2014 free and correct\nHelp\n\nPull the yoke back to the stop.\n\nControl column\nNeutral\nPush\nPull\n\nThe parked DC-9 is ready. Walk every right-seat control to its stops.\n\nRestart\n?\n\u26f6",
+      "file": "dc9-control-check-667-metrics.json"
+    },
+    {
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "w": 768,
+        "h": 734
+      },
+      "dc9Controls": {
+        "x": 0,
+        "y": 734,
+        "w": 768,
+        "h": 238
+      },
+      "dc9Scan": null,
+      "dc9Departure": null,
+      "airbusControls": null,
+      "airbusTraining": null,
+      "bodyText": "DC-9 Final Flight Log\nFlight controls \u2014 free and correct\nHelp\n\nPull the yoke back to the stop.\n\n0 of 8 checks complete\n\nControl column\nNeutral\nPush\nPull\n\nThe parked DC-9 is ready. Walk every right-seat control to its stops.\n\nRestart\n?\n\u26f6",
+      "file": "dc9-control-check-768-metrics.json"
+    },
+    {
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "w": 375,
+        "h": 472
+      },
+      "dc9Controls": null,
+      "dc9Scan": null,
+      "dc9Departure": {
+        "x": 0,
+        "y": 472,
+        "w": 375,
+        "h": 288
+      },
+      "airbusControls": null,
+      "airbusTraining": null,
+      "bodyText": "DC-9 Final Flight Log\n\n1995 MEMPHIS MEMORY\n\nMemphis Legacy Departure\n\nRamp release \u00b7 Ease the levers forward along the lead-out path.\n\nPath: Centered\n\nEnergy: Stopped\n\nKeep the highlighted path centered.\n\nHelp\n\nRamp release. Path centered. Ease the levers forward along the lead-out path.\n\nRudder pedals\nLeft\nRight\nThrust levers\nClose\nAdvance\nRetry from checkpoint\n\nThe parked DC-9 is ready. Walk every right-seat control to its stops.\n\nRestart\n?\n\u26f6",
+      "file": "dc9-departure-375-metrics.json"
+    },
+    {
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "w": 667,
+        "h": 185
+      },
+      "dc9Controls": null,
+      "dc9Scan": null,
+      "dc9Departure": {
+        "x": 0,
+        "y": 185,
+        "w": 667,
+        "h": 138
+      },
+      "airbusControls": null,
+      "airbusTraining": null,
+      "bodyText": "DC-9 Final Flight Log\n\n1995 MEMPHIS MEMORY\n\nMemphis Legacy Departure\n\nRamp release \u00b7 Ease the levers forward along the lead-out path.\n\nPath: Centered\n\nEnergy: Stopped\n\nKeep the highlighted path centered.\n\nHelp\n\nRamp release. Path centered. Ease the levers forward along the lead-out path.\n\nRudder pedals\nLeft\nRight\nThrust levers\nClose\nAdvance\nRetry from checkpoint\n\nThe parked DC-9 is ready. Walk every right-seat control to its stops.\n\nRestart\n?\n\u26f6",
+      "file": "dc9-departure-667-metrics.json"
+    },
+    {
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "w": 375,
+        "h": 462
+      },
+      "dc9Controls": null,
+      "dc9Scan": {
+        "x": 0,
+        "y": 462,
+        "w": 375,
+        "h": 298
+      },
+      "dc9Departure": null,
+      "airbusControls": null,
+      "airbusTraining": null,
+      "bodyText": "DC-9 Final Flight Log\nThe scan he flew by\n\nWhich gauge shows how fast the aircraft is moving through the air?\n\nHelp\n\nThe parked DC-9 is ready. Walk every right-seat control to its stops.\n\nAirspeed indicator\nAttitude director indicator\nAltimeter\nHorizontal situation indicator\nVertical speed indicator\nEngine pressure ratio gauges\n\n0 of 6 identified.\n\nNo screens, no map, no magenta line. Six dials in a fixed pattern, read in the same order every minute of every flight. Find each one as it is called.\n\nThe parked DC-9 is ready. Walk every right-seat control to its stops.\n\nRestart\n?\n\u26f6",
+      "file": "dc9-scan-375-metrics.json"
+    },
+    {
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "w": 667,
+        "h": 165
+      },
+      "dc9Controls": null,
+      "dc9Scan": {
+        "x": 0,
+        "y": 165,
+        "w": 667,
+        "h": 158
+      },
+      "dc9Departure": null,
+      "airbusControls": null,
+      "airbusTraining": null,
+      "bodyText": "DC-9 Final Flight Log\n\nWhich gauge shows how fast the aircraft is moving through the air?\n\nHelp\n\nThe parked DC-9 is ready. Walk every right-seat control to its stops.\n\nAirspeed indicator\nAttitude director indicator\nAltimeter\nHorizontal situation indicator\nVertical speed indicator\nEngine pressure ratio gauges\n\n0 of 6 identified.\n\nNo screens, no map, no magenta line. Six dials in a fixed pattern, read in the same order every minute of every flight. Find each one as it is called.\n\nThe parked DC-9 is ready. Walk every right-seat control to its stops.\n\nRestart\n?\n\u26f6",
+      "file": "dc9-scan-667-metrics.json"
+    }
+  ],
+  "runtimeModelVerification": "runtime-models.json",
+  "browserHealth": {
+    "errors": []
+  },
+  "touchInteraction": "a320-touch-placement-375.png",
+  "finalFlightImages": [
+    "a320-flight-375.png",
+    "a320-flight-667.png",
+    "a320-engine-375.png",
+    "a320-engine-667.png"
+  ]
+}

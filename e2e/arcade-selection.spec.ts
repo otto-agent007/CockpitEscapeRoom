@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { holdForArcade } from './arcadeFlow'
+import { holdForArcade, openArcadeMenu, resumeArcade } from './arcadeFlow'
 
 async function openArcade(page: Page) {
   await page.addInitScript(() => localStorage.setItem('cockpit-escape-room-mars-arcade-unlock', JSON.stringify({ version: 1, completedOnce: true })))
@@ -26,6 +26,7 @@ test('arcade selection freezes combat until a chosen player and battlefield star
   await expect(frame.locator('#stage-title')).toContainText('TEFLON DON')
   await expect(frame.locator('#stage')).toHaveAttribute('data-background', 'moonbase')
   await expect.poll(() => frame.locator('#readout').textContent()).not.toBe(before)
+  await openArcadeMenu(frame)
   await frame.getByRole('button', { name: 'Change player / battlefield' }).click()
   await expect(frame.getByRole('heading', { name: 'Choose your player' })).toBeVisible()
   const frozen = await frame.locator('#readout').textContent()
@@ -35,7 +36,7 @@ test('arcade selection freezes combat until a chosen player and battlefield star
 })
 
 for (const viewport of [{ width: 375, height: 812 }, { width: 768, height: 900 }, { width: 1440, height: 900 }, { width: 900, height: 375 }]) {
-  test(`fight fills ${viewport.width}x${viewport.height} even when browser fullscreen is refused`, async ({ page }) => {
+  test(`fight reserves controls at ${viewport.width}x${viewport.height} even when browser fullscreen is refused`, async ({ page }) => {
     await page.setViewportSize(viewport)
     await page.addInitScript(() => {
       Element.prototype.requestFullscreen = () => Promise.reject(new DOMException('Not allowed', 'NotAllowedError'))
@@ -44,10 +45,12 @@ for (const viewport of [{ width: 375, height: 812 }, { width: 768, height: 900 }
     await frame.getByRole('button', { name: 'Start fight', exact: true }).click()
     await expect(frame.locator('#stage')).toBeVisible()
     const bounds = await frame.locator('#stage').boundingBox()
-    expect(bounds).toEqual({ x: 0, y: 0, width: viewport.width, height: viewport.height })
-    await frame.getByText('Controls', { exact: true }).click()
+    expect(bounds!.width / bounds!.height).toBeCloseTo(320 / 224, 2)
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(viewport.width)
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(viewport.height)
     await expect(frame.getByRole('button', { name: 'P1 light' })).toBeVisible()
     await frame.getByRole('button', { name: 'P1 light' }).click()
+    await openArcadeMenu(frame)
     await frame.getByRole('button', { name: 'Change player / battlefield' }).click()
     await expect(frame.getByRole('button', { name: 'Start fight' })).toBeVisible()
     expect(await frame.locator('body').evaluate(element => element.scrollWidth <= innerWidth)).toBe(true)
@@ -65,11 +68,14 @@ test('arcade live feedback stays accessible with match options closed', async ({
 test('arcade disclosures keep native Space activation', async ({ page }) => {
   const frame = await openArcade(page)
   await frame.getByRole('button', { name: 'Start fight', exact: true }).click()
+  await openArcadeMenu(frame)
   for (const name of ['Controls', 'Match options']) {
     const summary = frame.getByText(name, { exact: true })
     await summary.focus()
     await page.keyboard.press('Space')
     await expect(summary.locator('..')).toHaveAttribute('open', '')
-    await expect(frame.getByRole('button', { name: 'Pause', exact: true })).toBeVisible()
+    await expect(frame.getByRole('dialog').getByRole('button', { name: 'Resume', exact: true })).toBeVisible()
   }
+  await resumeArcade(frame)
+  await expect(frame.getByRole('button', { name: 'Pause', exact: true })).toBeVisible()
 })

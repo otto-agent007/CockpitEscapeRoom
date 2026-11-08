@@ -4,7 +4,7 @@ import { mkdirSync } from 'node:fs'
 import { createInitialState } from '../src/game/state'
 import { STORAGE_KEY } from '../src/game/storage'
 import { createLockerState } from './journeyStates'
-import { holdForArcade, startArcadeFight } from './arcadeFlow'
+import { holdForArcade, openArcadeMenu, resumeArcade, startArcadeFight } from './arcadeFlow'
 
 const unlockKey = 'cockpit-escape-room-mars-arcade-unlock'
 async function seed(page: Page, complete = false) {
@@ -68,6 +68,57 @@ test('earned entry remains held until a delayed browser timer opens the arcade',
   await expect(page.frameLocator('iframe[title="Mars arcade"]').locator('#stage')).toBeVisible()
 })
 
+test('earned access is published only after the keyboard entrance is ready', async ({ page }) => {
+  await page.addInitScript(key => {
+    const setItem = Storage.prototype.setItem
+    let sent = false
+    Storage.prototype.setItem = function (name, value) {
+      setItem.call(this, name, value)
+      if (name !== key || sent || !value.includes('"completedOnce":true')) return
+      sent = true
+      // A player can press the chord as soon as the earned record is observable.
+      for (const letter of ['t', 'm', 'b']) {
+        const target = document.activeElement ?? window
+        target.dispatchEvent(new KeyboardEvent('keydown', { key: letter, bubbles: true }))
+      }
+    }
+  }, unlockKey)
+  await complete(page)
+  try {
+    await expect(page.getByTitle('Mars arcade')).toBeVisible()
+    await expect(page.frameLocator('iframe[title="Mars arcade"]').getByRole('heading', { name: 'Choose your player' })).toBeVisible()
+  } finally {
+    await page.evaluate(() => {
+      for (const letter of ['b', 'm', 't']) (document.activeElement ?? window).dispatchEvent(new KeyboardEvent('keyup', { key: letter, bubbles: true }))
+    })
+  }
+})
+
+test('a later completion persists earned access after a temporary storage failure', async ({ page }) => {
+  await seed(page, true)
+  await page.addInitScript(key => {
+    const setItem = Storage.prototype.setItem
+    let denied = true
+    Object.assign(window, { allowEarnedWrites: () => { denied = false } })
+    Storage.prototype.setItem = function (name, value) {
+      if (name === key && denied) throw new Error('Temporary achievement storage failure')
+      setItem.call(this, name, value)
+    }
+  }, unlockKey)
+  await page.goto('/?skip3d=1')
+  await page.getByRole('button', { name: 'Skip film and read tribute' }).click()
+  await expect(page.locator('.secret-arcade-entry')).toBeVisible()
+  expect(await page.evaluate(key => localStorage.getItem(key), unlockKey)).toBeNull()
+  await page.evaluate(() => (window as typeof window & { allowEarnedWrites: () => void }).allowEarnedWrites())
+  await page.getByRole('button', { name: 'Replay film', exact: true }).click()
+  await page.getByRole('button', { name: 'Skip film and read tribute' }).click()
+  await expect.poll(() => page.evaluate(key => localStorage.getItem(key), unlockKey)).toContain('"completedOnce":true')
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Model FLY', exact: true })).toBeVisible()
+  await openAccess(page, false)
+  await expect(page.frameLocator('iframe[title="Mars arcade"]').getByRole('heading', { name: 'Choose your player' })).toBeVisible()
+})
+
 test('the final tribute unlocks T+M+B, reload and Restart retain access, and exit preserves chapter progress', async ({ page }) => {
   await complete(page)
   await page.reload()
@@ -84,6 +135,7 @@ test('the final tribute unlocks T+M+B, reload and Restart retain access, and exi
   await startArcadeFight(frame)
   await expect(frame.locator('#asset-status')).toContainText('sprites ready')
   await expect(frame.locator('#stage-title')).toContainText(/CAPTAIN/)
+  await openArcadeMenu(frame)
   await frame.getByRole('button', { name: 'Return to game' }).click()
   await expect(page.locator('.briefing-shell')).toBeVisible()
   expect(await page.evaluate(key => localStorage.getItem(key), STORAGE_KEY)).toBe(before)
@@ -166,6 +218,7 @@ test('arcade exit preserves the current in-memory chapter when all storage write
   await expect(page.locator('.briefing-shell')).toBeVisible()
   await openAccess(page)
   await expect(page.frameLocator('iframe').locator('#stage')).toBeVisible()
+  await openArcadeMenu(page.frameLocator('iframe[title="Mars arcade"]'))
   await page.frameLocator('iframe[title="Mars arcade"]').getByRole('button', { name: 'Return to game', exact: true }).click()
   await expect(page.locator('.briefing-shell')).toBeVisible()
 })
@@ -211,7 +264,9 @@ for (const width of [375, 768, 1440]) {
     expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(900)
     const fighterNames = { booster: 'TECHNOKING', oracle: 'SCAM ALTMAN', captain: 'THE CAPTAIN', trump: 'TEFLON DON' }
     for (const fighter of ['booster', 'oracle', 'captain', 'trump'] as const) {
+      await openArcadeMenu(frame)
       await frame.locator('[data-fighter="0"]').selectOption(fighter)
+      await resumeArcade(frame)
       await frame.getByRole('button', { name: 'P1 light' }).click()
       await expect(frame.locator('#readout')).toContainText(fighterNames[fighter])
       await expect.poll(() => frame.locator('#stage').evaluate((canvas, id) => {
@@ -222,7 +277,9 @@ for (const width of [375, 768, 1440]) {
     await frame.getByRole('button', { name: 'Pause', exact: true }).click()
     await expect(frame.getByRole('button', { name: 'Resume', exact: true })).toBeVisible()
     await frame.getByRole('button', { name: 'Resume', exact: true }).click()
+    await openArcadeMenu(frame)
     await frame.getByRole('button', { name: 'Restart round' }).click()
+    await resumeArcade(frame)
     await expect(frame.locator('#stage')).toBeVisible()
     await frame.locator('body').evaluate(() => window.scrollTo(0, 0))
     await page.evaluate(() => window.scrollTo(0, 0))
@@ -297,6 +354,7 @@ test('the arcade exit survives an unavailable optional shell chunk', async ({ pa
   await complete(page)
   await page.route(/assets\/MarsArcade-[^/]*\.js$/, route => route.abort())
   await openAccess(page)
+  await openArcadeMenu(page.frameLocator('iframe[title="Mars arcade"]'))
   await expect(page.frameLocator('iframe[title="Mars arcade"]').getByRole('button', { name: 'Return to game', exact: true })).toBeVisible()
   await page.frameLocator('iframe[title="Mars arcade"]').getByRole('button', { name: 'Return to game', exact: true }).click()
   await expect(page.locator('[data-reward-stage="complete"]')).toBeVisible()
@@ -307,6 +365,7 @@ test('returning to a replayed reward keeps the film stage', async ({ page }) => 
   await page.getByRole('button', { name: 'Replay film' }).click()
   await expect(page.locator('[data-reward-stage="film"]')).toBeVisible()
   await openAccess(page)
+  await openArcadeMenu(page.frameLocator('iframe[title="Mars arcade"]'))
   await page.frameLocator('iframe[title="Mars arcade"]').getByRole('button', { name: 'Return to game', exact: true }).click()
   await expect(page.locator('[data-reward-stage="film"]')).toBeVisible()
   await expect(page.locator('main')).toBeFocused()

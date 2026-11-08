@@ -374,21 +374,80 @@ test('Storm Line exposes a confirmed full-game restart button', async ({ page })
   await expect(page.getByRole('region', { name: 'Game entry' })).toBeVisible()
 })
 
-test('Storm Flight controls default compact on desktop and expanded at 768px', async ({ page }) => {
+test('Storm Flight controls toggle on desktop and stay visible below the cockpit on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await startAccessibleStormLine(page)
 
   const desktopToggle = page.getByRole('button', { name: 'Show flight controls' })
+  const bankLeft = page.getByRole('button', { name: 'Hold Bank left', exact: true })
   await expect(desktopToggle).toHaveAttribute('aria-expanded', 'false')
-  await expect(page.getByRole('button', { name: 'Hold Bank left' })).toHaveCount(0)
+  await expect(bankLeft).toHaveCount(0)
   await desktopToggle.click()
-  await expect(page.getByRole('button', { name: 'Hold Bank left' })).toBeVisible()
+  const hideControls = page.getByRole('button', { name: 'Hide flight controls' })
+  await expect(hideControls).toHaveAttribute('aria-expanded', 'true')
+  await expect(bankLeft).toBeVisible()
+  await expect(page.getByRole('button', { name: /^Hold Pitch/ })).toHaveCount(2)
   await expect(page.getByRole('button', { name: 'Recenter view' })).toBeVisible()
+  await hideControls.click()
+  await expect(desktopToggle).toHaveAttribute('aria-expanded', 'false')
+  await expect(bankLeft).toHaveCount(0)
 
-  await page.setViewportSize({ width: 768, height: 900 })
-  await page.reload()
-  await expect(page.getByRole('button', { name: 'Hide flight controls' })).toHaveAttribute('aria-expanded', 'true')
-  await expect(page.getByRole('button', { name: 'Hold Bank left' })).toBeVisible()
+  for (const viewport of [{ width: 768, height: 900 }, { width: 375, height: 812 }]) {
+    await page.setViewportSize(viewport)
+    await page.reload()
+    await expect(bankLeft).toBeVisible()
+    await expect(page.getByRole('button', { name: /^(Show|Hide) flight controls$/ })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: /^Hold Pitch/ })).toHaveCount(0)
+
+    const scene = (await page.locator('.scene').boundingBox())!
+    const tray = (await page.locator('.cockpit-flight-tray').boundingBox())!
+    expect(tray.y, 'mobile flight controls must sit below the cockpit').toBeGreaterThanOrEqual(scene.y + scene.height - 1)
+    await expect(page.locator('#storm-flight-controls button[data-hold]')).toHaveCount(4)
+    for (const label of ['Bank left', 'Bank right', 'Increase', 'Decrease']) {
+      const control = page.getByRole('button', { name: `Hold ${label}`, exact: true })
+      await expect(control).toBeEnabled()
+      await expect(control).toBeInViewport({ ratio: 1 })
+      const box = (await control.boundingBox())!
+      expect(box.y, 'native flight controls must clear the cockpit').toBeGreaterThanOrEqual(scene.y + scene.height - 1)
+      expect(box.width).toBeGreaterThanOrEqual(48)
+      expect(box.height).toBeGreaterThanOrEqual(48)
+      if (label.startsWith('Bank')) {
+        await expect(control.locator('svg[aria-hidden="true"]')).toHaveCount(1)
+        await expect(control).toHaveText('')
+      }
+    }
+
+    const help = page.getByRole('button', { name: 'Help', exact: true })
+    await expect(help).toBeInViewport({ ratio: 1 })
+    await expect(help).toHaveAttribute('aria-haspopup', 'dialog')
+    await help.focus()
+    await page.keyboard.press('Enter')
+    const dialog = page.getByRole('dialog', { name: 'Cockpit help' })
+    await expect(dialog).toBeVisible()
+    await expect(help).toHaveAttribute('aria-expanded', 'true')
+    await expect(dialog.getByRole('button', { name: 'Close help' })).toBeFocused()
+    await expect(dialog.getByRole('button', { name: 'Recenter view' })).toBeVisible()
+    await expect(bankLeft).toBeDisabled()
+    await page.keyboard.press('Escape')
+    await expect(dialog).toHaveCount(0)
+    await expect(help).toBeFocused()
+    await expect(help).toHaveAttribute('aria-expanded', 'false')
+
+    const resume = page.getByRole('button', { name: 'Resume', exact: true })
+    await expect(resume).toBeInViewport({ ratio: 1 })
+    await expect(bankLeft).toBeDisabled()
+    await resume.focus()
+    await page.keyboard.press('Enter')
+    await expect(bankLeft).toBeEnabled()
+    const pause = page.getByRole('button', { name: 'Pause', exact: true })
+    await expect(pause).toBeInViewport({ ratio: 1 })
+    await pause.focus()
+    await page.keyboard.press('Enter')
+    await expect(page.getByText('Challenge paused', { exact: true })).toBeVisible()
+    await expect(bankLeft).toBeDisabled()
+    await resume.click()
+    await expect(bankLeft).toBeEnabled()
+  }
 })
 
 test('Storm Line reads a standard gamepad and safely retries an attitude departure', async ({ page }) => {

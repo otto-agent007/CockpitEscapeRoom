@@ -242,7 +242,8 @@ test('Captain Challenges and Engine-Out controls remain usable at tablet and pho
     throw new Error('Responsive Engine-Out layout bounds are unavailable')
   }
   expect(topbarBox.y + topbarBox.height).toBeLessThanOrEqual(instrumentsBox.y)
-  expect(toolsBox.y + toolsBox.height).toBeLessThanOrEqual(controlsBox.y)
+  // Viewer tools now live in the footer below the reserved touch tray.
+  expect(controlsBox.y + controlsBox.height).toBeLessThanOrEqual(toolsBox.y)
   for (const control of await page.locator('.storm-hold-control').all()) {
     const box = await control.boundingBox()
     if (!box) throw new Error('Engine-Out control bounds are unavailable')

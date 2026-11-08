@@ -99,6 +99,8 @@ Flight Mode visual language:
 
 The sequence is a reward/cinematic beat, not required puzzle gameplay. Every important visual beat needs a text equivalent in the HTML overlay.
 
+Model FLY retains the complete approved 16:9 film and original music. Its native **Watch landscape** action requests fullscreen and a supported landscape orientation lock, with native video fullscreen or rotate-phone guidance as fallbacks. Playback position and sound survive manual rotation. A reserved control strip sits below the picture, including in short landscape, so Skip/Restart do not cover the vehicle. Skipping or leaving releases only fullscreen/orientation acquired by this player; API rejection never blocks playback or the tribute. Existing autoplay, muted/manual sound recovery, retry, Skip and Replay remain available.
+
 ## Family tribute
 
 The closing message should happen after the Model Y reveal and Flight Mode transformation. Keep it editable in data/config rather than buried in scene logic.
@@ -109,11 +111,11 @@ The closing family message uses large, responsive serif type (25.6–40 px) for 
 
 ## Mars Easter egg
 
-Mars arcade is an optional Easter egg earned after reaching the completed Flight Mode reward and final family tribute once. Hold **T+M+B together for 1.5 seconds** to enter from any chapter afterward, including a restarted game. Completion and access stay local to the browser; Restart resets the chapter save while retaining the earned unlock.
+Mars arcade is an optional Easter egg earned after reaching the completed Flight Mode reward and final family tribute once. Hold **T+M+B together for 1.5 seconds** to enter from any chapter afterward, including a restarted game. Touch players can **hold the final tribute heading for three seconds** after completion. The earned heading also retains native keyboard/assistive activation without a visible arcade hint. Completion and access stay local to the browser; Restart resets the chapter save while retaining the earned unlock.
 
-Partial holds, typing, keyboard modifiers, focus moving into a text field, losing window focus, and backgrounding the page cancel the shortcut. The arcade has no visible entry control or hint in the game, even after completion. Its standalone URL does not start a match; the game opens it after the chord. It is an optional keyboard secret for players who know T+M+B; touch-only players cannot open it. The main story and reward remain fully playable without it.
+Partial holds, typing, keyboard modifiers, focus moving into a text field, losing window focus, and backgrounding the page cancel the keyboard shortcut. Early release, pointer cancellation, moving off the title, blur, backgrounding and leaving the tribute cancel the touch hold. The arcade has no visible entry hint in the game, even after completion. Its standalone URL does not start a match; the game opens it through earned keyboard/touch entry. The main story and reward remain fully playable without it.
 
-The arcade loads its four fighters and artwork only on entry, runs independently of cockpit presentation, and offers **Return to game** and Escape. Exit returns keyboard focus to the game. Current chapter progress remains in memory while playing, including when browser storage rejects writes. Loading failures retain a return control and offer retry. The arcade never blocks or replaces the family ending, and it does not change vehicle rewards or main-game puzzle progress.
+The arcade loads its four fighters and artwork only on entry and runs independently of cockpit presentation. Portrait reserves movement/attack controls below the arena; landscape puts them beside it. The arena retains its canonical 320×224 ratio and stays clear of controls and HUD obstructions. Pause and Menu remain visible. Opening Menu pauses and clears held input; closing it keeps Resume explicit. Secondary actions, instructions and **Return to game** live in Menu. Escape closes Menu first, then returns to the game. Exit restores game focus. Current chapter progress remains in memory while playing, including when browser storage rejects writes. Loading failures retain return/retry controls. The arcade never blocks or replaces the family ending, and it does not change vehicle rewards or main-game puzzle progress.
 
 A native **Background** selector offers the original **Mars** scenery and an outdoor **Moonbase**: gray lunar terrain, habitat domes, antennas, and Earth in a black sky. Mars is the first-use default. A separate versioned local preference remembers the selection across reloads and arcade re-entry. Changing backgrounds preserves fight positions, health, meter, and timing. Moonbase artwork loads only when selected; failed scenery keeps combat usable with a fallback and **Retry background** control. The same selector is available in the development fighter playground. The rust-colored Mars floor accent is omitted from Moonbase.
 
@@ -169,7 +171,13 @@ Keep asset groups separate and lazy-loaded:
 
 Essential gameplay must not exist only inside WebGL. Use HTML overlays for instructions, hints, progress, captions, final family message, status messages, and reward / Flight Mode text equivalents.
 
-Narrow screens receive a functional stacking/overflow fallback. Dedicated mobile layout design, mobile visual polish, and a mobile approval milestone are outside the Final Flight Log scope.
+### Mobile cockpit controls
+
+Phones and narrow tablets reserve a compact native touch tray **below the actual cockpit canvas**. The same layout applies to coarse-pointer screens up to 1200 px so rotating a large phone keeps its touch controls. Desktop retains its established view and controls. DC-9 control check exposes the current axis with large hold buttons; the instrument scan keeps native choices and visible first-miss coaching. Departure keeps its 1995 Memphis memory label, phase-specific axes, corrective guidance and safe retry. Shutdown retains visible wrong-order feedback and earned switches.
+
+A320 label cards sit below the cockpit and can be tapped before the real cockpit target. Storm Line and Engine-Out use a compact tray capped at 280px in portrait, giving most of a phone screen to the cockpit. Their mobile sidestick has left/right arrow buttons with descriptive accessible names; pitch buttons remain in the desktop controls. Required task actions appear first in a scrollable shelf; route guidance and touch-sized flight holds remain visible. Short landscape puts route advice and its drift meter in one row above the task/hold controls. Instructions live in native modal Help, which contains keyboard focus, closes with Escape/Close and restores Help focus. Opening flight Help pauses the challenge; Resume remains explicit. Native holds support two independent fingers, keyboard input and safe release/cancel/blur/unmount. Layout/help state is not persisted and never resets earned game progress.
+
+The owner selected this layout after reporting that control panels obscured the cockpit. Actual phone/tablet/desktop browser proof and owner review are recorded in plan 0079 and TEST_REPORT.md.
 
 ## Approval gates
 

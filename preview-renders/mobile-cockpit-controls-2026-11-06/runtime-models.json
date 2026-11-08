@@ -1,0 +1,17 @@
+[
+  {
+    "path": "models/dc9-cockpit.glb",
+    "bytes": 36050764,
+    "sha256": "e092a1d8907db5ed8fb9dc1032cac3874e0295287ae33ecb7e50f5d6ebf6d9ac"
+  },
+  {
+    "path": "models/dc9-memphis-legacy-departure.glb",
+    "bytes": 1916956,
+    "sha256": "e730c5918007e7200096f743b149c8cd1ad748da6ffc1e449d6795cd4b564d63"
+  },
+  {
+    "path": "models/airbus-captain.glb",
+    "bytes": 39884100,
+    "sha256": "0a6c8aeb1e1fdbfc85db01becb812ca0c3b7810208d03fba65f26c4fa4306251"
+  }
+]

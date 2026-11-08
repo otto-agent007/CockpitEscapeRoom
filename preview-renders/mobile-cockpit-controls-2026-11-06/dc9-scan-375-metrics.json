@@ -1,0 +1,19 @@
+{
+  "canvas": {
+    "x": 0,
+    "y": 0,
+    "w": 375,
+    "h": 462
+  },
+  "dc9Controls": null,
+  "dc9Scan": {
+    "x": 0,
+    "y": 462,
+    "w": 375,
+    "h": 298
+  },
+  "dc9Departure": null,
+  "airbusControls": null,
+  "airbusTraining": null,
+  "bodyText": "DC-9 Final Flight Log\nThe scan he flew by\n\nWhich gauge shows how fast the aircraft is moving through the air?\n\nHelp\n\nThe parked DC-9 is ready. Walk every right-seat control to its stops.\n\nAirspeed indicator\nAttitude director indicator\nAltimeter\nHorizontal situation indicator\nVertical speed indicator\nEngine pressure ratio gauges\n\n0 of 6 identified.\n\nNo screens, no map, no magenta line. Six dials in a fixed pattern, read in the same order every minute of every flight. Find each one as it is called.\n\nThe parked DC-9 is ready. Walk every right-seat control to its stops.\n\nRestart\n?\n⛶"
+}

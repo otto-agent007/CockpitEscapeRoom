@@ -1,3 +1,4 @@
+import { CockpitHelp } from '../CockpitHelp'
 import { dc9LegacyFlow } from '../../game/config'
 import { DC9_INSTRUMENTS, type Dc9InstrumentId } from '../../game/dc9FlightDeck'
 import {
@@ -13,6 +14,7 @@ interface InstrumentScanPanelProps {
   hotspots: Dc9HotspotScreenPositions
   projectionReady: boolean
   onIdentify: (instrument: Dc9InstrumentId) => void
+  feedback: string
 }
 
 export function InstrumentScanPanel({
@@ -20,6 +22,7 @@ export function InstrumentScanPanel({
   hotspots,
   projectionReady,
   onIdentify,
+  feedback,
 }: InstrumentScanPanelProps) {
   const copy = dc9LegacyFlow.instrumentScan
   const prompt = dc9InstrumentScanPrompt(progress)
@@ -80,7 +83,8 @@ export function InstrumentScanPanel({
         <p className="dc9-instrument-scan__question" aria-live="polite" aria-atomic="true">
           {prompt ? copy.prompts[prompt].question : copy.completionText}
         </p>
-        <p className="dc9-document__note">{copy.instruction}</p>
+        <CockpitHelp><p className="dc9-document__note">{copy.instruction}</p></CockpitHelp>
+        <p className="cockpit-touch-feedback">{feedback}</p>
 
         <ul className="dc9-instrument-scan__list" aria-label="Right-seat instruments">
           {DC9_INSTRUMENT_SCAN_ORDER.map((instrumentId) => {
