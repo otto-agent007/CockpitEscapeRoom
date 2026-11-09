@@ -1,0 +1,19 @@
+{
+  "canvas": {
+    "x": 0,
+    "y": 0,
+    "w": 667,
+    "h": 211
+  },
+  "dc9Controls": {
+    "x": 0,
+    "y": 211,
+    "w": 667,
+    "h": 112
+  },
+  "dc9Scan": null,
+  "dc9Departure": null,
+  "airbusControls": null,
+  "airbusTraining": null,
+  "bodyText": "DC-9 Final Flight Log\nFlight controls — free and correct\nHelp\n\nPull the yoke back to the stop.\n\nControl column\nNeutral\nPush\nPull\n\nThe parked DC-9 is ready. Walk every right-seat control to its stops.\n\nRestart\n?\n⛶"
+}

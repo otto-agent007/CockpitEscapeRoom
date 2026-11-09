@@ -1,3 +1,5 @@
+import { useCompactCockpit } from '../useCompactCockpit'
+import { CockpitHelp } from '../CockpitHelp'
 import { useCallback, useState } from 'react'
 import type { Dc9DepartureBeat, Dc9DepartureProgress } from '../../game/dc9MemphisDeparture'
 import type { Dc9ControlState, Dc9HoldControl, Dc9InputMethod } from '../../game/dc9Input'
@@ -54,6 +56,7 @@ function inputMethodCopy(inputMethod: Dc9InputMethod): string {
  * checkpoint and retry decision; this panel only exposes its current safe controls.
  */
 export function MemphisDeparturePanel({ controls, inputMethod, loadState, onHold, progress, runtime }: MemphisDeparturePanelProps) {
+  const compact = useCompactCockpit()
   const { frame, guidance, confirmLineup: confirmRuntimeLineup, restoreCheckpoint: restoreRuntimeCheckpoint } = runtime
   const attempts = progress.attempts[frame.beat] ?? 0
   const hasRetryFeedback = progress.hintLevel > 0
@@ -86,10 +89,11 @@ export function MemphisDeparturePanel({ controls, inputMethod, loadState, onHold
 
   return (
     <section className="dc9-memphis-departure" aria-labelledby="dc9-memphis-departure-title">
+      <div className="dc9-departure-guide">
       <header className="dc9-memphis-departure__header">
         <p className="eyebrow">1995 MEMPHIS MEMORY</p>
         <h2 id="dc9-memphis-departure-title">Memphis Legacy Departure</h2>
-        <p>{BEAT_LABELS[frame.beat]} · {guidance.intent}</p>
+        <p>{BEAT_LABELS[frame.beat]}<span className="dc9-departure-intent"> · {guidance.intent}</span></p>
       </header>
 
       <div className="dc9-memphis-departure__guidance" aria-live="off">
@@ -104,6 +108,10 @@ export function MemphisDeparturePanel({ controls, inputMethod, loadState, onHold
           <progress id="dc9-memphis-climb-progress" max={100} value={climbPercent} aria-label="Climb progress" />
         </div>
       ) : null}
+      </div>
+      {compact && <CockpitHelp>
+        <p>This is a fictional 1995 Memphis memory. Hold the touch buttons to steer and adjust paired thrust. Release to stop the input. Retry restores only this checkpoint.</p>
+      </CockpitHelp>}
 
       <p className="dc9-memphis-departure__live" role="status" aria-label="Departure guidance" aria-live="polite" aria-atomic="true">
         {liveAnnouncement}

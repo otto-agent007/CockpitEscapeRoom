@@ -3,6 +3,7 @@ import '../../dev/arcade-shell.css'
 import './player.css'
 
 let started = false
+let handleEscape = close
 const parentOrigin = window.location.origin
 const tellParent = (message: string) => { if (window.parent !== window) window.parent.postMessage(message, parentOrigin) }
 
@@ -26,6 +27,24 @@ async function start(): Promise<void> {
     const options = document.querySelector<HTMLDetailsElement>('#match-options')!
     const startButton = document.querySelector<HTMLButtonElement>('#start-fight')!
     const cards = document.querySelector<HTMLElement>('#player-cards')!
+    const menu = document.querySelector<HTMLDialogElement>('#arcade-menu')!
+    const menuButton = document.querySelector<HTMLButtonElement>('#open-arcade-menu')!
+    const closeMenu = () => {
+      menu.close()
+      menuButton.focus({ preventScroll: true })
+    }
+    menuButton.addEventListener('click', () => {
+      session.setPaused(true)
+      menu.showModal()
+    })
+    menu.addEventListener('cancel', event => { event.preventDefault(); closeMenu() })
+    menu.querySelector('[data-menu-close]')!.addEventListener('click', closeMenu)
+    document.querySelector('#resume-arcade')!.addEventListener('click', () => {
+      menu.close()
+      session.setPaused(false)
+      document.querySelector<HTMLCanvasElement>('#stage')?.focus({ preventScroll: true })
+    })
+    handleEscape = () => { if (menu.open) closeMenu(); else close() }
     for (const option of fighter.options) {
       const button = document.createElement('button')
       button.type = 'button'
@@ -55,11 +74,13 @@ async function start(): Promise<void> {
       options.open = false
       setup.hidden = true
       match.hidden = false
+      window.scrollTo(0, 0)
       session.startRound()
       document.querySelector<HTMLCanvasElement>('#stage')?.focus({ preventScroll: true })
     })
     document.querySelector('#change-selection')!.addEventListener('click', () => {
       session.setActive(false)
+      menu.close()
       setup.insertBefore(choices, startButton)
       updateSelection()
       match.hidden = true
@@ -67,7 +88,7 @@ async function start(): Promise<void> {
       window.scrollTo(0, 0)
       selectionTitle.focus({ preventScroll: true })
     })
-    for (const details of document.querySelectorAll<HTMLDetailsElement>('.match-tools details')) {
+    for (const details of document.querySelectorAll<HTMLDetailsElement>('.match-menu details')) {
       details.addEventListener('toggle', () => {
         if (!details.open && details.contains(document.activeElement)) details.querySelector('summary')?.focus()
       })
@@ -93,7 +114,7 @@ function close(): void {
   else tellParent('mars-arcade-close')
 }
 document.querySelectorAll('[data-arcade-return]').forEach(button => button.addEventListener('click', close))
-window.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); close() } })
+window.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); handleEscape() } })
 window.addEventListener('message', access)
 if (window.parent !== window) tellParent('mars-arcade-request-access')
 else if (loadMarsArcadeUnlock()) document.querySelector<HTMLElement>('#arcade-locked p')!.textContent = 'This Easter egg opens from the game.'

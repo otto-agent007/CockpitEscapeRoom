@@ -1,0 +1,127 @@
+{
+  "environment": "Local production on 4174; Browser plugin unavailable; installed Chromium with touch emulation; real A320 GLB; no model changes",
+  "results": [
+    {
+      "name": "a320-flight",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "url": "http://127.0.0.1:4174/",
+      "title": "The Captain's Key",
+      "geometry": {
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "width": 375,
+          "height": 532
+        },
+        "tray": {
+          "x": 0,
+          "y": 532,
+          "width": 375,
+          "height": 280
+        },
+        "holds": [
+          {
+            "label": "Hold Bank left",
+            "text": "",
+            "x": 13,
+            "y": 711,
+            "width": 83.5,
+            "height": 48
+          },
+          {
+            "label": "Hold Bank right",
+            "text": "",
+            "x": 101.5,
+            "y": 711,
+            "width": 83.5,
+            "height": 48
+          },
+          {
+            "label": "Hold Increase",
+            "text": "Increase",
+            "x": 190,
+            "y": 711,
+            "width": 83.5,
+            "height": 48
+          },
+          {
+            "label": "Hold Decrease",
+            "text": "Decrease",
+            "x": 278.5,
+            "y": 711,
+            "width": 83.5,
+            "height": 48
+          }
+        ],
+        "horizontalOverflow": false
+      }
+    },
+    {
+      "name": "a320-flight",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "url": "http://127.0.0.1:4174/",
+      "title": "The Captain's Key",
+      "geometry": {
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "width": 667,
+          "height": 203
+        },
+        "tray": {
+          "x": 0,
+          "y": 203,
+          "width": 667,
+          "height": 172
+        },
+        "holds": [
+          {
+            "label": "Hold Bank left",
+            "text": "",
+            "x": 211.296875,
+            "y": 258.75,
+            "width": 107.921875,
+            "height": 48
+          },
+          {
+            "label": "Hold Bank right",
+            "text": "",
+            "x": 323.21875,
+            "y": 258.75,
+            "width": 107.921875,
+            "height": 48
+          },
+          {
+            "label": "Hold Increase",
+            "text": "Increase",
+            "x": 436.140625,
+            "y": 258.75,
+            "width": 107.921875,
+            "height": 48
+          },
+          {
+            "label": "Hold Decrease",
+            "text": "Decrease",
+            "x": 548.0625,
+            "y": 258.75,
+            "width": 107.921875,
+            "height": 48
+          }
+        ],
+        "horizontalOverflow": false
+      }
+    }
+  ],
+  "errors": [],
+  "fingerprints": {
+    "src/components/Hud.tsx": "36049155a012d8c3c7f4d566730a9a0b51e544a99b30fb47f31fa72a1ce9f7de",
+    "src/components/mobileCockpit.css": "d661029412e4a93490082140fb4725b7590998a6faef69e8701efb9751da0a61",
+    "e2e/mobile-cockpit.spec.ts": "fbc36af5b0ed3554e2592c566d06ff740f0b48d5d150e88e3167287620e3f1ad"
+  }
+}

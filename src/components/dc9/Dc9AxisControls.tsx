@@ -1,3 +1,5 @@
+import { HoldButton } from '../HoldButton'
+import { useCompactCockpit } from '../useCompactCockpit'
 import type { Dc9ControlState, Dc9HoldControl } from '../../game/dc9Input'
 
 export type Dc9AxisId = 'pitch' | 'roll' | 'rudder' | 'thrust'
@@ -28,6 +30,7 @@ function signedReadout(value: number, negative: string, positive: string): strin
 
 /** Shared native mirrors for the DC-9's continuous cockpit controls. */
 export function Dc9AxisControls({ controls, onHold, axisIds }: Dc9AxisControlsProps) {
+  const compact = useCompactCockpit()
   const axes: AxisRow[] = [
     {
       id: 'pitch',
@@ -70,7 +73,7 @@ export function Dc9AxisControls({ controls, onHold, axisIds }: Dc9AxisControlsPr
 
   return <>
     {visibleAxes.map((axis) => (
-      <div key={axis.id} className="dc9-axis">
+      <div key={axis.id} className="dc9-axis" data-axis={axis.id}>
         <div className="dc9-axis__head">
           <span>{axis.label}</span>
           <strong aria-live="off">{axis.readout}</strong>
@@ -88,37 +91,21 @@ export function Dc9AxisControls({ controls, onHold, axisIds }: Dc9AxisControlsPr
         </div>
         <div className="dc9-axis__holds">
           {[axis.decrease, axis.increase].map((hold) => (
-            <button
+            <HoldButton
               key={hold.control}
-              type="button"
               className="dc9-axis__hold"
-              data-hold={hold.control}
-              onPointerDown={(event) => {
-                onHold(hold.control, true)
-                try {
-                  event.currentTarget.setPointerCapture(event.pointerId)
-                } catch {
-                  // Capture improves a pointer hold but is not required for the native control.
-                }
-              }}
-              onPointerUp={() => onHold(hold.control, false)}
-              onPointerCancel={() => onHold(hold.control, false)}
-              onLostPointerCapture={() => onHold(hold.control, false)}
-              onPointerLeave={(event) => {
-                if (event.currentTarget.hasPointerCapture(event.pointerId)) return
-                onHold(hold.control, false)
-              }}
-              onKeyDown={(event) => {
-                if (event.key === ' ' || event.key === 'Enter') onHold(hold.control, true)
-              }}
-              onKeyUp={(event) => {
-                if (event.key === ' ' || event.key === 'Enter') onHold(hold.control, false)
-              }}
-              onBlur={() => onHold(hold.control, false)}
+              control={hold.control}
+              label={compact ? hold.label : undefined}
+              onHold={(pressed) => onHold(hold.control, pressed)}
             >
-              <span>{hold.label}</span>
+              <span className="cockpit-desktop-label">{hold.label}</span>
+              <span className="cockpit-touch-label" aria-hidden="true">{
+                axis.id === 'pitch' ? (hold === axis.decrease ? 'Push' : 'Pull')
+                  : axis.id === 'thrust' ? (hold === axis.decrease ? 'Close' : 'Advance')
+                    : hold === axis.decrease ? 'Left' : 'Right'
+              }</span>
               <kbd>{hold.keyHint}</kbd>
-            </button>
+            </HoldButton>
           ))}
         </div>
       </div>

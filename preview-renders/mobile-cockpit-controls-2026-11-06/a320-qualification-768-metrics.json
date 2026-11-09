@@ -1,0 +1,19 @@
+{
+  "canvas": {
+    "x": 0,
+    "y": 0,
+    "w": 768,
+    "h": 744
+  },
+  "dc9Controls": null,
+  "dc9Scan": null,
+  "dc9Departure": null,
+  "airbusControls": null,
+  "airbusTraining": {
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0
+  },
+  "bodyText": "AIRBUS A320 POP T CAPTAIN MODE\n\nAirbus cockpit label placement\n67% complete\n1/5\nHelp\n\nTap a label, then its cockpit control.\n\nSIDESTICK\nPlaced\nTHRUST\nGEAR\nRADIO\nALTITUDE\nCockpit drop zone 1. Current card: SIDESTICK.\nSIDESTICK\nCockpit drop zone 2. No card placed.\nCockpit drop zone 3. No card placed.\nCockpit drop zone 4. No card placed.\nCockpit drop zone 5. No card placed.\nNice. That’s the sidestick.\nRestart\n?\n⛶"
+}

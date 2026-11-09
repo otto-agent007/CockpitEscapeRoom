@@ -2,12 +2,17 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { gameCopy } from '../game/config'
 import { rewardCopy } from '../game/rewardCopy'
+import { createFilmLandscapeController, type FilmOrientation, type NativeFullscreenVideo } from './filmLandscape'
+import { SecretArcadeEntry } from './SecretArcadeEntry'
+
+import './RewardFilm.css'
 
 interface RewardExperienceProps {
   initialComplete?: boolean
   onReplay?: () => void
   onRestart: () => void
   onComplete?: () => void
+  onOpenArcade?: () => void
 }
 
 const filmUrl = `${import.meta.env.BASE_URL}media/tesla-flight-mode-final.mp4`
@@ -17,13 +22,43 @@ export function RewardExperience({
   onReplay,
   onRestart,
   onComplete,
+  onOpenArcade,
 }: RewardExperienceProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const cinemaRef = useRef<HTMLDivElement>(null)
+  const landscapeRef = useRef<ReturnType<typeof createFilmLandscapeController> | null>(null)
   const playbackGeneration = useRef(0)
   const [stage, setStage] = useState<'film' | 'complete'>(initialComplete ? 'complete' : 'film')
   const [loadFailed, setLoadFailed] = useState(false)
   const [manualPlayNeeded, setManualPlayNeeded] = useState(false)
   const [filmMuted, setFilmMuted] = useState(false)
+  const [landscapePending, setLandscapePending] = useState(false)
+  const [rotateGuidance, setRotateGuidance] = useState(false)
+
+  const releaseLandscape = useCallback(() => {
+    landscapeRef.current?.dispose()
+    landscapeRef.current = null
+  }, [])
+
+  useEffect(() => releaseLandscape, [releaseLandscape])
+
+  const watchLandscape = useCallback(async () => {
+    const target = cinemaRef.current
+    const video = videoRef.current
+    if (!target || !video) return
+    const controller = landscapeRef.current ?? createFilmLandscapeController({
+      target,
+      video: video as HTMLVideoElement & NativeFullscreenVideo,
+      document,
+      orientation: screen.orientation as ScreenOrientation & FilmOrientation,
+    })
+    landscapeRef.current = controller
+    setLandscapePending(true)
+    const result = await controller.request()
+    if (landscapeRef.current !== controller) return
+    setLandscapePending(false)
+    setRotateGuidance(result === 'rotate' || result === 'native')
+  }, [])
 
   useEffect(() => {
     if (videoRef.current) videoRef.current.src = filmUrl
@@ -78,8 +113,9 @@ export function RewardExperience({
   const finishFilm = useCallback(() => {
     playbackGeneration.current += 1
     videoRef.current?.pause()
+    releaseLandscape()
     setStage('complete')
-  }, [])
+  }, [releaseLandscape])
 
   const playFilm = useCallback(() => {
     const video = videoRef.current
@@ -97,16 +133,20 @@ export function RewardExperience({
     if (!video) return
     onReplay?.()
     video.currentTime = 0
+    setLandscapePending(false)
+    setRotateGuidance(false)
     setStage('film')
     void startFilm(true)
   }, [onReplay, startFilm])
 
   return (
     <section className={`reward-experience reward-experience--${stage}`} data-reward-stage={stage} aria-labelledby="reward-title">
-      <div className={stage === 'film' ? 'reward-cinema' : 'reward-film-layout'}>
+      <div ref={cinemaRef} className={stage === 'film' ? 'reward-cinema' : 'reward-film-layout'}>
         <header className="reward-film-intro">
           <p className="eyebrow">Upgraded Transport</p>
-          <h1 id="reward-title">{stage === 'film' ? 'Model FLY' : 'Ground Transport Upgrade Authorized'}</h1>
+          <h1 id="reward-title">{stage === 'film' ? 'Model FLY' : onOpenArcade
+            ? <SecretArcadeEntry onOpen={onOpenArcade}>{gameCopy.rewardTitle}</SecretArcadeEntry>
+            : 'Ground Transport Upgrade Authorized'}</h1>
           {stage === 'film' && <p>Model FLY is here. Watch the full journey.</p>}
         </header>
 
@@ -132,21 +172,30 @@ export function RewardExperience({
               Model FLY transforms in the hangar, flies over the landscape,
               passes through clouds into sunrise, then cuts to black. The original music plays throughout.
             </p>
-            {loadFailed && (
-              <div className="reward-film-error" role="alert">
-                <span>The film could not load. Your completed journey is safe.</span>
-                <button type="button" className="secondary-button" onClick={() => {
-                  setLoadFailed(false)
-                  videoRef.current?.load()
-                  void startFilm(true)
-                }}>Retry film</button>
+            <div className="reward-film-toolbar">
+              {loadFailed && (
+                <div className="reward-film-error" role="alert">
+                  <span>The film could not load. Your completed journey is safe.</span>
+                  <button type="button" className="secondary-button" onClick={() => {
+                    setLoadFailed(false)
+                    videoRef.current?.load()
+                    void startFilm(true)
+                  }}>Retry film</button>
+                </div>
+              )}
+              <div className="reward-actions">
+                {manualPlayNeeded && !loadFailed && <button type="button" className="primary-button" onClick={playFilm}>Play film</button>}
+                {filmMuted && !manualPlayNeeded && !loadFailed && <button type="button" className="primary-button" onClick={playFilm}>Turn film sound on</button>}
+                <button type="button" className="secondary-button" disabled={landscapePending} aria-describedby="film-landscape-guidance" onClick={() => void watchLandscape()}>
+                  {landscapePending ? 'Opening landscape…' : 'Watch landscape'}
+                </button>
+                <button type="button" className="secondary-button" aria-label="Skip film and read tribute" onClick={finishFilm}>Skip to tribute</button>
+                <button type="button" className="text-button" onClick={onRestart}>Restart game</button>
               </div>
-            )}
-            <div className="reward-actions">
-              {manualPlayNeeded && !loadFailed && <button type="button" className="primary-button" onClick={playFilm}>Play film</button>}
-              {filmMuted && !manualPlayNeeded && !loadFailed && <button type="button" className="primary-button" onClick={playFilm}>Turn film sound on</button>}
-              <button type="button" className="secondary-button" onClick={() => finishFilm()}>Skip film and read tribute</button>
-              <button type="button" className="text-button" onClick={onRestart}>Restart game</button>
+              <p id="film-landscape-guidance" className="reward-film-guidance" role="status">
+                <span className="reward-film-guidance__portrait">{rotateGuidance ? 'Rotate your phone; turn off rotation lock if needed.' : 'Rotate your phone for a wider view.'}</span>
+                <span className="reward-film-guidance__landscape">Landscape view.</span>
+              </p>
             </div>
           </>
         ) : (
