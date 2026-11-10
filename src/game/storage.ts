@@ -983,10 +983,13 @@ export function saveGameState(state: GameState, storage: Pick<Storage, 'setItem'
   }
 }
 
-export function clearGameState(storage: Pick<Storage, 'removeItem'> = window.localStorage): void {
+/** Returns whether the saved progress was removed, so a caller can tell a real clear from a no-op. */
+export function clearGameState(storage: Pick<Storage, 'removeItem'> = window.localStorage): boolean {
   try {
     storage.removeItem(STORAGE_KEY)
+    return true
   } catch {
     // Reset should still succeed in memory when storage is unavailable.
+    return false
   }
 }

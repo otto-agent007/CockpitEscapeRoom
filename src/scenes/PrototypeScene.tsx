@@ -112,6 +112,25 @@ const LOCKER_BASEBALL_POSITION = [0.54, -0.48, 0.58] as const
 const LOCKER_BULL_POSITION = [0.31, 0.04, 1.44] as const
 const LOCKER_WINGS_POSITION = [0.42, 0.73, 0.73] as const
 const LOCKER_HAT_POSITION = [0.42, 1.02, -0.14] as const
+/**
+ * The hat reveal's own key light. The locker GLB carries no lights: the proxy locker's
+ * LOCKER_HAT_LIGHT never made it into the production asset, so the runtime used to
+ * switch a light that did not exist and the black cap stayed in the unlit upper cubby.
+ * The aim point is the hat mesh's world-space bounds centre after the locker's runtime
+ * scale and centering. The source sits in front of and above the cubby opening, so
+ * nothing on the locker blocks it.
+ */
+const LOCKER_HAT_KEY_LIGHT_POSITION = [0.3, 1.62, 1.25] as const
+const LOCKER_HAT_KEY_LIGHT_TARGET = [0.45, 1.21, -0.19] as const
+const LOCKER_HAT_KEY_LIGHT_INTENSITY = 9
+/**
+ * Exposure for the locker chapter only. The owner found the room too dark to read, on
+ * the cinematic and on the hat reveal. Raising exposure keeps the warm rig's balance
+ * (key, fill and the shelf glow keep their ratios) and lifts the whole frame together,
+ * where raising one light would flatten it. Restored when the chapter unmounts because
+ * the canvas and renderer are shared with the cockpits.
+ */
+const LOCKER_TONE_MAPPING_EXPOSURE = 1.6
 export type LockerCameraCue = 'entry-wide' | 'watch-focus' | 'baseball-focus' | 'bull-focus' | 'wings-focus' | 'hat-focus'
 type LockerCameraPose = { position: [number, number, number]; target: [number, number, number]; fov: number; duration: number }
 
@@ -2245,14 +2264,29 @@ function LockerRoom({
 }) {
   const [scene, setScene] = useState<THREE.Group | null>(null)
   const { gl } = useThree()
+  const getThree = useThree((state) => state.get)
   const canvasRef = useRef(gl.domElement)
   const baseballRevealed = availableMemories.includes('baseball')
   const wingsRevealed = availableMemories.includes('wings')
   const chargingBullRevealed = availableMemories.includes('chargingBull')
+  const hatKeyLightTarget = useMemo(() => {
+    const target = new THREE.Object3D()
+    target.position.set(...LOCKER_HAT_KEY_LIGHT_TARGET)
+    return target
+  }, [])
 
   useEffect(() => {
     canvasRef.current = gl.domElement
   }, [gl])
+
+  useEffect(() => {
+    const renderer = getThree().gl
+    const previousExposure = renderer.toneMappingExposure
+    renderer.toneMappingExposure = LOCKER_TONE_MAPPING_EXPOSURE
+    return () => {
+      renderer.toneMappingExposure = previousExposure
+    }
+  }, [getThree])
 
   useEffect(() => {
     let active = true
@@ -2299,13 +2333,11 @@ function LockerRoom({
     const wings = scene.getObjectByName('LOCKER_PROP_WINGS')
     const chargingBull = scene.getObjectByName('LOCKER_PROP_CHARGING_BULL')
     const door = scene.getObjectByName('LOCKER_UPPER_CUBBY_DOOR')
-    const light = scene.getObjectByName('LOCKER_HAT_LIGHT')
     if (hat) setLockerPropMaterialState(hat, hatRevealed)
     if (baseball) setLockerPropMaterialState(baseball, baseballRevealed)
     if (wings) setLockerPropMaterialState(wings, wingsRevealed)
     if (chargingBull) setLockerPropMaterialState(chargingBull, chargingBullRevealed)
     if (door) door.rotation.x = hatRevealed ? -1.35 : 0
-    if (light instanceof THREE.Light) light.intensity = hatRevealed ? 7 : 0
     canvasRef.current.dataset.lockerHatVisual = hatRevealed ? 'revealed' : 'silhouette'
     canvasRef.current.dataset.lockerBaseballVisual = baseballRevealed ? 'revealed' : 'silhouette'
     canvasRef.current.dataset.lockerWingsVisual = wingsRevealed ? 'revealed' : 'silhouette'
@@ -2369,6 +2401,16 @@ function LockerRoom({
       <spotLight position={[0.48, 1.55, 1.1]} intensity={6.5} distance={5.5} angle={0.56} penumbra={0.86} color="#f2ad62" castShadow />
       <pointLight position={[0.44, 0.34, 0.72]} intensity={hatRevealed ? 3.8 : 3.1} distance={3.8} color="#ef9d4d" />
       <pointLight position={[-1.2, 0.5, 2.4]} intensity={0.65} distance={5} color="#ffe6bd" />
+      <primitive object={hatKeyLightTarget} />
+      <spotLight
+        position={[...LOCKER_HAT_KEY_LIGHT_POSITION]}
+        target={hatKeyLightTarget}
+        intensity={hatRevealed ? LOCKER_HAT_KEY_LIGHT_INTENSITY : 0}
+        distance={4}
+        angle={0.32}
+        penumbra={0.7}
+        color="#ffe6c4"
+      />
       {scene ? (
         <>
           <primitive
@@ -3274,6 +3316,11 @@ export function PrototypeScene({
   onLockerHat,
 }: PrototypeSceneProps) {
   const onInteractiveHover = useInteractiveCursor()
+  // A phone can drop the WebGL context when graphics memory runs out. Three.js keeps
+  // running, but every frame is black and nothing says why, so tell the player and
+  // offer a reload. Progress is saved, so the reload resumes the same chapter. If the
+  // browser restores the context itself, the notice goes away again.
+  const [graphicsContextLost, setGraphicsContextLost] = useState(false)
 
   return (
     <div className="scene" aria-label="Interactive 3D scene">
@@ -3282,6 +3329,10 @@ export function PrototypeScene({
         dpr={[1, 1.5]}
         shadows="percentage"
         fallback={<div className="canvas-fallback">WebGL is unavailable. Use the accessible cockpit controls.</div>}
+        onCreated={({ gl }) => {
+          gl.domElement.addEventListener('webglcontextlost', () => setGraphicsContextLost(true))
+          gl.domElement.addEventListener('webglcontextrestored', () => setGraphicsContextLost(false))
+        }}
       >
         {phase === 'airbus' && (
           <AirbusCockpit
@@ -3348,6 +3399,15 @@ export function PrototypeScene({
           />
         )}
       </Canvas>
+      {graphicsContextLost && (
+        <div className="scene-context-lost" role="alert">
+          <p className="scene-context-lost__title">The 3D view stopped</p>
+          <p>This device ran short of graphics memory. Your progress is saved.</p>
+          <button type="button" className="primary-button" onClick={() => window.location.reload()}>
+            Reload
+          </button>
+        </div>
+      )}
     </div>
   )
 }

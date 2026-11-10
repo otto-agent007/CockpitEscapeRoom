@@ -4,7 +4,7 @@ import { DC9_CONTROL_CHECK_ITEM_IDS } from './dc9ControlCheck'
 import { DC9_INSTRUMENT_SCAN_ORDER } from './dc9InstrumentScan'
 import { createInitialDc9DepartureProgress } from './dc9MemphisDeparture'
 import { createInitialState, type GameState } from './state'
-import { loadGameState, saveGameState, STORAGE_KEY } from './storage'
+import { clearGameState, loadGameState, saveGameState, STORAGE_KEY } from './storage'
 
 function createMemoryStorage(initial: Record<string, string> = {}) {
   const values = new Map(Object.entries(initial))
@@ -1437,5 +1437,18 @@ describe('schema-v12 to schema-v14 DC-9 right-seat migration', () => {
     })
     expect(migrated.dc9.stage).toBe('controlCheck')
     expect(migrated.dc9.controlCheck).toEqual([])
+  })
+})
+
+describe('clearGameState', () => {
+  it('reports a real clear so Restart can reload into a fresh page', () => {
+    const storage = createMemoryStorage({ [STORAGE_KEY]: JSON.stringify(createInitialState()) })
+    expect(clearGameState(storage)).toBe(true)
+    expect(storage.getItem(STORAGE_KEY)).toBeNull()
+  })
+
+  it('reports a refused clear so Restart keeps the in-memory reset instead of resurrecting progress', () => {
+    const storage = { removeItem: () => { throw new Error('storage unavailable') } }
+    expect(clearGameState(storage)).toBe(false)
   })
 })

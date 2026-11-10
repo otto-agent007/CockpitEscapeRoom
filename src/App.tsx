@@ -809,7 +809,21 @@ function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset, onOpe
     if (!confirmed) return
     onTributeReset()
     if (document.fullscreenElement) void document.exitFullscreen().catch(() => {})
-    clearGameState()
+    // Start the replay from a fresh page whenever the save is really gone. An in-place
+    // reset keeps every chapter's GPU textures and the model cache alive in one WebGL
+    // context (DC-9, Memphis, locker and Airbus together need roughly 660 MiB of
+    // decoded textures). On iPhone that can lose the context, and the replayed DC-9
+    // came up black. A reload frees it all and lands on the same Begin page. When
+    // storage refuses the clear, a reload would resurrect the old progress, so fall
+    // back to the in-memory reset below.
+    if (clearGameState()) {
+      // The page keeps running until the reload lands, and the auto-save writes every
+      // state change. Reset first, so a late simulator tick (Restart is reachable
+      // mid-flight) can only save a fresh game, never the progress just cleared.
+      dispatch({ type: 'RESET' })
+      window.location.reload()
+      return
+    }
     beginAirbusLoading()
     dc9LoaderStartedAtRef.current = performance.now()
     setDc9LoaderFading(false)
