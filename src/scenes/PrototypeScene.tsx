@@ -38,6 +38,7 @@ import {
   type AirbusWeatherRadarFrame,
 } from './airbusWeatherRadar'
 import { AIRBUS_MODEL_URL, clearCockpitModel, DC9_MODEL_URL, loadCockpitModel, LOCKER_MODEL_URL, observeCockpitModelProgress } from './cockpitModelLoader'
+import { DC9_SCAN_NARROW_PITCH, DC9_SCAN_NARROW_YAW, dc9ScanNarrowFov } from './dc9ScanFraming'
 import {
   DC9_FLIGHT_CONTROL_BINDINGS,
   DC9_FLIGHT_CONTROL_JOINTS,
@@ -92,8 +93,17 @@ const DC9_ROUTE_NARROW_FOV = 60
 const DC9_MIN_FOV = 48
 const DC9_MAX_FOV = 82
 const DC9_LOOK_YAW_LEFT_LIMIT = 0.30
-const DC9_LOOK_YAW_RIGHT_LIMIT = 0.72
-const DC9_LOOK_PITCH_LIMIT = 0.18
+/**
+ * The Captain's Key lies low on the right ledge, 0.95 m from the seat: centring it takes
+ * 1.10 rad of right yaw and 0.52 rad of down pitch. The old stops (0.72 right, 0.18 down)
+ * left it just past the right edge and under the status bar on a phone, and on the bottom
+ * edge at 1440 (owner, 2026-11-10: "the Captain's key is still a little off screen to the
+ * right"). At 1.0 right and 0.30 down it projects to about (241, 542) on 390x844 and
+ * (781, 609) on 1440x900, clear of the status bar. The up stop is unchanged.
+ */
+const DC9_LOOK_YAW_RIGHT_LIMIT = 1.0
+const DC9_LOOK_PITCH_UP_LIMIT = 0.18
+const DC9_LOOK_PITCH_DOWN_LIMIT = 0.30
 const DC9_LOOK_POINTER_SPEED = 0.0018
 const DC9_SHUTDOWN_INITIAL_YAW = 0.15
 const DC9_KEY_INITIAL_YAW = 0.28
@@ -806,15 +816,17 @@ function Dc9SeatLookControls({
     sourceCamera.getWorldPosition(basePositionRef.current)
     sourceCamera.getWorldQuaternion(baseQuaternionRef.current)
     fovRef.current = wideFov
-    narrowFovRef.current = narrowFov
     yawRef.current = initialYaw
-    pitchRef.current = THREE.MathUtils.clamp(initialPitch, -DC9_LOOK_PITCH_LIMIT, DC9_LOOK_PITCH_LIMIT)
+    pitchRef.current = THREE.MathUtils.clamp(initialPitch, -DC9_LOOK_PITCH_DOWN_LIMIT, DC9_LOOK_PITCH_UP_LIMIT)
     if (lookRef?.current) {
       lookRef.current.yaw = yawRef.current
       lookRef.current.pitch = pitchRef.current
     }
     cameraDirtyRef.current = true
-  }, [cameraResetRevision, initialPitch, initialYaw, lookRef, narrowFov, sourceCamera, wideFov])
+    // narrowFov is applied by the effect above without re-aiming: the phone scan's FOV
+    // follows the canvas aspect, and an iOS address bar showing or hiding must not snap
+    // the player's look back to the start.
+  }, [cameraResetRevision, initialPitch, initialYaw, lookRef, sourceCamera, wideFov])
 
   useEffect(() => {
     orientationElapsedRef.current = 0
@@ -906,8 +918,8 @@ function Dc9SeatLookControls({
       )
       pitchRef.current = THREE.MathUtils.clamp(
         pitchRef.current - deltaY * DC9_LOOK_POINTER_SPEED,
-        -DC9_LOOK_PITCH_LIMIT,
-        DC9_LOOK_PITCH_LIMIT,
+        -DC9_LOOK_PITCH_DOWN_LIMIT,
+        DC9_LOOK_PITCH_UP_LIMIT,
       )
       if (lookRef?.current) {
         lookRef.current.yaw = yawRef.current
@@ -2738,8 +2750,8 @@ function lookHintDirection(
   // before the stops were consulted.
   const canLookRight = !look || look.yaw > -DC9_LOOK_YAW_RIGHT_LIMIT + DC9_LOOK_LIMIT_EPSILON
   const canLookLeft = !look || look.yaw < DC9_LOOK_YAW_LEFT_LIMIT - DC9_LOOK_LIMIT_EPSILON
-  const canLookDown = !look || look.pitch > -DC9_LOOK_PITCH_LIMIT + DC9_LOOK_LIMIT_EPSILON
-  const canLookUp = !look || look.pitch < DC9_LOOK_PITCH_LIMIT - DC9_LOOK_LIMIT_EPSILON
+  const canLookDown = !look || look.pitch > -DC9_LOOK_PITCH_DOWN_LIMIT + DC9_LOOK_LIMIT_EPSILON
+  const canLookUp = !look || look.pitch < DC9_LOOK_PITCH_UP_LIMIT - DC9_LOOK_LIMIT_EPSILON
   const excess: [Dc9OffscreenDirection, number, boolean][] = [
     ['right', horizontal - halfHorizontal, canLookRight],
     ['left', -horizontal - halfHorizontal, canLookLeft],
@@ -3102,7 +3114,9 @@ function Dc9Cockpit({
         : loaded.camera
     const documentFraming = routeStage || chapterStage === 'instrumentScan'
     const wideFov = documentFraming ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV
-    const narrowFov = documentFraming ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV
+    const narrowFov = chapterStage === 'instrumentScan'
+      ? dc9ScanNarrowFov(size.width / size.height)
+      : documentFraming ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV
     loaded.scene.updateMatrixWorld(true)
     applyDc9GameplayCameraTransform(
       camera,
@@ -3111,7 +3125,7 @@ function Dc9Cockpit({
       { near: DC9_MEMPHIS_CAMERA_NEAR, far: DC9_MEMPHIS_CAMERA_FAR },
     )
     canvasRef.current.dataset.dc9CameraNode = sourceCamera.name
-  }, [camera, chapterStage, loaded, size.width])
+  }, [camera, chapterStage, loaded, size.height, size.width])
 
   useLayoutEffect(() => {
     if (!loaded) return
@@ -3157,7 +3171,9 @@ function Dc9Cockpit({
             orientationActive={orientationActive}
             onOrientationComplete={onOrientationComplete}
             wideFov={dc9DocumentFraming(chapterStage) ? DC9_ROUTE_WIDE_FOV : DC9_WIDE_GAME_FOV}
-            narrowFov={dc9DocumentFraming(chapterStage) ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV}
+            narrowFov={chapterStage === 'instrumentScan'
+              ? dc9ScanNarrowFov(size.width / size.height)
+              : dc9DocumentFraming(chapterStage) ? DC9_ROUTE_NARROW_FOV : DC9_NARROW_GAME_FOV}
             initialYaw={chapterStage === 'keyReveal'
               ? DC9_KEY_INITIAL_YAW
               : chapterStage === 'shutdown'
@@ -3165,9 +3181,11 @@ function Dc9Cockpit({
                 : chapterStage === 'controlCheck'
                   ? DC9_CONTROL_CHECK_INITIAL_YAW
                   : chapterStage === 'instrumentScan'
-                    ? DC9_SCAN_INITIAL_YAW
+                    ? (size.width < 900 ? DC9_SCAN_NARROW_YAW : DC9_SCAN_INITIAL_YAW)
                     : 0}
-            initialPitch={chapterStage === 'controlCheck' ? DC9_CONTROL_CHECK_INITIAL_PITCH : 0}
+            initialPitch={chapterStage === 'controlCheck'
+              ? DC9_CONTROL_CHECK_INITIAL_PITCH
+              : chapterStage === 'instrumentScan' && size.width < 900 ? DC9_SCAN_NARROW_PITCH : 0}
             suppressLookRef={suppressLookRef}
             lookRef={lookRef}
           />
