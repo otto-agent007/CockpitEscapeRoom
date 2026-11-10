@@ -1,5 +1,12 @@
 # Test report
 
+## 2026-11-10 — Engine-Out: bank right, then bank right and thrust
+
+- **Owner (iPhone):** the instrument scan and key are good. Engine-Out should be "banking right for the first part and the banking right and thrust for the 2nd part". The design was confirmed by preview before building.
+- **Changes:** reverted #129's Engine-Out commits (back to #128's bank-cancels-drift). Added a SAFE RETURN speed bleed (0.35 × bank/25°, response 0.8/s). Paired thrust is real on phone and desktop, with D/A as thrust aliases in Engine-Out only. Copy and guidance teach "tap Increase".
+- **Checks run:** `npm run check` passes (lint, typecheck, **1,095/1,095 unit tests**, build), including new tests for no-thrust energy failure, a phone tap rhythm completing SAFE RETURN with no unsafe time, shallow-turn overspeed, no bleed in Stabilization, D/A thrust aliases (Engine-Out only) and speed guidance. Spoiler, privacy and budget guards pass (initial **579/600 KB**), as does `git diff --check`.
+- **Local production Chromium:** **42 passed, 1 failed** across Engine-Out, the phone cockpit specs, workload, Storm Line, player copy and accessibility. The failure is the pre-existing heavy-airbus flake (Captain Challenges heading checked within 5 s while the A320 loader fades). It precedes any flight input and fails identically on main's nightly. The new phone test passes: arrows and real thrust, with no Balance buttons. The SAFE RETURN completion e2e now holds the right trigger.
+
 ## 2026-11-10 — Phone instrument zoom, Captain's Key reach, Engine-Out phone balance
 
 - **Owner (iPhone):** the locker is fixed. Asked for the mobile scan to zoom in on the airspeed indicator, the key to stop sitting off screen to the right, and Engine-Out to use the desktop arrow/D rhythm again. The owner chose "phone thrust buttons act as D".
