@@ -21,13 +21,12 @@ describe('Airbus shared input', () => {
     expect(normalizeAxis(raw)).toBeCloseTo(expected, 5)
   })
 
-  it('maps left stick, triggers, and right-stick X from one gamepad snapshot', () => {
+  it('maps the left stick and triggers from one gamepad snapshot, with no directional axis', () => {
     const fromGamepad = (
       inputModule as unknown as {
         airbusInputFromGamepad?: (
           snapshot: { axes: readonly number[]; buttons: readonly number[] },
-          directionalEnabled: boolean,
-        ) => { pitch: number; bank: number; thrust: number; directional: number }
+        ) => Record<string, number>
       }
     ).airbusInputFromGamepad
 
@@ -37,15 +36,14 @@ describe('Airbus shared input', () => {
     const buttons = Array.from({ length: 8 }, () => 0)
     buttons[6] = 0.2
     buttons[7] = 0.7
+    // The right stick X used to drive directional balance; it is ignored now.
     const snapshot = { axes: [0.56, -0.56, 0.56], buttons }
 
-    expect(fromGamepad(snapshot, true)).toEqual({
+    expect(fromGamepad(snapshot)).toEqual({
       pitch: expect.closeTo(0.5, 5),
       bank: expect.closeTo(0.5, 5),
       thrust: expect.closeTo((0.5 - 0.05) / 0.95, 5),
-      directional: expect.closeTo(0.5, 5),
     })
-    expect(fromGamepad(snapshot, false).directional).toBe(0)
   })
 
   it('combines keyboard and accessible holds with opposing controls cancelling', () => {
@@ -54,10 +52,9 @@ describe('Airbus shared input', () => {
         combineAirbusInput?: (
           keys: ReadonlySet<string>,
           holds: ReadonlySet<string>,
-          gamepad: { pitch: number; bank: number; thrust: number; directional: number },
-          directionalEnabled: boolean,
+          gamepad: { pitch: number; bank: number; thrust: number },
         ) => {
-          input: { pitch: number; bank: number; thrust: number; directional: number }
+          input: Record<string, number>
           method: string
         }
       }
@@ -69,19 +66,22 @@ describe('Airbus shared input', () => {
     const combined = combineInput(
       new Set(['ArrowUp', 'ArrowDown', 'KeyD']),
       new Set(['bankLeft', 'bankRight', 'thrustUp']),
-      { pitch: 0, bank: 0, thrust: 0, directional: 0 },
-      true,
+      { pitch: 0, bank: 0, thrust: 0 },
     )
 
+    // A/D no longer do anything: the sidestick bank is the only steering input.
     expect(combined).toEqual({
-      input: { pitch: 0, bank: 0, thrust: 1, directional: 1 },
+      input: { pitch: 0, bank: 0, thrust: 1 },
       method: 'accessible',
     })
-    expect(combineInput(
-      new Set(['KeyD']),
+  })
+
+  it('steers with the sidestick arrows: holding Bank right is a full right bank input', () => {
+    const { input } = inputModule.combineAirbusInput(
       new Set(),
-      { pitch: 0, bank: 0, thrust: 0, directional: 0 },
-      false,
-    ).input.directional).toBe(0)
+      new Set(['bankRight']),
+      { pitch: 0, bank: 0, thrust: 0 },
+    )
+    expect(input).toEqual({ pitch: 0, bank: 1, thrust: 0 })
   })
 })

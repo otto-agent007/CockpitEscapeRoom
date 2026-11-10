@@ -325,8 +325,6 @@ export function useAirbusSimulator(options: UseAirbusSimulatorOptions): AirbusSi
       'ArrowRight',
       'KeyW',
       'KeyS',
-      'KeyA',
-      'KeyD',
     ])
     const onKeyDown = (event: KeyboardEvent) => {
       if (isTypingTarget(event.target) || !controlledCodes.has(event.code)) return
@@ -389,19 +387,16 @@ export function useAirbusSimulator(options: UseAirbusSimulatorOptions): AirbusSi
       const deltaSeconds = Math.min(0.1, Math.max(0, (now - previousTime) / 1000))
       previousTime = now
       const gamepad = navigator.getGamepads?.().find((candidate) => candidate?.connected) ?? null
-      const directionalEnabled = activeScenario === 'engineOut'
       const combined = combineAirbusInput(
         keysRef.current,
         holdsRef.current,
-        airbusInputFromGamepad(gamepadSnapshot(gamepad), directionalEnabled),
-        directionalEnabled,
+        airbusInputFromGamepad(gamepadSnapshot(gamepad)),
       )
       inputRef.current = combined.input
       setInput((current) => (
         current.pitch === combined.input.pitch
         && current.bank === combined.input.bank
         && current.thrust === combined.input.thrust
-        && current.directional === combined.input.directional
           ? current
           : combined.input
       ))

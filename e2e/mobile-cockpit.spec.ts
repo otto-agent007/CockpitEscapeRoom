@@ -87,7 +87,7 @@ for (const [name, state, selector] of [
     await openState(page, state)
     await expect(page.locator(selector)).toBeVisible()
     if (name === 'A320 Engine-Out') {
-      await expect(page.locator('.storm-route-guidance')).toContainText('hold Increase')
+      await expect(page.locator('.storm-route-guidance')).toContainText('roll a gentle right bank')
     }
     for (const viewport of [{ width: 375, height: 812 }, { width: 768, height: 1024 }, { width: 667, height: 375 }, { width: 932, height: 430 }, { width: 1024, height: 768 }]) {
       await page.setViewportSize(viewport)
@@ -236,24 +236,6 @@ test('A320 touch holds reach the simulation and Help pauses safely', async ({ pa
   await expect(bank).toBeEnabled()
 })
 
-
-test('phone Engine-Out Increase balances the drift the way D does on desktop', async ({ page }) => {
-  await openState(page, mobileAirbusFlightState(true))
-  const increase = page.getByRole('button', { name: 'Hold Increase', exact: true })
-  await expect(increase).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Hold Decrease', exact: true })).toBeVisible()
-  await expect(page.getByRole('button', { name: /Balance/ })).toHaveCount(0)
-  const marker = page.locator('.storm-drift-meter-marker')
-  const markerLeft = async () => parseFloat((await marker.getAttribute('style'))?.match(/left:\s*([\d.]+)%/)?.[1] ?? 'NaN')
-  // The ENG 1 reduction drifts the nose left: the marker moves left of centre.
-  await expect.poll(markerLeft).toBeLessThan(45)
-  // Holding Increase adds right balance (D on desktop) and swings the marker right of centre.
-  await increase.dispatchEvent('pointerdown', { button: 0, pointerId: 7, pointerType: 'touch', isPrimary: true })
-  await expect(increase).toHaveAttribute('data-held', 'true')
-  await expect.poll(markerLeft).toBeGreaterThan(55)
-  await increase.dispatchEvent('pointerup', { button: 0, pointerId: 7, pointerType: 'touch', isPrimary: true })
-  await expect(increase).toHaveAttribute('data-held', 'false')
-})
 
 test('mobile shutdown keeps wrong-order guidance and earned switches visible', async ({ page }) => {
   const state = createDc9QualificationState()
