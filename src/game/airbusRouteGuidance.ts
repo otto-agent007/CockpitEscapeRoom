@@ -162,7 +162,14 @@ function diversionBankMeter(bank: number): AirbusRouteMeter {
   }
 }
 
-export function deriveEngineOutRouteGuidance(state: EngineOutState): AirbusRouteGuidance | null {
+/**
+ * `balanceRightLabel` names the control that adds right balance: Balance right on
+ * desktop, and on a phone the Increase button, which does what D does there.
+ */
+export function deriveEngineOutRouteGuidance(
+  state: EngineOutState,
+  balanceRightLabel = 'Balance right',
+): AirbusRouteGuidance | null {
   if (state.phase !== 'flying') return null
 
   const error = state.aircraft.directionalError
@@ -171,7 +178,7 @@ export function deriveEngineOutRouteGuidance(state: EngineOutState): AirbusRoute
     if (Math.abs(error) >= DRIFT_NOTICE_THRESHOLD) {
       return {
         tone: 'action',
-        message: 'The training reduction is pulling the nose left — hold Balance right to center the drift marker.',
+        message: `The training reduction is pulling the nose left — hold ${balanceRightLabel} to center the drift marker.`,
         meter: directionalMeter(error),
       }
     }

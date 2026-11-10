@@ -141,6 +141,12 @@ describe('deriveEngineOutRouteGuidance', () => {
     expect(guidance?.message).toContain('upper ECAM')
   })
 
+  it('names the phone button that adds right balance when one is given', () => {
+    const guidance = deriveEngineOutRouteGuidance(engineState('recognition', { directionalError: -0.3 }), 'Increase')
+    expect(guidance?.message).toContain('hold Increase')
+    expect(guidance?.message).not.toContain('Balance right')
+  })
+
   it('names the left pull and the right-balance correction as the reduction bites', () => {
     const guidance = deriveEngineOutRouteGuidance(engineState('recognition', { directionalError: -0.3 }))
     expect(guidance?.tone).toBe('action')

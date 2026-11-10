@@ -229,7 +229,9 @@ test('Captain Challenges and Engine-Out controls remain usable at tablet and pho
   await page.reload()
   await page.getByRole('button', { name: 'Open Engine-Out' }).click()
   await page.getByRole('button', { name: 'Begin Engine-Out' }).click()
-  await expect(page.getByRole('button', { name: 'Hold Balance right' })).toBeVisible()
+  // Phones show two groups: the arrows, and Increase/Decrease doing what D/A do on desktop.
+  await expect(page.getByRole('button', { name: 'Hold Increase' })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Balance/ })).toHaveCount(0)
   await expect(page.locator('.airbus-engine-out')).toHaveClass(/is-reduced-motion/)
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375)
   const topbarBox = await page.locator('.storm-topbar').boundingBox()
@@ -255,14 +257,14 @@ test('Captain Challenges and Engine-Out controls remain usable at tablet and pho
   expect(phoneGuidance.y + phoneGuidance.height).toBeLessThanOrEqual(controlsBox.y)
   await page.screenshot({ path: '/tmp/airbus-engine-out-phone-375.png', fullPage: true })
 
-  // The tablet deck wraps its third control group; every hold control —
-  // Balance right especially — must stay inside the viewport in flight.
+  // Every hold control on the 768px tablet deck must stay inside the viewport in
+  // flight. 768px is a compact (phone-style) layout, so its balance is Increase.
   await page.setViewportSize({ width: 768, height: 900 })
   await page.reload()
   await expect(page.getByRole('region', { name: 'Accessible Engine-Out instruments' })).toBeVisible()
   const showControls = page.getByRole('button', { name: 'Show flight controls' })
   if (await showControls.isVisible().catch(() => false)) await showControls.click()
-  await expect(page.getByRole('button', { name: 'Hold Balance right' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Hold Increase' })).toBeVisible()
   for (const control of await page.locator('.storm-hold-control').all()) {
     const box = await control.boundingBox()
     if (!box) throw new Error('Engine-Out control bounds are unavailable')
