@@ -2,7 +2,6 @@ export interface AirbusFlightInput {
   pitch: number
   bank: number
   thrust: number
-  directional: number
 }
 
 export type AirbusHoldControl =
@@ -12,8 +11,6 @@ export type AirbusHoldControl =
   | 'bankRight'
   | 'thrustUp'
   | 'thrustDown'
-  | 'balanceLeft'
-  | 'balanceRight'
 
 export type AirbusInputMethod = 'keyboard' | 'gamepad' | 'accessible'
 
@@ -26,7 +23,6 @@ export const ZERO_AIRBUS_INPUT: Readonly<AirbusFlightInput> = {
   pitch: 0,
   bank: 0,
   thrust: 0,
-  directional: 0,
 }
 
 export function normalizeAirbusAxis(value: number, deadzone = 0.12): number {
@@ -34,10 +30,7 @@ export function normalizeAirbusAxis(value: number, deadzone = 0.12): number {
   return Math.sign(value) * Math.min(1, (Math.abs(value) - deadzone) / (1 - deadzone))
 }
 
-export function airbusInputFromGamepad(
-  snapshot: AirbusGamepadSnapshot | null,
-  directionalEnabled: boolean,
-): AirbusFlightInput {
+export function airbusInputFromGamepad(snapshot: AirbusGamepadSnapshot | null): AirbusFlightInput {
   if (!snapshot) return { ...ZERO_AIRBUS_INPUT }
   const leftTrigger = snapshot.buttons[6] ?? 0
   const rightTrigger = snapshot.buttons[7] ?? 0
@@ -45,18 +38,25 @@ export function airbusInputFromGamepad(
     pitch: -normalizeAirbusAxis(snapshot.axes[1] ?? 0),
     bank: normalizeAirbusAxis(snapshot.axes[0] ?? 0),
     thrust: normalizeAirbusAxis(rightTrigger - leftTrigger, 0.05),
-    directional: directionalEnabled
-      ? normalizeAirbusAxis(snapshot.axes[2] ?? 0)
-      : 0,
   }
+}
+
+export interface AirbusInputOptions {
+  /**
+   * Engine-Out also reads D/A as thrust up/down. The owner plays its desktop rhythm as
+   * "arrow/D", and D was the second control there before directional balance was
+   * removed (2026-11-10), so it keeps working as the second control.
+   */
+  thrustLetterAliases?: boolean
 }
 
 export function combineAirbusInput(
   keys: ReadonlySet<string>,
   holds: ReadonlySet<AirbusHoldControl>,
   gamepad: AirbusFlightInput,
-  directionalEnabled: boolean,
+  options: AirbusInputOptions = {},
 ): { input: AirbusFlightInput; method: AirbusInputMethod } {
+  const aliases = options.thrustLetterAliases === true
   const accessibleActive = holds.size > 0
   const keyboardActive = keys.size > 0
   const digital: AirbusFlightInput = {
@@ -64,17 +64,12 @@ export function combineAirbusInput(
       - (keys.has('ArrowDown') || holds.has('pitchDown') ? 1 : 0),
     bank: (keys.has('ArrowRight') || holds.has('bankRight') ? 1 : 0)
       - (keys.has('ArrowLeft') || holds.has('bankLeft') ? 1 : 0),
-    thrust: (keys.has('KeyW') || holds.has('thrustUp') ? 1 : 0)
-      - (keys.has('KeyS') || holds.has('thrustDown') ? 1 : 0),
-    directional: directionalEnabled
-      ? (keys.has('KeyD') || holds.has('balanceRight') ? 1 : 0)
-        - (keys.has('KeyA') || holds.has('balanceLeft') ? 1 : 0)
-      : 0,
+    thrust: (keys.has('KeyW') || (aliases && keys.has('KeyD')) || holds.has('thrustUp') ? 1 : 0)
+      - (keys.has('KeyS') || (aliases && keys.has('KeyA')) || holds.has('thrustDown') ? 1 : 0),
   }
   const gamepadActive = Math.abs(gamepad.pitch) +
     Math.abs(gamepad.bank) +
-    Math.abs(gamepad.thrust) +
-    Math.abs(gamepad.directional) > 0
+    Math.abs(gamepad.thrust) > 0
   return {
     input: gamepadActive ? gamepad : digital,
     method: gamepadActive

@@ -130,7 +130,8 @@ export function deriveStormRouteGuidance(state: StormLineState): AirbusRouteGuid
 
 /**
  * Engine-Out drives two different meters: the directional-drift marker while
- * the reduction is pulling the nose left, then the bank marker once SAFE
+ * the reduction is pulling the nose left (a right bank on the sidestick cancels
+ * it), then the bank marker once SAFE
  * RETURN tracking is what completes the exercise. The drift limit and the
  * bank band come straight from the enforced envelope so the meter never
  * disagrees with the flight model.
@@ -140,6 +141,9 @@ const DIVERSION_BANK_BAND_DEGREES: readonly [number, number] = [8, 24]
 const DRIFT_NOTICE_THRESHOLD = 0.15
 const DRIFT_ACTION_THRESHOLD = 0.25
 const DIVERSION_DRIFT_PRIORITY_THRESHOLD = 0.35
+/** The SAFE RETURN turn bleeds speed, so warn a little before the 35% edge of the band. */
+const DIVERSION_ENERGY_LOW_THRESHOLD = 0.4
+const DIVERSION_ENERGY_HIGH_THRESHOLD = 0.62
 
 function directionalMeter(error: number): AirbusRouteMeter {
   return {
@@ -162,14 +166,7 @@ function diversionBankMeter(bank: number): AirbusRouteMeter {
   }
 }
 
-/**
- * `balanceRightLabel` names the control that adds right balance: Balance right on
- * desktop, and on a phone the Increase button, which does what D does there.
- */
-export function deriveEngineOutRouteGuidance(
-  state: EngineOutState,
-  balanceRightLabel = 'Balance right',
-): AirbusRouteGuidance | null {
+export function deriveEngineOutRouteGuidance(state: EngineOutState): AirbusRouteGuidance | null {
   if (state.phase !== 'flying') return null
 
   const error = state.aircraft.directionalError
@@ -178,7 +175,7 @@ export function deriveEngineOutRouteGuidance(
     if (Math.abs(error) >= DRIFT_NOTICE_THRESHOLD) {
       return {
         tone: 'action',
-        message: `The training reduction is pulling the nose left — hold ${balanceRightLabel} to center the drift marker.`,
+        message: 'The training reduction is pulling the nose left — roll a gentle right bank to center the drift marker.',
         meter: directionalMeter(error),
       }
     }
@@ -194,8 +191,8 @@ export function deriveEngineOutRouteGuidance(
       return {
         tone: 'urgent',
         message: error < 0
-          ? 'Drift is past the training limit — hold more right balance.'
-          : 'Too much right balance — ease it off.',
+          ? 'Drift is past the training limit — roll gently right with the sidestick.'
+          : 'Too much right bank — ease back toward level.',
         meter: directionalMeter(error),
       }
     }
@@ -203,8 +200,8 @@ export function deriveEngineOutRouteGuidance(
       return {
         tone: 'action',
         message: error < 0
-          ? 'Nose drifting left — add right balance.'
-          : 'Ease the right balance.',
+          ? 'Nose drifting left — add a little right bank.'
+          : 'Ease the right bank.',
         meter: directionalMeter(error),
       }
     }
@@ -219,8 +216,8 @@ export function deriveEngineOutRouteGuidance(
     return {
       tone: 'urgent',
       message: error < 0
-        ? 'Hold the right balance while you turn — the drift is building.'
-        : 'Ease the right balance while you turn.',
+        ? 'Keep the right bank while you turn — the drift is building.'
+        : 'Ease the right bank while you turn.',
       meter: directionalMeter(error),
     }
   }
@@ -230,6 +227,22 @@ export function deriveEngineOutRouteGuidance(
     return {
       tone: 'urgent',
       message: 'SAFE RETURN is to the right — roll right of level.',
+      meter: diversionBankMeter(bank),
+    }
+  }
+  // Thrust is the second job in this stage: the right turn bleeds speed.
+  const energy = state.aircraft.energy
+  if (energy < DIVERSION_ENERGY_LOW_THRESHOLD) {
+    return {
+      tone: energy < ENGINE_OUT_ENVELOPE.minimumEnergy ? 'urgent' : 'action',
+      message: 'The turn is bleeding speed — tap Increase to bring the energy back up.',
+      meter: diversionBankMeter(bank),
+    }
+  }
+  if (energy > DIVERSION_ENERGY_HIGH_THRESHOLD) {
+    return {
+      tone: energy > ENGINE_OUT_ENVELOPE.maximumEnergy ? 'urgent' : 'action',
+      message: 'Ease the thrust — energy is above the green band.',
       meter: diversionBankMeter(bank),
     }
   }

@@ -60,3 +60,11 @@ The owner reported that the locker room is fixed. Remaining requests: "make the 
 - **Instrument scan.** On narrow screens the scan centres on the five flight instruments and fits their width to the canvas aspect (`src/scenes/dc9ScanFraming.ts`). Desktop is byte-identical. The FOV no longer re-aims the look when the canvas resizes.
 - **Captain's Key.** The look stops are now 1.0 rad right and 0.30 rad down (were 0.72 and 0.18). The key lands at (241, 545) on 390×844 after turning fully right and down.
 - **Evidence:** `preview-renders/phone-scan-and-key-2026-11-10/FIDELITY.md`.
+
+## Follow-up — Engine-Out final rhythm (2026-11-10, after #129)
+
+The owner confirmed the instrument scan and the key, but said Engine-Out was "a little off": "I liked how it was, with the banking right for the first part and the banking right and thrust for the 2nd part." The confirmed design (AskUserQuestion with a per-stage preview):
+- **Stabilization:** a right bank alone cancels the drift. This restores #128's `f991373` via a revert of #129's `cddc2ed` and `30cdbff`.
+- **SAFE RETURN:** the right turn bleeds speed. The energy target subtracts 0.35 × bank/25° and diversion energy responds at 0.8/s, so the player alternates the arrow with Increase. Constants were tuned in a pure-equation simulation of digital tap rhythms: no thrust fails in about 7 s; arrow 0.3 s per 0.8 s with Increase 0.6 s per 1.6 s completes with zero unsafe time; held thrust through a 10° turn overspeeds.
+- **Controls:** paired thrust is real on every device. In Engine-Out D/A also drive thrust, keeping the owner's desktop arrow/D rhythm. No balance control.
+

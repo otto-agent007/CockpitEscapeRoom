@@ -141,16 +141,11 @@ describe('deriveEngineOutRouteGuidance', () => {
     expect(guidance?.message).toContain('upper ECAM')
   })
 
-  it('names the phone button that adds right balance when one is given', () => {
-    const guidance = deriveEngineOutRouteGuidance(engineState('recognition', { directionalError: -0.3 }), 'Increase')
-    expect(guidance?.message).toContain('hold Increase')
-    expect(guidance?.message).not.toContain('Balance right')
-  })
-
-  it('names the left pull and the right-balance correction as the reduction bites', () => {
+  it('names the left pull and the right-bank correction as the reduction bites', () => {
     const guidance = deriveEngineOutRouteGuidance(engineState('recognition', { directionalError: -0.3 }))
     expect(guidance?.tone).toBe('action')
-    expect(guidance?.message).toContain('Balance right')
+    expect(guidance?.message).toContain('right bank')
+    expect(guidance?.message).not.toMatch(/balance/i)
     expect(guidance?.meter.leftLabel).toBe('L')
     expect(guidance?.meter.position).toBeLessThan(0.5)
   })
@@ -158,10 +153,10 @@ describe('deriveEngineOutRouteGuidance', () => {
   it('escalates at the directional limit in both directions', () => {
     const leftLimit = deriveEngineOutRouteGuidance(engineState('stabilization', { directionalError: -0.5 }))
     expect(leftLimit?.tone).toBe('urgent')
-    expect(leftLimit?.message).toContain('more right balance')
+    expect(leftLimit?.message).toContain('roll gently right with the sidestick')
     const rightLimit = deriveEngineOutRouteGuidance(engineState('stabilization', { directionalError: 0.5 }))
     expect(rightLimit?.tone).toBe('urgent')
-    expect(rightLimit?.message).toContain('ease it off')
+    expect(rightLimit?.message).toContain('ease back toward level')
   })
 
   it('holds quietly when balanced in stabilization', () => {
@@ -191,7 +186,7 @@ describe('deriveEngineOutRouteGuidance', () => {
       engineState('diversion', { bank: 18, directionalError: -0.4 }),
     )
     expect(guidance?.tone).toBe('urgent')
-    expect(guidance?.message).toContain('right balance while you turn')
+    expect(guidance?.message).toContain('Keep the right bank while you turn')
   })
 
   it('maps the diversion bank band onto the meter', () => {
@@ -199,5 +194,17 @@ describe('deriveEngineOutRouteGuidance', () => {
     expect(guidance?.meter.bandStart).toBeCloseTo((8 + 30) / 60, 5)
     expect(guidance?.meter.bandEnd).toBeCloseTo((24 + 30) / 60, 5)
     expect(guidance?.meter.position).toBeCloseTo((16 + 30) / 60, 5)
+  })
+
+  it('asks for thrust when the SAFE RETURN turn bleeds speed, and eases it near the top', () => {
+    const low = deriveEngineOutRouteGuidance(engineState('diversion', { bank: 16, energy: 0.38 }))
+    expect(low?.tone).toBe('action')
+    expect(low?.message).toContain('tap Increase')
+    const veryLow = deriveEngineOutRouteGuidance(engineState('diversion', { bank: 16, energy: 0.3 }))
+    expect(veryLow?.tone).toBe('urgent')
+    const high = deriveEngineOutRouteGuidance(engineState('diversion', { bank: 16, energy: 0.64 }))
+    expect(high?.message).toContain('Ease the thrust')
+    const fine = deriveEngineOutRouteGuidance(engineState('diversion', { bank: 16, energy: 0.5 }))
+    expect(fine?.tone).toBe('settled')
   })
 })
