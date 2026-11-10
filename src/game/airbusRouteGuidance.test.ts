@@ -195,4 +195,16 @@ describe('deriveEngineOutRouteGuidance', () => {
     expect(guidance?.meter.bandEnd).toBeCloseTo((24 + 30) / 60, 5)
     expect(guidance?.meter.position).toBeCloseTo((16 + 30) / 60, 5)
   })
+
+  it('asks for thrust when the SAFE RETURN turn bleeds speed, and eases it near the top', () => {
+    const low = deriveEngineOutRouteGuidance(engineState('diversion', { bank: 16, energy: 0.38 }))
+    expect(low?.tone).toBe('action')
+    expect(low?.message).toContain('tap Increase')
+    const veryLow = deriveEngineOutRouteGuidance(engineState('diversion', { bank: 16, energy: 0.3 }))
+    expect(veryLow?.tone).toBe('urgent')
+    const high = deriveEngineOutRouteGuidance(engineState('diversion', { bank: 16, energy: 0.64 }))
+    expect(high?.message).toContain('Ease the thrust')
+    const fine = deriveEngineOutRouteGuidance(engineState('diversion', { bank: 16, energy: 0.5 }))
+    expect(fine?.tone).toBe('settled')
+  })
 })

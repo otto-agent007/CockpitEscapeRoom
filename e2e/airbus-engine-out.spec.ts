@@ -152,7 +152,10 @@ test('Engine-Out diversion completes Airbus without exposing the reward early', 
     localStorage.setItem('cockpit-escape-room:sound:v1', '{"muted":true}')
     const gamepad = {
       axes: [0.65, 0, 0, 0],
-      buttons: Array.from({ length: 16 }, () => ({ pressed: false, touched: false, value: 0 })),
+      // Right trigger held: the SAFE RETURN turn bleeds speed, and full thrust offsets it.
+      buttons: Array.from({ length: 16 }, (_, index) => (
+        index === 7 ? { pressed: true, touched: true, value: 1 } : { pressed: false, touched: false, value: 0 }
+      )),
       connected: true,
       id: 'Engine-Out Diversion Test Pad',
       index: 0,

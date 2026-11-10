@@ -84,4 +84,11 @@ describe('Airbus shared input', () => {
     )
     expect(input).toEqual({ pitch: 0, bank: 1, thrust: 0 })
   })
+
+  it('reads D/A as thrust in Engine-Out only, so the desktop arrow/D rhythm keeps working', () => {
+    const noGamepad = { pitch: 0, bank: 0, thrust: 0 }
+    expect(inputModule.combineAirbusInput(new Set(['KeyD']), new Set(), noGamepad, { thrustLetterAliases: true }).input.thrust).toBe(1)
+    expect(inputModule.combineAirbusInput(new Set(['KeyA']), new Set(), noGamepad, { thrustLetterAliases: true }).input.thrust).toBe(-1)
+    expect(inputModule.combineAirbusInput(new Set(['KeyD']), new Set(), noGamepad).input.thrust).toBe(0)
+  })
 })

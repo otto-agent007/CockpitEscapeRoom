@@ -496,7 +496,7 @@ function AirbusScenarioHub({
 
 const engineOutFailureCoaching = {
   attitude: 'Ease pitch inside ±12° and bank inside ±25°. Small corrections keep the training aircraft settled.',
-  energy: 'Use paired thrust to bring energy back between 35% and 65%.',
+  energy: 'The SAFE RETURN turn bleeds speed. Tap Increase (paired thrust) to bring energy back between 35% and 65%.',
   directional: 'Roll a gentle right bank with the sidestick until the drift marker sits back in the green band.',
   corridor: 'SAFE RETURN is to the right. Hold a shallow right bank — the green band on the meter marks it.',
 } as const
@@ -508,7 +508,7 @@ function engineOutCaption(checkpoint: 'recognition' | 'stabilization' | 'diversi
   if (checkpoint === 'stabilization') {
     return 'Instructor: Hold a gentle right bank to stop the drift and protect the green energy band.'
   }
-  return 'Instructor: SAFE RETURN is to the right. A gentle right bank tracks the corridor.'
+  return 'Instructor: SAFE RETURN is to the right. Keep the right bank, and add thrust as the turn bleeds speed.'
 }
 
 function AirbusEngineOutHud({
@@ -541,13 +541,22 @@ function AirbusEngineOutHud({
           <h2 id="engine-out-title">Engine-Out Handling</h2>
           <p>
             The instructor deliberately reduces ENG 1 power in stable cruise, and the nose
-            will drift LEFT. Roll a gentle RIGHT bank with the sidestick to keep the drift
-            marker in the green band, guard the energy tape with paired thrust, then hold
-            that right bank to follow SAFE RETURN.
+            will drift LEFT. First, roll a gentle RIGHT bank to keep the drift marker in the
+            green band. Then keep banking right to follow SAFE RETURN: the turn bleeds speed,
+            so alternate with Increase to keep the energy tape green.
           </p>
           <ul>
-            <li>Arrow keys or left stick: pitch and bank</li>
-            <li>W/S or triggers: paired thrust</li>
+            {compact ? (
+              <>
+                <li>Arrows: bank left and right</li>
+                <li>Increase / Decrease: paired thrust</li>
+              </>
+            ) : (
+              <>
+                <li>Arrow keys or left stick: pitch and bank</li>
+                <li>W/S, D/A or triggers: paired thrust</li>
+              </>
+            )}
             <li>The Route line and drift meter show which way to correct</li>
             <li>Failure retries only the active stage</li>
           </ul>

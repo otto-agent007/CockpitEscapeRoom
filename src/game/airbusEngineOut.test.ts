@@ -10,6 +10,8 @@ import {
 const neutralInput = { pitch: 0, bank: 0, thrust: 0 }
 /** A gentle right bank (about 14°) that cancels the reduced-engine drift. */
 const balancingBank = 0.35
+/** A 16° SAFE RETURN bank with the thrust that exactly offsets its speed bleed. */
+const turnWithThrust = { pitch: 0, bank: 0.4, thrust: 0.64 }
 
 function advanceFor(
   initial: EngineOutState,
@@ -297,7 +299,7 @@ describe('Engine-Out Handling simulation', () => {
     const completed = advanceFor(
       createEngineOutStateAtCheckpoint('diversion'),
       60,
-      { ...neutralInput, bank: 0.4 },
+      turnWithThrust,
     )
 
     expect(completed.state.phase).toBe('complete')
@@ -308,6 +310,53 @@ describe('Engine-Out Handling simulation', () => {
       'energyDiscipline',
       'calmDiversion',
     ])
+  })
+
+  it('bleeds speed in the SAFE RETURN turn, so a right bank without thrust fails on energy', () => {
+    const failed = advanceFor(createEngineOutStateAtCheckpoint('diversion'), 12, { ...neutralInput, bank: 0.4 })
+
+    expect(failed.state.phase).toBe('checkpointFailed')
+    expect(failed.failureReason).toBe('energy')
+    expect(failed.state.aircraft.energy).toBeLessThan(0.35)
+  })
+
+  it('completes SAFE RETURN with a phone rhythm: tap the right arrow, tap Increase', () => {
+    // Digital holds, as on the phone: the arrow 0.3 s in every 0.8 s, Increase 0.6 s in every 1.6 s.
+    let state = createEngineOutStateAtCheckpoint('diversion')
+    let completed = false
+    let traits: string[] | undefined
+    for (let tick = 0; tick < 90 * 60 && !completed; tick += 1) {
+      const seconds = tick / 60
+      const input = {
+        pitch: 0,
+        bank: seconds % 0.8 < 0.3 ? 1 : 0,
+        thrust: seconds % 1.6 < 0.6 ? 1 : 0,
+      }
+      const transition = advanceEngineOut(state, input, 1 / 60)
+      state = transition.state
+      expect(transition.failureReason).toBeUndefined()
+      if (transition.completed) {
+        completed = true
+        traits = transition.traits
+      }
+    }
+
+    expect(completed).toBe(true)
+    expect(traits).toContain('energyDiscipline')
+  })
+
+  it('overspeeds when full thrust is held through a shallow turn, so the thrust taps alternate', () => {
+    const held = advanceFor(createEngineOutStateAtCheckpoint('diversion'), 6, { ...neutralInput, bank: 0.25, thrust: 1 })
+
+    expect(held.state.aircraft.energy).toBeGreaterThan(0.65)
+  })
+
+  it('has no speed bleed in Stabilization: the right bank alone holds energy and drift', () => {
+    const steady = advanceFor(createEngineOutStateAtCheckpoint('stabilization'), 20, { ...neutralInput, bank: balancingBank })
+
+    expect(steady.state.phase).toBe('flying')
+    expect(steady.state.aircraft.energy).toBeCloseTo(0.5, 3)
+    expect(Math.abs(steady.state.aircraft.directionalError)).toBeLessThan(0.2)
   })
 
   it('retries Diversion locally after five seconds steering away from SAFE RETURN', () => {
@@ -341,7 +390,7 @@ describe('Engine-Out Handling simulation', () => {
     const completed = advanceFor(
       retried,
       60,
-      { ...neutralInput, bank: 0.4 },
+      turnWithThrust,
     )
 
     expect(completed.state.phase).toBe('complete')
@@ -361,7 +410,7 @@ describe('Engine-Out Handling simulation', () => {
     const completed = advanceFor(
       energyDrift.state,
       60,
-      { ...neutralInput, bank: 0.4 },
+      turnWithThrust,
     )
 
     expect(completed.state.phase).toBe('complete')
@@ -376,12 +425,12 @@ describe('Engine-Out Handling simulation', () => {
         aircraft: { ...initial.aircraft, directionalError: -0.6 },
       },
       2,
-      { ...neutralInput, bank: 0.4 },
+      turnWithThrust,
     )
     const completed = advanceFor(
       directionalDrift.state,
       60,
-      { ...neutralInput, bank: 0.4 },
+      turnWithThrust,
     )
 
     expect(completed.state.phase).toBe('complete')

@@ -325,6 +325,8 @@ export function useAirbusSimulator(options: UseAirbusSimulatorOptions): AirbusSi
       'ArrowRight',
       'KeyW',
       'KeyS',
+      'KeyA',
+      'KeyD',
     ])
     const onKeyDown = (event: KeyboardEvent) => {
       if (isTypingTarget(event.target) || !controlledCodes.has(event.code)) return
@@ -391,6 +393,7 @@ export function useAirbusSimulator(options: UseAirbusSimulatorOptions): AirbusSi
         keysRef.current,
         holdsRef.current,
         airbusInputFromGamepad(gamepadSnapshot(gamepad)),
+        { thrustLetterAliases: activeScenario === 'engineOut' },
       )
       inputRef.current = combined.input
       setInput((current) => (

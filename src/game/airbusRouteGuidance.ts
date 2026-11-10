@@ -141,6 +141,9 @@ const DIVERSION_BANK_BAND_DEGREES: readonly [number, number] = [8, 24]
 const DRIFT_NOTICE_THRESHOLD = 0.15
 const DRIFT_ACTION_THRESHOLD = 0.25
 const DIVERSION_DRIFT_PRIORITY_THRESHOLD = 0.35
+/** The SAFE RETURN turn bleeds speed, so warn a little before the 35% edge of the band. */
+const DIVERSION_ENERGY_LOW_THRESHOLD = 0.4
+const DIVERSION_ENERGY_HIGH_THRESHOLD = 0.62
 
 function directionalMeter(error: number): AirbusRouteMeter {
   return {
@@ -224,6 +227,22 @@ export function deriveEngineOutRouteGuidance(state: EngineOutState): AirbusRoute
     return {
       tone: 'urgent',
       message: 'SAFE RETURN is to the right — roll right of level.',
+      meter: diversionBankMeter(bank),
+    }
+  }
+  // Thrust is the second job in this stage: the right turn bleeds speed.
+  const energy = state.aircraft.energy
+  if (energy < DIVERSION_ENERGY_LOW_THRESHOLD) {
+    return {
+      tone: energy < ENGINE_OUT_ENVELOPE.minimumEnergy ? 'urgent' : 'action',
+      message: 'The turn is bleeding speed — tap Increase to bring the energy back up.',
+      meter: diversionBankMeter(bank),
+    }
+  }
+  if (energy > DIVERSION_ENERGY_HIGH_THRESHOLD) {
+    return {
+      tone: energy > ENGINE_OUT_ENVELOPE.maximumEnergy ? 'urgent' : 'action',
+      message: 'Ease the thrust — energy is above the green band.',
       meter: diversionBankMeter(bank),
     }
   }

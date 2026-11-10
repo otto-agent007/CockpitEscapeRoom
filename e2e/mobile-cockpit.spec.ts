@@ -237,6 +237,25 @@ test('A320 touch holds reach the simulation and Help pauses safely', async ({ pa
 })
 
 
+test('phone Engine-Out has arrows and real paired thrust, with no balance buttons', async ({ page }) => {
+  await openState(page, mobileAirbusFlightState(true))
+  const increase = page.getByRole('button', { name: 'Hold Increase', exact: true })
+  await expect(increase).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Hold Bank right', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Balance/ })).toHaveCount(0)
+  const energy = async () => {
+    const text = await page.getByRole('region', { name: 'Accessible Engine-Out instruments' }).textContent()
+    return Number(text?.match(/Energy(\d+)%/)?.[1] ?? NaN)
+  }
+  await expect.poll(energy).toBe(50)
+  // Increase is paired thrust again: holding it raises the energy tape.
+  await increase.dispatchEvent('pointerdown', { button: 0, pointerId: 7, pointerType: 'touch', isPrimary: true })
+  await expect(increase).toHaveAttribute('data-held', 'true')
+  await expect.poll(energy).toBeGreaterThan(55)
+  await increase.dispatchEvent('pointerup', { button: 0, pointerId: 7, pointerType: 'touch', isPrimary: true })
+  await expect(increase).toHaveAttribute('data-held', 'false')
+})
+
 test('mobile shutdown keeps wrong-order guidance and earned switches visible', async ({ page }) => {
   const state = createDc9QualificationState()
   state.dc9.stage = 'shutdown'

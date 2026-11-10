@@ -69,6 +69,28 @@ const REDUCED_ENGINE_POWER = 0.28
  */
 const BANK_DRIFT_AUTHORITY = 1
 
+/**
+ * SAFE RETURN is a turn, and a turn costs energy. In Diversion the right bank bleeds
+ * speed, so the player alternates the arrow with paired thrust (owner, 2026-11-10: "the
+ * banking right for the first part and the banking right and thrust for the 2nd part").
+ * At 0.35, a held 16° bank with no thrust leaves the green band in about 1.4 s and fails
+ * the stage in about 7 s. Tapping Increase every second or so holds it, holding thrust
+ * through a 16° turn also holds it, and holding thrust through a shallow 10° turn
+ * overspeeds. Diversion energy also responds more slowly (0.8/s, not 1.8/s), so the
+ * bleed reads as gradual and thrust taps average out instead of spiking. Stabilization
+ * has no bleed: the right bank alone is the job there.
+ */
+const DIVERSION_TURN_ENERGY_BLEED = 0.35
+const DIVERSION_ENERGY_RESPONSIVENESS = 0.8
+const ENERGY_RESPONSIVENESS = 1.8
+
+function energyTarget(thrustInput: number, bankDegrees: number, checkpoint: EngineOutCheckpoint): number {
+  const turnBleed = checkpoint === 'diversion'
+    ? DIVERSION_TURN_ENERGY_BLEED * Math.max(0, bankDegrees) / ENGINE_OUT_ENVELOPE.maximumBankDegrees
+    : 0
+  return clamp(0.5 + thrustInput * 0.35 - turnBleed, 0.15, 0.85)
+}
+
 function driftTarget(engineAsymmetry: number, bankDegrees: number): number {
   return clamp(
     -engineAsymmetry * 1.25 + (bankDegrees / ENGINE_OUT_ENVELOPE.maximumBankDegrees) * BANK_DRIFT_AUTHORITY,
@@ -137,7 +159,12 @@ function advanceEngineOutFixedStep(
       ...state.aircraft,
       pitch: approach(state.aircraft.pitch, pitchInput * 20, 2.4, stepSeconds),
       bank,
-      energy: approach(state.aircraft.energy, clamp(0.5 + thrustInput * 0.35, 0.15, 0.85), 1.8, stepSeconds),
+      energy: approach(
+        state.aircraft.energy,
+        energyTarget(thrustInput, bank, state.checkpoint),
+        state.checkpoint === 'diversion' ? DIVERSION_ENERGY_RESPONSIVENESS : ENERGY_RESPONSIVENESS,
+        stepSeconds,
+      ),
       directionalError,
       headingError: state.aircraft.headingError + directionalError * 3 * stepSeconds,
     }
@@ -274,12 +301,7 @@ function advanceEngineOutFixedStep(
         ...state.aircraft,
         pitch: approach(state.aircraft.pitch, pitchInput * 20, 2.4, stepSeconds),
         bank,
-        energy: approach(
-          state.aircraft.energy,
-          clamp(0.5 + thrustInput * 0.35, 0.15, 0.85),
-          1.8,
-          stepSeconds,
-        ),
+        energy: approach(state.aircraft.energy, energyTarget(thrustInput, bank, state.checkpoint), ENERGY_RESPONSIVENESS, stepSeconds),
         directionalError,
         headingError: state.aircraft.headingError + directionalError * 3 * stepSeconds,
         leftEnginePower,
