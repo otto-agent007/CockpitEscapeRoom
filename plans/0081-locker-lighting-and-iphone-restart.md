@@ -51,3 +51,12 @@ Out of scope: GLB edits, texture downsizing, and disposing chapter GPU memory be
 ## Validation and evidence
 
 Recorded in the PR and in `TEST_REPORT.md` once the owner accepts the visuals. Commands actually run are listed there, not here.
+
+## Follow-up — 2026-11-10 owner feedback (iPhone)
+
+The owner reported that the locker room is fixed. Remaining requests: "make the mobile version zoom in close to the airspeed indicator", "the Captain's key is still a little off screen to the right", and for Engine-Out, "like it was on desktop where you have to use the arrow/thrust (arrow/D) alternating".
+
+- **Engine-Out.** The owner chose "Desktop arrow/D back; phone thrust buttons act as D". Commit `f991373` is reverted, which restores the original simulation, keys and desktop Balance group. On compact layouts the Increase/Decrease buttons hold `balanceRight`/`balanceLeft`, and the briefing and guidance name Increase. Speed holds itself in Engine-Out, so phones give up nothing.
+- **Instrument scan.** On narrow screens the scan centres on the five flight instruments and fits their width to the canvas aspect (`src/scenes/dc9ScanFraming.ts`). Desktop is byte-identical. The FOV no longer re-aims the look when the canvas resizes.
+- **Captain's Key.** The look stops are now 1.0 rad right and 0.30 rad down (were 0.72 and 0.18). The key lands at (241, 545) on 390×844 after turning fully right and down.
+- **Evidence:** `preview-renders/phone-scan-and-key-2026-11-10/FIDELITY.md`.

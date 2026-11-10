@@ -497,16 +497,25 @@ function AirbusScenarioHub({
 const engineOutFailureCoaching = {
   attitude: 'Ease pitch inside ±12° and bank inside ±25°. Small corrections keep the training aircraft settled.',
   energy: 'Use paired thrust to bring energy back between 35% and 65%.',
-  directional: 'Roll a gentle right bank with the sidestick until the drift marker sits back in the green band.',
+  directional: 'Add gentle right balance until the drift marker sits back in the green band.',
   corridor: 'SAFE RETURN is to the right. Hold a shallow right bank — the green band on the meter marks it.',
 } as const
+
+/**
+ * On a phone Engine-Out shows two groups, like the desktop keys the owner plays with:
+ * the sidestick arrows, and Increase/Decrease, which do what D/A do on desktop (right
+ * and left balance). Owner decision, 2026-11-10: "Desktop arrow/D back; phone thrust
+ * buttons act as D." Speed holds itself in Engine-Out, so the phone gives up nothing.
+ */
+const ENGINE_OUT_PHONE_BALANCE_RIGHT_LABEL = 'Increase'
+const ENGINE_OUT_PHONE_BALANCE_LEFT_LABEL = 'Decrease'
 
 function engineOutCaption(checkpoint: 'recognition' | 'stabilization' | 'diversion'): string {
   if (checkpoint === 'recognition') {
     return 'Instructor: Deliberate training event. ENG 1 power is reducing.'
   }
   if (checkpoint === 'stabilization') {
-    return 'Instructor: Hold a gentle right bank to stop the drift and protect the green energy band.'
+    return 'Instructor: Balance the drift to the right and protect the green energy band.'
   }
   return 'Instructor: SAFE RETURN is to the right. A gentle right bank tracks the corridor.'
 }
@@ -541,13 +550,23 @@ function AirbusEngineOutHud({
           <h2 id="engine-out-title">Engine-Out Handling</h2>
           <p>
             The instructor deliberately reduces ENG 1 power in stable cruise, and the nose
-            will drift LEFT. Roll a gentle RIGHT bank with the sidestick to keep the drift
-            marker in the green band, guard the energy tape with paired thrust, then hold
-            that right bank to follow SAFE RETURN.
+            will drift LEFT. {compact
+              ? `Tap ${ENGINE_OUT_PHONE_BALANCE_RIGHT_LABEL} to balance the drift back into the green band, alternating with the arrows, then roll a gentle RIGHT bank to follow SAFE RETURN.`
+              : 'Hold Balance right to keep the drift marker in the green band, guard the energy tape, then roll a gentle RIGHT bank to follow SAFE RETURN.'}
           </p>
           <ul>
-            <li>Arrow keys or left stick: pitch and bank</li>
-            <li>W/S or triggers: paired thrust</li>
+            {compact ? (
+              <>
+                <li>Arrows: bank left and right</li>
+                <li>{ENGINE_OUT_PHONE_BALANCE_RIGHT_LABEL} / {ENGINE_OUT_PHONE_BALANCE_LEFT_LABEL}: right and left balance (D and A on a keyboard)</li>
+              </>
+            ) : (
+              <>
+                <li>Arrow keys or left stick: pitch and bank</li>
+                <li>W/S or triggers: paired thrust</li>
+                <li>A/D or right-stick X: directional balance</li>
+              </>
+            )}
             <li>The Route line and drift meter show which way to correct</li>
             <li>Failure retries only the active stage</li>
           </ul>
@@ -658,7 +677,9 @@ function AirbusEngineOutHud({
 
       </div>
 
-      <AirbusRouteGuidanceBlock guidance={deriveEngineOutRouteGuidance(simulation)} />
+      <AirbusRouteGuidanceBlock
+        guidance={deriveEngineOutRouteGuidance(simulation, compact ? ENGINE_OUT_PHONE_BALANCE_RIGHT_LABEL : undefined)}
+      />
       {(controlsOpen || compact) && (
         <div id="engine-out-controls" className="storm-control-deck" aria-label="Accessible Engine-Out controls">
           <div className="storm-control-group">
@@ -668,11 +689,26 @@ function AirbusEngineOutHud({
             {!compact && <HoldControl control="pitchDown" label="Pitch down" runtime={runtime} />}
             <HoldControl control="bankRight" label="Bank right" runtime={runtime} arrow={compact ? 'right' : undefined} />
           </div>
-          <div className="storm-control-group">
-            <span>Paired thrust</span>
-            <HoldControl control="thrustUp" label="Increase" runtime={runtime} />
-            <HoldControl control="thrustDown" label="Decrease" runtime={runtime} />
-          </div>
+          {compact ? (
+            <div className="storm-control-group">
+              <span>Paired thrust</span>
+              <HoldControl control="balanceRight" label={ENGINE_OUT_PHONE_BALANCE_RIGHT_LABEL} runtime={runtime} />
+              <HoldControl control="balanceLeft" label={ENGINE_OUT_PHONE_BALANCE_LEFT_LABEL} runtime={runtime} />
+            </div>
+          ) : (
+            <>
+              <div className="storm-control-group">
+                <span>Paired thrust</span>
+                <HoldControl control="thrustUp" label="Increase" runtime={runtime} />
+                <HoldControl control="thrustDown" label="Decrease" runtime={runtime} />
+              </div>
+              <div className="storm-control-group">
+                <span>Directional balance</span>
+                <HoldControl control="balanceLeft" label="Balance left" runtime={runtime} />
+                <HoldControl control="balanceRight" label="Balance right" runtime={runtime} />
+              </div>
+            </>
+          )}
           <small>Input: {runtime.inputMethod}</small>
         </div>
       )}

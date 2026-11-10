@@ -6,6 +6,7 @@ export interface EngineOutInput {
   pitch: number
   bank: number
   thrust: number
+  directional: number
 }
 
 export interface EngineOutAircraftState {
@@ -59,24 +60,6 @@ export const ENGINE_OUT_ENVELOPE = {
 const CRUISE_ENGINE_POWER = 0.72
 const REDUCED_ENGINE_POWER = 0.28
 
-/**
- * How strongly a right bank cancels the drift from the reduced ENG 1. There is no
- * separate directional (rudder) control: the owner asked for the sidestick arrows alone
- * (2026-11-09), so a gentle right bank is the correction. At 1.0 the drift stays inside
- * its limit for any right bank from 2.5° up to the 25° attitude limit. That range holds
- * the whole 8-24° SAFE RETURN band, so the drift meter and the bank meter never ask for
- * different things, and an over-bank is caught by the attitude envelope first.
- */
-const BANK_DRIFT_AUTHORITY = 1
-
-function driftTarget(engineAsymmetry: number, bankDegrees: number): number {
-  return clamp(
-    -engineAsymmetry * 1.25 + (bankDegrees / ENGINE_OUT_ENVELOPE.maximumBankDegrees) * BANK_DRIFT_AUTHORITY,
-    -1,
-    1,
-  )
-}
-
 function clamp(value: number, minimum: number, maximum: number): number {
   return Math.min(maximum, Math.max(minimum, value))
 }
@@ -125,18 +108,18 @@ function advanceEngineOutFixedStep(
     const pitchInput = clamp(input.pitch, -1, 1)
     const bankInput = clamp(input.bank, -1, 1)
     const thrustInput = clamp(input.thrust, -1, 1)
+    const directionalInput = clamp(input.directional, -1, 1)
     const engineAsymmetry = state.aircraft.rightEnginePower - state.aircraft.leftEnginePower
-    const bank = approach(state.aircraft.bank, bankInput * 40, 2.4, stepSeconds)
     const directionalError = approach(
       state.aircraft.directionalError,
-      driftTarget(engineAsymmetry, bank),
+      clamp(-engineAsymmetry * 1.25 + directionalInput * 1.2, -1, 1),
       2.2,
       stepSeconds,
     )
     const aircraft = {
       ...state.aircraft,
       pitch: approach(state.aircraft.pitch, pitchInput * 20, 2.4, stepSeconds),
-      bank,
+      bank: approach(state.aircraft.bank, bankInput * 40, 2.4, stepSeconds),
       energy: approach(state.aircraft.energy, clamp(0.5 + thrustInput * 0.35, 0.15, 0.85), 1.8, stepSeconds),
       directionalError,
       headingError: state.aircraft.headingError + directionalError * 3 * stepSeconds,
@@ -148,13 +131,10 @@ function advanceEngineOutFixedStep(
         : aircraft.energy < ENGINE_OUT_ENVELOPE.minimumEnergy ||
             aircraft.energy > ENGINE_OUT_ENVELOPE.maximumEnergy
           ? 'energy'
-          // A left bank now also drives the drift out of its band, because bank is
-          // what cancels it. Name the corridor first so Diversion keeps its specific
-          // "SAFE RETURN is to the right" coaching instead of the generic drift line.
-          : state.checkpoint === 'diversion' && aircraft.bank < -5
-            ? 'corridor'
-            : Math.abs(aircraft.directionalError) >= ENGINE_OUT_ENVELOPE.maximumDirectionalError
-              ? 'directional'
+          : Math.abs(aircraft.directionalError) >= ENGINE_OUT_ENVELOPE.maximumDirectionalError
+            ? 'directional'
+            : state.checkpoint === 'diversion' && aircraft.bank < -5
+              ? 'corridor'
               : null
     const unsafeSeconds = failureReason
       ? state.unsafeSeconds + stepSeconds
@@ -258,11 +238,11 @@ function advanceEngineOutFixedStep(
   const pitchInput = clamp(input.pitch, -1, 1)
   const bankInput = clamp(input.bank, -1, 1)
   const thrustInput = clamp(input.thrust, -1, 1)
+  const directionalInput = clamp(input.directional, -1, 1)
   const engineAsymmetry = state.aircraft.rightEnginePower - leftEnginePower
-  const bank = approach(state.aircraft.bank, bankInput * 40, 2.4, stepSeconds)
   const directionalError = approach(
     state.aircraft.directionalError,
-    driftTarget(engineAsymmetry, bank),
+    clamp(-engineAsymmetry * 1.25 + directionalInput * 1.2, -1, 1),
     2.2,
     stepSeconds,
   )
@@ -273,7 +253,7 @@ function advanceEngineOutFixedStep(
       aircraft: {
         ...state.aircraft,
         pitch: approach(state.aircraft.pitch, pitchInput * 20, 2.4, stepSeconds),
-        bank,
+        bank: approach(state.aircraft.bank, bankInput * 40, 2.4, stepSeconds),
         energy: approach(
           state.aircraft.energy,
           clamp(0.5 + thrustInput * 0.35, 0.15, 0.85),

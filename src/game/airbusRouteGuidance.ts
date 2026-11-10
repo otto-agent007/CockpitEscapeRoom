@@ -130,8 +130,7 @@ export function deriveStormRouteGuidance(state: StormLineState): AirbusRouteGuid
 
 /**
  * Engine-Out drives two different meters: the directional-drift marker while
- * the reduction is pulling the nose left (a right bank on the sidestick cancels
- * it), then the bank marker once SAFE
+ * the reduction is pulling the nose left, then the bank marker once SAFE
  * RETURN tracking is what completes the exercise. The drift limit and the
  * bank band come straight from the enforced envelope so the meter never
  * disagrees with the flight model.
@@ -163,7 +162,14 @@ function diversionBankMeter(bank: number): AirbusRouteMeter {
   }
 }
 
-export function deriveEngineOutRouteGuidance(state: EngineOutState): AirbusRouteGuidance | null {
+/**
+ * `balanceRightLabel` names the control that adds right balance: Balance right on
+ * desktop, and on a phone the Increase button, which does what D does there.
+ */
+export function deriveEngineOutRouteGuidance(
+  state: EngineOutState,
+  balanceRightLabel = 'Balance right',
+): AirbusRouteGuidance | null {
   if (state.phase !== 'flying') return null
 
   const error = state.aircraft.directionalError
@@ -172,7 +178,7 @@ export function deriveEngineOutRouteGuidance(state: EngineOutState): AirbusRoute
     if (Math.abs(error) >= DRIFT_NOTICE_THRESHOLD) {
       return {
         tone: 'action',
-        message: 'The training reduction is pulling the nose left — roll a gentle right bank to center the drift marker.',
+        message: `The training reduction is pulling the nose left — hold ${balanceRightLabel} to center the drift marker.`,
         meter: directionalMeter(error),
       }
     }
@@ -188,8 +194,8 @@ export function deriveEngineOutRouteGuidance(state: EngineOutState): AirbusRoute
       return {
         tone: 'urgent',
         message: error < 0
-          ? 'Drift is past the training limit — roll gently right with the sidestick.'
-          : 'Too much right bank — ease back toward level.',
+          ? 'Drift is past the training limit — hold more right balance.'
+          : 'Too much right balance — ease it off.',
         meter: directionalMeter(error),
       }
     }
@@ -197,8 +203,8 @@ export function deriveEngineOutRouteGuidance(state: EngineOutState): AirbusRoute
       return {
         tone: 'action',
         message: error < 0
-          ? 'Nose drifting left — add a little right bank.'
-          : 'Ease the right bank.',
+          ? 'Nose drifting left — add right balance.'
+          : 'Ease the right balance.',
         meter: directionalMeter(error),
       }
     }
@@ -213,8 +219,8 @@ export function deriveEngineOutRouteGuidance(state: EngineOutState): AirbusRoute
     return {
       tone: 'urgent',
       message: error < 0
-        ? 'Keep the right bank while you turn — the drift is building.'
-        : 'Ease the right bank while you turn.',
+        ? 'Hold the right balance while you turn — the drift is building.'
+        : 'Ease the right balance while you turn.',
       meter: directionalMeter(error),
     }
   }

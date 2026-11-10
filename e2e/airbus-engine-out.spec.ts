@@ -97,10 +97,11 @@ test('Captain Challenges unlocks Engine-Out only after Storm and starts explicit
   await expect(page.locator('.storm-crew-caption')).toContainText('Deliberate training event')
   await expect(instruments).toContainText('ENG 1')
 
-  // The power reduction alone drifts the nose; there is no directional key any more.
+  await page.keyboard.down('d')
   await expect.poll(async () => instruments.textContent()).toMatch(
     /Directional error(?:[1-9]\d?|100)%/,
   )
+  await page.keyboard.up('d')
 })
 
 test('Engine-Out native controls pause and retry only Stabilization', async ({ page }) => {
@@ -109,10 +110,7 @@ test('Engine-Out native controls pause and retry only Stabilization', async ({ p
   await seed(page, engineOutState('in_progress'))
 
   await page.getByRole('button', { name: 'Show flight controls' }).click()
-  // Sidestick and paired thrust only: directional balance was removed (owner, 2026-11-09).
-  await expect(page.getByRole('button', { name: 'Hold Bank right' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Hold Increase' })).toBeVisible()
-  await expect(page.getByRole('button', { name: /Balance/ })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Hold Balance right' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Pause' }).click()
   await expect(page.getByText('Challenge paused')).toBeVisible()
@@ -151,7 +149,7 @@ test('Engine-Out diversion completes Airbus without exposing the reward early', 
   await page.addInitScript(() => {
     localStorage.setItem('cockpit-escape-room:sound:v1', '{"muted":true}')
     const gamepad = {
-      axes: [0.65, 0, 0, 0],
+      axes: [0.65, 0, 0.52, 0],
       buttons: Array.from({ length: 16 }, () => ({ pressed: false, touched: false, value: 0 })),
       connected: true,
       id: 'Engine-Out Diversion Test Pad',
@@ -231,7 +229,9 @@ test('Captain Challenges and Engine-Out controls remain usable at tablet and pho
   await page.reload()
   await page.getByRole('button', { name: 'Open Engine-Out' }).click()
   await page.getByRole('button', { name: 'Begin Engine-Out' }).click()
-  await expect(page.getByRole('button', { name: 'Hold Bank right' })).toBeVisible()
+  // Phones show two groups: the arrows, and Increase/Decrease doing what D/A do on desktop.
+  await expect(page.getByRole('button', { name: 'Hold Increase' })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Balance/ })).toHaveCount(0)
   await expect(page.locator('.airbus-engine-out')).toHaveClass(/is-reduced-motion/)
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375)
   const topbarBox = await page.locator('.storm-topbar').boundingBox()
@@ -257,14 +257,14 @@ test('Captain Challenges and Engine-Out controls remain usable at tablet and pho
   expect(phoneGuidance.y + phoneGuidance.height).toBeLessThanOrEqual(controlsBox.y)
   await page.screenshot({ path: '/tmp/airbus-engine-out-phone-375.png', fullPage: true })
 
-  // The tablet deck can wrap its control groups; every hold control must stay
-  // inside the viewport in flight.
+  // Every hold control on the 768px tablet deck must stay inside the viewport in
+  // flight. 768px is a compact (phone-style) layout, so its balance is Increase.
   await page.setViewportSize({ width: 768, height: 900 })
   await page.reload()
   await expect(page.getByRole('region', { name: 'Accessible Engine-Out instruments' })).toBeVisible()
   const showControls = page.getByRole('button', { name: 'Show flight controls' })
   if (await showControls.isVisible().catch(() => false)) await showControls.click()
-  await expect(page.getByRole('button', { name: 'Hold Bank right' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Hold Increase' })).toBeVisible()
   for (const control of await page.locator('.storm-hold-control').all()) {
     const box = await control.boundingBox()
     if (!box) throw new Error('Engine-Out control bounds are unavailable')
@@ -344,7 +344,7 @@ test('production Airbus cockpit renders live Engine-Out displays and control res
     await canvas.getAttribute('data-airbus-radar-sweep-angle'),
   )).not.toBe(initialSweep)
 
-  // The reduction alone drifts the nose left; there is no directional key any more.
+  await page.keyboard.down('d')
   await expectSim.poll(async () => (
     page.getByRole('region', { name: 'Accessible Engine-Out instruments' }).textContent()
   )).toMatch(/Directional error(?:[1-9]\d?|100)%/)
@@ -356,6 +356,7 @@ test('production Airbus cockpit renders live Engine-Out displays and control res
     const rawDrift = await canvas.getAttribute('data-engine-out-heading-drift')
     return Math.abs(Number(rawDrift))
   }).toBeGreaterThan(0.001)
+  await page.keyboard.up('d')
 
   await page.keyboard.down('ArrowRight')
   await expectSim.poll(async () => {

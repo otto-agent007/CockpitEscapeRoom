@@ -1,5 +1,12 @@
 # Test report
 
+## 2026-11-10 — Phone instrument zoom, Captain's Key reach, Engine-Out phone balance
+
+- **Owner (iPhone):** the locker is fixed. Asked for the mobile scan to zoom in on the airspeed indicator, the key to stop sitting off screen to the right, and Engine-Out to use the desktop arrow/D rhythm again. The owner chose "phone thrust buttons act as D".
+- **Changes:** reverted the Engine-Out sidestick-drift change (`f991373`). Phone Increase/Decrease now hold right/left balance. Narrow-screen scan framing is fitted to the flight instruments. The DC-9 look stops are now 1.0 right and 0.30 down.
+- **Measured** in local production Chromium with touch emulation ([evidence](preview-renders/phone-scan-and-key-2026-11-10/FIDELITY.md)): the key moves from (406, 750) off screen to (241, 545) on 390×844, and on 1440×900 from about (1003, 889) on the bottom edge (calculated from the camera geometry) to a measured (781, 614). The phone scan FOV is about 31° instead of 60°. The 1440 scan screenshot and camera state are byte-identical to `main`.
+- **Checks run:** `npm run check` passes (lint, typecheck, **1,088/1,088 unit tests in 99 files**, build). Spoiler, privacy and budget guards pass (initial **579/600 KB**, total 188.4/190 MB), as do `npm run assets:check` and `git diff --check`. `e2e/mobile-cockpit.spec.ts` passes **17/17** against the candidate build, including the new "phone Engine-Out Increase balances the drift the way D does".
+
 ## 2026-11-09 — Locker lighting, iPhone Restart recovery, Engine-Out sidestick controls
 
 - **Owner reports (iPhone, Brave, captainskey.vercel.app at `aaa6808`):** the locker cinematic and hat reveal were too dark; after Restart in the same tab the DC-9 rendered all black; in Engine-Out, keep working sidestick arrows and paired thrust and remove directional balance.
