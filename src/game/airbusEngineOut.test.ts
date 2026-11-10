@@ -7,9 +7,7 @@ import {
   type EngineOutState,
 } from './airbusEngineOut'
 
-const neutralInput = { pitch: 0, bank: 0, thrust: 0 }
-/** A gentle right bank (about 14°) that cancels the reduced-engine drift. */
-const balancingBank = 0.35
+const neutralInput = { pitch: 0, bank: 0, thrust: 0, directional: 0 }
 
 function advanceFor(
   initial: EngineOutState,
@@ -117,7 +115,7 @@ describe('Engine-Out Handling simulation', () => {
   })
 
   it('produces the same authoritative frame regardless of render-time chunking', () => {
-    const input = { pitch: 0.2, bank: 0.3, thrust: 0.1 }
+    const input = { pitch: 0.2, bank: 0.3, thrust: 0.1, directional: 0.5 }
     const initial = createEngineOutStateAtCheckpoint('stabilization')
     const oneChunk = advanceEngineOut(initial, input, 0.1).state
     let fixedTicks = initial
@@ -155,7 +153,7 @@ describe('Engine-Out Handling simulation', () => {
     const controlled = advanceFor(
       createEngineOutStateAtCheckpoint('recognition'),
       1,
-      { pitch: 0.4, bank: -0.3, thrust: 0.2 },
+      { pitch: 0.4, bank: -0.3, thrust: 0.2, directional: 0.2 },
     )
 
     expect(controlled.state.aircraft.pitch).toBeGreaterThan(0)
@@ -168,7 +166,7 @@ describe('Engine-Out Handling simulation', () => {
     const transition = advanceFor(
       createEngineOutStateAtCheckpoint('stabilization'),
       2,
-      { pitch: 99, bank: 99, thrust: 99 },
+      { pitch: 99, bank: 99, thrust: 99, directional: 99 },
     )
 
     expect(transition.state.aircraft.pitch).toBeGreaterThan(12)
@@ -181,29 +179,16 @@ describe('Engine-Out Handling simulation', () => {
     expect(transition.state.aircraft.directionalError).toBeLessThanOrEqual(1)
   })
 
-  it('cancels the simulated power asymmetry with a gentle right bank on the sidestick', () => {
+  it('requires directional balance to counter the simulated power asymmetry', () => {
     const unbalanced = advanceFor(createEngineOutStateAtCheckpoint('stabilization'), 3)
     const balanced = advanceFor(
       createEngineOutStateAtCheckpoint('stabilization'),
       3,
-      { ...neutralInput, bank: balancingBank },
+      { ...neutralInput, directional: 0.6 },
     )
 
     expect(Math.abs(unbalanced.state.aircraft.directionalError)).toBeGreaterThan(0.45)
     expect(Math.abs(balanced.state.aircraft.directionalError)).toBeLessThan(0.2)
-    expect(Math.abs(balanced.state.aircraft.bank)).toBeLessThan(25)
-  })
-
-  it('holds the drift inside its limit for every steady right bank inside the attitude limit', () => {
-    // From a shallow 2.6° to 24.8°: the whole SAFE RETURN band (8-24°) is inside it,
-    // so the drift meter and the bank meter never ask for different things.
-    for (const bank of [0.065, 0.2, 0.35, 0.5, 0.62]) {
-      const steady = advanceFor(createEngineOutStateAtCheckpoint('stabilization'), 8, { ...neutralInput, bank })
-      expect(Math.abs(steady.state.aircraft.bank)).toBeLessThan(25)
-      expect(Math.abs(steady.state.aircraft.directionalError)).toBeLessThan(0.45)
-    }
-    const level = advanceFor(createEngineOutStateAtCheckpoint('stabilization'), 8)
-    expect(level.state.aircraft.directionalError).toBeLessThan(-0.45)
   })
 
   it('turns uncorrected asymmetry into visible heading drift', () => {
@@ -211,7 +196,7 @@ describe('Engine-Out Handling simulation', () => {
     const balanced = advanceFor(
       createEngineOutStateAtCheckpoint('stabilization'),
       3,
-      { ...neutralInput, bank: balancingBank },
+      { ...neutralInput, directional: 0.46 },
     )
 
     expect(unbalanced.state.aircraft.headingError).toBeLessThan(-1)
@@ -226,7 +211,7 @@ describe('Engine-Out Handling simulation', () => {
       ...initial,
       aircraft: { ...initial.aircraft, pitch: 13 },
     }
-    const unsafeInput = { ...neutralInput, pitch: 0.65, bank: balancingBank }
+    const unsafeInput = { ...neutralInput, pitch: 0.65, directional: 0.46 }
 
     const beforeLimit = advanceFor(highPitch, 4.9, unsafeInput)
     expect(beforeLimit.state.phase).toBe('flying')
@@ -246,7 +231,7 @@ describe('Engine-Out Handling simulation', () => {
         aircraft: { ...initial.aircraft, energy: 0.8 },
       },
       0.1,
-      { ...neutralInput, thrust: 1, bank: balancingBank },
+      { ...neutralInput, thrust: 1, directional: 0.46 },
     ).state
     const restart = (
       engineOutModule as unknown as {
@@ -277,7 +262,7 @@ describe('Engine-Out Handling simulation', () => {
   })
 
   it('advances a stable fifty-second Stabilization segment to Diversion', () => {
-    const balancedInput = { ...neutralInput, bank: balancingBank }
+    const balancedInput = { ...neutralInput, directional: 0.46 }
     const beforeGate = advanceFor(
       createEngineOutStateAtCheckpoint('stabilization'),
       49.9,
@@ -297,7 +282,7 @@ describe('Engine-Out Handling simulation', () => {
     const completed = advanceFor(
       createEngineOutStateAtCheckpoint('diversion'),
       60,
-      { ...neutralInput, bank: 0.4 },
+      { ...neutralInput, bank: 0.4, directional: 0.46 },
     )
 
     expect(completed.state.phase).toBe('complete')
@@ -318,7 +303,7 @@ describe('Engine-Out Handling simulation', () => {
         aircraft: { ...initial.aircraft, bank: -10 },
       },
       5.1,
-      { ...neutralInput, bank: -0.4 },
+      { ...neutralInput, bank: -0.4, directional: 0.46 },
     )
 
     expect(failed.state.phase).toBe('checkpointFailed')
@@ -335,13 +320,13 @@ describe('Engine-Out Handling simulation', () => {
         aircraft: { ...initial.aircraft, bank: -10 },
       },
       0.1,
-      { ...neutralInput, bank: -0.4 },
+      { ...neutralInput, bank: -0.4, directional: 0.46 },
     )
     const retried = restartEngineOutCheckpoint(failed.state)
     const completed = advanceFor(
       retried,
       60,
-      { ...neutralInput, bank: 0.4 },
+      { ...neutralInput, bank: 0.4, directional: 0.46 },
     )
 
     expect(completed.state.phase).toBe('complete')
@@ -356,12 +341,12 @@ describe('Engine-Out Handling simulation', () => {
         aircraft: { ...initial.aircraft, energy: 0.72 },
       },
       2,
-      { ...neutralInput, bank: 0.4, thrust: 0.63 },
+      { ...neutralInput, bank: 0.4, thrust: 0.63, directional: 0.46 },
     )
     const completed = advanceFor(
       energyDrift.state,
       60,
-      { ...neutralInput, bank: 0.4 },
+      { ...neutralInput, bank: 0.4, directional: 0.46 },
     )
 
     expect(completed.state.phase).toBe('complete')
@@ -381,7 +366,7 @@ describe('Engine-Out Handling simulation', () => {
     const completed = advanceFor(
       directionalDrift.state,
       60,
-      { ...neutralInput, bank: 0.4 },
+      { ...neutralInput, bank: 0.4, directional: 0.46 },
     )
 
     expect(completed.state.phase).toBe('complete')

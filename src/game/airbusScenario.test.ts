@@ -40,14 +40,14 @@ describe('Airbus scenario availability', () => {
 })
 
 describe('Airbus active scenario frames', () => {
-  it('routes the shared three-axis input to the selected pure scenario', () => {
+  it('routes the shared four-axis input to the selected pure scenario', () => {
     const advanceFrame = (
       scenarioModule as unknown as {
         advanceAirbusScenarioFrame?: (
           frame:
             | { scenario: 'stormLine'; state: ReturnType<typeof createStormLineState> }
             | { scenario: 'engineOut'; state: ReturnType<typeof createEngineOutStateAtCheckpoint> },
-          input: { pitch: number; bank: number; thrust: number },
+          input: { pitch: number; bank: number; thrust: number; directional: number },
           seconds: number,
         ) => {
           frame:
@@ -61,17 +61,32 @@ describe('Airbus active scenario frames', () => {
     if (!advanceFrame) return
 
     const storm = { scenario: 'stormLine' as const, state: createStormLineState(7) }
-    const stormNeutral = advanceFrame(storm, { pitch: 0, bank: 0, thrust: 0 }, 1)
-    const stormBanked = advanceFrame(storm, { pitch: 0, bank: 0.5, thrust: 0 }, 1)
-    expect(stormBanked.frame).not.toEqual(stormNeutral.frame)
+    const stormNeutral = advanceFrame(
+      storm,
+      { pitch: 0, bank: 0, thrust: 0, directional: 0 },
+      1,
+    )
+    const stormDirectional = advanceFrame(
+      storm,
+      { pitch: 0, bank: 0, thrust: 0, directional: 1 },
+      1,
+    )
+    expect(stormDirectional.frame).toEqual(stormNeutral.frame)
 
     const engine = {
       scenario: 'engineOut' as const,
       state: createEngineOutStateAtCheckpoint('stabilization'),
     }
-    const engineNeutral = advanceFrame(engine, { pitch: 0, bank: 0, thrust: 0 }, 1)
-    // A gentle right bank on the sidestick is what cancels the reduced-engine drift.
-    const engineBalanced = advanceFrame(engine, { pitch: 0, bank: 0.35, thrust: 0 }, 1)
+    const engineNeutral = advanceFrame(
+      engine,
+      { pitch: 0, bank: 0, thrust: 0, directional: 0 },
+      1,
+    )
+    const engineBalanced = advanceFrame(
+      engine,
+      { pitch: 0, bank: 0, thrust: 0, directional: 0.6 },
+      1,
+    )
     if (engineNeutral.frame.scenario !== 'engineOut' || engineBalanced.frame.scenario !== 'engineOut') {
       throw new Error('Engine-Out frame lost its scenario discriminator.')
     }
@@ -95,7 +110,7 @@ describe('Airbus active scenario frames', () => {
     }
     const blockedEntry = scenarioModule.advanceAirbusScenarioFrame(
       stormEntry,
-      { pitch: 0, bank: 0, thrust: 0 },
+      { pitch: 0, bank: 0, thrust: 0, directional: 0 },
       0.1,
       [],
     )
@@ -107,7 +122,7 @@ describe('Airbus active scenario frames', () => {
 
     const releasedEntry = scenarioModule.advanceAirbusScenarioFrame(
       stormEntry,
-      { pitch: 0, bank: 0, thrust: 0 },
+      { pitch: 0, bank: 0, thrust: 0, directional: 0 },
       0.1,
       ['stormScanRange'],
     )
@@ -124,7 +139,7 @@ describe('Airbus active scenario frames', () => {
     }
     const blockedCore = scenarioModule.advanceAirbusScenarioFrame(
       stormCore,
-      { pitch: 0, bank: 0, thrust: 0 },
+      { pitch: 0, bank: 0, thrust: 0, directional: 0 },
       0.1,
       ['stormScanRange'],
     )
@@ -133,7 +148,7 @@ describe('Airbus active scenario frames', () => {
 
     const releasedCore = scenarioModule.advanceAirbusScenarioFrame(
       stormCore,
-      { pitch: 0, bank: 0, thrust: 0 },
+      { pitch: 0, bank: 0, thrust: 0, directional: 0 },
       0.1,
       ['stormScanRange', 'stormGapSelection'],
     )
@@ -150,7 +165,7 @@ describe('Airbus active scenario frames', () => {
     }
     const blockedRecognition = scenarioModule.advanceAirbusScenarioFrame(
       recognition,
-      { pitch: 0, bank: 0, thrust: 0 },
+      { pitch: 0, bank: 0, thrust: 0, directional: 0 },
       0.1,
       [],
     )
@@ -159,7 +174,7 @@ describe('Airbus active scenario frames', () => {
 
     const releasedRecognition = scenarioModule.advanceAirbusScenarioFrame(
       recognition,
-      { pitch: 0, bank: 0, thrust: 0 },
+      { pitch: 0, bank: 0, thrust: 0, directional: 0 },
       0.1,
       ['engineEventAcknowledgement'],
     )
@@ -179,7 +194,7 @@ describe('Airbus active scenario frames', () => {
     }
     const blockedDiversion = scenarioModule.advanceAirbusScenarioFrame(
       diversion,
-      { pitch: 0, bank: 0.4, thrust: 0 },
+      { pitch: 0, bank: 0.4, thrust: 0, directional: 0.46 },
       0.25,
       ['engineEventAcknowledgement'],
     )
@@ -189,7 +204,7 @@ describe('Airbus active scenario frames', () => {
 
     const releasedDiversion = scenarioModule.advanceAirbusScenarioFrame(
       diversion,
-      { pitch: 0, bank: 0.4, thrust: 0 },
+      { pitch: 0, bank: 0.4, thrust: 0, directional: 0.46 },
       0.25,
       ['engineEventAcknowledgement', 'engineSafeReturnSelection'],
     )
