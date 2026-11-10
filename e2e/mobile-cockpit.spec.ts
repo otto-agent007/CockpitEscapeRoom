@@ -87,7 +87,7 @@ for (const [name, state, selector] of [
     await openState(page, state)
     await expect(page.locator(selector)).toBeVisible()
     if (name === 'A320 Engine-Out') {
-      await expect(page.locator('.storm-route-guidance')).toContainText('hold Balance right')
+      await expect(page.locator('.storm-route-guidance')).toContainText('roll a gentle right bank')
     }
     for (const viewport of [{ width: 375, height: 812 }, { width: 768, height: 1024 }, { width: 667, height: 375 }, { width: 932, height: 430 }, { width: 1024, height: 768 }]) {
       await page.setViewportSize(viewport)

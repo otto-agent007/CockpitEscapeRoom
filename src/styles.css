@@ -2009,6 +2009,32 @@ p {
   color: var(--text-soft);
 }
 
+.scene-context-lost {
+  position: fixed;
+  z-index: 110;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  gap: 0.75rem;
+  width: min(24rem, calc(100vw - 2rem));
+  padding: 1.25rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.75rem;
+  background: var(--panel);
+  color: var(--text-soft);
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.scene-context-lost p {
+  margin: 0;
+}
+
+.scene-context-lost__title {
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
 .hud {
   position: relative;
   z-index: 2;
@@ -2847,11 +2873,12 @@ p {
   gap: 0.3rem;
 }
 
-/* Both decks overflow their own box between ~620 and ~900px — Storm Line's two
-   groups by 155px, and Engine-Out's third (directional balance) group by 492px,
-   which put Balance left/right entirely outside the viewport in flight. Wrapping
-   keeps every hold control reachable; the guidance shelf above each deck is
-   raised to match its measured wrapped height. */
+/* The decks overflow their own box between ~620 and ~900px (Storm Line's two
+   groups by 155px when measured), which can push hold controls outside the
+   viewport in flight. Wrapping keeps every hold control reachable; the guidance
+   shelf above each deck is raised to match its measured wrapped height.
+   Engine-Out now has the same two groups (sidestick and paired thrust): its
+   directional-balance group was removed at the owner's request on 2026-11-09. */
 .storm-control-deck {
   flex-wrap: wrap;
 }
