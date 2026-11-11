@@ -1,36 +1,44 @@
 # CockpitEscapeRoom
 
-A personalized 3D browser game celebrating dev's dad, a pilot's journey from the McDonnell Douglas DC-9 to the Airbus A320.
+**The Captain's Key** is a 3D browser game made for a pilot dad. It follows his career from the right seat of a McDonnell Douglas DC-9 to the left seat of an Airbus A320, with family memories along the way.
 
-The game opens with a console-era cinematic, then moves through a right-seat DC-9 Final Flight Log and fictional Memphis departure memory, the Captain's Locker, Airbus Pop T Captain Mode, and a protected red Model Y Flight Mode reward. Mars remains a hidden post-ending Easter egg. The whole journey is framed as a warm family tribute.
+![The Captain's Key start screen](docs/readme/begin.jpg)
 
-After finishing the reward and final tribute once, hold **T+M+B** together for **1.5 seconds** to open the hidden Mars arcade from any later chapter or replay. The browser remembers the unlock across reloads and game restarts. There is no visible arcade entry in the game, and opening `/mars-arcade.html` directly does not start a match. Escape or **Return to game** restores your current chapter. The development gym remains at `/dev/gym.html`.
+## The journey
 
-Inside the arcade, **Background** offers **Mars** or an outdoor **Moonbase** with Earth in the sky. The browser remembers your choice; switching scenery keeps the current round running.
+1. **Intro**: a console-era cinematic, then *Press Start*.
+2. **DC-9 Final Flight Log**: check the right-seat controls, scan the instruments, fly a fictional 1995 Memphis departure and secure the parked aircraft.
+3. **The Captain's Locker**: answer four memories to reveal the captain's hat.
+4. **Airbus A320 Pop T Captain Mode**: qualify, then fly Storm Line and Engine-Out Handling.
+5. **A surprise reward** to finish.
 
-Arcade entry opens **Choose your player** and **Choose your battlefield** before combat. **Start fight** fills the screen with the arena; **Controls** and **Match options** open native controls over it. **Change player / battlefield** freezes combat and returns to selection for a fresh round.
+| | |
+| --- | --- |
+| ![DC-9 instrument scan from the right seat](docs/readme/dc9-cockpit.jpg) | ![The captain's hat in the locker](docs/readme/captains-locker.jpg) |
+| ![A320 flying the Storm Line](docs/readme/a320-storm-line.jpg) | ![Technoking vs. Scam Altman in the hidden arcade](docs/readme/technoking-vs-scam-altman.jpg) |
 
-## Run
+It plays on phones too, with touch controls. On iPhone, add it to your Home Screen for full screen.
+
+## Hidden arcade
+
+After finishing the game once, hold **T+M+B** for 1.5 seconds, or press and hold the final title for 3 seconds on a phone, to open a Mars fighting game.
+
+## Run locally
 
 Requires Node.js 24.
 
 ```bash
-nvm use
 npm install
 npm run dev
 ```
 
-## Verify
+## Checks
 
 ```bash
-npm run check
-npm run test:e2e
-npm run assets:check
+npm run check       # lint, types, unit tests and build
+npm run test:e2e    # browser tests
 ```
 
-## Project guides
+## More
 
-- [Blueprint](BLUEPRINT.md) and [game design](docs/GAME_DESIGN.md)
-- [Contributor guidance](AGENTS.md) and [Codex workflow](docs/CODEX_WORKFLOW.md)
-- [Architecture](docs/ARCHITECTURE.md) and [asset pipeline](docs/ASSET_PIPELINE.md)
-- [Active plans](plans/) and [validation record](TEST_REPORT.md)
+[Blueprint](BLUEPRINT.md) · [Game design](docs/GAME_DESIGN.md) · [Architecture](docs/ARCHITECTURE.md) · [Asset pipeline](docs/ASSET_PIPELINE.md) · [Contributor guide](AGENTS.md) · [Test report](TEST_REPORT.md)
