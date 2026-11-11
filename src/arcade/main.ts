@@ -115,6 +115,9 @@ function close(): void {
 }
 document.querySelectorAll('[data-arcade-return]').forEach(button => button.addEventListener('click', close))
 window.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); handleEscape() } })
+// A long press raises a context menu on Android (iOS gets the CSS callout rule instead).
+// The arcade has nothing to copy, and a menu mid-fight steals the held input.
+window.addEventListener('contextmenu', event => event.preventDefault())
 window.addEventListener('message', access)
 if (window.parent !== window) tellParent('mars-arcade-request-access')
 else if (loadMarsArcadeUnlock()) document.querySelector<HTMLElement>('#arcade-locked p')!.textContent = 'This Easter egg opens from the game.'

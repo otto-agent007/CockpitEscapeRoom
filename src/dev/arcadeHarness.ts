@@ -65,6 +65,7 @@ import { loadArcadeBackdrop, type ArcadeBackdropImages } from './arcadeHarnessBa
 import { MOONBASE_PANORAMA } from '../game/marsArcadeArt'
 import { ARCADE_BACKGROUND_LABELS, isArcadeBackground, loadArcadeBackground, saveArcadeBackground, moonbasePanoramaLeft, MOONBASE_BACKGROUND_BANDS } from '../game/arcadeBackground'
 import { advanceExchange, EXCHANGE_END_FRAME } from './arcadeHarnessExchange'
+import { roundIsOver, roundRestartVisible } from './arcadeRoundRestart'
 import { DEFAULT_ARCADE_SOUND, loadArcadeSound, saveArcadeSound, marsArcadeSoundCues, MarsArcadeComboSound } from '../game/marsArcadeSfx'
 import { MarsArcadeSfxPlayer, type ArcadeAudioStatus } from '../arcade/marsArcadeSfxPlayer'
 import {GLYPH_HEIGHT} from './arcadePixelFont'
@@ -1077,6 +1078,7 @@ export interface MarsArcadeSession {
 
 export async function mountMarsArcade(production = false): Promise<MarsArcadeSession> {
   let active = !production
+  let roundOverSince: number | null = null
   let soundSettings = loadArcadeSound()
   let soundStatus: ArcadeAudioStatus = 'loading'
   const comboSound = new MarsArcadeComboSound()
@@ -1574,12 +1576,6 @@ export async function mountMarsArcade(production = false): Promise<MarsArcadeSes
     }
     const capStatus=document.querySelector<HTMLElement>('#cap-status')
     if(capStatus) { const text=capAccessibleStatus(harness.state); if(capStatus.textContent!==text)capStatus.textContent=text;capStatus.hidden=!text }
-    for(const button of document.querySelectorAll<HTMLButtonElement>('[data-pivot-down]')){
-      const side=Number(button.dataset.pivotDown)===0?0:1
-      const id=harness.state.fighters[side].id
-      const hidden=id!=='trump'&&(id!=='oracle'||!marsArcadePivotPreviewEnabled())
-      if(button.hidden!==hidden)button.hidden=hidden
-    }
     const title = document.querySelector<HTMLElement>('#stage-title')
     if (title) {
       const versus = `${marsArcadeFighter(harness.leftId).label} vs ${marsArcadeFighter(harness.rightId).label}${harness.humanRight ? '' : ' (CPU)'}`
@@ -1596,6 +1592,19 @@ export async function mountMarsArcade(production = false): Promise<MarsArcadeSes
     }
     const events = harness.log.join('\n') || '(no events yet)'
     if (logPanel.textContent !== events) logPanel.textContent = events
+    const roundRestart = document.querySelector<HTMLButtonElement>('#round-restart')
+    if (roundRestart) {
+      const over = roundIsOver(harness.state.phase)
+      if (!over) roundOverSince = null
+      else if (roundOverSince === null) roundOverSince = performance.now()
+      const show = roundRestartVisible({ phase: harness.state.phase, paused: harness.paused, exchange: harness.exchange, overSinceMs: roundOverSince, nowMs: performance.now() })
+      if (roundRestart.hidden === show) {
+        roundRestart.hidden = !show
+        // A keyboard player can press Enter at once; R still works anywhere.
+        if (show) roundRestart.focus({ preventScroll: true })
+        else if (document.activeElement === roundRestart) canvas.focus({ preventScroll: true })
+      }
+    }
     const pause = document.querySelector<HTMLButtonElement>('[data-command="Space"]')
     if (pause) {
       pause.disabled = harness.exchange && harness.state.frame >= EXCHANGE_END_FRAME
