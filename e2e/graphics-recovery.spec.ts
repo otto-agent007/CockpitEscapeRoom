@@ -50,7 +50,9 @@ test('Restart reloads into a clean Begin page with progress cleared', async ({ p
 test('a lost 3D view explains itself, clears on restore, and reloads into the same chapter', async ({ page }) => {
   await seed(page, createLockerState(), '')
   const canvas = page.locator('canvas')
-  await expect(canvas).toBeAttached()
+  // A canvas can exist before the renderer attaches its listeners; on CI's software
+  // renderer losing the context that early was never noticed (flaky on PR #132).
+  await expect(canvas).toHaveAttribute('data-graphics-recovery', 'armed', { timeout: 30_000 })
   const notice = page.getByRole('alert').filter({ hasText: 'The 3D view stopped' })
   await expect(notice).toHaveCount(0)
 
@@ -65,7 +67,7 @@ test('a lost 3D view explains itself, clears on restore, and reloads into the sa
   await expect(notice).toBeVisible()
   await markPage(page)
   await notice.getByRole('button', { name: 'Reload' }).click()
-  await expect(page.locator('canvas')).toBeAttached()
+  await expect(page.locator('canvas')).toHaveAttribute('data-graphics-recovery', 'armed', { timeout: 30_000 })
   expect(await isSameDocument(page)).toBe(false)
   await expect(notice).toHaveCount(0)
   const saved = await page.evaluate((key) => localStorage.getItem(key), STORAGE_KEY)

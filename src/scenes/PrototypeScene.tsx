@@ -3350,6 +3350,8 @@ export function PrototypeScene({
         onCreated={({ gl }) => {
           gl.domElement.addEventListener('webglcontextlost', () => setGraphicsContextLost(true))
           gl.domElement.addEventListener('webglcontextrestored', () => setGraphicsContextLost(false))
+          // Marks the moment the recovery listeners exist, so a test can wait for it.
+          gl.domElement.dataset.graphicsRecovery = 'armed'
         }}
       >
         {phase === 'airbus' && (
