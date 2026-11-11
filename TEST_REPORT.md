@@ -1,5 +1,13 @@
 # Test report
 
+## 2026-11-11 — Arcade sound on iPhone, Restart round under Menu, smaller intro audio box
+
+- **Owner (iPhone):** move the Restart round button under the Menu button; the sound in the fighting arcade is not working; the intro's sound/audio box at the bottom should be smaller, especially in landscape.
+- **Sound:** the arcade, intro effects and Airbus effects use Web Audio, which iOS mutes with the Ring/Silent switch, while `<audio>`/`<video>` (film, greeting) play as media. Both the game and the arcade frame now set `navigator.audioSession.type = 'playback'` at startup (`src/game/audioSession.ts`; WebKit only, a no-op elsewhere).
+- **Restart round:** moved into the Pause/Menu container. In portrait it sits directly under Menu (same x, width 134), and in landscape it takes its own cell under Menu in the right column (same x, width 93).
+- **Intro audio box:** now a compact bottom-right corner box. The status line is kept for screen readers, and landscape drops the Volume label. It shrinks from 810×85 to **179×42** at 844×390 (from 21% to 2.3% of the screen) and from 371×85 to 227×44 at 390×844 ([evidence](preview-renders/arcade-sound-intro-box-2026-11-11/)).
+- **Checks run:** `npm run check` passes (lint, typecheck, **1,110/1,110 unit tests**, build). Spoiler, privacy and budget guards pass (initial **585/600 KB**), as do `npm run assets:check` and `git diff --check`. Local production Chromium: **106 passed, 1 skipped (opt-in), 0 failed** across smoke (including intro-panel bounds and the ident-gag clearance), entry screen, arcade touch polish, layout, entry, selection, audio, backgrounds, Easter egg, accessibility and Home Screen mode. iOS audio-session behaviour cannot be emulated in Chromium; the owner verifies on the iPhone.
+
 ## 2026-11-11 — Arcade: no down buttons, automatic Restart round, no long-press callout
 
 - **Owner (iPhone):** remove the down-arrow buttons that Scam Altman and Teflon Don showed; pop up a restart button when the round ends instead of going through the menu; stop the iOS Copy / Look Up / Translate / Search Web callout from appearing by accident.

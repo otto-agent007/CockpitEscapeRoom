@@ -1,6 +1,11 @@
+import { preferPlaybackAudioSession } from '../game/audioSession'
 import { loadMarsArcadeUnlock } from '../game/marsArcadeUnlock'
 import '../../dev/arcade-shell.css'
 import './player.css'
+
+// iPhone: the fight sounds are Web Audio, which the Ring/Silent switch mutes unless this
+// page asks to be treated as media playback. The arcade frame is its own document.
+preferPlaybackAudioSession()
 
 let started = false
 let handleEscape = close

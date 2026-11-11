@@ -354,18 +354,23 @@
   outline-offset: 4px;
 }
 
+/* A small box in the bottom-right corner rather than a full-width bar: the bar covered a
+   quarter of a landscape phone (owner, 2026-11-11: "the sound/audio box at the bottom of
+   the screen in the intro … should be smaller, especially in landscape"). */
 .game-intro .game-intro__controls {
   position: absolute;
   z-index: 5;
-  right: clamp(0.75rem, 2vw, 1.5rem);
-  bottom: clamp(0.75rem, 2vw, 1.5rem);
-  left: clamp(0.75rem, 2vw, 1.5rem);
-  display: grid;
-  grid-template-columns: minmax(10rem, 1fr) auto;
+  right: max(0.6rem, env(safe-area-inset-right, 0px));
+  bottom: max(0.6rem, env(safe-area-inset-bottom, 0px));
+  left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
-  gap: 0.65rem;
-  min-height: 3.5rem;
-  padding: 0.6rem 0.75rem;
+  gap: 0.45rem;
+  max-width: calc(100% - 1.2rem);
+  min-height: 0;
+  padding: 0.3rem 0.45rem;
   border: 1px solid rgba(117, 196, 255, 0.72);
   background: rgba(0, 0, 14, 0.9);
   box-shadow: 3px 3px 0 rgba(23, 97, 232, 0.55);
@@ -377,33 +382,39 @@
   visibility: hidden;
 }
 
-.game-intro .game-intro__sound-status,
-.game-intro .game-intro__visual-status {
+/* The live status stays for screen readers but no longer takes a line on screen. */
+.game-intro .game-intro__sound-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
   margin: 0;
-  color: #c8dbff;
-  font-size: 0.75rem;
-  line-height: 1.25;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .game-intro .game-intro__visual-status {
-  grid-column: 1 / -1;
+  flex-basis: 100%;
+  margin: 0;
   color: #fff0a8;
+  font-size: 0.7rem;
+  line-height: 1.25;
 }
 
 .game-intro .game-intro__audio-controls {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.45rem;
 }
 
 .game-intro .game-intro__control {
-  min-height: 2.4rem;
+  min-height: 2rem;
   border: 1px solid #75c4ff;
   border-radius: 0;
-  padding: 0.45rem 0.7rem;
+  padding: 0.3rem 0.55rem;
   background: #071a50;
   color: #fff;
-  font-size: 0.74rem;
+  font-size: 0.66rem;
   font-weight: 900;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -417,11 +428,11 @@
 
 .game-intro .game-intro__volume {
   display: grid;
-  grid-template-columns: auto minmax(5rem, 8vw);
+  grid-template-columns: auto 5.5rem;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.35rem;
   color: #f8fbff;
-  font-size: 0.7rem;
+  font-size: 0.62rem;
   font-weight: 900;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -460,20 +471,29 @@
 }
 
 @media (max-width: 520px) {
+  .game-intro .game-intro__volume {
+    grid-template-columns: auto 4.5rem;
+  }
+}
+
+/* Short landscape phones: just the Mute button and a short slider. */
+@media (orientation: landscape) and (max-height: 500px) {
   .game-intro .game-intro__controls {
-    right: 0.6rem;
-    bottom: 0.6rem;
-    left: 0.6rem;
-    grid-template-columns: 1fr;
+    right: max(0.4rem, env(safe-area-inset-right, 0px));
+    bottom: max(0.4rem, env(safe-area-inset-bottom, 0px));
+    padding: 0.25rem 0.35rem;
   }
 
-  .game-intro .game-intro__audio-controls {
-    display: grid;
-    grid-template-columns: auto 1fr;
+  .game-intro .game-intro__volume > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
 
   .game-intro .game-intro__volume {
-    grid-template-columns: auto 1fr;
+    grid-template-columns: 4.5rem;
   }
 }
 
