@@ -2009,6 +2009,24 @@ p {
   color: var(--text-soft);
 }
 
+/* On touch screens a long press must not select text or raise iOS's Copy / Look Up /
+   Translate / Search Web callout during play (owner, 2026-11-11). Typing fields stay
+   selectable so answers can still be edited. */
+@media (pointer: coarse) {
+  body {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  input,
+  textarea {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+  }
+}
+
 .home-screen-help-backdrop {
   position: fixed;
   z-index: 120;

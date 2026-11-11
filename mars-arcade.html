@@ -32,10 +32,9 @@
         <section class="stage-panel" aria-label="Arcade match">
           <h2 class="match-title" id="stage-title">THE CAPTAIN vs TECHNOKING</h2>
           <div class="match-actions"><button type="button" data-command="Space">Pause</button><button type="button" id="open-arcade-menu" aria-haspopup="dialog" aria-controls="arcade-menu">Menu</button></div>
-          <div class="viewport"><canvas id="stage" tabindex="0" aria-label="Mars fighting arena. Use the native controls below or A and D to move, W to jump, J for light, K for heavy, L for special."></canvas></div>
+          <div class="viewport"><canvas id="stage" tabindex="0" aria-label="Mars fighting arena. Use the native controls below or A and D to move, W to jump, J for light, K for heavy, L for special."></canvas><button type="button" class="btn-primary round-restart" id="round-restart" data-command="KeyR" hidden>Restart round</button></div>
           <fieldset class="touch-group touch-movement" aria-label="Player 1 movement"><legend>Move / jump</legend>
             <button type="button" data-combat="KeyA" aria-label="P1 left">←</button><button type="button" data-combat="KeyD" aria-label="P1 right">→</button><button type="button" data-combat="KeyW" aria-label="P1 jump">Jump</button>
-            <button type="button" data-combat="KeyS" data-pivot-down="0" aria-label="P1 down" hidden>↓</button>
           </fieldset>
           <fieldset class="touch-group touch-attacks" aria-label="Player 1 attacks"><legend>Attack</legend>
             <button type="button" data-combat="KeyJ" aria-label="P1 light">Light</button><button type="button" data-combat="KeyK" aria-label="P1 heavy">Heavy</button><button type="button" data-combat="KeyL" aria-label="P1 special">Special</button>
@@ -43,7 +42,6 @@
           <fieldset class="touch-player-two" id="player-two-controls" hidden><legend>Player 2</legend><div class="controls">
             <button type="button" data-combat="ArrowLeft">P2 left</button><button type="button" data-combat="ArrowRight">P2 right</button><button type="button" data-combat="ArrowUp">P2 jump</button>
             <button type="button" data-combat="Comma">P2 light</button><button type="button" data-combat="Period">P2 heavy</button><button type="button" data-combat="Slash">P2 special</button>
-            <button type="button" data-combat="ArrowDown" data-pivot-down="1" hidden>P2 down</button>
           </div></fieldset>
           <dialog class="match-menu" id="arcade-menu" aria-labelledby="arcade-menu-title">
           <header class="menu-header"><h2 id="arcade-menu-title">Arcade menu</h2><button type="button" data-menu-close>Close menu</button></header>

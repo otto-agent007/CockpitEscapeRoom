@@ -1,5 +1,11 @@
 # Test report
 
+## 2026-11-11 — Arcade: no down buttons, automatic Restart round, no long-press callout
+
+- **Owner (iPhone):** remove the down-arrow buttons that Scam Altman and Teflon Don showed; pop up a restart button when the round ends instead of going through the menu; stop the iOS Copy / Look Up / Translate / Search Web callout from appearing by accident.
+- **Changes:** removed the P1/P2 down buttons and their visibility logic. The motion moves they fed are also on the native Special buttons, per the in-game help, and S still works on a keyboard. A `#round-restart` button (reusing the R command) appears 0.9 s after a K.O. or time-up, stays hidden while paused or while the menu is open, focuses for keyboard use and hides on restart (`src/dev/arcadeRoundRestart.ts`). The arcade page and, on touch screens, the main game set `user-select: none` and `-webkit-touch-callout: none` (typing fields excepted), and the arcade blocks `contextmenu` (Android).
+- **Checks run:** `npm run check` passes (lint, typecheck, **1,107/1,107 unit tests**, build). Spoiler, privacy and budget guards pass (initial **584/600 KB**), as does `git diff --check`. Local production Chromium: **89/89** across the new `e2e/arcade-touch-polish.spec.ts` (no down button for either fighter; the restart pop-up on a fake-clock time-up, hidden behind the menu, restarting the round), arcade layout/entry/selection/audio/backgrounds/Easter egg, phone cockpit, accessibility, player copy, Home Screen mode and entry screen. A separate capture showed the pop-up after a CPU K.O. ([screenshot](preview-renders/arcade-touch-polish-2026-11-11/round-restart-844x390.png)). The iOS callout itself cannot be triggered in Chromium; the owner verifies on the iPhone.
+
 ## 2026-11-10 — iPhone film sound, Home Screen fullscreen, bigger landscape arcade
 
 - **Owner (iPhone):** the film "should start with music automatically" (the greeting already played aloud), "can we get the full screen to work on the mobile browser?" (chose Home Screen mode after an explanation), and the arcade fighter screen should be "a little bigger in landscape and fill the screen more".
