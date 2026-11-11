@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { gameCopy } from '../game/config'
+import { primedMediaElement } from '../game/mediaUnlock'
 import { rewardCopy } from '../game/rewardCopy'
 import { createFilmLandscapeController, type FilmOrientation, type NativeFullscreenVideo } from './filmLandscape'
 import { SecretArcadeEntry } from './SecretArcadeEntry'
@@ -25,6 +26,7 @@ export function RewardExperience({
   onOpenArcade,
 }: RewardExperienceProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const videoSlotRef = useRef<HTMLDivElement>(null)
   const cinemaRef = useRef<HTMLDivElement>(null)
   const landscapeRef = useRef<ReturnType<typeof createFilmLandscapeController> | null>(null)
   const playbackGeneration = useRef(0)
@@ -59,6 +61,32 @@ export function RewardExperience({
     setLandscapePending(false)
     setRotateGuidance(result === 'rotate' || result === 'native')
   }, [])
+
+  // Adopt the film element the player's earlier taps blessed for sound, so an iPhone
+  // plays the music when the film starts on its own (see mediaUnlock).
+  useLayoutEffect(() => {
+    const slot = videoSlotRef.current
+    if (!slot) return
+    const video = primedMediaElement<HTMLVideoElement>('rewardFilm')
+    video.className = 'reward-film-video'
+    video.controls = true
+    video.preload = 'auto'
+    video.setAttribute('aria-label', 'Model FLY film')
+    slot.appendChild(video)
+    videoRef.current = video
+    return () => {
+      video.pause()
+      video.remove()
+      videoRef.current = null
+    }
+  }, [])
+
+  useLayoutEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    video.autoplay = stage === 'film'
+    video.hidden = stage === 'complete'
+  }, [stage])
 
   useEffect(() => {
     if (videoRef.current) videoRef.current.src = filmUrl
@@ -117,6 +145,27 @@ export function RewardExperience({
     setStage('complete')
   }, [releaseLandscape])
 
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    const onPlay = () => setManualPlayNeeded(false)
+    const onVolumeChange = () => setFilmMuted(video.muted)
+    const onError = () => setLoadFailed(true)
+    const onLoadedMetadata = () => setLoadFailed(false)
+    video.addEventListener('play', onPlay)
+    video.addEventListener('volumechange', onVolumeChange)
+    video.addEventListener('ended', finishFilm)
+    video.addEventListener('error', onError)
+    video.addEventListener('loadedmetadata', onLoadedMetadata)
+    return () => {
+      video.removeEventListener('play', onPlay)
+      video.removeEventListener('volumechange', onVolumeChange)
+      video.removeEventListener('ended', finishFilm)
+      video.removeEventListener('error', onError)
+      video.removeEventListener('loadedmetadata', onLoadedMetadata)
+    }
+  }, [finishFilm])
+
   const playFilm = useCallback(() => {
     const video = videoRef.current
     if (!video) return
@@ -150,21 +199,8 @@ export function RewardExperience({
           {stage === 'film' && <p>Model FLY is here. Watch the full journey.</p>}
         </header>
 
-        <video
-          ref={videoRef}
-          className="reward-film-video"
-          controls
-          autoPlay={stage === 'film'}
-          playsInline
-          preload="auto"
-          hidden={stage === 'complete'}
-          aria-label="Model FLY film"
-          onPlay={() => setManualPlayNeeded(false)}
-          onVolumeChange={(event) => setFilmMuted(event.currentTarget.muted)}
-          onEnded={finishFilm}
-          onError={() => setLoadFailed(true)}
-          onLoadedMetadata={() => setLoadFailed(false)}
-        />
+        {/* The film element itself is adopted into this slot (see the layout effect above). */}
+        <div ref={videoSlotRef} className="reward-film-video-slot" />
 
         {stage === 'film' ? (
           <>

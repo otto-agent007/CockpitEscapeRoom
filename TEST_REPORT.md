@@ -1,5 +1,13 @@
 # Test report
 
+## 2026-11-10 — iPhone film sound, Home Screen fullscreen, bigger landscape arcade
+
+- **Owner (iPhone):** the film "should start with music automatically" (the greeting already played aloud), "can we get the full screen to work on the mobile browser?" (chose Home Screen mode after an explanation), and the arcade fighter screen should be "a little bigger in landscape and fill the screen more".
+- **Film:** a shared film element is blessed for sound on taps in the Airbus and reward chapters (`src/game/mediaUnlock.ts`), and the film adopts it. The muted fallback and sound button remain.
+- **Fullscreen:** a web app manifest plus Apple meta tags enable Home Screen mode. On iPhone, ⛶ opens a how-to; it is hidden in Home Screen mode. Desktop and Android keep real fullscreen; iPad gets the webkit fallback (`src/game/pageFullscreen.ts`).
+- **Arcade:** in landscape, Pause and Menu moved into the side columns. The arena grows 466×326 from 391×274 at 844×340, and 537×376 from 463×324 at 844×390 ([evidence](preview-renders/iphone-film-fullscreen-arcade-2026-11-10/FIDELITY.md)).
+- **Checks run:** `npm run check` passes (lint, typecheck, **1,104/1,104 unit tests in 101 files**, build). Spoiler, privacy and budget guards pass (initial **584/600 KB**; the manifest was scanned with no protected terms), as do `npm run assets:check` and `git diff --check`. Local production Chromium: **80/80** across arcade layout/entry/selection/Easter egg, Home Screen mode (3 new), film autoplay, reward, landscape film, viewer controls and entry screen. An earlier film/reward/Roboptimus/Engine-Out run passed 42/42. iOS sound permission and Home Screen launch cannot be emulated; the owner verifies on the iPhone.
+
 ## 2026-11-10 — Engine-Out: bank right, then bank right and thrust
 
 - **Owner (iPhone):** the instrument scan and key are good. Engine-Out should be "banking right for the first part and the banking right and thrust for the 2nd part". The design was confirmed by preview before building.

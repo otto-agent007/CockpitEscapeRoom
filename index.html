@@ -7,6 +7,14 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-arcade-32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-arcade-16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-arcade.png" />
+    <!-- Home Screen mode: opened from a Home Screen icon the game runs with no browser bars,
+         the closest an iPhone allows a web page to fullscreen. "black" keeps the status bar
+         opaque, so nothing slides under the clock. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Captain's Key" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <link rel="preload" href="/fonts/bungee-entry.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/barlow-medium-latin.woff2" as="font" type="font/woff2" crossorigin />
     <meta

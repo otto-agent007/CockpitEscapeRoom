@@ -1,0 +1,19 @@
+{
+  "name": "The Captain's Key",
+  "short_name": "Captain's Key",
+  "description": "A personalized cockpit escape-room game.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#0c0d28",
+  "theme_color": "#0c0d28",
+  "icons": [
+    {
+      "src": "/apple-touch-icon-arcade.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
