@@ -73,12 +73,19 @@
   #arcade-game .touch-group button { font-size: 11px; }
 }
 @media (orientation: landscape) {
+  /* Pause and Menu sit at the top of the side columns rather than in a row of their own,
+     so the arena spans the full height of a short landscape phone (owner, 2026-11-10:
+     "a little bigger in landscape and fill the screen more"). */
   .arcade-match .stage-panel {
     align-content: stretch;
     grid-template-columns: clamp(102px, 12vw, 160px) minmax(0, 1fr) clamp(90px, 11vw, 144px);
     grid-template-rows: auto minmax(0, 1fr);
-    grid-template-areas: 'utility utility utility' 'movement arena attacks';
+    grid-template-areas: 'pause arena menu' 'movement arena attacks';
   }
+  .arcade-match .match-actions { display: contents; }
+  .arcade-match .match-actions [data-command="Space"] { grid-area: pause; }
+  .arcade-match .match-actions #open-arcade-menu { grid-area: menu; }
+  #arcade-game .match-actions button { min-width: 0; width: 100%; align-self: start; }
   .arcade-match .viewport { aspect-ratio: auto; }
   .arcade-match .touch-movement { grid-template-columns: repeat(2, minmax(48px, 1fr)); }
   .touch-movement [data-combat="KeyW"] { grid-column: 1 / -1; grid-row: 1; }
@@ -115,6 +122,6 @@
 @media (orientation: landscape) {
   .arcade-match .stage-panel:has(#player-two-controls:not([hidden])) {
     grid-template-rows: auto minmax(0, 1fr) auto;
-    grid-template-areas: 'utility utility utility' 'movement arena attacks' 'player-two player-two player-two';
+    grid-template-areas: 'pause arena menu' 'movement arena attacks' 'player-two player-two player-two';
   }
 }
