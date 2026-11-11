@@ -1,3 +1,8 @@
+/* The adopted film element sits in this slot; it must lay out as if it were the video itself. */
+.reward-film-video-slot {
+  display: contents;
+}
+
 /* Reserve real space for film actions, including in short landscape viewports. */
 .reward-experience--film .reward-cinema {
   display: grid;

@@ -21,6 +21,9 @@ import {
 import { isLockerMemoryAvailable, PUZZLE_IDS, type CockpitOrientationId } from './game/state'
 import { deriveCockpitOrientationDecision } from './game/cockpitOrientationState'
 import { clearGameState } from './game/storage'
+import { blessMediaForSound } from './game/mediaUnlock'
+import { inPageFullscreen, pageFullscreenAvailable, requestPageFullscreen, runningFromHomeScreen, togglePageFullscreen } from './game/pageFullscreen'
+import { HomeScreenHelp } from './components/HomeScreenHelp'
 import { useAirbusSimulator } from './game/useAirbusSimulator'
 import { useGame } from './game/useGame'
 import { loadMarsArcadeUnlock, saveMarsArcadeUnlock } from './game/marsArcadeUnlock'
@@ -231,6 +234,10 @@ function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset, onOpe
   const skipPrototypeScene = shouldSkipPrototypeScene()
   const shellRef = useRef<HTMLElement>(null)
   const helpTriggerRef = useRef<HTMLButtonElement>(null)
+  const fullscreenButtonRef = useRef<HTMLButtonElement>(null)
+  // Opened from a Home Screen icon there are no browser bars left to hide.
+  const [openedFromHomeScreen] = useState(() => runningFromHomeScreen(window))
+  const [homeScreenHelpOpen, setHomeScreenHelpOpen] = useState(false)
   const loaderStartedAtRef = useRef(0)
   const dc9LoaderStartedAtRef = useRef(0)
   const [airbusLoadState, setAirbusLoadState] = useState<AirbusLoadState>({ status: 'loading', loadedBytes: 0 })
@@ -693,13 +700,9 @@ function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset, onOpe
   }, [beginAirbusLoading, dispatch])
 
   const requestRewardFullscreen = useCallback(() => {
-    if (!document.fullscreenElement) {
-      // Request browser fullscreen while the player's reward click still has activation.
-      try {
-        const request = shellRef.current?.requestFullscreen?.()
-        void request?.catch(() => { /* The viewport-sized cinema still works if denied. */ })
-      } catch { /* A synchronous fullscreen failure must not block the reward. */ }
-    }
+    // Request fullscreen while the player's reward click still has activation. It never
+    // throws; an iPhone browser simply stays as it is and the viewport-sized cinema works.
+    if (!inPageFullscreen(document)) void requestPageFullscreen(shellRef.current, document)
   }, [])
 
   const continueToReward = useCallback(() => {
@@ -849,10 +852,37 @@ function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset, onOpe
     requestAnimationFrame(() => helpTriggerRef.current?.focus())
   }, [setHelpOpen])
 
+  // The reward film starts on its own about 20 s after the player's last Engine-Out tap,
+  // too late for an iPhone to count that tap, so it was muted. The player's taps in the
+  // Airbus and reward chapters bless the film element for sound (see mediaUnlock).
+  // touchend, not touchstart: iOS grants media permission on the end of a touch.
+  useEffect(() => {
+    if (state.phase !== 'airbus' && state.phase !== 'reward') return
+    const bless = () => blessMediaForSound()
+    window.addEventListener('touchend', bless, { capture: true, passive: true })
+    window.addEventListener('click', bless, { capture: true })
+    window.addEventListener('keydown', bless, { capture: true })
+    return () => {
+      window.removeEventListener('touchend', bless, { capture: true })
+      window.removeEventListener('click', bless, { capture: true })
+      window.removeEventListener('keydown', bless, { capture: true })
+    }
+  }, [state.phase])
+
   const toggleFullscreen = useCallback(async () => {
-    if (document.fullscreenElement) await document.exitFullscreen()
-    else await shellRef.current?.requestFullscreen()
-  }, [])
+    // iPhone browsers cannot put a web page fullscreen; explain the Home Screen route instead
+    // of silently doing nothing.
+    if (!inPageFullscreen(document) && !pageFullscreenAvailable(shellRef.current, document)) {
+      setHomeScreenHelpOpen(true)
+      return
+    }
+    await togglePageFullscreen(shellRef.current, document)
+  }, [setHomeScreenHelpOpen])
+
+  const closeHomeScreenHelp = useCallback(() => {
+    setHomeScreenHelpOpen(false)
+    requestAnimationFrame(() => fullscreenButtonRef.current?.focus())
+  }, [setHomeScreenHelpOpen])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -1047,9 +1077,12 @@ function GameApp({ game, onJourneyComplete, resumeTribute, onTributeReset, onOpe
             <button type="button" className="scene-tool-button" aria-label="Replay locker intro" onClick={beginLockerIntro}>↻</button>
           )}
           <button ref={helpTriggerRef} type="button" className="scene-tool-button" aria-label="Open viewer help" aria-expanded={helpOpen} onClick={() => setHelpOpen((open) => !open)}>?</button>
-          <button type="button" className="scene-tool-button" aria-label="Toggle fullscreen" onClick={() => void toggleFullscreen()}>⛶</button>
+          {!openedFromHomeScreen && (
+            <button ref={fullscreenButtonRef} type="button" className="scene-tool-button" aria-label="Toggle fullscreen" onClick={() => void toggleFullscreen()}>⛶</button>
+          )}
         </div>
       )}
+      {homeScreenHelpOpen && <HomeScreenHelp onClose={closeHomeScreenHelp} />}
       {!lockerIntroActive && !captainHatCelebrationActive && !lockerHatFinaleActive && helpOpen && <button type="button" className="scene-help-dismiss" onClick={closeHelp} aria-label="Dismiss viewer help" tabIndex={-1} />}
       {!lockerIntroActive && !captainHatCelebrationActive && !lockerHatFinaleActive && <SceneHelp phase={state.phase} open={helpOpen} onClose={closeHelp} />}
       {captainHatCelebrationActive && (
