@@ -109,10 +109,13 @@ export function LockerHud({ state, dispatch, selectedMemory, onSelectedMemoryCha
           <p>{selectedMemoryConfig.story}</p>
           {isQuestion(selectedMemory) && !completed.has(selectedMemory) ? (
             selectedMemoryConfig.answerMode === 'choice' ? (
-              <fieldset className="locker-choice-fieldset">
-                <legend className="locker-question-block">
+              // The question is a plain paragraph that names the group, not a
+              // <legend>: iPad Safari sized the legend shrink-to-fit and left the
+              // bold question one word wide until a rotation forced a relayout.
+              <fieldset className="locker-choice-fieldset" aria-labelledby="locker-question">
+                <p id="locker-question" className="locker-question-block">
                   <strong>{selectedMemoryConfig.question}</strong>
-                </legend>
+                </p>
                 <div className="locker-choice-grid">
                   {selectedMemoryConfig.choices.map((choice) => (
                     <button
@@ -128,8 +131,8 @@ export function LockerHud({ state, dispatch, selectedMemory, onSelectedMemoryCha
               </fieldset>
             ) : (
               <form className="locker-answer-form" onSubmit={submitTextAnswer}>
-                <fieldset className="locker-choice-fieldset">
-                  <legend className="locker-question-block"><strong>{selectedMemoryConfig.question}</strong></legend>
+                <fieldset className="locker-choice-fieldset" aria-labelledby="locker-question">
+                  <p id="locker-question" className="locker-question-block"><strong>{selectedMemoryConfig.question}</strong></p>
                   <label htmlFor="locker-text-answer">{selectedMemoryConfig.inputLabel}</label>
                   <input
                     id="locker-text-answer"

@@ -3968,15 +3968,12 @@ progress {
   padding: 0;
 }
 
-.locker-choice-fieldset legend {
+.locker-story-card .locker-question-block {
+  /* Flush against the first row, as the <legend> it replaced was: as a grid
+     item it would otherwise take the fieldset's 0.9rem gap. */
+  margin: 0 0 -0.9rem;
   color: #f3ead9;
   line-height: 1.5;
-}
-
-.locker-question-block {
-  display: block;
-  width: 100%;
-  padding: 0;
 }
 
 .locker-question-block strong {
